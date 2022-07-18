@@ -231,5 +231,124 @@ describe('RegisterBillingReceiptsService', () => {
             expect(billingReceipts).toHaveLength(3)
             expect(data).toHaveLength(3)
         })
+
+        test('BillingProperties are handled correctly', async () => {
+            /**
+             * Existing properties = {p1, p3}
+             * Properties from args = {p1, p2}
+             * Result: {p1, p2, p3}
+             */
+
+            const EXISTING_TEST_ADDRESS_P1 = 'TEST'
+            const EXISTING_TEST_ADDRESS_P2 = 'TEST_P2'
+
+            const EXISTING_TEST_UNIT_NAME = '0'
+            const EXISTING_TEST_ACCOUNT_NUMBER = '0'
+
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const [billingProperty] = await createTestBillingProperty(admin, billingContext, {
+                address: EXISTING_TEST_ADDRESS,
+            })
+
+            const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty, {
+                unitName: EXISTING_TEST_UNIT_NAME,
+                unitType: FLAT_UNIT_TYPE,
+                number: EXISTING_TEST_ACCOUNT_NUMBER,
+            })
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    {
+                        importId: faker.random.alphaNumeric(24),
+
+                        address: EXISTING_TEST_ADDRESS,
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: EXISTING_TEST_ACCOUNT_NUMBER,
+                        unitName: EXISTING_TEST_UNIT_NAME,
+
+                        toPay: '200.20',
+                        period: '2022-05-01',
+
+                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
+
+                        tin: faker.random.alphaNumeric(8),
+                        iec: faker.random.alphaNumeric(8),
+                        bic: faker.random.alphaNumeric(8),
+                        bankAccount: faker.random.alphaNumeric(8),
+                    },
+                    {
+                        importId: faker.random.alphaNumeric(24),
+
+                        address: EXISTING_TEST_ADDRESS,
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: faker.random.alphaNumeric(8),
+                        unitName: faker.random.alphaNumeric(8),
+
+                        toPay: '200.20',
+                        period: '2022-05-01',
+
+                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
+
+                        tin: faker.random.alphaNumeric(8),
+                        iec: faker.random.alphaNumeric(8),
+                        bic: faker.random.alphaNumeric(8),
+                        bankAccount: faker.random.alphaNumeric(8),
+                    },
+                    {
+                        importId: faker.random.alphaNumeric(24),
+
+                        address: faker.random.alphaNumeric(12),
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: faker.random.alphaNumeric(8),
+                        unitName: faker.random.alphaNumeric(8),
+
+                        toPay: '200.20',
+                        period: '2022-05-01',
+
+                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
+
+                        tin: faker.random.alphaNumeric(8),
+                        iec: faker.random.alphaNumeric(8),
+                        bic: faker.random.alphaNumeric(8),
+                        bankAccount: faker.random.alphaNumeric(8),
+                    },
+                ],
+            }
+
+            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+            expect(billingProperties).toHaveLength(2)
+            expect(billingAccounts).toHaveLength(3)
+            expect(billingReceipts).toHaveLength(3)
+            expect(data).toHaveLength(3)
+        })
+    })
+
+    describe('Validations', () => {
+        test.skip('Mutation checks wrong context-id', async () => {
+
+        })
+
+        test.skip('Mutation checks wrong category-id', async () => {
+
+        })
+
+        test.skip('Mutation checks wrong period format', async () => {
+
+        })
+
+        test.skip('Mutation checks wrong address', async () => {
+
+        })
     })
 })
