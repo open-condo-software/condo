@@ -9,7 +9,7 @@ const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/doma
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
 const { find, getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -31,6 +31,30 @@ const errors = {
         type: NOT_FOUND,
         message: 'Provided BillingIntegrationOrganizationContext is not found',
         messageForUser: 'api.user.registerBillingReceipts.BILLING_CONTEXT_NOT_FOUND', // TODO(codegen): localized message for user, use translation files
+    },
+    BILLING_CATEGORY_NOT_FOUND: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'category'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Provided BillingCategory is not found for some receipts',
+        messageForUser: 'api.user.registerBillingReceipts.BILLING_CATEGORY_NOT_FOUND', // TODO(codegen): localized message for user, use translation files
+    },
+    PERIOD_WRONG_FORMAT: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'period'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'field Period is in wrong format for some receipts',
+        messageForUser: 'api.user.registerBillingReceipts.PERIOD_WRONG_FORMAT',
+    },
+    ADDRESS_WRONG_VALUE: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'address'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'field Address has wrong value for some receipts',
+        messageForUser: 'api.user.registerBillingReceipts.ADDRESS_WRONG_VALUE',
     },
 }
 
