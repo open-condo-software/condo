@@ -60,7 +60,7 @@ const SettingsPage = (): JSX.Element => {
                 content: <ContactRolesSettingsContent/>,
             },
         ].filter(Boolean),
-        [HintTitle, SubscriptionTitle, hasSubscriptionFeature],
+        [HintTitle, SubscriptionTitle, hasSubscriptionFeature, RolesTitle, canManageContacts],
     )
 
     const titleContent = useMemo(() => (
