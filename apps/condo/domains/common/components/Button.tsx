@@ -296,7 +296,7 @@ export const ButtonGradientBorderWrapper: React.FC<ButtonGradientBorderWrapperPr
     const wrapperStyle = ButtonGradientBorderWrapperCss(secondary, disabled)
     return (
         <div css={wrapperStyle}>
-            <div style={{ 
+            <div style={{
                 'background':`${colors.white}`, 
                 'borderRadius':'8.5px' }}>
                 {children}
@@ -360,5 +360,5 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
         buttonStyles = secondary ? buttonSecondaryCss(colors[type]) : buttonCss(colors[type])
     }
 
-    return <DefaultButton css={buttonStyles} {...restProps} onClick={onClickCallback}/>
+    return <ButtonGradientBorderWrapper><DefaultButton css={buttonStyles} {...restProps} onClick={onClickCallback}/></ButtonGradientBorderWrapper>
 }

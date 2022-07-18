@@ -9,7 +9,7 @@ import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 import { useIntl } from '@core/next/intl'
 import { File } from '@app/condo/schema'
 
-import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
 
 type DBFile = {
@@ -265,15 +265,13 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
             <Upload { ...options }>
                 {
                     UploadButton || (
-                        <ButtonGradientBorderWrapper secondary>
-                            <Button
-                                type={'sberDefaultGradient'}
-                                secondary
-                                icon={<EditFilled />}
-                            >
-                                {AddFileLabel}
-                            </Button>
-                        </ButtonGradientBorderWrapper>
+                        <Button
+                            type={'sberDefaultGradient'}
+                            secondary
+                            icon={<EditFilled />}
+                        >
+                            {AddFileLabel}
+                        </Button>
                     )
                 }
             </Upload>

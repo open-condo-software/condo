@@ -3,7 +3,7 @@ import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
 import React from 'react'
 import { useIntl } from '@core/next/intl'
-import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
@@ -60,16 +60,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
             {
                 minified
                     ? (
-                        <ButtonGradientBorderWrapper>
-                            <Button type={'sberGradient'} icon={<PlusOutlined />}/>
-                        </ButtonGradientBorderWrapper>)
+                        <Button type={'sberGradient'} icon={<PlusOutlined />}/>
+                    )
                     : (
                         <div>
-                            <ButtonGradientBorderWrapper>
-                                <Button type={'sberGradient'} icon={<PlusOutlined />}>
-                                    {ResidentAppealMessage}
-                                </Button>
-                            </ButtonGradientBorderWrapper>
+                            <Button type={'sberGradient'} icon={<PlusOutlined />}>
+                                {ResidentAppealMessage}
+                            </Button>
                         </div>
                     )
             }

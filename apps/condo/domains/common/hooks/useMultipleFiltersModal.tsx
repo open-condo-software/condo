@@ -496,12 +496,12 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             {SaveTemplateMessage}
         </Button>,
         <Button
+            type={'sberDefaultGradient'}
+            secondary
             key={'submit'}
             onClick={handleSubmitButtonClick}
             eventName={'ModalFilterSubmitClick'}
-            type={'sberPrimary'}
-            data-cy={'common__filters-button-submit'}
-        >
+            data-cy={'common__filters-button-submit'}>
             {ApplyMessage}
         </Button>,
     ], [

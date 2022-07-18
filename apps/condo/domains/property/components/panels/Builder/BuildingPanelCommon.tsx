@@ -8,7 +8,7 @@ import { jsx, css } from '@emotion/react'
 import styled from '@emotion/styled'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
-import { Button, ButtonGradientBorderWrapper } from '@condo/domains/common/components/Button'
+import { Button } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { BuildingUnitSubType } from '@app/condo/schema'
@@ -109,14 +109,12 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
                 )}
             </Typography.Text>
             {mode === 'view' && (
-                <ButtonGradientBorderWrapper secondary>
-                    <Button
-                        type={'sberDefaultGradient'}
-                        style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
-                        secondary
-                        onClick={createMapCallback}
-                    >{MapCreateTitle}</Button>
-                </ButtonGradientBorderWrapper>
+                <Button
+                    type={'sberDefaultGradient'}
+                    style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
+                    secondary
+                    onClick={createMapCallback}
+                >{MapCreateTitle}</Button>
             )}
         </BasicEmptyListView>
     )
@@ -182,20 +180,18 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
         >
             <Col>
                 {mode === 'view' ? (
-                    <ButtonGradientBorderWrapper secondary>
-                        <Button
-                            style={FULLSCREEN_BUTTON_STYLE}
-                            type={'sberDefaultGradient'}
-                            secondary
-                            icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                            size={'large'}
-                            onClick={toggleFullscreen}
-                        >
-                            {isFullscreen
-                                ? ExitFullscreenMessage
-                                : RequestFullscreenMessage}
-                        </Button>
-                    </ButtonGradientBorderWrapper>
+                    <Button
+                        style={FULLSCREEN_BUTTON_STYLE}
+                        type={'sberDefaultGradient'}
+                        secondary
+                        icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
+                        size={'large'}
+                        onClick={toggleFullscreen}
+                    >
+                        {isFullscreen
+                            ? ExitFullscreenMessage
+                            : RequestFullscreenMessage}
+                    </Button>
                 ) : children}
             </Col>
         </Row>
