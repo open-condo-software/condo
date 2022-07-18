@@ -64,11 +64,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                             <Button type={'sberGradient'} icon={<PlusOutlined />}/>
                         </ButtonGradientBorderWrapper>)
                     : (
-                        <ButtonGradientBorderWrapper>
-                            <Button type={'sberGradient'} icon={<PlusOutlined />}>
-                                {ResidentAppealMessage}
-                            </Button>
-                        </ButtonGradientBorderWrapper>
+                        <div>
+                            <ButtonGradientBorderWrapper>
+                                <Button type={'sberGradient'} icon={<PlusOutlined />}>
+                                    {ResidentAppealMessage}
+                                </Button>
+                            </ButtonGradientBorderWrapper>
+                        </div>
                     )
             }
         </Dropdown>

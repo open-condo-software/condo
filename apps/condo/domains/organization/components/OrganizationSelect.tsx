@@ -16,6 +16,13 @@ const blackSelectCss = css`
   width: 200px;
   font-size: 16px;
   font-weight: 600;
+  &:hover {
+    & .ant-select-arrow {
+        svg {
+            fill: ${colors.white};
+        }
+    }
+  }
 
   &.ant-select .ant-select-selector {
     background: ${colors.white};
@@ -32,6 +39,9 @@ const blackSelectCss = css`
   
   & .ant-select-arrow {
     color: ${colors.black};
+    svg {
+        fill: ${colors.black};
+    }
   }
 
   &.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
