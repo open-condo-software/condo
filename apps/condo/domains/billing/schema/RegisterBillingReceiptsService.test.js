@@ -367,8 +367,41 @@ describe('RegisterBillingReceiptsService', () => {
             })
         })
 
-        test.skip('Mutation checks wrong category-id', async () => {
+        test('Mutation checks wrong category-id', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    {
+                        importId: faker.random.alphaNumeric(24),
+
+                        address: faker.random.alphaNumeric(12),
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: faker.random.alphaNumeric(8),
+                        unitName: faker.random.alphaNumeric(8),
+
+                        toPay: '200.20',
+                        period: '2022-05-01',
+
+                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c630' }, // Wrong category id
+
+                        tin: faker.random.alphaNumeric(8),
+                        iec: faker.random.alphaNumeric(8),
+                        bic: faker.random.alphaNumeric(8),
+                        bankAccount: faker.random.alphaNumeric(8),
+                    },
+                ],
+            }
+
+            await catchErrorFrom(async () => {
+                await registerBillingReceiptsByTestClient(admin, payload)
+            }, (e) => {
+                expect(e.errors[0].message).toContain('???')
+            })
         })
 
         test.skip('Mutation checks wrong period format', async () => {
