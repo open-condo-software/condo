@@ -9,7 +9,6 @@ import { useMemo } from 'react'
 
 export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
     const intl = useIntl()
-    const idMessage = intl.formatMessage({ id: 'ContactRoles.id' })
     const nameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
 
     const router = useRouter()
@@ -17,12 +16,6 @@ export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T
 
     return useMemo(() => {
         return [
-            {
-                title: idMessage,
-                ellipsis: true,
-                dataIndex: 'id',
-                key: 'id',
-            },
             {
                 title: nameMessage,
                 filteredValue: getFilteredValue<IFilters>(filters, 'name'),
@@ -34,5 +27,5 @@ export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T
                 ellipsis: true,
             },
         ]
-    }, [idMessage, nameMessage, filters, filterMetas])
+    }, [nameMessage, filters, filterMetas])
 }

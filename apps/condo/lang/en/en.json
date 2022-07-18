@@ -195,7 +195,6 @@
   "ContactRoles": "Residents roles",
   "ContactRoles.add": "Add role",
   "ContactRoles.newRole": "New role",
-  "ContactRoles.id": "ID",
   "ContactRoles.name": "Name",
   "ContactRoles.confirmDeleteTitle": "Delete role",
   "ContactRoles.confirmDeleteMessage": "Are you sure you wanna delete this role?",
