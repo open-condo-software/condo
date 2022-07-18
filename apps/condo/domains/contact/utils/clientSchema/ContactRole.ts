@@ -10,6 +10,15 @@ import {
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { ContactRole as ContactRoleGQL } from '@condo/domains/contact/gql'
 
+const convertGQLItemToFormSelectState = (item: ContactRole) => {
+    if (!item) {
+        return
+    }
+    const { name, id } = item
+
+    return { value: id, label: name }
+}
+
 const {
     useObject,
     useObjects,
@@ -24,4 +33,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    convertGQLItemToFormSelectState,
 }
