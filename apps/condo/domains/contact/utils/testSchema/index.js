@@ -10,6 +10,7 @@ const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Contact = generateGQLTestUtils(ContactGQL)
@@ -26,6 +27,7 @@ async function createTestContact (client, organization, property, extraAttrs = {
         organization: { connect: { id: organization.id } },
         property: { connect: { id: property.id } },
         unitName: faker.random.alphaNumeric(3),
+        unitType: FLAT_UNIT_TYPE,
         name: faker.name.firstName(),
         email: createTestEmail(),
         phone: createTestPhone(),

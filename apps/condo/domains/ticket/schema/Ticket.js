@@ -39,7 +39,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
-    calculateTicketOrder, calculateReopenedCounter, getOrCreateContact,
+    calculateTicketOrder, calculateReopenedCounter, getOrCreateContactByClientData,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
@@ -50,6 +50,7 @@ const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, 
 const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
 const { UNIT_TYPES, FLAT_UNIT_TYPE, SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { isUndefined } = require('lodash')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -235,6 +236,11 @@ const Ticket = new GQLListSchema('Ticket', {
             defaultValue: false,
             isRequired: true,
         },
+        isResidentTicket: {
+            schemaDoc: 'Determines who the ticket was created for: for a resident or not for a resident',
+            type: Checkbox,
+            defaultValue: false,
+        },
         canReadByResident: {
             schemaDoc: 'Determines if a resident in the mobile app can see the ticket created in crm',
             type: Checkbox,
@@ -351,7 +357,8 @@ const Ticket = new GQLListSchema('Ticket', {
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
             const resolvedStatusId = get(resolvedData, 'status')
-            const client = get(resolvedData, 'client', null)
+            const resolvedClient = get(resolvedData, 'client', null)
+            const resolvedContact = get(resolvedData, 'contact', null)
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
@@ -362,7 +369,7 @@ const Ticket = new GQLListSchema('Ticket', {
             // if client is not passed in resolvedData,
             // we find a registered user with a phone number that matches the contact's phone number
             // and an address that matches the ticket address.
-            if (userType !== RESIDENT && isNull(client)) {
+            if (userType !== RESIDENT && isNull(resolvedClient)) {
                 const contactId = get(resolvedData, 'contact', null)
                 const propertyId = get(resolvedData, 'property', null)
                 const unitName = get(resolvedData, 'unitName', null)
@@ -374,10 +381,23 @@ const Ticket = new GQLListSchema('Ticket', {
 
             if (userType === RESIDENT && operation === 'create') {
                 overrideTicketFieldsForResidentUserType(context, resolvedData)
-                const contact = await getOrCreateContact(context, resolvedData)
-                resolvedData.contact = contact.id
                 await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
                 setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
+            }
+
+            if (!resolvedContact) {
+                const resolvedIsResidentTicket = get(resolvedData, 'isResidentTicket')
+                const existedIsResidentTicket = get(existingItem, 'isResidentTicket')
+                const isResidentTicket = isUndefined(resolvedIsResidentTicket) ? existedIsResidentTicket : resolvedIsResidentTicket
+                if (!resolvedContact && isResidentTicket) {
+                    const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
+                    resolvedData.contact = contact.id
+                }
+                if (existedIsResidentTicket && resolvedIsResidentTicket === false) {
+                    resolvedData.contact = null
+                }
+            } else {
+                resolvedData.isResidentTicket = true
             }
 
             const newItem = { ...existingItem, ...resolvedData }
