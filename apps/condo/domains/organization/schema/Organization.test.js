@@ -17,7 +17,7 @@ const {
     INVALID_RU_TIN_10,
     INVALID_RU_TIN_12,
     SOME_RANDOM_LETTERS,
-} = require('@condo/domains/organization/utils/tin.utils.spec')
+} = require('@condo/domains/acquiring/utils/validate/tin.utils.spec')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')

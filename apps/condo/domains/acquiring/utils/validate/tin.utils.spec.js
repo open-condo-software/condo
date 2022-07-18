@@ -1,6 +1,6 @@
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
+const { isValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 
 const SPACES = SPACE_SYMBOLS.split('')
 const VALID_RU_TIN_10 = '1654019570'

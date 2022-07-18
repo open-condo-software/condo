@@ -11,7 +11,7 @@ const { Json } = require('@condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
+const { isValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 const access = require('@condo/domains/organization/access/Organization')
