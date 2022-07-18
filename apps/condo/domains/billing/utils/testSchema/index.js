@@ -683,6 +683,30 @@ async function registerBillingReceiptsByTestClient(client, args) {
     return [data.result, attrs]
 }
 
+function createRegisterBillingReceiptsPayload(extraAttrs) {
+    return {
+        importId: faker.random.alphaNumeric(24),
+
+        address: faker.random.alphaNumeric(24),
+
+        unitType: FLAT_UNIT_TYPE,
+        accountNumber: faker.random.alphaNumeric(10),
+        unitName: faker.random.alphaNumeric(14),
+
+        toPay: '100.00',
+        period: '2022-03-01',
+
+        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
+
+        tin: faker.random.alphaNumeric(8),
+        iec: faker.random.alphaNumeric(8),
+        bic: faker.random.alphaNumeric(8),
+        bankAccount: faker.random.alphaNumeric(8),
+
+        ...extraAttrs
+    }
+}
+
 /**
  * Simplifies creating series of instances
  */
@@ -868,6 +892,7 @@ module.exports = {
     makeResidentClientWithOwnReceipt,
     makeServiceUserForIntegration,
     registerBillingReceiptsByTestClient,
+    createRegisterBillingReceiptsPayload,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

@@ -6,7 +6,7 @@ import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
 const faker = require('faker')
 
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 
@@ -33,6 +33,7 @@ const {
     updateTestBillingReceipt,
     updateTestBillingReceipts,
     updateTestBillingIntegrationAccessRight,
+    createRegisterBillingReceiptsPayload,
 } = require('@condo/domains/billing/utils/testSchema')
 
 const {
@@ -159,63 +160,17 @@ describe('RegisterBillingReceiptsService', () => {
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    createRegisterBillingReceiptsPayload({
                         address: EXISTING_TEST_ADDRESS,
 
                         unitType: FLAT_UNIT_TYPE,
                         accountNumber: EXISTING_TEST_ACCOUNT_NUMBER,
                         unitName: EXISTING_TEST_UNIT_NAME,
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    }),
+                    createRegisterBillingReceiptsPayload({
                         address: EXISTING_TEST_ADDRESS,
-
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: faker.random.alphaNumeric(8),
-                        unitName: faker.random.alphaNumeric(8),
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
-                        address: faker.random.alphaNumeric(12),
-
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: faker.random.alphaNumeric(8),
-                        unitName: faker.random.alphaNumeric(8),
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
+                    }),
+                    createRegisterBillingReceiptsPayload()
                 ],
             }
 
@@ -256,44 +211,12 @@ describe('RegisterBillingReceiptsService', () => {
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    createRegisterBillingReceiptsPayload({
                         address: EXISTING_TEST_ADDRESS_P1,
-
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: faker.random.alphaNumeric(8),
-                        unitName: faker.random.alphaNumeric(8),
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    }),
+                    createRegisterBillingReceiptsPayload({
                         address: NON_EXISTING_TEST_ADDRESS_P3,
-
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: faker.random.alphaNumeric(8),
-                        unitName: faker.random.alphaNumeric(8),
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
+                    }),
                 ],
             }
 
@@ -357,101 +280,41 @@ describe('RegisterBillingReceiptsService', () => {
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    createRegisterBillingReceiptsPayload({
                         address: TEST_ADDRESS_P1,
 
                         unitType: FLAT_UNIT_TYPE,
                         accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
                         unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    }),
+                    createRegisterBillingReceiptsPayload({
                         address: TEST_ADDRESS_P1,
 
                         unitType: FLAT_UNIT_TYPE,
                         accountNumber: TEST_BILLING_ACCOUNT_3_NUMBER,
                         unitName: TEST_BILLING_ACCOUNT_3_UNITNAME,
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    }),
+                    createRegisterBillingReceiptsPayload({
                         address: TEST_ADDRESS_P2,
 
                         unitType: FLAT_UNIT_TYPE,
                         accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
                         unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    }),
+                    createRegisterBillingReceiptsPayload({
                         address: TEST_ADDRESS_P2,
 
                         unitType: FLAT_UNIT_TYPE,
                         accountNumber: TEST_BILLING_ACCOUNT_2_NUMBER,
                         unitName: TEST_BILLING_ACCOUNT_2_UNITNAME,
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
-                    {
-                        importId: faker.random.alphaNumeric(24),
-
+                    }),
+                    createRegisterBillingReceiptsPayload({
                         address: TEST_ADDRESS_P2,
 
                         unitType: FLAT_UNIT_TYPE,
                         accountNumber: TEST_BILLING_ACCOUNT_3_NUMBER,
                         unitName: TEST_BILLING_ACCOUNT_3_UNITNAME,
-
-                        toPay: '200.20',
-                        period: '2022-05-01',
-
-                        category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
-
-                        tin: faker.random.alphaNumeric(8),
-                        iec: faker.random.alphaNumeric(8),
-                        bic: faker.random.alphaNumeric(8),
-                        bankAccount: faker.random.alphaNumeric(8),
-                    },
+                    }),
                 ],
             }
 
@@ -464,6 +327,111 @@ describe('RegisterBillingReceiptsService', () => {
             expect(billingAccounts).toHaveLength(6)
             expect(billingReceipts).toHaveLength(5)
             expect(data).toHaveLength(5)
+        })
+
+        test('BillingAccounts with different UnitTypes are treated like different accounts', async () => {
+
+            const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+
+            const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
+            const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
+
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: TEST_ADDRESS_P1,
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+
+                        period: '2022-04-01',
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: TEST_ADDRESS_P1,
+
+                        unitType: APARTMENT_UNIT_TYPE,
+                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+
+                        period: '2022-04-01',
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: TEST_ADDRESS_P1,
+
+                        unitType: APARTMENT_UNIT_TYPE,
+                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+
+                        period: '2022-05-01',
+                    }),
+                ],
+            }
+
+            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+            expect(billingProperties).toHaveLength(1)
+            expect(billingAccounts).toHaveLength(2)
+            expect(billingReceipts).toHaveLength(3)
+            expect(data).toHaveLength(3)
+        })
+
+        test('BillingReceipts are handled correctly', async () => {
+
+            const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+
+            const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
+            const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
+
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: TEST_ADDRESS_P1,
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: TEST_ADDRESS_P1,
+
+                        unitType: APARTMENT_UNIT_TYPE,
+                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: TEST_ADDRESS_P1,
+
+                        unitType: APARTMENT_UNIT_TYPE,
+                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                        period: '2022-04-01',
+                    }),
+                ],
+            }
+
+            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+            expect(billingProperties).toHaveLength(1)
+            expect(billingAccounts).toHaveLength(2)
+            expect(billingReceipts).toHaveLength(3)
+            expect(data).toHaveLength(3)
         })
     })
 
