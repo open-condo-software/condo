@@ -42,7 +42,7 @@ const {
 
 const {
     REGISTER_MULTI_PAYMENT_MUTATION,
-    REGISTER_MULTI_PAYMENT_FROM_RECEIPT_MUTATION,
+    REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
 } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -349,7 +349,7 @@ async function registerMultiPaymentByTestClient(client, groupedReceipts, extraAt
     return [data.result, attrs]
 }
 
-async function registerMultiPaymentFromReceiptByTestClient(client, receipt, acquiringIntegrationContextId, extraAttrs = {}) {
+async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -357,10 +357,10 @@ async function registerMultiPaymentFromReceiptByTestClient(client, receipt, acqu
         dv: 1,
         sender,
         receipt,
-        acquiringIntegrationContextId,
+        acquiringIntegrationContext,
         ...extraAttrs,
     }
-    const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FROM_RECEIPT_MUTATION, { data: attrs })
+    const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]
 }
@@ -605,7 +605,7 @@ module.exports = {
     makePayerAndPayments,
     getRandomHiddenCard,
     registerMultiPaymentByTestClient,
-    registerMultiPaymentFromReceiptByTestClient,
+    registerMultiPaymentForOneReceiptByTestClient,
     makePayerWithMultipleConsumers,
     completeTestPayment,
     PaymentsFilterTemplate,
