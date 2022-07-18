@@ -236,7 +236,7 @@ export const CreateContactForm: React.FC = () => {
                                                 isRolesLoading ? (
                                                     <Loader fill size="small"/>
                                                 ) : (
-                                                    <ContactRoleSelect employeeRoles={roles}/>
+                                                    <ContactRoleSelect roles={roles}/>
                                                 )
                                             }
                                         </Form.Item>

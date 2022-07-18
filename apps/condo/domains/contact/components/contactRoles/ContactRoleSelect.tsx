@@ -4,19 +4,19 @@ import { Select, SelectProps } from 'antd'
 import React, { useMemo } from 'react'
 
 interface IEmployeeRoleSelectProps extends SelectProps<string> {
-    employeeRoles: Array<IContactRole>
+    roles: Array<IContactRole>
 }
 
 export const ContactRoleSelect: React.FC<IEmployeeRoleSelectProps> = (props) => {
-    const { employeeRoles, ...restProps } = props
-    const options = useMemo(() => employeeRoles.map((role) => {
+    const { roles, ...restProps } = props
+    const options = useMemo(() => roles.map((role) => {
         const convertedOption = ContactRole.convertGQLItemToFormSelectState(role)
 
         if (convertedOption) {
             const { value, label } = convertedOption
             return (<Select.Option key={value} value={value} title={label}>{label}</Select.Option>)
         }
-    }), [employeeRoles])
+    }), [roles])
 
     return (
         <Select

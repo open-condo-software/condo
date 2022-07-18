@@ -1,22 +1,23 @@
-import { Gutter } from 'antd/lib/grid/row'
-import React from 'react'
-import { Col, Form, Row, Space, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
+import { Button } from '@condo/domains/common/components/Button'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
+import { canManageContacts } from '@condo/domains/organization/permissions'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
+import { Col, Form, Row, Space, Typography } from 'antd'
+import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Contact } from '../utils/clientSchema'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import { Button } from '@condo/domains/common/components/Button'
-import { canManageContacts } from '@condo/domains/organization/permissions'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import React from 'react'
+import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -27,7 +28,7 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-const GUTTER_0_40: [Gutter, Gutter]  = [0, 40]
+const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
@@ -37,13 +38,14 @@ export const EditContactForm: React.FC = () => {
     const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
     const ProfileUpdateTitle = intl.formatMessage({ id: 'EditingContact' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
+    const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
+    const roleLabel = intl.formatMessage({ id: 'ContactRole' })
 
     const { isSmall } = useLayoutContext()
     const { query, push } = useRouter()
@@ -63,10 +65,22 @@ export const EditContactForm: React.FC = () => {
         },
     })
 
-    const contactUpdateAction = Contact.useUpdate({}, () => {
-        refetch().then(() => {
-            push(`/contact/${contactId}`)
-        })
+    const {
+        loading: isRolesLoading,
+        count: totalRoles,
+        objs: roles,
+    } = ContactRole.useObjects({
+        where: {
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: get(organization, 'id') } },
+            ],
+        },
+    })
+
+    const contactUpdateAction = Contact.useUpdate({}, async () => {
+        await refetch()
+        await push(`/contact/${contactId}`)
     })
 
     const { requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations({ allowLandLine: true })
@@ -80,7 +94,7 @@ export const EditContactForm: React.FC = () => {
         return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
     if (loading) {
-        return <Loader />
+        return <Loader/>
     }
     if (!contact) {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
@@ -99,6 +113,7 @@ export const EditContactForm: React.FC = () => {
         name: get(contact, 'name'),
         phone: get(contact, 'phone'),
         email: get(contact, 'email'),
+        role: get(contact, 'role.id'),
     }
 
     return (
@@ -108,6 +123,12 @@ export const EditContactForm: React.FC = () => {
                 initialValues={formInitialValues}
                 layout={'horizontal'}
                 validateTrigger={['onBlur', 'onSubmit']}
+                formValuesToMutationDataPreprocessor={(values) => {
+                    const role = get(values, 'role', null)
+                    values.role = role ? { connect: { id: String(role) } } : { disconnectAll: true }
+
+                    return values
+                }}
             >
                 {
                     ({ handleSave, isLoading }) => {
@@ -163,6 +184,16 @@ export const EditContactForm: React.FC = () => {
                                                 rules={validations.email}
                                             >
                                                 <Input placeholder={ExampleEmailMessage}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign="left"
+                                                name="role"
+                                                label={roleLabel}
+                                            >
+                                                <ContactRoleSelect roles={roles}/>
                                             </Form.Item>
                                         </Col>
                                         <Space size={40} style={{ paddingTop: '36px' }}>
