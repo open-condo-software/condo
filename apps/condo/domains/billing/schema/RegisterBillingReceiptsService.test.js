@@ -138,300 +138,372 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('Business Logic', () => {
-        test('Simple case works', async () => {
-            const EXISTING_TEST_ADDRESS = 'TEST'
-            const EXISTING_TEST_UNIT_NAME = '0'
-            const EXISTING_TEST_ACCOUNT_NUMBER = '0'
 
-            const [organization] = await createTestOrganization(admin)
-            const [integration] = await createTestBillingIntegration(admin)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+        describe('BillingProperties', () => {
+            test('BillingProperties are created and not deleted', async () => {
+                /**
+                 * Existing properties = {p1, p2}
+                 * Properties from args = {p1, p3}
+                 * Result: {p1, p2, p3}
+                 */
 
-            const [billingProperty] = await createTestBillingProperty(admin, billingContext, {
-                address: EXISTING_TEST_ADDRESS,
+                const EXISTING_TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+                const EXISTING_TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Ленина, 44'
+                const NON_EXISTING_TEST_ADDRESS_P3 = 'г. Екатеринбург, Проспект Космонавтов 11б'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                const [billingProperty1] = await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P1,
+                })
+
+                const [billingProperty2] = await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P2,
+                })
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS_P1,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: NON_EXISTING_TEST_ADDRESS_P3,
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(3)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(2)
+                expect(data).toHaveLength(2)
             })
-
-            const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty, {
-                unitName: EXISTING_TEST_UNIT_NAME,
-                unitType: FLAT_UNIT_TYPE,
-                number: EXISTING_TEST_ACCOUNT_NUMBER,
-            })
-
-            const payload = {
-                context: { id: billingContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: EXISTING_TEST_ADDRESS,
-
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: EXISTING_TEST_ACCOUNT_NUMBER,
-                        unitName: EXISTING_TEST_UNIT_NAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: EXISTING_TEST_ADDRESS,
-                    }),
-                    createRegisterBillingReceiptsPayload()
-                ],
-            }
-
-            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-            expect(billingProperties).toHaveLength(2)
-            expect(billingAccounts).toHaveLength(3)
-            expect(billingReceipts).toHaveLength(3)
-            expect(data).toHaveLength(3)
         })
 
-        test('BillingProperties are handled correctly', async () => {
-            /**
-             * Existing properties = {p1, p2}
-             * Properties from args = {p1, p3}
-             * Result: {p1, p2, p3}
-             */
+        describe('BillingAccounts', () => {
+            test('BillingAccounts are created and not deleted', async () => {
+                /**
+                 * Existing properties = {p1}
+                 * Properties from args = {p2}
+                 * Existing accounts = {a1, a2} for p1
+                 * Accounts from args = {a1, a3, a1', a2', a3'} // a1' a2' a3' are for p2
+                 *
+                 * Result Accounts: p1 -> {a1,  a2,  a3 }
+                 *                  p2 -> {a1', a2', a3'}
+                 */
 
-            const EXISTING_TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
-            const EXISTING_TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Ленина, 44'
-            const NON_EXISTING_TEST_ADDRESS_P3 = 'г. Екатеринбург, Проспект Космонавтов 11б'
+                const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+                const TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Космонавтов 11б'
 
-            const [organization] = await createTestOrganization(admin)
-            const [integration] = await createTestBillingIntegration(admin)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+                const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
+                const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
 
-            const [billingProperty1] = await createTestBillingProperty(admin, billingContext, {
-                address: EXISTING_TEST_ADDRESS_P1,
+                const TEST_BILLING_ACCOUNT_2_UNITNAME = '2'
+                const TEST_BILLING_ACCOUNT_2_NUMBER = 'n2'
+
+                const TEST_BILLING_ACCOUNT_3_UNITNAME = '3'
+                const TEST_BILLING_ACCOUNT_3_NUMBER = 'n3'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                const [billingProperty1] = await createTestBillingProperty(admin, billingContext, {
+                    address: TEST_ADDRESS_P1,
+                })
+
+                const [billingAccount1] = await createTestBillingAccount(admin, billingContext, billingProperty1, {
+                    number: TEST_BILLING_ACCOUNT_1_NUMBER,
+                    unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+
+                const [billingAccount2] = await createTestBillingAccount(admin, billingContext, billingProperty1, {
+                    number: TEST_BILLING_ACCOUNT_2_NUMBER,
+                    unitName: TEST_BILLING_ACCOUNT_2_UNITNAME,
+                    unitType: FLAT_UNIT_TYPE,
+                })
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_3_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_3_UNITNAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P2,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P2,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_2_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_2_UNITNAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P2,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_3_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_3_UNITNAME,
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(2)
+                expect(billingAccounts).toHaveLength(6)
+                expect(billingReceipts).toHaveLength(5)
+                expect(data).toHaveLength(5)
             })
 
-            const [billingProperty2] = await createTestBillingProperty(admin, billingContext, {
-                address: EXISTING_TEST_ADDRESS_P2,
+            test('BillingAccounts with different UnitTypes are treated like different accounts', async () => {
+
+                const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+
+                const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
+                const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+
+                            period: '2022-04-01',
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: APARTMENT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+
+                            period: '2022-04-01',
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: APARTMENT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+
+                            period: '2022-05-01',
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(1)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(3)
+                expect(data).toHaveLength(3)
             })
-
-            const payload = {
-                context: { id: billingContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: EXISTING_TEST_ADDRESS_P1,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: NON_EXISTING_TEST_ADDRESS_P3,
-                    }),
-                ],
-            }
-
-            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-            expect(billingProperties).toHaveLength(3)
-            expect(billingAccounts).toHaveLength(2)
-            expect(billingReceipts).toHaveLength(2)
-            expect(data).toHaveLength(2)
         })
 
-        test('BillingAccounts are handled correctly', async () => {
-            /**
-             * Existing properties = {p1}
-             *
-             * Properties from args = {p2}
-             *
-             * Existing accounts = {a1, a2} for p1
-             *
-             * Accounts from args = {a1, a3, a1', a2', a3'} // a1' a2' a3' are for p2
-             *
-             * Result Accounts: p1 -> {a1,  a2,  a3 }
-             *                  p2 -> {a1', a2', a3'}
-             */
+        describe('BillingReceipts', () => {
+            test('BillingReceipts are created', async () => {
 
-            const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
-            const TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Космонавтов 11б'
-
-            const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
-            const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
-
-            const TEST_BILLING_ACCOUNT_2_UNITNAME = '2'
-            const TEST_BILLING_ACCOUNT_2_NUMBER = 'n2'
-
-            const TEST_BILLING_ACCOUNT_3_UNITNAME = '3'
-            const TEST_BILLING_ACCOUNT_3_NUMBER = 'n3'
-
-            const [organization] = await createTestOrganization(admin)
-            const [integration] = await createTestBillingIntegration(admin)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-
-            const [billingProperty1] = await createTestBillingProperty(admin, billingContext, {
-                address: TEST_ADDRESS_P1,
             })
 
-            const [billingAccount1] = await createTestBillingAccount(admin, billingContext, billingProperty1, {
-                number: TEST_BILLING_ACCOUNT_1_NUMBER,
-                unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-                unitType: FLAT_UNIT_TYPE,
+            test('BillingReceipts are created if they are different', async () => {
+
             })
 
-            const [billingAccount2] = await createTestBillingAccount(admin, billingContext, billingProperty1, {
-                number: TEST_BILLING_ACCOUNT_2_NUMBER,
-                unitName: TEST_BILLING_ACCOUNT_2_UNITNAME,
-                unitType: FLAT_UNIT_TYPE,
+            test('BillingReceipts are updated if they refer to the same receipt', async () => {
+
+            })
+        })
+    })
+
+    describe('Real life cases', () => {
+
+        describe('Positive cases', () => {
+            test.skip('Management company loads receipts for first time', async () => {
+
             })
 
-            const payload = {
-                context: { id: billingContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
+            test.skip('Management company signs up for management of new property', async () => {
 
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
+            })
 
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_3_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_3_UNITNAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P2,
+            test.skip('Management company republish receipts for one property', async () => {
 
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P2,
+            })
 
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_2_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_2_UNITNAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P2,
+            test.skip('Management company tries to load dupes of receipt', async () => {
 
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_3_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_3_UNITNAME,
-                    }),
-                ],
-            }
-
-            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-            expect(billingProperties).toHaveLength(2)
-            expect(billingAccounts).toHaveLength(6)
-            expect(billingReceipts).toHaveLength(5)
-            expect(data).toHaveLength(5)
+            })
         })
 
-        test('BillingAccounts with different UnitTypes are treated like different accounts', async () => {
+        describe('Corner cases', () => {
+            test.skip('Simple case is handled correctly', async () => {
+                const EXISTING_TEST_ADDRESS = 'TEST'
+                const EXISTING_TEST_UNIT_NAME = '0'
+                const EXISTING_TEST_ACCOUNT_NUMBER = '0'
 
-            const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-            const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
-            const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
+                const [billingProperty] = await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS,
+                })
 
-            const [organization] = await createTestOrganization(admin)
-            const [integration] = await createTestBillingIntegration(admin)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+                const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty, {
+                    unitName: EXISTING_TEST_UNIT_NAME,
+                    unitType: FLAT_UNIT_TYPE,
+                    number: EXISTING_TEST_ACCOUNT_NUMBER,
+                })
 
-            const payload = {
-                context: { id: billingContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS,
 
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: EXISTING_TEST_ACCOUNT_NUMBER,
+                            unitName: EXISTING_TEST_UNIT_NAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS,
+                        }),
+                        createRegisterBillingReceiptsPayload(),
+                    ],
+                }
 
-                        period: '2022-04-01',
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
-                        unitType: APARTMENT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                expect(billingProperties).toHaveLength(2)
+                expect(billingAccounts).toHaveLength(3)
+                expect(billingReceipts).toHaveLength(3)
+                expect(data).toHaveLength(3)
+            })
 
-                        period: '2022-04-01',
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
+            test.skip('Messy case is handled correctly', async () => {
+                /**
+                 *
+                 * Existing Entities:
+                 *    p1 -> a1 -> r1
+                 *          a2 -> r2
+                 *          a3
+                 *
+                 *    p2 -> a1 -> r1
+                 *
+                 * Entities from Args:
+                 *    p1 -> a1 -> r1' (updated toPay)
+                 *          a2 -> r2  (not updated)
+                 *             -> r3
+                 *          a3 -> r4
+                 *
+                 *    p3 -> a1 -> r1  (for period 06)
+                 *             -> r2  (for period 05)
+                 *
+                 *  Result:
+                 *    p1 -> a1 -> r1'
+                 *          a2 -> r2
+                 *             -> r3
+                 *          a3 -> r4
+                 *
+                 *    p2 -> a1 -> r1
+                 *
+                 *    p3 -> a1 -> r1  (for period 06)
+                 *             -> r2  (for period 05)
+                 */
 
-                        unitType: APARTMENT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
 
-                        period: '2022-05-01',
-                    }),
-                ],
-            }
+                const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
+                const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
 
-            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-            expect(billingProperties).toHaveLength(1)
-            expect(billingAccounts).toHaveLength(2)
-            expect(billingReceipts).toHaveLength(3)
-            expect(data).toHaveLength(3)
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: FLAT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: APARTMENT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: TEST_ADDRESS_P1,
+
+                            unitType: APARTMENT_UNIT_TYPE,
+                            accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
+                            unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
+                            period: '2022-04-01',
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(1)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(3)
+                expect(data).toHaveLength(3)
+            })
         })
 
-        test('BillingReceipts are handled correctly', async () => {
-
-            const TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
-
-            const TEST_BILLING_ACCOUNT_1_UNITNAME = '1'
-            const TEST_BILLING_ACCOUNT_1_NUMBER = 'n1'
-
-            const [organization] = await createTestOrganization(admin)
-            const [integration] = await createTestBillingIntegration(admin)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-
-            const payload = {
-                context: { id: billingContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
-
-                        unitType: FLAT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
-
-                        unitType: APARTMENT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-                    }),
-                    createRegisterBillingReceiptsPayload({
-                        address: TEST_ADDRESS_P1,
-
-                        unitType: APARTMENT_UNIT_TYPE,
-                        accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
-                        unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
-                        period: '2022-04-01',
-                    }),
-                ],
-            }
-
-            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-            expect(billingProperties).toHaveLength(1)
-            expect(billingAccounts).toHaveLength(2)
-            expect(billingReceipts).toHaveLength(3)
-            expect(data).toHaveLength(3)
+        describe('Hacky cases', () => {
+            test.skip('Hacker can not load receipts into other billing context related to other org')
         })
     })
 
