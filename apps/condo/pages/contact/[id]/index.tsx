@@ -50,6 +50,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
+    const contactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
 
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
@@ -60,6 +61,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
         ? `${intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contactUnitType}` }).toLowerCase()} ${contactUnitName}`
         : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
+    const contactRole = get(contact, 'role')
 
     const { isSmall } = useLayoutContext()
 
@@ -110,6 +112,14 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                         fieldTitle={EmailLabel}
                                                         fieldValue={get(contact, ['email'])}
                                                     />
+                                                }
+                                                {
+                                                    contactRole && (
+                                                        <FieldPairRow
+                                                            fieldTitle={contactRoleTitle}
+                                                            fieldValue={get(contactRole, 'name')}
+                                                        />
+                                                    )
                                                 }
                                             </Row>
                                         </FrontLayerContainer>
