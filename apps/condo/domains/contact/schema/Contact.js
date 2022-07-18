@@ -104,6 +104,8 @@ const Contact = new GQLListSchema('Contact', {
             type: Relationship,
             ref: 'ContactRole',
             isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
     },
