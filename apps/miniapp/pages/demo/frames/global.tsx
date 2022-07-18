@@ -30,7 +30,7 @@ const GlobalFramePage: React.FC = () => {
         }
     }, [])
 
-    const handleNotification = useCallback((type) => {
+    const getHandleNotification = useCallback((type) => () => {
         if (typeof parent !== 'undefined') {
             sendNotification(type, type, parent, extractOrigin(condoUrl))
         }
@@ -65,21 +65,21 @@ const GlobalFramePage: React.FC = () => {
                         <Button
                             size={'small'}
                             type={'sberDefaultGradient'}
-                            onClick={() => handleNotification('info')}
+                            onClick={getHandleNotification('info')}
                         >
                             {SendInfoMessage}
                         </Button>
                         <Button
                             size={'small'}
                             type={'sberDefaultGradient'}
-                            onClick={() => handleNotification('warning')}
+                            onClick={getHandleNotification('warning')}
                         >
                             {SendWarningMessage}
                         </Button>
                         <Button
                             size={'small'}
                             type={'sberDefaultGradient'}
-                            onClick={() => handleNotification('error')}
+                            onClick={getHandleNotification('error')}
                         >
                             {SendErrorMessage}
                         </Button>
