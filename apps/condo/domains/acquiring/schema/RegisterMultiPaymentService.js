@@ -184,7 +184,7 @@ const errors = {
         message: 'BillingReceipts has multiple currencies',
     },
     MISSING_REQUIRED_RECEIPT: {
-        mutation: 'registerMultiPaymentFromReceipt',
+        mutation: 'registerMultiPaymentForOneReceipt',
         variable: ['data', 'receipt'],
         code: BAD_USER_INPUT,
         type: REQUIRED,
@@ -228,7 +228,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentFromReceiptInput { dv: Int!, sender: SenderFieldInput!, receipt: RegisterMultiPaymentReceiptInfoInput!, acquiringIntegrationContextId: String! }',
+            type: 'input RegisterMultiPaymentForOneReceiptInput { dv: Int!, sender: SenderFieldInput!, receipt: String!, acquiringIntegrationContext: String! }',
         },
         {
             access: true,
@@ -500,13 +500,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: access.canRegisterMultiPayment,
-            schema: 'registerMultiPaymentFromReceipt(data: RegisterMultiPaymentFromReceiptInput!): RegisterMultiPaymentOutput',
+            schema: 'registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentOutput',
             resolver: async (parent, args, context) => {
                 // wrap validator function to the current call context
                 const throwIf = ({ when, error, extraArgsSupplier }) => throwMutationSpecificErrorIf(
                     when,
                     error,
-                    'registerMultiPaymentFromReceipt',
+                    'registerMultiPaymentForOneReceipt',
                     context,
                     extraArgsSupplier,
                 )
@@ -515,7 +515,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     dv,
                     sender,
                     receipt,
-                    acquiringIntegrationContextId,
+                    acquiringIntegrationContext,
                 } = data
 
                 // Stage 0. Check if input is valid
@@ -537,7 +537,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 // Stage 1: get acquiring context & integration
                 const [acquiringContext] = await find('AcquiringIntegrationContext', {
-                    id: acquiringIntegrationContextId,
+                    id: acquiringIntegrationContext,
                 })
 
                 throwIf({
@@ -557,13 +557,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 // Stage 2. Check BillingReceipts
                 const [billingReceipt] = await find('BillingReceipt', {
-                    id: receipt.id,
+                    id: receipt,
                 })
 
                 throwIf({
                     when: isNil(billingReceipt),
                     error: errors.CANNOT_FIND_ALL_BILLING_RECEIPTS,
-                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptIds: receipt.id } }),
+                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptIds: receipt } }),
                 })
                 throwIf({
                     when: billingReceipt.deletedAt,
@@ -575,7 +575,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 throwIf({
                     when: Big(billingReceipt.toPay).lte(0),
                     error: errors.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-                    extraArgsSupplier: () => ({ messageInterpolation: { ids: receipt.id } }),
+                    extraArgsSupplier: () => ({ messageInterpolation: { ids: billingReceipt.id } }),
                 })
 
                 const [billingContext] = await find('BillingIntegrationOrganizationContext', {
@@ -616,7 +616,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const currencyCode = get(billingIntegration, ['currencyCode'])
 
                 // Stage 3 Generating payments
-                const formula = await getAcquiringIntegrationContextFormula(context, acquiringIntegrationContextId)
+                const formula = await getAcquiringIntegrationContextFormula(context, acquiringIntegrationContext)
                 const feeCalculator = new FeeDistribution(formula)
                 const frozenReceipt = await freezeBillingReceipt(billingReceipt)
                 const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
