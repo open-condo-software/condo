@@ -24,6 +24,14 @@ const errors = {
         message: 'Describe what happened for developer',
         messageForUser: 'api.user.registerBillingReceipts.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
     },
+    BILLING_CONTEXT_NOT_FOUND: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'context'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Provided BillingIntegrationOrganizationContext is not found',
+        messageForUser: 'api.user.registerBillingReceipts.BILLING_CONTEXT_NOT_FOUND', // TODO(codegen): localized message for user, use translation files
+    },
 }
 
 const getBillingPropertyKey = ({ address }) => address
@@ -187,7 +195,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const { id: billingContextId } = billingContextInput
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingContextId)
                 if (!billingContextId || !billingContext) {
-                    throw new Error('No context!')
+                    throw new GQLError(errors.BILLING_CONTEXT_NOT_FOUND, context)
                 }
 
                 // Step 1:
