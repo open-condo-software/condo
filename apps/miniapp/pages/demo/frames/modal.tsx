@@ -19,11 +19,11 @@ const GlobalFramePage: React.FC = () => {
     const router = useRouter()
     const { query: { modalId } } = router
 
-    const handleModalClose = useCallback((id) => {
-        if (typeof parent !== 'undefined' && id) {
-            sendCloseModal(id, parent, condoUrl)
+    const handleModalClose = useCallback(() => {
+        if (typeof parent !== 'undefined' && modalId && !Array.isArray(modalId)) {
+            sendCloseModal(modalId, parent, condoUrl)
         }
-    }, [])
+    }, [modalId])
 
     return (
         <>
@@ -36,7 +36,7 @@ const GlobalFramePage: React.FC = () => {
                         <Alert message={ContentMessage}  type={'info'} />
                         <Button
                             type={'sberDefaultGradient'}
-                            onClick={() => handleModalClose(modalId)}
+                            onClick={handleModalClose}
                         >
                             {ButtonMessage}
                         </Button>
