@@ -33,14 +33,16 @@ const SettingsPage = (): JSX.Element => {
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
-    const tabKeysToDisplay = useMemo(() => {
-        const result = ALWAYS_AVAILABLE_TABS
-        if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
-        return result
-    }, [hasSubscriptionFeature])
 
     const userOrganization = useOrganization()
     const canManageContacts = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContacts']), [userOrganization])
+
+    const tabKeysToDisplay = useMemo(() => {
+        const result = ALWAYS_AVAILABLE_TABS
+        if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
+        if (canManageContacts) result.push(SETTINGS_TAB_CONTACT_ROLES)
+        return result
+    }, [hasSubscriptionFeature, canManageContacts])
 
     const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
         () => [
