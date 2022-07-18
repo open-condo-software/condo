@@ -12,7 +12,7 @@ import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/
 import { FormattedMessage } from 'react-intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
-import { getReviewMessageByValue } from '../../utils/clientSchema/Ticket'
+import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
 
@@ -62,7 +62,7 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
 const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, unitType, intl) => {
     const FloorMessage = intl.formatMessage({ id: 'field.floorName' }).toLowerCase()
 
-    let addressChangePostfix
+    let addressChangePostfix = ''
     if (!isEmpty(sectionName)) {
         addressChangePostfix += `, ${intl.formatMessage({ id: `field.sectionType.${sectionType}` }).toLowerCase()} ${sectionName}`
 
