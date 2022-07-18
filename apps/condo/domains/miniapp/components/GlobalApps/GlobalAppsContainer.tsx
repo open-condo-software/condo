@@ -73,25 +73,16 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [])
 
     const handleTask = useCallback((message) => {
-        const {
-            id,
-            taskTitle: title,
-            taskDescription: description,
-            taskProgress: progress,
-            taskStatus: status,
-            taskOperation: operation,
-        } = message
-
         const taskRecord = {
-            id,
-            title,
-            progress,
-            description,
-            status,
+            id: message.id,
+            title: message.taskTitle,
+            progress: message.taskProgress,
+            description: message.taskDescription,
+            status: message.taskStatus,
             __typename: 'MiniAppTask',
         }
 
-        if (operation === 'create') {
+        if (message.operation === 'create') {
             const createMiniAppTask = miniAppTaskUIInterface.storage.useCreateTask({}, () => {
                 addTask({
                     ...miniAppTaskUIInterface,
@@ -100,7 +91,7 @@ export const GlobalAppsContainer: React.FC = () => {
             })
 
             createMiniAppTask(taskRecord)
-        } else if (operation === 'update') {
+        } else if (message.operation === 'update') {
             const updateMiniAppTask = miniAppTaskUIInterface.storage.useUpdateTask({}, () => {
                 updateTask(taskRecord)
             })
@@ -189,6 +180,7 @@ export const GlobalAppsContainer: React.FC = () => {
         handleNotification,
         registerModal,
         deleteModalFromApp,
+        handleTask,
     ])
 
     useEffect(() => {
