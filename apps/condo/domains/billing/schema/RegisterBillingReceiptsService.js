@@ -45,7 +45,7 @@ const errors = {
         variable: ['data', 'receipts', '[]', 'period'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'field Period is in wrong format for some receipts',
+        message: 'field Period is in wrong format for some receipts. Period should be in format: {YEAR}-{MONTH}-01. Example: 2022-03-01 - March of 2022',
         messageForUser: 'api.user.registerBillingReceipts.PERIOD_WRONG_FORMAT',
     },
     ADDRESS_WRONG_VALUE: {
