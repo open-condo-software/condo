@@ -1,6 +1,6 @@
 const pino = require('pino')
 const falsey = require('falsey')
-const { get, isEmpty, isFunction, uniq, groupBy } = require('lodash')
+const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
 const conf = require('@core/config')
 const { getSchemaCtx } = require('@core/keystone/schema')
@@ -15,6 +15,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
 const {
+    BILLING_RECEIPT_ADDED_TYPE,
     BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 } = require('@condo/domains/notification/constants/constants')
@@ -31,6 +32,13 @@ const logger = pino({
 })
 
 const makeMessageKey = (period, accountId, categoryId, residentId) => `${period}:${accountId}:${categoryId}:${residentId}`
+const getMessageTypeAndDebt = (toPay, toPayCharge) => {
+    if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
+    // TODO (DOMA-3581) debt value population is disabled until user will be able to manage push notifications
+    // if (toPayCharge && toPayCharge > 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE, debt: toPayCharge }
+
+    return { messageType: BILLING_RECEIPT_ADDED_TYPE, debt: null }
+}
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
@@ -44,10 +52,14 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     const country = get(resident, 'residentOrganization.country')
     const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
     const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-    const toPay = parseFloat(receipt.toPay)
+    const toPay = parseFloat(receipt.toPay) || null
+    const toPayCharge = parseFloat(get(receipt, 'toPayDetails.charge')) || null
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
     const currencyCode = get(receipt, 'context.integration.currencyCode') || DEFAULT_CURRENCY_CODE
 
+    if (isNull(toPay)) return 0
+
+    const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
     const data = {
         residentId: resident.id,
         userId: resident.user.id,
@@ -57,11 +69,9 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
         billingPropertyId: receipt.property.id,
         period: receipt.period,
         category,
-        toPay,
+        toPay: debt,
         currencySymbol: CURRENCY_SYMBOLS[currencyCode] || currencyCode,
     }
-
-    const messageType = toPay > 0 ? BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE : BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE
     const messageData = {
         lang: locale,
         to: { user: { id: resident.user.id } },
@@ -171,4 +181,5 @@ module.exports = {
     sendBillingReceiptsAddedNotifications,
     sendBillingReceiptsAddedNotificationsForPeriod,
     makeMessageKey,
+    getMessageTypeAndDebt,
 }

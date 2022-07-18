@@ -7,98 +7,143 @@ const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
     BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
+    BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const { makeBillingReceiptWithResident } = require('./spec.helpers')
-const { makeMessageKey, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
+const { makeMessageKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
 
 const index = require('@app/condo/index')
 
 describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     setFakeClientMode(index)
 
-    it('sends notification of BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE for toPay > 0', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const { receipt, resident } = await makeBillingReceiptWithResident()
-        let lastDt
-        const setLastDt = (dt) => lastDt = dt
+    describe('notifications', () => {
+        it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            let lastDt
+            const setLastDt = (dt) => lastDt = dt
 
-        await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
 
-        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-        const messageWhere = {
-            type: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
-            uniqKey: notificationKey,
-        }
-        const message = await Message.getOne(admin, messageWhere)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                uniqKey: notificationKey,
+            }
+            const message = await Message.getOne(admin, messageWhere)
 
-        expect(message).not.toBeNull()
-        expect(lastDt).toEqual(receipt.createdAt)
+            expect(message).not.toBeNull()
+            expect(lastDt).toEqual(receipt.createdAt)
+        })
+
+        it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0 and missing toPayDetails', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000' } )
+            let lastDt
+            const setLastDt = (dt) => lastDt = dt
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                uniqKey: notificationKey,
+            }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message).not.toBeNull()
+            expect(lastDt).toEqual(receipt.createdAt)
+        })
+
+        it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay = 0.0', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '0.0' })
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
+                uniqKey: notificationKey,
+            }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message).not.toBeNull()
+        })
+
+        it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay < 0', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
+                uniqKey: notificationKey,
+            }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message).not.toBeNull()
+        })
+
+        it('sends only one notification for same receipt', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident()
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                uniqKey: notificationKey,
+            }
+            const messages = await Message.getAll(admin, messageWhere)
+
+            expect(messages).toHaveLength(1)
+        })
+
+        it('sends nothing for receipt with no ServiceConsumer record', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident({}, true)
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                uniqKey: notificationKey,
+            }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message).toBeUndefined()
+        })
     })
 
-    it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay = 0.0', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '0.0' })
+    describe('Helper functions', () => {
+        it('calculates correct messageType and debt for toPay <= 0', () => {
+            const { messageType, debt } = getMessageTypeAndDebt(0, 0)
 
-        await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
+            expect(messageType).toEqual(BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE)
+            expect(debt).toEqual(0)
+        })
 
-        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-        const messageWhere = {
-            type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
-            uniqKey: notificationKey,
-        }
-        const message = await Message.getOne(admin, messageWhere)
+        it('calculates correct messageType and debt for toPay > 0 and toPayCharge > 0', () => {
+            const { messageType, debt } = getMessageTypeAndDebt(10000, 1000)
 
-        expect(message).not.toBeNull()
-    })
+            expect(messageType).toEqual(BILLING_RECEIPT_ADDED_TYPE)
+            expect(debt).toBeNull()
+        })
 
-    it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay < 0', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
+        it('calculates correct messageType and debt for toPay > 0 and toPaycharge === null', () => {
+            const { messageType, debt } = getMessageTypeAndDebt(10000, null)
 
-        await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
-
-        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-        const messageWhere = {
-            type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
-            uniqKey: notificationKey,
-        }
-        const message = await Message.getOne(admin, messageWhere)
-
-        expect(message).not.toBeNull()
-    })
-
-    it('sends only one notification for same receipt', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const { receipt, resident } = await makeBillingReceiptWithResident()
-
-        await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
-        await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
-
-        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-        const messageWhere = {
-            type: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
-            uniqKey: notificationKey,
-        }
-        const messages = await Message.getAll(admin, messageWhere)
-
-        expect(messages).toHaveLength(1)
-    })
-
-    it('sends nothing for receipt with no ServiceConsumer record', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const { receipt, resident } = await makeBillingReceiptWithResident({}, true)
-
-        await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
-
-        const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-        const messageWhere = {
-            type: BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
-            uniqKey: notificationKey,
-        }
-        const message = await Message.getOne(admin, messageWhere)
-
-        expect(message).toBeUndefined()
+            expect(messageType).toEqual(BILLING_RECEIPT_ADDED_TYPE)
+            expect(debt).toBeNull()
+        })
     })
 
 })
