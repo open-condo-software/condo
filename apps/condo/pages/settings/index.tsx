@@ -8,7 +8,7 @@ import {
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
 } from '@condo/domains/common/constants/settingsTabs'
-import { ContactRolesSettingsContent } from '@condo/domains/contact/components/ContactRolesSettingsContent'
+import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import {
@@ -16,12 +16,14 @@ import {
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 import { useIntl } from '@core/next/intl'
 import { Typography } from 'antd'
+import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
+import { useOrganization } from '@core/next/organization'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_CONTACT_ROLES]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT]
 
 const SettingsPage = () => {
     const intl = useIntl()
@@ -37,19 +39,22 @@ const SettingsPage = () => {
         return result
     }, [hasSubscriptionFeature])
 
+    const userOrganization = useOrganization()
+    const canManageContacts = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContacts']), [userOrganization])
+
     const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
         () => [
-            hasSubscriptionFeature && ({
+            hasSubscriptionFeature && {
                 key: SETTINGS_TAB_SUBSCRIPTION,
                 title: SubscriptionTitle,
                 content: <SubscriptionPane/>,
-            }),
+            },
             {
                 key: SETTINGS_TAB_PROPERTY_HINT,
                 title: HintTitle,
                 content: <TicketPropertyHintSettings/>,
             },
-            {
+            canManageContacts && {
                 key: SETTINGS_TAB_CONTACT_ROLES,
                 title: RolesTitle,
                 content: <ContactRolesSettingsContent/>,
