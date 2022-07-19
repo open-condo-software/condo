@@ -1406,7 +1406,7 @@ describe('Ticket', () => {
                     expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
                 })
 
-                it('should be connected if contact with same clientPhone, unitName and unitType is exist', async () => {
+                it('should be connected if contact with same clientPhone, unitName and unitType exists', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
@@ -1433,7 +1433,7 @@ describe('Ticket', () => {
                     expect(ticket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
                 })
 
-                it('should be created and connected new contact if clientPhone, unitName or unitType are different than connected contact\'s', async () => {
+                it('should create and connect new contact if clientPhone, unitName or unitType are different than connected contact\'s', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const { userAttrs: { phone: phone1, name: name1 } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const { userAttrs: { phone: phone2, name: name2 } } = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -1473,7 +1473,7 @@ describe('Ticket', () => {
                     expect(updatedTicket.contact.unitType).toEqual(FLAT_UNIT_TYPE)
                 })
 
-                it('should be connected if resident user create ticket', async () => {
+                it('should be connected if resident user creates ticket', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const residentClient = await makeClientWithResidentUser()
                     const { name, phone } = residentClient.userAttrs

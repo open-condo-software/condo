@@ -10,6 +10,7 @@ const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/co
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { isUndefined } = require('lodash')
 
 function calculateTicketOrder (resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
@@ -159,6 +160,25 @@ async function softDeleteTicketHintPropertiesByProperty (context, updatedItem) {
     }
 }
 
+async function connectContactToTicket (context, resolvedData, existingItem) {
+    const resolvedContact = get(resolvedData, 'contact', null)
+
+    if (!resolvedContact) {
+        const resolvedIsResidentTicket = get(resolvedData, 'isResidentTicket')
+        const existedIsResidentTicket = get(existingItem, 'isResidentTicket')
+        const isResidentTicket = isUndefined(resolvedIsResidentTicket) ? existedIsResidentTicket : resolvedIsResidentTicket
+
+        if (isResidentTicket) {
+            const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
+            resolvedData.contact = contact.id
+        } else if (existedIsResidentTicket && resolvedIsResidentTicket === false) {
+            resolvedData.contact = null
+        }
+    } else {
+        resolvedData.isResidentTicket = true
+    }
+}
+
 module.exports = {
     calculateReopenedCounter,
     calculateTicketOrder,
@@ -168,4 +188,5 @@ module.exports = {
     overrideTicketFieldsForResidentUserType,
     setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
     softDeleteTicketHintPropertiesByProperty,
+    connectContactToTicket,
 }

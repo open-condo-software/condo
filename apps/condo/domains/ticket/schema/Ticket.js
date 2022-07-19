@@ -32,25 +32,20 @@ const {
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { buildSetOfFieldsToTrackFrom, storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-
 const access = require('@condo/domains/ticket/access/Ticket')
 const {
-    calculateTicketOrder, calculateReopenedCounter, getOrCreateContactByClientData,
+    calculateTicketOrder, calculateReopenedCounter,
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
-    overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
+    overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields, connectContactToTicket,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
-
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
-const { UNIT_TYPES, FLAT_UNIT_TYPE, SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
-const { isUndefined } = require('lodash')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -358,7 +353,6 @@ const Ticket = new GQLListSchema('Ticket', {
             const userType = get(user, 'type')
             const resolvedStatusId = get(resolvedData, 'status')
             const resolvedClient = get(resolvedData, 'client', null)
-            const resolvedContact = get(resolvedData, 'contact', null)
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
@@ -385,20 +379,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
             }
 
-            if (!resolvedContact) {
-                const resolvedIsResidentTicket = get(resolvedData, 'isResidentTicket')
-                const existedIsResidentTicket = get(existingItem, 'isResidentTicket')
-                const isResidentTicket = isUndefined(resolvedIsResidentTicket) ? existedIsResidentTicket : resolvedIsResidentTicket
-                if (!resolvedContact && isResidentTicket) {
-                    const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
-                    resolvedData.contact = contact.id
-                }
-                if (existedIsResidentTicket && resolvedIsResidentTicket === false) {
-                    resolvedData.contact = null
-                }
-            } else {
-                resolvedData.isResidentTicket = true
-            }
+            await connectContactToTicket(context, resolvedData, existingItem)
 
             const newItem = { ...existingItem, ...resolvedData }
             const propertyId = get(newItem, 'property', null)
