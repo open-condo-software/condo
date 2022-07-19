@@ -60,6 +60,7 @@ const getAllSectionsUnits = (sections) => {
 
 const getOptionGroupBySectionType: React.FC<IGetOptionGroupBySectionType> = (props) => {
     const { units, unitType, groupLabel } = props
+    if (!units) return
 
     const filteredUnits = units.filter((unit) => {
         if (unitType === BuildingUnitSubType.Flat) {
