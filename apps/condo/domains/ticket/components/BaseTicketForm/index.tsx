@@ -267,7 +267,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         where: propertyWhereQuery,
         first: 1,
         skip: 0,
-    } )
+    })
 
     const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 

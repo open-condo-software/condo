@@ -121,11 +121,13 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
             const sections = get(property, ['map', unitDestination], [])
             const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
 
+            if (setSelectedSectionType) setSelectedSectionType(sectionType)
+
             return form.setFieldsValue({ sectionName, sectionType, floorName, unitType, unitName })
         }
 
         form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
-    }, [property])
+    }, [property, setSelectedSectionType])
 
     const handleUnitNameInputChange = useCallback((_, option: UnitNameInputOption) => {
         if (!option) {
