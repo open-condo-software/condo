@@ -38,6 +38,7 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
         delete: false,
         auth: false,
     },
+    escapeSearch: true,
 })
 
 module.exports = {

@@ -87,6 +87,7 @@ const OidcClient = new GQLListSchema('OidcClient', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {

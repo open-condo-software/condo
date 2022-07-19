@@ -15,6 +15,7 @@ const conf = require('@core/config')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
 const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
 const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
+const { escapeSearchPreprocessor } = require('@core/keystone/preprocessors/escapeSearch')
 
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
@@ -99,7 +100,7 @@ registerSchemas(keystone, [
     require('@condo/domains/subscription/schema'),
     require('@condo/domains/acquiring/schema'),
     require('@condo/domains/miniapp/schema'),
-], [schemaDocPreprocessor])
+], [schemaDocPreprocessor, escapeSearchPreprocessor])
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time

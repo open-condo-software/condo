@@ -82,6 +82,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {
