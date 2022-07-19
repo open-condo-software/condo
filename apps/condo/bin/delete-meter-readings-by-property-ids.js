@@ -3,7 +3,6 @@ const { find } = require('@core/keystone/schema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
 const { MeterReading, Meter } = require('@condo/domains/meter/utils/serverSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 class FixMeterReadingsClients {
     context = null
@@ -21,13 +20,13 @@ class FixMeterReadingsClients {
 
     async findMeterReadings () {
         this.meterReadings = await find('MeterReading', {
-            meter: { property: { id_in: ["3377a303-b098-426a-b559-e0acdf57071e", "19e7b8f0-d204-4f1e-80df-6069f01b15b4"] } }
+            meter: { property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] } }
         })
     }
 
     async findMeters () {
         this.meters = await find('Meter', {
-            property: { id_in: ["3377a303-b098-426a-b559-e0acdf57071e", "19e7b8f0-d204-4f1e-80df-6069f01b15b4"] }
+            property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] }
         })
     }
 
@@ -62,9 +61,9 @@ const deleteMeterReadings = async () => {
     await fixer.connect()
     console.info('[INFO] Finding broken meter readings and meters...')
     await fixer.findMeterReadings()
-    console.info(`[INFO] Following meter readings will be deleted: [${fixer.meterReadings.map(reading => `"${reading.id}"`).join(', ')}]`)
+    console.info(`[INFO] Following meter readings will be deleted: [${fixer.meterReadings.map(reading => `'${reading.id}'`).join(', ')}]`)
     await fixer.findMeters()
-    console.info(`[INFO] Following meters will be deleted: [${fixer.meters.map(reading => `"${reading.id}"`).join(', ')}]`)
+    console.info(`[INFO] Following meters will be deleted: [${fixer.meters.map(reading => `'${reading.id}'`).join(', ')}]`)
     await fixer.fixBrokenMeterReadings()
     console.info('[INFO] Broken meter readings are deleted...')
     await fixer.fixBrokenMeters()
