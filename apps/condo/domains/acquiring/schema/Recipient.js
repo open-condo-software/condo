@@ -13,6 +13,10 @@ const { DV_FIELD, SENDER_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/comm
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
+const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
+const { validateIec } = require('@condo/domains/acquiring/utils/validate/iec.utils')
+const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+const { validateBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
 
 const Recipient = new GQLListSchema('Recipient', {
     schemaDoc: 'Organization\' recipient information: bank account, bic, and so on',
@@ -28,24 +32,62 @@ const Recipient = new GQLListSchema('Recipient', {
             schemaDoc: 'Tax Identification Number',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    const { tin } = resolvedData
+                    const { result, errors } = validateTin(tin)
+
+                    if ( !result ) {
+                        addFieldValidationError(errors[0])
+                    }
+                },
+            },
         },
 
         iec: {
             schemaDoc: 'Importer-Exporter Code',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    const { iec } = resolvedData
+                    const { result, errors } = validateIec(iec)
+
+                    if ( !result ) {
+                        addFieldValidationError(errors[0])
+                    }
+                },
+            },
         },
 
         bic: {
             schemaDoc: 'Bank Identification Code',
             type: Text,
             isRequired: true,
+            validateInput: ({ resolvedData, addFieldValidationError }) => {
+                const { bic } = resolvedData
+                const { result, errors } = validateBic(bic)
+
+                if ( !result ) {
+                    addFieldValidationError(errors[0])
+                }
+            },
         },
 
         bankAccount: {
             schemaDoc: 'Number of bank account of this recipient',
             type: Text,
             isRequired: true,
+            hooks: {
+                validateInput: ({ resolvedData, addFieldValidationError }) => {
+                    const { bankAccount, bic } = resolvedData
+                    const { result, errors } = validateBankAccount(bankAccount, bic)
+
+                    if ( !result ) {
+                        addFieldValidationError(errors[0])
+                    }
+                },
+            },
         },
 
         bankName: {

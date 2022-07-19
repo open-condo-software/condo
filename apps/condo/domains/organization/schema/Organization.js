@@ -11,7 +11,7 @@ const { Json } = require('@condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { isValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
+const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 const access = require('@condo/domains/organization/access/Organization')
@@ -60,7 +60,7 @@ const Organization = new GQLListSchema('Organization', {
                         return
                     }
 
-                    if (!isValidTin(tin, country)) {
+                    if (!validateTin(tin, country).result) {
                         addFieldValidationError('Tin field has not a valid values supplied')
                     }
                 },
