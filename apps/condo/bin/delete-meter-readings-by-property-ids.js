@@ -50,7 +50,7 @@ class FixMeterReadingsClients {
             await Meter.update(this.context, meter.id, {
                 deletedAt: 'true',
                 dv: 1,
-                sender: { dv: 1, fingerprint: 'deleteIncorrectMeterReadingsScript' },
+                sender: { dv: 1, fingerprint: 'deleteIncorrectMetersScript' },
             })
         }
     }
