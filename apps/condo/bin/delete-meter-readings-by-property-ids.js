@@ -2,12 +2,13 @@ const path = require('path')
 const { find } = require('@core/keystone/schema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
-const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
+const { MeterReading, Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 class FixMeterReadingsClients {
     context = null
-    brokenMeterReadings = []
+    meters = []
+    meterReadings = []
 
     async connect () {
         const resolved = path.resolve('./index.js')
@@ -24,12 +25,30 @@ class FixMeterReadingsClients {
         })
     }
 
+    async findMeters () {
+        this.meters = await find('Meter', {
+            property: { id_in: ["3377a303-b098-426a-b559-e0acdf57071e", "19e7b8f0-d204-4f1e-80df-6069f01b15b4"] }
+        })
+    }
+
     async fixBrokenMeterReadings () {
         if (!get(this.meterReadings, 'length')) return
 
         for (const meterReading of this.meterReadings) {
             await MeterReading.update(this.context, meterReading.id, {
-                deletedAt: new Date().toDateString(),
+                deletedAt: 'true',
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'deleteIncorrectMeterReadingsScript' },
+            })
+        }
+    }
+
+    async fixBrokenMeters () {
+        if (!get(this.meters, 'length')) return
+
+        for (const meter of this.meters) {
+            await Meter.update(this.context, meter.id, {
+                deletedAt: 'true',
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'deleteIncorrectMeterReadingsScript' },
             })
@@ -37,18 +56,22 @@ class FixMeterReadingsClients {
     }
 }
 
-const fixMeterReadings = async () => {
+const deleteMeterReadings = async () => {
     const fixer = new FixMeterReadingsClients()
     console.info('[INFO] Connecting to database...')
     await fixer.connect()
-    console.info('[INFO] Finding broken meter readings...')
-    await fixer.findBrokenMeterReadings()
-    console.info(`[INFO] Following meter readings will be fixed: [${fixer.brokenMeterReadings.map(reading => `"${reading.id}"`).join(', ')}]`)
+    console.info('[INFO] Finding broken meter readings and meters...')
+    await fixer.findMeterReadings()
+    console.info(`[INFO] Following meter readings will be deleted: [${fixer.meterReadings.map(reading => `"${reading.id}"`).join(', ')}]`)
+    await fixer.findMeters()
+    console.info(`[INFO] Following meters will be deleted: [${fixer.meters.map(reading => `"${reading.id}"`).join(', ')}]`)
     await fixer.fixBrokenMeterReadings()
-    console.info('[INFO] Broken meter readings are fixed...')
+    console.info('[INFO] Broken meter readings are deleted...')
+    await fixer.fixBrokenMeters()
+    console.info('[INFO] Broken meters are deleted...')
 }
 
-fixMeterReadings().then(() => {
+deleteMeterReadings().then(() => {
     console.log('\r\n')
     console.log('All done')
     process.exit(0)
