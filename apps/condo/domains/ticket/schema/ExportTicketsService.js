@@ -22,6 +22,7 @@ const access = require('@condo/domains/ticket/access/ExportTicketsService')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { isNull } = require('lodash')
+const { TICKET_SOURCE_TYPES } = require('../constants/common')
 
 const HEADER_DATE_FORMAT = 'DD.MM.YYYY'
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -121,7 +122,7 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                     return {
                         number: ticket.number,
-                        source: ticket.source || EMPTY_VALUE,
+                        source: i18n(ticket.source, { locale }) || EMPTY_VALUE,
                         organization: ticket.organization,
                         property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
                         unitName: ticket.unitName,
