@@ -2,7 +2,7 @@ import { EditFilled } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
 import { useAuth } from '@core/next/auth'
@@ -15,7 +15,7 @@ import { AuthRequired } from '@condo/domains/common/components/containers/AuthRe
 import { useOrganization } from '@core/next/organization'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
 
-export const UserInfoPage = () => {
+export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
@@ -106,7 +106,10 @@ export const UserInfoPage = () => {
                                 <Col span={24}>
                                     {
                                         userOrganization
-                                            ? (<UserOrganizationsList userOrganization={userOrganization}/>)
+                                            ? (<UserOrganizationsList
+                                                userOrganization={userOrganization}
+                                                organizationEmployeesQuery={organizationEmployeesQuery}
+                                            />)
                                             : null
                                     }
                                 </Col>
@@ -116,6 +119,16 @@ export const UserInfoPage = () => {
                 </PageContent>
             </PageWrapper>
         </>
+    )
+}
+
+const UserInfoPage = () => {
+    const { user } = useAuth()
+    const userId = useMemo(() => get(user, 'id', null), [user])
+    const organizationEmployeesQuery = useMemo(() => ({ where: { user: { id: userId }, isAccepted: true } }), [userId])
+
+    return (
+        <UserInfoPageContent organizationEmployeesQuery={organizationEmployeesQuery} />
     )
 }
 
