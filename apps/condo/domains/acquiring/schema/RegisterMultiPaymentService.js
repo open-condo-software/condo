@@ -536,29 +536,25 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 })
 
                 // Stage 1: get acquiring context & integration
-                const [acquiringContext] = await find('AcquiringIntegrationContext', {
-                    id: acquiringIntegrationContext,
-                })
+                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext)
 
                 throwIf({
                     when: acquiringContext.deletedAt,
                     error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
                 })
 
-                const [acquiringIntegration] = await AcquiringIntegration.getAll(context, {
+                const acquiringIntegration = await AcquiringIntegration.getOne(context, {
                     id: acquiringContext.integration,
                 })
 
                 throwIf({
                     when: acquiringIntegration.deletedAt,
                     error: errors.ACQUIRING_INTEGRATION_IS_DELETED,
-                    extraArgsSupplier: () => ({ messageInterpolation: { id: acquiringIntegration.id } }),
+                    extraArgsSupplier: () => ({ messageInterpolation: { id: acquiringContext.integration } }),
                 })
 
                 // Stage 2. Check BillingReceipts
-                const [billingReceipt] = await find('BillingReceipt', {
-                    id: receipt,
-                })
+                const billingReceipt = await getById('BillingReceipt', receipt)
 
                 throwIf({
                     when: isNil(billingReceipt),
@@ -578,9 +574,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     extraArgsSupplier: () => ({ messageInterpolation: { ids: billingReceipt.id } }),
                 })
 
-                const [billingContext] = await find('BillingIntegrationOrganizationContext', {
-                    id: billingReceipt.context,
-                })
+                const billingContext = await getById('BillingIntegrationOrganizationContext', billingReceipt.context)
 
                 throwIf({
                     when: billingContext.deletedAt,
@@ -600,15 +594,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     extraArgsSupplier: () => ({ messageInterpolation: { unsupportedBillingIntegrations:  billingContext.integration } }),
                 })
 
-                const [billingIntegration] = await find('BillingIntegration', {
-                    id: billingContext.integration,
-                })
+                const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
                 throwIf({
                     when: billingIntegration.deletedAt,
                     error: errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
                     extraArgsSupplier: () => {
-                        const failedReceipts = [{ receiptId: billingReceipt.id, integrationId: billingIntegration.id }]
+                        const failedReceipts = [{ receiptId: billingReceipt.id, integrationId: billingContext.integration }]
                         return { data: { failedReceipts } }
                     },
                 })
