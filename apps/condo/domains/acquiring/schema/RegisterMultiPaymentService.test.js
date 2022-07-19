@@ -74,8 +74,9 @@ describe('RegisterMultiPaymentService', () => {
                     resident,
                 } = await makePayer()
                 const hostUrl = acquiringIntegration.hostUrl
-                const receipt = billingReceipts[0].id
-                const [result] = await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
+                const [result] = await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 expect(result).toBeDefined()
                 expect(result).toHaveProperty('dv', 1)
                 expect(result).toHaveProperty('multiPaymentId')
@@ -726,10 +727,11 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringContext,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
 
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id, { dv: 2 })
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext, { dv: 2 })
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: 'Wrong value for data version number',
@@ -745,13 +747,13 @@ describe('RegisterMultiPaymentService', () => {
                 })
             })
             describe('Should check sender', () => {
-                let acquiringContextId
+                let acquiringIntegrationContext
                 let receipt
                 let client
                 beforeAll(async () => {
                     const data = await makePayer()
-                    receipt = data.billingReceipts[0].id
-                    acquiringContextId = data.acquiringContext.id
+                    receipt = { id: data.billingReceipts[0].id }
+                    acquiringIntegrationContext = { id: data.acquiringContext.id }
                     client = data.client
                 })
                 const cases = [
@@ -763,7 +765,7 @@ describe('RegisterMultiPaymentService', () => {
                 test.each(cases)('dv: %p, fingerprint: %p', async (dv, fingerprint) => {
                     const sender = { dv, fingerprint }
                     await catchErrorFrom(async () => {
-                        await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContextId, { sender })
+                        await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext, { sender })
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
                             path: ['result'],
@@ -787,8 +789,10 @@ describe('RegisterMultiPaymentService', () => {
                     client,
                 } = await makePayer()
                 const missingReceiptId = faker.datatype.uuid()
+                const receipt = { id: missingReceiptId }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, missingReceiptId, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: `Cannot find all specified BillingReceipts with ids ${missingReceiptId}`,
@@ -812,7 +816,8 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringIntegration,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
                 const [newBillingIntegration] = await createTestBillingIntegration(admin)
 
                 // remap acquiring integration with supported billing integrations
@@ -824,7 +829,7 @@ describe('RegisterMultiPaymentService', () => {
                 })
 
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${billingIntegration.id}`,
@@ -848,15 +853,16 @@ describe('RegisterMultiPaymentService', () => {
                         acquiringContext,
                         client,
                     } = await makePayer()
-                    const receipt = billingReceipts[0].id
-                    await updateTestBillingReceipt(admin, receipt, {
+                    const receipt = { id: billingReceipts[0].id }
+                    const acquiringIntegrationContext = { id: acquiringContext.id }
+                    await updateTestBillingReceipt(admin, receipt.id, {
                         toPay,
                     })
                     await catchErrorFrom(async () => {
-                        await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                        await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
-                            message: `Cannot pay for BillingReceipts ${receipt} with negative "toPay" value`,
+                            message: `Cannot pay for BillingReceipts ${receipt.id} with negative "toPay" value`,
                             path: ['result'],
                             extensions: {
                                 mutation: 'registerMultiPaymentForOneReceipt',
@@ -878,13 +884,14 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringContext,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
-                const deletedReceiptId = receipt
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
+                const deletedReceiptId = receipt.id
                 await updateTestBillingReceipt(admin, deletedReceiptId, {
                     deletedAt: dayjs().toISOString(),
                 })
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: `Cannot pay for deleted receipts ${deletedReceiptId}`,
@@ -906,12 +913,13 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringContext,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
                 await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
                     deletedAt: dayjs().toISOString(),
                 })
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
@@ -934,12 +942,13 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringIntegration,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
                 await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
                     deletedAt: dayjs().toISOString(),
                 })
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: `Cannot pay via deleted acquiring integration with id "${acquiringIntegration.id}"`,
@@ -962,12 +971,13 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringContext,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
                 await updateTestBillingIntegrationOrganizationContext(admin, billingContext.id, {
                     deletedAt: dayjs().toISOString(),
                 })
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
@@ -980,7 +990,7 @@ describe('RegisterMultiPaymentService', () => {
                             message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
                             data: {
                                 failedReceipts: [{
-                                    receiptId: receipt,
+                                    receiptId: receipt.id,
                                     contextId: billingContext.id,
                                 }],
                             },
@@ -996,12 +1006,13 @@ describe('RegisterMultiPaymentService', () => {
                     acquiringContext,
                     client,
                 } = await makePayer()
-                const receipt = billingReceipts[0].id
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
                 await updateTestBillingIntegration(admin, billingIntegration.id, {
                     deletedAt: dayjs().toISOString(),
                 })
                 await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringContext.id)
+                    await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         message: 'BillingReceipt has deleted BillingIntegration',
@@ -1014,7 +1025,7 @@ describe('RegisterMultiPaymentService', () => {
                             message: 'BillingReceipt has deleted BillingIntegration',
                             data: {
                                 failedReceipts: [{
-                                    receiptId: receipt,
+                                    receiptId: receipt.id,
                                     integrationId: billingIntegration.id,
                                 }],
                             },

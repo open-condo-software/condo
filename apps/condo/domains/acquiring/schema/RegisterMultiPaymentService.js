@@ -216,11 +216,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentReceiptInfoInput { id: String! }',
-        },
-        {
-            access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receipts: [RegisterMultiPaymentReceiptInfoInput!]! }',
+            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String!, receipts: [BillingReceiptWhereUniqueInput!]! }',
+            // TODO change consumerId: String! to serviceConsumer: ServiceConsumerWhereUniqueInput!
         },
         {
             access: true,
@@ -228,7 +225,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentForOneReceiptInput { dv: Int!, sender: SenderFieldInput!, receipt: String!, acquiringIntegrationContext: String! }',
+            type: 'input RegisterMultiPaymentForOneReceiptInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput!, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput! }',
         },
         {
             access: true,
@@ -536,7 +533,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 })
 
                 // Stage 1: get acquiring context & integration
-                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext)
+                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
 
                 throwIf({
                     when: acquiringContext.deletedAt,
@@ -554,12 +551,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 })
 
                 // Stage 2. Check BillingReceipts
-                const billingReceipt = await getById('BillingReceipt', receipt)
+                const billingReceipt = await getById('BillingReceipt', receipt.id)
 
                 throwIf({
                     when: isNil(billingReceipt),
                     error: errors.CANNOT_FIND_ALL_BILLING_RECEIPTS,
-                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptIds: receipt } }),
+                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptIds: receipt.id } }),
                 })
                 throwIf({
                     when: billingReceipt.deletedAt,
@@ -608,7 +605,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const currencyCode = get(billingIntegration, ['currencyCode'])
 
                 // Stage 3 Generating payments
-                const formula = await getAcquiringIntegrationContextFormula(context, acquiringIntegrationContext)
+                const formula = await getAcquiringIntegrationContextFormula(context, acquiringIntegrationContext.id)
                 const feeCalculator = new FeeDistribution(formula)
                 const frozenReceipt = await freezeBillingReceipt(billingReceipt)
                 const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
