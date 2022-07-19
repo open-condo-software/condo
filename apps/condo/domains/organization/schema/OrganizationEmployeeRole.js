@@ -92,6 +92,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {

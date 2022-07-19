@@ -30,6 +30,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {

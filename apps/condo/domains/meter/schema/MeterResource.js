@@ -33,6 +33,7 @@ const MeterResource = new GQLListSchema('MeterResource', {
         delete: false,
         auth: false,
     },
+    escapeSearch: true,
 })
 
 module.exports = {
