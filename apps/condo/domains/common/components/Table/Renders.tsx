@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Typography } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
@@ -18,6 +18,7 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
 import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -70,7 +71,7 @@ type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | Reac
 export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}, extraTitle) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
-    const title = extraTitle ? extraTitle : `${text} ${isString(postfix) && postfix || ''}`
+    const title = extraTitle ? extraTitle : extraTitle === null ? null : `${text} ${isString(postfix) && postfix || ''}`
 
     const getPostfix = () => (
         <Typography.Text title={title} {...extraPostfixProps}>
@@ -117,23 +118,36 @@ export const getTableCellRenderer: TTableCellRendererFN = (
     extraTitle,
 ) =>
     (text) => {
-        const title = extraTitle ? extraTitle : `${text} ${postfix || ''}`
-        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps, title)(text)
-
-        if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
+        const title = extraTitle ? extraTitle : text ? `${text} ${postfix || ''}` : null
+        const highlightedContent = getHighlightedContents(search, postfix, extraHighlighterProps, extraPostfixProps, null)(text)
 
         const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
+        const tableCellContent = useMemo(() => {
+            if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
+
+            return (
+                <EmptyTableCell>
+                    {
+                        text && (
+                            <Typography.Paragraph ellipsis={ellipsisConfig} style={ELLIPSIS_STYLES}>
+                                {highlightedContent}
+                            </Typography.Paragraph>
+                        )
+                    }
+                </EmptyTableCell>
+            )
+        }, [ellipsis, text, ellipsisConfig, highlightedContent])
+
+        // NOTE Tooltip -> span -> content
+        // This hack (span) is needed for tooltip to appear
+
         return (
-            <EmptyTableCell>
-                {
-                    text && (
-                        <Typography.Paragraph ellipsis={ellipsisConfig} title={title} style={ELLIPSIS_STYLES}>
-                            {highlightedContent}
-                        </Typography.Paragraph>
-                    )
-                }
-            </EmptyTableCell>
+            <Tooltip title={title}>
+                <span>
+                    {tableCellContent}
+                </span>
+            </Tooltip>
         )
     }
 

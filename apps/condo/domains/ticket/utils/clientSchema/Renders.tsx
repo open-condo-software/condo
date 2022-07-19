@@ -180,7 +180,7 @@ export const getStatusRender = (intl, search: FilterValue) => {
         const { primary: backgroundColor, secondary: color } = status.colors
         const extraProps = { style: { color } }
         // TODO(DOMA-1518) find solution for cases where no status received
-        const highlightedContent = getHighlightedContents(search, null, extraProps)(status.name)
+        const highlightedContent = getHighlightedContents(search, null, extraProps, null,  null)(status.name)
 
         return (
             <Space direction='vertical' size={7}>
