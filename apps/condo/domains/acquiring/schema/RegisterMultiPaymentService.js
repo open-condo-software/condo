@@ -41,8 +41,23 @@ const errors = {
         type: DV_VERSION_MISMATCH,
         message: 'Wrong value for data version number',
     },
+    DV_VERSION_MISMATCH_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
+    },
     WRONG_SENDER_FORMAT: {
         mutation: 'registerMultiPayment',
+        variable: ['data', 'sender'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Invalid format of "sender" field value. {details}',
+        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    },
+    WRONG_SENDER_FORMAT_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
         variable: ['data', 'sender'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
@@ -105,6 +120,13 @@ const errors = {
         type: ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
         message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
     },
+    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'acquiringIntegrationContext', 'id'],
+        code: BAD_USER_INPUT,
+        type: ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+        message: 'Cannot pay via deleted acquiring integration context',
+    },
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
@@ -115,6 +137,13 @@ const errors = {
     ACQUIRING_INTEGRATION_IS_DELETED: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+        code: BAD_USER_INPUT,
+        type: ACQUIRING_INTEGRATION_IS_DELETED,
+        message: 'Cannot pay via deleted acquiring integration with id "{id}"',
+    },
+    ACQUIRING_INTEGRATION_IS_DELETED_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'acquiringIntegrationContext', 'id'],
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_IS_DELETED,
         message: 'Cannot pay via deleted acquiring integration with id "{id}"',
@@ -133,6 +162,13 @@ const errors = {
         type: CANNOT_FIND_ALL_BILLING_RECEIPTS,
         message: 'Cannot find all specified BillingReceipts with ids {missingReceiptIds}',
     },
+    CANNOT_FIND_BILLING_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'receipt', 'id'],
+        code: BAD_USER_INPUT,
+        type: CANNOT_FIND_ALL_BILLING_RECEIPTS,
+        message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
+    },
     RECEIPTS_ARE_DELETED: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -140,12 +176,26 @@ const errors = {
         type: RECEIPTS_ARE_DELETED,
         message: 'Cannot pay for deleted receipts {ids}',
     },
+    RECEIPT_IS_DELETED: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'receipt', 'id'],
+        code: BAD_USER_INPUT,
+        type: RECEIPTS_ARE_DELETED,
+        message: 'Cannot pay for deleted receipt {id}',
+    },
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
         message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
+    },
+    RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'receipt', 'id'],
+        code: BAD_USER_INPUT,
+        type: RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
+        message: 'Cannot pay for BillingReceipt {id} with negative "toPay" value',
     },
     BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER: {
         mutation: 'registerMultiPayment',
@@ -162,6 +212,13 @@ const errors = {
         type: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
         message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
     },
+    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'receipt', 'id'],
+        code: BAD_USER_INPUT,
+        type: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+        message: 'BillingIntegrationOrganizationContext is deleted for provided BillingReceipt',
+    },
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -169,9 +226,23 @@ const errors = {
         type: ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
         message: 'Some of ServiceConsumer\'s AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegrations: {unsupportedBillingIntegrations}',
     },
+    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'receipt', 'id'],
+        code: BAD_USER_INPUT,
+        type: ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+        message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
+    },
     RECEIPT_HAS_DELETED_BILLING_INTEGRATION: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+        code: BAD_USER_INPUT,
+        type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+        message: 'BillingReceipt has deleted BillingIntegration',
+    },
+    RECEIPT_HAS_DELETED_BILLING_INTEGRATION_ONE_RECEIPT: {
+        mutation: 'registerMultiPaymentForOneReceipt',
+        variable: ['data', 'receipt', 'id'],
         code: BAD_USER_INPUT,
         type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
         message: 'BillingReceipt has deleted BillingIntegration',
@@ -192,11 +263,11 @@ const errors = {
     },
 }
 
-const throwMutationSpecificErrorIf = (errorCondition, baseError, mutation, context, extraArgsSupplier) => {
+const throwErrorIf = (errorCondition, baseError, context, extraArgsSupplier) => {
     if (errorCondition) {
         const suppliedArgs = isFunction(extraArgsSupplier) ? extraArgsSupplier() : {}
         const extraArgs = isPlainObject(suppliedArgs) ? suppliedArgs : {}
-        const error = { ...baseError, mutation, ...extraArgs }
+        const error = { ...baseError, ...extraArgs }
         throw new GQLError(error, context)
     }
 }
@@ -500,10 +571,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             schema: 'registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentOutput',
             resolver: async (parent, args, context) => {
                 // wrap validator function to the current call context
-                const throwIf = ({ when, error, extraArgsSupplier }) => throwMutationSpecificErrorIf(
+                const throwIf = ({ when, error, extraArgsSupplier }) => throwErrorIf(
                     when,
                     error,
-                    'registerMultiPaymentForOneReceipt',
                     context,
                     extraArgsSupplier,
                 )
@@ -517,13 +587,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 // Stage 0. Check if input is valid
                 throwIf({
-                    when: dv !== 1, error: errors.DV_VERSION_MISMATCH,
+                    when: dv !== 1, error: errors.DV_VERSION_MISMATCH_ONE_RECEIPT,
                 })
 
                 const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
                 throwIf({
                     when: senderErrors && Object.keys(senderErrors).length,
-                    error: errors.WRONG_SENDER_FORMAT,
+                    error: errors.WRONG_SENDER_FORMAT_ONE_RECEIPT,
                     extraArgsSupplier: () => {
                         const details = Object.keys(senderErrors).map(field => {
                             return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
@@ -537,7 +607,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 throwIf({
                     when: acquiringContext.deletedAt,
-                    error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
+                    error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED_ONE_RECEIPT,
                 })
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
@@ -546,7 +616,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 throwIf({
                     when: acquiringIntegration.deletedAt,
-                    error: errors.ACQUIRING_INTEGRATION_IS_DELETED,
+                    error: errors.ACQUIRING_INTEGRATION_IS_DELETED_ONE_RECEIPT,
                     extraArgsSupplier: () => ({ messageInterpolation: { id: acquiringContext.integration } }),
                 })
 
@@ -555,27 +625,27 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 throwIf({
                     when: isNil(billingReceipt),
-                    error: errors.CANNOT_FIND_ALL_BILLING_RECEIPTS,
-                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptIds: receipt.id } }),
+                    error: errors.CANNOT_FIND_BILLING_RECEIPT,
+                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptId: receipt.id } }),
                 })
                 throwIf({
                     when: billingReceipt.deletedAt,
-                    error: errors.RECEIPTS_ARE_DELETED,
-                    extraArgsSupplier: () => ({ messageInterpolation: { ids: billingReceipt.id } }),
+                    error: errors.RECEIPT_IS_DELETED,
+                    extraArgsSupplier: () => ({ messageInterpolation: { id: billingReceipt.id } }),
                 })
 
                 // negative to pay value
                 throwIf({
                     when: Big(billingReceipt.toPay).lte(0),
-                    error: errors.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-                    extraArgsSupplier: () => ({ messageInterpolation: { ids: billingReceipt.id } }),
+                    error: errors.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
+                    extraArgsSupplier: () => ({ messageInterpolation: { id: billingReceipt.id } }),
                 })
 
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingReceipt.context)
 
                 throwIf({
                     when: billingContext.deletedAt,
-                    error: errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+                    error: errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED_ONE_RECEIPT,
                     extraArgsSupplier: () => {
                         const failedReceipts = [{ receiptId: billingReceipt.id, contextId: billingReceipt.context }]
                         return { data: { failedReceipts } }
@@ -587,15 +657,15 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 throwIf({
                     when: !supportedBillingIntegrations.includes(billingContext.integration),
-                    error: errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
-                    extraArgsSupplier: () => ({ messageInterpolation: { unsupportedBillingIntegrations:  billingContext.integration } }),
+                    error: errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION_ONE_RECEIPT,
+                    extraArgsSupplier: () => ({ messageInterpolation: { unsupportedBillingIntegration:  billingContext.integration } }),
                 })
 
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
                 throwIf({
                     when: billingIntegration.deletedAt,
-                    error: errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+                    error: errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION_ONE_RECEIPT,
                     extraArgsSupplier: () => {
                         const failedReceipts = [{ receiptId: billingReceipt.id, integrationId: billingContext.integration }]
                         return { data: { failedReceipts } }
