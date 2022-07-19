@@ -104,7 +104,7 @@ const loadTicketsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC
             [
                 (idx, knex) => knex.raw(`MAX(mr${idx}."createdAt") as "closedAt"`),
                 idx => [`TicketChange as mr${idx}`, function () {
-                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.canceled, statusIndexes.completed])
+                    this.on(`mr${idx}.ticket`, 'mainModel.id').onIn(`mr${idx}.statusIdTo`, [statusIndexes.canceled, statusIndexes.closed])
                 }],
             ],
         ],
