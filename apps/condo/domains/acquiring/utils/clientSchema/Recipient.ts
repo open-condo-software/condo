@@ -53,6 +53,7 @@ const {
     useObjects,
     useCreate,
     useUpdate,
+    useDelete,
 } = generateReactHooks<Recipient, RecipientUpdateInput, IRecipientFormState, IRecipientUIState, QueryAllRecipientsArgs>(RecipientGQL, { convertToGQLInput, convertToUIState })
 
 export {
@@ -60,5 +61,6 @@ export {
     useObjects,
     useCreate,
     useUpdate,
+    useDelete,
     convertToUIFormState,
 }

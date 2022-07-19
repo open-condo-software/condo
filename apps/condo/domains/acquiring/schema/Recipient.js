@@ -17,6 +17,7 @@ const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.uti
 const { validateIec } = require('@condo/domains/acquiring/utils/validate/iec.utils')
 const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
 const { validateBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
+const { getOrganizationByTin } = require('@condo/domains/common/utils/serverSideRecipientApi')
 
 const Recipient = new GQLListSchema('Recipient', {
     schemaDoc: 'Organization\' recipient information: bank account, bic, and so on',
