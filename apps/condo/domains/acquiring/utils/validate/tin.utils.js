@@ -9,9 +9,6 @@ const CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
 const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
 
 
-//TODO: Fix all places where isValidTin is used
-
-
 class RecipientTinValidation {
 
     errors = []

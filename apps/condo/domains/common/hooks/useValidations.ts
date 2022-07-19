@@ -1,7 +1,7 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@condo/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { isValidTin } from '@condo/domains/acquiring/utils/validate/tin.utils'
+import { validateTin } from '@condo/domains/acquiring/utils/validate/tin.utils'
 
 type ValidatorTypes = {
     changeMessage: (rule: Rule, message: string) => Rule
@@ -127,7 +127,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         (country) => {
             return {
                 validator: (_, value: string) => {
-                    if (isValidTin(value, country)) return Promise.resolve()
+                    if (validateTin(value, country).result) return Promise.resolve()
 
                     return Promise.reject(TinValueIsInvalidMessage)
                 },
