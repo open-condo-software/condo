@@ -1,6 +1,6 @@
 import { Col, Row, Skeleton, Tag, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { useIntl } from '@core/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -104,11 +104,9 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
     )
 }
 
-export const UserOrganizationsList = ({ userOrganization }) => {
-    const { user } = useAuth()
-
+export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQuery }) => {
     const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isAccepted: true } : {} },
+        organizationEmployeesQuery,
         { fetchPolicy: 'network-only' }
     )
 
