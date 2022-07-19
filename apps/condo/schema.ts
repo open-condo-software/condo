@@ -34375,13 +34375,11 @@ export type RegisterMultiPaymentOutput = {
   getCardTokensUrl: Scalars['String'];
 };
 
-export type RegisterMultiPaymentReceiptInfoInput = {
-  id: Scalars['String'];
-};
-
 export type RegisterMultiPaymentServiceConsumerInput = {
-  consumerId: Scalars['String'];
-  receipts: Array<RegisterMultiPaymentReceiptInfoInput>;
+  consumerId?: Maybe<Scalars['String']>;
+  /** consumerId is deprecated, use serviceConsumer instead. Required field (in future) */
+  serviceConsumer?: Maybe<ServiceConsumerWhereUniqueInput>;
+  receipts: Array<BillingReceiptWhereUniqueInput>;
 };
 
 export type RegisterNewOrganizationInput = {
