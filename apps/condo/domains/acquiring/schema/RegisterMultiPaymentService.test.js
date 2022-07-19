@@ -795,14 +795,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: `Cannot find all specified BillingReceipts with ids ${missingReceiptId}`,
+                        message: `Cannot find specified BillingReceipt with id ${missingReceiptId}`,
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            variable: ['data', 'receipt', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'CANNOT_FIND_ALL_BILLING_RECEIPTS',
-                            message: 'Cannot find all specified BillingReceipts with ids {missingReceiptIds}',
+                            message: 'Cannot find specified BillingReceipt with id {missingReceiptId}',
                         },
                     }])
                 })
@@ -832,14 +832,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: `Some of ServiceConsumer's AcquiringIntegration does not supports following BillingReceipt's BillingIntegrations: ${billingIntegration.id}`,
+                        message: `AcquiringIntegration does not supports following BillingReceipt's BillingIntegration: ${billingIntegration.id}`,
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            variable: ['data', 'receipt', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION',
-                            message: 'Some of ServiceConsumer\'s AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegrations: {unsupportedBillingIntegrations}',
+                            message: 'AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegration: {unsupportedBillingIntegration}',
                         },
                     }])
                 })
@@ -862,14 +862,14 @@ describe('RegisterMultiPaymentService', () => {
                         await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
-                            message: `Cannot pay for BillingReceipts ${receipt.id} with negative "toPay" value`,
+                            message: `Cannot pay for BillingReceipt ${receipt.id} with negative "toPay" value`,
                             path: ['result'],
                             extensions: {
                                 mutation: 'registerMultiPaymentForOneReceipt',
-                                variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                                variable: ['data', 'receipt', 'id'],
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
-                                message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
+                                message: 'Cannot pay for BillingReceipt {id} with negative "toPay" value',
                             },
                         }])
                     })
@@ -894,14 +894,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: `Cannot pay for deleted receipts ${deletedReceiptId}`,
+                        message: `Cannot pay for deleted receipt ${deletedReceiptId}`,
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            variable: ['data', 'receipt', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'RECEIPTS_ARE_DELETED',
-                            message: 'Cannot pay for deleted receipts {ids}',
+                            message: 'Cannot pay for deleted receipt {id}',
                         },
                     }])
                 })
@@ -922,14 +922,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
+                        message: 'Cannot pay via deleted acquiring integration context',
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            variable: ['data', 'acquiringIntegrationContext', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED',
-                            message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
+                            message: 'Cannot pay via deleted acquiring integration context',
                         },
                     }])
                 })
@@ -955,7 +955,7 @@ describe('RegisterMultiPaymentService', () => {
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
+                            variable: ['data', 'acquiringIntegrationContext', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'ACQUIRING_INTEGRATION_IS_DELETED',
                             message: 'Cannot pay via deleted acquiring integration with id "{id}"',
@@ -980,14 +980,14 @@ describe('RegisterMultiPaymentService', () => {
                     await registerMultiPaymentForOneReceiptByTestClient(client, receipt, acquiringIntegrationContext)
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
-                        message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
+                        message: 'BillingIntegrationOrganizationContext is deleted for provided BillingReceipt',
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            variable: ['data', 'receipt', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED',
-                            message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
+                            message: 'BillingIntegrationOrganizationContext is deleted for provided BillingReceipt',
                             data: {
                                 failedReceipts: [{
                                     receiptId: receipt.id,
@@ -1019,7 +1019,7 @@ describe('RegisterMultiPaymentService', () => {
                         path: ['result'],
                         extensions: {
                             mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
+                            variable: ['data', 'receipt', 'id'],
                             code: 'BAD_USER_INPUT',
                             type: 'RECEIPT_HAS_DELETED_BILLING_INTEGRATION',
                             message: 'BillingReceipt has deleted BillingIntegration',
