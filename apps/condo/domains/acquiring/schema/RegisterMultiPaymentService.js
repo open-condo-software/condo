@@ -56,22 +56,12 @@ const errors = {
         type: REQUIRED,
         message: 'Missing required value for "groupedReceipts" field',
     },
-    /**
-     * @deprecated use MISSING_REQUIRED_BILLING_RECEIPTS_IN_GROUPED_RECEIPTS
-     */
     MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts'],
         code: BAD_USER_INPUT,
         type: REQUIRED,
         message: 'Each group of receipts should contain at least 1 receipt',
-    },
-    MISSING_REQUIRED_BILLING_RECEIPTS_IN_GROUPED_RECEIPTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts'],
-        code: BAD_USER_INPUT,
-        type: REQUIRED,
-        message: 'Each group of billingReceipts should contain at least 1 billingReceipt',
     },
     // (signature change) temporarily
     MISSING_REQUIRED_SERVICE_CONSUMER_IN_GROUPED_RECEIPTS: {
@@ -106,22 +96,12 @@ const errors = {
         type: NOT_UNIQUE,
         message: 'There are some groupedReceipts with same serviceConsumer',
     },
-    /**
-     * @deprecated use DUPLICATED_BILLING_RECEIPT
-     */
     DUPLICATED_RECEIPT: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts'],
         code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
         message: 'Found duplicated receipt ids. Note, each receipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice',
-    },
-    DUPLICATED_BILLING_RECEIPT: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts'],
-        code: BAD_USER_INPUT,
-        type: NOT_UNIQUE,
-        message: 'Found duplicated billingReceipts ids. Note, each billingReceipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice',
     },
     /**
      * @deprecated use MISSING_SERVICE_CONSUMERS
@@ -242,16 +222,6 @@ const errors = {
         type: RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
         message: 'Receipts cannot be grouped by AcquiringIntegration with id "{id}", because a value of "canGroupReceipts" field is false',
     },
-    CANNOT_FIND_ALL_BILLING_RECEIPTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: CANNOT_FIND_ALL_BILLING_RECEIPTS,
-        message: 'Cannot find all specified BillingReceipts with ids {missingReceiptIds}',
-    },
-    /**
-     * @deprecated use CANNOT_FIND_ALL_BILLING_RECEIPTS
-     */
     CANNOT_FIND_ALL_RECEIPTS: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -259,9 +229,6 @@ const errors = {
         type: CANNOT_FIND_ALL_BILLING_RECEIPTS,
         message: 'Cannot find all specified BillingReceipts with ids {missingReceiptIds}',
     },
-    /**
-     * @deprecated use BILLING_RECEIPTS_ARE_DELETED
-     */
     RECEIPTS_ARE_DELETED: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -269,16 +236,6 @@ const errors = {
         type: RECEIPTS_ARE_DELETED,
         message: 'Cannot pay for deleted receipts {ids}',
     },
-    BILLING_RECEIPTS_ARE_DELETED: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: RECEIPTS_ARE_DELETED,
-        message: 'Cannot pay for deleted billingReceipts {ids}',
-    },
-    /**
-     * @deprecated use BILLING_RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE
-     */
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -286,16 +243,6 @@ const errors = {
         type: RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
         message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
     },
-    BILLING_RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-        message: 'Cannot pay for BillingReceipts {ids} with negative "toPay" value',
-    },
-    /**
-     * @deprecated use BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER
-     */
     RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -304,51 +251,20 @@ const errors = {
         ,
         message: 'BillingReceipt with id "{receiptId}" does not have common BillingAccount with specified ServiceConsumer with id "{serviceConsumerId}"',
     },
-    BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER
-        ,
-        message: 'BillingReceipt with id "{receiptId}" does not have common BillingAccount with specified ServiceConsumer with id "{serviceConsumerId}"',
-    },
-    /**
-     * @deprecated use BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED
-     */
-    BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED_FOR_RECEIPTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
-        message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
-    },
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED: {
         mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
+        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
         message: 'BillingIntegrationOrganizationContext is deleted for some BillingReceipts',
-    },
-    /**
-     * @deprecated use ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION
-     */
-    ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION_FOR_RECEIPTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
-        message: 'Some of ServiceConsumer\'s AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegrations: {unsupportedBillingIntegrations}',
     },
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION: {
         mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
+        variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
         message: 'Some of ServiceConsumer\'s AcquiringIntegration does not supports following BillingReceipt\'s BillingIntegrations: {unsupportedBillingIntegrations}',
     },
-    /**
-     * @deprecated use BILLING_RECEIPT_HAS_DELETED_BILLING_INTEGRATION
-     */
     RECEIPT_HAS_DELETED_BILLING_INTEGRATION: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
@@ -356,26 +272,9 @@ const errors = {
         type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
         message: 'BillingReceipt has deleted BillingIntegration',
     },
-    BILLING_RECEIPT_HAS_DELETED_BILLING_INTEGRATION: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
-        message: 'BillingReceipt has deleted BillingIntegration',
-    },
-    /**
-     * @deprecated use BILLING_RECEIPTS_HAS_MULTIPLE_CURRENCIES
-     */
     RECEIPTS_HAS_MULTIPLE_CURRENCIES: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-        code: BAD_USER_INPUT,
-        type: RECEIPTS_HAS_MULTIPLE_CURRENCIES,
-        message: 'BillingReceipts has multiple currencies',
-    },
-    BILLING_RECEIPTS_HAS_MULTIPLE_CURRENCIES: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'billingReceipts', '[]', 'id'],
         code: BAD_USER_INPUT,
         type: RECEIPTS_HAS_MULTIPLE_CURRENCIES,
         message: 'BillingReceipts has multiple currencies',
@@ -393,16 +292,14 @@ const SENDER_FIELD_CONSTRAINTS = {
     },
 }
 
-// TODO find "(signature change)" comments & when the transition of the mobile application to the new signature is completed, delete the logic the old signature and the old signature itself
+// TODO (DOMA-3016) find "(signature change)" comments & when the transition of the mobile application to the new signature is completed, delete the logic the old signature and the old signature itself
+// delete consumerId
+// make required field serviceConsumer
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentReceiptInfoInput { id: String! }',
-        },
-        {
-            access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String @deprecated(reason: "consumerId is deprecated, use serviceConsumer instead."), """consumerId is deprecated, use serviceConsumer instead. Required field (in future)""" serviceConsumer: ServiceConsumerWhereUniqueInput, receipts: [RegisterMultiPaymentReceiptInfoInput!] @deprecated(reason: "receipts is deprecated, use billingReceipts instead."), """receipts is deprecated, use billingReceipts instead. Required field (in future)""" billingReceipts: [BillingReceiptWhereUniqueInput!] }',
+            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String @deprecated(reason: "consumerId is deprecated, use serviceConsumer instead."), """consumerId is deprecated, use serviceConsumer instead. Required field (in future)""" serviceConsumer: ServiceConsumerWhereUniqueInput, receipts: [BillingReceiptWhereUniqueInput!]! }',
         },
         {
             access: true,
@@ -439,26 +336,16 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError(errors.MISSING_REQUIRED_GROUPED_RECEIPTS, context)
                 }
 
-                // (signature change) in the future, you need to remove these two keys
-                // and replace all places where they occur with billingReceipts & serviceConsumer
-                const billingReceiptsKey = groupedReceipts.some(group => get(group, ['billingReceipts']))
-                    ? 'billingReceipts'
-                    : groupedReceipts.some(group => get(group, ['receipts']))
-                        ? 'receipts'
-                        : 'billingReceipts'
+                // (signature change) in the future, you need to remove this key
+                // and replace all places where they occur with serviceConsumer
                 const serviceConsumerKey = groupedReceipts.some(group => get(group, ['serviceConsumer']))
                     ? 'serviceConsumer'
                     : groupedReceipts.some(group => get(group, ['consumerId']))
                         ? 'consumerId'
                         : 'serviceConsumer'
 
-                if (groupedReceipts.some(group => !get(group, [billingReceiptsKey, 'length']))) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    if (billingReceiptsKey === 'billingReceipts') {
-                        throw new GQLError(errors.MISSING_REQUIRED_BILLING_RECEIPTS_IN_GROUPED_RECEIPTS, context)
-                    } else {
-                        throw new GQLError(errors.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
-                    }
+                if (groupedReceipts.some(group => !get(group, ['receipts', 'length']))) {
+                    throw new GQLError(errors.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
                 }
 
                 // (signature change) remove the condition and remove the temporarily errors
@@ -482,16 +369,11 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
                 }
                 const receiptsIds = groupedReceipts
-                    .flatMap(group => group[billingReceiptsKey])
+                    .flatMap(group => group['receipts'])
                     .map(receiptInfo => receiptInfo.id)
                 const uniqueReceiptsIds = new Set(receiptsIds)
                 if (receiptsIds.length !== uniqueReceiptsIds.size) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    if (billingReceiptsKey === 'billingReceipts') {
-                        throw new GQLError(errors.DUPLICATED_BILLING_RECEIPT, context)
-                    } else {
-                        throw new GQLError(errors.DUPLICATED_RECEIPT, context)
-                    }
+                    throw new GQLError(errors.DUPLICATED_RECEIPT, context)
                 }
 
                 // Stage 1. Check Acquiring
@@ -569,31 +451,25 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (receipts.length !== receiptsIds.length) {
                     const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
                     const missingReceipts = receiptsIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.CANNOT_FIND_ALL_BILLING_RECEIPTS : errors.CANNOT_FIND_ALL_RECEIPTS
-                    throw new GQLError({ ...error, messageInterpolation: { missingReceiptIds: missingReceipts.join(', ') } }, context)
+                    throw new GQLError({ ...errors.CANNOT_FIND_ALL_RECEIPTS, messageInterpolation: { missingReceiptIds: missingReceipts.join(', ') } }, context)
                 }
 
                 const deletedReceiptsIds = receipts.filter(receipt => Boolean(receipt.deletedAt)).map(receipt => receipt.id)
                 if (deletedReceiptsIds.length) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.BILLING_RECEIPTS_ARE_DELETED : errors.RECEIPTS_ARE_DELETED
-                    throw new GQLError({ ...error, messageInterpolation: { ids: deletedReceiptsIds.join(', ') } }, context)
+                    throw new GQLError({ ...errors.RECEIPTS_ARE_DELETED, messageInterpolation: { ids: deletedReceiptsIds.join(', ') } }, context)
                 }
 
                 const negativeReceiptsIds = receipts
                     .filter(receipt => Big(receipt.toPay).lte(0))
                     .map(receipt => receipt.id)
                 if (negativeReceiptsIds.length) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.BILLING_RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE : errors.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE
-                    throw new GQLError({ ...error, messageInterpolation: { ids: negativeReceiptsIds.join(', ') } }, context)
+                    throw new GQLError({ ...errors.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE, messageInterpolation: { ids: negativeReceiptsIds.join(', ') } }, context)
                 }
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
 
                 for (const group of groupedReceipts) {
-                    for (const receiptInfo of group[billingReceiptsKey]) {
+                    for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
 
                         const billingAccountId = receipt.account
@@ -607,12 +483,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             || billingAccount.unitName !== resident.unitName
                             || billingAccount.context !== consumer.billingIntegrationContext
                         ) {
-                            // (signature change) remove the condition and remove the deprecated error
-                            const error = billingReceiptsKey === 'billingReceipts'
-                                ? errors.BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER
-                                : errors.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER
                             throw new GQLError({
-                                ...error,
+                                ...errors.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
                                 messageInterpolation: {
                                     receiptId: receiptInfo.id,
                                     serviceConsumerId: serviceConsumerKey === 'serviceConsumer' ? group.serviceConsumer.id : group.consumerId,
@@ -632,9 +504,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingContextsIds.has(receipt.context))
                         .map(receipt => ({ receiptId: receipt.id, contextId: receipt.context }))
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED : errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED_FOR_RECEIPTS
-                    throw new GQLError({ ...error, data: { failedReceipts } }, context)
+                    throw new GQLError({ ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } }, context)
                 }
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
                     .map(integration => integration.id)
@@ -642,9 +512,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds)
                     .filter(integration => !supportedBillingIntegrations.includes(integration))
                 if (unsupportedBillings.length) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION : errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION_FOR_RECEIPTS
-                    throw new GQLError({ ...error, messageInterpolation: { unsupportedBillingIntegrations:  unsupportedBillings.join(', ') } }, context)
+                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations:  unsupportedBillings.join(', ') } }, context)
                 }
 
                 const billingIntegrations = await find('BillingIntegration', {
@@ -655,16 +523,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
                         .map(receipt => ({ receiptId: receipt.id, integrationId: billingContextsById[receipt.context].integration }))
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.BILLING_RECEIPT_HAS_DELETED_BILLING_INTEGRATION : errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION
-                    throw new GQLError({ ...error, data: { failedReceipts } }, context)
+                    throw new GQLError({ ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } }, context)
                 }
 
                 const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
                 if (currencies.size > 1) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = billingReceiptsKey === 'billingReceipts' ? errors.BILLING_RECEIPTS_HAS_MULTIPLE_CURRENCIES : errors.RECEIPTS_HAS_MULTIPLE_CURRENCIES
-                    throw new GQLError(error, context)
+                    throw new GQLError(errors.RECEIPTS_HAS_MULTIPLE_CURRENCIES, context)
                 }
                 const currencyCode = get(billingIntegrations, ['0', 'currencyCode'])
 
@@ -675,7 +539,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
                     const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
                     const feeCalculator = new FeeDistribution(formula)
-                    for (const receiptInfo of group[billingReceiptsKey]) {
+                    for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
