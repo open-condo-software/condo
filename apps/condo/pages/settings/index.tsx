@@ -25,7 +25,7 @@ const TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT]
 
-const SettingsPage = (): JSX.Element => {
+const SettingsPage: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Settings' })
     const HintTitle = intl.formatMessage({ id: 'Hint' })
