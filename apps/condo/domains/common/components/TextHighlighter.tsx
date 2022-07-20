@@ -4,6 +4,7 @@ import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
 
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
+import { isNull } from 'lodash'
 
 export type TTextHighlighterRenderPartFN = (
     part: string,
@@ -24,7 +25,7 @@ export type TTextHighlighterProps = {
 
 export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     const { text, search, renderPart, type, style, title: titleFromProps, children } = props
-    const title = titleFromProps ? titleFromProps : titleFromProps === null ? null : text
+    const title = titleFromProps || isNull(titleFromProps) ? titleFromProps : text
 
     if (isEmpty(text)) return null
 

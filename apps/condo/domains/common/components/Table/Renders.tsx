@@ -19,6 +19,7 @@ import { EmptyTableCell } from './EmptyTableCell'
 import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { isNull } from 'lodash'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -71,7 +72,7 @@ type TGetHighlightedFN = (search?: FilterValue | string, postfix?: string | Reac
 export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extraProps, extraPostfixProps = {}, extraTitle) => (text) => {
     // Sometimes we can receive null/undefined as text
     const renderText = text ? String(text) : ''
-    const title = extraTitle ? extraTitle : extraTitle === null ? null : `${text} ${isString(postfix) && postfix || ''}`
+    const title = extraTitle || isNull(extraTitle) ? extraTitle : `${text} ${isString(postfix) && postfix || ''}`
 
     const getPostfix = () => (
         <Typography.Text title={title} {...extraPostfixProps}>
