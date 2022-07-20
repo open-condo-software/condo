@@ -5,10 +5,11 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const {
     queryOrganizationEmployeeFor,
-    checkOrganizationPermission,
+    checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
+const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('../../organization/utils/accessSchema')
 
 async function canReadContactRoles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -20,6 +21,7 @@ async function canReadContactRoles ({ authentication: { item: user } }) {
         OR: [
             { organization_is_null: true },
             { organization: queryOrganizationEmployeeFor(user.id) },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
         ],
     }
 }
@@ -42,7 +44,7 @@ async function canManageContactRoles ({ authentication: { item: user }, original
         }
     }
 
-    return checkOrganizationPermission(user.id, organizationId, 'canManageContacts')
+    return checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageContacts')
 }
 
 /*
