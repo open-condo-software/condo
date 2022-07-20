@@ -35,11 +35,11 @@ async function registerMultiPayment (context, data) {
 }
 
 const PaymentsFilterTemplate = generateServerUtils(PaymentsFilterTemplateGQL)
+
 async function registerMultiPaymentForOneReceipt (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerMultiPaymentForOneReceipt serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
