@@ -388,9 +388,7 @@ type TableScrollProps = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: bo
 export const getTableScrollConfig = (isSmall: boolean): TableScrollProps => {
     const props: TableScrollProps = {}
 
-    if (isSmall) {
-        props.x = true
-    }
+    props.x = true
 
     return props
 }
