@@ -36,6 +36,7 @@ const ContactRole = new GQLListSchema('ContactRole', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {
