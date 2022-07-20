@@ -11,26 +11,19 @@ const { find, getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
+const RECEIPTS_LIMIT = 100
+
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const errors = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@core/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.registerBillingReceipts.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
-    },
     BILLING_CONTEXT_NOT_FOUND: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'context'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Provided BillingIntegrationOrganizationContext is not found',
-        messageForUser: 'api.user.registerBillingReceipts.BILLING_CONTEXT_NOT_FOUND', // TODO(codegen): localized message for user, use translation files
     },
     BILLING_CATEGORY_NOT_FOUND: {
         mutation: 'registerBillingReceipts',
@@ -38,7 +31,6 @@ const errors = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Provided BillingCategory is not found for some receipts',
-        messageForUser: 'api.user.registerBillingReceipts.BILLING_CATEGORY_NOT_FOUND', // TODO(codegen): localized message for user, use translation files
     },
     PERIOD_WRONG_FORMAT: {
         mutation: 'registerBillingReceipts',
@@ -46,7 +38,6 @@ const errors = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'field Period is in wrong format for some receipts. Period should be in format: {YEAR}-{MONTH}-01. Example: 2022-03-01 - March of 2022',
-        messageForUser: 'api.user.registerBillingReceipts.PERIOD_WRONG_FORMAT',
     },
     ADDRESS_WRONG_VALUE: {
         mutation: 'registerBillingReceipts',
@@ -54,12 +45,17 @@ const errors = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'field Address has wrong value for some receipts',
-        messageForUser: 'api.user.registerBillingReceipts.ADDRESS_WRONG_VALUE',
+    },
+    RECEIPTS_LIMIT_HIT: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: `Too many receipts in one query! We support up to ${RECEIPTS_LIMIT} receipts`,
     },
 }
 
 const syncEntity = async (existingObjs, objs, shouldCreateHook, shouldUpdateHook) => {
-
 
     return {
         create: [],
@@ -226,7 +222,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
 
                 // Step 0:
-                // Validate context
+                // Perform basic validations:
+                if (receiptsInput.length > RECEIPTS_LIMIT) {
+                    throw new GQLError(errors.RECEIPTS_LIMIT_HIT, context)
+                }
+
                 const { id: billingContextId } = billingContextInput
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingContextId)
                 if (!billingContextId || !billingContext) {
