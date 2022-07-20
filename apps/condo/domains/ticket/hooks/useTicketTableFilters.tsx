@@ -24,6 +24,7 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
+import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
@@ -102,7 +103,9 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = convertToOptions<TicketStatusType>(statuses, 'name', 'id')
 
-    const { objs: sources } = TicketSource.useObjects({})
+    const { objs: sources } = TicketSource.useObjects({
+        where: { type_in: VISIBLE_TICKET_SOURCE_TYPES },
+    })
     const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
 
     const attributeOptions = useMemo(() => [
