@@ -58,6 +58,17 @@ const errors = {
     },
 }
 
+const syncEntity = async (existingObjs, objs, shouldCreateHook, shouldUpdateHook) => {
+
+
+    return {
+        create: [],
+        update: [],
+        delete: [],
+    }
+}
+
+
 const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
 const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, iec, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, iec, bic].join('_')
@@ -143,10 +154,10 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         ...existingReceiptsQuery,
         context: { id: billingContextId },
     })
-    const existingReceiptsWithData = existingReceipts.map(account => ({ ...account, ...{ property: _.find(properties, p => p.id === account.property ) } } ))
-    const accountsIndex = Object.fromEntries(existingReceiptsWithData.map((account) => ([getBillingAccountKey(account), account.id])))
+    const existingReceiptsWithData = existingReceipts.map(receipt => ({ ...receipt, ...{ property: _.find(properties, p => p.id === receipt.property ) } } ))
+    const receiptsIndex = Object.fromEntries(existingReceiptsWithData.map((receipt) => ([getBillingReceiptKey(receipt), receipt.id])))
 
-    const receiptsToAdd = receiptsWithData.filter((({ globalId }) => !Reflect.has(accountsIndex, globalId)))
+    const receiptsToAdd = receiptsWithData.filter((({ globalId }) => !Reflect.has(receiptsIndex, globalId)))
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
