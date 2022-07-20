@@ -17,6 +17,8 @@ const ContactRole = new GQLListSchema('ContactRole', {
             type: Relationship,
             ref: 'Organization',
             isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
         name: {
