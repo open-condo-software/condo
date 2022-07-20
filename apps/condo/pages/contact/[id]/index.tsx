@@ -50,7 +50,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
-    const contactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
+    const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
 
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
@@ -116,7 +116,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                 {
                                                     contactRole && (
                                                         <FieldPairRow
-                                                            fieldTitle={contactRoleTitle}
+                                                            fieldTitle={ContactRoleTitle}
                                                             fieldValue={get(contactRole, 'name')}
                                                         />
                                                     )

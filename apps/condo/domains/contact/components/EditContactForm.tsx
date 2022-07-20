@@ -45,7 +45,7 @@ export const EditContactForm: React.FC = () => {
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
-    const roleLabel = intl.formatMessage({ id: 'ContactRole' })
+    const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
 
     const { isSmall } = useLayoutContext()
     const { query, push } = useRouter()
@@ -191,7 +191,7 @@ export const EditContactForm: React.FC = () => {
                                                 {...INPUT_LAYOUT_PROPS}
                                                 labelAlign="left"
                                                 name="role"
-                                                label={roleLabel}
+                                                label={RoleLabel}
                                             >
                                                 <ContactRoleSelect roles={roles}/>
                                             </Form.Item>
