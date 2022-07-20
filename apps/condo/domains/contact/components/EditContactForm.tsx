@@ -32,19 +32,19 @@ const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
-    const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const ContactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
-    const ContactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
-    const ProfileUpdateTitle = intl.formatMessage({ id: 'EditingContact' })
-    const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
-    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
-    const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
-    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
-    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
-    const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
+    const errorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+    const loadingMessage = intl.formatMessage({ id: 'Loading' })
+    const contactNotFoundTitle = intl.formatMessage({ id: 'Contact.NotFound.Title' })
+    const contactNotFoundMessage = intl.formatMessage({ id: 'Contact.NotFound.Message' })
+    const profileUpdateTitle = intl.formatMessage({ id: 'EditingContact' })
+    const nameLabel = intl.formatMessage({ id: 'field.FullName.short' })
+    const fullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
+    const phoneLabel = intl.formatMessage({ id: 'Phone' })
+    const examplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const exampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
+    const emailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const applyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
+    const noPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
     const roleLabel = intl.formatMessage({ id: 'ContactRole' })
 
     const { isSmall } = useLayoutContext()
@@ -91,19 +91,19 @@ export const EditContactForm: React.FC = () => {
     }
 
     if (error) {
-        return <LoadingOrErrorPage title={LoadingMessage} loading={loading} error={error ? ErrorMessage : null}/>
+        return <LoadingOrErrorPage title={loadingMessage} loading={loading} error={error ? errorMessage : null}/>
     }
     if (loading) {
         return <Loader/>
     }
     if (!contact) {
-        return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
+        return <LoadingOrErrorPage title={contactNotFoundTitle} loading={false} error={contactNotFoundMessage}/>
     }
 
     const isContactEditable = canManageContacts(link, contact)
 
     if (!isContactEditable) {
-        return <LoadingOrErrorPage title={ProfileUpdateTitle} loading={false} error={NoPermissionMessage}/>
+        return <LoadingOrErrorPage title={profileUpdateTitle} loading={false} error={noPermissionMessage}/>
     }
 
     const formAction = (formValues) => {
@@ -144,7 +144,7 @@ export const EditContactForm: React.FC = () => {
                                                 level={1}
                                                 style={{ margin: 0, fontWeight: 'bold' }}
                                             >
-                                                {ProfileUpdateTitle}
+                                                {profileUpdateTitle}
                                             </Typography.Title>
                                         </Col>
                                         <Col span={24}>
@@ -152,12 +152,12 @@ export const EditContactForm: React.FC = () => {
                                                 {...INPUT_LAYOUT_PROPS}
                                                 labelAlign={'left'}
                                                 name={'name'}
-                                                label={NameLabel}
+                                                label={nameLabel}
                                                 required={true}
                                                 validateFirst
                                                 rules={validations.name}
                                             >
-                                                <Input placeholder={FullNamePlaceholderMessage}/>
+                                                <Input placeholder={fullNamePlaceholderMessage}/>
                                             </Form.Item>
                                         </Col>
                                         <Col span={24}>
@@ -165,12 +165,12 @@ export const EditContactForm: React.FC = () => {
                                                 {...INPUT_LAYOUT_PROPS}
                                                 labelAlign={'left'}
                                                 name={'phone'}
-                                                label={PhoneLabel}
+                                                label={phoneLabel}
                                                 required={true}
                                                 validateFirst
                                                 rules={validations.phone}
                                             >
-                                                <PhoneInput placeholder={ExamplePhoneMessage} block/>
+                                                <PhoneInput placeholder={examplePhoneMessage} block/>
                                             </Form.Item>
                                         </Col>
                                         <Col span={24}>
@@ -178,12 +178,12 @@ export const EditContactForm: React.FC = () => {
                                                 {...INPUT_LAYOUT_PROPS}
                                                 labelAlign={'left'}
                                                 name={'email'}
-                                                label={EmailLabel}
+                                                label={emailLabel}
                                                 required={false}
                                                 validateFirst
                                                 rules={validations.email}
                                             >
-                                                <Input placeholder={ExampleEmailMessage}/>
+                                                <Input placeholder={exampleEmailMessage}/>
                                             </Form.Item>
                                         </Col>
                                         <Col span={24}>
@@ -207,7 +207,7 @@ export const EditContactForm: React.FC = () => {
                                                 type={'sberPrimary'}
                                                 loading={isLoading}
                                             >
-                                                {ApplyChangesMessage}
+                                                {applyChangesMessage}
                                             </Button>
                                         </Space>
                                     </Row>
