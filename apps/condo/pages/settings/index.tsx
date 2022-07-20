@@ -35,14 +35,14 @@ const SettingsPage = (): JSX.Element => {
     const hasSubscriptionFeature = hasFeature('subscription')
 
     const userOrganization = useOrganization()
-    const canManageContacts = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContacts']), [userOrganization])
+    const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const tabKeysToDisplay = useMemo(() => {
         const result = ALWAYS_AVAILABLE_TABS
         if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
-        if (canManageContacts) result.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (canManageContactRoles) result.push(SETTINGS_TAB_CONTACT_ROLES)
         return result
-    }, [hasSubscriptionFeature, canManageContacts])
+    }, [hasSubscriptionFeature, canManageContactRoles])
 
     const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
         () => [
@@ -56,13 +56,13 @@ const SettingsPage = (): JSX.Element => {
                 title: HintTitle,
                 content: <TicketPropertyHintSettings/>,
             },
-            canManageContacts && {
+            canManageContactRoles && {
                 key: SETTINGS_TAB_CONTACT_ROLES,
                 title: RolesTitle,
                 content: <ContactRolesSettingsContent/>,
             },
         ].filter(Boolean),
-        [HintTitle, SubscriptionTitle, hasSubscriptionFeature, RolesTitle, canManageContacts],
+        [HintTitle, SubscriptionTitle, hasSubscriptionFeature, RolesTitle, canManageContactRoles],
     )
 
     const titleContent = useMemo(() => (
