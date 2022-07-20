@@ -14,8 +14,12 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const UpdateContactRolePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'ContactRoles.editing' })
+    const PageTitleMsg = intl.formatMessage({ id: 'ContactRoles.editing' })
     const { query } = useRouter()
+
+    if (Array.isArray(query.id)) {
+        return null
+    }
 
     return (
         <>
