@@ -729,6 +729,31 @@ describe('RegisterBillingReceiptsService', () => {
             })
         })
 
+        test('Mutation has limit on receipts', async () => {
+
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const RECEIPTS_LIMIT = 100
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+
+            for (let i = 0; i < RECEIPTS_LIMIT + 1; ++i) {
+                payload.receipts.push(createRegisterBillingReceiptsPayload())
+            }
+
+            await catchErrorFrom(async () => {
+                await registerBillingReceiptsByTestClient(admin, payload)
+            }, (e) => {
+                expect(e.errors[0].message).toContain('Too many receipts in one query!')
+            })
+        })
+
+
         test.skip('Mutation checks wrong category-id', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
