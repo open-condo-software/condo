@@ -51,6 +51,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         value,
         eventName,
         eventProperties,
+        loading,
         ...restSelectProps
     } = props
 
@@ -178,7 +179,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         () => {
             const dataOptions = data.map((option, index) => renderOption(option, value, index))
 
-            if (!fetching) return dataOptions
+            if (!fetching && !loading) return dataOptions
 
             return [
                 ...dataOptions,
@@ -189,7 +190,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 ),
             ]
         },
-        [data, fetching, value],
+        [data, fetching, loading, renderOption, value],
     )
 
     return (
