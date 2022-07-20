@@ -5,9 +5,12 @@ const get = require('lodash/get')
 const { MeterReading, Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 class FixMeterReadingsClients {
-    context = null
-    meters = []
-    meterReadings = []
+    constructor (propertyIds) {
+        this.propertyIds = propertyIds
+        this.context = null
+        this.meters = []
+        this.meterReadings = []
+    }
 
     async connect () {
         const resolved = path.resolve('./index.js')
@@ -20,17 +23,17 @@ class FixMeterReadingsClients {
 
     async findMeterReadings () {
         this.meterReadings = await find('MeterReading', {
-            meter: { property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] } },
+            meter: { property: { id_in: this.propertyIds } },
         })
     }
 
     async findMeters () {
         this.meters = await find('Meter', {
-            property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] },
+            property: { id_in: this.propertyIds },
         })
     }
 
-    async fixBrokenMeterReadings () {
+    async deleteBrokenMeterReadings () {
         if (!get(this.meterReadings, 'length')) return
 
         for (const meterReading of this.meterReadings) {
@@ -42,7 +45,7 @@ class FixMeterReadingsClients {
         }
     }
 
-    async fixBrokenMeters () {
+    async deleteBrokenMeters () {
         if (!get(this.meters, 'length')) return
 
         for (const meter of this.meters) {
@@ -55,8 +58,11 @@ class FixMeterReadingsClients {
     }
 }
 
-const deleteMeterReadings = async () => {
-    const fixer = new FixMeterReadingsClients()
+const deleteMeterReadings = async (propertyIds) => {
+    if (!propertyIds) {
+        throw new Error("propertyIds not found!")
+    }
+    const fixer = new FixMeterReadingsClients(propertyIds)
     console.info('[INFO] Connecting to database...')
     await fixer.connect()
     console.info('[INFO] Finding broken meter readings and meters...')
@@ -70,7 +76,7 @@ const deleteMeterReadings = async () => {
     console.info('[INFO] Broken meters are deleted...')
 }
 
-deleteMeterReadings().then(() => {
+deleteMeterReadings(propertyIds).then(() => {
     console.log('\r\n')
     console.log('All done')
     process.exit(0)
