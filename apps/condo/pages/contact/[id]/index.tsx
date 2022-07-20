@@ -41,15 +41,15 @@ const FieldPairRow = (props) => {
 
 export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
-    const contactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
-    const phoneLabel = intl.formatMessage({ id: 'Phone' })
-    const addressLabel = intl.formatMessage({ id: 'field.Address' })
-    const emailLabel = intl.formatMessage({ id: 'field.EMail' })
-    const updateMessage = intl.formatMessage({ id: 'Edit' })
-    const deletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const confirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
-    const confirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
-    const confirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
+    const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
+    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const contactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
 
     const contactId = get(contact, 'id', null)
@@ -60,7 +60,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const unitSuffix = contactUnitName
         ? `${intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${contactUnitType}` }).toLowerCase()} ${contactUnitName}`
         : ''
-    const contactAddress = `${get(contact, ['property', 'address'], deletedMessage)} ${unitSuffix}`
+    const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')
 
     const { isSmall } = useLayoutContext()
@@ -93,23 +93,23 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                             level={2}
                                             style={{ margin: '8px 0 0', fontWeight: 400 }}
                                         >
-                                            {contactLabel}
+                                            {ContactLabel}
                                         </Typography.Title>
                                     </Col>
                                     <Col span={24}>
                                         <FrontLayerContainer>
                                             <Row gutter={[0, 24]}>
                                                 <FieldPairRow
-                                                    fieldTitle={addressLabel}
+                                                    fieldTitle={AddressLabel}
                                                     fieldValue={contactAddress}
                                                 />
                                                 <FieldPairRow
-                                                    fieldTitle={phoneLabel}
+                                                    fieldTitle={PhoneLabel}
                                                     fieldValue={get(contact, ['phone'])}
                                                 />
                                                 {
                                                     contactEmail && <FieldPairRow
-                                                        fieldTitle={emailLabel}
+                                                        fieldTitle={EmailLabel}
                                                         fieldValue={get(contact, ['email'])}
                                                     />
                                                 }
@@ -134,13 +134,13 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                         secondary
                                                         icon={<EditFilled />}
                                                     >
-                                                        {updateMessage}
+                                                        {UpdateMessage}
                                                     </Button>
                                                 </Link>
                                                 <DeleteButtonWithConfirmModal
-                                                    title={confirmDeleteTitle}
-                                                    message={confirmDeleteMessage}
-                                                    okButtonLabel={confirmDeleteButtonLabel}
+                                                    title={ConfirmDeleteTitle}
+                                                    message={ConfirmDeleteMessage}
+                                                    okButtonLabel={ConfirmDeleteButtonLabel}
                                                     action={deleteCallback}
                                                 />
                                             </Space>
