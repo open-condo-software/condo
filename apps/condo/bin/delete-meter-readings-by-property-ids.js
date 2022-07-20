@@ -20,13 +20,13 @@ class FixMeterReadingsClients {
 
     async findMeterReadings () {
         this.meterReadings = await find('MeterReading', {
-            meter: { property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] } }
+            meter: { property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] } },
         })
     }
 
     async findMeters () {
         this.meters = await find('Meter', {
-            property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] }
+            property: { id_in: ['3377a303-b098-426a-b559-e0acdf57071e', '19e7b8f0-d204-4f1e-80df-6069f01b15b4'] },
         })
     }
 
