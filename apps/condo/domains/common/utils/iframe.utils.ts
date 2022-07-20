@@ -22,12 +22,13 @@ export type LoadingStatuses = 'done'
 
 // TYPES DECLARATION BLOCK
 type TaskMessageType = {
+    id?: string,
     type: 'task',
-    id: string,
+    taskId: string,
     taskTitle: string,
     taskDescription: string,
     taskProgress: number,
-    taskStatus: TASK_STATUS
+    taskStatus: TASK_STATUS,
     taskOperation: TaskOperationType
 }
 export type NotificationMessageType = {
@@ -122,7 +123,7 @@ const AvailableMessageTypes = [
 ]
 
 const MessagesRequiredProperties = {
-    [TASK_MESSAGE_TYPE]: ['id', 'taskTitle', 'taskDescription', 'taskProgress', 'taskStatus', 'taskOperation'],
+    [TASK_MESSAGE_TYPE]: ['taskId', 'taskTitle', 'taskDescription', 'taskProgress', 'taskStatus', 'taskOperation'],
     [NOTIFICATION_MESSAGE_TYPE]: ['notificationType', 'message'],
     [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
@@ -146,6 +147,7 @@ const SystemMessageSchema = {
     type: 'object',
     properties: {
         type: { enum: AvailableMessageTypes },
+        taskId: { type: 'string' },
         taskTitle: { type: 'string' },
         taskDescription: { type: 'string' },
         taskProgress: { type: 'number' },
@@ -216,6 +218,7 @@ export const parseMessage: parseMessageType = (data) => {
                     message: {
                         type: TASK_MESSAGE_TYPE,
                         id: data.id,
+                        taskId: data.taskId,
                         taskTitle: data.taskTitle,
                         taskDescription: data.taskDescription,
                         taskProgress: data.taskProgress,

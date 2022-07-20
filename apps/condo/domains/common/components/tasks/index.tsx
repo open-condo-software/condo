@@ -27,8 +27,11 @@ export type TaskRecord = {
     progress: TaskRecordProgress
 
     status: TASK_STATUS
-    __typename: string
     // Used to find appropriate `ITask` interface implementation for this record
+    __typename: string
+    // Used to store additional id if it is necessary.
+    // For example: local id at miniapp database whom would be used to update progress
+    taskId?: string
 }
 
 /**
