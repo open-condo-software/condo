@@ -11,7 +11,6 @@ const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
-    GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/utils/validation.utils')
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
@@ -20,7 +19,7 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
-const { get, isFunction, isNil, isPlainObject } = require('lodash')
+const { get, isNil } = require('lodash')
 const Big = require('big.js')
 const validate = require('validate.js')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
@@ -133,7 +132,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
         },
         {
             access: true,
-            type: 'type RegisterMultiPaymentForOneReceiptOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String!, getCardTokensUrl: String! }',
+            type: 'type RegisterMultiPaymentForOneReceiptOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String! }',
         },
     ],
 
@@ -307,7 +306,6 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
                     feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
                     directPaymentUrl: `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
-                    getCardTokensUrl: `${acquiringIntegration.hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', context.authedItem.id)}`,
                 }
             },
         },
