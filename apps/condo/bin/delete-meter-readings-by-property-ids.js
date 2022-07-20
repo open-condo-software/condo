@@ -60,7 +60,7 @@ class FixMeterReadingsClients {
 
 const deleteMeterReadings = async (propertyIds) => {
     if (!propertyIds) {
-        throw new Error("propertyIds not found!")
+        throw new Error('propertyIds not found!')
     }
     const fixer = new FixMeterReadingsClients(propertyIds)
     console.info('[INFO] Connecting to database...')
