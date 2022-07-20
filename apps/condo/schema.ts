@@ -15087,7 +15087,8 @@ export type MeterReadingSourceRelateToOneInput = {
 export enum MeterReadingSourceTypeType {
   ImportCondo = 'import_condo',
   Call = 'call',
-  MobileApp = 'mobile_app'
+  MobileApp = 'mobile_app',
+  ExternalImport = 'external_import'
 }
 
 export type MeterReadingSourceUpdateInput = {
