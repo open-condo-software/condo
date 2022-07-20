@@ -42,6 +42,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 }) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
+
     const router = useRouter()
 
     const createContactRoleAction = ContactRole.useCreate({})
