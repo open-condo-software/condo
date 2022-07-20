@@ -115,15 +115,6 @@ const errors = {
     },
 }
 
-const throwErrorIf = (errorCondition, baseError, context, extraArgsSupplier) => {
-    if (errorCondition) {
-        const suppliedArgs = isFunction(extraArgsSupplier) ? extraArgsSupplier() : {}
-        const extraArgs = isPlainObject(suppliedArgs) ? suppliedArgs : {}
-        const error = { ...baseError, ...extraArgs }
-        throw new GQLError(error, context)
-    }
-}
-
 const SENDER_FIELD_CONSTRAINTS = {
     ...JSON_STRUCTURE_FIELDS_CONSTRAINTS,
     dv: {
@@ -152,12 +143,6 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
             schema: 'registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput',
             resolver: async (parent, args, context) => {
                 // wrap validator function to the current call context
-                const throwIf = ({ when, error, extraArgsSupplier }) => throwErrorIf(
-                    when,
-                    error,
-                    context,
-                    extraArgsSupplier,
-                )
                 const { data } = args
                 const {
                     dv,
@@ -167,94 +152,94 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 } = data
 
                 // Stage 0. Check if input is valid
-                throwIf({
-                    when: dv !== 1, error: errors.DV_VERSION_MISMATCH,
-                })
+                if (dv !== 1) {
+                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
+                }
 
                 const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
-                throwIf({
-                    when: senderErrors && Object.keys(senderErrors).length,
-                    error: errors.WRONG_SENDER_FORMAT,
-                    extraArgsSupplier: () => {
-                        const details = Object.keys(senderErrors).map(field => {
-                            return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
-                        }).join(', ')
-                        return { messageInterpolation: { details } }
-                    },
-                })
+                if (senderErrors && Object.keys(senderErrors).length) {
+                    const details = Object.keys(senderErrors).map(field => {
+                        return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
+                    }).join(', ')
+
+                    throw new GQLError({ ...errors.WRONG_SENDER_FORMAT, messageInterpolation: { details } }, context)
+                }
 
                 // Stage 1: get acquiring context & integration
                 const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
 
-                throwIf({
-                    when: acquiringContext.deletedAt,
-                    error: errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-                })
+                if (acquiringContext.deletedAt) {
+                    throw new GQLError(errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                }
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
                     id: acquiringContext.integration,
                 })
 
-                throwIf({
-                    when: acquiringIntegration.deletedAt,
-                    error: errors.ACQUIRING_INTEGRATION_IS_DELETED,
-                    extraArgsSupplier: () => ({ messageInterpolation: { id: acquiringContext.integration } }),
-                })
+                if (acquiringIntegration.deletedAt) {
+                    throw new GQLError({
+                        ...errors.ACQUIRING_INTEGRATION_IS_DELETED,
+                        messageInterpolation: { id: acquiringContext.integration },
+                    }, context)
+                }
 
                 // Stage 2. Check BillingReceipts
                 const billingReceipt = await getById('BillingReceipt', receipt.id)
 
-                throwIf({
-                    when: isNil(billingReceipt),
-                    error: errors.CANNOT_FIND_BILLING_RECEIPT,
-                    extraArgsSupplier: () => ({ messageInterpolation: { missingReceiptId: receipt.id } }),
-                })
-                throwIf({
-                    when: billingReceipt.deletedAt,
-                    error: errors.RECEIPT_IS_DELETED,
-                    extraArgsSupplier: () => ({ messageInterpolation: { id: billingReceipt.id } }),
-                })
+                if (isNil(billingReceipt)) {
+                    throw new GQLError({
+                        ...errors.CANNOT_FIND_BILLING_RECEIPT,
+                        messageInterpolation: { missingReceiptId: receipt.id },
+                    }, context)
+                }
+
+                if (billingReceipt.deletedAt) {
+                    throw new GQLError({
+                        ...errors.RECEIPT_IS_DELETED,
+                        messageInterpolation: { id: billingReceipt.id },
+                    }, context)
+                }
 
                 // negative to pay value
-                throwIf({
-                    when: Big(billingReceipt.toPay).lte(0),
-                    error: errors.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
-                    extraArgsSupplier: () => ({ messageInterpolation: { id: billingReceipt.id } }),
-                })
+                if (Big(billingReceipt.toPay).lte(0)) {
+                    throw new GQLError({
+                        ...errors.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
+                        messageInterpolation: { id: billingReceipt.id },
+                    }, context)
+                }
 
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingReceipt.context)
 
-                throwIf({
-                    when: billingContext.deletedAt,
-                    error: errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
-                    extraArgsSupplier: () => {
-                        const failedReceipts = [{ receiptId: billingReceipt.id, contextId: billingReceipt.context }]
-                        return { data: { failedReceipts } }
-                    },
-                })
+                if (billingContext.deletedAt) {
+                    const failedReceipts = [{ receiptId: billingReceipt.id, contextId: billingReceipt.context }]
+                    throw new GQLError({
+                        ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+                        data: { failedReceipts },
+                    }, context)
+                }
 
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
                     .map(integration => integration.id)
 
-                throwIf({
-                    when: !supportedBillingIntegrations.includes(billingContext.integration),
-                    error: errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
-                    extraArgsSupplier: () => ({ messageInterpolation: { unsupportedBillingIntegration: billingContext.integration } }),
-                })
+                if (!supportedBillingIntegrations.includes(billingContext.integration)) {
+                    throw new GQLError({
+                        ...errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+                        messageInterpolation: { unsupportedBillingIntegration: billingContext.integration },
+                    }, context)
+                }
 
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
-                throwIf({
-                    when: billingIntegration.deletedAt,
-                    error: errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
-                    extraArgsSupplier: () => {
-                        const failedReceipts = [{
-                            receiptId: billingReceipt.id,
-                            integrationId: billingContext.integration,
-                        }]
-                        return { data: { failedReceipts } }
-                    },
-                })
+                if (billingIntegration.deletedAt) {
+                    const failedReceipts = [{
+                        receiptId: billingReceipt.id,
+                        integrationId: billingContext.integration,
+                    }]
+                    throw new GQLError({
+                        ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+                        data: { failedReceipts },
+                    }, context)
+                }
 
                 const currencyCode = get(billingIntegration, ['currencyCode'])
 
