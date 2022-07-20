@@ -19885,7 +19885,7 @@ export type Mutation = {
    */
   createOnBoardingByType?: Maybe<OnBoarding>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
-  registerMultiPaymentFromReceipt?: Maybe<RegisterMultiPaymentOutput>;
+  registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -24076,8 +24076,8 @@ export type MutationRegisterMultiPaymentArgs = {
 };
 
 
-export type MutationRegisterMultiPaymentFromReceiptArgs = {
-  data: RegisterMultiPaymentFromReceiptInput;
+export type MutationRegisterMultiPaymentForOneReceiptArgs = {
+  data: RegisterMultiPaymentForOneReceiptInput;
 };
 
 
@@ -33822,11 +33822,21 @@ export type RecipientFieldInput = {
   bankAccount: Scalars['String'];
 };
 
-export type RegisterMultiPaymentFromReceiptInput = {
+export type RegisterMultiPaymentForOneReceiptInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  receipt: RegisterMultiPaymentReceiptInfoInput;
-  acquiringIntegrationContextId: Scalars['String'];
+  receipt: BillingReceiptWhereUniqueInput;
+  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput;
+};
+
+export type RegisterMultiPaymentForOneReceiptOutput = {
+  __typename?: 'RegisterMultiPaymentForOneReceiptOutput';
+  dv: Scalars['Int'];
+  multiPaymentId: Scalars['String'];
+  webViewUrl: Scalars['String'];
+  feeCalculationUrl: Scalars['String'];
+  directPaymentUrl: Scalars['String'];
+  getCardTokensUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentInput = {
