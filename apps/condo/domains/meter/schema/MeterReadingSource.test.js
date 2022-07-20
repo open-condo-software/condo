@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 const dayjs = require('dayjs')
-const { METER_READING_SOURCE_IMPORT_TYPE } = require('@condo/domains/meter/constants/constants')
+const { METER_READING_SOURCE_INTERNAL_IMPORT_TYPE } = require('@condo/domains/meter/constants/constants')
 const { MeterReadingSource } = require('../utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -17,7 +17,7 @@ const {
 
 describe('MeterReadingSource', () => {
     const createPayload = {
-        type: METER_READING_SOURCE_IMPORT_TYPE,
+        type: METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
         name: faker.name.suffix(),
     }
     describe('Create', () => {

@@ -52,7 +52,7 @@ const {
 const {
     CALL_METER_READING_SOURCE_ID,
     COLD_WATER_METER_RESOURCE_ID,
-    METER_READING_SOURCE_IMPORT_TYPE,
+    METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
 } = require('@condo/domains/meter/constants/constants')
 
 const {
@@ -602,7 +602,7 @@ describe('MeterReading', () => {
                     isAutomatic: true,
                 })
                 const [source] = await createTestMeterReadingSource(adminClient, {
-                    type: METER_READING_SOURCE_IMPORT_TYPE,
+                    type: METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
                     name: faker.name.suffix(),
                 })
 
