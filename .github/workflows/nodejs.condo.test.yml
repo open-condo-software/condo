@@ -67,17 +67,18 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
 
-          # Note: as long as we have tests with non-linear logic, we cannot use more than 1 worker
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user)/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user.log
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing)/(.*)[.]spec.js$' 2>&1 > condo.2.spec.billing-acquiring.log
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact)/(.*)[.]spec.js$' 2>&1 > condo.3.spec.ticket-meter-contact.log
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(acquiring|billing|ticket|meter|contact|organization|user)/' 2>&1 > condo.4.spec.others.log
-
+          # TESTS
           yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user)/schema/(.*)[.]test.js$' 2>&1 > condo.1.test.organization-user.log
           yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing)/schema/(.*)[.]test.js$' 2>&1 > condo.2.test.billing-acquiring.log
           yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact)/schema/(.*)[.]test.js$' 2>&1 > condo.3.test.ticket-meter-contact.log
           yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(acquiring|billing|ticket|meter|contact|organization|user)/' 2>&1 > condo.4.test.other-domains.log
           yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
+
+          # SPECS
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user)/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing)/(.*)[.]spec.js$' 2>&1 > condo.2.spec.billing-acquiring.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact)/(.*)[.]spec.js$' 2>&1 > condo.3.spec.ticket-meter-contact.log
+          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(acquiring|billing|ticket|meter|contact|organization|user)/' 2>&1 > condo.4.spec.others.log
 
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
