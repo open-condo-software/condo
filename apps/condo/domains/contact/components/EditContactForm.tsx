@@ -73,7 +73,7 @@ export const EditContactForm: React.FC = () => {
         where: {
             OR: [
                 { organization_is_null: true },
-                { organization: { id: get(organization, 'id') } },
+                { organization: { id: get(organization, 'id', null) } },
             ],
         },
     })
