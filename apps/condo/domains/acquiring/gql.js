@@ -29,14 +29,16 @@ const REGISTER_MULTI_PAYMENT_MUTATION = gql`
         result: registerMultiPayment(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl getCardTokensUrl }
     }
 `
+
+const PAYMENTS_FILTER_FIELDS = '{ advancedAt accountNumber address type }'
+const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
+const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
+
 const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
     mutation registerMultiPaymentForOneReceipt ($data: RegisterMultiPaymentForOneReceiptInput!) {
         result: registerMultiPaymentForOneReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl getCardTokensUrl }
     }
 `
-const PAYMENTS_FILTER_FIELDS = '{ advancedAt accountNumber address type }'
-const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
-const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -53,8 +55,10 @@ module.exports = {
     MultiPayment,
     Payment,
     REGISTER_MULTI_PAYMENT_MUTATION,
-    REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
     EXPORT_PAYMENTS_TO_EXCEL,
     PaymentsFilterTemplate,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    
+    REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
+
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -13,6 +13,7 @@ const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql'
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
+const { REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -34,6 +35,20 @@ async function registerMultiPayment (context, data) {
 }
 
 const PaymentsFilterTemplate = generateServerUtils(PaymentsFilterTemplateGQL)
+async function registerMultiPaymentForOneReceipt (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write registerMultiPaymentForOneReceipt serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerMultiPaymentForOneReceipt',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -44,5 +59,6 @@ module.exports = {
     Payment,
     registerMultiPayment,
     PaymentsFilterTemplate,
+    registerMultiPaymentForOneReceipt,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
