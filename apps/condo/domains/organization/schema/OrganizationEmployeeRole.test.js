@@ -28,6 +28,7 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canManageProperties).toBeFalsy()
             expect(obj.canManageTickets).toBeFalsy()
             expect(obj.canManageContacts).toBeFalsy()
+            expect(obj.canManageContactRoles).toBeFalsy()
             expect(obj.canManageTicketComments).toBeTruthy()
             expect(obj.canManageDivisions).toBeFalsy()
             expect(obj.canShareTickets).toBeTruthy()
@@ -231,7 +232,7 @@ describe('OrganizationEmployeeRole', () => {
     })
 
     test.each(getAvailableLocales())('localization [%s]: static roles has translations', async (locale) => {
-        
+
         const translations = getTranslations(locale)
 
         const client = await makeClientWithRegisteredOrganization()
