@@ -5,6 +5,7 @@ import get from 'lodash/get'
 import isObject from 'lodash/isObject'
 import isFunction from 'lodash/isFunction'
 import omit from 'lodash/omit'
+import isEmpty from 'lodash/isEmpty'
 import { v4 as uuidV4 } from 'uuid'
 import { MutationEmitter, MUTATION_RESULT_EVENT } from '@core/next/apollo'
 import { SortB2BAppsBy } from '@app/condo/schema'
@@ -18,7 +19,7 @@ import {
 } from '@condo/domains/common/utils/iframe.utils'
 import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import GlobalIframe from './GlobalIframe'
-import { TasksContext } from '@condo/domains/common/components/tasks/'
+import { TasksContext, TASK_STATUS } from '@condo/domains/common/components/tasks/'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import IFrameModal from '../IFrameModal'
 
@@ -33,6 +34,7 @@ const MODAL_OPEN_RESULT_MESSAGE_NAME = 'CondoWebOpenModalResult'
 const MODAL_CLOSE_RESULT_MESSAGE_NAME = 'CondoWebCloseModalResult'
 const MODAL_CLOSE_USER_REASON = 'userAction'
 const MODAL_CLOSE_APP_REASON = 'externalCommand'
+const TASK_PROCESSING_STATUS = 'CondoWebProcessingTasks'
 
 export const GlobalAppsContainer: React.FC = () => {
     const { objs } = B2BApp.useObjects({
@@ -48,8 +50,9 @@ export const GlobalAppsContainer: React.FC = () => {
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
     const [modals, setModals] = useState<{ [id: string]: ModalInfo }>({})
     const [isDebug, setIsDebug] = useState(false)
+    const [iframeLoadedCount, setIframeLoadedCount] = useState(0)
 
-    const { addTask, updateTask } = useContext(TasksContext)
+    const { addTask, updateTask, tasks } = useContext(TasksContext)
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
 
 
@@ -74,7 +77,8 @@ export const GlobalAppsContainer: React.FC = () => {
 
     const handleTask = useCallback((message) => {
         const taskRecord = {
-            id: message.id,
+            id: get(message, 'id'),
+            taskId: message.taskId,
             title: message.taskTitle,
             progress: message.taskProgress,
             description: message.taskDescription,
@@ -82,7 +86,8 @@ export const GlobalAppsContainer: React.FC = () => {
             __typename: 'MiniAppTask',
         }
 
-        if (message.operation === 'create') {
+        if (message.taskOperation === 'create') {
+            taskRecord.id = uuidV4()
             const createMiniAppTask = miniAppTaskUIInterface.storage.useCreateTask({}, () => {
                 addTask({
                     ...miniAppTaskUIInterface,
@@ -91,7 +96,8 @@ export const GlobalAppsContainer: React.FC = () => {
             })
 
             createMiniAppTask(taskRecord)
-        } else if (message.operation === 'update') {
+
+        } else if (message.taskOperation === 'update') {
             const updateMiniAppTask = miniAppTaskUIInterface.storage.useUpdateTask({}, () => {
                 updateTask(taskRecord)
             })
@@ -183,6 +189,10 @@ export const GlobalAppsContainer: React.FC = () => {
         handleTask,
     ])
 
+    const onIFrameLoad = useCallback(() => {
+        setIframeLoadedCount((prevState) => prevState + 1)
+    }, [])
+
     useEffect(() => {
         MutationEmitter.on(MUTATION_RESULT_EVENT, handleMutationResult)
         return () => {
@@ -198,6 +208,23 @@ export const GlobalAppsContainer: React.FC = () => {
         }
     }, [handleMessage])
 
+    // Way to tell global iframe id of created task because it generated on condo side
+    useEffect(() => {
+        if (!isEmpty(objs) && !isEmpty(tasks) && iframeLoadedCount === iframeRefs.current.length) {
+            for (const iframe of iframeRefs.current) {
+                const targetOrigin = extractOrigin(iframe.src)
+                const targetWindow = get(iframe, 'contentWindow', null)
+
+                if (targetWindow) {
+                    sendMessage({
+                        type: TASK_PROCESSING_STATUS,
+                        data: { tasks: tasks.map(task => task.record).filter(task => task.status === TASK_STATUS.PROCESSING) },
+                    }, targetWindow, targetOrigin)
+                }
+            }
+        }
+    }, [iframeLoadedCount, tasks, objs])
+
     return (
         <>
             {appUrls.map((url, index) => (
@@ -206,6 +233,7 @@ export const GlobalAppsContainer: React.FC = () => {
                     pageUrl={url}
                     ref={el => iframeRefs.current[index] = el}
                     hidden={!isDebug}
+                    onLoad={onIFrameLoad}
                 />
             ))}
             {Object.keys(modals).map((id) => (
