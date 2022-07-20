@@ -60,7 +60,7 @@ class FixMeterReadingsClients {
 
 const deleteMeterReadings = async (propertyIds) => {
     if (!propertyIds) {
-        throw new Error('propertyIds not found!')
+        throw new Error("propertyIds not found!")
     }
     const fixer = new FixMeterReadingsClients(propertyIds)
     console.info('[INFO] Connecting to database...')
@@ -75,6 +75,8 @@ const deleteMeterReadings = async (propertyIds) => {
     await fixer.fixBrokenMeters()
     console.info('[INFO] Broken meters are deleted...')
 }
+
+const propertyIds = process.argv.slice(2) // .slice(2) because first two arguments are nodePath and appPath
 
 deleteMeterReadings(propertyIds).then(() => {
     console.log('\r\n')
