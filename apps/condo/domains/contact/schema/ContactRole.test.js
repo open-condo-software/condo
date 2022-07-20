@@ -5,8 +5,10 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
 
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 
 const {
@@ -120,6 +122,16 @@ describe('ContactRole', () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestContactRole(client, objCreated.id)
                 })
+            })
+
+            test('admin can\'t set organization=null to existing role', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithRegisteredOrganization()
+                const [roleCreated] = await createTestContactRole(client, { organization: { connect: { id: client.organization.id } } })
+
+                await expectToThrowGraphQLRequestError(async () => {
+                    await updateTestContactRole(admin, roleCreated.id, { organization: { disconnectAll: true } })
+                }, 'Field "organization" is not defined')
             })
         })
 
