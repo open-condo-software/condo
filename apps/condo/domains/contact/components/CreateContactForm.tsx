@@ -55,7 +55,7 @@ export const CreateContactForm: React.FC = () => {
     const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
     const PropertyErrorMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
     const UnitErrorMessage = intl.formatMessage({ id: 'field.Unit.requiredError' })
-    const roleLabel = intl.formatMessage({ id: 'ContactRole' })
+    const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
 
     const { organization } = useOrganization()
     const router = useRouter()
@@ -228,7 +228,7 @@ export const CreateContactForm: React.FC = () => {
                                     <Col lg={18} xs={24}>
                                         <Form.Item
                                             name="role"
-                                            label={roleLabel}
+                                            label={RoleLabel}
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign="left"
                                         >
