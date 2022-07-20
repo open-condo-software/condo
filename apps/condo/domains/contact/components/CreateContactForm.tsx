@@ -41,20 +41,20 @@ const BottomLineWrapper = styled.div`
 
 export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
-    const fullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const fullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
-    const fullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
-    const phoneLabel = intl.formatMessage({ id: 'Phone' })
-    const examplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
-    const exampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
-    const emailLabel = intl.formatMessage({ id: 'field.EMail' })
-    const emailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const submitButtonLabel = intl.formatMessage({ id: 'AddContact' })
-    const addressLabel = intl.formatMessage({ id: 'field.Address' })
-    const addressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
-    const unitLabel = intl.formatMessage({ id: 'field.Unit' })
-    const propertyErrorMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
-    const unitErrorMessage = intl.formatMessage({ id: 'field.Unit.requiredError' })
+    const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
+    const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
+    const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
+    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
+    const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
+    const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
+    const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
+    const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
+    const SubmitButtonLabel = intl.formatMessage({ id: 'AddContact' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
+    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
+    const PropertyErrorMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
+    const UnitErrorMessage = intl.formatMessage({ id: 'field.Unit.requiredError' })
     const roleLabel = intl.formatMessage({ id: 'ContactRole' })
 
     const { organization } = useOrganization()
@@ -63,10 +63,10 @@ export const CreateContactForm: React.FC = () => {
     const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations({ allowLandLine: true })
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator],
-        email: [changeMessage(emailValidator, emailErrorMessage)],
-        property: [changeMessage(requiredValidator, propertyErrorMessage)],
-        unit: [changeMessage(requiredValidator, unitErrorMessage)],
-        name: [changeMessage(requiredValidator, fullNameRequiredMessage)],
+        email: [changeMessage(emailValidator, EmailErrorMessage)],
+        property: [changeMessage(requiredValidator, PropertyErrorMessage)],
+        unit: [changeMessage(requiredValidator, UnitErrorMessage)],
+        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
     }
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
@@ -137,7 +137,7 @@ export const CreateContactForm: React.FC = () => {
                                     <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'property'}
-                                            label={addressLabel}
+                                            label={AddressLabel}
                                             labelAlign={'left'}
                                             validateFirst
                                             rules={validations.property}
@@ -155,7 +155,7 @@ export const CreateContactForm: React.FC = () => {
                                                     setSelectedPropertyId(null)
                                                     setSelectedUnitType(null)
                                                 }}
-                                                placeholder={addressPlaceholderMessage}
+                                                placeholder={AddressPlaceholderMessage}
 
                                             />
                                         </Form.Item>
@@ -163,7 +163,7 @@ export const CreateContactForm: React.FC = () => {
                                     <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'unitName'}
-                                            label={unitLabel}
+                                            label={UnitLabel}
                                             labelAlign={'left'}
                                             required
                                             validateFirst
@@ -191,38 +191,38 @@ export const CreateContactForm: React.FC = () => {
                                     <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'name'}
-                                            label={fullNameLabel}
+                                            label={FullNameLabel}
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign={'left'}
                                             required
                                             validateFirst
                                             rules={validations.name}>
-                                            <Input placeholder={fullNamePlaceholderMessage}/>
+                                            <Input placeholder={FullNamePlaceholderMessage}/>
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'phone'}
-                                            label={phoneLabel}
+                                            label={PhoneLabel}
                                             labelAlign={'left'}
                                             required
                                             validateFirst
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <PhoneInput placeholder={examplePhoneMessage} block/>
+                                            <PhoneInput placeholder={ExamplePhoneMessage} block/>
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
                                             name={'email'}
-                                            label={emailLabel}
+                                            label={EmailLabel}
                                             labelAlign={'left'}
                                             validateFirst
                                             rules={validations.email}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <Input placeholder={exampleEmailMessage}/>
+                                            <Input placeholder={ExampleEmailMessage}/>
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
@@ -261,7 +261,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 disabled={!property || !unitName || !phone || !name}
                                                                 style={{ marginRight: 24 }}
                                                             >
-                                                                {submitButtonLabel}
+                                                                {SubmitButtonLabel}
                                                             </Button>
                                                             <ErrorsContainer
                                                                 phone={phone}
