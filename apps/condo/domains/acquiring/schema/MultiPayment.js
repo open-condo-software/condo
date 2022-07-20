@@ -14,7 +14,7 @@ const {
     POSITIVE_MONEY_AMOUNT_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const {
     AVAILABLE_PAYMENT_METHODS,
     MULTIPAYMENT_STATUSES,
@@ -193,7 +193,8 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                             return
                         }
                         const user = await getById('User', userId)
-                        if (get(user, 'type') !== RESIDENT) {
+                        const userType = get(user, 'type')
+                        if ( userType !== RESIDENT && userType !== STAFF) {
                             addFieldValidationError('Cannot create Multipayment to non-resident type of user')
                         }
                     }
