@@ -23,7 +23,7 @@ async function getOrganizationByTin (query) {
 
     if (status === 200) {
         const response = await result.json()
-        return get(response, 'suggestions', [])
+        return get(response, 'suggestions', [])[0]
     } else {
         return []
     }
