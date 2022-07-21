@@ -232,7 +232,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     type: ComponentType.DateRange,
                     props: {
                         placeholder: [StartDateMessage, EndDateMessage],
-                        disabledDate: () => false,
                     },
                     modalFilterComponentWrapper: {
                         label: CompletedAtMessage,
