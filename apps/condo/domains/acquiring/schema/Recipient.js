@@ -118,7 +118,7 @@ const Recipient = new GQLListSchema('Recipient', {
         importRemoteSystem: {
             schemaDoc: 'The system from which the recipients were created',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         isApproved: {
