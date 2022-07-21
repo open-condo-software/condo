@@ -25,6 +25,7 @@ const { User } = require('@condo/domains/user/utils/serverSchema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
 const errors = {
     DV_VERSION_MISMATCH: {
@@ -50,7 +51,6 @@ const errors = {
     },
 }
 
-
 const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
@@ -74,6 +74,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { dv, sender, user } = data
+                if (!user.id) throw new Error('resetUser(): no user.id')
 
                 if (dv !== 1) {
                     throw new GQLError(errors.DV_VERSION_MISMATCH, context)
@@ -102,6 +103,11 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     isAdmin: false,
                     isSupport: false,
                 })
+
+                const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id } })
+                for (const employee of employees) {
+                    await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
+                }
 
                 return { status: 'ok' }
             },
