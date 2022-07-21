@@ -198,11 +198,13 @@ class TicketEdit {
  */
     visit () {
         cy.visit(TICKET_VIEW_URL)
-        cy.wait('@getAllTickets')
-        cy.wait('@getAllTicketClassifierRules')
-        cy.wait('@getAllUserTicketCommentReadTimes')
-        cy.wait('@getAllTicketCommentsTimes')
-        cy.wait('@getAllTicketFilterTemplates')
+        cy.wait([
+            '@getAllTickets', '@getAllTicketClassifierRules',
+            '@getAllUserTicketCommentReadTimes', '@getAllTicketFilterTemplates',
+            '@getAllTicketCommentsTimes', '@getAllTicketStatuses',
+            '@getAllTicketSources', '@getAllTicketCategoryClassifiers',
+            '@getAllDivisions', '@getAllOrganizationEmployees',
+        ])
 
         cy.get('[data-cy=ticket__table] tbody tr', {
             timeout: 5000,
