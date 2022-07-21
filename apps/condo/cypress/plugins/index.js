@@ -61,10 +61,8 @@ module.exports = async (on, config) => {
             const [ticketClassifierRule] = await createTestTicketClassifierRule(support)
 
             const classifierRule = { connect: { id: ticketClassifierRule.id } }
-            const problemClassifier = { connect: { id: ticketClassifierRule.problem.id } }
             const categoryClassifier = { connect: { id: ticketClassifierRule.category.id } }
-            const placeClassifier = { connect: { id: ticketClassifierRule.place.id } }
-            const ticketExtraFields = { placeClassifier, categoryClassifier, classifierRule, problemClassifier }
+            const ticketExtraFields = { categoryClassifier, classifierRule }
 
             const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })
