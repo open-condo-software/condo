@@ -37,7 +37,7 @@ export const ContactRolesSettingsContent = (props) => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const canManageContacts = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContacts']), [userOrganization])
+    const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
@@ -66,12 +66,12 @@ export const ContactRolesSettingsContent = (props) => {
     const tableColumns = useContactRolesTableColumns([])
 
     const handleAddHintButtonClick = useCallback(async () => {
-        if (!canManageContacts) {
+        if (!canManageContactRoles) {
             return
         }
 
         await router.push('/settings/contactRole/create')
-    }, [router, canManageContacts])
+    }, [router, canManageContactRoles])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -97,7 +97,7 @@ export const ContactRolesSettingsContent = (props) => {
                 />
             </Col>
             {
-                canManageContacts && (
+                canManageContactRoles && (
                     <Col span={24}>
                         <ActionBar>
                             <Button
