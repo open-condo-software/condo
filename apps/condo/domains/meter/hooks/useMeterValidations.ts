@@ -1,23 +1,17 @@
 import { useMemo } from 'react'
 import { Dayjs } from 'dayjs'
-import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@core/next/intl'
 import isEmpty from 'lodash/isEmpty'
 
-import { useOrganization } from '@core/next/organization'
-
 import { Meter } from '../utils/clientSchema'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string) => {
+export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string ) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
-    const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
+    const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanInstallation' })
     const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
-
-    const { organization } = useOrganization()
-    const organizationId = get(organization, 'id')
 
     const { objs: metersWithSameNumber, refetch } = Meter.useObjects({
         where: {
