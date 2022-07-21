@@ -25,6 +25,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const RoleMessage = intl.formatMessage({ id: 'ContactRole' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -105,6 +106,19 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterIcon: getFilterIcon,
                 render,
             },
+            {
+                title: RoleMessage,
+                ellipsis: true,
+                sortOrder: get(sorterMap, 'role'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'role'),
+                dataIndex: 'role',
+                key: 'role',
+                sorter: true,
+                width: '20%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'role'),
+                filterIcon: getFilterIcon,
+                render: (role) => render(get(role, 'name')),
+            },
         ]
-    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, filterMetas, filters, render, renderAddress, sorterMap, renderUnitName])
+    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, RoleMessage, filterMetas, filters, render, renderAddress, sorterMap, renderUnitName])
 }
