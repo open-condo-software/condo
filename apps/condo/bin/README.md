@@ -16,4 +16,4 @@ Try to avoid to use common scripts. It's better to group the scripts by tasks, l
 
 # Deleting Meters with MeterReadings in certain Property
 
-Use: `yarn workspace @app/condo node ./bin/delete-meter-readings-by-property-ids.js propertyId1 propertyId2` command
+Use: `yarn workspace @app/condo node ./bin/delete-meters-by-property-ids.js propertyId1 propertyId2` command
