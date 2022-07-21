@@ -113,7 +113,7 @@ export const EditContactForm: React.FC = () => {
         name: get(contact, 'name'),
         phone: get(contact, 'phone'),
         email: get(contact, 'email'),
-        role: get(contact, 'role.id'),
+        role: get(contact, ['role', 'id']),
     }
 
     return (
