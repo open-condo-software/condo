@@ -34,8 +34,7 @@ class DeleteMeterAndMeterReadingsClients {
         if (isEmpty(this.meters)) return
 
         for (const meter of this.meters) {
-            await Meter.update(this.context, meter.id, {
-                deletedAt: new Date().toDateString(),
+            await Meter.softDelete(this.context, meter.id, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'deleteIncorrectMetersScript' },
             })
