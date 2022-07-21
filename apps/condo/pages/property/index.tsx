@@ -57,12 +57,11 @@ type PropertiesContentProps = {
     searchPropertiesQuery: PropertyWhereInput
     propertiesTableColumns: ColumnsType
     sortPropertiesBy: SortPropertiesBy[]
-
     divisionTableColumns: ColumnsType
     searchDivisionsQuery: DivisionWhereInput
     sortDivisionsBy: string[]
-
     tab?: PropertiesType
+    loading?: boolean
 }
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
@@ -84,7 +83,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const initialTab = useRef(props.tab)
 
     const { role, searchPropertiesQuery, searchDivisionsQuery, propertiesTableColumns,
-        divisionTableColumns, sortPropertiesBy, sortDivisionsBy } = props
+        divisionTableColumns, sortPropertiesBy, sortDivisionsBy, loading } = props
 
     useEffect(() => {
         if (!initialTab.current) {
@@ -149,6 +148,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                                     tableColumns={propertiesTableColumns}
                                                     sortBy={sortPropertiesBy}
                                                     onSearch={(properties) => setShownProperties(properties)}
+                                                    loading={loading}
                                                 />
                                             )
                                             : (
@@ -158,6 +158,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                                     tableColumns={divisionTableColumns}
                                                     sortBy={sortDivisionsBy}
                                                     onSearch={(properties) => setShownProperties(properties)}
+                                                    loading={loading}
                                                 />
                                             )
                                     }
