@@ -32,6 +32,7 @@ export type TaskRecord = {
     // Used to store additional id if it is necessary.
     // For example: local id at miniapp database whom would be used to update progress
     taskId?: string
+    sender?: string
 }
 
 /**

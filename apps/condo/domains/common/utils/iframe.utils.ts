@@ -15,7 +15,7 @@ export const COMMAND_MESSAGE_TYPE = 'command'
 export const REDIRECT_MESSAGE_TYPE = 'redirect'
 export const IFRAME_MODAL_ACTION_MESSAGE_TYPE = 'modal'
 
-export type TaskOperationType = 'create' | 'update'
+export type TaskOperationType = 'create' | 'update' | 'get'
 export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 export type RequirementType = 'auth' | 'organization'
 export type LoadingStatuses = 'done'
@@ -29,8 +29,14 @@ type TaskMessageType = {
     taskDescription: string,
     taskProgress: number,
     taskStatus: TASK_STATUS,
-    taskOperation: TaskOperationType
+    taskOperation: 'create' | 'update',
 }
+
+type TaskGetMessageType = {
+    type: 'task',
+    taskOperation: 'get',
+}
+
 export type NotificationMessageType = {
     type: 'notification',
     notificationType: NotificationType,
@@ -86,6 +92,7 @@ export type CloseModalMessageType = {
 type SystemMessageType =
     RequirementMessageType
     | TaskMessageType
+    | TaskGetMessageType
     | NotificationMessageType
     | LoadedStatusMessageType
     | ErrorMessageType
@@ -123,7 +130,7 @@ const AvailableMessageTypes = [
 ]
 
 const MessagesRequiredProperties = {
-    [TASK_MESSAGE_TYPE]: ['taskId', 'taskTitle', 'taskDescription', 'taskProgress', 'taskStatus', 'taskOperation'],
+    [TASK_MESSAGE_TYPE]: ['taskOperation'],
     [NOTIFICATION_MESSAGE_TYPE]: ['notificationType', 'message'],
     [REQUIREMENT_MESSAGE_TYPE]: ['requirement'],
     [LOADED_STATUS_MESSAGE_TYPE]: ['status'],
@@ -152,7 +159,7 @@ const SystemMessageSchema = {
         taskDescription: { type: 'string' },
         taskProgress: { type: 'number' },
         taskStatus: { enum: ['processing', 'completed', 'error'] },
-        taskOperation: { enum: ['create', 'update'] },
+        taskOperation: { enum: ['create', 'update', 'get'] },
         notificationType: { enum: ['info', 'warning', 'error', 'success'] },
         message: { type: 'string' },
         requirement: { enum: ['auth', 'organization'] },
@@ -212,20 +219,32 @@ export const parseMessage: parseMessageType = (data) => {
     if (systemMessageDetector(data)) {
         if (!systemMessageValidator(data)) return null
         switch (data.type) {
-            case TASK_MESSAGE_TYPE:
-                return {
-                    type: 'system',
-                    message: {
-                        type: TASK_MESSAGE_TYPE,
-                        id: data.id,
-                        taskId: data.taskId,
-                        taskTitle: data.taskTitle,
-                        taskDescription: data.taskDescription,
-                        taskProgress: data.taskProgress,
-                        taskStatus: data.taskStatus,
-                        taskOperation: data.taskOperation,
-                    },
-                }
+            case TASK_MESSAGE_TYPE: {
+                if (data.taskOperation === 'create' || data.taskOperation === 'update') {
+                    return {
+                        type: 'system',
+                        message: {
+                            type: TASK_MESSAGE_TYPE,
+                            id: data.id,
+                            taskId: data.taskId,
+                            taskTitle: data.taskTitle,
+                            taskDescription: data.taskDescription,
+                            taskProgress: data.taskProgress,
+                            taskStatus: data.taskStatus,
+                            taskOperation: data.taskOperation,
+                        },
+                    }
+                } else if (data.taskOperation === 'get')
+                    return {
+                        type: 'system',
+                        message: {
+                            type: TASK_MESSAGE_TYPE,
+                            taskOperation: data.taskOperation,
+                        },
+                    }
+
+                return null
+            }
             case NOTIFICATION_MESSAGE_TYPE:
                 return {
                     type: 'system',
@@ -323,10 +342,26 @@ export const sendMessage = (message: Record<string, unknown>, receiver: Window, 
     }
 }
 
-export const sendTaskProgress = (taskProgressPayload: Omit<TaskMessageType, 'type'>, receiver: Window, receiverOrigin: string): void => {
+export const sendCreateTaskProgress = (taskProgressPayload: Omit<TaskMessageType, 'type' | 'taskOperation'>, receiver: Window, receiverOrigin: string): void => {
     sendMessage({
         type: TASK_MESSAGE_TYPE,
+        taskOperation: 'create',
         ...taskProgressPayload,
+    }, receiver, receiverOrigin)
+}
+
+export const sendUpdateTaskProgress = (taskProgressPayload: Omit<TaskMessageType, 'type' | 'taskOperation'>, receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: TASK_MESSAGE_TYPE,
+        taskOperation: 'update',
+        ...taskProgressPayload,
+    }, receiver, receiverOrigin)
+}
+
+export const sendGetProcessingTasks = (receiver: Window, receiverOrigin: string): void => {
+    sendMessage({
+        type: TASK_MESSAGE_TYPE,
+        taskOperation: 'get',
     }, receiver, receiverOrigin)
 }
 
