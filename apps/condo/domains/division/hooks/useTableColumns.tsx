@@ -16,7 +16,7 @@ import { TextHighlighter } from '@condo/domains/common/components/TextHighlighte
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 
-import { getAddressRender } from '../utils/clientSchema/Renders'
+import { getAddressCellRender } from '@condo/domains/division/utils/clientSchema/Renders'
 
 export interface ITableColumn {
     title: string,
@@ -45,7 +45,7 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
     const search = getFilteredValue(filters, 'search')
 
     const renderAddress = useCallback(
-        (properties) => properties.map((property) => getAddressRender(property, DeletedMessage, search)),
+        (properties) => properties.map((property) => getAddressCellRender(property, DeletedMessage, search)),
         [search])
 
     return useMemo(() => {

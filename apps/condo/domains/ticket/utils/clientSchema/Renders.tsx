@@ -6,10 +6,10 @@ import { isEmpty } from 'lodash'
 import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
 
-import { Ticket } from '@app/condo/schema'
+import { Property, Ticket } from '@app/condo/schema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { getAddressRender } from '@condo/domains/division/utils/clientSchema/Renders'
+import { getAddressCellRender } from '@condo/domains/division/utils/clientSchema/Renders'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 
@@ -19,10 +19,13 @@ import {
     hasUnreadResidentComments,
     TicketDeadlineType,
 } from '../helpers'
+import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
+import isString from 'lodash/isString'
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
 const NEW_COMMENTS_INDICATOR_STYLES: CSSProperties = { backgroundColor: 'red', borderRadius: '100px', width: '8px', height: '8px' }
+const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search: FilterValue) => {
     const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
@@ -259,6 +262,24 @@ export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
             return '—'
         }
 
-        return properties.map((property) => getAddressRender(property, DeletedMessage, search))
+        return properties.map((property) => getAddressCellRender(property, DeletedMessage, search))
     }
+}
+
+export const getAddressRender = (property: Property, DeletedMessage?: string) => {
+    const { postfix, text } = getPropertyAddressParts(property, DeletedMessage)
+    const renderText = text ? String(text) : ''
+    const title = `${text} ${isString(postfix) && postfix || ''}`
+
+    const getPostfix = () => (
+        <Typography.Text {...ADDRESS_RENDER_POSTFIX_PROPS}>
+            {postfix}
+        </Typography.Text>
+    )
+
+    return (
+        <Typography.Text title={title}>
+            {renderText} {postfix && getPostfix()}
+        </Typography.Text>
+    )
 }
