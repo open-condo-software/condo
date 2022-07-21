@@ -186,6 +186,42 @@ const SystemMessageSchema = {
         {
             'if': {
                 properties: {
+                    type: { const: TASK_MESSAGE_TYPE },
+                    taskOperation: { const: 'create' },
+                },
+                required: ['type', 'taskOperation' ],
+            },
+            then: {
+                required: ['taskId', 'taskStatus', 'taskDescription', 'taskTitle', 'taskProgress'],
+            },
+        },
+        {
+            'if': {
+                properties: {
+                    type: { const: TASK_MESSAGE_TYPE },
+                    taskOperation: { const: 'update' },
+                },
+                required: ['type', 'taskOperation'],
+            },
+            then: {
+                required: ['id', 'taskId', 'taskStatus', 'taskDescription', 'taskTitle', 'taskProgress'],
+            },
+        },
+        {
+            'if': {
+                properties: {
+                    type: { const: TASK_MESSAGE_TYPE },
+                    taskOperation: { const: 'get' },
+                },
+                required: ['type', 'taskOperation'],
+            },
+            then: {
+                required: ['type', 'taskOperation'],
+            },
+        },
+        {
+            'if': {
+                properties: {
                     type: { const: IFRAME_MODAL_ACTION_MESSAGE_TYPE },
                     action: { const: 'open' },
                 },
