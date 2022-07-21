@@ -58,10 +58,10 @@ describe('Ticket',  function () {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
 
-                cy.task('keystone:createTickets', response).then(() => {
+                cy.task('keystone:createTickets', response).then((ticket) => {
                     const ticketEdit = new TicketEdit()
                     ticketEdit
-                        .visit()
+                        .visit(ticket)
                         .clickUpdateTicketLink()
                         .clickTicketDeadline()
                         .clickAssigneeInput()
