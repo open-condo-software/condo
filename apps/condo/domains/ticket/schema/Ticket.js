@@ -168,6 +168,14 @@ const Ticket = new GQLListSchema('Ticket', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
         // TODO(zuch): make it required
+        categoryClassifier: {
+            schemaDoc: '@deprecated',
+            type: Relationship,
+            ref: 'TicketCategoryClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+        },
         classifierRule: {
             schemaDoc: 'Valid combination of 3 classifiers',
             type: Relationship,
