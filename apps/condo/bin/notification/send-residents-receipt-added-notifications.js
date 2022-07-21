@@ -2,7 +2,7 @@
  * Sends billing receipt added notifications
  *
  * Usage:
- *      yarn workspace @app/condo node bin/send-receipt-added-notifications [<RESEND_FROM_DATETIME>]
+ *      yarn workspace @app/condo node ./bin/notification/send-receipt-added-notifications [<RESEND_FROM_DATETIME>]
  * NOTE:
  *      - RESEND_FROM_DATETIME - script stores last successfully proceeded receipt createdAt in Redis, and every next execution starts
  *        proceeding receipts created exactly after that time. If something have been missed, you can force script to start from any arbitrary

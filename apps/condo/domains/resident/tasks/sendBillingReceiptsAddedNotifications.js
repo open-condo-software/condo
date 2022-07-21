@@ -16,7 +16,7 @@ const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
 const {
     BILLING_RECEIPT_ADDED_TYPE,
-    BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
+    // BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -25,6 +25,7 @@ const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema'
 const { getLocalized } = require('@condo/domains/common/utils/localesLoader')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
+const CHUNK_SIZE = 50
 
 const logger = pino({
     name: 'send_billing_receipt_added_notifications',
@@ -112,7 +113,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
     let lastReceipt
 
     while (skip < receiptsCount) {
-        const receipts = await BillingReceipt.getAll(context, receiptsWhere, { sortBy: ['createdAt_ASC'], first: 100, skip })
+        const receipts = await BillingReceipt.getAll(context, receiptsWhere, { sortBy: ['createdAt_ASC'], first: CHUNK_SIZE, skip })
 
         if (isEmpty(receipts)) break
 
@@ -136,6 +137,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             // We have no ServiceConsumer records for this receipt
             if (isEmpty(consumers)) continue
 
+            let successConsumerCnt = 0
+
             for (const consumer of consumers) {
                 const resident = get(consumer, 'resident')
 
@@ -144,13 +147,15 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
-                successCnt += success
-
-                // Store receipt.createdAt as lastDt in order to continue from this point on next execution
+                successConsumerCnt += success
             }
+
+            if (successConsumerCnt > 0) successCnt += 1
+
             lastReceipt = receipt
         }
 
+        // Store receipt.createdAt as lastDt in order to continue from this point on next execution
         if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
     }
     logger.info({ message: 'Notifications sent:', successCnt, attempts: receiptsCount })

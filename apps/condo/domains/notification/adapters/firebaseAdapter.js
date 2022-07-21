@@ -39,7 +39,7 @@ class FirebaseAdapter {
                 result[key] = data[key]
 
                 if (!isString(data[key])) {
-                    result[key] = data[key].toString()
+                    result[key] = String(data[key])
                     invalidFields.push([key, data[key]])
                 }
             }
