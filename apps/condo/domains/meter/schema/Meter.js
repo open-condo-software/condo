@@ -14,6 +14,7 @@ const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/er
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { AUTOMATIC_METER_NO_MASTER_APP } = require('@condo/domains/meter/constants/errors')
 
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 const { MeterReading } = require('../utils/serverSchema')
@@ -165,6 +166,22 @@ const Meter = new GQLListSchema('Meter', {
             isRequired: true,
             defaultValue: false,
         },
+        b2cApp: {
+            schemaDoc: 'Ref to the B2CApp which used to replace default integration with meter by resident\'s user in resident\'s app',
+            type: Relationship,
+            ref: 'B2CApp',
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+        b2bApp: {
+            schemaDoc: 'Ref to B2BApp, which is used as a master system for this meter',
+            type: Relationship,
+            ref: 'B2BApp',
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     kmigratorOptions: {
         constraints: [
@@ -177,11 +194,14 @@ const Meter = new GQLListSchema('Meter', {
         ],
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
+        validateInput: ({ resolvedData, context, addValidationError, existingItem }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const { dv } = resolvedData
+            const newItem = { ...existingItem, ...resolvedData }
             if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
+                if (newItem.isAutomatic && !newItem.b2bApp) {
+                    return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
+                }
             } else {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }

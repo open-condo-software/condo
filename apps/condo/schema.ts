@@ -14017,6 +14017,10 @@ export type Meter = {
   resource?: Maybe<MeterResource>;
   /**  Determines, if Meter is automatic or not. False by default. If set to True - prevents user with type "resident" from creating MeterReading. So MeterReadings only be acquired through external integration or adjusted by organization employee  */
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  /**  Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app  */
+  b2cApp?: Maybe<B2CApp>;
+  /**  Ref to B2BApp, which is used as a master system for this meter  */
+  b2bApp?: Maybe<B2BApp>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14048,6 +14052,8 @@ export type MeterCreateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<B2CAppRelateToOneInput>;
+  b2bApp?: Maybe<B2BAppRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14086,6 +14092,8 @@ export type MeterHistoryRecord = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<Scalars['String']>;
+  b2bApp?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -14118,6 +14126,8 @@ export type MeterHistoryRecordCreateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<Scalars['String']>;
+  b2bApp?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14155,6 +14165,8 @@ export type MeterHistoryRecordUpdateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<Scalars['String']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<Scalars['String']>;
+  b2bApp?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -14342,6 +14354,14 @@ export type MeterHistoryRecordWhereInput = {
   resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<Scalars['String']>;
+  b2cApp_not?: Maybe<Scalars['String']>;
+  b2cApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  b2cApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  b2bApp?: Maybe<Scalars['String']>;
+  b2bApp_not?: Maybe<Scalars['String']>;
+  b2bApp_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  b2bApp_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -16148,6 +16168,8 @@ export type MeterUpdateInput = {
   place?: Maybe<Scalars['String']>;
   resource?: Maybe<MeterResourceRelateToOneInput>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<B2CAppRelateToOneInput>;
+  b2bApp?: Maybe<B2BAppRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -16312,6 +16334,10 @@ export type MeterWhereInput = {
   resource_is_null?: Maybe<Scalars['Boolean']>;
   isAutomatic?: Maybe<Scalars['Boolean']>;
   isAutomatic_not?: Maybe<Scalars['Boolean']>;
+  b2cApp?: Maybe<B2CAppWhereInput>;
+  b2cApp_is_null?: Maybe<Scalars['Boolean']>;
+  b2bApp?: Maybe<B2BAppWhereInput>;
+  b2bApp_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -38906,6 +38932,10 @@ export enum SortMetersBy {
   ResourceDesc = 'resource_DESC',
   IsAutomaticAsc = 'isAutomatic_ASC',
   IsAutomaticDesc = 'isAutomatic_DESC',
+  B2cAppAsc = 'b2cApp_ASC',
+  B2cAppDesc = 'b2cApp_DESC',
+  B2bAppAsc = 'b2bApp_ASC',
+  B2bAppDesc = 'b2bApp_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
