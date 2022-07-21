@@ -29,8 +29,8 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const ContactRolesSettingsContent = (props) => {
     const intl = useIntl()
-    const titleMessage = intl.formatMessage({ id: 'ContactRoles' })
-    const addMessage = intl.formatMessage({ id: 'ContactRoles.add' })
+    const TitleMessage = intl.formatMessage({ id: 'ContactRoles' })
+    const AddMessage = intl.formatMessage({ id: 'ContactRoles.add' })
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -84,7 +84,7 @@ export const ContactRolesSettingsContent = (props) => {
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={3}>{titleMessage}</Typography.Title>
+                <Typography.Title level={3}>{TitleMessage}</Typography.Title>
             </Col>
             <Col span={24}>
                 <StyledTable
@@ -105,7 +105,7 @@ export const ContactRolesSettingsContent = (props) => {
                                 icon={<PlusCircleOutlined/>}
                                 onClick={handleAddHintButtonClick}
                             >
-                                {addMessage}
+                                {AddMessage}
                             </Button>
                         </ActionBar>
                     </Col>
