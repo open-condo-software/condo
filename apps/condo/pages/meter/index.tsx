@@ -48,6 +48,7 @@ export const MetersPageContent = ({
     sortBy,
     filterMetas,
     role,
+    loading,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
@@ -67,7 +68,7 @@ export const MetersPageContent = ({
     const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
 
     const {
-        loading,
+        loading: metersLoading,
         count: total,
         objs: meterReadings,
         refetch,
@@ -81,11 +82,11 @@ export const MetersPageContent = ({
     })
 
     const { shouldTableScroll, isSmall } = useLayoutContext()
-    const [ search, handleSearchChange ] = useSearch(loading)
+    const [ search, handleSearchChange ] = useSearch(metersLoading)
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
-    const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters) && !loading
+    const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters) && !metersLoading && !loading
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -212,7 +213,7 @@ export const MetersPageContent = ({
                             <Table
                                 scroll={getTableScrollConfig(shouldTableScroll)}
                                 totalRows={total}
-                                loading={loading}
+                                loading={metersLoading || loading}
                                 dataSource={meterReadings}
                                 columns={tableColumns}
                                 onRow={handleRowAction}
@@ -241,7 +242,7 @@ interface IMeterIndexPage extends React.FC {
 const sortableProperties = ['date', 'clientName', 'source']
 
 const MetersPage: IMeterIndexPage = () => {
-    const { organization, link } = useOrganization()
+    const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, 'id')
     const role = get(link, 'role')
 
@@ -251,7 +252,6 @@ const MetersPage: IMeterIndexPage = () => {
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas)
     const searchMeterReadingsQuery = useMemo(() => ({
-        meter: { deletedAt: null },
         ...filtersToWhere(filters),
         organization: { id: userOrganizationId } }),
     [filters, filtersToWhere, userOrganizationId])
@@ -263,6 +263,7 @@ const MetersPage: IMeterIndexPage = () => {
             sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
             filterMetas={filterMetas}
             role={role}
+            loading={isLoading}
         />
     )
 }

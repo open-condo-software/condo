@@ -41,6 +41,7 @@ export const ContactsPageContent = ({
     searchContactsQuery,
     role,
     sortBy,
+    loading,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.contact.PageTitle' })
@@ -60,7 +61,7 @@ export const ContactsPageContent = ({
 
     const {
         refetch,
-        loading,
+        loading: contactsLoading,
         count: total,
         objs: contacts,
     } = Contact.useObjects({
@@ -80,9 +81,9 @@ export const ContactsPageContent = ({
         }
     }, [])
 
-    const [search, handleSearchChange] = useSearch<IFilters>(loading)
+    const [search, handleSearchChange] = useSearch<IFilters>(contactsLoading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
-    const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery) && !loading
+    const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery) && !contactsLoading && !loading
 
     return (
         <>
@@ -194,7 +195,7 @@ export const ContactsPageContent = ({
                             <Table
                                 scroll={getTableScrollConfig(isSmall)}
                                 totalRows={total}
-                                loading={loading}
+                                loading={contactsLoading || loading}
                                 dataSource={contacts}
                                 columns={tableColumns}
                                 onRow={handleRowAction}
@@ -222,7 +223,7 @@ const ContactsPage = () => {
     const filterMetas = useContactsTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const tableColumns = useTableColumns(filterMetas)
-    const { organization, link } = useOrganization()
+    const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, ['id'])
     const role = get(link, 'role')
     const { filters, sorters } = parseQuery(router.query)
@@ -236,6 +237,7 @@ const ContactsPage = () => {
             searchContactsQuery={searchContactsQuery}
             sortBy={sortersToSortBy(sorters)}
             role={role}
+            loading={isLoading}
         />
     )
 }

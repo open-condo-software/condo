@@ -7,7 +7,6 @@ import {
     SortPropertiesBy,
 } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Table } from '@condo/domains/common/components/Table/Index'
@@ -35,6 +34,7 @@ type BuildingTableProps = {
     tableColumns: ColumnsType
     sortBy: SortPropertiesBy[]
     onSearch?: (properties: PropertyType[]) => void
+    loading?: boolean
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -47,8 +47,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const PropertiesMessage = intl.formatMessage({ id: 'menu.Property' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
     const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
@@ -56,14 +54,14 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
-    const { role, searchPropertiesQuery, tableColumns, sortBy } = props
+    const { role, searchPropertiesQuery, tableColumns, sortBy, loading } = props
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, refetch, objs: properties, count: total } = Property.useObjects({
+    const { loading: propertiesLoading, refetch, objs: properties, count: total } = Property.useObjects({
         sortBy,
         where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
@@ -99,8 +97,8 @@ export default function BuildingsTable (props: BuildingTableProps) {
 
     const [columns, propertyNormalizer, propertyValidator, propertyCreator] = useImporterFunctions()
 
-    const [search, handleSearchChange] = useSearch<IFilters>(loading)
-    const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !loading
+    const [search, handleSearchChange] = useSearch<IFilters>(propertiesLoading)
+    const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !propertiesLoading && !loading
 
     const canManageProperties = get(role, 'canManageProperties', false)
 
@@ -113,10 +111,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
                 },
             },
         })
-    }
-
-    if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
     }
 
     return (
@@ -234,7 +228,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                     <Table
                         scroll={getTableScrollConfig(isSmall)}
                         totalRows={total}
-                        loading={loading}
+                        loading={propertiesLoading || loading}
                         dataSource={properties}
                         onRow={handleRowAction}
                         columns={tableColumns}

@@ -1,7 +1,6 @@
 import { DatabaseFilled } from '@ant-design/icons'
 import { DivisionWhereInput, OrganizationEmployeeRole, SortDivisionsBy, Division as DivisionType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -28,6 +27,7 @@ type BuildingTableProps = {
     tableColumns: ColumnsType
     sortBy: string[]
     onSearch?: (properties: DivisionType[]) => void
+    loading?: boolean
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -37,22 +37,20 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.division.index.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.division.index.EmptyList.text' })
     const CreateDivision = intl.formatMessage({ id: 'pages.condo.division.index.CreateDivisionButtonLabel' })
 
-    const { role, searchDivisionsQuery, tableColumns, sortBy } = props
+    const { role, searchDivisionsQuery, tableColumns, sortBy, loading } = props
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading, error, objs: divisions, count: total } = Division.useObjects({
+    const { loading: divisionsLoading, objs: divisions, count: total } = Division.useObjects({
         sortBy: sortBy as SortDivisionsBy[],
         where: { ...searchDivisionsQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
@@ -72,12 +70,8 @@ export default function DivisionTable (props: BuildingTableProps) {
         }
     }
 
-    const [search, handleSearchChange] = useSearch<IFilters>(loading)
-    const isNoDivisionsData = !divisions.length && isEmpty(filters) && !loading
-
-    if (error) {
-        return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
-    }
+    const [search, handleSearchChange] = useSearch<IFilters>(divisionsLoading)
+    const isNoDivisionsData = !divisions.length && isEmpty(filters) && !divisionsLoading && !loading
 
     return isNoDivisionsData
         ? <EmptyListView
@@ -134,7 +128,7 @@ export default function DivisionTable (props: BuildingTableProps) {
                     <Table
                         scroll={getTableScrollConfig(isSmall)}
                         totalRows={total}
-                        loading={loading}
+                        loading={divisionsLoading || loading}
                         dataSource={divisions}
                         onRow={handleRowAction}
                         columns={tableColumns}

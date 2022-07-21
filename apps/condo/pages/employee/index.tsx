@@ -41,6 +41,7 @@ export const EmployeesPageContent = ({
     searchEmployeeQuery,
     sortBy,
     canManageEmployee,
+    loading,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
@@ -58,7 +59,7 @@ export const EmployeesPageContent = ({
 
     const {
         fetchMore,
-        loading,
+        loading: employeesLoading,
         count: total,
         objs: employees,
     } = OrganizationEmployee.useObjects({
@@ -87,7 +88,7 @@ export const EmployeesPageContent = ({
         const filters = filtersToQuery(nextFilters)
         setFiltersApplied(false)
 
-        if (!loading) {
+        if (!employeesLoading) {
             fetchMore({
                 // @ts-ignore
                 sortBy: sort,
@@ -98,9 +99,9 @@ export const EmployeesPageContent = ({
                 await updateQuery(router, { ...filtersFromQuery, ...nextFilters }, sort, offset)
             })
         }
-    }, 400), [loading])
+    }, 400), [employeesLoading])
 
-    const [search, handleSearchChange] = useSearch<IFilters>(loading)
+    const [search, handleSearchChange] = useSearch<IFilters>(employeesLoading)
 
     const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
 
@@ -174,7 +175,7 @@ export const EmployeesPageContent = ({
                                         scroll={getTableScrollConfig(shouldTableScroll)}
                                         bordered
                                         tableLayout={'fixed'}
-                                        loading={loading}
+                                        loading={employeesLoading || loading}
                                         dataSource={employees}
                                         columns={tableColumns}
                                         onRow={handleRowAction}
@@ -218,6 +219,7 @@ const EmployeesPage = () => {
             searchEmployeeQuery={searchEmployeeQuery}
             sortBy={sortBy}
             canManageEmployee={canManageEmployee}
+            loading={false}
         />
     )
 }
