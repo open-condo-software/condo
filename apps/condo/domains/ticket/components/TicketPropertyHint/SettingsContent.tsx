@@ -64,7 +64,6 @@ export const SettingsContent = () => {
     const searchTicketPropertyHintPropertiesQuery = useMemo(() => ({
         ...filtersTicketPropertyHintPropertyToWhere(filters),
         organization: { id: userOrganizationId },
-        deletedAt: null,
     }), [filters, filtersTicketPropertyHintPropertyToWhere, userOrganizationId])
 
     const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({

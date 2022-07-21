@@ -192,13 +192,13 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                 })
             }
         } else {
-            const ticketPropertyHint = await action({ ...otherValues })
+            await action({ ...otherValues })
 
             for (const propertyId of properties) {
                 if (!initialPropertyIds.includes(propertyId)) {
                     await createTicketPropertyHintPropertyAction({
                         organization: { connect: { id: organizationId } },
-                        ticketPropertyHint: { connect: { id: ticketPropertyHint.id } },
+                        ticketPropertyHint: { connect: { id: initialTicketPropertyHintId } },
                         property: { connect: { id: propertyId } },
                     })
                 }
@@ -218,7 +218,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
         }
 
         await router.push('/settings?tab=hint')
-    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, softDeleteTicketPropertyHintPropertyAction])
+    }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction])
 
     if (organizationTicketPropertyHintPropertiesLoading) {
         return (
