@@ -111,8 +111,8 @@ export interface ITasksContext {
     tasks: ITaskTrackableItem[]
 }
 
-export const TasksContext = React.createContext({})
-
+// NOTE: Exact value cannot be provided here, because it is build in `TasksContextProvider` component and interacts with its internals
+export const TasksContext = React.createContext<ITasksContext>({} as ITasksContext)
 
 
 // TODO(antonal): think about tracking getting the result of task by user
