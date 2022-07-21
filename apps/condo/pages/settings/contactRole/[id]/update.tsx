@@ -8,7 +8,6 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ContactRoleForm } from '@condo/domains/contact/components/contactRoles/ContactRoleForm'
 
-const ROW_STYLES: CSSProperties = { height: '100%' }
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
@@ -28,7 +27,7 @@ const UpdateContactRolePage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={BIG_VERTICAL_GUTTER} style={ROW_STYLES}>
+                    <Row gutter={BIG_VERTICAL_GUTTER}>
                         <Col span={24}>
                             <Typography.Title level={1} style={TITLE_STYLES}>{PageTitleMsg}</Typography.Title>
                         </Col>
