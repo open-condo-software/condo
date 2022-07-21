@@ -27,7 +27,10 @@ describe('parseMessage', () => {
             ['Redirect message', { type: REDIRECT_MESSAGE_TYPE, url: '/path' }],
             ['Open modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'open', url: 'https://github.com' }],
             ['Close modal message', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close', modalId: '123' }],
-            ['Show task progress', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'create' }],
+            ['Create task progress', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'create' }],
+            ['Update task progress', { type: TASK_MESSAGE_TYPE, id: faker.datatype.uuid(), taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'update' }],
+            ['Get task progress', { type: TASK_MESSAGE_TYPE, taskOperation: 'get' }],
+
         ]
         test.each(validCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
@@ -60,6 +63,8 @@ describe('parseMessage', () => {
             ['Close modal message without modalId', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close' }],
             ['Invalid task status type', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'delete' }],
             ['Invalid task status', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'pending', taskOperation: 'create' }],
+            ['Invalid taskOperation', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'delete' }],
+            ['No id at task update action', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'update' }],
         ]
         test.each(invalidCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
