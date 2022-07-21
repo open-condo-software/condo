@@ -60,7 +60,6 @@ describe('parseMessage', () => {
             ['Close modal message without modalId', { type: IFRAME_MODAL_ACTION_MESSAGE_TYPE, action: 'close' }],
             ['Invalid task status type', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'delete' }],
             ['Invalid task status', { type: TASK_MESSAGE_TYPE, taskId: faker.datatype.uuid(), taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'pending', taskOperation: 'create' }],
-            ['No task id', { type: TASK_MESSAGE_TYPE, taskTitle: faker.datatype.string(), taskDescription: faker.datatype.string(), taskProgress: 50, taskStatus: 'processing', taskOperation: 'create' }],
         ]
         test.each(invalidCases)('%p', (message, payload) => {
             const result = parseMessage(payload)
