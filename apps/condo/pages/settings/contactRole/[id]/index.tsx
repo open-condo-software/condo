@@ -38,7 +38,7 @@ const TheContactRolePage = (): JSX.Element => {
 
     const router = useRouter()
     const { link } = useOrganization()
-    const canManageContacts = useMemo(() => get(link, ['role', 'canManageContacts']), [link])
+    const canManageContactRoles = useMemo(() => get(link, ['role', 'canManageContactRoles']), [link])
 
     const contactRoleId = get(router, ['query', 'id'], null)
     const { loading, obj: contactRole } = ContactRole.useObject({
@@ -80,7 +80,7 @@ const TheContactRolePage = (): JSX.Element => {
                             </Row>
                         </Col>
                         {
-                            canManageContacts && (
+                            canManageContactRoles && get(contactRole, 'organization', null) && (
                                 <Col span={24}>
                                     <ActionBar>
                                         <Link href={`/settings/contactRole/${contactRoleId}/update`}>
