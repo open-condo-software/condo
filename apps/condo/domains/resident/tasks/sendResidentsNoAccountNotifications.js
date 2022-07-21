@@ -97,6 +97,9 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
     let successCnt = 0, attempts = 0, processedCount = 0
 
     for (const billingProperty of billingProperties) {
+
+        if (!billingProperty.property) continue
+
         const receiptsCountWhere = { ...receiptsWhere, property: { id: billingProperty.id } }
         const receiptsCount = await BillingReceipt.count(context, receiptsCountWhere)
 

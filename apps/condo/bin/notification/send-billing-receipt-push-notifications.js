@@ -1,5 +1,5 @@
 /**
- * DEPRECATED! Please use send-receipt-added-notifications.js instead
+ * DEPRECATED! Please use send-residents-receipt-added-notifications.js instead
  */
 
 const { isEmpty, map, get } = require('lodash')
