@@ -15,11 +15,19 @@ const {
     UserAdmin,
 } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { makeClientWithRegisteredOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 
 describe('ResetUserService', () => {
+    let support
+    let admin
+
+    beforeAll(async () => {
+        support = await makeClientWithSupportUser()
+        admin = await makeLoggedInAdminClient()
+    })
+
     test('support can reset user', async () => {
-        const support = await makeClientWithSupportUser()
         const [user] = await registerNewUser(await makeClient())
 
         const payload = {
@@ -29,8 +37,7 @@ describe('ResetUserService', () => {
         await resetUserByTestClient(support, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
-        const adminClient = await makeLoggedInAdminClient()
-        const [resetUser] = await UserAdmin.getAll(adminClient, { id: user.id })
+        const [resetUser] = await UserAdmin.getAll(admin, { id: user.id })
         expect(resetUser.id).toEqual(user.id)
         expect(resetUser.name).toEqual(DELETED_USER_NAME)
         expect(resetUser.phone).toBeNull()
@@ -44,7 +51,6 @@ describe('ResetUserService', () => {
     })
 
     test('two reset users do not violate constrains', async () => {
-        const support = await makeClientWithSupportUser()
         const [user] = await registerNewUser(await makeClient())
         const [user2] = await registerNewUser(await makeClient())
 
@@ -59,15 +65,13 @@ describe('ResetUserService', () => {
         await resetUserByTestClient(support, payload2)
 
         // We use admin context here, since support does not have access to email and phone fields
-        const adminClient = await makeLoggedInAdminClient()
-
-        const [resetUser] = await UserAdmin.getAll(adminClient, { id: user.id })
+        const [resetUser] = await UserAdmin.getAll(admin, { id: user.id })
         expect(resetUser.id).toEqual(user.id)
         expect(resetUser.name).toEqual(DELETED_USER_NAME)
         expect(resetUser.phone).toBeNull()
         expect(resetUser.email).toBeNull()
 
-        const [resetUser2] = await UserAdmin.getAll(adminClient, { id: user.id })
+        const [resetUser2] = await UserAdmin.getAll(admin, { id: user.id })
         expect(resetUser2.id).toEqual(user.id)
         expect(resetUser2.name).toEqual(DELETED_USER_NAME)
         expect(resetUser2.phone).toBeNull()
@@ -75,14 +79,13 @@ describe('ResetUserService', () => {
     })
 
     test('support cant reset non existing user', async () => {
-        const supportClient = await makeClientWithSupportUser()
         const userId = faker.datatype.uuid()
         const payload = {
             user: { id: userId },
         }
 
         await catchErrorFrom(async () => {
-            await resetUserByTestClient(supportClient, payload)
+            await resetUserByTestClient(support, payload)
         }, ({ errors }) => {
             expect(errors).toMatchObject([{
                 message: 'Could not find User by provided id',
@@ -99,15 +102,13 @@ describe('ResetUserService', () => {
     })
 
     test('support cant reset admin user', async () => {
-        const supportClient = await makeClientWithSupportUser()
-        const adminClient = await makeLoggedInAdminClient()
-        const userId = adminClient.user.id
+        const userId = admin.user.id
         const payload = {
             user: { id: userId },
         }
 
         await catchErrorFrom(async () => {
-            await resetUserByTestClient(supportClient, payload)
+            await resetUserByTestClient(support, payload)
         }, ({ errors }) => {
             expect(errors).toMatchObject([{
                 message: 'You cannot reset admin user',
@@ -132,8 +133,7 @@ describe('ResetUserService', () => {
         await resetUserByTestClient(client, payload)
 
         // We use admin context here, since support does not have access to email and phone fields
-        const adminClient = await makeLoggedInAdminClient()
-        const [resetUser] = await UserAdmin.getAll(adminClient, { id: client.user.id })
+        const [resetUser] = await UserAdmin.getAll(admin, { id: client.user.id })
         expect(resetUser.id).toEqual(client.user.id)
         expect(resetUser.name).toEqual(DELETED_USER_NAME)
         expect(resetUser.phone).toBeNull()
@@ -165,5 +165,13 @@ describe('ResetUserService', () => {
         await expectToThrowAuthenticationErrorToResult(async () => {
             await resetUserByTestClient(client, { user: { id: userToResetId } })
         })
+    })
+
+    test('user will removed from all organizations after reset', async () => {
+        const client = await makeClientWithRegisteredOrganization()
+        await resetUserByTestClient(support, { user: { id: client.user.id } })
+
+        const canAccessObjs = await OrganizationEmployee.getAll(client)
+        expect(canAccessObjs).toHaveLength(0)
     })
 })
