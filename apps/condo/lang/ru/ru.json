@@ -1218,6 +1218,7 @@
   "excelExport.headers.contacts.unitType": "Тип помещения",
   "excelExport.headers.contacts.phone": "Телефон",
   "excelExport.headers.contacts.email": "Почта",
+  "excelExport.headers.contacts.role": "Роль",
   "excelExport.headers.meters.date": "Дата снятия",
   "excelExport.headers.meters.address": "Адрес",
   "excelExport.headers.meters.unitName": "Помещение",
