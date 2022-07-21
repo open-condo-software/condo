@@ -4,11 +4,10 @@ const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { isEmpty } = require('lodash')
 
-class DeleteMeterAndMeterReadingsClients {
+class DeleteMeters {
     constructor (propertyIds) {
         this.propertyIds = propertyIds
         this.context = null
-        this.meters = []
     }
 
     async connect () {
@@ -21,24 +20,28 @@ class DeleteMeterAndMeterReadingsClients {
     }
 
     async findMeters () {
-        this.meters = await find('Meter', {
+        return await find('Meter', {
             deletedAt: null,
             property: {
                 id_in: this.propertyIds,
             },
         })
-        console.info(`[INFO] Following meters will be deleted: [${this.meters.map(reading => `'${reading.id}'`).join(', ')}]`)
     }
 
     async deleteMeters () {
-        if (isEmpty(this.meters)) return
+        const meters = await this.findMeters()
 
-        for (const meter of this.meters) {
+        console.info(`[INFO] Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]`)
+
+        if (isEmpty(meters)) return
+
+        for (const meter of meters) {
             await Meter.softDelete(this.context, meter.id, {
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'deleteIncorrectMetersScript' },
             })
         }
+
         console.info('[INFO] Meters are deleted...')
     }
 }
@@ -47,10 +50,9 @@ const deleteMetersScript = async (propertyIds) => {
     if (isEmpty(propertyIds)) {
         throw new Error('propertyIds not found!')
     }
-    const deleter = new DeleteMeterAndMeterReadingsClients(propertyIds)
+    const deleter = new DeleteMeters(propertyIds)
     console.info('[INFO] Connecting to database...')
     await deleter.connect()
-    await deleter.findMeters()
     await deleter.deleteMeters()
 }
 
