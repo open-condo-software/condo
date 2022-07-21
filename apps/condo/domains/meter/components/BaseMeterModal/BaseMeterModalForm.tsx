@@ -13,6 +13,7 @@ import { BaseModalForm } from '@condo/domains/common/components/containers/FormL
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
 
+import { useOrganization } from '@core/next/organization'
 import { useMeterValidations } from '../../hooks/useMeterValidations'
 import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
@@ -73,7 +74,7 @@ const getInitialDateValue = (initialValues, path) => {
     return stringInitialValue && dayjsInitialValue.isValid() ? dayjsInitialValue : null
 }
 
-export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ propertyId, unitName, handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, ...otherProps }) => {
+export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ propertyId, unitName, handleSubmit, initialValues, ModalSaveButtonLabelMsg, ModalTitleMsg, organizationId, ...otherProps }) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
     const MeterPlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterPlace' })
@@ -100,13 +101,18 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({ property
     const [installationDate, setInstallationDate] = useState<Dayjs>(initialInstallationDate)
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
+    const { organization } = useOrganization()
+    if (!organizationId) {
+        organizationId = get(organization, 'id')
+    }
+
     const { requiredValidator } = useValidations()
     const {
         meterWithSameNumberValidator,
         earlierThanInstallationValidator,
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
-    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName)
+    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId)
 
     const initialMeterNumber = get(initialValues, ['number'])
     const meterNumberValidations = useMemo(() =>

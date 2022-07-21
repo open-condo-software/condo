@@ -49,6 +49,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
                 handleSubmit={handleMeterCreate}
                 showCancelButton={false}
                 cancelModal={handleCancelModal}
+                organizationId={organizationId}
                 centered
             />
         )
