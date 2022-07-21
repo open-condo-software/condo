@@ -48,9 +48,9 @@ export type TaskProgressTranslations = {
 // Meaning of task progress is domain specific
 // A task record can have different fields to store and calculate progress
 // In some cases there is no technical way to determine exact percent completion of a task
-export type CalculateProgressFunc = (taskRecord: any) => TaskRecordProgress
+export type CalculateProgressFunc = (taskRecord: unknown) => TaskRecordProgress
 
-export type OnCompleteFunc = (taskRecord: any) => void
+export type OnCompleteFunc = (taskRecord: unknown) => void
 
 export enum TASK_STORAGE {
     CONDO_API = 'CONDO_API',
@@ -67,8 +67,8 @@ export enum TASK_STORAGE {
 
 type StopPollingFunction = () => void
 
-type UseCreateTaskFunction = (initialValues: any, onComplete: OnCompleteFunc) => (attrs: any) => void
-type UseUpdateTaskFunction = (initialValues: any, onComplete: OnCompleteFunc) => (attrs: any, obj: any) => Promise<any>
+type UseCreateTaskFunction = (initialValues: unknown, onComplete: OnCompleteFunc) => (attrs: unknown) => void
+type UseUpdateTaskFunction = (initialValues: unknown, onComplete: OnCompleteFunc) => (attrs: unknown, obj: unknown) => Promise<unknown>
 type UseDeleteTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (attrs: unknown) => void
 
 
