@@ -52,19 +52,6 @@ export type CalculateProgressFunc = (taskRecord: unknown) => TaskRecordProgress
 
 export type OnCompleteFunc = (taskRecord: unknown) => void
 
-export enum TASK_STORAGE {
-    CONDO_API = 'CONDO_API',
-    /**
-     * Gives possibility for condo to track third-party tasks, not stored in condo storage and not available
-     * via condo GraphQL API.
-     * These tasks will be added by mini-apps, mounted in iframe into condo pages
-     * A route of a task is following:
-     * iframe --post-message--> message dispather --ITasksContext.addTask-->
-     * Message dispatcher will be developed later
-     */
-    LOCAL_STORAGE = 'LOCAL_STORAGE',
-}
-
 type StopPollingFunction = () => void
 
 type UseCreateTaskFunction = (initialValues: unknown, onComplete: OnCompleteFunc) => (attrs: unknown) => void
