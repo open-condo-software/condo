@@ -196,22 +196,8 @@ class TicketEdit {
         ticket__assignee-item
         ticket__apply-changes-button
  */
-    visit () {
-        cy.visit(TICKET_VIEW_URL)
-        cy.wait([
-            '@getAllTickets', '@getAllTicketClassifierRules',
-            '@getAllUserTicketCommentReadTimes', '@getAllTicketFilterTemplates',
-            '@getAllTicketCommentsTimes', '@getAllTicketStatuses',
-            '@getAllTicketSources', '@getAllTicketCategoryClassifiers',
-            '@getAllDivisions', '@getAllOrganizationEmployees',
-        ])
-
-        cy.get('[data-cy=ticket__table] tbody tr', {
-            timeout: 5000,
-        }).first().should('have.class', 'ant-table-row-level-0')
-        cy.get('[data-cy=ticket__table] tbody tr').first().trigger('click')
-        cy.location('pathname').should('not.eq', TICKET_VIEW_URL)
-
+    visit (ticket) {
+        cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
         return this
     }
 
