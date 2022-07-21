@@ -1,5 +1,3 @@
-const { TicketSourceTypeType } = require('@app/condo/schema')
-
 const MAX_TICKET_REPORT_COUNT = 1000
 const PDF_REPORT_WIDTH = 1600
 const DATE_DISPLAY_FORMAT = 'DD.MM.YYYY'
@@ -23,7 +21,7 @@ const TICKET_SOURCE_TYPES = {
     MOBILE_APP_RESIDENT: 'mobile_app_resident',
 }
 
-const VISIBLE_TICKET_SOURCE_TYPES = [TicketSourceTypeType.Call, TicketSourceTypeType.MobileApp]
+const VISIBLE_TICKET_SOURCE_TYPES = [TICKET_SOURCE_TYPES.CALL, TICKET_SOURCE_TYPES.MOBILE_APP]
 
 module.exports = {
     MAX_TICKET_REPORT_COUNT,
