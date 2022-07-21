@@ -52,7 +52,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
     // Because it is impossible to initial assign it to `tasks` state, handle it separately
     const initialTasks = buildTrackableTasksFrom(initialTaskRecords, uiInterfaces)
-    const [latestUpdatedTask, setLatestUpdatedTask] = useState()
+    const [latestUpdatedTask, setLatestUpdatedTask] = useState<ITaskTrackableItem>()
 
     const allTasks = [
         ...tasks,
@@ -84,7 +84,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
      */
     const [notificationApi, contextHolder] = notification.useNotification()
 
-    function findExistingTaskById (id) {
+    function findExistingTaskById (id): [ITaskTrackableItem, number] {
         const index = findIndex(allTasksRef.current, { record: { id } })
         if (index === -1) {
             return [null, -1]
@@ -110,16 +110,13 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
             }
             setTasks(prevTasks => {
                 const updatedTask = {
-                    // @ts-ignore
                     ...prevTasks[index],
                     record,
                 }
-                setLatestUpdatedTask(updatedTask.record.progress)
+                setLatestUpdatedTask(updatedTask)
                 return [
-                    // @ts-ignore
                     ...prevTasks.slice(0, index),
                     updatedTask,
-                    // @ts-ignore
                     ...prevTasks.slice(index + 1),
                 ]
             })
