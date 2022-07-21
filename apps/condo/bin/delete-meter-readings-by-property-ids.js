@@ -1,15 +1,14 @@
 const path = require('path')
 const { find } = require('@core/keystone/schema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const get = require('lodash/get')
-const { MeterReading, Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { isEmpty } = require('lodash')
 
-class FixMeterReadingsClients {
+class DeleteMeterAndMeterReadingsClients {
     constructor (propertyIds) {
         this.propertyIds = propertyIds
         this.context = null
         this.meters = []
-        this.meterReadings = []
     }
 
     async connect () {
@@ -21,64 +20,44 @@ class FixMeterReadingsClients {
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
-    async findMeterReadings () {
-        this.meterReadings = await find('MeterReading', {
-            meter: { property: { id_in: this.propertyIds } },
-        })
-    }
-
     async findMeters () {
         this.meters = await find('Meter', {
-            property: { id_in: this.propertyIds },
+            deletedAt: null,
+            property: {
+                id_in: this.propertyIds,
+            },
         })
+        console.info(`[INFO] Following meters will be deleted: [${this.meters.map(reading => `'${reading.id}'`).join(', ')}]`)
     }
 
-    async deleteBrokenMeterReadings () {
-        if (!get(this.meterReadings, 'length')) return
-
-        for (const meterReading of this.meterReadings) {
-            await MeterReading.update(this.context, meterReading.id, {
-                deletedAt: 'true',
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'deleteIncorrectMeterReadingsScript' },
-            })
-        }
-    }
-
-    async deleteBrokenMeters () {
-        if (!get(this.meters, 'length')) return
+    async deleteMeters () {
+        if (isEmpty(this.meters)) return
 
         for (const meter of this.meters) {
             await Meter.update(this.context, meter.id, {
-                deletedAt: 'true',
+                deletedAt: new Date().toDateString(),
                 dv: 1,
                 sender: { dv: 1, fingerprint: 'deleteIncorrectMetersScript' },
             })
         }
+        console.info('[INFO] Meters are deleted...')
     }
 }
 
-const deleteMeterReadings = async (propertyIds) => {
-    if (!propertyIds) {
+const deleteMetersScript = async (propertyIds) => {
+    if (isEmpty(propertyIds)) {
         throw new Error('propertyIds not found!')
     }
-    const fixer = new FixMeterReadingsClients(propertyIds)
+    const deleter = new DeleteMeterAndMeterReadingsClients(propertyIds)
     console.info('[INFO] Connecting to database...')
-    await fixer.connect()
-    console.info('[INFO] Finding broken meter readings and meters...')
-    await fixer.findMeterReadings()
-    console.info(`[INFO] Following meter readings will be deleted: [${fixer.meterReadings.map(reading => `'${reading.id}'`).join(', ')}]`)
-    await fixer.findMeters()
-    console.info(`[INFO] Following meters will be deleted: [${fixer.meters.map(reading => `'${reading.id}'`).join(', ')}]`)
-    await fixer.fixBrokenMeterReadings()
-    console.info('[INFO] Broken meter readings are deleted...')
-    await fixer.fixBrokenMeters()
-    console.info('[INFO] Broken meters are deleted...')
+    await deleter.connect()
+    await deleter.findMeters()
+    await deleter.deleteMeters()
 }
 
 const propertyIds = process.argv.slice(2) // .slice(2) because first two arguments are nodePath and appPath
 
-deleteMeterReadings(propertyIds).then(() => {
+deleteMetersScript(propertyIds).then(() => {
     console.log('\r\n')
     console.log('All done')
     process.exit(0)
