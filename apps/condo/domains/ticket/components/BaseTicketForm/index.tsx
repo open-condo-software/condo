@@ -363,9 +363,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         values.unitName = selectedUnitNameRef.current
         values.unitType = selectedUnitTypeRef.current
         values.sectionType = selectedSectionTypeRef.current
-        values.categoryClassifier = { connect: { id: values.categoryClassifier } }
-        values.placeClassifier = undefined
-        values.problemClassifier = undefined
+
         return values
     }, [])
 

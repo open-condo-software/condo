@@ -14,7 +14,7 @@ const { REVIEW_VALUES, ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = requ
 const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('@condo/domains/common/utils/exportToExcel')
 const { ticketStatusesTranslations } = require('@condo/domains/common/utils/exportToExcel')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { TicketStatus, loadTicketsForExcelExport, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
+const { TicketStatus, loadTicketsForExcelExport, loadTicketCommentsForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
@@ -103,8 +103,6 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                 const ticketsComments = await loadTicketCommentsForExcelExport({ ticketIds: map(allTickets, 'id') })
 
-                const classifierRules = await loadClassifiersForExcelExport({ rulesIds: map(allTickets, 'classifierRule') })
-
                 const excelRows = allTickets.map(ticket => {
                     const ticketComments = ticketsComments.filter(comment => comment.ticket === ticket.id)
                     const organizationCommentsToRender = []
@@ -122,8 +120,6 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
 
                     const sectionTypeMessage = ticket.sectionType && i18n(`field.sectionType.${ticket.sectionType}`, { locale })
 
-                    const ticketClassifiers = classifierRules.filter(rule => rule.id === ticket.classifierRule)
-
                     return {
                         number: ticket.number,
                         source: i18n(ticket.source, { locale }) || EMPTY_VALUE,
@@ -140,9 +136,9 @@ const ExportTicketsService = new GQLCustomSchema('ExportTicketsService', {
                         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
                         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
                         isPaid: ticket.isPaid ? YesMessage : NoMessage,
-                        place: ticketClassifiers[0].place || EMPTY_VALUE,
-                        category: ticketClassifiers[0].category || EMPTY_VALUE,
-                        description: ticketClassifiers[0].problem || EMPTY_VALUE,
+                        place: ticket.placeClassifier || EMPTY_VALUE,
+                        category: ticket.categoryClassifier || EMPTY_VALUE,
+                        description: ticket.problemClassifier || EMPTY_VALUE,
                         createdAt: formatDate(ticket.createdAt),
                         updatedAt: formatDate(ticket.updatedAt),
                         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
