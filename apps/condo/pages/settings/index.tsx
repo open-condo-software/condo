@@ -1,73 +1,51 @@
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import React, { CSSProperties, useMemo } from 'react'
+import Head from 'next/head'
+import { Typography } from 'antd'
+
+import { useIntl } from '@core/next/intl'
+
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
-import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
-import {
-    SETTINGS_TAB_CONTACT_ROLES,
-    SETTINGS_TAB_PROPERTY_HINT,
-    SETTINGS_TAB_SUBSCRIPTION,
-} from '@condo/domains/common/constants/settingsTabs'
-import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
-import {
-    SettingsContent as TicketPropertyHintSettings,
-} from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
-import { useIntl } from '@core/next/intl'
-import { Typography } from 'antd'
-import get from 'lodash/get'
-import Head from 'next/head'
-import React, { CSSProperties, useMemo } from 'react'
-import { useOrganization } from '@core/next/organization'
+import { SettingsContent as TicketPropertyHintSettings } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
+import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
+import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT]
+const ALWAYS_AVAILABLE_TABS = ['hint']
 
-const SettingsPage: React.FC = () => {
+const SettingsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'menu.Settings' })
     const HintTitle = intl.formatMessage({ id: 'Hint' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
-    const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
-
-    const userOrganization = useOrganization()
-    const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
-
     const tabKeysToDisplay = useMemo(() => {
         const result = ALWAYS_AVAILABLE_TABS
-        if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
-        if (canManageContactRoles) result.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (hasSubscriptionFeature) result.push('subscription')
         return result
-    }, [hasSubscriptionFeature, canManageContactRoles])
+    }, [hasSubscriptionFeature])
 
-    const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
-        () => [
-            hasSubscriptionFeature && {
-                key: SETTINGS_TAB_SUBSCRIPTION,
-                title: SubscriptionTitle,
-                content: <SubscriptionPane/>,
-            },
-            {
-                key: SETTINGS_TAB_PROPERTY_HINT,
-                title: HintTitle,
-                content: <TicketPropertyHintSettings/>,
-            },
-            canManageContactRoles && {
-                key: SETTINGS_TAB_CONTACT_ROLES,
-                title: RolesTitle,
-                content: <ContactRolesSettingsContent/>,
-            },
-        ].filter(Boolean),
-        [HintTitle, SubscriptionTitle, hasSubscriptionFeature, RolesTitle, canManageContactRoles],
-    )
+    const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(() => [
+        hasSubscriptionFeature && ({
+            key: 'subscription',
+            title: SubscriptionTitle,
+            content: <SubscriptionPane />,
+        }),
+        {
+            key: 'hint',
+            title: HintTitle,
+            content: <TicketPropertyHintSettings />,
+        },
+    ].filter(Boolean),
+    [HintTitle, SubscriptionTitle, hasSubscriptionFeature])
 
-    const titleContent = useMemo(() => (
-        <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>
-    ), [PageTitle])
+    const titleContent = useMemo(() => <Typography.Title style={TITLE_STYLES}>{PageTitle}</Typography.Title>, [PageTitle])
 
     return (
         <>
@@ -80,7 +58,7 @@ const SettingsPage: React.FC = () => {
                 <OrganizationRequired>
                     <PageHeader title={titleContent}/>
                     <TablePageContent>
-                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={tabKeysToDisplay}/>
+                        <SettingsPageContent settingsTabs={settingsTabs} availableTabs={tabKeysToDisplay} />
                     </TablePageContent>
                 </OrganizationRequired>
             </PageWrapper>

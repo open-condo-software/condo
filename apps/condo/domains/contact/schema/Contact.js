@@ -99,15 +99,6 @@ const Contact = new GQLListSchema('Contact', {
             },
         },
 
-        role: {
-            schemaDoc: 'The contact\'s role',
-            type: Relationship,
-            ref: 'ContactRole',
-            isRequired: false,
-            knexOptions: { isNotNullable: false }, // Relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError }) => {

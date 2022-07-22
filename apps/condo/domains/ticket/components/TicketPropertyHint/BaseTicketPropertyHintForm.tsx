@@ -20,7 +20,6 @@ import {
     searchOrganizationProperty,
     searchOrganizationPropertyWithoutPropertyHint,
 } from '@condo/domains/ticket/utils/clientSchema/search'
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -52,7 +51,7 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
     const queryFilters = useMemo(() => hintFilters ? { filters: hintFilters } : {}, [hintFilters])
     const query = useMemo(() => qs.stringify(
         {
-            tab: SETTINGS_TAB_PROPERTY_HINT,
+            tab: 'hint',
             ...queryFilters,
         },
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
@@ -218,7 +217,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
             }
         }
 
-        await router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_HINT}`)
+        await router.push('/settings?tab=hint')
     }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction])
 
     if (organizationTicketPropertyHintPropertiesLoading) {

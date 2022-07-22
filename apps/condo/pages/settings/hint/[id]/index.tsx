@@ -23,8 +23,6 @@ import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/t
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
 
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
-
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
 }
@@ -52,7 +50,7 @@ const TicketPropertyHintIdPage = () => {
         where: { id: hintId },
     })
 
-    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_HINT}`))
+    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push('/settings?tab=hint'))
 
     const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: {

@@ -4,5 +4,4 @@
  */
 
 export * as Contact from './Contact'
-export * as ContactRole from './ContactRole'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

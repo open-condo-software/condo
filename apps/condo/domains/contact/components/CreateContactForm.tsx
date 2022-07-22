@@ -1,24 +1,22 @@
-import { BuildingUnitSubType } from '@app/condo/schema'
-import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { ContactRoleSelect } from '@condo/domains/contact/components/contactRoles/ContactRoleSelect'
-import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
-import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
-import styled from '@emotion/styled'
 import { Col, Form, Row } from 'antd'
+import Input from '@condo/domains/common/components/antd/Input'
+import styled from '@emotion/styled'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useRef, useState } from 'react'
+import { useOrganization } from '@core/next/organization'
+import { useRouter } from 'next/router'
+import { useIntl } from '@core/next/intl'
+import { BuildingUnitSubType } from '@app/condo/schema'
+import { Button } from '@condo/domains/common/components/Button'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
+import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -55,7 +53,6 @@ export const CreateContactForm: React.FC = () => {
     const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
     const PropertyErrorMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
     const UnitErrorMessage = intl.formatMessage({ id: 'field.Unit.requiredError' })
-    const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
 
     const { organization } = useOrganization()
     const router = useRouter()
@@ -77,19 +74,6 @@ export const CreateContactForm: React.FC = () => {
     const selectedUnitTypeRef = useRef(selectedUnitType)
 
     const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
-
-    const {
-        loading: isRolesLoading,
-        count: totalRoles,
-        objs: roles,
-    } = ContactRole.useObjects({
-        where: {
-            OR: [
-                { organization_is_null: true },
-                { organization: { id: get(organization, 'id') } },
-            ],
-        },
-    })
 
     useEffect(() => {
         selectedPropertyIdRef.current = selectedPropertyId
@@ -118,12 +102,6 @@ export const CreateContactForm: React.FC = () => {
                 values.property = { connect: { id: selectedPropertyIdRef.current } }
                 values.unitName = selectedUnitNameRef.current
                 values.unitType = selectedUnitTypeRef.current
-                const role = get(values, 'role')
-
-                if (role) {
-                    values.role = { connect: { id: String(role) } }
-                }
-
                 return values
             }}
         >
@@ -223,22 +201,6 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Input placeholder={ExampleEmailMessage}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name="role"
-                                            label={RoleLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign="left"
-                                        >
-                                            {
-                                                isRolesLoading ? (
-                                                    <Loader fill size="small"/>
-                                                ) : (
-                                                    <ContactRoleSelect roles={roles}/>
-                                                )
-                                            }
                                         </Form.Item>
                                     </Col>
                                 </Row>

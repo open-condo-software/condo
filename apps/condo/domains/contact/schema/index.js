@@ -5,12 +5,10 @@
 
 const { Contact } = require('./Contact')
 const { ExportContactsService } = require('./ExportContactsService')
-const { ContactRole } = require('./ContactRole')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Contact,
     ExportContactsService,
-    ContactRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
