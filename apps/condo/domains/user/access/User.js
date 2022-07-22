@@ -51,8 +51,13 @@ const canAccessToPasswordField = {
     // 4. Only authenticated users can update their own password. Admins can update anyone's password.
     update: access.userIsAdminOrIsThisItem,
 }
-const canAccessToIsAdminField = {
+const canManageToIsAdminField = {
     read: true,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
+const canAccessToIsAdminField = {
+    read: access.userIsAdmin,
     create: access.userIsAdmin,
     update: access.userIsAdmin,
 }
@@ -80,4 +85,5 @@ module.exports = {
     canAccessToIsPhoneVerifiedField,
     canAccessToImportField,
     canAccessToStaffUserField,
+    canManageToIsAdminField,
 }
