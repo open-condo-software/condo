@@ -4,9 +4,9 @@
 const { pick } = require('lodash')
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, DATETIME_RE, getRandomString } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
 
 const { createTestPhone, createTestEmail, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, UserAdmin } = require('@condo/domains/user/utils/testSchema')
 const { acceptOrRejectOrganizationInviteById, inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -19,6 +19,7 @@ const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('OrganizationEmployee', () => {
     describe('user: create OrganizationEmployee', () => {
@@ -527,6 +528,24 @@ describe('OrganizationEmployee', () => {
             name: 'CLIENT2',
             email: client2.userAttrs.email,
             phone: client2.userAttrs.phone,
+        })
+    })
+
+    describe('Constraint', () => {
+        describe('unique_user_and_organization constraint', () => {
+            test('cannot create 2 organization employees with same user and organizaation fields', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+                await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                await expectToThrowInternalError(async () => {
+                    await createTestOrganizationEmployee(admin, organization, user.user, role)
+                }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_organization"`)
+
+            })
         })
     })
 })
