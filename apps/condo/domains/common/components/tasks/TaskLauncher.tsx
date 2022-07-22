@@ -4,7 +4,7 @@ import { DatabaseFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { TasksContext } from './TasksContextProvider'
-import { ITask } from './index'
+import { ITask, TaskRecord } from './index'
 
 interface ITaskLauncherProps {
     label: string
@@ -29,11 +29,10 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
 
     const [loading, setLoading] = useState(false)
 
-    // TODO(antonal): load in-progress tasks and set loading state
-    // @ts-ignore
+    // TODO(antonal): load in-progress tasks and set loading state. For user it will mean that
     const { addTask } = useContext(TasksContext)
 
-    const launchTask = taskUIInterface.storage.useCreateTask({}, record => {
+    const launchTask = taskUIInterface.storage.useCreateTask({}, (record: TaskRecord) => {
         setLoading(true)
         addTask({
             record,
