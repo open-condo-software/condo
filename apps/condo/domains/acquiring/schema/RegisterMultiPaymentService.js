@@ -63,32 +63,6 @@ const errors = {
         type: REQUIRED,
         message: 'Each group of receipts should contain at least 1 receipt',
     },
-    // (signature change) temporarily
-    MISSING_REQUIRED_SERVICE_CONSUMER_IN_GROUPED_RECEIPTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer'],
-        code: BAD_USER_INPUT,
-        type: REQUIRED,
-        message: 'Each group of receipts should contain serviceConsumer',
-    },
-    // (signature change) temporarily
-    MISSING_REQUIRED_CONSUMER_ID_IN_GROUPED_RECEIPTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: REQUIRED,
-        message: 'Each group of receipts should contain consumerId',
-    },
-    /**
-     * @deprecated use DUPLICATED_SERVICE_CONSUMER
-     */
-    DUPLICATED_CONSUMER: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: NOT_UNIQUE,
-        message: 'There are some groupedReceipts with same consumerId',
-    },
     DUPLICATED_SERVICE_CONSUMER: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
@@ -103,32 +77,12 @@ const errors = {
         type: NOT_UNIQUE,
         message: 'Found duplicated receipt ids. Note, each receipt can only occur in single ServiceConsumer per mutation run and cannot be noticed twice',
     },
-    /**
-     * @deprecated use MISSING_SERVICE_CONSUMERS
-     */
-    MISSING_CONSUMERS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Cannot find specified ServiceConsumers with following ids: {ids}',
-    },
     MISSING_SERVICE_CONSUMERS: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Cannot find specified ServiceConsumers with following ids: {ids}',
-    },
-    /**
-     * @deprecated use DELETED_CONSUMERS
-     */
-    DELETED_CONSUMER_IDS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore',
     },
     DELETED_CONSUMERS: {
         mutation: 'registerMultiPayment',
@@ -137,32 +91,12 @@ const errors = {
         type: NOT_FOUND,
         message: 'Some of specified ServiceConsumers with ids {ids} were deleted, so you cannot pay for them anymore',
     },
-    /**
-     * @deprecated use ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING
-     */
-    ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING_FOR_CONSUMER_ID: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
-        message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
-    },
     ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING,
         message: 'ServiceConsumers with ids {ids} does not have AcquiringIntegrationContext',
-    },
-    /**
-     * @deprecated use ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED
-     */
-    ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED_FOR_CONSUMER_ID: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
-        message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
     },
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED: {
         mutation: 'registerMultiPayment',
@@ -171,16 +105,6 @@ const errors = {
         type: ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
         message: 'Some ServiceConsumers has deleted AcquiringIntegrationContext',
     },
-    /**
-     * @deprecated use MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS
-     */
-    MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS_FOR_CONSUMER_ID: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
-        message: 'Listed consumerIds are linked to different acquiring integrations',
-    },
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
@@ -188,32 +112,12 @@ const errors = {
         type: MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
     },
-    /**
-     * @deprecated use ACQUIRING_INTEGRATION_IS_DELETED
-     */
-    ACQUIRING_INTEGRATION_IS_DELETED_FOR_CONSUMER_IF: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: ACQUIRING_INTEGRATION_IS_DELETED,
-        message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-    },
     ACQUIRING_INTEGRATION_IS_DELETED: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_IS_DELETED,
         message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-    },
-    /**
-     * @deprecated use RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION
-     */
-    RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION_FOR_CONSUMER_ID: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'groupedReceipts', '[]', 'consumerId'],
-        code: BAD_USER_INPUT,
-        type: RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
-        message: 'Receipts cannot be grouped by AcquiringIntegration with id "{id}", because a value of "canGroupReceipts" field is false',
     },
     RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION: {
         mutation: 'registerMultiPayment',
@@ -292,14 +196,11 @@ const SENDER_FIELD_CONSTRAINTS = {
     },
 }
 
-// TODO (DOMA-3016) find "(signature change)" comments & when the transition of the mobile application to the new signature is completed, delete the logic the old signature and the old signature itself
-// delete consumerId
-// make required field serviceConsumer
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentServiceConsumerInput { consumerId: String @deprecated(reason: "consumerId is deprecated, use serviceConsumer instead."), """consumerId is deprecated, use serviceConsumer instead. Required field (in future)""" serviceConsumer: ServiceConsumerWhereUniqueInput, receipts: [BillingReceiptWhereUniqueInput!]! }',
+            type: 'input RegisterMultiPaymentServiceConsumerInput { serviceConsumer: ServiceConsumerWhereUniqueInput!, receipts: [BillingReceiptWhereUniqueInput!]! }',
         },
         {
             access: true,
@@ -336,37 +237,15 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     throw new GQLError(errors.MISSING_REQUIRED_GROUPED_RECEIPTS, context)
                 }
 
-                // (signature change) in the future, you need to remove this key
-                // and replace all places where they occur with serviceConsumer
-                const serviceConsumerKey = groupedReceipts.some(group => get(group, ['serviceConsumer']))
-                    ? 'serviceConsumer'
-                    : groupedReceipts.some(group => get(group, ['consumerId']))
-                        ? 'consumerId'
-                        : 'serviceConsumer'
-
                 if (groupedReceipts.some(group => !get(group, ['receipts', 'length']))) {
                     throw new GQLError(errors.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
                 }
 
-                // (signature change) remove the condition and remove the temporarily errors
-                if (groupedReceipts.some(group => !get(group, [serviceConsumerKey]))) {
-                    if (serviceConsumerKey === 'serviceConsumer') {
-                        throw new GQLError(errors.MISSING_REQUIRED_SERVICE_CONSUMER_IN_GROUPED_RECEIPTS, context)
-                    } else {
-                        throw new GQLError(errors.MISSING_REQUIRED_CONSUMER_ID_IN_GROUPED_RECEIPTS, context)
-                    }
-                }
-
                 // Stage 0.1: Duplicates check
-                const consumersIds = groupedReceipts.map(group => serviceConsumerKey === 'serviceConsumer' ? group.serviceConsumer.id : group.consumerId)
+                const consumersIds = groupedReceipts.map(group => group.serviceConsumer.id)
                 const uniqueConsumerIds = new Set(consumersIds)
                 if (consumersIds.length !== uniqueConsumerIds.size) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    if (serviceConsumerKey === 'serviceConsumer') {
-                        throw new GQLError(errors.DUPLICATED_SERVICE_CONSUMER, context)
-                    } else {
-                        throw new GQLError(errors.DUPLICATED_CONSUMER, context)
-                    }
+                    throw new GQLError(errors.DUPLICATED_SERVICE_CONSUMER, context)
                 }
                 const receiptsIds = groupedReceipts
                     .flatMap(group => group['receipts'])
@@ -383,23 +262,17 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (consumers.length !== consumersIds.length) {
                     const existingConsumerIds = consumers.map(consumer => consumer.id)
                     const missingConsumerIds = consumersIds.filter(consumerId => !existingConsumerIds.includes(consumerId))
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.MISSING_SERVICE_CONSUMERS : errors.MISSING_CONSUMERS
-                    throw new GQLError({ ...error, messageInterpolation: { ids: missingConsumerIds.join(', ') } }, context)
+                    throw new GQLError({ ...errors.MISSING_SERVICE_CONSUMERS, messageInterpolation: { ids: missingConsumerIds.join(', ') } }, context)
                 }
                 const deletedConsumersIds = consumers.filter(consumer => consumer.deletedAt).map(consumer => consumer.id)
                 if (deletedConsumersIds.length) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.DELETED_CONSUMERS : errors.DELETED_CONSUMER_IDS
-                    throw new GQLError({ ...error, messageInterpolation: { ids: deletedConsumersIds.join(', ') } }, context)
+                    throw new GQLError({ ...errors.DELETED_CONSUMERS, messageInterpolation: { ids: deletedConsumersIds.join(', ') } }, context)
                 }
                 const contextMissingConsumers = consumers
                     .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
                     .map(consumer => consumer.id)
                 if (contextMissingConsumers.length) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING : errors.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING_FOR_CONSUMER_ID
-                    throw new GQLError({ ...error, messageInterpolation: { ids: contextMissingConsumers.join(', ') } }, context)
+                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING, messageInterpolation: { ids: contextMissingConsumers.join(', ') } }, context)
                 }
 
                 const consumersByIds = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))
@@ -414,18 +287,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const failedConsumers = consumers
                         .filter(consumer => deletedAcquiringContextsIds.has(consumer.acquiringIntegrationContext))
                         .map(consumer => ({ consumerId: consumer.id, acquiringContextId: consumer.acquiringIntegrationContext }))
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED : errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED_FOR_CONSUMER_ID
-                    throw new GQLError({ ...error, data: { failedConsumers } }, context)
+                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, data: { failedConsumers } }, context)
                 }
 
                 const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map(obj => ({ [obj.id]: obj })))
 
                 const acquiringIntegrations = new Set(acquiringContexts.map(context => context.integration))
                 if (acquiringIntegrations.size !== 1) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS : errors.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS_FOR_CONSUMER_ID
-                    throw new GQLError(error, context)
+                    throw new GQLError(errors.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
                 }
 
                 // NOTE: Here using serverSchema to get many relation
@@ -433,17 +302,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     id: Array.from(acquiringIntegrations)[0],
                 })
                 if (acquiringIntegration.deletedAt) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.ACQUIRING_INTEGRATION_IS_DELETED : errors.ACQUIRING_INTEGRATION_IS_DELETED_FOR_CONSUMER_IF
-                    throw new GQLError({ ...error, messageInterpolation: { id: acquiringIntegration.id } }, context)
+                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }
 
                 // TODO (savelevMatthew): check that all receipts linked to right consumers?
                 // Stage 2. Check BillingReceipts
                 if (receiptsIds.length > 1 && !acquiringIntegration.canGroupReceipts) {
-                    // (signature change) remove the condition and remove the deprecated error
-                    const error = serviceConsumerKey === 'serviceConsumer' ? errors.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION : errors.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION_FOR_CONSUMER_ID
-                    throw new GQLError({ ...error, messageInterpolation: { id: acquiringIntegration.id } }, context)
+                    throw new GQLError({ ...errors.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }
                 const receipts = await find('BillingReceipt', {
                     id_in: receiptsIds,
@@ -475,7 +340,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const billingAccountId = receipt.account
                         const billingAccount = await getById('BillingAccount', billingAccountId)
 
-                        const consumer = consumersByIds[serviceConsumerKey === 'serviceConsumer' ? group.serviceConsumer.id : group.consumerId]
+                        const consumer = consumersByIds[group.serviceConsumer.id]
                         const resident = await getById('Resident', consumer.resident)
 
                         if (
@@ -487,7 +352,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                                 ...errors.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
                                 messageInterpolation: {
                                     receiptId: receiptInfo.id,
-                                    serviceConsumerId: serviceConsumerKey === 'serviceConsumer' ? group.serviceConsumer.id : group.consumerId,
+                                    serviceConsumerId: group.serviceConsumer.id,
                                 },
                             }, context)
                         }
@@ -535,7 +400,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 // Stage 3 Generating payments
                 const payments = []
                 for (const group of groupedReceipts) {
-                    const serviceConsumer = consumersByIds[serviceConsumerKey === 'serviceConsumer' ? group.serviceConsumer.id : group.consumerId]
+                    const serviceConsumer = consumersByIds[group.serviceConsumer.id]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
                     const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
                     const feeCalculator = new FeeDistribution(formula)
