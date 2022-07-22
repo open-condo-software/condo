@@ -11,7 +11,9 @@ async function canReadRecipients ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    return false
+
+    //TODO: update access
+    return true
 }
 
 async function canManageRecipients ({ authentication: { item: user }, originalInput, operation, itemId }) {

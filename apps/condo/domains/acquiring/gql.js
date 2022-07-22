@@ -34,13 +34,14 @@ const PAYMENTS_FILTER_FIELDS = '{ advancedAt accountNumber address type }'
 const PAYMENTS_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${PAYMENTS_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYMENTS_FILTER_TEMPLATE_FIELDS)
 
+const RECIPIENT_FIELDS = `{ organization { id } importId tin iec bic bankAccount bankName offsettingAccount territoryCode name isApproved meta ${COMMON_FIELDS} }`
+
 const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
     mutation registerMultiPaymentForOneReceipt ($data: RegisterMultiPaymentForOneReceiptInput!) {
         result: registerMultiPaymentForOneReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl }
     }
 `
 
-const RECIPIENT_FIELDS = `{ organization { id } tin iec bic bankAccount bankName offsettingAccount territoryCode name isApproved meta ${COMMON_FIELDS} }`
 const Recipient = generateGqlQueries('Recipient', RECIPIENT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

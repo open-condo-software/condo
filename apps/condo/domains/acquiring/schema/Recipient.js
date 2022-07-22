@@ -115,12 +115,6 @@ const Recipient = new GQLListSchema('Recipient', {
             isRequired: false,
         },
 
-        importRemoteSystem: {
-            schemaDoc: 'The system from which the recipients were created',
-            type: Text,
-            isRequired: false,
-        },
-
         isApproved: {
             schemaDoc: 'If set to True, then this recipient info is considered allowed and users are allowed to pay for receipts with this recipient',
             type: Checkbox,
@@ -162,6 +156,25 @@ const Recipient = new GQLListSchema('Recipient', {
             if (operation === 'update' && !('isApproved' in resolvedData)) {
                 resolvedData.isApproved = false
             }
+
+            //console.log(await getOrganizationByTin('047102651'))
+
+            // const {
+            //     data: {
+            //         kpp: iec, inn: tin, oktmo: territoryCode,
+            //         name: {
+            //             short_with_opf: organizationName,
+            //         },
+            //         address: {
+            //             data: {
+            //                 country_iso_code: organizationCountry,
+            //                 timezone,
+            //             },
+            //         },
+            //     },
+            // } = await getOrganizationByTin('6670082480')
+            // console.log(iec, timezone, territoryCode, tin, organizationCountry, organizationName)
+
             return resolvedData
         },
     },

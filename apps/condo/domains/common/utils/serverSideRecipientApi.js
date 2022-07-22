@@ -16,7 +16,7 @@ async function getOrganizationByTin (query) {
             'Accept': 'application/json',
             'Authorization': `Token ${API_TOKEN}`,
         },
-        body: JSON.stringify({ query: query }),
+        body: JSON.stringify({ query: query, branch_type: 'MAIN' }),
     })
 
     const status = result.status
