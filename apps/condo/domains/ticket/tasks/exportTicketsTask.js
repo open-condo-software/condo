@@ -1,10 +1,11 @@
 const get = require('lodash/get')
 const isNull = require('lodash/isNull')
+const map = require('lodash/map')
 const { TicketExportTask, TicketStatus } = require('../utils/serverSchema')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@core/keystone/tasks')
 const { getSchemaCtx } = require('@core/keystone/schema')
-const { loadTicketsBatchForExcelExport, loadTicketCommentsForExcelExport } = require('../utils/serverSchema')
+const { loadTicketsBatchForExcelExport, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('../utils/serverSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const dayjs = require('dayjs')
@@ -48,10 +49,12 @@ const renderComment = (comment, locale) => {
  * @param ticket
  * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
  */
-const convertRecordToFileRow = async ({ task, ticket, indexedStatuses }) => {
+const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifierRules }) => {
     const { locale, timeZone } = task
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
+
+    const ticketClassifiers = classifierRules.filter(rule => rule.id === ticket.classifierRule)
 
     const comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
     const renderedOrganizationComments = []
@@ -93,9 +96,9 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses }) => {
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         isPaid: ticket.isPaid ? YesMessage : NoMessage,
-        place: ticket.placeClassifier || EMPTY_VALUE,
-        category: ticket.categoryClassifier || EMPTY_VALUE,
-        description: ticket.problemClassifier || EMPTY_VALUE,
+        place: ticketClassifiers[0].place || EMPTY_VALUE,
+        category: ticketClassifiers[0].category || EMPTY_VALUE,
+        description: ticketClassifiers[0].problem || EMPTY_VALUE,
         createdAt: formatDate(ticket.createdAt),
         updatedAt: formatDate(ticket.updatedAt),
         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
@@ -170,17 +173,21 @@ const exportTickets = async (taskId) => {
 
     let idOfFirstTicketForAccessRights
 
+    let classifierRules
+
     await exportRecords({
         context,
         loadRecordsBatch: async (offset, limit) => {
             const { where, sortBy } = task
             const tickets = await loadTicketsBatchForExcelExport({ where, sortBy, offset, limit })
+            classifierRules = await loadClassifiersForExcelExport({ rulesIds: map(tickets, 'classifierRule') })
+
             if (!idOfFirstTicketForAccessRights) {
                 idOfFirstTicketForAccessRights = get(tickets[0], 'id')
             }
             return tickets
         },
-        convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses }),
+        convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifierRules }),
         buildExportFile: (rows) => buildExportFile({ rows, task, idOfFirstTicketForAccessRights }),
         task,
         taskServerUtils: TicketExportTask,
