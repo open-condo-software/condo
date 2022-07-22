@@ -91,14 +91,12 @@ const Organization = new GQLListSchema('Organization', {
             type: Relationship,
             ref: 'OrganizationEmployee.organization',
             many: true,
-            // TODO(DOMA-3216): we need to change it to access.canAccessOnlyAdminField! (you can read it at the moment)
-            access: userAccess.canManageToIsAdminField,
+            access: userAccess.canAccessToIsAdminField,
         },
         relatedOrganizations: {
             type: Relationship,
             ref: 'OrganizationLink.to',
             many: true,
-            // TODO(DOMA-3216): we need to change it to access.canAccessOnlyAdminField! (you can read it at the moment)
             access: userAccess.canAccessToIsAdminField,
         },
         statusTransitions: {
