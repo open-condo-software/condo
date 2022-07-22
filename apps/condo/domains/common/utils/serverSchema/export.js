@@ -36,11 +36,13 @@ const errors = {
 
 /**
  * Queries records in batches to avoid database overload, converts them to file rows representation
- * @param {LoadRecordsBatchFunction} loadRecordsBatch
- * @param {ConvertRecordToFileRowFunction} convertRecordToFileRow
- * @param {ExportTask} task
- * @param taskSchema
- * @return {Promise<*[]>}
+ * @param {Object} args
+ * @param args.context - Keystone context
+ * @param {LoadRecordsBatchFunction} args.loadRecordsBatch - function to load a batch of records
+ * @param {ConvertRecordToFileRowFunction} args.convertRecordToFileRow - function to convert record to file row JSON representation
+ * @param {ExportTask} args.task - task schema record that needs to be updated during operation progress
+ * @param args.taskServerUtils - utils from serverSchema
+ * @return {Promise<*[]>} - JSON representation of file rows, that will be saved to file
  */
 const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, convertRecordToFileRow, task, taskServerUtils }) => {
     let hasMore
