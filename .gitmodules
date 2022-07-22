@@ -26,3 +26,6 @@
 [submodule "apps/property_importer"]
 	path = apps/property_importer
 	url = git@github.com:open-condo-software/property_importer.git
+[submodule "apps/address-service"]
+	path = apps/address-service
+	url = https://github.com/open-condo-software/address-service
