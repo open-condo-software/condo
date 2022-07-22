@@ -21,7 +21,7 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { MeterReading, MeterReadingFilterTemplate } from '@condo/domains/meter/utils/clientSchema'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/meter/hooks/useTableColumns'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -211,7 +211,6 @@ export const MetersPageContent = ({
                         </Col>
                         <Col span={24}>
                             <Table
-                                scroll={getTableScrollConfig(shouldTableScroll)}
                                 totalRows={total}
                                 loading={metersLoading || loading}
                                 dataSource={meterReadings}

@@ -13,7 +13,7 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
@@ -226,7 +226,6 @@ export default function BuildingsTable (props: BuildingTableProps) {
                 </Col>
                 <Col span={24}>
                     <Table
-                        scroll={getTableScrollConfig(isSmall)}
                         totalRows={total}
                         loading={propertiesLoading || loading}
                         dataSource={properties}

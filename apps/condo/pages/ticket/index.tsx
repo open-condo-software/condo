@@ -22,7 +22,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Button } from '@condo/domains/common/components/Button'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { FiltersTooltip, useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -240,7 +240,6 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <Table
-                                            scroll={getTableScrollConfig(shouldTableScroll)}
                                             totalRows={total}
                                             loading={loading}
                                             dataSource={tickets}

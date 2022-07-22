@@ -17,7 +17,7 @@ import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSear
 import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 import { Col, Row, Modal, Space, Typography } from 'antd'
@@ -286,7 +286,6 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                         dataSource={objs}
                         totalRows={count}
                         columns={tableColumns}
-                        scroll={getTableScrollConfig(isSmall)}
                     />
                 </Col>
                 <ExportToExcelActionBar
