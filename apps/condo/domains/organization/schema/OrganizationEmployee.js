@@ -122,6 +122,16 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             defaultValue: false,
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'organization'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'unique_user_and_organization',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadOrganizationEmployees,
