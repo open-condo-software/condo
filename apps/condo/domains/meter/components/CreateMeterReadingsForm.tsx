@@ -17,7 +17,6 @@ import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 import {
@@ -143,7 +142,6 @@ export const PropertyMetersForm = ({
                     {
                         selectedUnitName ? (
                             <Table
-                                scroll={getTableScrollConfig(isSmall)}
                                 loading={loading}
                                 totalRows={total}
                                 dataSource={dataSource}

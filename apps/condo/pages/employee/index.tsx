@@ -6,7 +6,6 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { getTableScrollConfig } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { canManageEmployee } from '@condo/domains/organization/permissions'
@@ -172,7 +171,6 @@ export const EmployeesPageContent = ({
                                 </Col>
                                 <Col span={24}>
                                     <Table
-                                        scroll={getTableScrollConfig(shouldTableScroll)}
                                         bordered
                                         tableLayout={'fixed'}
                                         loading={employeesLoading || loading}

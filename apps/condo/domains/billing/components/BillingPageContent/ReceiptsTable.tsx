@@ -5,7 +5,7 @@ import {
     QueryMeta,
     getStringContainsFilter,
     getPageIndexFromOffset,
-    parseQuery, getTableScrollConfig,
+    parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
@@ -140,7 +140,6 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
                 )}
                 <Col span={24}>
                     <Table
-                        scroll={getTableScrollConfig(isSmall)}
                         loading={loading}
                         totalRows={total}
                         dataSource={receipts}

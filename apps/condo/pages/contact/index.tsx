@@ -11,7 +11,7 @@ import { Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
@@ -193,7 +193,6 @@ export const ContactsPageContent = ({
                         </Col>
                         <Col span={24}>
                             <Table
-                                scroll={getTableScrollConfig(isSmall)}
                                 totalRows={total}
                                 loading={contactsLoading || loading}
                                 dataSource={contacts}

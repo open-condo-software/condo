@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { ColumnsType } from 'antd/es/table/interface'
 import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
@@ -12,6 +12,9 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import isEqual from 'lodash/isEqual'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
+import { TableProps as RcTableProps } from 'rc-table/lib/Table'
+import { TablePaginationConfig } from 'antd/lib/table/interface'
+import { GetRowKey } from 'rc-table/lib/interface'
 
 export type TableRecord = any
 
@@ -27,8 +30,11 @@ interface ITableProps extends TableProps<TableRecord> {
     shouldHidePaginationOnSinglePage?: boolean,
 }
 
+type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; }
+
 export const DEFAULT_PAGE_SIZE = 30
 const TABLE_STYLE = { width: 'auto' }
+const TABLE_SCROlL_CONFIG: TableScrollConfig = { x: true }
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,
@@ -49,6 +55,17 @@ export const Table: React.FC<ITableProps> = ({
     const router = useRouter()
     const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
+
+    const tablePaginationConfig: false | TablePaginationConfig = useMemo(() => ({
+        showSizeChanger: false,
+        total: totalRows,
+        current: currentPageIndex,
+        pageSize: rowsPerPage,
+        position: ['bottomLeft'],
+        hideOnSinglePage,
+    }), [currentPageIndex, hideOnSinglePage, rowsPerPage, totalRows])
+
+    const getRowKey: string | GetRowKey<TableRecord> = useCallback((record) => get(record, rowKey), [rowKey])
 
     // Triggered, when table pagination/filters/sorting changes
     // Modifies the query to match the state of the table
@@ -110,27 +127,19 @@ export const Table: React.FC<ITableProps> = ({
     }, 400)
 
     return (
-        <>
-            <DefaultTable
-                bordered
-                tableLayout={'fixed'}
-                style={TABLE_STYLE}
-                loading={loading}
-                rowKey={(record) => get(record, rowKey)}
-                dataSource={dataSource}
-                columns={columns}
-                onChange={handleChange}
-                onRow={onRow}
-                pagination={{
-                    showSizeChanger: false,
-                    total: totalRows,
-                    current: currentPageIndex,
-                    pageSize: rowsPerPage,
-                    position: ['bottomLeft'],
-                    hideOnSinglePage,
-                }}
-                {...otherTableProps}
-            />
-        </>
+        <DefaultTable
+            scroll={TABLE_SCROlL_CONFIG}
+            bordered
+            tableLayout={'fixed'}
+            style={TABLE_STYLE}
+            loading={loading}
+            rowKey={getRowKey}
+            dataSource={dataSource}
+            columns={columns}
+            onChange={handleChange}
+            onRow={onRow}
+            pagination={tablePaginationConfig}
+            {...otherTableProps}
+        />
     )
 }

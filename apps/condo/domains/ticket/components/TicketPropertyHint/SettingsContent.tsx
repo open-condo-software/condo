@@ -16,7 +16,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -144,7 +144,6 @@ export const SettingsContent = () => {
             </Col>
             <Col span={24}>
                 <StyledTable
-                    scroll={getTableScrollConfig(shouldTableScroll)}
                     totalRows={total}
                     loading={isTicketPropertyHintsFetching}
                     onRow={handleRowAction}

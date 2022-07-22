@@ -8,7 +8,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { colors } from '@condo/domains/common/constants/style'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getPageIndexFromOffset, getTableScrollConfig, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useIntl } from '@core/next/intl'
@@ -126,7 +126,6 @@ export default function DivisionTable (props: BuildingTableProps) {
                 </Col>
                 <Col span={24}>
                     <Table
-                        scroll={getTableScrollConfig(isSmall)}
                         totalRows={total}
                         loading={divisionsLoading || loading}
                         dataSource={divisions}

@@ -1,7 +1,6 @@
 import React from 'react'
 import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
-import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import {
     getDateFilterDropdown,
     getFilterIcon,
@@ -14,7 +13,6 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
-import isString from 'lodash/isString'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -381,14 +379,4 @@ export const convertColumns = (
 
 export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
-}
-
-type TableScrollProps = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; }
-
-export const getTableScrollConfig = (isSmall: boolean): TableScrollProps => {
-    const props: TableScrollProps = {}
-
-    props.x = true
-
-    return props
 }
