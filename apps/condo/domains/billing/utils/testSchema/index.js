@@ -756,11 +756,11 @@ function createTestRecipient (extra = {}) {
         name: faker.company.companyName(),
         tin: faker.datatype.number(range(10)).toString(),
         iec: faker.datatype.number(range(9)).toString(),
-        bic: faker.finance.bic().toString(),
-        bankAccount: faker.finance.account(12).toString(),
+        bic: '04' + faker.datatype.number(range(4)).toString() + '789',
+        bankAccount: '12345678901234567890',
         bankName: faker.company.companyName(),
         territoryCode: faker.datatype.number().toString(),
-        offsettingAccount: faker.finance.account(12).toString(),
+        offsettingAccount: faker.finance.account(20).toString(),
     }
     return {
         ...validRecipient,

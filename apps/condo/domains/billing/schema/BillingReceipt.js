@@ -180,7 +180,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
                     bankAccount: get(recipient, 'bankAccount'),
-                    importRemoteSystem: 'test',
                     bankName, territoryCode, offsettingAccount,
                 })
                 receiverId = createdRecipient.id
