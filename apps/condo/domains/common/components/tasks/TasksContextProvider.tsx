@@ -84,7 +84,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ initialTas
      */
     const [notificationApi, contextHolder] = notification.useNotification()
 
-    function findExistingTaskById (id): [ITaskTrackableItem, number] {
+    function findExistingTaskById (id: string): [ITaskTrackableItem | null, number] {
         const index = findIndex(allTasksRef.current, { record: { id } })
         if (index === -1) {
             return [null, -1]
