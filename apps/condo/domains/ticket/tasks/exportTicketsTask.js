@@ -183,7 +183,7 @@ const exportTickets = async (taskId) => {
             classifierRules = await loadClassifiersForExcelExport({ rulesIds: map(tickets, 'classifierRule') })
 
             if (!idOfFirstTicketForAccessRights) {
-                idOfFirstTicketForAccessRights = get(tickets[0], 'id')
+                idOfFirstTicketForAccessRights = get(tickets, [0, 'id'])
             }
             return tickets
         },
