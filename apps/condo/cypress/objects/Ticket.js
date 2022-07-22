@@ -2,6 +2,8 @@
 const TICKET_CREATE_URL = '/ticket/create'
 const TICKET_VIEW_URL = '/ticket'
 
+const BASE_SIDE_EFFECTS = ['@getAllOnBoardings', '@getAllOnBoardingSteps', '@getAllOrganizationEmployees', '@getOrganizationEmployeeById']
+
 class TicketCreate {
 /*
     Elements:
@@ -20,6 +22,7 @@ class TicketCreate {
 
     visit () {
         cy.visit(TICKET_CREATE_URL)
+        cy.wait(BASE_SIDE_EFFECTS)
         return this
     }
 
@@ -109,7 +112,7 @@ class TicketView {
     visit () {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait('@getAllTickets')
+        cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
         return this
     }
 
@@ -198,6 +201,18 @@ class TicketEdit {
  */
     visit (ticket) {
         cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
+        cy.wait([
+            ...BASE_SIDE_EFFECTS,
+            '@getAllTickets',
+            '@getAllTicketFiles',
+            '@getAllOrganizationEmployees',
+            '@getAllTicketStatuses',
+            '@getAllTicketComments',
+            '@getAllTicketChanges',
+            '@getAllTicketPropertyHints',
+            '@getAllUserTicketCommentReadTimes',
+        ])
+
         return this
     }
 
@@ -221,6 +236,14 @@ class TicketEdit {
 
     clickUpdateTicketLink () {
         cy.get('[data-cy=ticket__update-link]').click()
+
+        cy.wait([
+            '@getAllTickets',
+            '@getAllTicketClassifierRules',
+            '@getAllProperties',
+            '@getAllOrganizationEmployees',
+        ])
+
         cy.location('pathname').should('contain', '/update')
 
         return this
