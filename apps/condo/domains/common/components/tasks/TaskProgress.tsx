@@ -130,7 +130,6 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
     const { storage, removeStrategy, calculateProgress, onComplete, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
-    // @ts-ignore
     const { deleteTask: deleteTaskFromContext } = useContext(TasksContext)
 
     const removeTaskFromStorage = storage.useDeleteTask({}, () => {
