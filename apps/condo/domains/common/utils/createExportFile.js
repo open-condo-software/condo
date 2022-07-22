@@ -22,7 +22,7 @@ const render = (pathToTemplate, replaces) => new Promise((resolve, reject) => {
 
 // This function uses file saving apart from internal working of `File` field in Keystone schema
 // It makes unable to save data to `File` field server-side
-// @deprecated
+// @deprecated use `buildExportFile` like in `apps/condo/domains/ticket/tasks/exportTicketsTask.js`
 async function createExportFile ({ fileName, templatePath, replaces, meta }) {
     const ExportFileAdapter = new FileAdapter('export')
     const fileContent = await render(path.resolve(templatePath), replaces)
