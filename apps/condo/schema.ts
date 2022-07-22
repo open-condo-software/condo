@@ -33833,9 +33833,7 @@ export type RegisterMultiPaymentOutput = {
 };
 
 export type RegisterMultiPaymentServiceConsumerInput = {
-  consumerId?: Maybe<Scalars['String']>;
-  /** consumerId is deprecated, use serviceConsumer instead. Required field (in future) */
-  serviceConsumer?: Maybe<ServiceConsumerWhereUniqueInput>;
+  serviceConsumer: ServiceConsumerWhereUniqueInput;
   receipts: Array<BillingReceiptWhereUniqueInput>;
 };
 
