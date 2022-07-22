@@ -60,7 +60,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
                 ...convertedRecords,
             ]
 
-            taskServerUtils.update(context, task.id, {
+            await taskServerUtils.update(context, task.id, {
                 dv: 1,
                 sender: {
                     dv: 1,
