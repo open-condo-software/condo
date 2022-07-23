@@ -7,69 +7,71 @@ exports.up = async (knex) => {
 --
 -- Remove field placeClassifier from ticket
 --
-SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id";
-ALTER TABLE "Ticket" DROP COLUMN "placeClassifier" CASCADE;
+SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE; 
+--ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id";
+--ALTER TABLE "Ticket" DROP COLUMN "placeClassifier" CASCADE;
 --
 -- Remove field problemClassifier from ticket
 --
-SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id";
-ALTER TABLE "Ticket" DROP COLUMN "problemClassifier" CASCADE;
+SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE; 
+--ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id";
+--ALTER TABLE "Ticket" DROP COLUMN "problemClassifier" CASCADE;
 --
 -- Remove field categoryClassifierDisplayNameFrom from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierDisplayNameFrom" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierDisplayNameFrom" CASCADE;
 --
 -- Remove field categoryClassifierDisplayNameTo from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierDisplayNameTo" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierDisplayNameTo" CASCADE;
 --
 -- Remove field categoryClassifierIdFrom from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierIdFrom" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierIdFrom" CASCADE;
 --
 -- Remove field categoryClassifierIdTo from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierIdTo" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "categoryClassifierIdTo" CASCADE;
 --
 -- Remove field placeClassifierDisplayNameFrom from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierDisplayNameFrom" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierDisplayNameFrom" CASCADE;
 --
 -- Remove field placeClassifierDisplayNameTo from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierDisplayNameTo" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierDisplayNameTo" CASCADE;
 --
 -- Remove field placeClassifierIdFrom from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierIdFrom" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierIdFrom" CASCADE;
 --
 -- Remove field placeClassifierIdTo from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierIdTo" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "placeClassifierIdTo" CASCADE;
 --
 -- Remove field problemClassifierDisplayNameFrom from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierDisplayNameFrom" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierDisplayNameFrom" CASCADE;
 --
 -- Remove field problemClassifierDisplayNameTo from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierDisplayNameTo" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierDisplayNameTo" CASCADE;
 --
 -- Remove field problemClassifierIdFrom from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierIdFrom" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierIdFrom" CASCADE;
 --
 -- Remove field problemClassifierIdTo from ticketchange
 --
-ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierIdTo" CASCADE;
+--ALTER TABLE "TicketChange" DROP COLUMN "problemClassifierIdTo" CASCADE;
 --
 -- Remove field placeClassifier from tickethistoryrecord
 --
-ALTER TABLE "TicketHistoryRecord" DROP COLUMN "placeClassifier" CASCADE;
+--ALTER TABLE "TicketHistoryRecord" DROP COLUMN "placeClassifier" CASCADE;
 --
 -- Remove field problemClassifier from tickethistoryrecord
 --
-ALTER TABLE "TicketHistoryRecord" DROP COLUMN "problemClassifier" CASCADE;
+--ALTER TABLE "TicketHistoryRecord" DROP COLUMN "problemClassifier" CASCADE;
 --
 -- Add field classifierRuleDisplayNameFrom to ticketchange
 --
@@ -113,69 +115,69 @@ ALTER TABLE "TicketChange" DROP COLUMN "classifierRuleDisplayNameFrom" CASCADE;
 --
 -- Remove field problemClassifier from tickethistoryrecord
 --
-ALTER TABLE "TicketHistoryRecord" ADD COLUMN "problemClassifier" uuid NULL;
+ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL;
 --
 -- Remove field placeClassifier from tickethistoryrecord
 --
-ALTER TABLE "TicketHistoryRecord" ADD COLUMN "placeClassifier" uuid NULL;
+ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL;
 --
 -- Remove field problemClassifierIdTo from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "problemClassifierIdTo" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "problemClassifierIdTo" uuid NULL;
 --
 -- Remove field problemClassifierIdFrom from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "problemClassifierIdFrom" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "problemClassifierIdFrom" uuid NULL;
 --
 -- Remove field problemClassifierDisplayNameTo from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "problemClassifierDisplayNameTo" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "problemClassifierDisplayNameTo" text NULL;
 --
 -- Remove field problemClassifierDisplayNameFrom from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "problemClassifierDisplayNameFrom" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "problemClassifierDisplayNameFrom" text NULL;
 --
 -- Remove field placeClassifierIdTo from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "placeClassifierIdTo" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "placeClassifierIdTo" uuid NULL;
 --
 -- Remove field placeClassifierIdFrom from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "placeClassifierIdFrom" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "placeClassifierIdFrom" uuid NULL;
 --
 -- Remove field placeClassifierDisplayNameTo from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "placeClassifierDisplayNameTo" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "placeClassifierDisplayNameTo" text NULL;
 --
 -- Remove field placeClassifierDisplayNameFrom from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "placeClassifierDisplayNameFrom" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "placeClassifierDisplayNameFrom" text NULL;
 --
 -- Remove field categoryClassifierIdTo from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "categoryClassifierIdTo" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "categoryClassifierIdTo" uuid NULL;
 --
 -- Remove field categoryClassifierIdFrom from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "categoryClassifierIdFrom" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "categoryClassifierIdFrom" uuid NULL;
 --
 -- Remove field categoryClassifierDisplayNameTo from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "categoryClassifierDisplayNameTo" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "categoryClassifierDisplayNameTo" text NULL;
 --
 -- Remove field categoryClassifierDisplayNameFrom from ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "categoryClassifierDisplayNameFrom" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "categoryClassifierDisplayNameFrom" text NULL;
 --
 -- Remove field problemClassifier from ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN "problemClassifier" uuid NULL CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" REFERENCES "TicketProblemClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE;
+ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" REFERENCES "TicketProblemClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE;
 --
 -- Remove field placeClassifier from ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN "placeClassifier" uuid NULL CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
-CREATE INDEX "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
-CREATE INDEX "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
+ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
+CREATE INDEX IF NOT EXISTS "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
+CREATE INDEX IF NOT EXISTS "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
 COMMIT;
 
     `)
