@@ -54,7 +54,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
 
-    const ticketClassifiers = classifierRules.filter(rule => rule.id === ticket.classifierRule)
+    const ticketClassifierRules = classifierRules.filter(rule => rule.id === ticket.classifierRule)
 
     const comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
     const renderedOrganizationComments = []
@@ -96,9 +96,9 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         isPaid: ticket.isPaid ? YesMessage : NoMessage,
-        place: ticketClassifiers[0].place || EMPTY_VALUE,
-        category: ticketClassifiers[0].category || EMPTY_VALUE,
-        description: ticketClassifiers[0].problem || EMPTY_VALUE,
+        place: get(ticketClassifierRules, [0, 'place']) || EMPTY_VALUE,
+        category: get(ticketClassifierRules, [0, 'category']) || EMPTY_VALUE,
+        description: get(ticketClassifierRules, [0, 'problem']) || EMPTY_VALUE,
         createdAt: formatDate(ticket.createdAt),
         updatedAt: formatDate(ticket.updatedAt),
         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
