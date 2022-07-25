@@ -523,7 +523,7 @@ async function makePayerAndPayments (receiptsAmount = 1) {
  */
 async function completeTestPayment(residentClient, integrationClient, serviceConsumerId, receiptId, extra = {}, targetStatus = "DONE") {
     const registerMultiPaymentPayload = {
-        consumerId: serviceConsumerId,
+        serviceConsumer: { id: serviceConsumerId },
         receipts: [{id: receiptId}],
     }
     const [ { multiPaymentId } ] = await registerMultiPaymentByTestClient(residentClient, registerMultiPaymentPayload)
