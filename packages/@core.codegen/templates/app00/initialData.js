@@ -10,6 +10,11 @@ module.exports = [
                     isAdmin: true,
                     dob: '1990-01-02',
                     password: '3a74b3f07978',
+                    dv: 1,
+                    sender: {
+                        dv: 1,
+                        fingerprint: 'initial-data',
+                    },
                 },
             },
             {
@@ -20,6 +25,11 @@ module.exports = [
                     isAdmin: false,
                     dob: '1995-06-09',
                     password: '1a92b3a07c78',
+                    dv: 1,
+                    sender: {
+                        dv: 1,
+                        fingerprint: 'initial-data',
+                    },
                 },
             },
         ],
