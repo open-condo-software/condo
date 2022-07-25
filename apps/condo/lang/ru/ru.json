@@ -90,6 +90,7 @@
   "field.floorName": "Этаж",
   "field.FullName": "Фамилия Имя Отчество",
   "field.FullName.short": "ФИО",
+  "field.Phone": "Телефон",
   "field.Phone.lengthError": "Значение поля \"Телефон\" слишком длинное (Максимум: 15 симв.)",
   "field.Phone.requiredError": "Укажите телефон",
   "field.Property.requiredError": "Укажите адрес",

@@ -30,9 +30,9 @@ export const CreateMeterReadingsActionBar = ({
         >
             {
                 ({ getFieldsValue }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                    const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
-                    const isCreateMeterButtonDisabled = !property || !unitName
+                    const { property, unitName, clientPhone, clientName } = getFieldsValue(['property', 'unitName', 'clientPhone', 'clientName'])
+                    const isSubmitButtonDisabled = !property || !unitName || !clientPhone || !clientName || isEmpty(newMeterReadings)
+                    const isCreateMeterButtonDisabled = !property || !unitName || !clientPhone || !clientName
 
                     return (
                         <ActionBar>
@@ -58,6 +58,8 @@ export const CreateMeterReadingsActionBar = ({
                                 <ErrorsContainer
                                     property={property}
                                     unitName={unitName}
+                                    clientPhone={clientPhone}
+                                    clientName={clientName}
                                 />
                             </Space>
                         </ActionBar>
