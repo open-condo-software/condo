@@ -76,7 +76,7 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
 `
 const { TabPane } = Tabs
 
-const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [40, 25]
+const TAB_PANE_ROW_GUTTERS: [Gutter, Gutter] = [15, 25]
 const TABS_STYLE: CSSProperties = { width: '100%' }
 const BUTTON_ICON_STYLE: CSSProperties = {
     color: colors.black,
