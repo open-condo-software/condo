@@ -28,9 +28,11 @@ class RecipientTinValidation {
         if (!tin.length) {
             this.errors.push(EMPTY)
         }
-        if (!/^[0-9]{10,12}$/.test(tin)) {
+
+        if (!/^[0-9]*$/.test(tin)) {
             this.errors.push(NOT_NUMERIC)
         }
+
         if (tin.length !== 10 && tin.length !== 12) {
             this.errors.push(WRONG_LENGTH + tin.length)
         }
@@ -38,20 +40,22 @@ class RecipientTinValidation {
 
 
     validateTin (tin, country = RUSSIA_COUNTRY) {
+        const tinWithoutSpaces = tin.toString().trim()
+
         if (country === RUSSIA_COUNTRY) {
-            this.validateForNumbersAndLength(tin)
+            this.validateForNumbersAndLength(tinWithoutSpaces)
         } else {
             this.errors.push(WRONG_COUNTRY)
         }
 
-        if (tin.length === 10)
-            if (!this.getTinChecksumRU(tin) === tin.slice(-1)) {
+        if (tinWithoutSpaces.length === 10)
+            if (this.getTinChecksumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1))) {
                 this.errors.push(CONTROL_SUM_FAILED)
             }
 
-        if (tin.length === 12)
-            if (!(this.getTinChecksumRU(tin.slice(0, 11)) === Number(tin.slice(10, -1))
-                && this.getTinChecksumRU(tin) === Number(tin.slice(-1)))) {
+        if (tinWithoutSpaces.length === 12)
+            if (this.getTinChecksumRU(tinWithoutSpaces.slice(0, 11)) !== Number(tinWithoutSpaces.slice(10, -1)
+                || this.getTinChecksumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1)))) {
                 this.errors.push(CONTROL_SUM_FAILED)
             }
 

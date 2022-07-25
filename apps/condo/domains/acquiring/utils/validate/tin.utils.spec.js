@@ -3,51 +3,62 @@ const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/ut
 const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 
 const SPACES = SPACE_SYMBOLS.split('')
-const VALID_RU_TIN_10 = '1654019570'
-const VALID_RU_TIN_10_1 = '6311095616'
-const VALID_RU_TIN_12 = '500110474504'
-const VALID_TINS = [VALID_RU_TIN_10, VALID_RU_TIN_10_1, VALID_RU_TIN_12]
-const INVALID_RU_TIN_10 = '01234556789'
-const INVALID_RU_TIN_12 = '0123455678901'
-const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
 
-describe('isValidTin()', () => {
+const VALID_TINS = ['1654019570', '6311095616', '500110474504']
+const WRONG_LENGTH_TIN = '01234556789'
+const WRONG_FORMAT_TIN = '01234b567890'
+const INVALID_CONTROL_SUM_TIN_10 = '1234567810'
+const INVALID_CONTROL_SUM_TIN_12 = '500110474556'
+
+describe('validateTin()', () => {
     VALID_TINS.forEach(tin => {
         test(`for valid 10 or 12 char RU INN (${tin})`, () => {
-            expect(isValidTin(tin, RUSSIA_COUNTRY)).toBe(true)
+            const { result } = validateTin(tin, RUSSIA_COUNTRY)
+            expect(result).toBe(true)
         })
+
         SPACES.forEach(spaceSymbol => {
             test(`for valid 10 or 12 char RU INN (${tin}) with spaces symbol (${SPACE_SYMBOL_LABLES[spaceSymbol] || spaceSymbol})`, () => {
                 const tinValue = `${spaceSymbol}${tin}${spaceSymbol}`
 
-                expect(isValidTin(tinValue, RUSSIA_COUNTRY)).toBe(true)
+                const { result } = validateTin(tinValue, RUSSIA_COUNTRY)
+                expect(result).toBe(true)
             })
         })
     })
-    test('for valid 12 char RU INN ', () => {
-        // NOTE: we need INNs only for organizations, that is of 10 chars length.
-        // So valid 12 char length person INN doesn`t suit
-        const { result } = validateTin(VALID_RU_TIN_12, RUSSIA_COUNTRY)
-        expect(result).toBe(true)
+
+    test('wrong length number as RU INN', () => {
+        const { result, errors } = validateTin(WRONG_LENGTH_TIN, RUSSIA_COUNTRY)
+        expect(result).toBe(false)
+        expect(errors[0]).toBe('Tin length was expected to be 10 or 12, but received 11')
     })
-    test('for invalid 10 digits as RU INN', () => {
-        expect(isValidTin(INVALID_RU_TIN_10, RUSSIA_COUNTRY)).toBe(false)
+    test('contains invalid characters as RU INN', () => {
+        const { result, errors } = validateTin(WRONG_FORMAT_TIN, RUSSIA_COUNTRY)
+        expect(result).toBe(false)
+        expect(errors[0]).toBe('Tin can contain only numeric digits')
     })
-    test('for invalid 12 digits as RU INN', () => {
-        expect(isValidTin(INVALID_RU_TIN_12, RUSSIA_COUNTRY)).toBe(false)
+    test('for empty value as RU INN', () => {
+        const { result, errors } = validateTin('', RUSSIA_COUNTRY)
+        expect(result).toBe(false)
+        expect(errors[0]).toBe('Tin is empty')
     })
-    test('for invalid random letters as RU INN', () => {
-        expect(isValidTin(SOME_RANDOM_LETTERS, RUSSIA_COUNTRY)).toBe(false)
+    test('for invalid control sum as RU INN with 10 characters', () => {
+        const { result, errors } = validateTin(INVALID_CONTROL_SUM_TIN_10, RUSSIA_COUNTRY)
+        expect(result).toBe(false)
+        expect(errors[0]).toBe('Control sum is not valid for tin')
     })
-    test('for invalid random wrong length number as RU INN', () => {
-        expect(isValidTin(Math.floor(999 + Math.random() * 1000000), RUSSIA_COUNTRY)).toBe(false)
+    test('for invalid control sum as RU INN with 12 characters', () => {
+        const { result, errors } = validateTin(INVALID_CONTROL_SUM_TIN_12, RUSSIA_COUNTRY)
+        expect(result).toBe(false)
+        expect(errors[0]).toBe('Control sum is not valid for tin')
     })
+    //TODO: Test for country
 })
 
 module.exports = {
-    VALID_RU_TIN_10,
-    VALID_RU_TIN_12,
-    INVALID_RU_TIN_10,
-    INVALID_RU_TIN_12,
-    SOME_RANDOM_LETTERS,
+    VALID_TINS,
+    WRONG_LENGTH_TIN,
+    WRONG_FORMAT_TIN,
+    INVALID_CONTROL_SUM_TIN_10,
+    INVALID_CONTROL_SUM_TIN_12,
 }

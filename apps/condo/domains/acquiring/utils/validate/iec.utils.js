@@ -8,15 +8,17 @@ class RecipientIecValidation {
     errors = []
 
     validateIec (iec) {
-        if (!iec.length) {
+        const iecWithoutSpaces = iec.toString().trim()
+
+        if (!iecWithoutSpaces.length) {
             this.errors.push(EMPTY)
         }
 
-        if (iec.length !== 9) {
-            this.errors.push(WRONG_LENGTH + iec.length)
+        if (iecWithoutSpaces.length !== 9) {
+            this.errors.push(WRONG_LENGTH + iecWithoutSpaces.length)
         }
 
-        if (!/^[0-9]{4}[0-9A-Z]{2}[0-9]{3}$/.test(iec)) {
+        if (!/^[0-9]{4}[0-9A-Z]{2}[0-9]{3}$/.test(iecWithoutSpaces)) {
             this.errors.push(WRONG_FORMAT)
         }
 

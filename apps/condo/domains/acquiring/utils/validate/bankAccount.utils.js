@@ -1,3 +1,5 @@
+const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+
 const EMPTY = 'Bank account is empty'
 const NOT_NUMERIC = 'Bank account can contain only numeric digits'
 const WRONG_LENGTH = 'Bank account length was expected to be 20, but received '
@@ -21,9 +23,14 @@ class RecipientBankAccountValidation {
     }
 
     validateBankAccount (bankAccount, bic) {
-        this.validateForNumbersAndLength(bankAccount)
+        this.errors.push( ...validateBic(bic).errors )
 
-        const controlString = bic.substr(-3) + bankAccount
+        const bicWithoutSpaces = bic.toString().trim()
+        const bankAccountWithoutSpaces = bankAccount.toString().trim()
+
+        this.validateForNumbersAndLength(bankAccountWithoutSpaces)
+
+        const controlString = bicWithoutSpaces.substr(-3) + bankAccountWithoutSpaces
         let checksum = 0
         const weights = [7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1]
 

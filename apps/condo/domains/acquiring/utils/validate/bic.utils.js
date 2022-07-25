@@ -22,9 +22,10 @@ class RecipientBicValidation {
 
 
     validateBic (bic) {
-        this.validateForNumbersAndLength(bic)
+        const bicWithoutSpaces = bic.toString().trim()
+        this.validateForNumbersAndLength(bicWithoutSpaces)
 
-        if (bic.substr(0, 2) !== '04') {
+        if (bicWithoutSpaces.substr(0, 2) !== '04') {
             this.errors.push(WRONG_COUNTRY)
         }
 
