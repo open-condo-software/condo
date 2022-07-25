@@ -9,6 +9,10 @@
   dependencies:
     "@types/geojson" "^7946.0.7"
 
+"@address-service/domains@link:./apps/address-service/domains":
+  version "0.0.0"
+  uid ""
+
 "@amplitude/analytics-connector@1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@amplitude/analytics-connector/-/analytics-connector-1.4.1.tgz#eb8e693f0fcc5c095a5949c84be9be84af642833"
