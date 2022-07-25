@@ -14,7 +14,6 @@ import { BaseModalForm } from '@condo/domains/common/components/containers/FormL
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { ShowMoreFieldsButton } from '@condo/domains/common/components/ShowMoreFieldsButton'
 
-import { useOrganization } from '@core/next/organization'
 import { useMeterValidations } from '../../hooks/useMeterValidations'
 import { METER_MODAL_FORM_ITEM_SPAN } from '../../constants/constants'
 import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
@@ -122,11 +121,6 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const [isTariffsCountHidden, setIsTariffsCountHidden] = useState<boolean>(meterResourceId !== ELECTRICITY_METER_RESOURCE_ID)
     const [installationDate, setInstallationDate] = useState<Dayjs>(initialInstallationDate)
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
-
-    const { organization } = useOrganization()
-    if (!organizationId) {
-        organizationId = get(organization, 'id')
-    }
 
     const { requiredValidator } = useValidations()
     const {
