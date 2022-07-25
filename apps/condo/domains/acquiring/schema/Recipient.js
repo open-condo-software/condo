@@ -8,6 +8,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
+const get = require('lodash/get')
 const access = require('@condo/domains/acquiring/access/Recipient')
 const { DV_FIELD, SENDER_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -17,7 +18,7 @@ const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.uti
 const { validateIec } = require('@condo/domains/acquiring/utils/validate/iec.utils')
 const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
 const { validateBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
-const { getOrganizationByTin } = require('@condo/domains/common/utils/serverSideRecipientApi')
+const { getBankByBic } = require('@condo/domains/common/utils/serverSideRecipientApi')
 
 const Recipient = new GQLListSchema('Recipient', {
     schemaDoc: 'Organization\' recipient information: bank account, bic, and so on',
@@ -151,29 +152,22 @@ const Recipient = new GQLListSchema('Recipient', {
                 return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
-        resolveInput: async ({ operation, resolvedData }) => {
+        resolveInput: async ({ operation, resolvedData, existingItem }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+
             // If recipients is being updated -> drop isApproved!
             if (operation === 'update' && !('isApproved' in resolvedData)) {
                 resolvedData.isApproved = false
             }
 
-            //console.log(await getOrganizationByTin('047102651'))
+            if (!newItem.bankName || !newItem.offsettingAccount || !newItem.territoryCode) {
+                const bankInfo = await getBankByBic(newItem.bic)
 
-            // const {
-            //     data: {
-            //         kpp: iec, inn: tin, oktmo: territoryCode,
-            //         name: {
-            //             short_with_opf: organizationName,
-            //         },
-            //         address: {
-            //             data: {
-            //                 country_iso_code: organizationCountry,
-            //                 timezone,
-            //             },
-            //         },
-            //     },
-            // } = await getOrganizationByTin('6670082480')
-            // console.log(iec, timezone, territoryCode, tin, organizationCountry, organizationName)
+                resolvedData.bankName = newItem.bankName || get(bankInfo, 'value', '')
+                resolvedData.offsettingAccount = newItem.offsettingAccount || get(bankInfo, ['data', 'correspondent_account'], '')
+                resolvedData.territoryCode = newItem.territoryCode || get(bankInfo, ['data', 'address', 'data', 'oktmo'], '')
+
+            }
 
             return resolvedData
         },

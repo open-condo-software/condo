@@ -5,18 +5,18 @@ const conf = require('@core/config')
 
 //TODO: add constants in helm
 const recipientSuggestionsConfig = conf['RECIPIENT_SUGGESTIONS_CONFIG'] && JSON.parse(conf['RECIPIENT_SUGGESTIONS_CONFIG'])
-const API_URL = get(recipientSuggestionsConfig, 'apiUrl', null)
+const API_URL_BANK = get(recipientSuggestionsConfig, 'apiUrlBank', null)
 const API_TOKEN = get(recipientSuggestionsConfig, 'apiToken', null)
 
-async function getOrganizationByTin (query) {
-    const result = await fetch(API_URL, {
+async function getBankByBic (query) {
+    const result = await fetch(API_URL_BANK, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
             'Authorization': `Token ${API_TOKEN}`,
         },
-        body: JSON.stringify({ query: query, branch_type: 'MAIN' }),
+        body: JSON.stringify({ query: query }),
     })
 
     const status = result.status
@@ -30,6 +30,6 @@ async function getOrganizationByTin (query) {
 }
 
 module.exports = {
-    getOrganizationByTin,
+    getBankByBic,
 }
 
