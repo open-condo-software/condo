@@ -31,7 +31,12 @@ const {
     updateTestOrganization, createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
-const { createTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
+const {
+    createTestB2BApp,
+    createTestB2BAppContext,
+    createTestB2CApp,
+    createTestB2CAppProperty,
+} = require('@condo/domains/miniapp/utils/testSchema')
 
 const { createTestProperty, Property } = require('@condo/domains/property/utils/testSchema')
 
@@ -42,7 +47,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('../utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
-const { AUTOMATIC_METER_NO_MASTER_APP } = require('@condo/domains/meter/constants/errors')
+const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
 
 describe('Meter', () => {
     describe('CRUD', () => {
@@ -901,6 +906,7 @@ describe('Meter', () => {
                 })
             }, AUTOMATIC_METER_NO_MASTER_APP)
             const [b2bApp] = await createTestB2BApp(admin)
+            await createTestB2BAppContext(admin, b2bApp, organization)
             const [meter] = await createTestMeter(admin, organization, property, resource, {
                 isAutomatic: true,
                 b2bApp: { connect: { id: b2bApp.id } },
@@ -911,6 +917,58 @@ describe('Meter', () => {
                     b2bApp: { disconnectAll: true },
                 })
             }, AUTOMATIC_METER_NO_MASTER_APP)
+        })
+        test('B2B app must have context with organization from meter', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [b2bApp] = await createTestB2BApp(admin)
+            await expectToThrowValidationFailureError(async () => {
+                await createTestMeter(admin, organization, property, resource, {
+                    isAutomatic: true,
+                    b2bApp: { connect: { id: b2bApp.id } },
+                })
+            }, B2B_APP_NOT_CONNECTED)
+            await createTestB2BAppContext(admin, b2bApp, organization)
+            const [meter] =  await createTestMeter(admin, organization, property, resource, {
+                isAutomatic: true,
+                b2bApp: { connect: { id: b2bApp.id } },
+            })
+            expect(meter).toHaveProperty('id')
+            const [anotherApp] = await createTestB2BApp(admin)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestMeter(admin, meter.id, {
+                    b2bApp: { connect: { id: anotherApp.id } },
+                })
+            }, B2B_APP_NOT_CONNECTED)
+        })
+        test('B2C app must be available on meter\'s address', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [anotherProperty] = await createTestProperty(admin, organization)
+            const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [b2cApp] = await createTestB2CApp(admin)
+            await createTestB2CAppProperty(admin, b2cApp, { address: property.address })
+            const [anotherApp] = await createTestB2CApp(admin)
+            await createTestB2CAppProperty(admin, anotherApp, { address: anotherProperty.address })
+            await expectToThrowValidationFailureError(async () => {
+                await createTestMeter(admin, organization, property, resource, {
+                    isAutomatic: false,
+                    b2cApp: { connect: { id: anotherApp.id } },
+                })
+            }, B2C_APP_NOT_AVAILABLE)
+            const [meter] = await createTestMeter(admin, organization, property, resource, {
+                isAutomatic: false,
+                b2cApp: { connect: { id: b2cApp.id } },
+            })
+            expect(meter).toHaveProperty('id')
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestMeter(admin, meter.id, {
+                    b2cApp: { connect: { id: anotherApp.id } },
+                })
+            }, B2C_APP_NOT_AVAILABLE)
         })
     })
 })
