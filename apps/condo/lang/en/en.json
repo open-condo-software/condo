@@ -90,6 +90,7 @@
   "field.floorName": "Этаж",
   "field.FullName": "Full name",
   "field.FullName.short": "Full name",
+  "field.Phone": "Phone",
   "field.Phone.lengthError": "The value of the field \" Phone \"is too long (Maximum: 15 characters)",
   "field.Phone.requiredError": "Enter your phone",
   "field.Property.requiredError": "Enter the address",
