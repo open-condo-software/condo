@@ -11,9 +11,7 @@ async function canReadRecipients ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-
-    //TODO: update access
-    return true
+    return { organization: { employees_some: { user: { id: user.id }, deletedAt: null, isBlocked: false } } }
 }
 
 async function canManageRecipients ({ authentication: { item: user }, originalInput, operation, itemId }) {
@@ -24,7 +22,7 @@ async function canManageRecipients ({ authentication: { item: user }, originalIn
     return false
 }
 
-async function canManageIsApprovedField ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIsApprovedField ({ authentication: { item: user }, originalInput }) {
     if (user.isAdmin || user.isSupport) return true
 
     // If user is not support, then he only can drop isApproved field

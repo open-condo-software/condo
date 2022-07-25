@@ -3,7 +3,6 @@ const fetch = require('node-fetch')
 const conf = require('@core/config')
 
 
-//TODO: add constants in helm
 const recipientSuggestionsConfig = conf['RECIPIENT_SUGGESTIONS_CONFIG'] && JSON.parse(conf['RECIPIENT_SUGGESTIONS_CONFIG'])
 const API_URL_BANK = get(recipientSuggestionsConfig, 'apiUrlBank', null)
 const API_TOKEN = get(recipientSuggestionsConfig, 'apiToken', null)
