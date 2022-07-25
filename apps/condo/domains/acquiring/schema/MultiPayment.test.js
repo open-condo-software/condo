@@ -611,7 +611,7 @@ describe('MultiPayment', () => {
                 integrationClient = await makeClientWithServiceUser()
                 await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
                 const [obj] = await registerMultiPaymentByTestClient(client, [
-                    { consumerId: serviceConsumer.id, receipts: [{ id: billingReceipts[0].id }] },
+                    { serviceConsumer: { id: serviceConsumer.id }, receipts: [{ id: billingReceipts[0].id }] },
                 ], { sender: client.userAttrs.sender })
                 registerMPResult = obj
             })
@@ -739,7 +739,7 @@ describe('MultiPayment', () => {
                 } = await makePayerWithMultipleConsumers(5, 1)
                 integrationClient = await makeClientWithServiceUser()
                 await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, integrationClient.user)
-                const payload = batches.map(batch => ({ consumerId: batch.serviceConsumer.id, receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })) }))
+                const payload = batches.map(batch => ({ serviceConsumer: { id: batch.serviceConsumer.id }, receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })) }))
                 const [obj] = await registerMultiPaymentByTestClient(client, payload, { sender: client.userAttrs.sender })
                 registerMPResult = obj
             })
