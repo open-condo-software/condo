@@ -12,16 +12,19 @@ if (!FAKE_SUGGESTIONS && (!API_URL || !API_TOKEN)) {
 }
 
 async function getFakeAddressSuggestions (query, amount) {
-    const [cityPart, streetPart, housePart] = query.split(', ')
-    let [houseType, houseNumber] = (housePart || '').split(' ')
+    const parts = query.split(', ')
+    const begin = parts.slice(0, -3)
+    const [cityPart, streetPart, housePart] = parts.slice(-3)
+    let [houseType, houseNumber, ...rest] = (housePart || '').split(' ')
     houseNumber = parseInt(houseNumber || '1')
     if (isNaN(houseNumber)) houseNumber = 1
     const suggestions = []
     for (let i = houseNumber; i < houseNumber + amount; i++) {
+        const lastPart = [houseType, i, ...rest].join(' ')
         suggestions.push({
-            value: `${cityPart}, ${streetPart}, ${houseType} ${i}`,
+            value: [...begin, cityPart, streetPart, lastPart].join(', '),
             data: {
-                house_type_full: houseType || 'house',
+                house_type_full: houseType === 'д' ? 'дом' : houseType || 'house',
             },
         })
     }
