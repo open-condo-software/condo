@@ -168,21 +168,21 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         </Col>
                         <Col span={24}>
                             <Row gutter={MEDIUM_HORIZONTAL_GUTTER}>
-                                <Col span={24} lg={4}>
+                                <Col span={24} lg={6}>
                                     <Form.Item name={'isEmergency'} valuePropName='checked'>
                                         <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxEmergency'}>
                                             {EmergencyLabel}
                                         </Checkbox>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} lg={4}>
+                                <Col span={24} lg={6}>
                                     <Form.Item name={'isPaid'} valuePropName='checked'>
                                         <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxIsPaid'}>
                                             {PaidLabel}
                                         </Checkbox>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} lg={4}>
+                                <Col span={24} lg={6}>
                                     <Form.Item name={'isWarranty'} valuePropName='checked'>
                                         <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxIsWarranty'}>
                                             {WarrantyLabel}
