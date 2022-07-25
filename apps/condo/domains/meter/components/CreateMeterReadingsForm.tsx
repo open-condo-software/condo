@@ -140,7 +140,7 @@ export const PropertyMetersForm = ({
                 <Row gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
                     <Typography.Title level={2}>{MetersAndReadingsMessage}</Typography.Title>
                     {
-                        selectedUnitName ? (
+                        selectedUnitName && dataSource.length ? (
                             <Table
                                 loading={loading}
                                 totalRows={total}
