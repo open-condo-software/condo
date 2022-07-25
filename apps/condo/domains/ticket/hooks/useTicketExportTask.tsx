@@ -1,4 +1,5 @@
 import { useIntl } from '@core/next/intl'
+import { useRouter } from 'next/router'
 import { ITask, TASK_PROGRESS_UNKNOWN, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -11,6 +12,7 @@ export const useTicketExportTaskUIInterface = () => {
     const TicketExportTaskProgressTitle = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.title' })
     const TicketExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.processing' })
     const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
+    const router = useRouter()
 
     /**
      * We need this separation of behavior from data to determine which behaviour
@@ -41,7 +43,7 @@ export const useTicketExportTaskUIInterface = () => {
         onComplete: ({ file }) => {
             if (window) {
                 console.log('Downloading exported file')
-                window.location.href = file.publicUrl
+                router.push(file.publicUrl)
             }
         },
     }
