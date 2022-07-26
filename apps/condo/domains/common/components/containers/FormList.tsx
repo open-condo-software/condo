@@ -11,6 +11,7 @@ import {
     Popconfirm,
     Skeleton,
     Typography,
+    Space,
 } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
@@ -385,6 +386,7 @@ interface IBaseModalFormProps<TRecordFormState, TRecordUIState> extends IFormWit
     modalExtraFooter?: JSX.Element[]
     modalProps?: ModalProps
     submitButtonProps?: ComponentProps<typeof Button>
+    modalNotification?: JSX.Element | string
 }
 
 const BaseModalForm: React.FC<IBaseModalFormProps> = ({
@@ -398,6 +400,7 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     children,
     modalProps,
     submitButtonProps,
+    modalNotification,
     ...props
 }) => {
     const intl = useIntl()
@@ -429,18 +432,21 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
         centered
         {...modalProps}
     >
-        <FormWithAction {...props}>
-            {
-                ({ handleSave, form }) => {
-                    handleSaveRef.current = handleSave
-                    return (
-                        <>
-                            {typeof children === 'function' ? children(form) : children}
-                        </>
-                    )
+        <Space direction={'vertical'} size={40}>
+            {modalNotification}
+            <FormWithAction {...props}>
+                {
+                    ({ handleSave, form }) => {
+                        handleSaveRef.current = handleSave
+                        return (
+                            <>
+                                {typeof children === 'function' ? children(form) : children}
+                            </>
+                        )
+                    }
                 }
-            }
-        </FormWithAction>
+            </FormWithAction>
+        </Space>
     </Modal>)
 }
 

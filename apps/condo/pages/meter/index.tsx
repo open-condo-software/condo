@@ -81,7 +81,7 @@ export const MetersPageContent = ({
         fetchPolicy: 'network-only',
     })
 
-    const { shouldTableScroll, isSmall } = useLayoutContext()
+    const { isSmall } = useLayoutContext()
     const [ search, handleSearchChange ] = useSearch(metersLoading)
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
     const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)

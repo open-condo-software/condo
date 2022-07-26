@@ -35,7 +35,7 @@ const HORIZONTAL_GUTTER: [Gutter, Gutter] = [20, 0]
 const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 const RADIO_GROUP_STYLE = { width: '100%' }
 
-const AccountNumberSelect = ({ accountNumbers, rules }) => {
+const AccountNumberSelect = ({ accountNumbers, rules, disabled }) => {
     const intl = useIntl()
     const ChooseAccountNumberMessage = intl.formatMessage({ id: 'meter.modal.ChooseAccountNumber' })
     const CreateAccountNumber = intl.formatMessage({ id: 'meter.modal.CreateAccountNumber' })
@@ -50,7 +50,7 @@ const AccountNumberSelect = ({ accountNumbers, rules }) => {
     return (
         <Row gutter={VERTICAL_GUTTER}>
             <Col span={24}>
-                <Radio.Group onChange={handleChange} value={value} style={RADIO_GROUP_STYLE}>
+                <Radio.Group onChange={handleChange} value={value} style={RADIO_GROUP_STYLE} disabled={disabled}>
                     <Row gutter={HORIZONTAL_GUTTER}>
                         <Col>
                             <Radio value={CHOOSE_ACCOUNT_RADIO_VALUE}>
@@ -76,7 +76,7 @@ const AccountNumberSelect = ({ accountNumbers, rules }) => {
     )
 }
 
-const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName, rules }) => {
+const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName, rules, disabled }) => {
     const { objs: meters } = Meter.useObjects({
         where: {
             property: { id: propertyId },
@@ -88,15 +88,15 @@ const CreateMeterAccountNumberField = ({ initialValues, propertyId, unitName, ru
     if (isEmpty(unitAccountNumbers)) {
         return (
             <AccountNumberFormItem initialValues={initialValues} rules={rules}>
-                <Input />
+                <Input disabled={disabled}/>
             </AccountNumberFormItem>
         )
     }
 
-    return <AccountNumberSelect accountNumbers={unitAccountNumbers} rules={rules} />
+    return <AccountNumberSelect accountNumbers={unitAccountNumbers} rules={rules} disabled={disabled}/>
 }
 
-export const BaseMeterModalAccountNumberField = ({ initialValues, rules }) => {
+export const BaseMeterModalAccountNumberField = ({ initialValues, rules, disabled }) => {
     const propertyId = initialValues.propertyId
     const unitName = initialValues.unitName
 
@@ -107,13 +107,14 @@ export const BaseMeterModalAccountNumberField = ({ initialValues, rules }) => {
                 propertyId={propertyId}
                 unitName={unitName}
                 rules={rules}
+                disabled={disabled}
             />
         )
     }
 
     return (
         <AccountNumberFormItem initialValues={initialValues} rules={rules}>
-            <Input />
+            <Input disabled={disabled} />
         </AccountNumberFormItem>
     )
 }

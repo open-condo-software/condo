@@ -483,6 +483,8 @@
   "pages.condo.meter.MeterReadingDate": "Дата снятия",
   "pages.condo.meter.Resource": "Ресурс",
   "pages.condo.meter.AutoPrefix": "авто",
+  "pages.condo.meter.AutoSourceAlert.title": "Данные получены автоматически",
+  "pages.condo.meter.AutoSourceAlert.message": "из сервиса {app}",
   "pages.condo.warning.modal.SaveLabel": "Сохранить",
   "pages.condo.warning.modal.LeaveLabel": "Не сохранять",
   "pages.condo.residents.PageTitle": "Жители",
