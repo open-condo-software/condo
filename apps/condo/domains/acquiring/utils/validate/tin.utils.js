@@ -1,3 +1,12 @@
+/*
+ * Validator TIN
+ *
+ * The following checks are performed:
+ * 1) Сhecking for emptiness
+ * 2) Checking for length and format (Consists of 10 or 12 digits)
+ * 3) Сhecking checksum verification for TIN
+ */
+
 const faker = require('faker')
 
 const EMPTY = 'Tin is empty'

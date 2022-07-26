@@ -1,3 +1,15 @@
+/*
+ * Validator BankAccount
+ *
+ * You need a BIC for validation
+ *
+ * The following checks are performed:
+ * 1) Сhecking for emptiness
+ * 2) Checking for length and format (Consists of 20 digits)
+ * 3) Сhecking checksum verification for BankAccount
+ */
+
+
 const faker = require('faker')
 const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
 
