@@ -10,7 +10,7 @@ const { makeLoggedInAdminClient, UUID_RE } = require('@core/keystone/test.utils'
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 
-const { setMessageStatusByTestClient, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { setMessageStatusByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { Message, sendMessageByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
@@ -35,7 +35,7 @@ describe('SetMessageStatusService', () => {
         /**
          * Register fake success pushToken in order for user to be able to receive push notifications
          */
-        const [device] = await syncDeviceByTestClient(assignee, payload)
+        const [device] = await syncRemoteClientByTestClient(assignee, payload)
 
         expect(device.pushTransport).toEqual(payload.pushTransport)
 

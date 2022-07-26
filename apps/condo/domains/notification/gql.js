@@ -24,19 +24,19 @@ const RESEND_MESSAGE = gql`
     }
 `
 
-const DEVICE_FIELDS = `{deviceId pushToken pushTransport meta owner { id } ${COMMON_FIELDS}}`
+const REMOTE_CLIENT_FIELDS = `{deviceId appId pushToken pushTransport devicePlatform meta owner { id } ${COMMON_FIELDS}}`
 
-const Device = generateGqlQueries('Device', DEVICE_FIELDS)
+const RemoteClient = generateGqlQueries('RemoteClient', REMOTE_CLIENT_FIELDS)
 
-const SYNC_DEVICE_MUTATION = gql`
-    mutation syncDevice ($data: SyncDeviceInput!) {
-        result: syncDevice(data: $data) ${DEVICE_FIELDS}
+const SYNC_REMOTE_CLIENT_MUTATION = gql`
+    mutation syncRemoteClient ($data: SyncRemoteClientInput!) {
+        result: syncRemoteClient(data: $data) ${REMOTE_CLIENT_FIELDS}
     }
 `
 
-const DISCONNECT_USER_FROM_DEVICE_MUTATION = gql`
-    mutation disconnectUserFromDevice ($data: DisconnectUserFromDeviceInput!) {
-        result: disconnectUserFromDevice(data: $data) { status }
+const DISCONNECT_USER_FROM_REMOTE_CLIENT_MUTATION = gql`
+    mutation disconnectUserFromRemoteClient ($data: DisconnectUserFromRemoteClientInput!) {
+        result: disconnectUserFromRemoteClient(data: $data) { status }
     }
 `
 
@@ -52,9 +52,9 @@ module.exports = {
     Message,
     SEND_MESSAGE,
     RESEND_MESSAGE,
-    Device,
-    SYNC_DEVICE_MUTATION,
-    DISCONNECT_USER_FROM_DEVICE_MUTATION,
+    RemoteClient,
+    SYNC_REMOTE_CLIENT_MUTATION,
+    DISCONNECT_USER_FROM_REMOTE_CLIENT_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
 
 /* AUTOGENERATE MARKER <EXPORTS> */

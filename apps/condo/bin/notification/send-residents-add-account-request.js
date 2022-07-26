@@ -6,7 +6,7 @@ const { getStartDates } = require('@condo/domains/common/utils/date')
 
 const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 
-const { Message, Device } = require('@condo/domains/notification/utils/serverSchema')
+const { Message, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const {
     RESIDENT_ADD_BILLING_ACCOUNT_TYPE, MESSAGE_SENT_STATUS,
     MESSAGE_DELIVERED_STATUS, MESSAGE_READ_STATUS,
@@ -95,7 +95,7 @@ class ResidentsNotificationSender extends BillingContextScriptCore {
         console.info(`[INFO] ${userIds.length} users without notifications found among ${residents.length} residents.`)
 
         const devicesWhere = { deletedAt: null, pushToken_not: null, owner: { id_in: userIds } }
-        const devices = await this.loadListByChunks(Device, devicesWhere)
+        const devices = await this.loadListByChunks(RemoteClient, devicesWhere)
         const deviceUserIds = getUniqueByField(devices, 'owner.id')
 
         if (!this.forceSend) {

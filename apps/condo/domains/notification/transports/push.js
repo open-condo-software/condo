@@ -19,7 +19,7 @@ async function getTokens (userId) {
         pushToken_not: null,
         pushTransport: PUSH_TRANSPORT_FIREBASE,
     }
-    const tokenData =  await find('Device', condition)
+    const tokenData =  await find('RemoteClient', condition)
 
     if (isEmpty(tokenData)) return []
 

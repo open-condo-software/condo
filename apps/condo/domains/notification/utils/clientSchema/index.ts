@@ -4,5 +4,5 @@
  */
 
 export * as Message from './Message'
-export * as Device from './Device'
+export * as RemoteClient from './RemoteClient'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

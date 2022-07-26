@@ -11896,444 +11896,21 @@ export enum CurrentStateType {
   Deactivated = 'DEACTIVATED'
 }
 
-/**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. Device could be mobile or web based. Device could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncDeviceService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncDeviceService.  */
-export type Device = {
-  __typename?: 'Device';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the Device List config, or
-   *  2. As an alias to the field set on 'labelField' in the Device List config, or
-   *  3. As an alias to a 'name' field on the Device List (if one exists), or
-   *  4. As an alias to the 'id' field on the Device List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-  /**  Mobile/web device ID, which is used to identify device. One user can have many devices, and one device can be used by many users, one at a time.  */
-  deviceId?: Maybe<Scalars['String']>;
-  /**  Used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.  */
-  pushToken?: Maybe<Scalars['String']>;
-  /**  Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.  */
-  pushTransport?: Maybe<DevicePushTransportType>;
-  /**  Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.  */
-  owner?: Maybe<User>;
-  /**  Device metadata. OS type, OS version, etc.  */
-  meta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-export type DeviceCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-  deviceId?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushTransport?: Maybe<DevicePushTransportType>;
-  owner?: Maybe<UserRelateToOneInput>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-/**  A keystone list  */
-export type DeviceHistoryRecord = {
-  __typename?: 'DeviceHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the DeviceHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the DeviceHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the DeviceHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the DeviceHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  deviceId?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushTransport?: Maybe<Scalars['String']>;
-  owner?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<DeviceHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type DeviceHistoryRecordCreateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  deviceId?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushTransport?: Maybe<Scalars['String']>;
-  owner?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<DeviceHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum DeviceHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
+export enum DevicePlatformType {
+  Android = 'android',
+  Ios = 'ios',
+  Web = 'web'
 }
 
-export type DeviceHistoryRecordUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  deviceId?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushTransport?: Maybe<Scalars['String']>;
-  owner?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<DeviceHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type DeviceHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<DeviceHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<DeviceHistoryRecordWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  deviceId?: Maybe<Scalars['String']>;
-  deviceId_not?: Maybe<Scalars['String']>;
-  deviceId_contains?: Maybe<Scalars['String']>;
-  deviceId_not_contains?: Maybe<Scalars['String']>;
-  deviceId_starts_with?: Maybe<Scalars['String']>;
-  deviceId_not_starts_with?: Maybe<Scalars['String']>;
-  deviceId_ends_with?: Maybe<Scalars['String']>;
-  deviceId_not_ends_with?: Maybe<Scalars['String']>;
-  deviceId_i?: Maybe<Scalars['String']>;
-  deviceId_not_i?: Maybe<Scalars['String']>;
-  deviceId_contains_i?: Maybe<Scalars['String']>;
-  deviceId_not_contains_i?: Maybe<Scalars['String']>;
-  deviceId_starts_with_i?: Maybe<Scalars['String']>;
-  deviceId_not_starts_with_i?: Maybe<Scalars['String']>;
-  deviceId_ends_with_i?: Maybe<Scalars['String']>;
-  deviceId_not_ends_with_i?: Maybe<Scalars['String']>;
-  deviceId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deviceId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushToken_not?: Maybe<Scalars['String']>;
-  pushToken_contains?: Maybe<Scalars['String']>;
-  pushToken_not_contains?: Maybe<Scalars['String']>;
-  pushToken_starts_with?: Maybe<Scalars['String']>;
-  pushToken_not_starts_with?: Maybe<Scalars['String']>;
-  pushToken_ends_with?: Maybe<Scalars['String']>;
-  pushToken_not_ends_with?: Maybe<Scalars['String']>;
-  pushToken_i?: Maybe<Scalars['String']>;
-  pushToken_not_i?: Maybe<Scalars['String']>;
-  pushToken_contains_i?: Maybe<Scalars['String']>;
-  pushToken_not_contains_i?: Maybe<Scalars['String']>;
-  pushToken_starts_with_i?: Maybe<Scalars['String']>;
-  pushToken_not_starts_with_i?: Maybe<Scalars['String']>;
-  pushToken_ends_with_i?: Maybe<Scalars['String']>;
-  pushToken_not_ends_with_i?: Maybe<Scalars['String']>;
-  pushToken_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushToken_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushTransport?: Maybe<Scalars['String']>;
-  pushTransport_not?: Maybe<Scalars['String']>;
-  pushTransport_contains?: Maybe<Scalars['String']>;
-  pushTransport_not_contains?: Maybe<Scalars['String']>;
-  pushTransport_starts_with?: Maybe<Scalars['String']>;
-  pushTransport_not_starts_with?: Maybe<Scalars['String']>;
-  pushTransport_ends_with?: Maybe<Scalars['String']>;
-  pushTransport_not_ends_with?: Maybe<Scalars['String']>;
-  pushTransport_i?: Maybe<Scalars['String']>;
-  pushTransport_not_i?: Maybe<Scalars['String']>;
-  pushTransport_contains_i?: Maybe<Scalars['String']>;
-  pushTransport_not_contains_i?: Maybe<Scalars['String']>;
-  pushTransport_starts_with_i?: Maybe<Scalars['String']>;
-  pushTransport_not_starts_with_i?: Maybe<Scalars['String']>;
-  pushTransport_ends_with_i?: Maybe<Scalars['String']>;
-  pushTransport_not_ends_with_i?: Maybe<Scalars['String']>;
-  pushTransport_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushTransport_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  owner?: Maybe<Scalars['String']>;
-  owner_not?: Maybe<Scalars['String']>;
-  owner_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  owner_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<DeviceHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<DeviceHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<DeviceHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<DeviceHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type DeviceHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type DeviceHistoryRecordsCreateInput = {
-  data?: Maybe<DeviceHistoryRecordCreateInput>;
-};
-
-export type DeviceHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<DeviceHistoryRecordUpdateInput>;
-};
-
-export enum DevicePushTransportType {
-  Firebase = 'firebase',
-  Apple = 'apple',
-  Huawei = 'huawei'
-}
-
-export type DeviceUpdateInput = {
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-  deviceId?: Maybe<Scalars['String']>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushTransport?: Maybe<DevicePushTransportType>;
-  owner?: Maybe<UserRelateToOneInput>;
-  meta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-export type DeviceWhereInput = {
-  AND?: Maybe<Array<Maybe<DeviceWhereInput>>>;
-  OR?: Maybe<Array<Maybe<DeviceWhereInput>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  deviceId?: Maybe<Scalars['String']>;
-  deviceId_not?: Maybe<Scalars['String']>;
-  deviceId_contains?: Maybe<Scalars['String']>;
-  deviceId_not_contains?: Maybe<Scalars['String']>;
-  deviceId_starts_with?: Maybe<Scalars['String']>;
-  deviceId_not_starts_with?: Maybe<Scalars['String']>;
-  deviceId_ends_with?: Maybe<Scalars['String']>;
-  deviceId_not_ends_with?: Maybe<Scalars['String']>;
-  deviceId_i?: Maybe<Scalars['String']>;
-  deviceId_not_i?: Maybe<Scalars['String']>;
-  deviceId_contains_i?: Maybe<Scalars['String']>;
-  deviceId_not_contains_i?: Maybe<Scalars['String']>;
-  deviceId_starts_with_i?: Maybe<Scalars['String']>;
-  deviceId_not_starts_with_i?: Maybe<Scalars['String']>;
-  deviceId_ends_with_i?: Maybe<Scalars['String']>;
-  deviceId_not_ends_with_i?: Maybe<Scalars['String']>;
-  deviceId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deviceId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushToken?: Maybe<Scalars['String']>;
-  pushToken_not?: Maybe<Scalars['String']>;
-  pushToken_contains?: Maybe<Scalars['String']>;
-  pushToken_not_contains?: Maybe<Scalars['String']>;
-  pushToken_starts_with?: Maybe<Scalars['String']>;
-  pushToken_not_starts_with?: Maybe<Scalars['String']>;
-  pushToken_ends_with?: Maybe<Scalars['String']>;
-  pushToken_not_ends_with?: Maybe<Scalars['String']>;
-  pushToken_i?: Maybe<Scalars['String']>;
-  pushToken_not_i?: Maybe<Scalars['String']>;
-  pushToken_contains_i?: Maybe<Scalars['String']>;
-  pushToken_not_contains_i?: Maybe<Scalars['String']>;
-  pushToken_starts_with_i?: Maybe<Scalars['String']>;
-  pushToken_not_starts_with_i?: Maybe<Scalars['String']>;
-  pushToken_ends_with_i?: Maybe<Scalars['String']>;
-  pushToken_not_ends_with_i?: Maybe<Scalars['String']>;
-  pushToken_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushToken_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  pushTransport?: Maybe<DevicePushTransportType>;
-  pushTransport_not?: Maybe<DevicePushTransportType>;
-  pushTransport_in?: Maybe<Array<Maybe<DevicePushTransportType>>>;
-  pushTransport_not_in?: Maybe<Array<Maybe<DevicePushTransportType>>>;
-  owner?: Maybe<UserWhereInput>;
-  owner_is_null?: Maybe<Scalars['Boolean']>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type DeviceWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type DevicesCreateInput = {
-  data?: Maybe<DeviceCreateInput>;
-};
-
-export type DevicesUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<DeviceUpdateInput>;
-};
-
-export type DisconnectUserFromDeviceInput = {
+export type DisconnectUserFromRemoteClientInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   deviceId: Scalars['String'];
+  appId: Scalars['String'];
 };
 
-export type DisconnectUserFromDeviceOutput = {
-  __typename?: 'DisconnectUserFromDeviceOutput';
+export type DisconnectUserFromRemoteClientOutput = {
+  __typename?: 'DisconnectUserFromRemoteClientOutput';
   status: Scalars['String'];
 };
 
@@ -18157,30 +17734,30 @@ export type Mutation = {
   deleteMessage?: Maybe<Message>;
   /**  Delete multiple Message items by ID.  */
   deleteMessages?: Maybe<Array<Maybe<Message>>>;
-  /**  Create a single DeviceHistoryRecord item.  */
-  createDeviceHistoryRecord?: Maybe<DeviceHistoryRecord>;
-  /**  Create multiple DeviceHistoryRecord items.  */
-  createDeviceHistoryRecords?: Maybe<Array<Maybe<DeviceHistoryRecord>>>;
-  /**  Update a single DeviceHistoryRecord item by ID.  */
-  updateDeviceHistoryRecord?: Maybe<DeviceHistoryRecord>;
-  /**  Update multiple DeviceHistoryRecord items by ID.  */
-  updateDeviceHistoryRecords?: Maybe<Array<Maybe<DeviceHistoryRecord>>>;
-  /**  Delete a single DeviceHistoryRecord item by ID.  */
-  deleteDeviceHistoryRecord?: Maybe<DeviceHistoryRecord>;
-  /**  Delete multiple DeviceHistoryRecord items by ID.  */
-  deleteDeviceHistoryRecords?: Maybe<Array<Maybe<DeviceHistoryRecord>>>;
-  /**  Create a single Device item.  */
-  createDevice?: Maybe<Device>;
-  /**  Create multiple Device items.  */
-  createDevices?: Maybe<Array<Maybe<Device>>>;
-  /**  Update a single Device item by ID.  */
-  updateDevice?: Maybe<Device>;
-  /**  Update multiple Device items by ID.  */
-  updateDevices?: Maybe<Array<Maybe<Device>>>;
-  /**  Delete a single Device item by ID.  */
-  deleteDevice?: Maybe<Device>;
-  /**  Delete multiple Device items by ID.  */
-  deleteDevices?: Maybe<Array<Maybe<Device>>>;
+  /**  Create a single RemoteClientHistoryRecord item.  */
+  createRemoteClientHistoryRecord?: Maybe<RemoteClientHistoryRecord>;
+  /**  Create multiple RemoteClientHistoryRecord items.  */
+  createRemoteClientHistoryRecords?: Maybe<Array<Maybe<RemoteClientHistoryRecord>>>;
+  /**  Update a single RemoteClientHistoryRecord item by ID.  */
+  updateRemoteClientHistoryRecord?: Maybe<RemoteClientHistoryRecord>;
+  /**  Update multiple RemoteClientHistoryRecord items by ID.  */
+  updateRemoteClientHistoryRecords?: Maybe<Array<Maybe<RemoteClientHistoryRecord>>>;
+  /**  Delete a single RemoteClientHistoryRecord item by ID.  */
+  deleteRemoteClientHistoryRecord?: Maybe<RemoteClientHistoryRecord>;
+  /**  Delete multiple RemoteClientHistoryRecord items by ID.  */
+  deleteRemoteClientHistoryRecords?: Maybe<Array<Maybe<RemoteClientHistoryRecord>>>;
+  /**  Create a single RemoteClient item.  */
+  createRemoteClient?: Maybe<RemoteClient>;
+  /**  Create multiple RemoteClient items.  */
+  createRemoteClients?: Maybe<Array<Maybe<RemoteClient>>>;
+  /**  Update a single RemoteClient item by ID.  */
+  updateRemoteClient?: Maybe<RemoteClient>;
+  /**  Update multiple RemoteClient items by ID.  */
+  updateRemoteClients?: Maybe<Array<Maybe<RemoteClient>>>;
+  /**  Delete a single RemoteClient item by ID.  */
+  deleteRemoteClient?: Maybe<RemoteClient>;
+  /**  Delete multiple RemoteClient items by ID.  */
+  deleteRemoteClients?: Maybe<Array<Maybe<RemoteClient>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -20213,8 +19790,8 @@ export type Mutation = {
    */
   sendMessage?: Maybe<SendMessageOutput>;
   resendMessage?: Maybe<ResendMessageOutput>;
-  syncDevice?: Maybe<Device>;
-  disconnectUserFromDevice?: Maybe<DisconnectUserFromDeviceOutput>;
+  syncRemoteClient?: Maybe<RemoteClient>;
+  disconnectUserFromRemoteClient?: Maybe<DisconnectUserFromRemoteClientOutput>;
   setMessageStatus?: Maybe<SetMessageStatusOutput>;
   registerResident?: Maybe<Resident>;
   /**
@@ -22730,64 +22307,64 @@ export type MutationDeleteMessagesArgs = {
 };
 
 
-export type MutationCreateDeviceHistoryRecordArgs = {
-  data?: Maybe<DeviceHistoryRecordCreateInput>;
+export type MutationCreateRemoteClientHistoryRecordArgs = {
+  data?: Maybe<RemoteClientHistoryRecordCreateInput>;
 };
 
 
-export type MutationCreateDeviceHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<DeviceHistoryRecordsCreateInput>>>;
+export type MutationCreateRemoteClientHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<RemoteClientHistoryRecordsCreateInput>>>;
 };
 
 
-export type MutationUpdateDeviceHistoryRecordArgs = {
+export type MutationUpdateRemoteClientHistoryRecordArgs = {
   id: Scalars['ID'];
-  data?: Maybe<DeviceHistoryRecordUpdateInput>;
+  data?: Maybe<RemoteClientHistoryRecordUpdateInput>;
 };
 
 
-export type MutationUpdateDeviceHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<DeviceHistoryRecordsUpdateInput>>>;
+export type MutationUpdateRemoteClientHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<RemoteClientHistoryRecordsUpdateInput>>>;
 };
 
 
-export type MutationDeleteDeviceHistoryRecordArgs = {
+export type MutationDeleteRemoteClientHistoryRecordArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteDeviceHistoryRecordsArgs = {
+export type MutationDeleteRemoteClientHistoryRecordsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
 
-export type MutationCreateDeviceArgs = {
-  data?: Maybe<DeviceCreateInput>;
+export type MutationCreateRemoteClientArgs = {
+  data?: Maybe<RemoteClientCreateInput>;
 };
 
 
-export type MutationCreateDevicesArgs = {
-  data?: Maybe<Array<Maybe<DevicesCreateInput>>>;
+export type MutationCreateRemoteClientsArgs = {
+  data?: Maybe<Array<Maybe<RemoteClientsCreateInput>>>;
 };
 
 
-export type MutationUpdateDeviceArgs = {
+export type MutationUpdateRemoteClientArgs = {
   id: Scalars['ID'];
-  data?: Maybe<DeviceUpdateInput>;
+  data?: Maybe<RemoteClientUpdateInput>;
 };
 
 
-export type MutationUpdateDevicesArgs = {
-  data?: Maybe<Array<Maybe<DevicesUpdateInput>>>;
+export type MutationUpdateRemoteClientsArgs = {
+  data?: Maybe<Array<Maybe<RemoteClientsUpdateInput>>>;
 };
 
 
-export type MutationDeleteDeviceArgs = {
+export type MutationDeleteRemoteClientArgs = {
   id: Scalars['ID'];
 };
 
 
-export type MutationDeleteDevicesArgs = {
+export type MutationDeleteRemoteClientsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -24584,13 +24161,13 @@ export type MutationResendMessageArgs = {
 };
 
 
-export type MutationSyncDeviceArgs = {
-  data: SyncDeviceInput;
+export type MutationSyncRemoteClientArgs = {
+  data: SyncRemoteClientInput;
 };
 
 
-export type MutationDisconnectUserFromDeviceArgs = {
-  data: DisconnectUserFromDeviceInput;
+export type MutationDisconnectUserFromRemoteClientArgs = {
+  data: DisconnectUserFromRemoteClientInput;
 };
 
 
@@ -30485,22 +30062,22 @@ export type Query = {
   _allMessagesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Message list.  */
   _MessagesMeta?: Maybe<_ListMeta>;
-  /**  Search for all DeviceHistoryRecord items which match the where clause.  */
-  allDeviceHistoryRecords?: Maybe<Array<Maybe<DeviceHistoryRecord>>>;
-  /**  Search for the DeviceHistoryRecord item with the matching ID.  */
-  DeviceHistoryRecord?: Maybe<DeviceHistoryRecord>;
-  /**  Perform a meta-query on all DeviceHistoryRecord items which match the where clause.  */
-  _allDeviceHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the DeviceHistoryRecord list.  */
-  _DeviceHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all Device items which match the where clause.  */
-  allDevices?: Maybe<Array<Maybe<Device>>>;
-  /**  Search for the Device item with the matching ID.  */
-  Device?: Maybe<Device>;
-  /**  Perform a meta-query on all Device items which match the where clause.  */
-  _allDevicesMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the Device list.  */
-  _DevicesMeta?: Maybe<_ListMeta>;
+  /**  Search for all RemoteClientHistoryRecord items which match the where clause.  */
+  allRemoteClientHistoryRecords?: Maybe<Array<Maybe<RemoteClientHistoryRecord>>>;
+  /**  Search for the RemoteClientHistoryRecord item with the matching ID.  */
+  RemoteClientHistoryRecord?: Maybe<RemoteClientHistoryRecord>;
+  /**  Perform a meta-query on all RemoteClientHistoryRecord items which match the where clause.  */
+  _allRemoteClientHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the RemoteClientHistoryRecord list.  */
+  _RemoteClientHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all RemoteClient items which match the where clause.  */
+  allRemoteClients?: Maybe<Array<Maybe<RemoteClient>>>;
+  /**  Search for the RemoteClient item with the matching ID.  */
+  RemoteClient?: Maybe<RemoteClient>;
+  /**  Perform a meta-query on all RemoteClient items which match the where clause.  */
+  _allRemoteClientsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the RemoteClient list.  */
+  _RemoteClientsMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -32990,50 +32567,50 @@ export type Query_AllMessagesMetaArgs = {
 };
 
 
-export type QueryAllDeviceHistoryRecordsArgs = {
-  where?: Maybe<DeviceHistoryRecordWhereInput>;
+export type QueryAllRemoteClientHistoryRecordsArgs = {
+  where?: Maybe<RemoteClientHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDeviceHistoryRecordsBy>>;
+  sortBy?: Maybe<Array<SortRemoteClientHistoryRecordsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryDeviceHistoryRecordArgs = {
-  where: DeviceHistoryRecordWhereUniqueInput;
+export type QueryRemoteClientHistoryRecordArgs = {
+  where: RemoteClientHistoryRecordWhereUniqueInput;
 };
 
 
-export type Query_AllDeviceHistoryRecordsMetaArgs = {
-  where?: Maybe<DeviceHistoryRecordWhereInput>;
+export type Query_AllRemoteClientHistoryRecordsMetaArgs = {
+  where?: Maybe<RemoteClientHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDeviceHistoryRecordsBy>>;
+  sortBy?: Maybe<Array<SortRemoteClientHistoryRecordsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryAllDevicesArgs = {
-  where?: Maybe<DeviceWhereInput>;
+export type QueryAllRemoteClientsArgs = {
+  where?: Maybe<RemoteClientWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDevicesBy>>;
+  sortBy?: Maybe<Array<SortRemoteClientsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
 
 
-export type QueryDeviceArgs = {
-  where: DeviceWhereUniqueInput;
+export type QueryRemoteClientArgs = {
+  where: RemoteClientWhereUniqueInput;
 };
 
 
-export type Query_AllDevicesMetaArgs = {
-  where?: Maybe<DeviceWhereInput>;
+export type Query_AllRemoteClientsMetaArgs = {
+  where?: Maybe<RemoteClientWhereInput>;
   search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDevicesBy>>;
+  sortBy?: Maybe<Array<SortRemoteClientsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -34595,6 +34172,514 @@ export type RegisterServiceConsumerInput = {
 
 export type RegisterServiceConsumerInputExtra = {
   paymentCategory?: Maybe<Scalars['String']>;
+};
+
+/**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. RemoteClient could be mobile or web based. RemoteClient could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncRemoteClientService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncRemoteClientService.  */
+export type RemoteClient = {
+  __typename?: 'RemoteClient';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the RemoteClient List config, or
+   *  2. As an alias to the field set on 'labelField' in the RemoteClient List config, or
+   *  3. As an alias to a 'name' field on the RemoteClient List (if one exists), or
+   *  4. As an alias to the 'id' field on the RemoteClient List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+  /**  Mobile/web device ID, which is used to identify a device. One user can have many devices, and one device can be used by many users once upon a time.  */
+  deviceId?: Maybe<Scalars['String']>;
+  /**  Application ID, which is used to identify app. Same device can have multiple apps installed for same user. It is also required for applying correct credentials for Firebase/Huawei/etc. API requests.  */
+  appId?: Maybe<Scalars['String']>;
+  /**  Used by transport services (FireBase, Apple, Huawei, etc.) to transfer push notifications to devices.  */
+  pushToken?: Maybe<Scalars['String']>;
+  /**  Transport service, that delivers push notifications to client device. Type of device requires specific transport service, e.g. Huawei devices can not receive notifications through FireBase.  */
+  pushTransport?: Maybe<RemoteClientPushTransportType>;
+  /**  Represents the platform type of the client application like android/ios/web.  */
+  devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  /**  Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.  */
+  owner?: Maybe<User>;
+  /**  RemoteClient metadata. OS type, OS version, etc.  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type RemoteClientCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  deviceId?: Maybe<Scalars['String']>;
+  appId?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushTransport?: Maybe<RemoteClientPushTransportType>;
+  devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  owner?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export enum RemoteClientDevicePlatformType {
+  Android = 'android',
+  Ios = 'ios',
+  Web = 'web'
+}
+
+/**  A keystone list  */
+export type RemoteClientHistoryRecord = {
+  __typename?: 'RemoteClientHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the RemoteClientHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the RemoteClientHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the RemoteClientHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the RemoteClientHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  deviceId?: Maybe<Scalars['String']>;
+  appId?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushTransport?: Maybe<Scalars['String']>;
+  devicePlatform?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<RemoteClientHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type RemoteClientHistoryRecordCreateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  deviceId?: Maybe<Scalars['String']>;
+  appId?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushTransport?: Maybe<Scalars['String']>;
+  devicePlatform?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<RemoteClientHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum RemoteClientHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type RemoteClientHistoryRecordUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  deviceId?: Maybe<Scalars['String']>;
+  appId?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushTransport?: Maybe<Scalars['String']>;
+  devicePlatform?: Maybe<Scalars['String']>;
+  owner?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<RemoteClientHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type RemoteClientHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<RemoteClientHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<RemoteClientHistoryRecordWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  deviceId?: Maybe<Scalars['String']>;
+  deviceId_not?: Maybe<Scalars['String']>;
+  deviceId_contains?: Maybe<Scalars['String']>;
+  deviceId_not_contains?: Maybe<Scalars['String']>;
+  deviceId_starts_with?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with?: Maybe<Scalars['String']>;
+  deviceId_ends_with?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with?: Maybe<Scalars['String']>;
+  deviceId_i?: Maybe<Scalars['String']>;
+  deviceId_not_i?: Maybe<Scalars['String']>;
+  deviceId_contains_i?: Maybe<Scalars['String']>;
+  deviceId_not_contains_i?: Maybe<Scalars['String']>;
+  deviceId_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deviceId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appId?: Maybe<Scalars['String']>;
+  appId_not?: Maybe<Scalars['String']>;
+  appId_contains?: Maybe<Scalars['String']>;
+  appId_not_contains?: Maybe<Scalars['String']>;
+  appId_starts_with?: Maybe<Scalars['String']>;
+  appId_not_starts_with?: Maybe<Scalars['String']>;
+  appId_ends_with?: Maybe<Scalars['String']>;
+  appId_not_ends_with?: Maybe<Scalars['String']>;
+  appId_i?: Maybe<Scalars['String']>;
+  appId_not_i?: Maybe<Scalars['String']>;
+  appId_contains_i?: Maybe<Scalars['String']>;
+  appId_not_contains_i?: Maybe<Scalars['String']>;
+  appId_starts_with_i?: Maybe<Scalars['String']>;
+  appId_not_starts_with_i?: Maybe<Scalars['String']>;
+  appId_ends_with_i?: Maybe<Scalars['String']>;
+  appId_not_ends_with_i?: Maybe<Scalars['String']>;
+  appId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushToken_not?: Maybe<Scalars['String']>;
+  pushToken_contains?: Maybe<Scalars['String']>;
+  pushToken_not_contains?: Maybe<Scalars['String']>;
+  pushToken_starts_with?: Maybe<Scalars['String']>;
+  pushToken_not_starts_with?: Maybe<Scalars['String']>;
+  pushToken_ends_with?: Maybe<Scalars['String']>;
+  pushToken_not_ends_with?: Maybe<Scalars['String']>;
+  pushToken_i?: Maybe<Scalars['String']>;
+  pushToken_not_i?: Maybe<Scalars['String']>;
+  pushToken_contains_i?: Maybe<Scalars['String']>;
+  pushToken_not_contains_i?: Maybe<Scalars['String']>;
+  pushToken_starts_with_i?: Maybe<Scalars['String']>;
+  pushToken_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushToken_ends_with_i?: Maybe<Scalars['String']>;
+  pushToken_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushToken_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushToken_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTransport?: Maybe<Scalars['String']>;
+  pushTransport_not?: Maybe<Scalars['String']>;
+  pushTransport_contains?: Maybe<Scalars['String']>;
+  pushTransport_not_contains?: Maybe<Scalars['String']>;
+  pushTransport_starts_with?: Maybe<Scalars['String']>;
+  pushTransport_not_starts_with?: Maybe<Scalars['String']>;
+  pushTransport_ends_with?: Maybe<Scalars['String']>;
+  pushTransport_not_ends_with?: Maybe<Scalars['String']>;
+  pushTransport_i?: Maybe<Scalars['String']>;
+  pushTransport_not_i?: Maybe<Scalars['String']>;
+  pushTransport_contains_i?: Maybe<Scalars['String']>;
+  pushTransport_not_contains_i?: Maybe<Scalars['String']>;
+  pushTransport_starts_with_i?: Maybe<Scalars['String']>;
+  pushTransport_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushTransport_ends_with_i?: Maybe<Scalars['String']>;
+  pushTransport_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushTransport_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTransport_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  devicePlatform?: Maybe<Scalars['String']>;
+  devicePlatform_not?: Maybe<Scalars['String']>;
+  devicePlatform_contains?: Maybe<Scalars['String']>;
+  devicePlatform_not_contains?: Maybe<Scalars['String']>;
+  devicePlatform_starts_with?: Maybe<Scalars['String']>;
+  devicePlatform_not_starts_with?: Maybe<Scalars['String']>;
+  devicePlatform_ends_with?: Maybe<Scalars['String']>;
+  devicePlatform_not_ends_with?: Maybe<Scalars['String']>;
+  devicePlatform_i?: Maybe<Scalars['String']>;
+  devicePlatform_not_i?: Maybe<Scalars['String']>;
+  devicePlatform_contains_i?: Maybe<Scalars['String']>;
+  devicePlatform_not_contains_i?: Maybe<Scalars['String']>;
+  devicePlatform_starts_with_i?: Maybe<Scalars['String']>;
+  devicePlatform_not_starts_with_i?: Maybe<Scalars['String']>;
+  devicePlatform_ends_with_i?: Maybe<Scalars['String']>;
+  devicePlatform_not_ends_with_i?: Maybe<Scalars['String']>;
+  devicePlatform_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  devicePlatform_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  owner?: Maybe<Scalars['String']>;
+  owner_not?: Maybe<Scalars['String']>;
+  owner_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  owner_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<RemoteClientHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<RemoteClientHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<RemoteClientHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<RemoteClientHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type RemoteClientHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type RemoteClientHistoryRecordsCreateInput = {
+  data?: Maybe<RemoteClientHistoryRecordCreateInput>;
+};
+
+export type RemoteClientHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<RemoteClientHistoryRecordUpdateInput>;
+};
+
+export enum RemoteClientPushTransportType {
+  Firebase = 'firebase',
+  Apple = 'apple',
+  Huawei = 'huawei'
+}
+
+export type RemoteClientUpdateInput = {
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+  deviceId?: Maybe<Scalars['String']>;
+  appId?: Maybe<Scalars['String']>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushTransport?: Maybe<RemoteClientPushTransportType>;
+  devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  owner?: Maybe<UserRelateToOneInput>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+};
+
+export type RemoteClientWhereInput = {
+  AND?: Maybe<Array<Maybe<RemoteClientWhereInput>>>;
+  OR?: Maybe<Array<Maybe<RemoteClientWhereInput>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  deviceId?: Maybe<Scalars['String']>;
+  deviceId_not?: Maybe<Scalars['String']>;
+  deviceId_contains?: Maybe<Scalars['String']>;
+  deviceId_not_contains?: Maybe<Scalars['String']>;
+  deviceId_starts_with?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with?: Maybe<Scalars['String']>;
+  deviceId_ends_with?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with?: Maybe<Scalars['String']>;
+  deviceId_i?: Maybe<Scalars['String']>;
+  deviceId_not_i?: Maybe<Scalars['String']>;
+  deviceId_contains_i?: Maybe<Scalars['String']>;
+  deviceId_not_contains_i?: Maybe<Scalars['String']>;
+  deviceId_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_starts_with_i?: Maybe<Scalars['String']>;
+  deviceId_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_not_ends_with_i?: Maybe<Scalars['String']>;
+  deviceId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deviceId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appId?: Maybe<Scalars['String']>;
+  appId_not?: Maybe<Scalars['String']>;
+  appId_contains?: Maybe<Scalars['String']>;
+  appId_not_contains?: Maybe<Scalars['String']>;
+  appId_starts_with?: Maybe<Scalars['String']>;
+  appId_not_starts_with?: Maybe<Scalars['String']>;
+  appId_ends_with?: Maybe<Scalars['String']>;
+  appId_not_ends_with?: Maybe<Scalars['String']>;
+  appId_i?: Maybe<Scalars['String']>;
+  appId_not_i?: Maybe<Scalars['String']>;
+  appId_contains_i?: Maybe<Scalars['String']>;
+  appId_not_contains_i?: Maybe<Scalars['String']>;
+  appId_starts_with_i?: Maybe<Scalars['String']>;
+  appId_not_starts_with_i?: Maybe<Scalars['String']>;
+  appId_ends_with_i?: Maybe<Scalars['String']>;
+  appId_not_ends_with_i?: Maybe<Scalars['String']>;
+  appId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  appId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushToken?: Maybe<Scalars['String']>;
+  pushToken_not?: Maybe<Scalars['String']>;
+  pushToken_contains?: Maybe<Scalars['String']>;
+  pushToken_not_contains?: Maybe<Scalars['String']>;
+  pushToken_starts_with?: Maybe<Scalars['String']>;
+  pushToken_not_starts_with?: Maybe<Scalars['String']>;
+  pushToken_ends_with?: Maybe<Scalars['String']>;
+  pushToken_not_ends_with?: Maybe<Scalars['String']>;
+  pushToken_i?: Maybe<Scalars['String']>;
+  pushToken_not_i?: Maybe<Scalars['String']>;
+  pushToken_contains_i?: Maybe<Scalars['String']>;
+  pushToken_not_contains_i?: Maybe<Scalars['String']>;
+  pushToken_starts_with_i?: Maybe<Scalars['String']>;
+  pushToken_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushToken_ends_with_i?: Maybe<Scalars['String']>;
+  pushToken_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushToken_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushToken_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushTransport?: Maybe<RemoteClientPushTransportType>;
+  pushTransport_not?: Maybe<RemoteClientPushTransportType>;
+  pushTransport_in?: Maybe<Array<Maybe<RemoteClientPushTransportType>>>;
+  pushTransport_not_in?: Maybe<Array<Maybe<RemoteClientPushTransportType>>>;
+  devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  devicePlatform_not?: Maybe<RemoteClientDevicePlatformType>;
+  devicePlatform_in?: Maybe<Array<Maybe<RemoteClientDevicePlatformType>>>;
+  devicePlatform_not_in?: Maybe<Array<Maybe<RemoteClientDevicePlatformType>>>;
+  owner?: Maybe<UserWhereInput>;
+  owner_is_null?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type RemoteClientWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type RemoteClientsCreateInput = {
+  data?: Maybe<RemoteClientCreateInput>;
+};
+
+export type RemoteClientsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<RemoteClientUpdateInput>;
 };
 
 export type ResendConfirmPhoneActionSmsInput = {
@@ -38396,58 +38481,6 @@ export enum SortContactsBy {
   DeletedAtDesc = 'deletedAt_DESC'
 }
 
-export enum SortDeviceHistoryRecordsBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  DeviceIdAsc = 'deviceId_ASC',
-  DeviceIdDesc = 'deviceId_DESC',
-  PushTokenAsc = 'pushToken_ASC',
-  PushTokenDesc = 'pushToken_DESC',
-  PushTransportAsc = 'pushTransport_ASC',
-  PushTransportDesc = 'pushTransport_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortDevicesBy {
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  DeviceIdAsc = 'deviceId_ASC',
-  DeviceIdDesc = 'deviceId_DESC',
-  PushTokenAsc = 'pushToken_ASC',
-  PushTokenDesc = 'pushToken_DESC',
-  PushTransportAsc = 'pushTransport_ASC',
-  PushTransportDesc = 'pushTransport_DESC',
-  OwnerAsc = 'owner_ASC',
-  OwnerDesc = 'owner_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC'
-}
-
 export enum SortDivisionHistoryRecordsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
@@ -39746,6 +39779,66 @@ export enum SortPropertyHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortRemoteClientHistoryRecordsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  DeviceIdAsc = 'deviceId_ASC',
+  DeviceIdDesc = 'deviceId_DESC',
+  AppIdAsc = 'appId_ASC',
+  AppIdDesc = 'appId_DESC',
+  PushTokenAsc = 'pushToken_ASC',
+  PushTokenDesc = 'pushToken_DESC',
+  PushTransportAsc = 'pushTransport_ASC',
+  PushTransportDesc = 'pushTransport_DESC',
+  DevicePlatformAsc = 'devicePlatform_ASC',
+  DevicePlatformDesc = 'devicePlatform_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortRemoteClientsBy {
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  DeviceIdAsc = 'deviceId_ASC',
+  DeviceIdDesc = 'deviceId_DESC',
+  AppIdAsc = 'appId_ASC',
+  AppIdDesc = 'appId_DESC',
+  PushTokenAsc = 'pushToken_ASC',
+  PushTokenDesc = 'pushToken_DESC',
+  PushTransportAsc = 'pushTransport_ASC',
+  PushTransportDesc = 'pushTransport_DESC',
+  DevicePlatformAsc = 'devicePlatform_ASC',
+  DevicePlatformDesc = 'devicePlatform_DESC',
+  OwnerAsc = 'owner_ASC',
+  OwnerDesc = 'owner_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC'
 }
 
 export enum SortResidentBillingReceiptsBy {
@@ -41288,12 +41381,14 @@ export type StartPasswordRecoveryOutput = {
   status: Scalars['String'];
 };
 
-export type SyncDeviceInput = {
+export type SyncRemoteClientInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   deviceId: Scalars['String'];
+  appId: Scalars['String'];
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<PushTransportType>;
+  devicePlatform?: Maybe<DevicePlatformType>;
   meta?: Maybe<Scalars['JSON']>;
 };
 
