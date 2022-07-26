@@ -56,7 +56,7 @@ export const TicketDeadlineField: React.FC<TicketDeadlineFieldProps> = ({ ticket
         [getTicketDeadlineMessage])
 
     return ticketDeadline ? (
-        <PageFieldRow title={Deadline}>
+        <PageFieldRow title={Deadline} ellipsis={{ rows: 2 }}>
             <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
             {overdueMessage}
         </PageFieldRow>

@@ -13,7 +13,7 @@ export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticket }
     const TicketDetailsMessage = intl.formatMessage({ id: 'Problem' })
 
     return (
-        <PageFieldRow title={TicketDetailsMessage}>
+        <PageFieldRow title={TicketDetailsMessage} ellipsis>
             {ticket.details}
         </PageFieldRow>
     )

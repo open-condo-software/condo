@@ -37,7 +37,7 @@ export const TicketAssigneeField = ({ ticket }) => {
     }), [assignee])
 
     return (
-        <PageFieldRow title={AssigneeMessage}>
+        <PageFieldRow title={AssigneeMessage} ellipsis>
             {
                 assignee
                     ? <Link href={`/employee/${get(assignee, 'id')}`}>

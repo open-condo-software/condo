@@ -25,7 +25,7 @@ export const TicketFileListField: React.FC<TicketFileListFieldProps> = ({ ticket
 
     return (
         !isEmpty(files) && (
-            <PageFieldRow title={FilesFieldLabel}>
+            <PageFieldRow title={FilesFieldLabel} ellipsis>
                 <TicketFileList files={files} />
             </PageFieldRow>
         )

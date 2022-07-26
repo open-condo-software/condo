@@ -28,7 +28,7 @@ export const TicketReviewField: React.FC<TicketReviewFieldProps> = ({ ticket }) 
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
 
     return ticketStatusType === CLOSED_STATUS_TYPE ? (
-        <PageFieldRow title={ReviewValueMessage}>
+        <PageFieldRow title={ReviewValueMessage} ellipsis>
             <Typography.Text>
                 {
                     ticketReviewValue ? (

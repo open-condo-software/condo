@@ -41,7 +41,7 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
     }), [executor])
 
     return (
-        <PageFieldRow title={ExecutorMessage}>
+        <PageFieldRow title={ExecutorMessage} ellipsis>
             {
                 executor
                     ? <Link href={`/employee/${get(executor, 'id')}`}>

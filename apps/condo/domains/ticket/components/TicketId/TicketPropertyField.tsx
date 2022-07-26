@@ -94,7 +94,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     const propertyId = useMemo(() => get(ticket, ['property', 'id'], null), [ticket])
 
     return (
-        <PageFieldRow title={AddressMessage} highlight>
+        <PageFieldRow title={AddressMessage} highlight ellipsis>
             <Row gutter={SMALL_VERTICAL_GUTTER}>
                 <Col span={24}>
                     {
