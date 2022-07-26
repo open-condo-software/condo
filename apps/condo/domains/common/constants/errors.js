@@ -34,6 +34,7 @@ const NOT_UNIQUE = 'NOT_UNIQUE'
 // Provided value does not matches specified format. For example not matches regexp, string length requirement etc.
 const WRONG_FORMAT = 'WRONG_FORMAT'
 const WRONG_VALUE = 'WRONG_VALUE'
+const VALUE_TOO_SHORT = '[value:tooShort:'
 
 const WRONG_PHONE_FORMAT = 'WRONG_PHONE_FORMAT'
 
@@ -71,4 +72,5 @@ module.exports = {
     UNIQUE_CONSTRAINT_ERROR,
     DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE,
     UNEQUAL_CONTEXT_ERROR,
+    VALUE_TOO_SHORT,
 }

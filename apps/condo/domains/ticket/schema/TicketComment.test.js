@@ -21,7 +21,7 @@ const {
     TICKET_COMMENT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
-const { syncDeviceByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
+const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')

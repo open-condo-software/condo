@@ -32,7 +32,7 @@ const {
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
-const { Message, syncDeviceByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 
 const {
     createTestOrganizationLink,

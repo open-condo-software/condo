@@ -5,18 +5,18 @@
 
 const { Message } = require('./Message')
 const { SendMessageService } = require('./SendMessageService')
-const { Device } = require('./Device')
-const { SyncDeviceService } = require('./SyncDeviceService')
-const { DisconnectUserFromDeviceService } = require('./DisconnectUserFromDeviceService')
+const { RemoteClient } = require('./RemoteClient')
+const { SyncRemoteClientService } = require('./SyncRemoteClientService')
+const { DisconnectUserFromRemoteClientService } = require('./DisconnectUserFromRemoteClientService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Message,
     SendMessageService,
-    Device,
-    SyncDeviceService,
-    DisconnectUserFromDeviceService,
+    RemoteClient,
+    SyncRemoteClientService,
+    DisconnectUserFromRemoteClientService,
     SetMessageStatusService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -11,7 +11,7 @@ const {
     Message: MessageGQL,
     SEND_MESSAGE,
     RESEND_MESSAGE,
-    Device: DeviceGQL,
+    RemoteClient: RemoteClientGQL,
     SYNC_DEVICE_MUTATION,
     DISCONNECT_USER_FROM_DEVICE_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
@@ -53,7 +53,7 @@ async function resendMessage (context, data) {
     })
 }
 
-const Device = generateServerUtils(DeviceGQL)
+const RemoteClient = generateServerUtils(RemoteClientGQL)
 
 /**
  * Connects a device that could be sent push notifications with user and/or pushToken
@@ -66,7 +66,7 @@ const Device = generateServerUtils(DeviceGQL)
  * @param data
  * @returns {Promise<*>}
  */
-async function syncDevice (context, data) {
+async function syncRemoteClient (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -75,12 +75,12 @@ async function syncDevice (context, data) {
     return await execGqlWithoutAccess(context, {
         query: SYNC_DEVICE_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to syncDevice',
+        errorMessage: '[error] Unable to syncRemoteClient',
         dataPath: 'obj',
     })
 }
 
-async function disconnectUserFromDevice (context, data) {
+async function disconnectUserFromRemoteClient (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -89,7 +89,7 @@ async function disconnectUserFromDevice (context, data) {
     return await execGqlWithoutAccess(context, {
         query: DISCONNECT_USER_FROM_DEVICE_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to disconnectUserFromDevice',
+        errorMessage: '[error] Unable to disconnectUserFromRemoteClient',
         dataPath: 'obj',
     })
 }
@@ -114,9 +114,9 @@ module.exports = {
     Message,
     sendMessage,
     resendMessage,
-    Device,
-    syncDevice,
-    disconnectUserFromDevice,
+    RemoteClient,
+    syncRemoteClient,
+    disconnectUserFromRemoteClient,
     setMessageStatus,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -22,7 +22,7 @@ Don't validate input in access control modules.
 Example of using `getById` from `@core/keystone/schema`:
 
 ```js
-const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
+const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
     types: [
         // some declarations ...
     ],
@@ -30,13 +30,13 @@ const SyncDeviceService = new GQLCustomSchema('SyncDeviceService', {
     mutations: [
         {
             // some other fields ...
-            schema: 'syncDevice(data: SyncDeviceInput!): Device',
+            schema: 'syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient',
             resolver: async (parent, args, context) => {
                 // some logic
                 // ...
                 
-                const data = await DeviceAPI.updateOrCreate(context, where, attrs)
-                const result = await getById('Device', data.id)
+                const data = await RemoteClient.updateOrCreate(context, where, attrs)
+                const result = await getById('RemoteClient', data.id)
 
                 return result
             },
