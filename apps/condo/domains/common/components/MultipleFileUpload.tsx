@@ -21,9 +21,9 @@ type UploadListFile = UploadFile & {
 }
 
 export type Module = {
-    useCreate: (attrs, onComplete) => (attrs) => Promise<DBFile>
-    useUpdate: (attrs, onComplete) => (update, attrs) => Promise<DBFile>
-    useSoftDelete: (attrs, onComplete) => (state, attrs) => Promise<unknown>
+    useCreate: (attrs, onComplete?) => (attrs) => Promise<DBFile>
+    useUpdate: (attrs, onComplete?) => (update, attrs) => Promise<DBFile>
+    useSoftDelete: (onComplete?) => (attrs) => Promise<unknown>
 }
 
 const reducer = (state, action) => {
@@ -115,8 +115,8 @@ export const useMultipleFileUploadHook = ({
         modifiedFilesRef.current = modifiedFiles
     }, [modifiedFiles])
 
-    const updateAction = Model.useUpdate({}, () => Promise.resolve())
-    const deleteAction = Model.useSoftDelete({}, () => Promise.resolve())
+    const updateAction = Model.useUpdate({})
+    const deleteAction = Model.useSoftDelete()
 
     useEffect(() => {
         setFilesCount(initialFileList.length)
@@ -128,7 +128,7 @@ export const useMultipleFileUploadHook = ({
             await updateAction({ [relationField]: { connect: { id } } }, file)
         }
         for (const file of deleted) {
-            await deleteAction({}, { id: file.id })
+            await deleteAction({ id: file.id })
         }
     }, [deleteAction, relationField, updateAction])
 
