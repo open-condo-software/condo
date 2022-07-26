@@ -83,7 +83,7 @@ export default function DivisionTable (props: BuildingTableProps) {
             <Row align={'middle'} gutter={ROW_VERTICAL_GUTTERS}>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify="space-between" gutter={ROW_VERTICAL_GUTTERS}>
+                        <Row justify="space-between" align='middle' gutter={ROW_VERTICAL_GUTTERS}>
                             <Col xs={24} lg={6}>
                                 <Input
                                     placeholder={SearchPlaceholder}
