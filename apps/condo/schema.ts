@@ -14019,7 +14019,7 @@ export type Meter = {
   isAutomatic?: Maybe<Scalars['Boolean']>;
   /**  Ref to the B2CApp which used to replace default integration with meter by resident's user in resident's app  */
   b2cApp?: Maybe<B2CApp>;
-  /**  Ref to B2BApp, which is used as a master system for this meter  */
+  /**  Ref to B2BApp, which is used as a master system for this meter. Specified organization must connect this app.  */
   b2bApp?: Maybe<B2BApp>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
