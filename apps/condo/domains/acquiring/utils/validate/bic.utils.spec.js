@@ -1,5 +1,5 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+const { validateBic, createValidRuBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -26,12 +26,12 @@ describe('validateBic()', () => {
         })
     })
 
-    test('wrong length number as RU BIC', () => {
+    test('for wrong length number as RU BIC', () => {
         const { result, errors } = validateBic(WRONG_LENGTH_RU_BIC)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Bic length was expected to be 9, but received 10')
     })
-    test('contains invalid characters as RU BIC', () => {
+    test('for contains invalid characters as RU BIC', () => {
         const { result, errors } = validateBic(WRONG_FORMAT_RU_BIC)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Bic can contain only numeric digits')
@@ -40,6 +40,11 @@ describe('validateBic()', () => {
         const { result, errors } = validateBic('')
         expect(result).toBe(false)
         expect(errors[0]).toBe('Bic is empty')
+    })
+    test('for create valid RU BIC', () => {
+        const bic = createValidRuBic()
+        const { result } = validateBic(bic)
+        expect(result).toBe(true)
     })
     //TODO: Test for country
 })

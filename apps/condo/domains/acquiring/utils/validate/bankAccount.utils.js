@@ -1,9 +1,12 @@
+const faker = require('faker')
 const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
 
 const EMPTY = 'Bank account is empty'
 const NOT_NUMERIC = 'Bank account can contain only numeric digits'
 const WRONG_LENGTH = 'Bank account length was expected to be 20, but received '
 const CONTROL_SUM_FAILED = 'Control sum is not valid for bank account'
+
+const BANK_ACCOUNT_WEIGHTS = [7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1]
 
 
 class RecipientBankAccountValidation {
@@ -31,14 +34,13 @@ class RecipientBankAccountValidation {
         this.validateForNumbersAndLength(bankAccountWithoutSpaces)
 
         const controlString = bicWithoutSpaces.substr(-3) + bankAccountWithoutSpaces
-        let checksum = 0
-        const weights = [7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1]
 
-        for (const i in weights) {
-            checksum += weights[i] * (controlString[i] % 10)
+        let controlSum = 0
+        for (const i in BANK_ACCOUNT_WEIGHTS) {
+            controlSum += (BANK_ACCOUNT_WEIGHTS[i] * controlString[i]) % 10
         }
 
-        if (checksum % 10 !== 0) {
+        if (controlSum % 10 !== 0) {
             this.errors.push(CONTROL_SUM_FAILED)
         }
 
@@ -50,6 +52,22 @@ class RecipientBankAccountValidation {
 
 }
 
+function createValidBankAccount (bic) {
+    const bankAccount = faker.finance.account(19).toString()
+
+    const controlString = bic.substr(-3) + bankAccount
+
+    let controlSum = 0
+
+    for (const i in controlString) {
+        controlSum += (BANK_ACCOUNT_WEIGHTS[i] * controlString[i]) % 10
+    }
+
+    const lastNumber = 10 - controlSum % 10
+
+    return bankAccount + lastNumber
+}
+
 const validateBankAccount = (bankAccount, bic) => {
     const validator = new RecipientBankAccountValidation()
     const { result, errors } = validator.validateBankAccount(bankAccount, bic)
@@ -57,6 +75,7 @@ const validateBankAccount = (bankAccount, bic) => {
 }
 
 module.exports = {
+    createValidBankAccount,
     validateBankAccount,
 }
 

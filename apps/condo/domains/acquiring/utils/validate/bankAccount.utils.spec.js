@@ -1,5 +1,5 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { validateBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
+const { validateBankAccount, createValidBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -42,12 +42,12 @@ describe('validateBankAccount()', () => {
         })
     })
 
-    test('wrong length number as RU BANK ACCOUNT', () => {
+    test('for wrong length number as RU BANK ACCOUNT', () => {
         const { result, errors } = validateBankAccount(WRONG_LENGTH_BANK_ACCOUNT, VALID_RU_BIC)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Bank account length was expected to be 20, but received 22')
     })
-    test('contains invalid characters as RU BANK ACCOUNT', () => {
+    test('for contains invalid characters as RU BANK ACCOUNT', () => {
         const { result, errors } = validateBankAccount(WRONG_FORMAT_BANK_ACCOUNT, VALID_RU_BIC)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Bank account can contain only numeric digits')
@@ -62,6 +62,11 @@ describe('validateBankAccount()', () => {
         const { result, errors } = validateBankAccount(bankAccount, bic)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Control sum is not valid for bank account')
+    })
+    test('for create valid RU BANK ACCOUNT', () => {
+        const bankAccount = createValidBankAccount(VALID_RU_BIC)
+        const { result } = validateBankAccount(bankAccount, VALID_RU_BIC)
+        expect(result).toBe(true)
     })
 })
 

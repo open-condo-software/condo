@@ -1,6 +1,6 @@
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
+const { validateTin, createValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -51,6 +51,11 @@ describe('validateTin()', () => {
         const { result, errors } = validateTin(INVALID_CONTROL_SUM_TIN_12, RUSSIA_COUNTRY)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Control sum is not valid for tin')
+    })
+    test('for create valid RU INN', () => {
+        const tin = createValidTin()
+        const { result } = validateTin(tin)
+        expect(result).toBe(true)
     })
     //TODO: Test for country
 })

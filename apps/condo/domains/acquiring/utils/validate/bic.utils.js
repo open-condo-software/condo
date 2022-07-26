@@ -1,3 +1,5 @@
+const faker = require('faker')
+
 const EMPTY = 'Bic is empty'
 const NOT_NUMERIC = 'Bic can contain only numeric digits'
 const WRONG_LENGTH = 'Bic length was expected to be 9, but received '
@@ -36,6 +38,11 @@ class RecipientBicValidation {
     }
 }
 
+function createValidRuBic () {
+    return '04' + faker.datatype.number({ min: 1000000, max: 9999999 }).toString()
+}
+
+
 const validateBic = (bic) => {
     const validator = new RecipientBicValidation()
     const { result, errors } = validator.validateBic(bic)
@@ -43,6 +50,7 @@ const validateBic = (bic) => {
 }
 
 module.exports = {
+    createValidRuBic,
     validateBic,
 }
 

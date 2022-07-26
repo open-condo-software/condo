@@ -30,6 +30,9 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { createValidRuBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+const { createValidBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
+const { createValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -752,12 +755,17 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
 
 function createTestRecipient (extra = {}) {
     const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
+
+    const bic = createValidRuBic()
+    const bankAccount = createValidBankAccount(bic)
+    const tin = createValidTin()
+
     const validRecipient = {
         name: faker.company.companyName(),
-        tin: faker.datatype.number(range(10)).toString(),
+        tin,
         iec: faker.datatype.number(range(9)).toString(),
-        bic: '04' + faker.datatype.number(range(4)).toString() + '789',
-        bankAccount: '12345678901234567890',
+        bic,
+        bankAccount,
         bankName: faker.company.companyName(),
         territoryCode: faker.datatype.number().toString(),
         offsettingAccount: faker.finance.account(20).toString(),

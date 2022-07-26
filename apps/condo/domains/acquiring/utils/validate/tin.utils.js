@@ -1,3 +1,4 @@
+const faker = require('faker')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 const EMPTY = 'Tin is empty'
@@ -9,20 +10,19 @@ const CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
 const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
 
 
+function getTinControlSumRU (num) {
+    const weights = RU_TIN_DIGITS.slice(-num.length)
+    let sum = 0
+
+    for (let i = 0; i < num.length; i++)
+        sum += num[i] * weights[i]
+
+    return sum % 11 % 10
+}
+
 class RecipientTinValidation {
 
     errors = []
-
-    getTinChecksumRU (num) {
-        const weights = RU_TIN_DIGITS.slice(-num.length)
-        let sum = 0
-
-        for (let i = 0; i < num.length; i++)
-            sum += num[i] * weights[i]
-
-        return sum % 11 % 10
-    }
-
 
     validateForNumbersAndLength (tin) {
         if (!tin.length) {
@@ -49,13 +49,13 @@ class RecipientTinValidation {
         }
 
         if (tinWithoutSpaces.length === 10)
-            if (this.getTinChecksumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1))) {
+            if (getTinControlSumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1))) {
                 this.errors.push(CONTROL_SUM_FAILED)
             }
 
         if (tinWithoutSpaces.length === 12)
-            if (this.getTinChecksumRU(tinWithoutSpaces.slice(0, 11)) !== Number(tinWithoutSpaces.slice(10, -1)
-                || this.getTinChecksumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1)))) {
+            if (getTinControlSumRU(tinWithoutSpaces.slice(0, 11)) !== Number(tinWithoutSpaces.slice(10, -1)
+                || getTinControlSumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1)))) {
                 this.errors.push(CONTROL_SUM_FAILED)
             }
 
@@ -66,6 +66,17 @@ class RecipientTinValidation {
     }
 }
 
+function createValidTin () {
+    const tin = faker.datatype.number({
+        min: Math.pow(10, 9),
+        max: Math.pow(10, 10) - 1,
+    }).toString()
+
+    const lastNumber = getTinControlSumRU(tin)
+
+    return tin.replace(/.$/, lastNumber)
+}
+
 const validateTin = (tin, country) => {
     const validator = new RecipientTinValidation()
     const { result, errors } = validator.validateTin(tin, country)
@@ -73,5 +84,6 @@ const validateTin = (tin, country) => {
 }
 
 module.exports = {
+    createValidTin,
     validateTin,
 }
