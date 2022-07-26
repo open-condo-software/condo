@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import {
     PageWrapper,
     useLayoutContext,
@@ -65,6 +65,7 @@ type PropertiesContentProps = {
 }
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const RADIO_GROUP_STYLE: CSSProperties = { display: 'flex', justifyContent: 'flex-end' }
 
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
@@ -103,14 +104,20 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
             </Head>
             <PageWrapper>
                 <TablePageContent>
-                    <Row gutter={PAGE_ROW_GUTTER} align={'top'}>
-                        <Col lg={6} xs={24}>
+                    <Row gutter={PAGE_ROW_GUTTER} align='top' justify='space-between'>
+                        <Col lg={12} xs={24}>
                             <Typography.Title>
                                 {PageTitleMessage}
                             </Typography.Title>
                         </Col>
-                        <Col lg={6} offset={isSmall ? 0 : 12} xs={24}>
-                            <Radio.Group className={'sberRadioGroup'} value={viewMode} buttonStyle="outline" onChange={e => changeViewMode(e.target.value)}>
+                        <Col lg={8} offset={isSmall ? 0 : 4} xs={24}>
+                            <Radio.Group
+                                className={'sberRadioGroup'}
+                                style={RADIO_GROUP_STYLE}
+                                value={viewMode}
+                                buttonStyle="outline"
+                                onChange={e => changeViewMode(e.target.value)}
+                            >
                                 <Radio.Button value="list">{ShowTable}</Radio.Button>
                                 <Radio.Button value="map">{ShowMap}</Radio.Button>
                             </Radio.Group>
