@@ -28,7 +28,7 @@ const logger = pino({
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
     return await Meter.getAll(
-        context, {}, {
+        context, { isAutomatic: false }, {
             sortBy: 'id_ASC',
             first: pageSize,
             skip: offset,
