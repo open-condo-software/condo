@@ -95,6 +95,10 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'When status of the ticket was changed to completed',
             type: DateTimeUtc,
         },
+        lastCommentAt: {
+            schemaDoc: 'Last comment time in ticket',
+            type: DateTimeUtc,
+        },
         statusReason: {
             schemaDoc: 'Text reason for status changes. Sometimes you should describe the reason why you change the `status`',
             type: Text,
