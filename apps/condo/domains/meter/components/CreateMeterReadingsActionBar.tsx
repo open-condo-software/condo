@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { useIntl } from '@core/next/intl'
-import { Form, Space } from 'antd'
+import { Col, Form, Row, Space } from 'antd'
 import { isEmpty } from 'lodash'
 import { PlusCircleFilled } from '@ant-design/icons'
 
@@ -36,31 +36,38 @@ export const CreateMeterReadingsActionBar = ({
 
                     return (
                         <ActionBar>
+                            <Col>
+                                <Row gutter={[0, 24]}>
+                                    <Button
+                                        key='submit'
+                                        onClick={handleSave}
+                                        type='sberDefaultGradient'
+                                        loading={isLoading}
+                                        disabled={isSubmitButtonDisabled}
+                                        style={{ marginRight: '12px' }}
+                                    >
+                                        {SendMetersReadingMessage}
+                                    </Button>
+                                    <Button
+                                        onClick={handleAddMeterButtonClick}
+                                        type='sberDefaultGradient'
+                                        disabled={isCreateMeterButtonDisabled}
+                                        icon={<PlusCircleFilled/>}
+                                        secondary
+                                        style={{ marginRight: '12px' }}
+                                    >
+                                        {AddMeterMessage}
+                                    </Button>
+                                    <ErrorsContainer
+                                        property={property}
+                                        unitName={unitName}
+                                        clientPhone={clientPhone}
+                                        clientName={clientName}
+                                    />
+                                </Row>
+                            </Col>
                             <Space size={12}>
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='sberDefaultGradient'
-                                    loading={isLoading}
-                                    disabled={isSubmitButtonDisabled}
-                                >
-                                    {SendMetersReadingMessage}
-                                </Button>
-                                <Button
-                                    onClick={handleAddMeterButtonClick}
-                                    type='sberDefaultGradient'
-                                    disabled={isCreateMeterButtonDisabled}
-                                    icon={<PlusCircleFilled/>}
-                                    secondary
-                                >
-                                    {AddMeterMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    property={property}
-                                    unitName={unitName}
-                                    clientPhone={clientPhone}
-                                    clientName={clientName}
-                                />
+
                             </Space>
                         </ActionBar>
                     )
