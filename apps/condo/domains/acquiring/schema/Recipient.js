@@ -21,6 +21,7 @@ const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.uti
 const { validateBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
 
 const { getBankByBic } = require('@condo/domains/common/utils/serverSideRecipientApi')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const Recipient = new GQLListSchema('Recipient', {
     schemaDoc: 'Organization\' recipient information: bank account, bic, and so on',
@@ -68,9 +69,13 @@ const Recipient = new GQLListSchema('Recipient', {
             schemaDoc: 'Bank Identification Code',
             type: Text,
             isRequired: true,
-            validateInput: ({ resolvedData, addFieldValidationError }) => {
+            validateInput: async ({ existingItem, resolvedData, addFieldValidationError, context }) => {
+                const newItem = { ...existingItem, ...resolvedData }
+                const organizationId = get(newItem, 'organization')
+                const [organization] = await Organization.getAll(context, { id: organizationId })
+
                 const { bic } = resolvedData
-                const { result, errors } = validateBic(bic)
+                const { result, errors } = validateBic(bic, organization.country)
 
                 if ( !result ) {
                     addFieldValidationError(errors[0])

@@ -77,7 +77,7 @@ const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidato
     tin: [
         requiredValidator,
         changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
-        tinValidator(MUTATION_EXTRA_DATA.country),
+        tinValidator,
     ],
 })
 

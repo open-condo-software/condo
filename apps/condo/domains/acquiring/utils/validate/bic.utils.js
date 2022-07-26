@@ -3,7 +3,7 @@ const faker = require('faker')
 const EMPTY = 'Bic is empty'
 const NOT_NUMERIC = 'Bic can contain only numeric digits'
 const WRONG_LENGTH = 'Bic length was expected to be 9, but received '
-const WRONG_COUNTRY = 'Only RU organizations are supported'
+const WRONG_COUNTRY = 'For RU organizations country code is 04, but bic have '
 
 
 class RecipientBicValidation {
@@ -23,12 +23,16 @@ class RecipientBicValidation {
     }
 
 
-    validateBic (bic) {
+    validateBic (bic, country) {
         const bicWithoutSpaces = bic.toString().trim()
-        this.validateForNumbersAndLength(bicWithoutSpaces)
 
-        if (bicWithoutSpaces.substr(0, 2) !== '04') {
-            this.errors.push(WRONG_COUNTRY)
+        if (country === 'ru') {
+            const countryCode = bicWithoutSpaces.substr(0, 2)
+            if (countryCode !== '04') {
+                this.errors.push(WRONG_COUNTRY + countryCode)
+            }
+
+            this.validateForNumbersAndLength(bicWithoutSpaces)
         }
 
         return {
@@ -43,9 +47,9 @@ function createValidRuBic () {
 }
 
 
-const validateBic = (bic) => {
+const validateBic = (bic, country = 'ru') => {
     const validator = new RecipientBicValidation()
-    const { result, errors } = validator.validateBic(bic)
+    const { result, errors } = validator.validateBic(bic, country)
     return { result, errors }
 }
 

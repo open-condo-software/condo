@@ -14,7 +14,7 @@ type ValidatorTypes = {
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
-    tinValidator: (country: string) => Rule
+    tinValidator: Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -123,16 +123,14 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
-    const tinValidator: (country: string) => Rule =
-        (country) => {
-            return {
-                validator: (_, value: string) => {
-                    if (validateTin(value, country).result) return Promise.resolve()
+    const tinValidator: Rule = {
+        validator: (_, value: string) => {
+            if (validateTin(value).result)
+                return Promise.resolve()
 
-                    return Promise.reject(TinValueIsInvalidMessage)
-                },
-            }
-        }
+            return Promise.reject(TinValueIsInvalidMessage)
+        },
+    }
 
     return {
         changeMessage,

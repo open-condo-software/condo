@@ -46,7 +46,11 @@ describe('validateBic()', () => {
         const { result } = validateBic(bic)
         expect(result).toBe(true)
     })
-    //TODO: Test for country
+    test('for wrong country code as RU BIC', () => {
+        const { result, errors } = validateBic(WRONG_CODE_COUNTRY_RU_BIC)
+        expect(result).toBe(false)
+        expect(errors[0]).toBe('For RU organizations country code is 04, but bic have 58')
+    })
 })
 
 module.exports = {

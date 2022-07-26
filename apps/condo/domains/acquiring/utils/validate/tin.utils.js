@@ -1,10 +1,8 @@
 const faker = require('faker')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
 const EMPTY = 'Tin is empty'
 const NOT_NUMERIC = 'Tin can contain only numeric digits'
 const WRONG_LENGTH = 'Tin length was expected to be 10 or 12, but received '
-const WRONG_COUNTRY = 'Only RU organizations are supported'
 const CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
 
 const RU_TIN_DIGITS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
@@ -39,14 +37,10 @@ class RecipientTinValidation {
     }
 
 
-    validateTin (tin, country = RUSSIA_COUNTRY) {
+    validateTin (tin) {
         const tinWithoutSpaces = tin.toString().trim()
 
-        if (country === RUSSIA_COUNTRY) {
-            this.validateForNumbersAndLength(tinWithoutSpaces)
-        } else {
-            this.errors.push(WRONG_COUNTRY)
-        }
+        this.validateForNumbersAndLength(tinWithoutSpaces)
 
         if (tinWithoutSpaces.length === 10)
             if (getTinControlSumRU(tinWithoutSpaces) !== Number(tinWithoutSpaces.slice(-1))) {
@@ -77,9 +71,9 @@ function createValidTin () {
     return tin.replace(/.$/, lastNumber)
 }
 
-const validateTin = (tin, country) => {
+const validateTin = (tin) => {
     const validator = new RecipientTinValidation()
-    const { result, errors } = validator.validateTin(tin, country)
+    const { result, errors } = validator.validateTin(tin)
     return { result, errors }
 }
 
