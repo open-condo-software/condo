@@ -34,6 +34,7 @@ const readMetersPage = async ({ context, offset, pageSize, date, searchWindowDay
         context, {
             nextVerificationDate_gte: startWindowDate,
             nextVerificationDate_lte: endWindowDate,
+            isAutomatic: false,
         }, {
             sortBy: 'id_ASC',
             first: pageSize,
