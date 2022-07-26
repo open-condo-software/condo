@@ -146,7 +146,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         <Row justify="space-between" gutter={ROW_VERTICAL_GUTTERS}>
                             <Col xs={24} lg={12}>
                                 <Row align={'middle'} gutter={ROW_BIG_HORIZONTAL_GUTTERS}>
-                                    <Col xs={24} lg={13}>
+                                    <Col xs={24} lg={12}>
                                         <Input
                                             placeholder={SearchPlaceholder}
                                             onChange={(e) => {
@@ -156,7 +156,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                             allowClear={true}
                                         />
                                     </Col>
-                                    <Col hidden={isSmall}>
+                                    <Col lg={12} hidden={isSmall}>
                                         {
                                             downloadLink
                                                 ? (
@@ -183,7 +183,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                     </Col>
                                 </Row>
                             </Col>
-                            <Col xs={24} lg={6}>
+                            <Col xs={24} lg={12}>
                                 <Row justify={'end'} gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
                                     <Col hidden={isSmall}>
                                         {
