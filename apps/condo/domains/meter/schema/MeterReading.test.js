@@ -22,6 +22,7 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestB2BApp,
+    createTestB2BAppContext,
 } = require('@condo/domains/miniapp/utils/testSchema')
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -602,6 +603,7 @@ describe('MeterReading', () => {
                     })
                     const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
                     const [b2bApp] = await createTestB2BApp(adminClient)
+                    await createTestB2BAppContext(adminClient, b2bApp, userClient.organization)
                     const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
                         unitName,
                         accountNumber,
