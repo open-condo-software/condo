@@ -147,8 +147,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         }
     }, [form, setSelectedSectionType, setSelectedUnitName, setSelectedUnitType, updateSectionAndFloor])
 
-    const colSpan = isSmall ? 24 : 20
-    const inputColSpan = isSmall ? 8 : 5
+    const inputColSpan = 8
 
     const disableFloorInputCondition = mode === UnitInfoMode.Unit || isEmpty(selectedSectionName) || selectedUnitName
     const disableSectionInputCondition = mode === UnitInfoMode.Unit || selectedUnitName
@@ -182,7 +181,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     }, [form])
 
     return (
-        <Col span={colSpan}>
+        <Col span={24} md={20} xl={14}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
                 <Col span={inputColSpan} data-cy={'unit-name-input-item'}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
