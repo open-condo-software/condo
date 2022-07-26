@@ -13,7 +13,7 @@ const access = require('@condo/domains/ticket/access/TicketComment')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { normalizeText } = require('@condo/domains/common/utils/text')
-const { sendTicketCommentNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { sendTicketCommentNotifications, updateTicketLastCommentTime } = require('@condo/domains/ticket/utils/handlers')
 
 const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
 
@@ -87,8 +87,12 @@ const TicketComment = new GQLListSchema('TicketComment', {
             const userType = get(user, 'type')
             const commentType = get(updatedItem, 'type')
 
-            if (operation === 'create' && commentType === RESIDENT_COMMENT_TYPE) {
-                await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
+            if (operation === 'create') {
+                await updateTicketLastCommentTime(context, updatedItem)
+
+                if (commentType === RESIDENT_COMMENT_TYPE) {
+                    await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
+                }
             }
 
             await sendTicketCommentNotifications(requestData)

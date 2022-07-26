@@ -40107,6 +40107,10 @@ export enum SortTicketChangesBy {
   CompletedAtFromDesc = 'completedAtFrom_DESC',
   CompletedAtToAsc = 'completedAtTo_ASC',
   CompletedAtToDesc = 'completedAtTo_DESC',
+  LastCommentAtFromAsc = 'lastCommentAtFrom_ASC',
+  LastCommentAtFromDesc = 'lastCommentAtFrom_DESC',
+  LastCommentAtToAsc = 'lastCommentAtTo_ASC',
+  LastCommentAtToDesc = 'lastCommentAtTo_DESC',
   StatusReasonFromAsc = 'statusReasonFrom_ASC',
   StatusReasonFromDesc = 'statusReasonFrom_DESC',
   StatusReasonToAsc = 'statusReasonTo_ASC',
@@ -40638,6 +40642,8 @@ export enum SortTicketHistoryRecordsBy {
   StatusUpdatedAtDesc = 'statusUpdatedAt_DESC',
   CompletedAtAsc = 'completedAt_ASC',
   CompletedAtDesc = 'completedAt_DESC',
+  LastCommentAtAsc = 'lastCommentAt_ASC',
+  LastCommentAtDesc = 'lastCommentAt_DESC',
   StatusReasonAsc = 'statusReason_ASC',
   StatusReasonDesc = 'statusReason_DESC',
   DeadlineAsc = 'deadline_ASC',
@@ -40981,6 +40987,8 @@ export enum SortTicketsBy {
   StatusUpdatedAtDesc = 'statusUpdatedAt_DESC',
   CompletedAtAsc = 'completedAt_ASC',
   CompletedAtDesc = 'completedAt_DESC',
+  LastCommentAtAsc = 'lastCommentAt_ASC',
+  LastCommentAtDesc = 'lastCommentAt_DESC',
   StatusReasonAsc = 'statusReason_ASC',
   StatusReasonDesc = 'statusReason_DESC',
   StatusAsc = 'status_ASC',
@@ -41316,6 +41324,8 @@ export type Ticket = {
   statusUpdatedAt?: Maybe<Scalars['String']>;
   /**  When status of the ticket was changed to completed  */
   completedAt?: Maybe<Scalars['String']>;
+  /**  Last comment time in ticket  */
+  lastCommentAt?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReason?: Maybe<Scalars['String']>;
   /**  Status is the step of the ticket processing workflow. Companies may have different ticket processing workflows  */
@@ -41807,6 +41817,10 @@ export type TicketChange = {
   completedAtFrom?: Maybe<Scalars['String']>;
   /**  When status of the ticket was changed to completed  */
   completedAtTo?: Maybe<Scalars['String']>;
+  /**  Last comment time in ticket  */
+  lastCommentAtFrom?: Maybe<Scalars['String']>;
+  /**  Last comment time in ticket  */
+  lastCommentAtTo?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
   statusReasonFrom?: Maybe<Scalars['String']>;
   /**  Text reason for status changes. Sometimes you should describe the reason why you change the `status`  */
@@ -42011,6 +42025,8 @@ export type TicketChangeCreateInput = {
   reviewCommentTo?: Maybe<Scalars['String']>;
   completedAtFrom?: Maybe<Scalars['String']>;
   completedAtTo?: Maybe<Scalars['String']>;
+  lastCommentAtFrom?: Maybe<Scalars['String']>;
+  lastCommentAtTo?: Maybe<Scalars['String']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonTo?: Maybe<Scalars['String']>;
   deadlineFrom?: Maybe<Scalars['String']>;
@@ -42130,6 +42146,8 @@ export type TicketChangeUpdateInput = {
   reviewCommentTo?: Maybe<Scalars['String']>;
   completedAtFrom?: Maybe<Scalars['String']>;
   completedAtTo?: Maybe<Scalars['String']>;
+  lastCommentAtFrom?: Maybe<Scalars['String']>;
+  lastCommentAtTo?: Maybe<Scalars['String']>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonTo?: Maybe<Scalars['String']>;
   deadlineFrom?: Maybe<Scalars['String']>;
@@ -42318,6 +42336,22 @@ export type TicketChangeWhereInput = {
   completedAtTo_gte?: Maybe<Scalars['String']>;
   completedAtTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAtTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAtFrom?: Maybe<Scalars['String']>;
+  lastCommentAtFrom_not?: Maybe<Scalars['String']>;
+  lastCommentAtFrom_lt?: Maybe<Scalars['String']>;
+  lastCommentAtFrom_lte?: Maybe<Scalars['String']>;
+  lastCommentAtFrom_gt?: Maybe<Scalars['String']>;
+  lastCommentAtFrom_gte?: Maybe<Scalars['String']>;
+  lastCommentAtFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAtFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAtTo?: Maybe<Scalars['String']>;
+  lastCommentAtTo_not?: Maybe<Scalars['String']>;
+  lastCommentAtTo_lt?: Maybe<Scalars['String']>;
+  lastCommentAtTo_lte?: Maybe<Scalars['String']>;
+  lastCommentAtTo_gt?: Maybe<Scalars['String']>;
+  lastCommentAtTo_gte?: Maybe<Scalars['String']>;
+  lastCommentAtTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAtTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusReasonFrom?: Maybe<Scalars['String']>;
   statusReasonFrom_not?: Maybe<Scalars['String']>;
   statusReasonFrom_contains?: Maybe<Scalars['String']>;
@@ -44704,6 +44738,7 @@ export type TicketCreateInput = {
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
+  lastCommentAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
   status?: Maybe<TicketStatusRelateToOneInput>;
   deadline?: Maybe<Scalars['String']>;
@@ -45651,6 +45686,7 @@ export type TicketFilter = {
   reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;
   contactIsNull?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAt?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**  Employee specific ticket filter template  */
@@ -46035,6 +46071,7 @@ export type TicketHistoryRecord = {
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
+  lastCommentAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   deadline?: Maybe<Scalars['String']>;
@@ -46090,6 +46127,7 @@ export type TicketHistoryRecordCreateInput = {
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
+  lastCommentAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   deadline?: Maybe<Scalars['String']>;
@@ -46150,6 +46188,7 @@ export type TicketHistoryRecordUpdateInput = {
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
+  lastCommentAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   deadline?: Maybe<Scalars['String']>;
@@ -46274,6 +46313,14 @@ export type TicketHistoryRecordWhereInput = {
   completedAt_gte?: Maybe<Scalars['String']>;
   completedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAt?: Maybe<Scalars['String']>;
+  lastCommentAt_not?: Maybe<Scalars['String']>;
+  lastCommentAt_lt?: Maybe<Scalars['String']>;
+  lastCommentAt_lte?: Maybe<Scalars['String']>;
+  lastCommentAt_gt?: Maybe<Scalars['String']>;
+  lastCommentAt_gte?: Maybe<Scalars['String']>;
+  lastCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusReason?: Maybe<Scalars['String']>;
   statusReason_not?: Maybe<Scalars['String']>;
   statusReason_contains?: Maybe<Scalars['String']>;
@@ -48874,6 +48921,7 @@ export type TicketUpdateInput = {
   reviewComment?: Maybe<Scalars['String']>;
   statusUpdatedAt?: Maybe<Scalars['String']>;
   completedAt?: Maybe<Scalars['String']>;
+  lastCommentAt?: Maybe<Scalars['String']>;
   statusReason?: Maybe<Scalars['String']>;
   status?: Maybe<TicketStatusRelateToOneInput>;
   deadline?: Maybe<Scalars['String']>;
@@ -48979,6 +49027,14 @@ export type TicketWhereInput = {
   completedAt_gte?: Maybe<Scalars['String']>;
   completedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAt?: Maybe<Scalars['String']>;
+  lastCommentAt_not?: Maybe<Scalars['String']>;
+  lastCommentAt_lt?: Maybe<Scalars['String']>;
+  lastCommentAt_lte?: Maybe<Scalars['String']>;
+  lastCommentAt_gt?: Maybe<Scalars['String']>;
+  lastCommentAt_gte?: Maybe<Scalars['String']>;
+  lastCommentAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastCommentAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusReason?: Maybe<Scalars['String']>;
   statusReason_not?: Maybe<Scalars['String']>;
   statusReason_contains?: Maybe<Scalars['String']>;

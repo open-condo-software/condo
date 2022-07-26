@@ -32,7 +32,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 
 const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
@@ -202,6 +202,28 @@ describe('TicketComment', () => {
 
                 expect(ticketComment.id).toMatch(UUID_RE)
                 expect(ticketComment.type).toMatch(ORGANIZATION_COMMENT_TYPE)
+            })
+
+            it('update lastCommentAt of related ticket after create TicketComment', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+                const [ticket] = await createTestTicket(userClient, organization, property)
+
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
+
+                const readTicket = await Ticket.getOne(userClient, {
+                    id: ticket.id,
+                })
+
+                expect(readTicket.lastCommentAt).toEqual(ticketComment.createdAt)
             })
         })
 

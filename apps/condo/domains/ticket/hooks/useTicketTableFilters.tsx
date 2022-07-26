@@ -245,20 +245,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 },
             },
             {
-                keyword: 'lastCommentAt',
-                filters: [filterLastCommentAtRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: LastCommentAtMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
                 keyword: 'source',
                 filters: [filterSource],
                 component: {
@@ -415,6 +401,20 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AttributeLabel,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'lastCommentAt',
+                filters: [filterLastCommentAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: LastCommentAtMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
