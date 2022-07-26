@@ -1,6 +1,6 @@
 import { EllipsisOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -22,13 +22,14 @@ import {
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
-import { Col, Dropdown, Menu, Row, Table, Tooltip, Typography } from 'antd'
+import { Col, Dropdown, Menu, Row, Tooltip, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { debounce, get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { Table } from '@condo/domains/common/components/Table/Index'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 
@@ -54,7 +55,6 @@ export const EmployeesPageContent = ({
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const { shouldTableScroll } = useLayoutContext()
 
     const {
         fetchMore,
@@ -172,10 +172,11 @@ export const EmployeesPageContent = ({
                                 <Col span={24}>
                                     <Table
                                         bordered
-                                        tableLayout={'fixed'}
+                                        tableLayout='fixed'
                                         loading={employeesLoading || loading}
                                         dataSource={employees}
                                         columns={tableColumns}
+                                        totalRows={total}
                                         onRow={handleRowAction}
                                         onChange={handleTableChange}
                                         rowKey={record => record.id}
