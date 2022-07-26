@@ -35,6 +35,7 @@ const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
 const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
+const filterLastCommentAtRange = getDayRangeFilter('lastCommentAt')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -99,6 +100,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
+    const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = convertToOptions<TicketStatusType>(statuses, 'name', 'id')
@@ -238,6 +240,20 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: CompletedAtMessage,
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
+                keyword: 'lastCommentAt',
+                filters: [filterLastCommentAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: LastCommentAtMessage,
                         size: FilterComponentSize.Medium,
                     },
                 },
