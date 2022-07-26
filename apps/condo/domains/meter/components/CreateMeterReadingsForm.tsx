@@ -153,14 +153,12 @@ export const PropertyMetersForm = ({
                     }
                 </Row>
             </Col>
-            <Col span={24}>
-                <CreateMeterReadingsActionBar
-                    handleSave={handleSave}
-                    newMeterReadings={newMeterReadings}
-                    handleAddMeterButtonClick={handleAddMeterButtonClick}
-                    isLoading={loading}
-                />
-            </Col>
+            <CreateMeterReadingsActionBar
+                handleSave={handleSave}
+                newMeterReadings={newMeterReadings}
+                handleAddMeterButtonClick={handleAddMeterButtonClick}
+                isLoading={loading}
+            />
             <CreateMeterModal />
             <UpdateMeterModal />
         </>
@@ -278,59 +276,64 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                     </Prompt>
                     <Col span={24}>
                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
-                            <Col lg={18} md={24}>
-                                <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
-                                    <Col span={24}>
-                                        <Row justify={'space-between'} gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
+                            <Col span={24}>
+                                <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER} justify='space-between'>
+                                    <Col lg={17} md={24}>
+                                        <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                             <Col span={24}>
-                                                <Typography.Title level={5}>
-                                                    {ClientInfoMessage}
-                                                </Typography.Title>
-                                            </Col>
-                                            <Col span={24}>
-                                                <Form.Item
-                                                    name={'property'}
-                                                    label={AddressLabel}
-                                                    rules={validations.property}
-                                                >
-                                                    <PropertyAddressSearchInput
-                                                        organization={organization}
-                                                        autoFocus={true}
-                                                        onSelect={(_, option) => {
-                                                            form.setFieldsValue({
-                                                                unitName: null,
-                                                                sectionName: null,
-                                                                floorName: null,
-                                                            })
-                                                            setSelectedPropertyId(String(option.key))
-                                                        }}
-                                                        placeholder={AddressPlaceholder}
-                                                        notFoundContent={AddressNotFoundContent}
-                                                    />
-                                                </Form.Item>
-                                            </Col>
-                                            {
-                                                selectedPropertyId && (
+                                                <Row justify={'space-between'} gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
                                                     <Col span={24}>
-                                                        <UnitInfo
-                                                            property={property}
-                                                            loading={propertyLoading}
-                                                            setSelectedUnitName={setSelectedUnitName}
-                                                            setSelectedUnitType={setSelectedUnitType}
-                                                            form={form}
-                                                        />
+                                                        <Typography.Title level={5}>
+                                                            {ClientInfoMessage}
+                                                        </Typography.Title>
                                                     </Col>
-                                                )
-                                            }
+                                                    <Col span={24}>
+                                                        <Form.Item
+                                                            name={'property'}
+                                                            label={AddressLabel}
+                                                            rules={validations.property}
+                                                            wrapperCol={{ style: { width: '100%', padding: 0 } }}
+                                                        >
+                                                            <PropertyAddressSearchInput
+                                                                organization={organization}
+                                                                autoFocus={true}
+                                                                onSelect={(_, option) => {
+                                                                    form.setFieldsValue({
+                                                                        unitName: null,
+                                                                        sectionName: null,
+                                                                        floorName: null,
+                                                                    })
+                                                                    setSelectedPropertyId(String(option.key))
+                                                                }}
+                                                                placeholder={AddressPlaceholder}
+                                                                notFoundContent={AddressNotFoundContent}
+                                                            />
+                                                        </Form.Item>
+                                                    </Col>
+                                                    {
+                                                        selectedPropertyId && (
+                                                            <Col span={24}>
+                                                                <UnitInfo
+                                                                    property={property}
+                                                                    loading={propertyLoading}
+                                                                    setSelectedUnitName={setSelectedUnitName}
+                                                                    setSelectedUnitType={setSelectedUnitType}
+                                                                    form={form}
+                                                                />
+                                                            </Col>
+                                                        )
+                                                    }
+                                                </Row>
+                                            </Col>
+                                            <Col span={24}>
+                                                <ContactsInfo
+                                                    ContactsEditorComponent={ContactsEditorComponent}
+                                                    form={form}
+                                                    initialValues={{}}
+                                                    selectedPropertyId={selectedPropertyId}
+                                                />
+                                            </Col>
                                         </Row>
-                                    </Col>
-                                    <Col span={24}>
-                                        <ContactsInfo
-                                            ContactsEditorComponent={ContactsEditorComponent}
-                                            form={form}
-                                            initialValues={{}}
-                                            selectedPropertyId={selectedPropertyId}
-                                        />
                                     </Col>
                                 </Row>
                             </Col>
