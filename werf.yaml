@@ -412,3 +412,39 @@ shell:
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
   - "rm -rf /app/.yarn"
+
+---
+image: python-base
+from: python:3.9-slim
+shell:
+  beforeInstall:
+  - "export DEBIAN_FRONTEND=noninteractive"
+  - "groupadd -r app --gid=999"
+  - "useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app"
+  - "apt update -qq"
+  - "apt install -qq -y --no-install-recommends
+      python3-pip
+      python3-dev"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: classifier
+fromImage: python-base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  setup:
+  - "cd /app/apps/classifiers-api"
+  - "pip3 install -r requirements.txt"
