@@ -483,6 +483,8 @@
   "pages.condo.meter.MeterReadingDate": "Reading date",
   "pages.condo.meter.Resource": "Resource",
   "pages.condo.meter.AutoPrefix": "auto",
+  "pages.condo.meter.AutoSourceAlert.title": "Data obtained automatically",
+  "pages.condo.meter.AutoSourceAlert.message": "from the {app} service",
   "pages.condo.warning.modal.SaveLabel": "Save",
   "pages.condo.warning.modal.LeaveLabel": "Leave",
   "pages.condo.residents.PageTitle": "Residents",

@@ -54,6 +54,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         initialValue,
         getInitialValueQuery,
         infinityScroll,
+        disabled,
         ...restProps
     } = props
     const client = useApolloClient()
@@ -73,7 +74,9 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
         return (
             <Select.Option id={index} key={option.key || value} value={value} title={option.text}>
-                <Typography.Text title={option.text}>{optionLabel}</Typography.Text>
+                <Typography.Text title={option.text} disabled={disabled}>
+                    {optionLabel}
+                </Typography.Text>
             </Select.Option>
         )
     }
@@ -185,6 +188,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             searchValue={value}
             value={value}
             loading={isLoading}
+            disabled={disabled}
             {...restProps}
         >
             {options}

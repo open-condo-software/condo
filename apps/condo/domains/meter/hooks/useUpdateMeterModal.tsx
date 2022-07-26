@@ -13,6 +13,7 @@ import { CustomButtonProps } from '@condo/domains/common/components/Button'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
+import { AutoSourceAlert } from '../components/BaseMeterModal/AutoSourceAlert'
 
 const INITIAL_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
@@ -29,9 +30,12 @@ export const useUpdateMeterModal = (refetch) => {
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteMessage' })
     const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' }).toUpperCase()
 
     const [selectedMeter, setSelectedMeter] = useState<MeterType>()
     const meterNumber = get(selectedMeter, 'number')
+    const isAutomatic = get(selectedMeter, 'isAutomatic', false)
+    const masterAppName = get(selectedMeter, ['b2bApp', 'name'], DeletedMessage)
 
     const updateMeterAction = Meter.useUpdate({}, () => {
         setSelectedMeter(null)
@@ -55,19 +59,23 @@ export const useUpdateMeterModal = (refetch) => {
     const handleDeleteButtonClick = useCallback(() => updateMeterAction({ deletedAt: dayjs().toISOString() }, selectedMeter),
         [selectedMeter, updateMeterAction])
 
-    const modalFooter = useMemo(() => [
-        <DeleteButtonWithConfirmModal
-            key={'delete'}
-            title={ConfirmDeleteTitle}
-            message={ConfirmDeleteMessage}
-            okButtonLabel={DeleteMessage}
-            action={handleDeleteButtonClick}
-            buttonContent={DeleteMessage}
-            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-            showCancelButton
-        />,
-    ],
-    [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, handleDeleteButtonClick])
+    const modalFooter = useMemo(() => {
+        return isAutomatic
+            ? []
+            : [
+                <DeleteButtonWithConfirmModal
+                    key={'delete'}
+                    title={ConfirmDeleteTitle}
+                    message={ConfirmDeleteMessage}
+                    okButtonLabel={DeleteMessage}
+                    action={handleDeleteButtonClick}
+                    buttonContent={DeleteMessage}
+                    buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
+                    showCancelButton
+                />,
+            ]
+
+    }, [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, handleDeleteButtonClick, isAutomatic])
 
     const UpdateMeterModal = useCallback(() => {
         return (
@@ -83,6 +91,11 @@ export const useUpdateMeterModal = (refetch) => {
                 cancelModal={handleCancelModal}
                 centered
                 meter={selectedMeter}
+                disabled={isAutomatic}
+                modalNotification={ isAutomatic
+                    ? <AutoSourceAlert sourceAppName={masterAppName} />
+                    : null
+                }
             />
         )
     }, [MeterNumberMessage, handleCancelModal, handleSubmit, initialValues, meterNumber, modalFooter, selectedMeter])
