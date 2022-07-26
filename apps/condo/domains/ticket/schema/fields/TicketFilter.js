@@ -33,6 +33,7 @@ const TicketFilterFields = {
     reviewValue: '[String]',
     contactIsNull: '[String]',
     completedAt: '[String]',
+    lastCommentAt: '[String]',
 }
 
 const TICKET_FILTER_TYPE = `

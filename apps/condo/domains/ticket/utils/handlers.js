@@ -346,11 +346,23 @@ const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) 
     }
 }
 
+const updateTicketLastCommentTime = async (context, updatedItem) => {
+    const ticketId = get(updatedItem, 'ticket')
+    const dv = get(updatedItem, 'dv')
+    const sender = get(updatedItem, 'sender')
+    const lastCommentAt = get(updatedItem, 'createdAt', new Date()).toISOString()
+
+    await Ticket.update(context, ticketId, {
+        dv, sender, lastCommentAt,
+    })
+}
+
 module.exports = {
     sendTicketNotifications,
     sendTicketCommentNotifications,
     detectEventTypes,
     createOrUpdateTicketCommentsTime,
+    updateTicketLastCommentTime,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,

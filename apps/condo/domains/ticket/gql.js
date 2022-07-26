@@ -12,7 +12,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 
 const TICKET_CLASSIFIER_ATTRIBUTES_FIELDS = ' classifierRule { id place { id name } category { id name } problem { id name } }'
 const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`
-const TICKET_FIELDS = `{ canReadByResident completedAt isResidentTicket reviewValue reviewComment deadline organization { id name country } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone unitName unitType } operator { id name } assignee { id name } executor { id name } details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt isResidentTicket reviewValue reviewComment deadline organization { id name country } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone unitName unitType } operator { id name } assignee { id name } executor { id name } details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -154,7 +154,7 @@ const TicketProblemClassifier = generateGqlQueries('TicketProblemClassifier', TI
 const TICKET_CLASSIFIER_RULE_FIELDS = `{ place { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
 const TicketClassifierRule = generateGqlQueries('TicketClassifierRule', TICKET_CLASSIFIER_RULE_FIELDS)
 
-const TICKET_FILTER_FIELDS = '{ completedAt organization number createdAt status details property address division clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier clientPhone author contactIsNull }'
+const TICKET_FILTER_FIELDS = '{ completedAt lastCommentAt organization number createdAt status details property address division clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier clientPhone author contactIsNull }'
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
