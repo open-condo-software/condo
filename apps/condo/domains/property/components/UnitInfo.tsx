@@ -181,7 +181,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     }, [form])
 
     return (
-        <Col span={24} md={20} xl={14}>
+        <Col span={24} md={20} xl={18} xxl={16}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
                 <Col span={inputColSpan} data-cy={'unit-name-input-item'}>
                     <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
