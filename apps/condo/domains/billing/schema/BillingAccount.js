@@ -96,7 +96,6 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
     },
     hooks: {
         validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const newItem = { ...existingItem, ...resolvedData }
             const { context: accountContextId, property: propertyId } = newItem
 
