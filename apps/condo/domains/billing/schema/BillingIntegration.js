@@ -5,7 +5,6 @@
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
@@ -22,9 +21,7 @@ const {
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -32,9 +29,6 @@ const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 const BillingIntegration = new GQLListSchema('BillingIntegration', {
     schemaDoc: 'Identification of the `integration component` which responsible for getting data from the `billing data source` and delivering the data to `this API`. Examples: tap-1c, ... ',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'The name of the `integration component` that the developer remembers',
             type: Text,
@@ -87,15 +81,9 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
     },
     hooks: {
         validateInput: ({ resolvedData, context, addValidationError, existingItem }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                const newItem = { ...existingItem, ...resolvedData }
-                if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                    return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
-                }
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+            const newItem = { ...existingItem, ...resolvedData }
+            if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
+                return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
             }
         },
         afterChange: logoMetaAfterChange,
