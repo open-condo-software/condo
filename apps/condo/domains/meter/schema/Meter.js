@@ -7,24 +7,21 @@ const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keyston
 const { GQLListSchema, find, getByCondition, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
 
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 const { MeterReading } = require('../utils/serverSchema')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const Meter = new GQLListSchema('Meter', {
     schemaDoc: 'Resource meter at a certain place in the unitName',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         organization: ORGANIZATION_OWNED_FIELD,
         property: {
             schemaDoc: 'Link to property which contains unit with this meter',
@@ -195,37 +192,31 @@ const Meter = new GQLListSchema('Meter', {
     },
     hooks: {
         validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
             const newItem = { ...existingItem, ...resolvedData }
-            if (dv === 1) {
-                if (newItem.isAutomatic && !newItem.b2bApp) {
-                    return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
+            if (newItem.isAutomatic && !newItem.b2bApp) {
+                return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
+            }
+            if (resolvedData['b2bApp']) {
+                const activeContext = await getByCondition('B2BAppContext', {
+                    organization: { id: newItem.organization, deletedAt: null },
+                    app: { id: newItem.b2bApp, deletedAt: null },
+                    deletedAt: null,
+                })
+                if (!activeContext) {
+                    return addValidationError(B2B_APP_NOT_CONNECTED)
                 }
-                if (resolvedData['b2bApp']) {
-                    const activeContext = await getByCondition('B2BAppContext', {
-                        organization: { id: newItem.organization, deletedAt: null },
-                        app: { id: newItem.b2bApp, deletedAt: null },
-                        deletedAt: null,
-                    })
-                    if (!activeContext) {
-                        return addValidationError(B2B_APP_NOT_CONNECTED)
-                    }
+            }
+            if (resolvedData['b2cApp']) {
+                const property = await getById('Property', newItem.property)
+                const address = get(property, 'address', null)
+                const appProperty = await getByCondition('B2CAppProperty', {
+                    deletedAt: null,
+                    app: { id: newItem.b2cApp, deletedAt: null },
+                    address_i: address,
+                })
+                if (!appProperty) {
+                    return addValidationError(B2C_APP_NOT_AVAILABLE)
                 }
-                if (resolvedData['b2cApp']) {
-                    const property = await getById('Property', newItem.property)
-                    const address = get(property, 'address', null)
-                    const appProperty = await getByCondition('B2CAppProperty', {
-                        deletedAt: null,
-                        app: { id: newItem.b2cApp, deletedAt: null },
-                        address_i: address,
-                    })
-                    if (!appProperty) {
-                        return addValidationError(B2C_APP_NOT_AVAILABLE)
-                    }
-                }
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
             }
         },
         afterChange: async ({ context, operation, originalInput, updatedItem }) => {
@@ -248,7 +239,7 @@ const Meter = new GQLListSchema('Meter', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadMeters,
         create: access.canManageMeters,
