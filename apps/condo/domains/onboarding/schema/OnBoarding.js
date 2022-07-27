@@ -6,15 +6,12 @@ const { Relationship, Checkbox, Select } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/onboarding/access/OnBoarding')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const OnBoarding = new GQLListSchema('OnBoarding', {
     schemaDoc: 'User action guide. It should be used to build complex hierarchical systems of user actions.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         completed: {
             schemaDoc: `Primary Attribute of user guide what we need to watch for. 
                 Indicates the status and detect the full completeness of guide.`,
@@ -46,7 +43,7 @@ const OnBoarding = new GQLListSchema('OnBoarding', {
             isRequired: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadOnBoardings,
         create: access.canManageOnBoardings,
