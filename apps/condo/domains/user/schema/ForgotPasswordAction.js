@@ -4,15 +4,13 @@
 const { Text, Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/ForgotPasswordAction')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
     schemaDoc: 'Forgot password actions is used for anonymous user password recovery procedure',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         user: {
             schemaDoc: 'Ref to the user. The object will be deleted if the user ceases to exist',
             type: Relationship,
@@ -43,7 +41,7 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
             isRequired: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadForgotPasswordAction,
         create: access.canManageForgotPasswordAction,
