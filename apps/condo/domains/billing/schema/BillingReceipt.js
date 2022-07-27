@@ -10,9 +10,9 @@ const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR, WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
@@ -20,6 +20,7 @@ const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { BillingRecipient } = require('../utils/serverSchema')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
@@ -28,9 +29,6 @@ const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         context: {
             ...INTEGRATION_CONTEXT_FIELD,
             access: { ...INTEGRATION_CONTEXT_FIELD.access, read: access.canReadSensitiveBillingReceiptData },
@@ -110,7 +108,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingReceipts,
         create: access.canManageBillingReceipts,
@@ -122,13 +120,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
             if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
             const newItem = { ...existingItem, ...resolvedData }
-            const { dv, context: contextId, property: propertyId, account: accountId } = newItem
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-
+            const { context: contextId, property: propertyId, account: accountId } = newItem
+            
             const account = await getById('BillingAccount', accountId)
             const { context: accountContextId } = account
             const property = await getById('BillingProperty', propertyId)
