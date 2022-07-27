@@ -116,7 +116,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             schemaDoc: 'Organization data, that is returned for current resident in mobile client',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadServiceConsumers,
         create: access.canManageServiceConsumers,

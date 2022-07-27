@@ -82,7 +82,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             defaultValue: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {
         read: access.canReadOrganizationEmployeeRoles,
         create: access.canManageOrganizationEmployeeRoles,

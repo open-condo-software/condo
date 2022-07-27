@@ -50,7 +50,7 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadUserTicketCommentReadTimes,
         create: access.canManageUserTicketCommentReadTimes,

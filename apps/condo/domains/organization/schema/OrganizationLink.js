@@ -25,7 +25,7 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(),  dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadOrganizationLinks,
         create: access.canManageOrganizationLinks,

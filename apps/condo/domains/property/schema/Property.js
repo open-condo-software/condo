@@ -285,7 +285,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         auth: true,
         delete: false,
