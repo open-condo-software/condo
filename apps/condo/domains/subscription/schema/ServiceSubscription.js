@@ -5,7 +5,6 @@
 const { Text, Select, Checkbox, DateTimeUtc, Integer, Decimal } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
@@ -15,17 +14,13 @@ const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require(
 const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('./fields/SbbolOfferAcceptField')
 const { Json } = require('@core/keystone/fields')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
     schemaDoc: 'Availability time period of service features for client organization. Can be trial or payed.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         type: {
             schemaDoc: 'System, from where subscription was created (our or external)',
             type: Select,
@@ -142,14 +137,6 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
-            if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-
             let organizationId
             let overlappedSubscriptionsCount
             // It makes no sense:
@@ -187,7 +174,7 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadServiceSubscriptions,
         create: access.canManageServiceSubscriptions,
