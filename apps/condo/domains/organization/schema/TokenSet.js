@@ -5,18 +5,15 @@
 const { Text, Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/TokenSet')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const TokenSet = new GQLListSchema('TokenSet', {
     schemaDoc: 'Set of oauth tokens from remote systems',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         user: {
             schemaDoc: 'User owner of tokens',
             type: Relationship,
@@ -71,7 +68,7 @@ const TokenSet = new GQLListSchema('TokenSet', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadTokenSets,
         create: access.canManageTokenSets,
