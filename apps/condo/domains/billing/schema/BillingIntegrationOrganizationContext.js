@@ -9,7 +9,6 @@ const { Json } = require('@core/keystone/fields')
 const { find, getById, GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
@@ -18,13 +17,11 @@ const { validateReport } = require('@condo/domains/billing/utils/validation.util
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
 
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
     schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         integration: {
             schemaDoc: 'ID of the integration that is configured to receive data for the organization',
             type: Relationship,
@@ -80,7 +77,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingIntegrationOrganizationContexts,
         create: access.canManageBillingIntegrationOrganizationContexts,
