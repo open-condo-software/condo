@@ -33,7 +33,7 @@ jobs:
         run: yarn workspace @app/condo lint-i18n-translations
 
       - name: Lint common patterns
-        run: bash ./bin/lint-common-petterns.sh
+        run: bash ./bin/lint-common-patterns.sh
 
       - name: Lint schema.ts file
         run: |
