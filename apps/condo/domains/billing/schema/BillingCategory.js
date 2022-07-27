@@ -4,16 +4,14 @@
 
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingCategory')
 const { LocalizedText } = require('@core/keystone/fields')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const BillingCategory = new GQLListSchema('BillingCategory', {
     schemaDoc: 'Payment category - used primarily in display purposes',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         name: {
             schemaDoc: 'Localized name of billing category: Hot water, Cold water, Housing Services',
             type: LocalizedText,
@@ -22,7 +20,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
         },
     },
     labelResolver: item => item.id,
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingCategories,
         create: access.canManageBillingCategories,
