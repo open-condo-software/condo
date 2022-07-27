@@ -534,7 +534,7 @@ describe('OrganizationEmployee', () => {
     })
 
     describe('Constraint', () => {
-        describe('unique_user_and_organization constraint', () => {
+        describe('OrganizationEmployee_unique_user_and_organization constraint', () => {
             test('cannot create 2 organization employees with same user and organization fields', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -545,7 +545,7 @@ describe('OrganizationEmployee', () => {
 
                 await expectToThrowInternalError(async () => {
                     await createTestOrganizationEmployee(admin, organization, user.user, role)
-                }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_organization"`)
+                }, `${UNIQUE_CONSTRAINT_ERROR} "OrganizationEmployee_unique_user_and_organization"`)
 
             })
 
