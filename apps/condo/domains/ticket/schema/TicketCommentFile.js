@@ -5,11 +5,11 @@
 const { Relationship, File } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketCommentFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const TICKET_COMMENT_FILE_FOLDER_NAME = 'ticketComment'
 const Adapter = new FileAdapter(TICKET_COMMENT_FILE_FOLDER_NAME)
@@ -18,9 +18,6 @@ const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
     schemaDoc: 'File attached to the ticket comment',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
             type: File,
@@ -56,6 +53,7 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
         versioned(),
         tracked(),
         softDeleted(),
+        dvAndSender(),
         historical(),
     ],
     access: {
