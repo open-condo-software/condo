@@ -88,7 +88,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         },
     },
 
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingRecipients,
         create: access.canManageBillingRecipients,

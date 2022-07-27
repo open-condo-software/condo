@@ -331,7 +331,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Json,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)

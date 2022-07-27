@@ -7,7 +7,6 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -18,7 +17,6 @@ const { addOrganizationFieldPlugin } = require('@condo/domains/organization/sche
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
     fields: {
-
         date: {
             schemaDoc: 'Date when the readings were taken',
             type: DateTimeUtc,

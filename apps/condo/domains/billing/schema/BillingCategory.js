@@ -20,7 +20,7 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
         },
     },
     labelResolver: item => item.id,
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingCategories,
         create: access.canManageBillingCategories,

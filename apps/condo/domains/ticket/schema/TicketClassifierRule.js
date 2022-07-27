@@ -33,7 +33,7 @@ const TicketClassifierRule = new GQLListSchema('TicketClassifierRule', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadTicketClassifierRules,
         create: access.canManageTicketClassifierRules,

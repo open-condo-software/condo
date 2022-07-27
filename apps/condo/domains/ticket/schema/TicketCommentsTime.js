@@ -6,7 +6,7 @@ const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const access = require('@condo/domains/ticket/access/TicketCommentsTime')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const get = require('lodash/get')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 

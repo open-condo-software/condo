@@ -36,7 +36,7 @@ const TicketSource = new GQLListSchema('TicketSource', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     // TODO(Dimitreee):use access check from access.js
     access: READ_ONLY_ACCESS,
     escapeSearch: true,

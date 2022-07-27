@@ -43,7 +43,7 @@ const OnBoarding = new GQLListSchema('OnBoarding', {
             isRequired: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadOnBoardings,
         create: access.canManageOnBoardings,

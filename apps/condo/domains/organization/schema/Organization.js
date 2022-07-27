@@ -139,7 +139,7 @@ const Organization = new GQLListSchema('Organization', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadOrganizations,
         create: access.canManageOrganizations,
