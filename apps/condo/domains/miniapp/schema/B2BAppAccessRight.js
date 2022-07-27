@@ -23,7 +23,7 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadB2BAppAccessRights,
         create: access.canManageB2BAppAccessRights,
