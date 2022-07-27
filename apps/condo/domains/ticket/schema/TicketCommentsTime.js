@@ -5,17 +5,14 @@
 const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketCommentsTime')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 const get = require('lodash/get')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
     schemaDoc: 'The time of the last comment and the last comment of the resident in a specific ticket',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         ticket: {
             schemaDoc: 'Link to the ticket',
             type: Relationship,
@@ -42,6 +39,7 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
         versioned(),
         tracked(),
         softDeleted(),
+        dvAndSender(),
         historical(),
     ],
     access: {
