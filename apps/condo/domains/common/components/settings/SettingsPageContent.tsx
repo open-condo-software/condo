@@ -1,10 +1,14 @@
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import {
+    SettingsTab,
+    SettingsTabPaneDescriptor,
+    SettingsTabs,
+    SettingsTabsSmall,
+} from '@condo/domains/common/components/settings/Tabs'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
-
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-
-import { SettingsTab, SettingsTabPaneDescriptor, SettingsTabs } from './Tabs'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 type PageContentProps = {
     settingsTabs: SettingsTabPaneDescriptor[]
@@ -27,18 +31,22 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
     const settingsTabPanes = useMemo(() => settingsTabs.map(tab => (
         <Tabs.TabPane
             key={tab.key}
-            tab={<SettingsTab title={tab.title} />}
+            tab={<SettingsTab title={tab.title}/>}
             {...tab}
         >
             {tab.content}
         </Tabs.TabPane>
     )), [settingsTabs])
 
+    const { isSmall } = useLayoutContext()
+
+    const SettingsTabsComponent = isSmall ? SettingsTabsSmall : SettingsTabs
+
     return settingsTabs.length === 1 ? (
         settingsTabs[0].content
     ) : (
-        <SettingsTabs
-            tabPosition="right"
+        <SettingsTabsComponent
+            tabPosition={isSmall ? 'top' : 'right'}
             type="card"
             defaultActiveKey={defaultTab}
             activeKey={defaultTab}
@@ -47,6 +55,6 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
             onChange={handleTabChange}
         >
             {settingsTabPanes}
-        </SettingsTabs>
+        </SettingsTabsComponent>
     )
 }
