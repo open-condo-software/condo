@@ -200,7 +200,7 @@
   "ContactRoles.confirmDeleteTitle": "Удаление роли",
   "ContactRoles.confirmDeleteMessage": "Удалить эту роль?",
   "ContactRoles.editing": "Редактирование роли",
-  "contact.role.owner.name": "Владелец",
+  "contact.role.owner.name": "Собственник",
   "contact.role.resident.name": "Резидент",
   "contact.role.guest.name": "Гость",
   "Yes": "Да",
