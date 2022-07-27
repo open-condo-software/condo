@@ -10,20 +10,17 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { getById } = require('@core/keystone/schema')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/resident/access/ServiceConsumer')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
     schemaDoc: 'Service Consumer object. Existence of this object means that the resident is willing to pay for certain services',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         paymentCategory: {
             schemaDoc: 'A payment category for this resident',
             type: Text,
@@ -119,7 +116,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             schemaDoc: 'Organization data, that is returned for current resident in mobile client',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadServiceConsumers,
         create: access.canManageServiceConsumers,
