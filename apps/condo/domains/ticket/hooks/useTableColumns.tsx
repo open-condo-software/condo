@@ -58,8 +58,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
-    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
-    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -91,26 +89,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     
             return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)}
     }, [search])
-
-    const renderUnit = useCallback((text, record) => {
-        return function render (text, record) {
-            const sectionName = get(record, 'sectionName')
-            const floorName = get(record, 'floorName')
-            const unitType = get(record, 'unitType', 'flat')
-            let unitNamePrefix = null
-            let extraTitle = null
-            const postfix = sectionName && floorName &&
-                `\n${ShortSectionNameMessage} ${record.sectionName},\n${ShortFloorNameMessage} ${record.floorName}`
-            if (text) {
-                extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
-                if (unitType !== 'flat') {
-                    unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
-                }
-            }
-            const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
-            return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS, extraTitle)(unitName)
-        }
-    }, [ShortFloorNameMessage, ShortSectionNameMessage, search])
 
     const renderAddress = useCallback(
         (property) => getAddressRender(property, DeletedMessage, search),
@@ -202,7 +180,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
                 key: 'unitName',
                 sorter: true,
                 width: COLUMNS_WIDTH.unitName,
-                render: renderUnit(intl, search),
+                render: getUnitRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
                 ellipsis: true,

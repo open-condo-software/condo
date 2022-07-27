@@ -84,12 +84,16 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 
-const getUnitPostfix = (sectionNameMessage, floorNameMessage) => {
+const getUnitPostfix = (unit, sectionNameMessage, floorNameMessage) => {
+    let postfixMessage = unit ? '\n' : ''
+
     if (!isEmpty(sectionNameMessage) && !isEmpty(floorNameMessage)) {
-        return `\n${sectionNameMessage},\n${floorNameMessage}`
+        postfixMessage += `${sectionNameMessage},\n${floorNameMessage}`
     } else if (!isEmpty(sectionNameMessage)) {
-        return `\n${sectionNameMessage}`
+        return `${sectionNameMessage}`
     }
+
+    return postfixMessage
 }
 
 const getUnitMessage = (unit, unitNamePrefix, postfix) => {
@@ -146,7 +150,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
             }
         }
 
-        const postfix = getUnitPostfix(sectionNameMessage, floorNameMessage)
+        const postfix = getUnitPostfix(unit, sectionNameMessage, floorNameMessage)
         const extraTitle = getUnitExtraTitle(unit, unitType, sectionName, sectionType, floorName, intl)
         const unitName = getUnitMessage(unit, unitNamePrefix, postfix)
 
