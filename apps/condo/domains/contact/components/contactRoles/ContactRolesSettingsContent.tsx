@@ -12,6 +12,9 @@ import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import _sortBy from 'lodash/sortBy'
+import reverse from 'lodash/reverse'
+import lowerCase from 'lodash/lowerCase'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
@@ -63,6 +66,24 @@ export const ContactRolesSettingsContent = (props) => {
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
+    const sortedRoles = useMemo(() => {
+        const sorterByName = sorters.reduce((sorter, next) => {
+            if (next.columnKey === 'name') {
+                return next
+            }
+            return null
+        }, null)
+
+        if (sorterByName && roles.length > 0) {
+            const isDesc = sorterByName.order === 'descend'
+            const ascSorted = _sortBy(roles, ({ name }) => lowerCase(name))
+            return isDesc ? reverse(ascSorted) : ascSorted
+        }
+
+        return roles
+
+    }, [isRolesLoading, roles, sorters])
+
     const tableColumns = useContactRolesTableColumns([])
 
     const handleAddHintButtonClick = useCallback(async () => {
@@ -91,7 +112,7 @@ export const ContactRolesSettingsContent = (props) => {
                     totalRows={totalRoles}
                     loading={isRolesLoading}
                     onRow={handleRowAction}
-                    dataSource={roles}
+                    dataSource={sortedRoles}
                     columns={tableColumns}
                     data-cy={'contactRoles__table'}
                 />
