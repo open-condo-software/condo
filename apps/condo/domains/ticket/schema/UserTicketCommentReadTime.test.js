@@ -34,9 +34,6 @@ describe('UserTicketCommentReadTime', () => {
                 const [organization1] = await createTestOrganization(admin)
                 const [property1] = await createTestProperty(admin, organization1)
 
-                const [role] = await createTestOrganizationEmployeeRole(admin, userClient.organization)
-                await createTestOrganizationEmployee(admin, userClient.organization, userClient.user, role)
-
                 const [ticket] = await createTestTicket(admin, organization1, property1)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
