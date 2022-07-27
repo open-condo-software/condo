@@ -9,7 +9,6 @@ const access = require('@condo/domains/organization/access/OrganizationEmployee'
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, tracked, softDeleted, uuided } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
@@ -19,8 +18,6 @@ const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSende
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     schemaDoc: 'B2B customer employees',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         organization: { ...ORGANIZATION_OWNED_FIELD, ref: 'Organization.employees' },
         user: {
             schemaDoc: 'If user exists => invite is matched by email/phone (user can reject or accept it)',
