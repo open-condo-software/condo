@@ -49,6 +49,7 @@ import {
 } from '../utils/filters.utils'
 import { colors } from '../constants/style'
 import { Tooltip } from '../components/Tooltip'
+import { Ticket } from '../../../schema'
 
 enum FilterComponentSize {
     Medium = 12,
@@ -82,47 +83,41 @@ export type FiltersTooltipDataObject<T> = {
 type FiltersTooltipProps<T> = {
     filters: IFilters
     tooltipData: FiltersTooltipDataObject<T>[]
-    rowObject: T
     total: number
+    tickets: Ticket[]
 }
 
 const TOOLTIP_PARAGRAPH_STYLE: CSSProperties = { color: colors.white, margin: 0 }
 const TOOLTIP_TEXT_STYLE: CSSProperties = { color: colors.white }
 
-export const FiltersTooltip: React.FC<FiltersTooltipProps<unknown>> = ({ total, filters, tooltipData, rowObject, ...otherProps }) => {
-    const filteredFieldsOutOfTable = rowObject && tooltipData.filter(({ name, getFilteredValue }) => {
-        return !isEmpty(filters[name]) && filters[name].includes(getFilteredValue(rowObject))
+export const FiltersTooltip: React.FC<FiltersTooltipProps<unknown>> = ({ total, filters, tooltipData, tickets,  ...otherProps }) => {
+    const rowindex = otherProps.children[0]?.props?.index
+    const ticket = tickets[rowindex]
+
+    const filteredFieldsOutOfTable = ticket && tooltipData.filter(({ name, getFilteredValue }) => {
+        return !isEmpty(filters[name]) && filters[name].includes(getFilteredValue(ticket))
     })
+
     const getTooltipText = useCallback(() => (
         filteredFieldsOutOfTable
             .map(({ label, getTooltipValue }, index) => (
                 <Typography.Paragraph style={TOOLTIP_PARAGRAPH_STYLE} key={index}>
-                    <Typography.Text style={TOOLTIP_TEXT_STYLE} strong> {label}: </Typography.Text> {getTooltipValue(rowObject)}
+                    <Typography.Text style={TOOLTIP_TEXT_STYLE} strong> {label}: </Typography.Text> {getTooltipValue(ticket)}
                 </Typography.Paragraph>
             ))
-    ), [filteredFieldsOutOfTable, rowObject])
+    ), [filteredFieldsOutOfTable, ticket])
 
-    const [isTooltipVisible, setIsTooltipVisible] = useState<boolean>(false)
-
-    return total > 0 && filteredFieldsOutOfTable && filteredFieldsOutOfTable.length > 0 ? (
-        <>
-            <Tooltip
-                visible={isTooltipVisible}
-                title={getTooltipText()}
-                color={colors.black}
-            >
-                <tr
-                    {...otherProps}
-                    onMouseMove={() => {
-                        setIsTooltipVisible(true)
-                    }}
-                    onMouseLeave={() => {
-                        setIsTooltipVisible(false)
-                    }}
-                />
+    if (total > 0 && filteredFieldsOutOfTable && filteredFieldsOutOfTable.length > 0) {
+        return (
+            <Tooltip title={getTooltipText()} color={colors.black} >
+                <tr {...otherProps} />
             </Tooltip>
-        </>
-    ) : <tr {...otherProps} />
+        )
+    }
+
+    return (
+        <tr {...otherProps} />
+    )
 }
 
 function FilterComponent<T> ({
