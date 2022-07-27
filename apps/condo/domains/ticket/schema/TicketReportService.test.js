@@ -67,13 +67,14 @@ describe('TicketReportService', () => {
                 canManageTickets: true,
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const managerClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
             const userRejectOrganizationInvite = { isBlocked: false, isAccepted: false, isRejected: true }
             const userAcceptOrganizationInvite = { isBlocked: false, isAccepted: true, isRejected: false }
             await createTestOrganizationEmployee(
                 admin, organization, managerClient.user, role, { ...userRejectOrganizationInvite }
             )
             const [employee] = await createTestOrganizationEmployee(
-                admin, organization, managerClient.user, role, { ...userAcceptOrganizationInvite }
+                admin, organization, managerClient1.user, role, { ...userAcceptOrganizationInvite }
             )
             const [data] = await getTicketReport(managerClient, 'calendarWeek', {
                 userOrganizationId: employee.organization.id,

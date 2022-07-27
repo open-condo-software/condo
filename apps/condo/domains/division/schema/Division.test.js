@@ -17,6 +17,7 @@ const { expectToThrowGraphQLRequestError, expectToThrowValidationFailureError } 
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Division', () => {
     describe('Create', () => {
@@ -188,19 +189,19 @@ describe('Division', () => {
 
         it('cannot be connected to executors without canBeAssignedAsExecutor ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeEmployeeUserClientWithAbilities({
-                canBeAssignedAsResponsible: true,
-            })
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, userClient.organization, {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canBeAssignedAsExecutor: false,
             })
-            const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
-            const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+            const [executor1] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [executor2] = await createTestOrganizationEmployee(adminClient, organization, userClient1.user, role)
 
             const ids = [executor1.id, executor2.id].join()
             await expectToThrowValidationFailureError(
                 async () => {
-                    await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+                    await createTestDivision(adminClient, organization, executor1, {
                         executors: { connect: [{ id: executor1.id }, { id: executor2.id }] },
                     })
                 },
@@ -429,16 +430,16 @@ describe('Division', () => {
 
         it('cannot be connected to executors without canBeAssignedAsExecutor ability', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeEmployeeUserClientWithAbilities({
-                canBeAssignedAsResponsible: true,
-            })
-            const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
-
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, userClient.organization, {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canBeAssignedAsExecutor: false,
             })
-            const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
-            const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+            const [executor1] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [executor2] = await createTestOrganizationEmployee(adminClient, organization, userClient1.user, role)
+
+            const [objCreated] = await createTestDivision(adminClient, organization, executor1)
 
             const ids = [executor1.id, executor2.id]
             await expectToThrowValidationFailureError(

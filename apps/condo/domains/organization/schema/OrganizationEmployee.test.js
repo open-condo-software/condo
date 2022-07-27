@@ -317,11 +317,13 @@ describe('OrganizationEmployee', () => {
     test('employee who accepted the invite: updates phone and email if employee user updates', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
+        const [organization1] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+        const [role1] = await createTestOrganizationEmployeeRole(admin, organization1, {})
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
         await createTestOrganizationEmployee(admin, organization, userClient.user, role, { isAccepted: true })
-        await createTestOrganizationEmployee(admin, organization, userClient.user, role, { isAccepted: true })
+        await createTestOrganizationEmployee(admin, organization1, userClient.user, role1, { isAccepted: true })
 
         const email = faker.random.alphaNumeric(10) + '@example.com'
         const phone = faker.phone.phoneNumber('+79#########')

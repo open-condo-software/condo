@@ -12,6 +12,7 @@ const {
     makeClientWithRegisteredOrganization,
 } = require('../utils/testSchema')
 const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('AcceptOrRejectOrganizationInviteService', () => {
     describe('acceptOrRejectOrganizationInviteById', () => {
@@ -105,14 +106,15 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
             })
 
             it('Throws "Access denied" error when an employee is already connected to a user', async () => {
-                const client1 = await makeClientWithRegisteredOrganization()
+                const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const adminClient = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(adminClient)
 
                 // const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
-                const [role] = await createTestOrganizationEmployeeRole(adminClient, client1.organization)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
                 // Imitate an employee without user, that will be connected in tested mutation
-                const [employee] = await createTestOrganizationEmployee(adminClient, client1.organization, client1.user, role)
+                const [employee] = await createTestOrganizationEmployee(adminClient, organization, client1.user, role)
                 const { data: { objs: [{ inviteCode }] } } = await adminClient.query(GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY, { id: employee.id })
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await acceptOrRejectOrganizationInviteByCode(client2, inviteCode, {
