@@ -6,18 +6,14 @@ const { Relationship } = require('@keystonejs/fields')
 
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/OrganizationLink')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const OrganizationLink = new GQLListSchema('OrganizationLink', {
     schemaDoc: 'A relationship between organizations that allows employees of one organization to interact as employees of another.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         from: ORGANIZATION_OWNED_FIELD,
 
         to: {
@@ -29,7 +25,7 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(),  dvAndSender(), historical()],
     access: {
         read: access.canReadOrganizationLinks,
         create: access.canManageOrganizationLinks,
