@@ -6,10 +6,9 @@ const { Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccount')
 const {
-    DV_UNKNOWN_VERSION_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
     UNEQUAL_CONTEXT_ERROR,
@@ -17,13 +16,12 @@ const {
 const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const BillingAccount = new GQLListSchema('BillingAccount', {
     schemaDoc: 'All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
 
         context: INTEGRATION_CONTEXT_FIELD,
 
@@ -88,7 +86,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingAccounts,
         create: access.canManageBillingAccounts,
@@ -100,12 +98,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
             if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             const newItem = { ...existingItem, ...resolvedData }
-            const { dv, context: accountContextId, property: propertyId } = newItem
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
+            const { context: accountContextId, property: propertyId } = newItem
 
             const property = await getById('BillingProperty', propertyId)
             const { context: propertyContextId } = property
