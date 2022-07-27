@@ -14,7 +14,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { Checkbox } = require('@keystonejs/fields')
 
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
-const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
+const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const {
     DV_UNKNOWN_VERSION_ERROR,
@@ -34,6 +34,7 @@ const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('../../ticket/utils/serverSchema/resolveHelpers')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -43,8 +44,6 @@ const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
 const Property = new GQLListSchema('Property', {
     schemaDoc: 'Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
 
         organization: ORGANIZATION_OWNED_FIELD,
 
@@ -286,7 +285,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         auth: true,
         delete: false,
@@ -306,16 +305,7 @@ const Property = new GQLListSchema('Property', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
             if (!hasDbFields(REQUIRED_FIELDS, resolvedData, existingItem, context, addValidationError)) return
-
-            const { dv } = resolvedData
-
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown 'dv'`)
-            }
         },
         resolveInput: async ({ operation, resolvedData }) => {
             // If address is being updated -> drop isApproved!
