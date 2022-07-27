@@ -5,21 +5,18 @@
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/division/access/Division')
 const { OrganizationEmployee, Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { get } = require('lodash')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { MAX_PROPERTIES_IN_DIVISION } = require('@condo/domains/division/constants')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const Division = new GQLListSchema('Division', {
     schemaDoc: 'Grouping of properties and employees with one single responsible person',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'Display name of this division',
             type: Text,
@@ -132,7 +129,7 @@ const Division = new GQLListSchema('Division', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadDivisions,
         create: access.canManageDivisions,
