@@ -34,8 +34,3 @@ jobs:
 
       - name: Lint common patterns
         run: bash ./bin/lint-common-patterns.sh
-
-      - name: Lint schema.ts file
-        run: |
-          cp .env.example .env
-          source bin/lint-schema-ts-file.sh
