@@ -3,6 +3,7 @@ const { v4 } = require('uuid')
 const express = require('express')
 const bodyParser = require('body-parser')
 const nextCookie = require('next-cookies')
+const get = require('lodash/get')
 
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
@@ -26,6 +27,8 @@ const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerPlugin } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+
+const packageJson = require('@app/condo/package.json')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -139,11 +142,25 @@ class SberBuisnessOnlineMiddleware {
     }
 }
 
+class VersioningMiddleware {
+    async prepareMiddleware () {
+        const app = express()
+        app.use('/api/version', (req, res) => {
+            res.status(200).json({
+                build: get(process.env, 'WERF_COMMIT_HASH', packageJson.version),
+            })
+        })
+
+        return app
+    }
+}
+
 
 module.exports = {
     keystone,
     apps: [
         keystoneCacheApp,
+        new VersioningMiddleware(),
         new OIDCMiddleware(),
         new GraphQLApp({
             apollo: {
