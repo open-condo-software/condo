@@ -5,16 +5,13 @@
 const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/UserTicketCommentReadTime')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime', {
     schemaDoc: 'Time when a comment from a resident was last read by a specific user in a specific ticket',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         user: {
             schemaDoc: 'The user who read the comment',
             type: Relationship,
@@ -53,7 +50,7 @@ const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime',
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadUserTicketCommentReadTimes,
         create: access.canManageUserTicketCommentReadTimes,
