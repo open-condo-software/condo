@@ -56,7 +56,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     const TicketUnitMessage = useCallback(() => (
         <Typography.Paragraph style={{ margin: 0 }}>
             <Typography.Text strong>{ticketUnitMessage}</Typography.Text>
-            <Typography.Text>{ticketSectionAndFloorMessage}</Typography.Text>
+            <Typography.Text strong>{ticketSectionAndFloorMessage}</Typography.Text>
         </Typography.Paragraph>
     ), [ticketSectionAndFloorMessage, ticketUnitMessage])
 
