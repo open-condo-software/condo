@@ -6,7 +6,6 @@ const { Text, Checkbox, Password, File, Select, Virtual } = require('@keystonejs
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
@@ -16,15 +15,13 @@ const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Individual / person / service account / impersonal company account. Used primarily for authorization purposes, optimized access control with checking of `type` field, tracking authority of performed CRUD operations. Think of `User` as a technical entity, not a business actor. Business actor entities are Resident, OrganizationEmployee etc., — they are participating in high-level business scenarios and have connected to `User`. Almost everyting, created in the system, ends up to `User` as a source of action.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'Name. If impersonal account should be a company name',
             type: Text,
@@ -209,7 +206,7 @@ const User = new GQLListSchema('User', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadUsers,
         create: access.canManageUsers,
