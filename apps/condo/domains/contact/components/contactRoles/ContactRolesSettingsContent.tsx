@@ -38,6 +38,7 @@ export const ContactRolesSettingsContent = (props) => {
     const { filters, sorters, offset } = parseQuery(router.query)
 
     const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -47,7 +48,11 @@ export const ContactRolesSettingsContent = (props) => {
 
     const searchContactRolesQuery = useMemo(() => ({
         ...filtersToWhere(filters),
-    }), [filters])
+        OR: [
+            { organization_is_null: true },
+            { organization: { id: userOrganizationId } },
+        ],
+    }), [filters, userOrganizationId])
 
     const {
         loading: isRolesLoading,
