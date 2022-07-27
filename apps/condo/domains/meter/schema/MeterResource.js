@@ -5,14 +5,11 @@
 const { LocalizedText } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const MeterResource = new GQLListSchema('MeterResource', {
     schemaDoc: 'Kind of consumed resource, measured by meter',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             type: LocalizedText,
             isRequired: true,
@@ -25,7 +22,7 @@ const MeterResource = new GQLListSchema('MeterResource', {
             template: 'meterResource.*.measure',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: true,
         create: false,
