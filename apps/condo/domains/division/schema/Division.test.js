@@ -139,16 +139,17 @@ describe('Division', () => {
 
         it('can be connected to executors from the same organization', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeEmployeeUserClientWithAbilities({
-                canBeAssignedAsResponsible: true,
-            })
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, userClient.organization, {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canBeAssignedAsExecutor: true,
             })
-            const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
-            const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+            const [executor1] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [executor2] = await createTestOrganizationEmployee(adminClient, organization, userClient1.user, role)
 
-            const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee, {
+            const [objCreated] = await createTestDivision(adminClient, organization, executor1, {
                 executors: { connect: [{ id: executor1.id }, { id: executor2.id }] },
             })
             expect(objCreated.executors).toHaveLength(2)
@@ -370,16 +371,17 @@ describe('Division', () => {
 
         it('can be connected to executors from the same organization', async () => {
             const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeEmployeeUserClientWithAbilities({
-                canBeAssignedAsResponsible: true,
-            })
-            const [objCreated] = await createTestDivision(adminClient, userClient.organization, userClient.employee)
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
 
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, userClient.organization, {
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                 canBeAssignedAsExecutor: true,
             })
-            const [executor1] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
-            const [executor2] = await createTestOrganizationEmployee(adminClient, userClient.organization, userClient.user, role)
+            const [executor1] = await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [executor2] = await createTestOrganizationEmployee(adminClient, organization, userClient1.user, role)
+
+            const [objCreated] = await createTestDivision(adminClient, organization, executor1)
 
             const [objUpdated] = await updateTestDivision(adminClient, objCreated.id, {
                 executors: {

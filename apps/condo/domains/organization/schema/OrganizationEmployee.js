@@ -128,7 +128,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
                 type: 'models.UniqueConstraint',
                 fields: ['user', 'organization'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'unique_user_and_organization',
+                name: 'OrganizationEmployee_unique_user_and_organization',
             },
         ],
     },
