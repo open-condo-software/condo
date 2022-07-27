@@ -8,7 +8,6 @@ const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const { Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema, find, getById } = require('@core/keystone/schema')
 const { versioned, uuided, tracked } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketChange')
 const { generateChangeTrackableFieldsFrom, buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
@@ -18,6 +17,7 @@ const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
 const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const getTranslation = (translations, key) => {
     if (translations[key]) return translations[key]
@@ -37,9 +37,6 @@ const keysOfLocalizedTextFields = new Map([
 const TicketChange = new GQLListSchema('TicketChange', {
     schemaDoc: 'Incremental changes of Ticket',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         ticket: {
             schemaDoc: 'Related ticket, whose change is logged in this entity',
             type: Relationship,
@@ -104,7 +101,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked()],
+    plugins: [uuided(), versioned(), tracked(), dvAndSender()],
     access: {
         read: access.canReadTicketChanges,
         create: access.canManageTicketChanges,
