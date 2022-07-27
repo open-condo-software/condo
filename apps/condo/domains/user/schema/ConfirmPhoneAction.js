@@ -4,19 +4,17 @@
 const { Text, Integer, Checkbox, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, uuided, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/ConfirmPhoneAction')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const {
     SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         phone: {
             schemaDoc: 'Phone. In international E.164 format without spaces',
             type: Text,
@@ -78,7 +76,7 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
         },
 
     },
-    plugins: [uuided(), softDeleted(), historical()],
+    plugins: [uuided(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadConfirmPhoneActions,
         create: access.canManageConfirmPhoneActions,
