@@ -13,8 +13,7 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import lowerCase from 'lodash/lowerCase'
-import reverse from 'lodash/reverse'
-import _sortBy from 'lodash/sortBy'
+import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
@@ -76,8 +75,7 @@ export const ContactRolesSettingsContent = (props) => {
 
         if (sorterByName && roles.length > 0) {
             const isDesc = sorterByName.order === 'descend'
-            const ascSorted = _sortBy(roles, ({ name }) => lowerCase(name))
-            return isDesc ? reverse(ascSorted) : ascSorted
+            return orderBy(roles, [({ name }) => lowerCase(name)], [isDesc ? 'desc' : 'asc'])
         }
 
         return roles
