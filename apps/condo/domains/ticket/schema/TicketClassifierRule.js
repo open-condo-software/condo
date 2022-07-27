@@ -5,15 +5,13 @@
 const { Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketClassifierRule')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const TicketClassifierRule = new GQLListSchema('TicketClassifierRule', {
     schemaDoc: 'Rules for all possible valid combinations of classifiers',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         place: {
             schemaDoc: 'Location of incident',
@@ -35,7 +33,7 @@ const TicketClassifierRule = new GQLListSchema('TicketClassifierRule', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadTicketClassifierRules,
         create: access.canManageTicketClassifierRules,
