@@ -5,15 +5,13 @@
 const { Text } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketPlaceClassifier')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const TicketPlaceClassifier = new GQLListSchema('TicketPlaceClassifier', {
     schemaDoc: 'Describes where the incident occurred',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
         name: {
             schemaDoc: 'text content',
@@ -22,7 +20,7 @@ const TicketPlaceClassifier = new GQLListSchema('TicketPlaceClassifier', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadTicketPlaceClassifiers,
         create: access.canManageTicketPlaceClassifiers,
