@@ -1,7 +1,7 @@
 const { MIN_PASSWORD_LENGTH, RESIDENT } = require('@condo/domains/user/constants/common')
 const { makeLoggedInClient, createTestConfirmPhoneAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
-const { User, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { User, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser, changePasswordWithTokenByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
 const faker = require('faker')
 
@@ -28,8 +28,8 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = `new_${userAttrs.password}`
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.data.result).toEqual({ status: 'ok', phone:  userAttrs.phone })
+            const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
+            expect(result).toEqual({ status: 'ok', phone:  userAttrs.phone })
 
             const newClient = await makeLoggedInClient({ phone: userAttrs.phone, password })
             expect(newClient.user.id).toEqual(user.id)
@@ -125,12 +125,12 @@ describe('ForgotPasswordAction Service', () => {
         it('can reset forgotten password', async () => {
             const admin = await makeLoggedInAdminClient()
             const [user, userAttrs] = await createTestUser(admin)
-            const client = await makeClient()
+            const client = await makeClient(userAttrs)
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = `new_${userAttrs.password}`
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-            expect(result.data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
+            const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
+            expect(result).toEqual({ status: 'ok', phone:  userAttrs.phone })
 
             const newClient = await makeLoggedInClient({ phone: userAttrs.phone, password })
             expect(newClient.user.id).toEqual(user.id)
@@ -144,7 +144,7 @@ describe('ForgotPasswordAction Service', () => {
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = `new_${userAttrs.password}`
 
-            const { data: { result } } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
             expect(result).toEqual({ status: 'ok', phone:  userAttrs.phone })
 
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })

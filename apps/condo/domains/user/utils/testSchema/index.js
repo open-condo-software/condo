@@ -26,7 +26,7 @@ const { max, repeat, get } = require('lodash')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
-const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
+const { OidcClient: OidcClientGQL, CHANGE_PASSWORD_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -345,6 +345,20 @@ async function changePhoneNumberResidentUserByTestClient (client, extraAttrs = {
     return [data.result, attrs]
 }
 
+async function changePasswordWithTokenByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: CHANGE_PASSWORD_WITH_TOKEN_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
 async function createTestOidcClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -416,6 +430,7 @@ module.exports = {
     supportSendMessageToSupportByTestClient,
     completeConfirmPhoneActionByTestClient,
     changePhoneNumberResidentUserByTestClient,
+    changePasswordWithTokenByTestClient,
     OidcClient, createTestOidcClient, updateTestOidcClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
