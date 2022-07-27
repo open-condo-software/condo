@@ -7,7 +7,7 @@ const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, ADDRESS_META_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { ADDRESS_META_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 
 const access = require('@condo/domains/resident/access/Resident')
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
@@ -28,13 +28,11 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { manageResidentToTicketClientConnections } = require('../tasks')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         user: {
             schemaDoc: 'Mobile user account',
             type: Relationship,
@@ -183,7 +181,7 @@ const Resident = new GQLListSchema('Resident', {
             ...UNIT_TYPE_FIELD,
         },
     },
-    plugins: [addOrganizationFieldPlugin({ fromField: 'property' }), uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [addOrganizationFieldPlugin({ fromField: 'property' }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
             const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
