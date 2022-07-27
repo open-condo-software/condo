@@ -85,7 +85,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadB2BAppContexts,
         create: access.canManageB2BAppContexts,
