@@ -6,7 +6,6 @@ const { Select, Virtual } = require('@keystonejs/fields')
 const LocalizedText  = require('@core/keystone/fields/LocalizedText')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketStatus')
 const { TICKET_STATUS_TYPES } = require('../constants')
@@ -15,6 +14,7 @@ const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constant
 const get = require('lodash/get')
 
 const Ajv = require('ajv')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const validationSchema = {
     type: 'object',
@@ -32,9 +32,6 @@ const ticketStatusColorsJsonValidator = new Ajv().compile(validationSchema)
 const TicketStatus = new GQLListSchema('TicketStatus', {
     schemaDoc: 'Ticket status. We have a organization specific statuses',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         type: {
@@ -74,7 +71,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadTicketStatuses,
         create: access.canManageTicketStatuses,
