@@ -17,7 +17,7 @@ import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 const SORTABLE_PROPERTIES = ['name']
-const DEFAULT_SORT_BY = ['name_DESC']
+const DEFAULT_SORT_BY = ['createdAt_DESC']
 
 const StyledTable = styled(Table)`
   .ant-table-cell-ellipsis {
