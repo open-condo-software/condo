@@ -16,7 +16,7 @@ export const AutoSourceAlert: React.FC<IAutoSourceAlertProps> = ({ sourceAppName
         <Alert
             type={'warning'}
             showIcon
-            message={<Typography.Text strong>{Title}</Typography.Text> }
+            message={<Typography.Text strong>{Title}</Typography.Text>}
             description={Message}
         />
     )

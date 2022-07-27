@@ -13,7 +13,7 @@ import { CustomButtonProps } from '@condo/domains/common/components/Button'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
 import { Meter } from '../utils/clientSchema'
-import { AutoSourceAlert } from '../components/BaseMeterModal/AutoSourceAlert'
+import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
 
 const INITIAL_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
