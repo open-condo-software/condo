@@ -14,13 +14,10 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const {
     PROPERTY_REQUIRED_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
-    DV_UNKNOWN_VERSION_ERROR,
     STATUS_UPDATED_AT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const {
-    SENDER_FIELD,
-    DV_FIELD,
     CLIENT_PHONE_LANDLINE_FIELD,
     CLIENT_EMAIL_FIELD,
     CLIENT_NAME_FIELD,
@@ -42,12 +39,13 @@ const {
     calculateCompletedAt,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { UNIT_TYPES, FLAT_UNIT_TYPE, SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
+const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -56,9 +54,6 @@ const Ticket = new GQLListSchema('Ticket', {
         'If by some reason related entities will be deleted, unavailable or will change its contact information, these fields will stay unchanged.' +
         'So, by creating a new ticket with connection to some contact entity (Contact, Resident), these fields will be populated by its contact information if other values are not explicitly provided.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         // TODO(pahaz): no needed to check organization access!
         organization: ORGANIZATION_OWNED_FIELD,
 
@@ -336,7 +331,7 @@ const Ticket = new GQLListSchema('Ticket', {
             type: Json,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     hooks: {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
@@ -409,23 +404,16 @@ const Ticket = new GQLListSchema('Ticket', {
         validateInput: async ({ resolvedData, existingItem, addValidationError, context }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-                if (resolvedData.statusUpdatedAt) {
-                    if (existingItem.statusUpdatedAt) {
-                        if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
-                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
-                        }
-                    } else {
-                        if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
-                            return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
-                        }
+            if (resolvedData.statusUpdatedAt) {
+                if (existingItem.statusUpdatedAt) {
+                    if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.statusUpdatedAt)) {
+                        return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
+                    }
+                } else {
+                    if (new Date(resolvedData.statusUpdatedAt) <= new Date(existingItem.createdAt)) {
+                        return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                     }
                 }
-            } else {
-                return addValidationError(`${ DV_UNKNOWN_VERSION_ERROR }dv] Unknown \`dv\``)
             }
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
