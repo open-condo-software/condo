@@ -8,7 +8,6 @@ import compact from 'lodash/compact'
 import isUndefined from 'lodash/isUndefined'
 import isFunction from 'lodash/isFunction'
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
-import { OrganizationLink } from '@condo/domains/organization/utils/clientSchema'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
 
@@ -154,16 +153,8 @@ const useTracking: IUseTracking = () => {
 
 const TrackingProvider: React.FC = ({ children }) => {
     const { user } = useAuth()
-    const { link, organization } = useOrganization()
+    const { link } = useOrganization()
     const router = useRouter()
-
-    const organizationId = get(organization, 'id', null)
-    const { objs: organizationLinks } = OrganizationLink.useObjects({
-        where: {
-            to: { id: organizationId },
-        },
-    })
-    const relatedFromOrganizationNames = organizationLinks.map(link => link.from.name)
 
     const trackingProviderValueRef = useRef<ITrackingContext>({
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
@@ -200,10 +191,9 @@ const TrackingProvider: React.FC = ({ children }) => {
             if (link) {
                 trackingProviderValueRef.current.userProperties['role'] = get(link, 'role.name')
                 trackingProviderValueRef.current.userProperties['organization'] = get(link, 'organization.name')
-                trackingProviderValueRef.current.userProperties['relatedFromOrganizations'] = relatedFromOrganizationNames
             }
         }
-    }, [user, link, relatedFromOrganizationNames])
+    }, [user, link])
 
     return (
         <TrackingContext.Provider value={trackingProviderValueRef.current}>
