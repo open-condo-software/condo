@@ -5,23 +5,20 @@
 const { Text } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingMeterResource')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const BillingMeterResource = new GQLListSchema('BillingMeterResource', {
     schemaDoc: 'Meter `resource types`',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'The name of the `resource types`',
             type: Text,
             isRequired: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingMeterResources,
         create: access.canManageBillingMeterResources,
