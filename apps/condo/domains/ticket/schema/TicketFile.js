@@ -5,13 +5,13 @@ const get = require('lodash/get')
 const { Relationship, File } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketFile')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const TICKET_FILE_FOLDER_NAME = 'ticket'
 const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)
@@ -22,8 +22,6 @@ const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
 const TicketFile = new GQLListSchema('TicketFile', {
     schemaDoc: 'File attached to the ticket',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
             type: File,
@@ -54,6 +52,7 @@ const TicketFile = new GQLListSchema('TicketFile', {
         versioned(),
         tracked(),
         softDeleted(),
+        dvAndSender(),
         historical(),
     ],
     access: {
