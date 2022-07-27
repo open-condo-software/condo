@@ -4,7 +4,7 @@
 const { pick } = require('lodash')
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, DATETIME_RE, UUID_RE } = require('@core/keystone/test.utils')
 
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
 
@@ -533,7 +533,7 @@ describe('OrganizationEmployee', () => {
 
     describe('Constraint', () => {
         describe('unique_user_and_organization constraint', () => {
-            test('cannot create 2 organization employees with same user and organizaation fields', async () => {
+            test('cannot create 2 organization employees with same user and organization fields', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -545,6 +545,25 @@ describe('OrganizationEmployee', () => {
                     await createTestOrganizationEmployee(admin, organization, user.user, role)
                 }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_organization"`)
 
+            })
+
+            test('can create organization employee if deleted employee with same user and organization fields is exist', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                await updateTestOrganizationEmployee(admin, employee.id, {
+                    deletedAt: 'true',
+                })
+
+                const [newEmployee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                expect(newEmployee.id).toMatch(UUID_RE)
+                expect(newEmployee.user.id).toEqual(user.user.id)
+                expect(newEmployee.organization.id).toEqual(organization.id)
             })
         })
     })
