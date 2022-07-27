@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
-import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
+import { Col, Radio, RadioChangeEvent, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/react'
 import { useIntl } from '@core/next/intl'
@@ -86,6 +86,8 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const { role, searchPropertiesQuery, searchDivisionsQuery, propertiesTableColumns,
         divisionTableColumns, sortPropertiesBy, sortDivisionsBy, loading } = props
 
+    const handleViewModeChange = useCallback((e) => changeViewMode(e.target.value), [])
+
     useEffect(() => {
         if (!initialTab.current) {
             const queryParams = getQueryParams()
@@ -112,14 +114,14 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                         </Col>
                         <Col lg={8} offset={isSmall ? 0 : 4} xs={24}>
                             <Radio.Group
-                                className={'sberRadioGroup'}
+                                className='sberRadioGroup'
                                 style={RADIO_GROUP_STYLE}
                                 value={viewMode}
-                                buttonStyle="outline"
-                                onChange={e => changeViewMode(e.target.value)}
+                                buttonStyle='outline'
+                                onChange={handleViewModeChange}
                             >
-                                <Radio.Button value="list">{ShowTable}</Radio.Button>
-                                <Radio.Button value="map">{ShowMap}</Radio.Button>
+                                <Radio.Button value='list'>{ShowTable}</Radio.Button>
+                                <Radio.Button value='map'>{ShowMap}</Radio.Button>
                             </Radio.Group>
                         </Col>
                         {
