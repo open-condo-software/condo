@@ -8,21 +8,15 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingRecipient')
-const { hasDvAndSenderFields } = require(
-    '@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR } = require(
-    '@condo/domains/common/constants/errors')
 const { INTEGRATION_CONTEXT_FIELD } = require('@condo/domains/billing/schema/fields/relations')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const BillingRecipient = new GQLListSchema('BillingRecipient', {
     schemaDoc: 'Organization\' billing information: bank account, bic, and so on',
     labelResolver: item => item.tin,
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         importId: IMPORT_ID_FIELD,
         context: INTEGRATION_CONTEXT_FIELD,
 
@@ -94,24 +88,13 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         },
     },
 
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingRecipients,
         create: access.canManageBillingRecipients,
         update: access.canManageBillingRecipients,
         delete: false,
         auth: true,
-    },
-    hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-        },
     },
     kmigratorOptions: {
         constraints: [
