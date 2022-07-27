@@ -6,20 +6,18 @@ const { Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingProperty')
 const { find } = require('@core/keystone/schema')
 const { getById } = require('@core/keystone/schema')
 const { Virtual } = require('@keystonejs/fields')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 const { RAW_DATA_FIELD } = require('./fields/common')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
     schemaDoc: 'All `property` objects from `billing data source`',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         context: INTEGRATION_CONTEXT_FIELD,
 
         importId: IMPORT_ID_FIELD,
@@ -72,7 +70,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadBillingProperties,
         create: access.canManageBillingProperties,
