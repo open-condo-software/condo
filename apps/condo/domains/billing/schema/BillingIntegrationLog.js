@@ -6,12 +6,12 @@ const { Text } = require('@keystonejs/fields')
 const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationLog')
 const { WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
@@ -19,9 +19,6 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
         'The target audience of these messages is the client of our API platform. You should avoid repeating the same messages. ' +
         'The existence of the message means that some problems were occurred during the integration process and the client should the user must take some actions to eliminate them',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         context: INTEGRATION_CONTEXT_FIELD,
 
         type: {
@@ -49,7 +46,7 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
     access: {
         read: access.canReadBillingIntegrationLogs,
         create: access.canManageBillingIntegrationLogs,
