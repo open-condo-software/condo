@@ -49,7 +49,13 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 // role name has LocalizedText type, so we need to get translation here
-                const allRoles = await ContactRole.getAll(context, {})
+                const allRoles = await ContactRole.getAll(context, {
+                    deletedAt: null,
+                    OR: [
+                        { organization_is_null: true }, // common roles
+                        { organization: { id: where.organization.id } }, // organization's roles
+                    ],
+                })
                 const translatedRolesMap = Object.fromEntries(allRoles.map(role => ([role.id, role.name])))
 
                 const contacts = await loadContactsForExcelExport({ where, sortBy })
