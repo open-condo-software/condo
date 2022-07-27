@@ -5,17 +5,14 @@
 const { Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingIntegrationAccessRight')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAccessRight', {
     schemaDoc: 'Link between billing integrations and users. The existence of the object means that there is user has access to integration',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         integration: {
             schemaDoc: 'Integration',
             type: Relationship,
@@ -27,7 +24,7 @@ const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAcces
 
         user: SERVICE_USER_FIELD,
     },
-    plugins: [uuided(), tracked(), historical(), versioned(), softDeleted()],
+    plugins: [uuided(), tracked(), historical(), versioned(), softDeleted(), dvAndSender()],
     access: {
         read: access.canReadBillingIntegrationAccessRights,
         create: access.canManageBillingIntegrationAccessRights,
