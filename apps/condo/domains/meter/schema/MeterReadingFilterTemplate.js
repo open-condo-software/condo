@@ -5,17 +5,14 @@
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReadingFilterTemplate')
 const { METER_READING_FILTER_FIELD } = require('./fields/MeterReadingFilters')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate', {
     schemaDoc: 'Employee specific meter reading filter template',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'Meter reading filter template name',
             type: Text,
@@ -33,7 +30,7 @@ const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate
 
         fields: METER_READING_FILTER_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadMeterReadingFilterTemplates,
         create: access.canManageMeterReadingFilterTemplates,
