@@ -5,15 +5,13 @@
 const { Text, Relationship, Select, Checkbox, Integer } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { LocalizedText } = require('@core/keystone/fields')
 const access = require('@condo/domains/onboarding/access/OnBoardingStep')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
     schemaDoc: 'Logic part of user app guide.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
 
         icon: {
             schemaDoc: 'Icon string definition of step.',
@@ -72,7 +70,7 @@ const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadOnBoardingSteps,
         create: access.canManageOnBoardingSteps,
