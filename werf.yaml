@@ -447,4 +447,4 @@ git:
 shell:
   setup:
   - "cd /app/apps/classifiers-api"
-  - "pip3 install -r requirements.txt"
+  - "pip install -r requirements.txt"
