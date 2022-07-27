@@ -7,17 +7,14 @@ const { LocalizedText } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked } = require('@core/keystone/plugins')
 const { Organization } = require('../utils/serverSchema')
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const get = require('lodash/get')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         organization: ORGANIZATION_OWNED_FIELD,
 
         // There is no `user` reference, because Organization will have a set of pre-defined roles
@@ -85,7 +82,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             defaultValue: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), historical()],
+    plugins: [uuided(), versioned(), tracked(), historical(), dvAndSender()],
     access: {
         read: access.canReadOrganizationEmployeeRoles,
         create: access.canManageOrganizationEmployeeRoles,
