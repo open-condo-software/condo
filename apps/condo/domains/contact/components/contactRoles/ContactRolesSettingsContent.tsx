@@ -46,10 +46,6 @@ export const ContactRolesSettingsContent = (props) => {
 
     const searchContactRolesQuery = useMemo(() => ({
         ...filtersToWhere(filters),
-        OR: [
-            { organization_is_null: true },
-            { organization: { id: userOrganizationId } },
-        ],
     }), [filters, userOrganizationId])
 
     const {
