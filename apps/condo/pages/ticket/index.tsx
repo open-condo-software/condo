@@ -2,7 +2,7 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row, Tooltip, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { FilterFilled } from '@ant-design/icons'
@@ -23,7 +23,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTableFilters'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
 import { FiltersTooltip, useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
@@ -40,6 +40,7 @@ import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersToo
 import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
 import { useAuth } from '@core/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
+import { TableComponents } from 'rc-table/lib/interface'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -77,7 +78,6 @@ export const TicketsPageContent = ({
 
     const auth = useAuth() as { user: { id: string } }
 
-    const { isSmall, shouldTableScroll } = useLayoutContext()
     const router = useRouter()
     const { filters } = parseQuery(router.query)
 
@@ -88,22 +88,6 @@ export const TicketsPageContent = ({
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
     const loading = isTicketsFetching
-
-    const [hoveredTicket, setHoveredTicket] = useState()
-
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: async () => {
-                await router.push(`/ticket/${record.id}/`)
-            },
-            onMouseEnter: () => {
-                setHoveredTicket(record)
-            },
-            onMouseLeave: () => {
-                setHoveredTicket(null)
-            },
-        }
-    }, [router])
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
@@ -122,19 +106,19 @@ export const TicketsPageContent = ({
 
     const tooltipData = useFiltersTooltipData()
 
-    const tableComponents = useMemo(() => ({
+    const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
         body: {
             row: (props) => (
                 <FiltersTooltip
                     filters={filters}
                     tooltipData={tooltipData}
-                    rowObject={hoveredTicket}
                     total={total}
+                    tickets={tickets}
                     {...props}
                 />
             ),
         },
-    }), [tooltipData, filters, hoveredTicket, tickets, total])
+    }), [tooltipData, filters, tickets, total])
 
     return (
         <>
@@ -256,7 +240,6 @@ export const TicketsPageContent = ({
                                             loading={loading}
                                             dataSource={tickets}
                                             columns={tableColumns}
-                                            onRow={handleRowAction}
                                             components={tableComponents}
                                             data-cy={'ticket__table'}
                                         />
