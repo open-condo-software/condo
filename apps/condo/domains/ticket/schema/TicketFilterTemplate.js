@@ -6,18 +6,15 @@ const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketFilterTemplate')
 
 const { TICKET_FILTER_FIELD } = require('./fields/TicketFilter')
+const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
 
 
 const TicketFilterTemplate = new GQLListSchema('TicketFilterTemplate', {
     schemaDoc: 'Employee specific ticket filter template',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         name: {
             schemaDoc: 'Ticket filter template name',
             type: Text,
@@ -35,7 +32,7 @@ const TicketFilterTemplate = new GQLListSchema('TicketFilterTemplate', {
 
         fields: TICKET_FILTER_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical(), dvAndSender()],
     access: {
         read: access.canReadTicketFilterTemplates,
         create: access.canManageTicketFilterTemplates,
