@@ -59,6 +59,8 @@ jobs:
 
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
+          
+          source bin/lint-schema-ts-file.sh
 
           yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
