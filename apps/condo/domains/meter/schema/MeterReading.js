@@ -93,7 +93,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         },
     },
     plugins: [
-        addOrganizationFieldPlugin({ fromField: 'meter' }),
+        addOrganizationFieldPlugin({ fromField: 'meter', isRequired: true }),
         uuided(),
         versioned(),
         tracked(),

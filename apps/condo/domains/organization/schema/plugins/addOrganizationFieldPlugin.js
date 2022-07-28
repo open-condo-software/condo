@@ -3,14 +3,16 @@ const { Relationship } = require('@keystonejs/fields')
 const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
 
-const addOrganizationFieldPlugin = ({ fromField }) => plugin(({ fields = {}, ...rest }) => {
+const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fields = {}, ...rest }) => {
+    let requiredConfig = isRequired ?
+        { isRequired: true, knexOptions: { isNotNullable: true }, kmigratorOptions: { null: false, on_delete: 'models.CASCADE' } } :
+        { isRequired: false, kmigratorOptions: { null: true } }
+
     fields['organization'] = {
         schemaDoc: 'Ref to the organization. It is filled in on the server and is read-only',
         type: Relationship,
         ref: 'Organization',
-        isRequired: true,
-        knexOptions: { isNotNullable: true }, // Relationship only!
-        kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        ...requiredConfig,
         access: {
             read: true,
             create: false,
@@ -21,7 +23,7 @@ const addOrganizationFieldPlugin = ({ fromField }) => plugin(({ fields = {}, ...
                 const objWithOrganizationId = get(resolvedData, fromField)
 
                 if (objWithOrganizationId) {
-                    const schemaName = get(fields, [fromField, 'ref'])
+                    const schemaName = fields[fromField].ref
                     const objWithOrganization = await getById(schemaName, objWithOrganizationId)
 
                     resolvedData['organization'] = get(objWithOrganization, 'organization')

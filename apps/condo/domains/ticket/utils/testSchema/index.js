@@ -161,15 +161,13 @@ async function updateTestTicketChange (client, id, extraAttrs = {}) {
 }
 
 
-async function createTestTicketFile (client, organization, ticket, extraAttrs = {}) {
+async function createTestTicketFile (client, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     const ticketConnection = (ticket && ticket.id) ? { ticket: { connect: { id: ticket.id } } } : {}
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
         dv: 1,
         sender,
-        organization: { connect: { id: organization.id } },
         ...ticketConnection,
         ...extraAttrs,
     }

@@ -201,9 +201,8 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
             await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
-            const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
+            const [ticketFile] = await createTestTicketFile(residentClient)
             expect(ticketFile.createdBy.id).toEqual(residentClient.user.id)
-            expect(ticketFile.organization.id).toEqual(userClient.organization.id)
         })
 
         it('can create Ticket', async () => {
@@ -246,7 +245,7 @@ describe('Resident', () => {
             await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
                 unitName,
             })
-            const [ticketFile] = await createTestTicketFile(residentClient, userClient.organization)
+            const [ticketFile] = await createTestTicketFile(residentClient)
             const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
                 unitName,
             })

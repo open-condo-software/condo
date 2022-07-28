@@ -43,9 +43,10 @@ describe('TicketCommentFile', () => {
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
                 const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, ticket, ticketComment)
 
                 expect(ticketCommentFile.id).toMatch(UUID_RE)
+                expect(ticketCommentFile.organization.id).toEqual(organization.id)
             })
 
             test('cannot be created by user, who does not have "canManageTicketComments" ability', async () => {
@@ -63,7 +64,7 @@ describe('TicketCommentFile', () => {
                 const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestTicketCommentFile(userClient, organization, ticket, ticketComment)
+                    await createTestTicketCommentFile(userClient, ticket, ticketComment)
                 })
             })
 
@@ -74,7 +75,7 @@ describe('TicketCommentFile', () => {
                 const [ticket] = await createTestTicket(adminClient, organization, property)
 
                 const [ticketComment] = await createTestTicketComment(adminClient, ticket, adminClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, ticket, ticketComment)
 
                 expect(ticketCommentFile.id).toMatch(UUID_RE)
             })
@@ -87,7 +88,7 @@ describe('TicketCommentFile', () => {
                 const [ticketComment] = await createTestTicketComment(client, ticket, client.user)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestTicketCommentFile(anonymous, client.organization, ticket, ticketComment)
+                    await createTestTicketCommentFile(anonymous, ticket, ticketComment)
                 })
             })
 
@@ -103,7 +104,7 @@ describe('TicketCommentFile', () => {
                 const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
                 const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
 
-                const [ticketCommentFile] = await createTestTicketCommentFile(clientFrom, organizationTo, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
                 expect(ticketCommentFile.id).toMatch(UUID_RE)
             })
 
@@ -114,7 +115,7 @@ describe('TicketCommentFile', () => {
                 const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestTicketCommentFile(clientTo, organizationFrom, ticket, ticketComment)
+                    await createTestTicketCommentFile(clientTo, ticket, ticketComment)
                 })
             })
         })
@@ -126,7 +127,7 @@ describe('TicketCommentFile', () => {
                 const userClient1 = await makeClientWithProperty()
                 const [ticket1] = await createTestTicket(userClient1, userClient1.organization, userClient1.property)
                 const [ticketComment] = await createTestTicketComment(userClient1, ticket1, userClient1.user)
-                await createTestTicketCommentFile(userClient1, userClient1.organization, ticket1, ticketComment)
+                await createTestTicketCommentFile(userClient1, ticket1, ticketComment)
 
                 const objs = await TicketCommentFile.getAll(adminClient, {})
                 expect(objs.length).toBeGreaterThan(0)
@@ -138,7 +139,7 @@ describe('TicketCommentFile', () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
                 const [ticketComment] = await createTestTicketComment(client, ticket, client.user)
-                await createTestTicketCommentFile(client, client.organization, ticket, ticketComment)
+                await createTestTicketCommentFile(client, ticket, ticketComment)
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await TicketCommentFile.getAll(anonymous)
@@ -150,7 +151,7 @@ describe('TicketCommentFile', () => {
                 const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [ticket] = await createTestTicket(admin, organizationTo, propertyTo)
                 const [ticketComment] = await createTestTicketComment(admin, ticket, clientFrom.user)
-                await createTestTicketCommentFile(clientFrom, organizationTo, ticket, ticketComment)
+                await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
 
                 const comments = await TicketComment.getAll(clientFrom)
                 expect(comments).toHaveLength(1)
@@ -163,7 +164,7 @@ describe('TicketCommentFile', () => {
                 await createTestTicketComment(admin, ticket, clientFrom.user)
 
                 const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
-                await createTestTicketCommentFile(clientFrom, organizationFrom, ticket, ticketComment)
+                await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
 
                 const comments = await TicketComment.getAll(clientTo)
                 expect(comments).toHaveLength(0)
@@ -185,7 +186,7 @@ describe('TicketCommentFile', () => {
                 const [ticket] = await createTestTicket(userClient, organization, property)
 
                 const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, organization, ticket)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, ticket)
 
                 const payload = {
                     ticketComment: { connect: { id: ticketComment.id } },
@@ -210,7 +211,7 @@ describe('TicketCommentFile', () => {
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
                 const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(adminClient, ticket, ticketComment)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestTicketCommentFile(userClient, ticketCommentFile.id)
@@ -224,7 +225,7 @@ describe('TicketCommentFile', () => {
                 const [ticket] = await createTestTicket(userClient2, userClient2.organization, userClient2.property)
 
                 const [ticketComment] = await createTestTicketComment(userClient2, ticket, userClient2.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(userClient2, userClient2.organization, ticket)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient2, ticket)
 
                 const payload = {
                     ticketComment: { connect: { id: ticketComment.id } },
@@ -242,7 +243,7 @@ describe('TicketCommentFile', () => {
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
 
                 const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, userClient.organization, ticket)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, ticket)
 
                 const payload = {
                     ticketComment: { connect: { id: ticketComment.id } },
@@ -260,7 +261,7 @@ describe('TicketCommentFile', () => {
                 const client = await makeClientWithProperty()
                 const [ticket] = await createTestTicket(client, client.organization, client.property)
                 const [ticketComment] = await createTestTicketComment(client, ticket, client.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(client, client.organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(client, ticket, ticketComment)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestTicketCommentFile(anonymousClient, ticketCommentFile.id)
@@ -299,7 +300,7 @@ describe('TicketCommentFile', () => {
                     content,
                 })
 
-                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, ticket, ticketComment)
 
                 expect(ticketCommentFile.id).toMatch(UUID_RE)
             })
@@ -324,7 +325,7 @@ describe('TicketCommentFile', () => {
                     content,
                 })
 
-                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, ticketComment)
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, ticket, ticketComment)
 
                 expect(ticketCommentFile.id).toMatch(UUID_RE)
             })
@@ -354,7 +355,7 @@ describe('TicketCommentFile', () => {
                 })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestTicketCommentFile(residentClient, organization, ticket, ticketComment)
+                    await createTestTicketCommentFile(residentClient, ticket, ticketComment)
                 })
             })
         })
@@ -396,10 +397,10 @@ describe('TicketCommentFile', () => {
                     content: content2,
                 })
 
-                const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket, commentFromResident)
-                const [employeeTicketCommentFile] = await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployeeInResidentComments)
+                const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, ticket, commentFromResident)
+                const [employeeTicketCommentFile] = await createTestTicketCommentFile(employeeClient, ticket, commentFromEmployeeInResidentComments)
 
-                await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployeeInEmployeeComments)
+                await createTestTicketCommentFile(employeeClient, ticket, commentFromEmployeeInEmployeeComments)
 
                 const files = await TicketCommentFile.getAll(residentClient, {}, { sortBy: 'createdAt_ASC' })
 
@@ -445,8 +446,8 @@ describe('TicketCommentFile', () => {
                     content: content2,
                 })
 
-                await createTestTicketCommentFile(residentClient, organization, ticket, commentFromResident)
-                await createTestTicketCommentFile(employeeClient, organization, ticket, commentFromEmployee)
+                await createTestTicketCommentFile(residentClient, ticket, commentFromResident)
+                await createTestTicketCommentFile(employeeClient, ticket, commentFromEmployee)
 
                 const files = await TicketCommentFile.getAll(anotherResidentClient)
 
@@ -474,7 +475,7 @@ describe('TicketCommentFile', () => {
                     unitName,
                 })
 
-                const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket)
+                const [residentTicketCommentFile] = await createTestTicketCommentFile(residentClient, ticket)
 
                 const files = await TicketCommentFile.getAll(residentClient, {}, { sortBy: 'createdAt_ASC' })
 
@@ -503,7 +504,7 @@ describe('TicketCommentFile', () => {
                     unitName,
                 })
 
-                await createTestTicketCommentFile(employeeClient, organization, ticket)
+                await createTestTicketCommentFile(employeeClient, ticket)
 
                 const files = await TicketCommentFile.getAll(residentClient, {}, { sortBy: 'createdAt_ASC' })
 
@@ -532,7 +533,7 @@ describe('TicketCommentFile', () => {
                     content,
                 })
 
-                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket)
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, ticket)
 
                 const [updatedTicketCommentFile] = await updateTestTicketCommentFile(residentClient, ticketCommentFile.id, {
                     ticketComment: { connect: { id: ticketComment.id } },
@@ -562,7 +563,7 @@ describe('TicketCommentFile', () => {
                     content,
                 })
 
-                const [ticketCommentFile] = await createTestTicketCommentFile(admin, organization, ticket)
+                const [ticketCommentFile] = await createTestTicketCommentFile(admin, ticket)
 
                 await expectToThrowAccessDeniedErrorToObj(async () =>
                     await updateTestTicketCommentFile(residentClient, ticketCommentFile.id, {
@@ -591,7 +592,7 @@ describe('TicketCommentFile', () => {
                     content,
                 })
 
-                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, organization, ticket)
+                const [ticketCommentFile] = await createTestTicketCommentFile(residentClient, ticket)
 
                 await expectToThrowAccessDeniedErrorToObj(async () =>
                     await updateTestTicketCommentFile(residentClient, ticketCommentFile.id, {
@@ -599,25 +600,6 @@ describe('TicketCommentFile', () => {
                     })
                 )
             })
-        })
-    })
-
-    describe('validations', () => {
-        it('cannot connect ticket from another organization', async () => {
-            const admin = await makeLoggedInAdminClient()
-
-            const [organization] = await createTestOrganization(admin)
-            const [organization1] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization1)
-
-            const [ticket] = await createTestTicket(admin, organization1, property)
-            const [ticketCommentFile] = await createTestTicketCommentFile(admin, organization)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestTicketCommentFile(admin, ticketCommentFile.id, {
-                    ticket: { connect: { id: ticket.id } },
-                })
-            }, 'ticket field validation error. Ticket organization doesn\'t match to TicketCommentFile organization')
         })
     })
 })

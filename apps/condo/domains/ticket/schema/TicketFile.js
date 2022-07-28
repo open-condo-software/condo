@@ -11,6 +11,7 @@ const access = require('@condo/domains/ticket/access/TicketFile')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const TICKET_FILE_FOLDER_NAME = 'ticket'
 const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)
@@ -23,7 +24,6 @@ const TicketFile = new GQLListSchema('TicketFile', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-        organization: ORGANIZATION_OWNED_FIELD,
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
             type: File,
@@ -38,21 +38,6 @@ const TicketFile = new GQLListSchema('TicketFile', {
             isRequired: false,
             knexOptions: { isNotNullable: false }, // ticketFile can be without ticket on create (temporary)
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-            hooks: {
-                validateInput: async ({ resolvedData, fieldPath, existingItem, addFieldValidationError }) => {
-                    const ticketId = get(resolvedData, 'ticket')
-
-                    if (ticketId) {
-                        const ticketFileOrganizationId = resolvedData['organization'] || existingItem['organization']
-                        const ticket = await getById('Ticket', ticketId)
-                        const ticketOrganizationId = get(ticket, 'organization')
-
-                        if (ticketOrganizationId !== ticketFileOrganizationId) {
-                            addFieldValidationError(`${fieldPath} field validation error. Ticket organization doesn't match to TicketFile organization`)
-                        }
-                    }
-                },
-            },
         },
     },
     hooks: {
@@ -63,7 +48,14 @@ const TicketFile = new GQLListSchema('TicketFile', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [
+        addOrganizationFieldPlugin({ fromField: 'ticket' }),
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        historical(),
+    ],
     access: {
         read: access.canReadTicketFiles,
         create: access.canManageTicketFiles,
