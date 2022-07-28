@@ -358,7 +358,8 @@ describe('UserHistoryRecord', () => {
         const name = getRandomString()
 
         const [user] = await createTestUser(admin)
-        await User.update(admin, user.id, { name })
+        const sender = user.sender
+        await User.update(admin, user.id, { name, dv: 1, sender: user.sender })
 
         const objs = await UserHistoryAdmin.getAll(admin, { history_id: user.id }, { sortBy: ['history_date_ASC'] })
         expect(objs).toMatchObject([
