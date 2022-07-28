@@ -271,7 +271,7 @@ describe('User utils', () => {
             'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
             'message': 'Invalid format of "sender" field value. {details}',
             'mutation': 'createUser',
-            'messageInterpolation': { 'details': 'fingerprint: [Fingerprint is invalid], dv: [Dv must be equal to 1]' },
+            'messageInterpolation': { 'details': 'fingerprint: [\'Fingerprint is invalid\'], dv: [\'Dv must be equal to 1\']' },
             'variable': ['data', 'sender'],
         })
     })
@@ -284,7 +284,7 @@ describe('User utils', () => {
             'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
             'message': 'Invalid format of "sender" field value. {details}',
             'mutation': 'createUser',
-            'messageInterpolation': { 'details': 'fingerprint: [Fingerprint is invalid]' },
+            'messageInterpolation': { 'details': 'fingerprint: [\'Fingerprint is invalid\']' },
             'variable': ['data', 'sender'],
         })
     })
