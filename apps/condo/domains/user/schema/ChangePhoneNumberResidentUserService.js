@@ -7,12 +7,29 @@ const access = require('@condo/domains/user/access/ChangePhoneNumberResidentUser
 const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { checkDvSender } = require('../../common/utils/serverSchema/validators')
 
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const errors = {
+    DV_VERSION_MISMATCH: {
+        mutation: 'changePhoneNumberResidentUser',
+        variable: ['data', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
+    },
+    WRONG_SENDER_FORMAT: {
+        mutation: 'changePhoneNumberResidentUser',
+        variable: ['data', 'sender'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Invalid format of "sender" field value. {details}',
+        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    },
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
@@ -51,8 +68,9 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                 errors,
             },
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { token, dv, sender } } = args
-                if (dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH, context)
+                const { data } = args
+                const { token, sender } = data
+                checkDvSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
                 if (!context.authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
                 const userId = context.authedItem.id
                 const action = await ConfirmPhoneAction.getOne(context,

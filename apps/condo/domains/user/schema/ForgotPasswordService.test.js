@@ -243,7 +243,7 @@ describe('ForgotPasswordAction Service', () => {
             const client = await makeClient()
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '123456789' } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, password: '123456789' } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
@@ -266,7 +266,7 @@ describe('ForgotPasswordAction Service', () => {
                 phone: userAttrs.phone,
             })
 
-            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, smsCode, captcha: captcha() } })
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, token, smsCode, captcha: captcha() } })
             expect(status).toBe('ok')
 
             const password = `new_${userAttrs.password}`

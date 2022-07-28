@@ -134,7 +134,7 @@ class GQLError extends ApolloError {
         // second calling of this constructor to work with changed fields
         const extensions = cloneDeep(fields)
         const message = template(fields.message)(fields.messageInterpolation)
-        if (context) {
+        if (context && fields.messageForUser) {
             // todo use i18n from apps/condo/domains/common/utils/localesLoader.js
             const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
             const translations = getTranslations(locale)

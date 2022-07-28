@@ -55,7 +55,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput!}',
+            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput! }',
         },
         {
             access: true,

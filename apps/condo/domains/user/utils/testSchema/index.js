@@ -157,27 +157,37 @@ async function makeClientWithServiceUser (userExtraAttrs = {}) {
 
 async function addAdminAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isAdmin: true, ...extraAttrs })
+    const dv = 1
+    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    await User.update(admin, user.id, { dv, sender, isAdmin: true, ...extraAttrs })
 }
 
 async function addSupportAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { isSupport: true, ...extraAttrs })
+    const dv = 1
+    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    await User.update(admin, user.id, { dv, sender, isSupport: true, ...extraAttrs })
 }
 
 async function addResidentAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: RESIDENT, ...extraAttrs })
+    const dv = 1
+    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    await User.update(admin, user.id, { dv, sender, type: RESIDENT, ...extraAttrs })
 }
 
 async function addStaffAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: STAFF, ...extraAttrs })
+    const dv = 1
+    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    await User.update(admin, user.id, { dv, sender, type: STAFF, ...extraAttrs })
 }
 
 async function addServiceAccess (user, extraAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
-    await User.update(admin, user.id, { type: SERVICE, ...extraAttrs })
+    const dv = 1
+    const sender = { dv:1, fingerprint: "user-test-schema-utils" }
+    await User.update(admin, user.id, { dv, sender, type: SERVICE, ...extraAttrs })
 }
 
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
@@ -188,7 +198,7 @@ const OidcClient = generateGQLTestUtils(OidcClientGQL)
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.random.alphanumeric(8) }
     const now = Date.now()
     const attributes = {
         token: uuid(),
@@ -321,8 +331,11 @@ async function supportSendMessageToSupportByTestClient (client, extraAttrs = {})
 
 async function completeConfirmPhoneActionByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
+        dv: 1,
+        sender,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: attrs })

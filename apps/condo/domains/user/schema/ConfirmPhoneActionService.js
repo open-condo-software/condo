@@ -20,6 +20,9 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+
 const {
     CAPTCHA_CHECK_FAILED,
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
@@ -31,6 +34,19 @@ const {
 const redisGuard = new RedisGuard()
 
 const errors = {
+    DV_VERSION_MISMATCH: {
+        variable: ['data', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
+    },
+    WRONG_SENDER_FORMAT: {
+        variable: ['data', 'sender'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Invalid format of "sender" field value. {details}',
+        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    },
     CAPTCHA_CHECK_FAILED: {
         variable: ['data', 'captcha'],
         code: BAD_USER_INPUT,
@@ -100,7 +116,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input ResendConfirmPhoneActionSmsInput { dv: Int, sender: SenderFieldInput!, captcha: String!, token: String! }',
+            type: 'input ResendConfirmPhoneActionSmsInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, token: String! }',
         },
         {
             access: true,
@@ -108,7 +124,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
         },
         {
             access: true,
-            type: 'input CompleteConfirmPhoneActionInput { dv: Int, sender: SenderFieldInput, captcha: String!, token: String!, smsCode: Int! }',
+            type: 'input CompleteConfirmPhoneActionInput { dv: Int!, sender: SenderFieldInput!, captcha: String!, token: String!, smsCode: Int! }',
         },
         {
             access: true,
@@ -127,7 +143,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 ]),
             },
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { token, captcha } = args.data
+                const { data } = args
+                const { token, captcha } = data
                 const { error } = await captchaCheck(captcha, 'get_confirm_phone_token_info')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'getPhoneByConfirmPhoneActionToken', data: { error } }, context)
@@ -163,8 +180,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 },
             },
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(DOMA-3209): check dv and sender! and make it required
-                const { phone: inputPhone, sender, captcha } = args.data
+                const { data } = args
+                const { phone: inputPhone, sender, captcha } = data
+                checkDvSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'startConfirmPhoneAction' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'startConfirmPhoneAction' }, context)
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'startConfirmPhoneAction', data: { error } }, context)
@@ -225,8 +243,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 },
             },
             resolver: async (parent, args, context, info, extra) => {
-                // TODO(DOMA-3209): check dv and sender! and make it required
-                const { token, sender, captcha } = args.data
+                const { data } = args
+                const { token, sender, captcha } = data
+                checkDvSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'resendConfirmPhoneActionSms' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'resendConfirmPhoneActionSms' }, context)
                 const { error } = await captchaCheck(captcha, 'resend_sms')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'resendConfirmPhoneActionSms', data: { error } }, context)
@@ -249,7 +268,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     dv: 1,
                     sender,
                     smsCode: newSmsCode,
-                    smsCodeExpiresAt:  new Date(now + SMS_CODE_TTL * 1000).toISOString(),
+                    smsCodeExpiresAt: new Date(now + SMS_CODE_TTL * 1000).toISOString(),
                     smsCodeRequestedAt: new Date(now).toISOString(),
                 })
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
@@ -283,8 +302,9 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 },
             },
             resolver: async (parent, args, context, info, extra) => {
-                // TODO(DOMA-3209): check dv and sender! and make it required
-                const { token, smsCode, sender, captcha } = args.data
+                const { data } = args
+                const { token, smsCode, sender, captcha } = data
+                checkDvSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'completeConfirmPhoneAction' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'completeConfirmPhoneAction' }, context)
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'completeConfirmPhoneAction', data: { error } }, context)
@@ -307,8 +327,6 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 }
                 if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
                     await ConfirmPhoneAction.update(context, id, {
-                        dv: 1,
-                        sender,
                         completedAt: new Date(now).toISOString(),
                     })
                     throw new GQLError(errors.SMS_CODE_MAX_RETRIES_REACHED, context)
