@@ -22,7 +22,6 @@ const captcha = () => {
     return faker.lorem.sentence()
 }
 
-
 describe('ConfirmPhoneActionService', () => {
     describe('startConfirmPhoneAction', () => {
         it('can be created by Anonymous', async () => {
@@ -38,7 +37,7 @@ describe('ConfirmPhoneActionService', () => {
         it('throws error when wrong sms code was provided', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const wrongLengthSmsCode = 11111
             const attrs = { token, smsCode: wrongLengthSmsCode, captcha: captcha() }
             await catchErrorFrom(async () => {
@@ -61,10 +60,10 @@ describe('ConfirmPhoneActionService', () => {
         it('should increment retries on failed attempt', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const wrongLengthSmsCode = 11111
-            const completeInput = { token, smsCode: wrongLengthSmsCode, captcha: captcha() }
-            await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: completeInput })
+            const attrs = { token, smsCode: wrongLengthSmsCode, captcha: captcha() }
+            await completeConfirmPhoneActionByTestClient(client, attrs)
             const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
             expect(actionAfter.retries).toBe(1)
         })
@@ -72,10 +71,10 @@ describe('ConfirmPhoneActionService', () => {
         it('marks itself as verified when sms code matches', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
-            const completeInput = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
-            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: completeInput })
+            const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
+            const [{ status }] = await completeConfirmPhoneActionByTestClient(client, attrs)
             expect(status).toBe('ok')
             const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
             expect(actionAfter.isPhoneVerified).toBe(true)
@@ -84,9 +83,9 @@ describe('ConfirmPhoneActionService', () => {
         it('marks itself failed when maximum retries number excided', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
-            await ConfirmPhoneAction.update(admin, actionBefore.id, { retries: CONFIRM_PHONE_SMS_MAX_RETRIES + 1 })
+            await ConfirmPhoneAction.update(admin, actionBefore.id, { dv: 1, sender: actionBefore.sender, retries: CONFIRM_PHONE_SMS_MAX_RETRIES + 1 })
             const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
             await catchErrorFrom(async () => {
                 await completeConfirmPhoneActionByTestClient(client, attrs)
@@ -108,10 +107,10 @@ describe('ConfirmPhoneActionService', () => {
         it('throws error when sms code ttl expires', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
-            await ConfirmPhoneAction.update(admin, actionBefore.id, {  smsCodeExpiresAt: actionBefore.smsCodeRequestedAt })
-            const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
+            await ConfirmPhoneAction.update(admin, actionBefore.id, { smsCodeExpiresAt: actionBefore.smsCodeRequestedAt })
+            const attrs = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode: actionBefore.smsCode, captcha: captcha() }
             await catchErrorFrom(async () => {
                 await completeConfirmPhoneActionByTestClient(client, attrs)
             }, ({ errors }) => {
@@ -132,10 +131,10 @@ describe('ConfirmPhoneActionService', () => {
         it('throws error when confirm phone action expires', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
             await ConfirmPhoneAction.update(admin, actionBefore.id, { expiresAt: actionBefore.requestedAt })
-            const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
+            const attrs = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode: actionBefore.smsCode, captcha: captcha() }
             await catchErrorFrom(async () => {
                 await completeConfirmPhoneActionByTestClient(client, attrs)
             }, ({ errors }) => {
@@ -159,7 +158,7 @@ describe('ConfirmPhoneActionService', () => {
             const client = await makeClient()
             const phone = createTestPhone()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, { phone })
+            const [{ token }] = await createTestConfirmPhoneAction(admin, { phone })
             const getInput = { token, captcha: captcha() }
             const { data: { result: { phone: phoneFromAction } } } = await client.query(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, { data: getInput })
             expect(phone).toBe(phoneFromAction)
@@ -170,10 +169,10 @@ describe('ConfirmPhoneActionService', () => {
         it('should change sms code when resend is invoked', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, { })
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
             expect(actionBefore.smsCode).toBeGreaterThan(0)
-            const resendInput = { token, sender: { dv: 1, fingerprint: 'tests' }, captcha: captcha() }
+            const resendInput = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, captcha: captcha() }
             await client.mutate(RESEND_CONFIRM_PHONE_SMS_MUTATION, { data: resendInput })
             const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
             expect(actionAfter.smsCode).toBeGreaterThan(0)
@@ -183,8 +182,8 @@ describe('ConfirmPhoneActionService', () => {
         it('should block 2 sms code resend for the same phone', async () => {
             const client = await makeClient()
             const admin = await makeLoggedInAdminClient()
-            const [{ token }]  = await createTestConfirmPhoneAction(admin, {})
-            const resendInput = { token, sender: { dv: 1, fingerprint: 'tests' }, captcha: captcha() }
+            const [{ token }] = await createTestConfirmPhoneAction(admin, {})
+            const resendInput = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, captcha: captcha() }
             await client.mutate(RESEND_CONFIRM_PHONE_SMS_MUTATION, { data: resendInput })
             const res = await client.mutate(RESEND_CONFIRM_PHONE_SMS_MUTATION, { data: resendInput })
             expect(JSON.stringify(res.errors)).toContain(TOO_MANY_REQUESTS)
