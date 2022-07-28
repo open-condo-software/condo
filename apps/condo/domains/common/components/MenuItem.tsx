@@ -107,7 +107,8 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const [isActive, setIsActive] = useState(false)
 
     useEffect(() => {
-        setIsActive(path === '/' ? route === path : route.includes(path))
+        const regex = new RegExp(`^${path}`)
+        setIsActive(path === '/' ? route === path : regex.test(route))
     }, [route, path])
 
     if (hideInMenu) {
