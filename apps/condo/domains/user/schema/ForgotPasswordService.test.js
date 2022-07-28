@@ -266,13 +266,12 @@ describe('ForgotPasswordAction Service', () => {
                 phone: userAttrs.phone,
             })
 
-            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, token, smsCode, captcha: captcha() } })
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode, captcha: captcha() } })
             expect(status).toBe('ok')
 
             const password = `new_${userAttrs.password}`
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
-
-            expect(result.data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
+            const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
+            expect(result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
 
             const newClient = await makeLoggedInClient({ phone: userAttrs.phone, password })
             expect(newClient.user.id).toEqual(user.id)
@@ -288,7 +287,7 @@ describe('ForgotPasswordAction Service', () => {
             })
 
             const password = `new_${userAttrs.password}`
-            const { data: { result }, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { data: { result }, errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, password } })
             expect(result).toBeNull()
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
@@ -312,14 +311,14 @@ describe('ForgotPasswordAction Service', () => {
                 phone: userAttrs.phone,
             })
 
-            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, smsCode, captcha: captcha() } })
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode, captcha: captcha() } })
             expect(status).toBe('ok')
             
             const password = `new_${userAttrs.password}`
-            const { data } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { data } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, password } })
             expect(data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
 
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, password } })
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
                 name: 'GQLError',
@@ -343,7 +342,9 @@ describe('ForgotPasswordAction Service', () => {
 
             const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { 
                 data: {
-                    token, 
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'tests' },
+                    token,
                     smsCode: smsCode, 
                     captcha: captcha(), 
                 }, 
@@ -352,11 +353,14 @@ describe('ForgotPasswordAction Service', () => {
             
             await ConfirmPhoneAction.update(admin, confirmActionId, {
                 expiresAt: new Date(Date.now()).toISOString(),
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
             })
             
             const password = `new_${userAttrs.password}`
             // TODO(DOMA-3146): use expectToThrowGQLError here and create helper for CHANGE_PASSWORD_WITH_TOKEN_MUTATION
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1,
+                    sender: { dv: 1, fingerprint: 'tests' }, password } })
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
                 name: 'GQLError',
@@ -383,11 +387,11 @@ describe('ForgotPasswordAction Service', () => {
                 phone: xiaomiSharedPhone,
             })
 
-            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, smsCode, captcha: captcha() } })
+            const { data: { result: { status } } } = await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode, captcha: captcha() } })
             expect(status).toBe('ok')
 
             const password = `new_${userAttrs.password}`
-            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const result = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, password } })
 
             expect(result.data.result).toEqual({ status: 'ok',  phone:  userAttrs.phone })
 
