@@ -7,30 +7,14 @@ const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketCommentsTime')
-const { READ_ONLY_ORGANIZATION_FIELD } = require('@condo/domains/organization/schema/fields')
 const get = require('lodash/get')
+const { parentSchemaOrganizationField } = require('@condo/domains/organization/schema/plugins/parentSchemaOrganizationField')
 
 const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
     schemaDoc: 'The time of the last comment and the last comment of the resident in a specific ticket',
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-
-        organization: {
-            ...READ_ONLY_ORGANIZATION_FIELD,
-            hooks: {
-                resolveInput: async ({ resolvedData }) => {
-                    const ticketId = get(resolvedData, 'ticket')
-
-                    if (ticketId) {
-                        const ticket = await getById('Ticket', ticketId)
-                        resolvedData['organization'] = get(ticket, 'organization')
-                    }
-
-                    return resolvedData['organization']
-                },
-            },
-        },
 
         ticket: {
             schemaDoc: 'Link to the ticket',
@@ -52,7 +36,7 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
             type: DateTimeUtc,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(),  parentSchemaOrganizationField('ticket', 'Ticket'), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketCommentsTimes,
         create: access.canManageTicketCommentsTimes,

@@ -1,6 +1,5 @@
 const { Relationship } = require('@keystonejs/fields')
 
-
 const ORGANIZATION_OWNED_FIELD = {
     schemaDoc: 'Ref to the organization. The object will be deleted if the organization ceases to exist',
     type: Relationship,
@@ -12,21 +11,6 @@ const ORGANIZATION_OWNED_FIELD = {
     access: {
         read: true,
         create: true,
-        update: false,
-    },
-}
-
-const READ_ONLY_ORGANIZATION_FIELD = {
-    schemaDoc: 'Ref to the organization. It is filled in on the server and is read-only',
-    type: Relationship,
-    ref: 'Organization',
-    isRequired: true,
-    knexOptions: { isNotNullable: true }, // Relationship only!
-    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-    // TODO(pahaz): check access to organization!
-    access: {
-        read: true,
-        create: false,
         update: false,
     },
 }
@@ -46,7 +30,6 @@ const COMMON_AND_ORGANIZATION_OWNED_FIELD = {
 }
 
 module.exports = {
-    READ_ONLY_ORGANIZATION_FIELD,
     ORGANIZATION_OWNED_FIELD,
     COMMON_AND_ORGANIZATION_OWNED_FIELD,
 }
