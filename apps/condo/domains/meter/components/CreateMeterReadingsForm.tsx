@@ -1,4 +1,4 @@
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, ColProps, Form, Row, Typography } from 'antd'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import uniqWith from 'lodash/uniqWith'
 import get from 'lodash/get'
@@ -168,6 +168,7 @@ export const PropertyMetersForm = ({
 const VALIDATE_FORM_TRIGGER = ['onBlur', 'onSubmit']
 const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
+const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
 
 export const CreateMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
@@ -251,6 +252,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         }
     }, [createContact, createMeterReadingAction, newMeterReadings, organization.id, role])
 
+    const handleSelectPropertyAddress = useCallback((form) => (_, option) => {
+        form.setFieldsValue({
+            unitName: null,
+            sectionName: null,
+            floorName: null,
+        })
+        setSelectedPropertyId(String(option.key))
+    }, [])
+
     return (
         <FormWithAction
             {...LAYOUT}
@@ -292,19 +302,12 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                             name={'property'}
                                                             label={AddressLabel}
                                                             rules={validations.property}
-                                                            wrapperCol={{ style: { width: '100%', padding: 0 } }}
+                                                            wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
                                                         >
                                                             <PropertyAddressSearchInput
                                                                 organization={organization}
                                                                 autoFocus={true}
-                                                                onSelect={(_, option) => {
-                                                                    form.setFieldsValue({
-                                                                        unitName: null,
-                                                                        sectionName: null,
-                                                                        floorName: null,
-                                                                    })
-                                                                    setSelectedPropertyId(String(option.key))
-                                                                }}
+                                                                onSelect={handleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
                                                                 notFoundContent={AddressNotFoundContent}
                                                             />
