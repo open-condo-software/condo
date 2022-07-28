@@ -93,14 +93,12 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
     const [form, setForm] = useState<FormInstance>()
 
-    const { organization } = useOrganization()
-
     const editableCommentFiles = get(editableComment, 'files')
     const { UploadComponent, syncModifiedFiles, resetModifiedFiles, filesCount } = useMultipleFileUploadHook({
         Model: FileModel,
         relationField: relationField,
         initialFileList: editableCommentFiles,
-        initialCreateValues: { organization: { connect: { id: organization.id } }, ticket: { connect: { id: ticket.id } } },
+        initialCreateValues: { ticket: { connect: { id: ticket.id } } },
         dependenciesForRerenderUploadComponent: [editableComment],
     })
 
