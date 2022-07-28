@@ -47,6 +47,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         },
         {
             access: true,
+            // TODO(pahaz): change `userOrganizationId: String!` to `userOrganization: OrganizationWhereUniqueInput!` or `organization: OrganizationWhereUniqueInput!`
             type: 'input TicketReportWidgetInput { periodType: TicketReportPeriodType! offset: Int, userOrganizationId: String! }',
         },
         {
