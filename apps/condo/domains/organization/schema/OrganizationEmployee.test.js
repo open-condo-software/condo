@@ -567,6 +567,35 @@ describe('OrganizationEmployee', () => {
                 expect(newEmployee.user.id).toEqual(user.user.id)
                 expect(newEmployee.organization.id).toEqual(organization.id)
             })
+
+            test('can create 2 organization employees with null user in organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+                const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role)
+
+                await updateTestUser(admin, user.user.id, {
+                    deletedAt: 'true',
+                })
+
+                await updateTestUser(admin, user1.user.id, {
+                    deletedAt: 'true',
+                })
+
+                const readEmployee = await OrganizationEmployee.getOne(admin, { id: employee.id })
+                const readEmployee1 = await OrganizationEmployee.getOne(admin, { id: employee1.id })
+
+                expect(readEmployee.id).toMatch(UUID_RE)
+                expect(readEmployee.user).toBeNull()
+                expect(readEmployee.organization.id).toEqual(organization.id)
+                expect(readEmployee1.id).toMatch(UUID_RE)
+                expect(readEmployee1.user).toBeNull()
+                expect(readEmployee1.organization.id).toEqual(organization.id)
+            })
         })
     })
 })
