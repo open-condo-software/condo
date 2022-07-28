@@ -55,112 +55,161 @@ const errors = {
     },
 }
 
-const syncEntity = async (existingObjs, objs, shouldCreateHook, shouldUpdateHook) => {
-
-    return {
-        create: [],
-        update: [],
-        delete: [],
-    }
-}
-
-
 const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
 const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, iec, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, iec, bic].join('_')
 
+// const DELETE = 'delete'
+// const UPDATE = 'update'
+// const CREATE = 'create'
+//
+// const syncObjects = async (context, list, existingObjs, objs, getKey, getOperation, convertToGQLInput = x => x) => {
+//     const existingObjsIndex = Object.fromEntries(existingObjs.map((obj) => ([getKey(obj), obj])))
+//
+//     const toCreate = []
+//     const toUpdate = []
+//     const toDelete = []
+//
+//     objs.forEach(obj => {
+//         const key = getKey(obj)
+//         const existingObj = _.get(existingObjsIndex, key)
+//         const operation = getOperation(existingObj, obj)
+//
+//         switch (operation) {
+//             case CREATE:
+//                 toCreate.push(convertToGQLInput({ obj, operation }))
+//                 break
+//             case UPDATE:
+//                 toUpdate.push({ convertToGQLInput ({ obj, operation }) })
+//                 break
+//             case DELETE:
+//                 toDelete.push(convertToGQLInput({ obj, operation }))
+//                 break
+//             default:
+//                 break
+//         }
+//     })
+//
+//     const created = await toCreate.map(async input => await list.create(context, input))
+//     const updated = await toUpdate.map(async input => await list.update(context, input.id, input.data))
+//
+//     return {
+//         created,
+//         updated,
+//
+//     }
+// }
+
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
-    const propertiesQuery = { address_in: Object.values(properties).map(p => p.address) }
-    const existingProperties = await find('BillingProperty', {
-        ...propertiesQuery,
-        context: { id: billingContextId },
-    })
-    const propertiesIndex = Object.fromEntries(existingProperties.map((property) => ([getBillingPropertyKey(property), property.id])))
+    const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId } }
 
-    const propertiesToAdd = Object.values(properties).filter((({ globalId }) => !Reflect.has(propertiesIndex, globalId)))
+    const existingProperties = await find('BillingProperty', propertiesQuery)
+    const existingPropertiesIndex = Object.fromEntries(existingProperties.map((property) => ([getBillingPropertyKey(property), property.id])))
 
-    const newProperties = []
-    for (const p of propertiesToAdd) {
-        const newProperty = await BillingProperty.create(context, p)
-        newProperties.push(newProperty)
+    const propertiesToAdd = properties.filter(((property) => !Reflect.has(existingPropertiesIndex, getBillingPropertyKey(property))))
+
+    const createdProperties = []
+    for (const property of propertiesToAdd) {
+
+        const propertyToCreate = {
+            ...property,
+            context: { connect: { id: _.get(property, ['context', 'id']) } },
+        }
+
+        const newProperty = await BillingProperty.create(context, propertyToCreate)
+        createdProperties.push(newProperty)
     }
 
-    return [ ...newProperties, ...existingProperties ]
+    return [...createdProperties, ...existingProperties]
 }
 
 const syncBillingAccounts = async (context, accounts, { properties, billingContextId }) => {
 
-    const accountsWithData = Object.values(accounts).map(account => ({
-        ..._.omit(account, 'propertyKey'),
-        property: _.find(properties, p => account.propertyKey === getBillingPropertyKey(p)),
-    }))
+    const propertiesIndex = Object.fromEntries(properties.map((item) => ([getBillingPropertyKey(item), item])))
+    const propertiesIndexById = Object.fromEntries(properties.map((item) => ([item.id, item])))
 
     const existingAccountQuery = {
-        OR: accountsWithData.map(a => ({
-            number: a.number,
-            unitName: a.unitName,
-            unitType: a.unitType,
-            property: { id: _.get(a, ['property', 'id']) },
+        OR: accounts.map(item => ({
+            number: item.number,
+            unitName: item.unitName,
+            unitType: item.unitType,
+            property: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') },
         })),
     }
     const existingAccounts = await find('BillingAccount', {
         ...existingAccountQuery,
         context: { id: billingContextId },
     })
-    const existingAccountsWithData = existingAccounts.map(account => ({ ...account, ...{ property: _.find(properties, p => p.id === account.property ) } } ))
-    const accountsIndex = Object.fromEntries(existingAccountsWithData.map((account) => ([getBillingAccountKey(account), account.id])))
+    const existingAccountsWithData = existingAccounts.map(account => ({ ...account, ...{ property: _.get(propertiesIndexById, account.property ) } } ))
+    const accountsIndex = Object.fromEntries(existingAccountsWithData.map((account) => ([getBillingAccountKey(account), account])))
 
-    const accountsToAdd = accountsWithData.filter((({ globalId }) => !Reflect.has(accountsIndex, globalId)))
+    const accountsToAdd = accounts.filter(((item) => !Reflect.has(accountsIndex, getBillingAccountKey(item))))
 
     const newAccounts = []
-    for (const a of accountsToAdd) {
+    for (const account of accountsToAdd) {
 
-        // TODO @toplenboren (DOMA-3445) refactor this!
-        a.property = { connect: { id: _.get(a, ['property', 'id']) } }
+        const accountGQLInput = {
+            ...account,
+            context: { connect: { id: _.get(account, ['context', 'id']) } },
+            property: { connect: { id: _.get(propertiesIndex[getBillingPropertyKey(account.property)], 'id' ) } },
+        }
 
-        const newAccount = await BillingAccount.create(context, a)
+        const newAccount = await BillingAccount.create(context, accountGQLInput)
         newAccounts.push(newAccount)
     }
 
     const newAccountsWithData = newAccounts.map(item => ({
         ...item,
-        property: _.find(properties, p => p.id === _.get(item, ['property', 'id'])),
+        property: _.get(propertiesIndexById, _.get(item, ['property', 'id'])),
     }))
 
     return [ ...newAccountsWithData, ...existingAccountsWithData ]
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
-    const receiptsWithData = Object.values(receipts).map(receipt => ({
-        ..._.omit(receipt, ['propertyKey', 'accountKey']),
-        property: _.find(properties, p => receipt.propertyKey === getBillingPropertyKey(p)),
-        account: _.find(accounts, a => receipt.accountKey === getBillingAccountKey(a)),
-    }))
+
+    const propertiesIndex = Object.fromEntries(properties.map((item) => ([getBillingPropertyKey(item), item])))
+    const propertiesIndexById = Object.fromEntries(properties.map((item) => ([item.id, item])))
+
+    const accountsIndex = Object.fromEntries(accounts.map((item) => ([getBillingAccountKey(item), item])))
+    const accountsIndexById = Object.fromEntries(accounts.map((item) => ([item.id, item])))
 
     const existingReceiptsQuery = {
-        OR: receiptsWithData.map(item => ({
-            // TODO @toplenboren (DOMA-3445) refactor this! Also add PAYMENT INFO!
+        OR: receipts.map(item => ({
             period: item.period,
-            category: { id: _.get(item, ['category', 'connect', 'id']) },
-            property: { id: _.get(item, ['property', 'id']) },
-            account: { id: _.get(item, ['account', 'id']) },
+            category: { id: _.get(item, ['category', 'id']) },
+            property: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') },
+            account: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') },
         })),
     }
     const existingReceipts = await find('BillingReceipt', {
         ...existingReceiptsQuery,
         context: { id: billingContextId },
     })
-    const existingReceiptsWithData = existingReceipts.map(receipt => ({ ...receipt, ...{ property: _.find(properties, p => p.id === receipt.property ) } } ))
+    const existingReceiptsWithData = existingReceipts.map(receipt => ({
+        ...receipt,
+        ...{
+            property: _.get(propertiesIndexById, _.get(receipt, ['property'] )),
+            account: _.get(accountsIndexById, _.get(receipt, ['account'])),
+        },
+    }))
     const receiptsIndex = Object.fromEntries(existingReceiptsWithData.map((receipt) => ([getBillingReceiptKey(receipt), receipt.id])))
 
-    const receiptsToAdd = receiptsWithData.filter((({ globalId }) => !Reflect.has(receiptsIndex, globalId)))
+    const receiptsToAdd = receipts.filter(((item) => !Reflect.has(receiptsIndex, getBillingReceiptKey(
+        { ...item, ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+    ))))
+    const receiptsToUpdate = receipts.filter(((item) => Reflect.has(receiptsIndex, getBillingReceiptKey(
+        { ...item, ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+    ))))
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
+        
+        item.category = { connect: { id: _.get(item, ['category', 'id']) } }
+        item.context = { connect: { id: _.get(item, ['context', 'id']) } }
 
-        // TODO @toplenboren (DOMA-3445) refactor this!
-        item.property = { connect: { id: _.get(item, ['property', 'id']) } }
-        item.account = { connect: { id: _.get(item, ['account', 'id']) } }
+        item.property = { connect: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
+        item.account = { connect: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
 
         item.recipient = {
             tin: item.tin,
@@ -175,7 +224,29 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         newReceipts.push(newReceipt)
     }
 
-    return { createdReceipts: newReceipts,  notChangedReceipts: existingReceipts }
+    const updatedReceipts = []
+    for (const item of receiptsToUpdate) {
+
+        item.category = { connect: { id: _.get(item, ['category', 'id']) } }
+        item.context = { connect: { id: _.get(item, ['context', 'id']) } }
+
+        item.property = { connect: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
+        item.account = { connect: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
+
+        item.recipient = {
+            tin: item.tin,
+            iec: item.iec,
+            bankAccount: item.bankAccount,
+            bic: item.bic,
+        }
+
+        const cleanItem = _.omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+
+        const updatedReceipt = await BillingReceipt.update(context, item.id, cleanItem)
+        updatedReceipts.push(updatedReceipt)
+    }
+
+    return { createdReceipts: newReceipts, updatedReceipts: updatedReceipts,  notChangedReceipts: existingReceipts }
 }
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
@@ -235,7 +306,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 1:
                 // Parse properties, accounts and receipts from input
-                const { properties, accounts, receipts } = receiptsInput.reduce((index, receiptInput) => {
+                const { propertyIndex, accountIndex, receiptIndex } = receiptsInput.reduce((index, receiptInput) => {
                     const {
                         importId,
                         address,
@@ -262,43 +333,43 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const accountKey = getBillingAccountKey( accountFromInput )
                     const receiptKey = getBillingReceiptKey(receiptFromInput)
 
-                    if (!index.properties[propertyKey]) {
-                        index.properties[propertyKey] = {
+                    if (!index.propertyIndex[propertyKey]) {
+                        index.propertyIndex[propertyKey] = {
                             dv: dv,
                             sender: sender,
                             globalId: propertyKey,
                             address: address,
                             raw: { dv: 1 },
                             importId: propertyKey,
-                            context: { connect: { id: billingContext.id } },
+                            context: { id: billingContext.id },
                             meta: { dv: 1 },
                         }
                     }
-                    if (!index.accounts[accountKey]) {
-                        index.accounts[accountKey] = {
+                    if (!index.accountIndex[accountKey]) {
+                        index.accountIndex[accountKey] = {
                             dv: dv,
                             sender: sender,
-                            context: { connect: { id: billingContext.id } },
+                            context: { id: billingContext.id },
                             number: accountNumber,
                             importId: accountKey,
                             globalId: accountKey,
                             unitName,
                             unitType,
-                            propertyKey,
+                            property: index.propertyIndex[propertyKey],
                             raw: { dv: 1 },
                             meta: { dv: 1 },
                         }
                     }
-                    if (!index.receipts[receiptKey]) {
-                        index.receipts[receiptKey] = {
+                    if (!index.receiptIndex[receiptKey]) {
+                        index.receiptIndex[receiptKey] = {
                             dv: dv,
                             sender: sender,
-                            context: { connect: { id: billingContext.id } },
-                            accountKey,
-                            propertyKey,
+                            context: { id: billingContextId },
+                            account: index.accountIndex[accountKey],
+                            property: index.propertyIndex[propertyKey],
                             period: period,
                             importId: importId,
-                            category: { connect: { id: category.id } },
+                            category: { id: category.id },
                             toPay: toPay,
                             services: services,
                             toPayDetails: toPayDetails,
@@ -310,23 +381,21 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         }
                     }
                     return index
-                }, { properties: {}, accounts: {}, receipts: {} })
+                }, { propertyIndex: {}, accountIndex: {}, receiptIndex: {} })
 
                 // Step 2:
                 // Sync billing properties
-                const syncedProperties = await syncBillingProperties(context, properties, { properties, billingContextId })
+                const syncedProperties = await syncBillingProperties(context, Object.values(propertyIndex), { billingContextId })
 
                 // Step 3:
                 // Sync Billing Accounts
-                const syncedAccounts = await syncBillingAccounts(context, accounts, { accounts, properties: syncedProperties, billingContextId })
+                const syncedAccounts = await syncBillingAccounts(context, Object.values(accountIndex), { properties: syncedProperties, billingContextId })
 
                 // Step 4:
                 // Sync billing receipts
-                const { createdReceipts, notChangedReceipts } = await syncBillingReceipts(context, receipts, { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
+                const { createdReceipts, updatedReceipts, notChangedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
-                // TODO: throw errors in a following way
-                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
-                return createdReceipts
+                return [ ...createdReceipts, ...updatedReceipts ]
             },
         },
     ],
