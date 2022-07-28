@@ -27,21 +27,22 @@ async function canManageTicketPropertyHintProperties ({ authentication: { item: 
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    let ticketHintPropertyOrganizationId
+    let organizationId
 
     if (operation === 'create') {
-        ticketHintPropertyOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
+        const ticketPropertyHintId = get(originalInput, ['ticketPropertyHint', 'connect', 'id'])
+        const ticketPropertyHint = await getById('TicketPropertyHint', ticketPropertyHintId)
+
+        organizationId = get(ticketPropertyHint, 'organization', null)
     } else if (operation === 'update') {
         if (!itemId) return false
-        ticketHintPropertyOrganizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-        if (!ticketHintPropertyOrganizationId) {
-            const ticketHintProperty = await getById('TicketPropertyHintProperty', itemId)
-            ticketHintPropertyOrganizationId = get(ticketHintProperty, 'organization', null)
-        }
+        const ticketPropertyHintProperty = await getById('TicketPropertyHintProperty', itemId)
+
+        organizationId = get(ticketPropertyHintProperty, 'organization', null)
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, ticketHintPropertyOrganizationId, 'canManageTicketPropertyHints')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketPropertyHints')
 }
 
 /*

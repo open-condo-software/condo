@@ -11,7 +11,6 @@ const parentSchemaOrganizationField = (parentSchemaFieldName, parentSchemaName) 
         isRequired: true,
         knexOptions: { isNotNullable: true }, // Relationship only!
         kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        // TODO(pahaz): check access to organization!
         access: {
             read: true,
             create: false,

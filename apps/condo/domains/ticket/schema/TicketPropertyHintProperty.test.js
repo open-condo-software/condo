@@ -27,7 +27,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-                    const [obj] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+                    const [obj] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
                     expect(obj.id).toMatch(UUID_RE)
                 })
@@ -46,7 +46,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(user, organization, {})
 
-                    const [obj] = await createTestTicketPropertyHintProperty(user, organization, ticketPropertyHint, property)
+                    const [obj] = await createTestTicketPropertyHintProperty(user, ticketPropertyHint, property)
 
                     expect(obj.id).toMatch(UUID_RE)
                 })
@@ -60,7 +60,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestTicketPropertyHintProperty(user, organization, ticketPropertyHint, property)
+                        await createTestTicketPropertyHintProperty(user, ticketPropertyHint, property)
                     })
                 })
 
@@ -75,7 +75,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestTicketPropertyHintProperty(user, organization, ticketPropertyHint, property)
+                        await createTestTicketPropertyHintProperty(user, ticketPropertyHint, property)
                     })
                 })
             })
@@ -90,7 +90,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
                     await expectToThrowAuthenticationErrorToObj(async () => {
-                        await createTestTicketPropertyHintProperty(client, organization, ticketPropertyHint, property)
+                        await createTestTicketPropertyHintProperty(client, ticketPropertyHint, property)
                     })
                 })
             })
@@ -106,7 +106,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property2] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-                    const [objCreated] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property1)
+                    const [objCreated] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property1)
 
                     expect(objCreated.property.id).toEqual(property1.id)
 
@@ -132,7 +132,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property2] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(user, organization, {})
 
-                    const [objCreated] = await createTestTicketPropertyHintProperty(user, organization, ticketPropertyHint, property1)
+                    const [objCreated] = await createTestTicketPropertyHintProperty(user, ticketPropertyHint, property1)
 
                     expect(objCreated.property.id).toEqual(property1.id)
 
@@ -154,7 +154,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property2] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization, {})
 
-                    const [objCreated] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property1)
+                    const [objCreated] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property1)
 
                     expect(objCreated.property.id).toEqual(property1.id)
 
@@ -175,7 +175,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property1] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-                    const [objCreated] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property1)
+                    const [objCreated] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property1)
 
                     await expectToThrowAuthenticationErrorToObj(async () => {
                         await updateTestTicketPropertyHintProperty(client, objCreated.id)
@@ -193,7 +193,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-                    const [obj] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+                    const [obj] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
                     const objs = await TicketPropertyHintProperty.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -219,7 +219,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(user, organization, {})
 
-                    const [obj] = await createTestTicketPropertyHintProperty(user, organization, ticketPropertyHint, property)
+                    const [obj] = await createTestTicketPropertyHintProperty(user, ticketPropertyHint, property)
 
                     const objs = await TicketPropertyHintProperty.getAll(user, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -237,7 +237,7 @@ describe('TicketPropertyHintProperty', () => {
                     const [property] = await createTestProperty(admin, organization)
                     const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization, {})
 
-                    await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+                    await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
                     const objs = await TicketPropertyHintProperty.getAll(user, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -265,10 +265,10 @@ describe('TicketPropertyHintProperty', () => {
             const [property] = await createTestProperty(admin, organization)
             const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-            await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+            await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
             await expectToThrowInternalError(async () => {
-                await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+                await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
             }, `${UNIQUE_CONSTRAINT_ERROR} "unique_ticketPropertyHint_and_property"`)
         })
     })
@@ -281,7 +281,7 @@ describe('TicketPropertyHintProperty', () => {
             const [property] = await createTestProperty(admin, organization)
             const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-            const [ticketPropertyHintProperty] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+            const [ticketPropertyHintProperty] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
             await updateTestProperty(admin, property.id, {
                 deletedAt: new Date().toISOString(),
@@ -297,7 +297,7 @@ describe('TicketPropertyHintProperty', () => {
             const [property] = await createTestProperty(admin, organization)
             const [ticketPropertyHint] = await createTestTicketPropertyHint(admin, organization)
 
-            const [ticketPropertyHintProperty] = await createTestTicketPropertyHintProperty(admin, organization, ticketPropertyHint, property)
+            const [ticketPropertyHintProperty] = await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
             await updateTestTicketPropertyHint(admin, ticketPropertyHint.id, {
                 deletedAt: new Date().toISOString(),
