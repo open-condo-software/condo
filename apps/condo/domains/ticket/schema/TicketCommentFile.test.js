@@ -6,11 +6,11 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 
 const { TicketCommentFile, createTestTicketCommentFile, updateTestTicketCommentFile,
     createTestTicket,
-    createTestTicketComment, TicketComment, updateTestTicketComment,
+    createTestTicketComment, TicketComment, updateTestTicketComment, createTestTicketFile, updateTestTicketFile,
 } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const {
@@ -599,6 +599,25 @@ describe('TicketCommentFile', () => {
                     })
                 )
             })
+        })
+    })
+
+    describe('validations', () => {
+        it('cannot connect ticket from another organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const [organization] = await createTestOrganization(admin)
+            const [organization1] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization1)
+
+            const [ticket] = await createTestTicket(admin, organization1, property)
+            const [ticketCommentFile] = await createTestTicketCommentFile(admin, organization)
+
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestTicketCommentFile(admin, ticketCommentFile.id, {
+                    ticket: { connect: { id: ticket.id } },
+                })
+            }, 'ticket field validation error. Ticket organization doesn\'t match to TicketCommentFile organization')
         })
     })
 })
