@@ -49,7 +49,7 @@ import {
 } from '../utils/filters.utils'
 import { colors } from '../constants/style'
 import { Tooltip } from '../components/Tooltip'
-import { Ticket } from '../../../schema'
+import { Ticket } from '@app/condo/schema'
 
 enum FilterComponentSize {
     Medium = 12,
