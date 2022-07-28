@@ -40,18 +40,17 @@ async function canManageTicketCommentsTimes ({ authentication: { item: user }, o
         let organizationId
 
         if (operation === 'create') {
-            organizationId = get(originalInput, ['connect', 'organization'])
             const ticketId = get(originalInput, ['connect', 'ticket'])
-            const ticket = getById('Ticket', ticketId)
+            const ticket = await getById('Ticket', ticketId)
 
-            if (!ticket || ticket.organization !== organizationId) return false
+            organizationId = get(ticket, 'organization', null)
         }
 
         if (operation === 'update' && itemId) {
-            const ticketCommentsTime = getById('TicketCommentsTime', itemId)
+            const ticketCommentsTime = await getById('TicketCommentsTime', itemId)
             if (!ticketCommentsTime) return false
 
-            organizationId = get(ticketCommentsTime, 'organization')
+            organizationId = get(ticketCommentsTime, 'organization', null)
         }
 
         const organizationEmployee = await getByCondition('OrganizationEmployee', {
@@ -69,12 +68,8 @@ async function canManageTicketCommentsTimes ({ authentication: { item: user }, o
     }
 
     if (user.type === RESIDENT) {
-        let organizationId
-        organizationId = get(originalInput, ['connect', 'organization'])
         const ticketId = get(originalInput, ['connect', 'ticket'])
         const ticket = getById('Ticket', ticketId)
-
-        if (!ticket || ticket.organization !== organizationId) return false
 
         return ticket.client === user.id
     }

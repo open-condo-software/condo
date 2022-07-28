@@ -3,10 +3,12 @@
  */
 
 const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketCommentsTime')
+const { READ_ONLY_ORGANIZATION_FIELD } = require('@condo/domains/organization/schema/fields')
+const get = require('lodash/get')
 
 const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
     schemaDoc: 'The time of the last comment and the last comment of the resident in a specific ticket',
@@ -15,12 +17,19 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
         sender: SENDER_FIELD,
 
         organization: {
-            schemaDoc: 'Link to the organization',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true },
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            ...READ_ONLY_ORGANIZATION_FIELD,
+            hooks: {
+                resolveInput: async ({ resolvedData }) => {
+                    const ticketId = get(resolvedData, 'ticket')
+
+                    if (ticketId) {
+                        const ticket = await getById('Ticket', ticketId)
+                        resolvedData['organization'] = get(ticket, 'organization')
+                    }
+
+                    return resolvedData['organization']
+                },
+            },
         },
 
         ticket: {

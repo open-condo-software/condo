@@ -292,13 +292,11 @@ const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) 
     if (userType === RESIDENT) {
         if (!ticketCommentsTime) {
             const ticket = await getById('Ticket', ticketId)
-            const ticketOrganizationId = get(ticket, 'organization')
             if (!ticket) return false
 
             await TicketCommentsTime.create(context, {
                 dv,
                 sender,
-                organization: { connect: { id: ticketOrganizationId } },
                 ticket: { connect: { id: ticketId } },
                 lastCommentAt: now,
                 lastResidentCommentAt: now,
@@ -314,13 +312,11 @@ const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) 
     } else {
         if (!ticketCommentsTime) {
             const ticket = await getById('Ticket', ticketId)
-            const ticketOrganizationId = get(ticket, 'organization')
             if (!ticket) return false
 
             await TicketCommentsTime.create(context, {
                 dv,
                 sender,
-                organization: { connect: { id: ticketOrganizationId } },
                 ticket: { connect: { id: ticketId } },
                 lastCommentAt: now,
             })
