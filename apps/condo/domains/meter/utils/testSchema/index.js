@@ -137,10 +137,9 @@ async function updateTestMeter (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMeterReading (client, meter, organization, source, extraAttrs = {}) {
+async function createTestMeterReading (client, meter, source, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!meter || !meter.id) throw new Error('no meter.id')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     if (!source || !source.id) throw new Error('no source.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -148,7 +147,6 @@ async function createTestMeterReading (client, meter, organization, source, extr
         dv: 1,
         sender,
         meter: { connect: { id: meter.id } },
-        organization: { connect: { id: organization.id } },
         source: { connect: { id: source.id } },
         date: faker.date.recent(),
         value1: String(faker.random.number()),

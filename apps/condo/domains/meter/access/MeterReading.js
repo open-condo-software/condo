@@ -10,10 +10,8 @@ const {
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { Division, getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
-const uniq = require('lodash/uniq')
-const flatten = require('lodash/flatten')
+const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
+const { getById } = require('@core/keystone/schema')
 
 async function canReadMeterReadings ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -79,15 +77,18 @@ async function canManageMeterReadings ({ authentication: { item: user }, origina
     if (user.isAdmin) return true
 
     if (operation === 'create') {
+        const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
+        if (!meterId) return false
+
         if (user.type === RESIDENT) {
-            const meterId = get(originalInput, ['meter', 'connect', 'id'], null)
             const availableMeterIds = await getAvailableResidentMetersIds(user.id)
             return availableMeterIds.includes(meterId)
         }
-        const inputOrganization = get(originalInput, ['organization', 'connect', 'id'])
-        if (!inputOrganization) return false
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, inputOrganization, 'canManageMeterReadings')
+        const meter = await getById('Meter', meterId)
+        const meterOrganization = get(meter, 'organization', null)
+
+        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, meterOrganization, 'canManageMeterReadings')
     }
 
     return false
