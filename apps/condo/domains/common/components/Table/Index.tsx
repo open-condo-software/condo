@@ -15,6 +15,7 @@ import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import { TablePaginationConfig } from 'antd/lib/table/interface'
 import { GetRowKey } from 'rc-table/lib/interface'
+import { useLayoutContext } from '../LayoutContext'
 
 export type TableRecord = any
 
@@ -52,6 +53,9 @@ export const Table: React.FC<ITableProps> = ({
     const rowKey = keyPath || 'id'
     const hideOnSinglePage = !!shouldHidePaginationOnSinglePage
 
+    const LayoutContext = useLayoutContext()
+    const  { shouldTableScroll } = LayoutContext
+
     const router = useRouter()
     const { filters, offset, sorters } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, rowsPerPage)
@@ -66,6 +70,8 @@ export const Table: React.FC<ITableProps> = ({
     }), [currentPageIndex, hideOnSinglePage, rowsPerPage, totalRows])
 
     const getRowKey: string | GetRowKey<TableRecord> = useCallback((record) => get(record, rowKey), [rowKey])
+
+    const tableScrollConfig = useMemo(() => shouldTableScroll ? TABLE_SCROlL_CONFIG : {}, [shouldTableScroll])
 
     // Triggered, when table pagination/filters/sorting changes
     // Modifies the query to match the state of the table
@@ -128,7 +134,7 @@ export const Table: React.FC<ITableProps> = ({
 
     return (
         <DefaultTable
-            scroll={TABLE_SCROlL_CONFIG}
+            scroll={tableScrollConfig}
             bordered
             tableLayout={'fixed'}
             style={TABLE_STYLE}
