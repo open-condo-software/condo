@@ -202,6 +202,22 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
+                                            name="role"
+                                            label={RoleLabel}
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign="left"
+                                        >
+                                            {
+                                                isRolesLoading ? (
+                                                    <Loader fill size="small"/>
+                                                ) : (
+                                                    <ContactRoleSelect roles={roles}/>
+                                                )
+                                            }
+                                        </Form.Item>
+                                    </Col>
+                                    <Col lg={18} xs={24}>
+                                        <Form.Item
                                             name={'phone'}
                                             label={PhoneLabel}
                                             labelAlign={'left'}
@@ -223,22 +239,6 @@ export const CreateContactForm: React.FC = () => {
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Input placeholder={ExampleEmailMessage}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col lg={18} xs={24}>
-                                        <Form.Item
-                                            name="role"
-                                            label={RoleLabel}
-                                            {...INPUT_LAYOUT_PROPS}
-                                            labelAlign="left"
-                                        >
-                                            {
-                                                isRolesLoading ? (
-                                                    <Loader fill size="small"/>
-                                                ) : (
-                                                    <ContactRoleSelect roles={roles}/>
-                                                )
-                                            }
                                         </Form.Item>
                                     </Col>
                                 </Row>
