@@ -39,7 +39,7 @@ describe('RegisterNewServiceUserServiceAccess', () => {
     test('deleted admin can not register service user', async () => {
         const client = await makeClientWithSupportUser()
         const admin = await makeLoggedInAdminClient()
-        await User.update(admin, client.user.id, { deletedAt: 'true' })
+        await User.update(admin, client.user.id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, deletedAt: 'true' })
         await expectToThrowAccessDeniedErrorToResult(async () => {
             await registerNewServiceUserByTestClient(client)
         })
