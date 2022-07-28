@@ -17,7 +17,7 @@ const {
     createTestEmail,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
 const { DEFAULT_TEST_USER_IDENTITY } = require('@core/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
@@ -251,6 +251,44 @@ describe('User utils', () => {
         expect(userAttrs.password).toBeTruthy()
     })
 
+    test('createUser() with wrong dv', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await expectToThrowGQLError(async () => await createTestUser(admin, { dv: 7 }), {
+            'code': 'BAD_USER_INPUT',
+            'type': 'DV_VERSION_MISMATCH',
+            'message': 'Wrong value for data version number',
+            'mutation': 'createUser',
+            'messageForUser': '',
+            'variable': ['data', 'dv'],
+        })
+    })
+
+    test('createUser() with wrong sender dv', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await expectToThrowGQLError(async () => await createTestUser(admin, { sender: { dv: 2, fingerprint: '<errrr>' } }), {
+            'code': 'BAD_USER_INPUT',
+            'type': 'WRONG_FORMAT',
+            'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+            'message': 'Invalid format of "sender" field value. {details}',
+            'mutation': 'createUser',
+            'messageInterpolation': { "details": "fingerprint: ['Fingerprint is invalid'], dv: ['Dv must be equal to 1']" },
+            'variable': ['data', 'sender'],
+        })
+    })
+
+    test('createUser() with wrong sender fingerprint', async () => {
+        const admin = await makeLoggedInAdminClient()
+        await expectToThrowGQLError(async () => await createTestUser(admin, { sender: { dv: 1, fingerprint: '<errrr>' } }), {
+            'code': 'BAD_USER_INPUT',
+            'type': 'WRONG_FORMAT',
+            'correctExample': '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+            'message': 'Invalid format of "sender" field value. {details}',
+            'mutation': 'createUser',
+            'messageInterpolation': { "details": "fingerprint: ['Fingerprint is invalid']" },
+            'variable': ['data', 'sender'],
+        })
+    })
+
     test('createUser() with landline phone number', async () => {
         const admin = await makeLoggedInAdminClient()
         const phone = createTestLandlineNumber()
@@ -263,7 +301,7 @@ describe('User utils', () => {
             name: 'ValidationFailureError',
             path: ['obj'],
             data: {
-                messages: [ '[format:phone] invalid format' ],
+                messages: ['[format:phone] invalid format'],
             },
         }])
     })
