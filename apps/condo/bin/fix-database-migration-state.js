@@ -1,7 +1,9 @@
 /**
  * We don't remove any tables/columns from the database for backward compatibility!
- * But we same such tables/columns here to apply it after some day!
- * This script just remove legacy backward compatibility tables and columns!
+ * But we need to save backward-incompatible changes to apply it someday! 
+ * Backward compatibility is required but we also need a way to remove legacy compatibility tables and columns.
+ * This script solves this problem!
+ * This script simply removes legacy backward compatibility tables and columns!
  *
  * Usage:
  *      yarn workspace @app/condo node bin/fix-database-migration-state.js
@@ -16,7 +18,7 @@ function exit (code, error) {
     process.exit(code)
 }
 
-function result (obj) {
+function printResult (obj) {
     const data = JSON.stringify(obj, null, 2)
     console.log(`
 
@@ -45,7 +47,7 @@ async function main () {
     const { knex } = await init()
     console.timeEnd('init')
 
-    return result(await knex.raw(`
+    return printResult(await knex.raw(`
 BEGIN;
 --
 -- We don't remove any tables/columns from the database for backward compatibility! But we same such tables/columns here to apply it after some day!
