@@ -665,6 +665,31 @@ describe('MeterReading', () => {
             })
         })
         describe('Update', () => {
+            test('update organization field when connect other meter', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+                const [organization1] = await createTestOrganization(admin)
+
+                const [property] = await createTestProperty(admin, organization)
+                const [property1] = await createTestProperty(admin, organization1)
+
+                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+
+                const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                const [meter1] = await createTestMeter(admin, organization1, property1, resource, {})
+
+                const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                expect(meterReading.organization.id).toEqual(organization.id)
+
+                const [updatedMeterReading] = await updateTestMeterReading(admin, meterReading.id, {
+                    meter: { connect: { id: meter1.id } },
+                })
+
+                expect(updatedMeterReading.organization.id).toEqual(organization1.id)
+            })
+
             test('employee with "canManageMeterReadings" role: cannot update MeterReadings', async () => {
                 const client = await makeEmployeeUserClientWithAbilities({
                     canManageMeterReadings: true,

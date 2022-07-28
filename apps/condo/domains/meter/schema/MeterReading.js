@@ -12,7 +12,7 @@ const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
-const { parentSchemaOrganizationField } = require('@condo/domains/organization/schema/plugins/parentSchemaOrganizationField')
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
@@ -92,7 +92,14 @@ const MeterReading = new GQLListSchema('MeterReading', {
             }
         },
     },
-    plugins: [uuided(), versioned(), parentSchemaOrganizationField('meter', 'Meter'), tracked(), softDeleted(), historical()],
+    plugins: [
+        addOrganizationFieldPlugin({ fromField: 'meter' }),
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        historical(),
+    ],
     access: {
         read: access.canReadMeterReadings,
         create: access.canManageMeterReadings,
