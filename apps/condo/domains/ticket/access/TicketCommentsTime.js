@@ -31,48 +31,12 @@ async function canReadTicketCommentsTimes ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTicketCommentsTimes ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageTicketCommentsTimes ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    if (user.type !== RESIDENT) {
-        let organizationId
-
-        if (operation === 'create') {
-            const ticketId = get(originalInput, ['connect', 'ticket'])
-            const ticket = await getById('Ticket', ticketId)
-
-            organizationId = get(ticket, 'organization', null)
-        }
-
-        if (operation === 'update' && itemId) {
-            const ticketCommentsTime = await getById('TicketCommentsTime', itemId)
-            if (!ticketCommentsTime) return false
-
-            organizationId = get(ticketCommentsTime, 'organization', null)
-        }
-
-        const organizationEmployee = await getByCondition('OrganizationEmployee', {
-            organization: {
-                id: organizationId,
-                OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                ],
-            },
-            user: { id: user.id },
-        })
-
-        if (organizationEmployee) return true
-    }
-
-    if (user.type === RESIDENT) {
-        const ticketId = get(originalInput, ['connect', 'ticket'])
-        const ticket = getById('Ticket', ticketId)
-
-        return ticket.client === user.id
-    }
+    return false
 }
 
 /*
