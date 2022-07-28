@@ -79,7 +79,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
     return rows
 }
 
-const buildUploadInputFrom = ({ stream, filename, mimetype, encoding }) => {
+const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) => {
     const uploadData = {
         createReadStream: () => {
             return stream
@@ -87,6 +87,7 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding }) => {
         filename,
         mimetype,
         encoding,
+        meta,
     }
     const uploadInput = new Upload()
     uploadInput.promise = new Promise(resolve => {
@@ -104,8 +105,8 @@ const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow
         taskServerUtils,
     })
         .then(buildExportFile)
-        .then(async ({ stream, filename, mimetype, encoding }) => {
-            const file = buildUploadInputFrom({ stream, filename, mimetype, encoding })
+        .then(async ({ stream, filename, mimetype, encoding, meta }) => {
+            const file = buildUploadInputFrom({ stream, filename, mimetype, encoding, meta })
             const data = {
                 dv: 1,
                 sender: task.sender,
