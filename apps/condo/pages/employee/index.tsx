@@ -22,7 +22,8 @@ import {
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
 
-import { Col, Dropdown, Menu, Row, Table, Tooltip, Typography } from 'antd'
+import { Col, Dropdown, Menu, Row, Tooltip, Typography } from 'antd'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import Input from '@condo/domains/common/components/antd/Input'
 import { debounce, get } from 'lodash'
 import Head from 'next/head'
