@@ -21,10 +21,10 @@ const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@con
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const get = require('lodash/get')
 const Big = require('big.js')
-const validate = require('validate.js')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const { WRONG_FORMAT } = require('../../common/constants/errors')
+const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
 const { MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, RECEIPTS_ARE_DELETED, RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, RECEIPTS_HAS_MULTIPLE_CURRENCIES,
     RECEIPT_HAS_DELETED_BILLING_INTEGRATION, BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
@@ -186,16 +186,6 @@ const errors = {
 }
 
 
-const SENDER_FIELD_CONSTRAINTS = {
-    ...JSON_STRUCTURE_FIELDS_CONSTRAINTS,
-    dv: {
-        numericality: {
-            noStrings: true,
-            equalTo: 1,
-        },
-    },
-}
-
 const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentService', {
     types: [
         {
@@ -218,20 +208,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
             schema: 'registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, groupedReceipts } = data
+                const { sender, groupedReceipts } = data
 
                 // Stage 0. Check if input is valid
-                if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
-                }
-
-                const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
-                if (senderErrors && Object.keys(senderErrors).length) {
-                    const details = Object.keys(senderErrors).map(field => {
-                        return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
-                    }).join(', ')
-                    throw new GQLError({ ...errors.WRONG_SENDER_FORMAT, messageInterpolation: { details } }, context)
-                }
+                checkDvSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
 
                 if (!get(groupedReceipts, 'length')) {
                     throw new GQLError(errors.MISSING_REQUIRED_GROUPED_RECEIPTS, context)

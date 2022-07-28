@@ -21,7 +21,6 @@ const {
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const { get, isNil } = require('lodash')
 const Big = require('big.js')
-const validate = require('validate.js')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('../../common/constants/errors')
@@ -35,6 +34,7 @@ const {
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
+const { checkDvSender } = require('../../common/utils/serverSchema/validators')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -114,16 +114,6 @@ const errors = {
     },
 }
 
-const SENDER_FIELD_CONSTRAINTS = {
-    ...JSON_STRUCTURE_FIELDS_CONSTRAINTS,
-    dv: {
-        numericality: {
-            noStrings: true,
-            equalTo: 1,
-        },
-    },
-}
-
 const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMultiPaymentForOneReceiptService', {
     types: [
         {
@@ -144,25 +134,13 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 // wrap validator function to the current call context
                 const { data } = args
                 const {
-                    dv,
                     sender,
                     receipt,
                     acquiringIntegrationContext,
                 } = data
 
                 // Stage 0. Check if input is valid
-                if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
-                }
-
-                const senderErrors = validate(sender, SENDER_FIELD_CONSTRAINTS)
-                if (senderErrors && Object.keys(senderErrors).length) {
-                    const details = Object.keys(senderErrors).map(field => {
-                        return `${field}: [${senderErrors[field].map(error => `'${error}'`).join(', ')}]`
-                    }).join(', ')
-
-                    throw new GQLError({ ...errors.WRONG_SENDER_FORMAT, messageInterpolation: { details } }, context)
-                }
+                checkDvSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
                 const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
