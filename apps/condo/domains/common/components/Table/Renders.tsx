@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react'
-import { Typography } from 'antd'
+import { Typography, Tooltip } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -18,7 +18,6 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
 import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { isNull } from 'lodash'
 
 type RenderReturnType = string | React.ReactNode
