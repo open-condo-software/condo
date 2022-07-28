@@ -198,7 +198,7 @@ const OidcClient = generateGQLTestUtils(OidcClientGQL)
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphanumeric(8) }
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const now = Date.now()
     const attributes = {
         token: uuid(),
