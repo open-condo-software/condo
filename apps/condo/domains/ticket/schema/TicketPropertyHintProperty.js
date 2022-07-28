@@ -9,14 +9,11 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketPropertyHintProperty')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { parentSchemaOrganizationField } = require('@condo/domains/organization/schema/plugins/parentSchemaOrganizationField')
 
 const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty', {
     schemaDoc: 'Join entity for many-to-many relations, that determines a Property to which the TicketPropertyHint belongs',
     fields: {
-
-        organization: ORGANIZATION_OWNED_FIELD,
-
         ticketPropertyHint: {
             schemaDoc: 'TicketPropertyHint which belongs to property',
             type: Relationship,
@@ -34,7 +31,6 @@ const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
-
     },
     kmigratorOptions: {
         constraints: [
@@ -46,7 +42,15 @@ const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        parentSchemaOrganizationField('ticketPropertyHint', 'TicketPropertyHint'),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        historical(),
+    ],
     access: {
         read: access.canReadTicketPropertyHintProperties,
         create: access.canManageTicketPropertyHintProperties,

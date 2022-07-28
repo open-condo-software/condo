@@ -14456,8 +14456,6 @@ export type MeterReading = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Ref to the organization. It is filled in on the server and is read-only  */
-  organization?: Maybe<Organization>;
   /**  Date when the readings were taken  */
   date?: Maybe<Scalars['String']>;
   /**  Meter from which readings were taken  */
@@ -14484,6 +14482,8 @@ export type MeterReading = {
   source?: Maybe<MeterReadingSource>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -14497,7 +14497,6 @@ export type MeterReading = {
 export type MeterReadingCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
   value1?: Maybe<Scalars['String']>;
@@ -14511,6 +14510,7 @@ export type MeterReadingCreateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<MeterReadingSourceRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -14903,7 +14903,6 @@ export type MeterReadingHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
   value1?: Maybe<Scalars['String']>;
@@ -14918,6 +14917,7 @@ export type MeterReadingHistoryRecord = {
   source?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -14932,7 +14932,6 @@ export type MeterReadingHistoryRecord = {
 export type MeterReadingHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
   value1?: Maybe<Scalars['String']>;
@@ -14946,6 +14945,7 @@ export type MeterReadingHistoryRecordCreateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -14966,7 +14966,6 @@ export enum MeterReadingHistoryRecordHistoryActionType {
 export type MeterReadingHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<Scalars['String']>;
   value1?: Maybe<Scalars['String']>;
@@ -14980,6 +14979,7 @@ export type MeterReadingHistoryRecordUpdateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -15006,10 +15006,6 @@ export type MeterReadingHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -15132,6 +15128,10 @@ export type MeterReadingHistoryRecordWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -15568,7 +15568,6 @@ export type MeterReadingSourcesUpdateInput = {
 export type MeterReadingUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   date?: Maybe<Scalars['String']>;
   meter?: Maybe<MeterRelateToOneInput>;
   value1?: Maybe<Scalars['String']>;
@@ -15582,6 +15581,7 @@ export type MeterReadingUpdateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   source?: Maybe<MeterReadingSourceRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -15605,8 +15605,6 @@ export type MeterReadingWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   date?: Maybe<Scalars['String']>;
   date_not?: Maybe<Scalars['String']>;
   date_lt?: Maybe<Scalars['String']>;
@@ -15721,6 +15719,8 @@ export type MeterReadingWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -38809,8 +38809,6 @@ export enum SortMeterReadingSourcesBy {
 export enum SortMeterReadingsBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   DateAsc = 'date_ASC',
   DateDesc = 'date_DESC',
   MeterAsc = 'meter_ASC',
@@ -38839,6 +38837,8 @@ export enum SortMeterReadingsBy {
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -40455,8 +40455,6 @@ export enum SortTicketCommentsTimeHistoryRecordsBy {
 export enum SortTicketCommentsTimesBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   TicketAsc = 'ticket_ASC',
   TicketDesc = 'ticket_DESC',
   LastCommentAtAsc = 'lastCommentAt_ASC',
@@ -40467,6 +40465,8 @@ export enum SortTicketCommentsTimesBy {
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -40808,8 +40808,6 @@ export enum SortTicketPropertyHintHistoryRecordsBy {
 }
 
 export enum SortTicketPropertyHintPropertiesBy {
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   TicketPropertyHintAsc = 'ticketPropertyHint_ASC',
   TicketPropertyHintDesc = 'ticketPropertyHint_DESC',
   PropertyAsc = 'property_ASC',
@@ -40818,6 +40816,8 @@ export enum SortTicketPropertyHintPropertiesBy {
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   CreatedAtAsc = 'createdAt_ASC',
   CreatedAtDesc = 'createdAt_DESC',
   UpdatedAtAsc = 'updatedAt_ASC',
@@ -44386,8 +44386,6 @@ export type TicketCommentsTime = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Ref to the organization. It is filled in on the server and is read-only  */
-  organization?: Maybe<Organization>;
   /**  Link to the ticket  */
   ticket?: Maybe<Ticket>;
   /**  Time of last comment in this ticket  */
@@ -44396,6 +44394,8 @@ export type TicketCommentsTime = {
   lastResidentCommentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -44409,11 +44409,11 @@ export type TicketCommentsTime = {
 export type TicketCommentsTimeCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   lastCommentAt?: Maybe<Scalars['String']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -44435,12 +44435,12 @@ export type TicketCommentsTimeHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -44455,11 +44455,11 @@ export type TicketCommentsTimeHistoryRecord = {
 export type TicketCommentsTimeHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -44480,11 +44480,11 @@ export enum TicketCommentsTimeHistoryRecordHistoryActionType {
 export type TicketCommentsTimeHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   ticket?: Maybe<Scalars['String']>;
   lastCommentAt?: Maybe<Scalars['String']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -44511,10 +44511,6 @@ export type TicketCommentsTimeHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticket?: Maybe<Scalars['String']>;
   ticket_not?: Maybe<Scalars['String']>;
   ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -44547,6 +44543,10 @@ export type TicketCommentsTimeHistoryRecordWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -44617,11 +44617,11 @@ export type TicketCommentsTimeHistoryRecordsUpdateInput = {
 export type TicketCommentsTimeUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   lastCommentAt?: Maybe<Scalars['String']>;
   lastResidentCommentAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -44645,8 +44645,6 @@ export type TicketCommentsTimeWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
   lastCommentAt?: Maybe<Scalars['String']>;
@@ -44677,6 +44675,8 @@ export type TicketCommentsTimeWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -47652,14 +47652,14 @@ export type TicketPropertyHintProperty = {
    *  4. As an alias to the 'id' field on the TicketPropertyHintProperty List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
-  organization?: Maybe<Organization>;
   /**  TicketPropertyHint which belongs to property  */
   ticketPropertyHint?: Maybe<TicketPropertyHint>;
   /**  Property for which ticketPropertyHint exists  */
   property?: Maybe<Property>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
@@ -47675,10 +47675,10 @@ export type TicketPropertyHintProperty = {
 };
 
 export type TicketPropertyHintPropertyCreateInput = {
-  organization?: Maybe<OrganizationRelateToOneInput>;
   ticketPropertyHint?: Maybe<TicketPropertyHintRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -47700,11 +47700,11 @@ export type TicketPropertyHintPropertyHistoryRecord = {
    *  4. As an alias to the 'id' field on the TicketPropertyHintPropertyHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
   ticketPropertyHint?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -47719,10 +47719,10 @@ export type TicketPropertyHintPropertyHistoryRecord = {
 };
 
 export type TicketPropertyHintPropertyHistoryRecordCreateInput = {
-  organization?: Maybe<Scalars['String']>;
   ticketPropertyHint?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -47743,10 +47743,10 @@ export enum TicketPropertyHintPropertyHistoryRecordHistoryActionType {
 }
 
 export type TicketPropertyHintPropertyHistoryRecordUpdateInput = {
-  organization?: Maybe<Scalars['String']>;
   ticketPropertyHint?: Maybe<Scalars['String']>;
   property?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<Scalars['String']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<Scalars['String']>;
@@ -47763,10 +47763,6 @@ export type TicketPropertyHintPropertyHistoryRecordUpdateInput = {
 export type TicketPropertyHintPropertyHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<TicketPropertyHintPropertyHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<TicketPropertyHintPropertyHistoryRecordWhereInput>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticketPropertyHint?: Maybe<Scalars['String']>;
   ticketPropertyHint_not?: Maybe<Scalars['String']>;
   ticketPropertyHint_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -47787,6 +47783,10 @@ export type TicketPropertyHintPropertyHistoryRecordWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;
@@ -47867,10 +47867,10 @@ export type TicketPropertyHintPropertyHistoryRecordsUpdateInput = {
 };
 
 export type TicketPropertyHintPropertyUpdateInput = {
-  organization?: Maybe<OrganizationRelateToOneInput>;
   ticketPropertyHint?: Maybe<TicketPropertyHintRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
   createdBy?: Maybe<UserRelateToOneInput>;
@@ -47884,8 +47884,6 @@ export type TicketPropertyHintPropertyUpdateInput = {
 export type TicketPropertyHintPropertyWhereInput = {
   AND?: Maybe<Array<Maybe<TicketPropertyHintPropertyWhereInput>>>;
   OR?: Maybe<Array<Maybe<TicketPropertyHintPropertyWhereInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   ticketPropertyHint?: Maybe<TicketPropertyHintWhereInput>;
   ticketPropertyHint_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
@@ -47902,6 +47900,8 @@ export type TicketPropertyHintPropertyWhereInput = {
   v_gte?: Maybe<Scalars['Int']>;
   v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   createdAt?: Maybe<Scalars['String']>;
   createdAt_not?: Maybe<Scalars['String']>;
   createdAt_lt?: Maybe<Scalars['String']>;

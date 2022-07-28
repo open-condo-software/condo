@@ -187,7 +187,6 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
             for (const propertyId of properties) {
                 await createTicketPropertyHintPropertyAction({
-                    organization: { connect: { id: organizationId } },
                     ticketPropertyHint: { connect: { id: ticketPropertyHint.id } },
                     property: { connect: { id: propertyId } },
                 })
@@ -198,7 +197,6 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
             for (const propertyId of properties) {
                 if (!initialPropertyIds.includes(propertyId)) {
                     await createTicketPropertyHintPropertyAction({
-                        organization: { connect: { id: organizationId } },
                         ticketPropertyHint: { connect: { id: initialTicketPropertyHintId } },
                         property: { connect: { id: propertyId } },
                     })

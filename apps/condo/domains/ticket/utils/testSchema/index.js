@@ -579,9 +579,8 @@ async function updateTestTicketPropertyHint (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketPropertyHintProperty (client, organization, ticketHint, property, extraAttrs = {}) {
+async function createTestTicketPropertyHintProperty (client, ticketHint, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     if (!ticketHint || !ticketHint.id) throw new Error('no ticketHint.id')
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -589,7 +588,6 @@ async function createTestTicketPropertyHintProperty (client, organization, ticke
     const attrs = {
         dv: 1,
         sender,
-        organization: { connect: { id: organization.id } },
         ticketPropertyHint: { connect: { id: ticketHint.id } },
         property: { connect: { id: property.id } },
         ...extraAttrs,
