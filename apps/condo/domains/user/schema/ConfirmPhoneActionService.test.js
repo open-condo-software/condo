@@ -17,6 +17,7 @@ const {
 const { CONFIRM_PHONE_SMS_MAX_RETRIES } = require('@condo/domains/user/constants/common')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { completeConfirmPhoneActionByTestClient } = require('../utils/testSchema')
+const { START_PASSWORD_RECOVERY_MUTATION } = require('../gql')
 
 const captcha = () => {
     return faker.lorem.sentence()
@@ -62,9 +63,9 @@ describe('ConfirmPhoneActionService', () => {
             const admin = await makeLoggedInAdminClient()
             const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const wrongLengthSmsCode = 11111
-            const attrs = { token, smsCode: wrongLengthSmsCode, captcha: captcha() }
-            await completeConfirmPhoneActionByTestClient(client, attrs)
-            const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token })
+            const completeInput = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode: wrongLengthSmsCode, captcha: captcha() }
+            await client.mutate(COMPLETE_CONFIRM_PHONE_MUTATION, { data: completeInput })
+            const [actionAfter] = await ConfirmPhoneAction.getAll(admin, { token, dv:1, sender: { dv: 1, fingerprint: 'tests' } })
             expect(actionAfter.retries).toBe(1)
         })
 
@@ -109,8 +110,8 @@ describe('ConfirmPhoneActionService', () => {
             const admin = await makeLoggedInAdminClient()
             const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
-            await ConfirmPhoneAction.update(admin, actionBefore.id, { smsCodeExpiresAt: actionBefore.smsCodeRequestedAt })
-            const attrs = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode: actionBefore.smsCode, captcha: captcha() }
+            await ConfirmPhoneAction.update(admin, actionBefore.id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCodeExpiresAt: actionBefore.smsCodeRequestedAt })
+            const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
             await catchErrorFrom(async () => {
                 await completeConfirmPhoneActionByTestClient(client, attrs)
             }, ({ errors }) => {
@@ -133,8 +134,8 @@ describe('ConfirmPhoneActionService', () => {
             const admin = await makeLoggedInAdminClient()
             const [{ token }] = await createTestConfirmPhoneAction(admin, {})
             const [actionBefore] = await ConfirmPhoneAction.getAll(admin, { token })
-            await ConfirmPhoneAction.update(admin, actionBefore.id, { expiresAt: actionBefore.requestedAt })
-            const attrs = { token, dv: 1, sender: { dv: 1, fingerprint: 'tests' }, smsCode: actionBefore.smsCode, captcha: captcha() }
+            await ConfirmPhoneAction.update(admin, actionBefore.id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' }, expiresAt: actionBefore.requestedAt })
+            const attrs = { token, smsCode: actionBefore.smsCode, captcha: captcha() }
             await catchErrorFrom(async () => {
                 await completeConfirmPhoneActionByTestClient(client, attrs)
             }, ({ errors }) => {

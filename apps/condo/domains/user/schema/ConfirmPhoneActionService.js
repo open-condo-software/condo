@@ -327,6 +327,8 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 }
                 if (retries >= CONFIRM_PHONE_SMS_MAX_RETRIES) {
                     await ConfirmPhoneAction.update(context, id, {
+                        dv: 1,
+                        sender,
                         completedAt: new Date(now).toISOString(),
                     })
                     throw new GQLError(errors.SMS_CODE_MAX_RETRIES_REACHED, context)
