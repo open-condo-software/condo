@@ -18,7 +18,7 @@ export const SettingsTabs = styled(Tabs)`
   & > .ant-tabs-nav {
     margin-left: 72px;
     width: 280px;
-    height: 186px;
+    height: fit-content;
     padding: 20px;
     border-radius: 8px;
     box-shadow: ${shadows.main};
