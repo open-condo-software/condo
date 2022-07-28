@@ -32,7 +32,7 @@ describe('TicketCommentsTime', () => {
 
                 const content = faker.lorem.sentence()
                 const [ticket] = await createTestTicket(userClient, organization, property)
-                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                await createTestTicketComment(userClient, ticket, userClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                     content,
                 })
@@ -44,6 +44,7 @@ describe('TicketCommentsTime', () => {
                 expect(ticketCommentsTime.id).toMatch(UUID_RE)
                 expect(ticketCommentsTime.lastCommentAt).toMatch(DATETIME_RE)
                 expect(ticketCommentsTime.lastResidentCommentAt).toBeNull()
+                expect(ticketCommentsTime.organization.id).toEqual(organization.id)
             })
 
             it('does not create ticketCommentsTime after create comment with organization type', async () => {
