@@ -9,7 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketPropertyHintProperty')
-const { parentSchemaOrganizationField } = require('@condo/domains/organization/schema/plugins/parentSchemaOrganizationField')
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty', {
     schemaDoc: 'Join entity for many-to-many relations, that determines a Property to which the TicketPropertyHint belongs',
@@ -43,9 +43,9 @@ const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty
         ],
     },
     plugins: [
+        addOrganizationFieldPlugin({ fromField: 'ticketPropertyHint' }),
         uuided(),
         versioned(),
-        parentSchemaOrganizationField('ticketPropertyHint', 'TicketPropertyHint'),
         tracked(),
         softDeleted(),
         dvAndSender(),

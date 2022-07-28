@@ -3,7 +3,7 @@ const { Relationship } = require('@keystonejs/fields')
 const get = require('lodash/get')
 const { getById } = require('@core/keystone/schema')
 
-const parentSchemaOrganizationField = (parentSchemaFieldName, parentSchemaName) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
+const addOrganizationFieldPlugin = ({ fromField }) => plugin(({ fields = {}, ...rest }) => {
     fields['organization'] = {
         schemaDoc: 'Ref to the organization. It is filled in on the server and is read-only',
         type: Relationship,
@@ -18,11 +18,13 @@ const parentSchemaOrganizationField = (parentSchemaFieldName, parentSchemaName) 
         },
         hooks: {
             resolveInput: async ({ resolvedData }) => {
-                const parentObjId = get(resolvedData, parentSchemaFieldName)
+                const objWithOrganizationId = get(resolvedData, fromField)
 
-                if (parentObjId) {
-                    const parentObj = await getById(parentSchemaName, parentObjId)
-                    resolvedData['organization'] = get(parentObj, 'organization')
+                if (objWithOrganizationId) {
+                    const schemaName = get(fields, [fromField, 'ref'])
+                    const objWithOrganization = await getById(schemaName, objWithOrganizationId)
+
+                    resolvedData['organization'] = get(objWithOrganization, 'organization')
                 }
 
                 return resolvedData['organization']
@@ -30,9 +32,9 @@ const parentSchemaOrganizationField = (parentSchemaFieldName, parentSchemaName) 
         },
     }
 
-    return { fields, hooks, ...rest }
+    return { fields, ...rest }
 })
 
 module.exports = {
-    parentSchemaOrganizationField,
+    addOrganizationFieldPlugin,
 }
