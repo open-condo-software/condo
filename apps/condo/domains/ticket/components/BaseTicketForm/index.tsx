@@ -299,7 +299,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         Model: TicketFile,
         relationField: 'ticket',
         initialFileList: files,
-        initialCreateValues: { organization: { connect: { id: organization.id } } },
     })
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
