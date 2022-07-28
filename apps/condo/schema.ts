@@ -14456,7 +14456,7 @@ export type MeterReading = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
   /**  Date when the readings were taken  */
   date?: Maybe<Scalars['String']>;
@@ -44386,7 +44386,7 @@ export type TicketCommentsTime = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Link to the organization  */
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
   organization?: Maybe<Organization>;
   /**  Link to the ticket  */
   ticket?: Maybe<Ticket>;
