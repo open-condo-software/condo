@@ -70,6 +70,8 @@
   "example.Email": "name@example.org",
   "example.Name": "Jon Johnson",
   "example.Phone": "+1 (300) 300 22 22",
+  "HotReload.title": "System update!",
+  "HotReload.message": "We have updated the system, so this page will now reload",
   "ExportAsExcel": "Export to Excel",
   "FiltersLabel": "Filters",
   "field.AccountNumberShort": "Account Number",
