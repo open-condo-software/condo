@@ -252,7 +252,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         }
     }, [createContact, createMeterReadingAction, newMeterReadings, organization.id, role])
 
-    const handleSelectPropertyAddress = useCallback((form) => (_, option) => {
+    const getHandleSelectPropertyAddress = useCallback((form) => (_, option) => {
         form.setFieldsValue({
             unitName: null,
             sectionName: null,
@@ -307,7 +307,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                             <PropertyAddressSearchInput
                                                                 organization={organization}
                                                                 autoFocus={true}
-                                                                onSelect={handleSelectPropertyAddress(form)}
+                                                                onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
                                                                 notFoundContent={AddressNotFoundContent}
                                                             />
