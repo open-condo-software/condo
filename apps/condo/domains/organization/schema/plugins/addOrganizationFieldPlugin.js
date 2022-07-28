@@ -6,7 +6,7 @@ const { getById } = require('@core/keystone/schema')
 const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fields = {}, ...rest }) => {
     let requiredConfig = isRequired ?
         { isRequired: true, knexOptions: { isNotNullable: true }, kmigratorOptions: { null: false, on_delete: 'models.CASCADE' } } :
-        { isRequired: false, kmigratorOptions: { null: true } }
+        { isRequired: false, knexOptions: { isNotNullable: false }, kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' } }
 
     fields['organization'] = {
         schemaDoc: 'Ref to the organization. It is filled in on the server and is read-only',

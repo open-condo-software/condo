@@ -85,8 +85,8 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
         const ticketCommentFile = await getById('TicketCommentFile', itemId)
         if (!ticketCommentFile) return false
 
-        const { ticket, createdBy, organization } = ticketCommentFile
-        if (!ticket || !organization) return createdBy === user.id
+        const { createdBy, organization } = ticketCommentFile
+        if (!organization) return createdBy === user.id
 
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTicketComments')
     }
