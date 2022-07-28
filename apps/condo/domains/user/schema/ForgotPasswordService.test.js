@@ -360,7 +360,7 @@ describe('ForgotPasswordAction Service', () => {
             const password = `new_${userAttrs.password}`
             // TODO(DOMA-3146): use expectToThrowGQLError here and create helper for CHANGE_PASSWORD_WITH_TOKEN_MUTATION
             const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, dv: 1,
-                    sender: { dv: 1, fingerprint: 'tests' }, password } })
+                sender: { dv: 1, fingerprint: 'tests' }, password } })
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
                 name: 'GQLError',
