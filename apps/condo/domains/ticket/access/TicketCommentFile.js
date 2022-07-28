@@ -38,6 +38,7 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
             OR: [
                 queryOrganizationEmployeeFor(user.id),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                { createdBy: { id: user.id } },
             ],
         },
     }
@@ -69,15 +70,24 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
         }
     } else {
         if (operation === 'create') {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
+            const ticketId = get(originalInput, ['ticket', 'connect', 'id'], null)
+
+            if (ticketId) {
+                const ticket = await getById('Ticket', ticketId)
+                const organizationId = get(ticket, 'organization', null)
+
+                return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTicketComments')
+            }
+
+            return true
         }
+
         const ticketCommentFile = await getById('TicketCommentFile', itemId)
         if (!ticketCommentFile) return false
 
         const { ticket, createdBy, organization } = ticketCommentFile
-        if (!ticket) return createdBy === user.id
-        if (!organization) return false
+        if (!ticket || !organization) return createdBy === user.id
+
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTicketComments')
     }
 }

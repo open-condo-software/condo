@@ -20,7 +20,7 @@ describe('ExportMeterReadingsService', () => {
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
                 const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-                await createTestMeterReading(client, meter, client.organization, source)
+                await createTestMeterReading(client, meter, source)
 
                 const [{ status, linkToFile }] = await exportMeterReadingsByTestClient(client, {
                     where: { organization: { id: client.organization.id } },
@@ -71,7 +71,7 @@ describe('ExportMeterReadingsService', () => {
         const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
         const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-        await createTestMeterReading(client, meter, client.organization, source)
+        await createTestMeterReading(client, meter, source)
 
         await catchErrorFrom(async () => {
             await exportMeterReadingsByTestClient(anonymous, {
@@ -95,7 +95,7 @@ describe('ExportMeterReadingsService', () => {
         const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
         const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
         const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-        await createTestMeterReading(client, meter, client.organization, source)
+        await createTestMeterReading(client, meter, source)
 
         await catchErrorFrom(async () => {
             await exportMeterReadingsByTestClient(user, {
@@ -117,7 +117,7 @@ describe('ExportMeterReadingsService', () => {
             const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
             const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
             const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-            await createTestMeterReading(client, meter, client.organization, source)
+            await createTestMeterReading(client, meter, source)
 
             const admin = await makeLoggedInAdminClient()
 

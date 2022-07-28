@@ -34,7 +34,6 @@ const prepareReadings = async (client) => {
     await createTestMeterReading(
         client,
         client.meter,
-        client.organization,
         source,
         {
             date: dayjs().toISOString(),

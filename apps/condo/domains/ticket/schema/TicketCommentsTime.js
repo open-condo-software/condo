@@ -37,7 +37,7 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
         },
     },
     plugins: [
-        addOrganizationFieldPlugin({ fromField: 'ticket' }),
+        addOrganizationFieldPlugin({ fromField: 'ticket', isRequired: true }),
         uuided(),
         versioned(),
         tracked(),

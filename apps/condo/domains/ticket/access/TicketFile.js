@@ -22,6 +22,7 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
             OR: [
                 queryOrganizationEmployeeFor(user.id),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                { createdBy: { id: user.id } },
             ],
         },
     }
@@ -37,14 +38,24 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         if (operation === 'create') return true
         const ticketFile = await getById('TicketFile', itemId)
         if (!ticketFile) return false
+
         return ticketFile.createdBy === user.id
     }
 
     if (user.type === STAFF) {
         if (operation === 'create') {
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
+            const ticketId = get(originalInput, ['ticket', 'connect', 'id'], null)
+
+            if (ticketId) {
+                const ticket = await getById('Ticket', ticketId)
+                const organizationId = get(ticket, 'organization', null)
+
+                return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageTickets')
+            }
+
+            return true
         }
+
         const ticketFile = await getById('TicketFile', itemId)
         if (!ticketFile) return false
 

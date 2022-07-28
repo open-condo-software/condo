@@ -43,7 +43,7 @@ const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty
         ],
     },
     plugins: [
-        addOrganizationFieldPlugin({ fromField: 'ticketPropertyHint' }),
+        addOrganizationFieldPlugin({ fromField: 'ticketPropertyHint', isRequired: true }),
         uuided(),
         versioned(),
         tracked(),

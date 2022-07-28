@@ -323,7 +323,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         return meterReadingCreateAction({
-            organization: { connect: { id: String(userOrganizationId) } },
             meter: { connect: { id: meterId } },
             source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
             // GraphQL input requirements for decimal and date field type should be passed as strings.

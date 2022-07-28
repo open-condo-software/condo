@@ -9,8 +9,7 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/ticket/access/TicketCommentFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const get = require('lodash/get')
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const TICKET_COMMENT_FILE_FOLDER_NAME = 'ticketComment'
 const Adapter = new FileAdapter(TICKET_COMMENT_FILE_FOLDER_NAME)
@@ -21,7 +20,6 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
     fields: {
         dv: DV_FIELD,
         sender: SENDER_FIELD,
-        organization: ORGANIZATION_OWNED_FIELD,
 
         file: {
             schemaDoc: 'File object with meta information and publicUrl',
@@ -34,21 +32,6 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
             type: Relationship,
             ref: 'Ticket',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-            hooks: {
-                validateInput: async ({ resolvedData, fieldPath, existingItem, addFieldValidationError }) => {
-                    const ticketId = get(resolvedData, 'ticket')
-
-                    if (ticketId) {
-                        const ticketFileOrganizationId = resolvedData['organization'] || existingItem['organization']
-                        const ticket = await getById('Ticket', ticketId)
-                        const ticketOrganizationId = get(ticket, 'organization')
-
-                        if (ticketOrganizationId !== ticketFileOrganizationId) {
-                            addFieldValidationError(`${fieldPath} field validation error. Ticket organization doesn't match to TicketCommentFile organization`)
-                        }
-                    }
-                },
-            },
         },
 
         ticketComment: {
@@ -67,7 +50,14 @@ const TicketCommentFile = new GQLListSchema('TicketCommentFile', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [
+        addOrganizationFieldPlugin({ fromField: 'ticket' }),
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        historical(),
+    ],
     access: {
         read: access.canReadTicketCommentFiles,
         create: access.canManageTicketCommentFiles,

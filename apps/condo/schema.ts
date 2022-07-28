@@ -40357,12 +40357,12 @@ export enum SortTicketCommentFileHistoryRecordsBy {
 export enum SortTicketCommentFilesBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   TicketAsc = 'ticket_ASC',
   TicketDesc = 'ticket_DESC',
   TicketCommentAsc = 'ticketComment_ASC',
   TicketCommentDesc = 'ticketComment_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -40565,10 +40565,10 @@ export enum SortTicketFileHistoryRecordsBy {
 export enum SortTicketFilesBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   TicketAsc = 'ticket_ASC',
   TicketDesc = 'ticket_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -43721,14 +43721,14 @@ export type TicketCommentFile = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
-  organization?: Maybe<Organization>;
   /**  File object with meta information and publicUrl  */
   file?: Maybe<File>;
   /**  Link to ticket  */
   ticket?: Maybe<Ticket>;
   /**  Link to ticket comment  */
   ticketComment?: Maybe<TicketComment>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -43744,10 +43744,10 @@ export type TicketCommentFile = {
 export type TicketCommentFileCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
   ticketComment?: Maybe<TicketCommentRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -43770,10 +43770,10 @@ export type TicketCommentFileHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
   ticketComment?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -43790,10 +43790,10 @@ export type TicketCommentFileHistoryRecord = {
 export type TicketCommentFileHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
   ticketComment?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -43815,10 +43815,10 @@ export enum TicketCommentFileHistoryRecordHistoryActionType {
 export type TicketCommentFileHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
   ticketComment?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -43846,10 +43846,6 @@ export type TicketCommentFileHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file?: Maybe<Scalars['JSON']>;
   file_not?: Maybe<Scalars['JSON']>;
   file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -43862,6 +43858,10 @@ export type TicketCommentFileHistoryRecordWhereInput = {
   ticketComment_not?: Maybe<Scalars['String']>;
   ticketComment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticketComment_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -43944,10 +43944,10 @@ export type TicketCommentFileHistoryRecordsUpdateInput = {
 export type TicketCommentFileUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
   ticketComment?: Maybe<TicketCommentRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -43972,8 +43972,6 @@ export type TicketCommentFileWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   file?: Maybe<Scalars['String']>;
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -43982,6 +43980,8 @@ export type TicketCommentFileWhereInput = {
   ticket_is_null?: Maybe<Scalars['Boolean']>;
   ticketComment?: Maybe<TicketCommentWhereInput>;
   ticketComment_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -45350,12 +45350,12 @@ export type TicketFile = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
-  organization?: Maybe<Organization>;
   /**  File object with meta information and publicUrl  */
   file?: Maybe<File>;
   /**  Link to ticket  */
   ticket?: Maybe<Ticket>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -45371,9 +45371,9 @@ export type TicketFile = {
 export type TicketFileCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -45396,9 +45396,9 @@ export type TicketFileHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -45415,9 +45415,9 @@ export type TicketFileHistoryRecord = {
 export type TicketFileHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -45439,9 +45439,9 @@ export enum TicketFileHistoryRecordHistoryActionType {
 export type TicketFileHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
   ticket?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -45469,10 +45469,6 @@ export type TicketFileHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file?: Maybe<Scalars['JSON']>;
   file_not?: Maybe<Scalars['JSON']>;
   file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -45481,6 +45477,10 @@ export type TicketFileHistoryRecordWhereInput = {
   ticket_not?: Maybe<Scalars['String']>;
   ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -45563,9 +45563,9 @@ export type TicketFileHistoryRecordsUpdateInput = {
 export type TicketFileUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
   ticket?: Maybe<TicketRelateToOneInput>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -45590,14 +45590,14 @@ export type TicketFileWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   file?: Maybe<Scalars['String']>;
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
