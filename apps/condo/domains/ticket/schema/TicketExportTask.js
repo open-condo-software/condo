@@ -15,9 +15,12 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
 const { exportTicketsTask } = require('../tasks/exportTicketsTask')
+const { getFileMetaAfterChange } = require('../../common/utils/fileAdapter')
 
 const TICKET_EXPORT_TASK_FOLDER_NAME = 'TicketExportTask'
-const Adapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
+const TicketExportTaskFileAdapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
+
+const setFileMetaAfterChange = getFileMetaAfterChange(TicketExportTaskFileAdapter, 'file')
 
 const TicketExportTask = new GQLListSchema('TicketExportTask', {
     schemaDoc: 'Stores requested export format, status of export job, link to exported file and information about progress of export job',
@@ -55,7 +58,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: File,
-            adapter: Adapter,
+            adapter: TicketExportTaskFileAdapter,
         },
 
         meta: {
@@ -114,10 +117,12 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
     },
     hooks: {
         // `updatedItem` means "The new/currently stored item" in Keystone
-        afterChange: async ({ updatedItem, operation }) => {
+        afterChange: async (args) => {
+            const { updatedItem, operation } = args
             if (operation === 'create') {
                 await exportTicketsTask.delay(updatedItem.id)
             }
+            await setFileMetaAfterChange(args)
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

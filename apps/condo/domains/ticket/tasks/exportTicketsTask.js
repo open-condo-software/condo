@@ -154,7 +154,7 @@ const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) =
         mimetype: EXCEL_FILE_META.mimetype,
         encoding: EXCEL_FILE_META.encoding,
         meta: {
-            listkey: 'Ticket',
+            listkey: 'TicketExportTask',
             // Id of first record will be used by `OBSFilesMiddleware` to determine permission to access exported file
             // NOTE: Permissions check on access to exported file will be replaced to checking access on `ExportTicketsTask`
             id: idOfFirstTicketForAccessRights,
