@@ -38,8 +38,8 @@ function checkDvSender (data, dvError, senderError, context) {
     if (!dvError || isEmpty(dvError)) throw new Error('checkDvSender(): wrong dvError argument')
     if (!senderError || isEmpty(senderError)) throw new Error('checkDvSender(): wrong senderError argument')
     if (!context) throw new Error('checkDvSender(): wrong context argument')
-    if (!dvError.mutation) throw new Error('checkDvSender(): dvError.mutation missing')
-    if (!senderError.mutation) throw new Error('checkDvSender(): senderError.mutation missing')
+    if (!dvError.mutation && !dvError.query) throw new Error('checkDvSender(): dvError.mutation/dvError.query missing')
+    if (!senderError.mutation && !senderError.query) throw new Error('checkDvSender(): senderError.mutation/senderError.query missing')
 
     const { dv, sender } = data
 
