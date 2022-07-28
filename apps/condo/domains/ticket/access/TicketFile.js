@@ -49,8 +49,8 @@ async function canManageTicketFiles ({ authentication: { item: user }, originalI
         if (!ticketFile) return false
 
         const { ticket, createdBy, organization } = ticketFile
-        if (!ticket) return createdBy === user.id
-        if (!organization) return false
+        if (!ticket || !organization) return createdBy === user.id
+
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTickets')
     }
 

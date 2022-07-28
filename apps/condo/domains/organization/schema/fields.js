@@ -16,6 +16,21 @@ const ORGANIZATION_OWNED_FIELD = {
     },
 }
 
+const READ_ONLY_ORGANIZATION_FIELD = {
+    schemaDoc: 'Ref to the organization. It is filled in on the server and is read-only',
+    type: Relationship,
+    ref: 'Organization',
+    isRequired: true,
+    knexOptions: { isNotNullable: true }, // Relationship only!
+    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+    // TODO(pahaz): check access to organization!
+    access: {
+        read: true,
+        create: false,
+        update: false,
+    },
+}
+
 const COMMON_AND_ORGANIZATION_OWNED_FIELD = {
     schemaDoc: 'Ref to the organization. If this ref is null the object is common for all organizations',
     type: Relationship,
@@ -31,6 +46,7 @@ const COMMON_AND_ORGANIZATION_OWNED_FIELD = {
 }
 
 module.exports = {
+    READ_ONLY_ORGANIZATION_FIELD,
     ORGANIZATION_OWNED_FIELD,
     COMMON_AND_ORGANIZATION_OWNED_FIELD,
 }
