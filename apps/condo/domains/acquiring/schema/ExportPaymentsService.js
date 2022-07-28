@@ -16,11 +16,31 @@ const { getHeadersTranslations, EXPORT_TYPE_PAYMENTS } = require('@condo/domains
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const conf = require('@core/config')
+const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
 const errors = {
+    DV_VERSION_MISMATCH: {
+        // TODO(pahaz): mutation! cahnge
+        query: 'exportPaymentsToExcel',
+        variable: ['data', 'dv'],
+        code: BAD_USER_INPUT,
+        type: DV_VERSION_MISMATCH,
+        message: 'Wrong value for data version number',
+    },
+    WRONG_SENDER_FORMAT: {
+        // TODO(pahaz): mutation! cahnge
+        query: 'exportPaymentsToExcel',
+        variable: ['data', 'sender'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Invalid format of "sender" field value. {details}',
+        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
+    },
     NOTHING_TO_EXPORT: {
+        // TODO(pahaz): mutation! cahnge
         query: 'exportPaymentsToExcel',
         code: BAD_USER_INPUT,
         type: NOTHING_TO_EXPORT,
@@ -41,19 +61,21 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
         },
     ],
 
+    // TODO(pahaz): change to MUTATION!!!
     queries: [
         {
             access: access.canExportPaymentsToExcel,
             schema: 'exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                const { dv, sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
+                const { sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
 
+                checkDvSender(args.data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
 
-                const objs = await exportPayments(context, { dv, sender, where, sortBy })
+                const objs = await exportPayments(context, { dv: 1, sender, where, sortBy })
 
                 if (objs.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)
