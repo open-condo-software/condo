@@ -20,8 +20,8 @@ import { useLayoutContext } from '../LayoutContext'
 export type TableRecord = any
 
 interface ITableProps extends TableProps<TableRecord> {
-    loading: boolean
-    totalRows: number
+    loading?: boolean
+    totalRows?: number
     dataSource: TableRecord[]
     pageSize?: number
     keyPath?: Array<string> | string
