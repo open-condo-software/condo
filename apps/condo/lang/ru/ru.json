@@ -70,6 +70,8 @@
   "example.Email": "name@example.org",
   "example.Name": "Иванов Сергей",
   "example.Phone": "+7 (900) 800 22 22",
+  "HotReload.title": "Обновление системы!",
+  "HotReload.message": "Мы обновили систему, поэтому данная страница сейчас перезагрузится",
   "ExportAsExcel": "Выгрузить в Excel",
   "FiltersLabel": "Фильтры",
   "field.AccountNumberShort": "ЛС",
