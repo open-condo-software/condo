@@ -38,13 +38,6 @@ const errors = {
         variable: ['data', 'token'],
         messageForUser: 'api.user.changePhoneNumberResidentUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
     },
-    DV_VERSION_MISMATCH: {
-        mutation: 'changePhoneNumberResidentUser',
-        variable: ['data', 'dv'],
-        code: BAD_USER_INPUT,
-        type: DV_VERSION_MISMATCH,
-        message: 'Wrong value for data version number',
-    },
 }
 
 const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNumberResidentUserService', {
