@@ -7,6 +7,7 @@ import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
+    SETTINGS_TAB_PROPERTY_DETAILS,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -15,6 +16,7 @@ import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 import { useIntl } from '@condo/next/intl'
+import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
@@ -31,6 +33,7 @@ const SettingsPage: React.FC = () => {
     const HintTitle = intl.formatMessage({ id: 'Hint' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
+    const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -55,6 +58,11 @@ const SettingsPage: React.FC = () => {
                 key: SETTINGS_TAB_PROPERTY_HINT,
                 title: HintTitle,
                 content: <TicketPropertyHintSettings/>,
+            },
+            {
+                key: SETTINGS_TAB_PROPERTY_DETAILS,
+                title: DetailsTitle,
+                content: <RecipientSettingsContent/>,
             },
             canManageContactRoles && {
                 key: SETTINGS_TAB_CONTACT_ROLES,
