@@ -170,6 +170,11 @@ const Payment = new GQLListSchema('Payment', {
             type: Relationship,
             ref: 'Organization',
             knexOptions: { isNotNullable: true }, // Required relationship only!
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 

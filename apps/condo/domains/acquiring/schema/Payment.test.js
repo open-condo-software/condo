@@ -28,7 +28,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowValidationFailureError,
+    expectToThrowValidationFailureError, catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const {
@@ -208,6 +208,19 @@ describe('Payment', () => {
                 const [updatedPayment] = await updateTestPayment(admin, payment.id, payload)
                 expect(updatedPayment).toBeDefined()
                 expect(updatedPayment).toEqual(expect.objectContaining(payload))
+            })
+            test("admin can\'t update organization field", async () => {
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                const [ newOrganization ] = await createTestOrganization(admin)
+                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                const payload = {
+                    organization: { connect: newOrganization.id }
+                }
+                await catchErrorFrom(async () => {
+                    await updateTestPayment(admin, payment.id, payload)
+                }, (e) => {
+                    expect(e.errors[0].message).toContain('Field "organization" is not defined by type "PaymentUpdateInput"')
+                })
             })
             test('support can\'t', async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
@@ -483,6 +496,7 @@ describe('Payment', () => {
                 })
             })
             describe('Cannot update frozen fields', () => {
+                const nonUpdatableFields = ['organization']
                 const relationFields = ['organization', 'context', 'multiPayment', 'receipt']
                 const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber', 'recipientBic', 'recipientBankAccount']
                 // NOTE: Cannot transit from other statuses, so checking only this ones
@@ -517,6 +531,7 @@ describe('Payment', () => {
                         .filter(status => statuses.includes(status))
                         .map(status => {
                             const frozenFields = PAYMENT_FROZEN_FIELDS[status]
+                                .filter(field => !nonUpdatableFields.includes(field))
                                 .filter(field => relationFields.includes(field))
                             return frozenFields.map(field => [status, field])
                         }).flat(1)
