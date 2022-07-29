@@ -4,6 +4,8 @@
 
 import { DV_UNKNOWN_VERSION_ERROR } from '@condo/domains/common/constants/errors'
 import { NO_INSTRUCTION_OR_MESSAGE_ERROR } from '@condo/domains/miniapp/constants'
+import { expectToThrowGQLError } from '../../common/utils/testSchema'
+import { createTestMultiPayment } from '../utils/testSchema'
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
@@ -191,17 +193,27 @@ describe('AcquiringIntegration', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const admin = await makeLoggedInAdminClient()
             const [billingIntegration] = await createTestBillingIntegration(admin)
-            await expectToThrowValidationFailureError(async () => {
-                await createTestAcquiringIntegration(admin, [billingIntegration], {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegration(admin, [billingIntegration], {
+                dv: 2,
+            }), {
+                'code': 'BAD_USER_INPUT',
+                'type': 'DV_VERSION_MISMATCH',
+                'message': 'Wrong value for data version number',
+                'mutation': 'createAcquiringIntegration',
+                'messageForUser': '',
+                'variable': ['data', 'dv'],
+            })
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestAcquiringIntegration(admin, integration.id, {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
+            await expectToThrowGQLError(async () => await updateTestAcquiringIntegration(admin, integration.id, {
+                dv: 2,
+            }), {
+                'code': 'BAD_USER_INPUT',
+                'type': 'DV_VERSION_MISMATCH',
+                'message': 'Wrong value for data version number',
+                'mutation': 'updateAcquiringIntegration',
+                'messageForUser': '',
+                'variable': ['data', 'dv'],
+            })
         })
         test('Can\'t exist without receipt source (billing integrations)', async () => {
             const admin = await makeLoggedInAdminClient()
