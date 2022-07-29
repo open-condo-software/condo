@@ -52,8 +52,8 @@ const Resident = new GQLListSchema('Resident', {
             access: {
                 read: true,
                 create: true,
-                update: false
-            }
+                update: false,
+            },
         },
 
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
