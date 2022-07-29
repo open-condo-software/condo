@@ -23,6 +23,8 @@ const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
+const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { updateTestPayment } = require('../utils/testSchema')
 
 describe('AcquiringIntegrationAccessRight', () => {
     describe('CRUD tests', () => {
@@ -244,17 +246,27 @@ describe('AcquiringIntegrationAccessRight', () => {
             const [billingIntegration] = await createTestBillingIntegration(admin)
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
             const serviceUserClient = await makeClientWithServiceUser()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestAcquiringIntegrationAccessRight(admin, integration, serviceUserClient.user, {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationAccessRight(admin, integration, serviceUserClient.user, {
+                dv: 2,
+            }), {
+                'code': 'BAD_USER_INPUT',
+                'type': 'DV_VERSION_MISMATCH',
+                'message': 'Wrong value for data version number',
+                'mutation': 'createAcquiringIntegrationAccessRight',
+                'messageForUser': '',
+                'variable': ['data', 'dv'],
+            })
             const [rights] = await createTestAcquiringIntegrationAccessRight(admin, integration, serviceUserClient.user)
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestAcquiringIntegrationAccessRight(admin, rights.id, {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
+            await expectToThrowGQLError(async () => await updateTestAcquiringIntegrationAccessRight(admin, rights.id, {
+                dv: 2,
+            }), {
+                'code': 'BAD_USER_INPUT',
+                'type': 'DV_VERSION_MISMATCH',
+                'message': 'Wrong value for data version number',
+                'mutation': 'updateAcquiringIntegrationAccessRight',
+                'messageForUser': '',
+                'variable': ['data', 'dv'],
+            })
         })
         test('Cannot be created for non-service user', async () => {
             const admin = await makeLoggedInAdminClient()
