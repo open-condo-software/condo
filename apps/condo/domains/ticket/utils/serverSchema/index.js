@@ -81,7 +81,7 @@ const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
     const ticketsLoader = new GqlWithKnexLoadList({
         listKey: 'Ticket',
-        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt classifierRule updatedAt deadline reviewValue reviewComment statusReopenedCounter propertyAddress ',
+        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt classifier updatedAt deadline reviewValue reviewComment statusReopenedCounter propertyAddress ',
         singleRelations: [
             ['User', 'createdBy', 'name'],
             ['User', 'operator', 'name'],
@@ -92,7 +92,7 @@ const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt
             ['Property', 'property', 'deletedAt'],
             ['TicketStatus', 'status', 'type'],
             ['TicketSource', 'source', 'name'],
-            ['TicketClassifierRule', 'classifierRule', 'id'],
+            ['TicketClassifierRule', 'classifier', 'id'],
         ],
         multipleRelations: [
             [

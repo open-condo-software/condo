@@ -49,12 +49,12 @@ const renderComment = (comment, locale) => {
  * @param ticket
  * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
  */
-const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifierRules }) => {
+const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
 
-    const ticketClassifierRules = classifierRules.filter(rule => rule.id === ticket.classifierRule)
+    const ticketClassifier = classifier.filter(rule => rule.id === ticket.classifier)
 
     const comments = await loadTicketCommentsForExcelExport({ ticketIds: [ticket.id] })
     const renderedOrganizationComments = []
@@ -96,9 +96,9 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         isPaid: ticket.isPaid ? YesMessage : NoMessage,
-        place: get(ticketClassifierRules, [0, 'place']) || EMPTY_VALUE,
-        category: get(ticketClassifierRules, [0, 'category']) || EMPTY_VALUE,
-        description: get(ticketClassifierRules, [0, 'problem']) || EMPTY_VALUE,
+        place: get(ticketClassifier, [0, 'place']) || EMPTY_VALUE,
+        category: get(ticketClassifier, [0, 'category']) || EMPTY_VALUE,
+        description: get(ticketClassifier, [0, 'problem']) || EMPTY_VALUE,
         createdAt: formatDate(ticket.createdAt),
         updatedAt: formatDate(ticket.updatedAt),
         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
@@ -173,21 +173,21 @@ const exportTickets = async (taskId) => {
 
     let idOfFirstTicketForAccessRights
 
-    let classifierRules
+    let classifier
 
     await exportRecords({
         context,
         loadRecordsBatch: async (offset, limit) => {
             const { where, sortBy } = task
             const tickets = await loadTicketsBatchForExcelExport({ where, sortBy, offset, limit })
-            classifierRules = await loadClassifiersForExcelExport({ rulesIds: map(tickets, 'classifierRule') })
+            classifier = await loadClassifiersForExcelExport({ rulesIds: map(tickets, 'classifier') })
 
             if (!idOfFirstTicketForAccessRights) {
                 idOfFirstTicketForAccessRights = get(tickets, [0, 'id'])
             }
             return tickets
         },
-        convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifierRules }),
+        convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifier }),
         buildExportFile: (rows) => buildExportFile({ rows, task, idOfFirstTicketForAccessRights }),
         task,
         taskServerUtils: TicketExportTask,

@@ -84,7 +84,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const renderClassifier = useCallback((text, record) => {
         
         return function render (text, record) {
-            const placeClassifier = get(record, ['classifierRule', 'place', 'name'])            
+            const placeClassifier = get(record, ['classifier', 'place', 'name'])            
             const postfix = `\n(${placeClassifier})`
     
             return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)}
@@ -197,7 +197,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             },
             {
                 title: ClassifierTitle,
-                dataIndex: ['classifierRule', 'category', 'name'],
+                dataIndex: ['classifier', 'category', 'name'],
                 filteredValue: getFilteredValue(filters, ['classifierRule', 'category', 'name']),
                 key: ['classifierRule', 'category', 'name'],
                 width: COLUMNS_WIDTH.categoryClassifier,
