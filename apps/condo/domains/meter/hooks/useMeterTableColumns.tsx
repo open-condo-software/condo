@@ -22,7 +22,7 @@ const inputNumberCSS = css`
   padding-right: 20%;
 `
 
-const INPUT_CONTAINER_STYLE: CSSProperties = { position: 'relative', minWidth: 210 }
+const INPUT_CONTAINER_STYLE: CSSProperties = { position: 'relative' }
 const inputMeterReadingFormatter = value => value.toString().replace(',', '.')
 const PARSER_METER_READING_REGEX = /[,.]+/g
 const inputMeterReadingParser = input => input.replace(PARSER_METER_READING_REGEX, '.')
@@ -173,7 +173,7 @@ export const useMeterTableColumns = () => {
         },
         {
             title: MeterReadingsMessage,
-            width: '10%',
+            width: '20%',
             render: meterReadingRenderer,
         },
     ],

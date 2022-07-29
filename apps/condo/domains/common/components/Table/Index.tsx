@@ -35,7 +35,7 @@ type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: b
 
 export const DEFAULT_PAGE_SIZE = 30
 const TABLE_STYLE = { width: 'auto' }
-const TABLE_SCROlL_CONFIG: TableScrollConfig = { x: true }
+export const TABLE_SCROlL_CONFIG: TableScrollConfig = { x: true }
 
 export const Table: React.FC<ITableProps> = ({
     keyPath,
@@ -54,7 +54,7 @@ export const Table: React.FC<ITableProps> = ({
     const hideOnSinglePage = !!shouldHidePaginationOnSinglePage
 
     const LayoutContext = useLayoutContext()
-    const  { shouldTableScroll } = LayoutContext
+    const { shouldTableScroll } = LayoutContext
 
     const router = useRouter()
     const { filters, offset, sorters } = parseQuery(router.query)

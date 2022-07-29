@@ -15,7 +15,7 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { UnitInfo } from '@condo/domains/property/components/UnitInfo'
 import { ContactsInfo } from '@condo/domains/ticket/components/BaseTicketForm'
-import { Table } from '@condo/domains/common/components/Table/Index'
+import { Table, TABLE_SCROlL_CONFIG } from '@condo/domains/common/components/Table/Index'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
@@ -91,6 +91,7 @@ export const PropertyMetersForm = ({
     const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
 
     const { isSmall } = useLayoutContext()
+    const tableScrollConfig = useMemo(() => isSmall ? TABLE_SCROlL_CONFIG : null,  [isSmall])
 
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = Meter.useObjects({
         where: {
@@ -142,6 +143,7 @@ export const PropertyMetersForm = ({
                     {
                         selectedUnitName && dataSource.length ? (
                             <Table
+                                scroll={tableScrollConfig}
                                 loading={loading}
                                 totalRows={total}
                                 dataSource={dataSource}
