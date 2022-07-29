@@ -54,7 +54,7 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
 async function canManageOrganizations ({ authentication: { item: user }, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isSupport || user.isAdmin) return true
 
     if (operation === 'create') {
         return false
