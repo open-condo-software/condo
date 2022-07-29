@@ -576,6 +576,94 @@ describe('AllResidentBillingReceiptsService', () => {
                 expect(objsWithJune[3].isPayable).toBeFalsy()
             })
         })
+
+        describe('in case of singleRecipient and different payment categories', () => {
+            it('gets result filtered by accountId and recipientId', async () => {
+                /**
+                 * Test that we select only one latest receipt from each receiver + accountNumber by period
+                 *   Case:
+                 *   1. John pays for housing water and repairs to single recipient
+                 *   2. John got the receipt for March for housing
+                 *   3. John got the receipt for March for repairs
+                 *   4. In result of AllResidentBillingReceipts John should get 2 receipts:
+                 *     - March housing receipt
+                 *     - March repairs receipt
+                 */
+                const userClient = await makeClientWithProperty()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [integration] = await createTestBillingIntegration(adminClient)
+                const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
+                const [billingProperty] = await createTestBillingProperty(adminClient, context)
+                const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
+
+                await addResidentAccess(userClient.user)
+
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                    unitName: billingAccountAttrs.unitName,
+                })
+                const payload = {
+                    residentId: resident.id,
+                    accountNumber: billingAccountAttrs.number,
+                    organizationId: userClient.organization.id,
+                }
+
+                await registerServiceConsumerByTestClient(userClient, payload)
+
+                const MARCH_PERIOD = '2022-03-01'
+
+                const SINGLE_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
+
+                const [marchHousingReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                    period: MARCH_PERIOD,
+                    recipient: SINGLE_RECIPIENT,
+                    category: { connect: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' } }, // HOUSING CATEGORY
+                    toPay: '20.00000000',
+                })
+                const [marchRepairsReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
+                    period: MARCH_PERIOD,
+                    recipient: SINGLE_RECIPIENT,
+                    category: { connect: { id: 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195' } }, // REPAIRS CATEGORY
+                    toPay: '30.00000000',
+                })
+
+                const objs = await ResidentBillingReceipt.getAll(userClient, {}, {
+                    sortBy: ['period_DESC', 'toPay_ASC'],
+                })
+                const payableReceipts = objs.filter(receipt => receipt.isPayable)
+                const unPayableReceipts = objs.filter(receipt => !receipt.isPayable)
+
+                expect(objs).toHaveLength(2)
+                expect(payableReceipts).toHaveLength(2)
+                expect(payableReceipts[0].id).toEqual(marchHousingReceipt.id)
+                expect(payableReceipts[1].id).toEqual(marchRepairsReceipt.id)
+                expect(unPayableReceipts).toHaveLength(0)
+
+                // Sorting does not matter on result 1
+
+                const objs2 = await ResidentBillingReceipt.getAll(userClient, {}, {
+                    sortBy: ['period_DESC', 'id_DESC'],
+                })
+                const payableReceipts2 = objs.filter(receipt => receipt.isPayable)
+                const unPayableReceipts2 = objs.filter(receipt => !receipt.isPayable)
+
+                expect(objs2).toHaveLength(2)
+                expect(payableReceipts2).toHaveLength(2)
+                expect(unPayableReceipts2).toHaveLength(0)
+
+                // Sorting does not matter on result 2
+
+                const objs3 = await ResidentBillingReceipt.getAll(userClient, {}, {
+                    sortBy: ['period_DESC' ],
+                })
+                const payableReceipts3 = objs.filter(receipt => receipt.isPayable)
+                const unPayableReceipts3 = objs.filter(receipt => !receipt.isPayable)
+
+                expect(objs3).toHaveLength(2)
+                expect(payableReceipts3).toHaveLength(2)
+                expect(unPayableReceipts3).toHaveLength(0)
+            })
+        })
     })
 
     describe('user with stolen billing account id and hacky intentions', () => {
