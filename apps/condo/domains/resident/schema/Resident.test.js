@@ -624,6 +624,20 @@ describe('Resident', () => {
     })
 
     describe('Update', () => {
+        it('organization field cannot be updated', async () => {
+            const userClient = await makeClientWithProperty()
+            const adminClient = await makeLoggedInAdminClient()
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [newOrganization] = await createTestOrganization(adminClient)
+            const payload = {
+                organization: { connect: newOrganization.id }
+            }
+            await catchErrorFrom(async () => {
+                await updateTestResident(adminClient, obj.id, payload)
+            }, (e) => {
+                expect(e.errors[0].message).toContain('Field "organization" is not defined by type "ResidentUpdateInput"')
+            })
+        })
         it('cannot be updated by changing address, addressMeta, property or unitName', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()

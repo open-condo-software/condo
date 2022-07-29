@@ -49,6 +49,11 @@ const Resident = new GQLListSchema('Resident', {
             isRequired: false,
             knexOptions: { isNotNullable: false }, // Relationship only!
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: true,
+                update: false
+            }
         },
 
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
