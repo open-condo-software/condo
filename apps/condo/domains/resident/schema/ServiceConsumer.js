@@ -14,6 +14,8 @@ const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields'
 const access = require('@condo/domains/resident/access/ServiceConsumer')
 
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
+const { ORGANIZATION_OWNED_FIELD } = require(
+    '@condo/domains/organization/schema/fields')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
@@ -107,14 +109,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
             isRequired: true,
         },
 
-        organization: {
-            schemaDoc: 'The organization providing the service (performing the work). Payments for the service will eventually be sent to this organization (it is possible that the payment will come to the partner, but in the end some of the money will still come to this organization). This organization may differ from the Resident.organization, which means that the service is provided by another organization',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         // todo(@toplenboren) DOMA-1701 Make this deprecated and add mobile an ability to move away from these fields
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
