@@ -67,6 +67,9 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 const omit = require('lodash/omit')
 const get = require('lodash/get')
+const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { createTestUser } = require('../../user/utils/testSchema')
+const { createTestAcquiringIntegrationContext } = require('../utils/testSchema')
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {
@@ -261,17 +264,28 @@ describe('MultiPayment', () => {
         describe('Fields validation', () => {
             test('Should have correct dv field (=== 1)', async () => {
                 const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
-                        dv: 2,
-                    })
-                }, 'unknownDataVersion')
+                await expectToThrowGQLError(async () => await createTestMultiPayment(admin, payments, client.user, acquiringIntegration, {
+                    dv: 2,
+                }), {
+                    'code': 'BAD_USER_INPUT',
+                    'type': 'DV_VERSION_MISMATCH',
+                    'message': 'Wrong value for data version number',
+                    'mutation': 'createMultiPayment',
+                    'messageForUser': '',
+                    'variable': ['data', 'dv'],
+                })
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
-                await expectToThrowValidationFailureError(async () => {
-                    await updateTestMultiPayment(admin, multiPayment.id, {
-                        dv: 2,
-                    })
-                }, 'unknownDataVersion')
+                await expectToThrowGQLError(async () => await updateTestMultiPayment(admin, multiPayment.id, {
+                    dv: 2,
+                }), {
+                    'code': 'BAD_USER_INPUT',
+                    'type': 'DV_VERSION_MISMATCH',
+                    'message': 'Wrong value for data version number',
+                    'mutation': 'updateMultiPayment',
+                    'messageForUser': '',
+                    'variable': ['data', 'dv'],
+                })
+
             })
             test('Payments should not be empty', async () => {
                 const { payments, acquiringIntegration, client, admin } = await makePayerAndPayments()
@@ -623,6 +637,7 @@ describe('MultiPayment', () => {
                 test.each(cases)('%p', async (name, explicitServiceCharge, explicitFee) => {
                     // Stage 1. User goes to service and confirm payment with fee / charge...
                     // Meanwhile acquiring integration service move MP and P to PROCESSING and setting explicit fee / charge
+                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
                     const { multiPaymentId } = registerMPResult
                     const payments = await Payment.getAll(integrationClient, {
                         multiPayment: { id: multiPaymentId },
@@ -631,6 +646,8 @@ describe('MultiPayment', () => {
                     expect(payments).toHaveLength(1)
                     let [payment] = payments
                     let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                        dv: 1,
+                        sender,
                         status: MULTIPAYMENT_PROCESSING_STATUS,
                         explicitServiceCharge,
                         explicitFee,
@@ -641,6 +658,8 @@ describe('MultiPayment', () => {
                     expect(Big(multiPayment.explicitFee).eq(explicitFee)).toBeTruthy()
                     expect(Big(multiPayment.explicitServiceCharge).eq(explicitServiceCharge)).toBeTruthy()
                     payment = await Payment.update(integrationClient, payment.id, {
+                        dv: 1,
+                        sender,
                         status: PAYMENT_PROCESSING_STATUS,
                         explicitServiceCharge,
                         explicitFee,
@@ -657,12 +676,16 @@ describe('MultiPayment', () => {
                     const transactionId = faker.datatype.uuid()
 
                     payment = await Payment.update(integrationClient, payment.id, {
+                        dv: 1,
+                        sender,
                         status: PAYMENT_WITHDRAWN_STATUS,
                     })
                     expect(payment).toBeDefined()
                     expect(payment).toHaveProperty('status', PAYMENT_WITHDRAWN_STATUS)
 
                     multiPayment = await MultiPayment.update(integrationClient, multiPayment.id, {
+                        dv: 1,
+                        sender,
                         status: MULTIPAYMENT_WITHDRAWN_STATUS,
                         withdrawnAt: transactionTime,
                         cardNumber,
@@ -678,6 +701,8 @@ describe('MultiPayment', () => {
 
                     // Stage 3. Our acquiring integration service after polling UPS service move everything to DONE
                     payment = await Payment.update(integrationClient, payment.id, {
+                        dv: 1,
+                        sender,
                         status: PAYMENT_DONE_STATUS,
                         advancedAt: transactionTime,
                     })
@@ -685,6 +710,8 @@ describe('MultiPayment', () => {
                     expect(payment).toHaveProperty('status', PAYMENT_DONE_STATUS)
                     expect(payment).toHaveProperty('advancedAt', transactionTime)
                     multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                        dv: 1,
+                        sender,
                         status: MULTIPAYMENT_DONE_STATUS,
                     })
                     expect(multiPayment).toBeDefined()
@@ -698,6 +725,7 @@ describe('MultiPayment', () => {
             })
             test('Payment failed during money processing', async () => {
                 // Stage 1. Same as above
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
                 const { multiPaymentId } = registerMPResult
                 const payments = await Payment.getAll(integrationClient, {
                     multiPayment: { id: multiPaymentId },
@@ -706,11 +734,15 @@ describe('MultiPayment', () => {
                 const explicitServiceCharge = '0'
                 let [payment] = payments
                 await MultiPayment.update(integrationClient, multiPaymentId, {
+                    dv: 1,
+                    sender,
                     status: MULTIPAYMENT_PROCESSING_STATUS,
                     explicitFee,
                     explicitServiceCharge,
                 })
                 await Payment.update(integrationClient, payment.id, {
+                    dv: 1,
+                    sender,
                     status: PAYMENT_PROCESSING_STATUS,
                     explicitFee,
                     explicitServiceCharge,
@@ -718,11 +750,15 @@ describe('MultiPayment', () => {
 
                 // Stage 2. Our acquiring integration service after polling UPS service move everything to ERROR
                 payment = await Payment.update(integrationClient, payment.id, {
+                    dv: 1,
+                    sender,
                     status: PAYMENT_ERROR_STATUS,
                 })
                 expect(payment).toBeDefined()
                 expect(payment).toHaveProperty('status', PAYMENT_ERROR_STATUS)
                 const multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    dv: 1,
+                    sender,
                     status: MULTIPAYMENT_ERROR_STATUS,
                 })
                 expect(multiPayment).toBeDefined()
@@ -746,6 +782,8 @@ describe('MultiPayment', () => {
             test('Successful combined payment', async () => {
                 // Stage 1. User goes to service and confirm payment with fee + charge...
                 // Meanwhile acquiring integration service move MP and P to PROCESSING and setting fees and charge
+
+                const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
                 const { multiPaymentId } = registerMPResult
                 const payments = await Payment.getAll(integrationClient, {
                     multiPayment: { id: multiPaymentId },
@@ -756,6 +794,8 @@ describe('MultiPayment', () => {
                 for (let i = 0; i < 5; i++) {
                     const payment = payments[i]
                     const updatedPayment = await Payment.update(integrationClient, payment.id, {
+                        dv: 1,
+                        sender,
                         status: PAYMENT_PROCESSING_STATUS,
                     })
                     expect(updatedPayment).toBeDefined()
@@ -763,6 +803,8 @@ describe('MultiPayment', () => {
                 }
 
                 let multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    dv: 1,
+                    sender,
                     status: MULTIPAYMENT_PROCESSING_STATUS,
                 })
                 expect(multiPayment).toBeDefined()
@@ -776,12 +818,16 @@ describe('MultiPayment', () => {
                 for (let i = 0; i < 5; i++) {
                     const payment = payments[i]
                     const updatedPayment = await Payment.update(integrationClient, payment.id, {
+                        dv: 1,
+                        sender,
                         status: PAYMENT_WITHDRAWN_STATUS,
                     })
                     expect(updatedPayment).toBeDefined()
                     expect(updatedPayment).toHaveProperty('status', PAYMENT_WITHDRAWN_STATUS)
                 }
                 multiPayment = await MultiPayment.update(integrationClient, multiPayment.id, {
+                    dv: 1,
+                    sender,
                     status: MULTIPAYMENT_WITHDRAWN_STATUS,
                     withdrawnAt: transactionTime,
                     cardNumber,
@@ -799,6 +845,8 @@ describe('MultiPayment', () => {
                 for (const payment of payments) {
                     const advancedAt = dayjs().toISOString()
                     const updatedPayment = await Payment.update(integrationClient, payment.id, {
+                        dv: 1,
+                        sender,
                         status: PAYMENT_DONE_STATUS,
                         advancedAt: advancedAt,
                     })
@@ -807,6 +855,8 @@ describe('MultiPayment', () => {
                     expect(updatedPayment).toHaveProperty('advancedAt', advancedAt)
                 }
                 multiPayment = await MultiPayment.update(integrationClient, multiPaymentId, {
+                    dv: 1,
+                    sender,
                     status: MULTIPAYMENT_DONE_STATUS,
                 })
                 expect(multiPayment).toBeDefined()

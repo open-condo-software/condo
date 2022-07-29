@@ -29,6 +29,8 @@ const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquirin
 const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 const dayjs = require('dayjs')
+const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { createTestUser } = require('../../user/utils/testSchema')
 
 describe('AcquiringIntegrationContext', () => {
     describe('CRUD tests', () => {
@@ -397,17 +399,29 @@ describe('AcquiringIntegrationContext', () => {
             const [organization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-            await expectToThrowValidationFailureError(async () => {
-                await createTestAcquiringIntegrationContext(admin, organization, integration, {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
+            await expectToThrowGQLError(async () => await createTestAcquiringIntegrationContext(admin, organization, integration, {
+                dv: 2,
+                sender: { dv: 1, fingerprint: 'tests' },
+            }), {
+                'code': 'BAD_USER_INPUT',
+                'type': 'DV_VERSION_MISMATCH',
+                'message': 'Wrong value for data version number',
+                'mutation': 'createAcquiringIntegrationContext',
+                'messageForUser': '',
+                'variable': ['data', 'dv'],
+            })
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestAcquiringIntegrationContext(admin, context.id, {
-                    dv: 2,
-                })
-            }, DV_UNKNOWN_VERSION_ERROR)
+            await expectToThrowGQLError(async () => await updateTestAcquiringIntegrationContext(admin, context.id, {
+                dv: 2,
+                sender: { dv: 1, fingerprint: 'tests' },
+            }), {
+                'code': 'BAD_USER_INPUT',
+                'type': 'DV_VERSION_MISMATCH',
+                'message': 'Wrong value for data version number',
+                'mutation': 'updateAcquiringIntegrationContext',
+                'messageForUser': '',
+                'variable': ['data', 'dv'],
+            })
         })
         test('Organization and integration fields cannot be changed', async () => {
             const admin = await makeLoggedInAdminClient()
