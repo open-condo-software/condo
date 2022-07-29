@@ -55,6 +55,8 @@ const {
 } = require('@condo/domains/acquiring/constants/errors')
 const dayjs = require('dayjs')
 const Big = require('big.js')
+const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
@@ -355,17 +357,27 @@ describe('Payment', () => {
             })
             test('Should have correct dv field (=== 1)', async () => {
                 const { admin, organization } = await makePayer()
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestPayment(admin, organization, null, null, {
-                        dv: 2,
-                    })
-                }, DV_UNKNOWN_VERSION_ERROR)
+                await expectToThrowGQLError(async () => await createTestPayment(admin, organization, null, null, {
+                    dv: 2,
+                }), {
+                    'code': 'BAD_USER_INPUT',
+                    'type': 'DV_VERSION_MISMATCH',
+                    'message': 'Wrong value for data version number',
+                    'mutation': 'createPayment',
+                    'messageForUser': '',
+                    'variable': ['data', 'dv'],
+                })
                 const [payment] = await createTestPayment(admin, organization, null, null)
-                await expectToThrowValidationFailureError(async () => {
-                    await updateTestPayment(admin, payment.id, {
-                        dv: 2,
-                    })
-                }, DV_UNKNOWN_VERSION_ERROR)
+                await expectToThrowGQLError(async () => await updateTestPayment(admin, payment.id, {
+                    dv: 2,
+                }), {
+                    'code': 'BAD_USER_INPUT',
+                    'type': 'DV_VERSION_MISMATCH',
+                    'message': 'Wrong value for data version number',
+                    'mutation': 'updatePayment',
+                    'messageForUser': '',
+                    'variable': ['data', 'dv'],
+                })
             })
             describe('Should check for non-negative money fields', () => {
                 const cases = [
