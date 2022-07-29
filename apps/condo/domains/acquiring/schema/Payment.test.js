@@ -209,12 +209,12 @@ describe('Payment', () => {
                 expect(updatedPayment).toBeDefined()
                 expect(updatedPayment).toEqual(expect.objectContaining(payload))
             })
-            test("admin can\'t update organization field", async () => {
+            test('admin can\'t update organization field', async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [ newOrganization ] = await createTestOrganization(admin)
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 const payload = {
-                    organization: { connect: newOrganization.id }
+                    organization: { connect: newOrganization.id },
                 }
                 await catchErrorFrom(async () => {
                     await updateTestPayment(admin, payment.id, payload)
