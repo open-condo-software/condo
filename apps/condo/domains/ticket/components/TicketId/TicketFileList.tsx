@@ -37,6 +37,8 @@ const UploadListWrapperStyles = css`
   }
 `
 
+const ERROR_DOWNLOAD_FILE = 'Failed to download file'
+
 export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     const intl = useIntl()
     const DownloadFileErrorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketFileList.downloadFileError' })
@@ -50,6 +52,8 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
 
     const downloadFile = useCallback(async (file: UploadFile) => {
         const response = await fetch(file.url)
+        if (!response.ok) throw new Error(ERROR_DOWNLOAD_FILE)
+
         const blob = await response.blob()
         const blobUrl = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
@@ -74,7 +78,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
 
     return (
         <div className='upload-control-wrapper' css={UploadListWrapperStyles}>
-            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
+            <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} onPreview={handleFileDownload} />
         </div>
     )
 }
