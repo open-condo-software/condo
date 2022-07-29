@@ -7,6 +7,8 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/organization/access/TokenSet')
+const { ORGANIZATION_OWNED_FIELD } = require(
+    '@condo/domains/organization/schema/fields')
 
 
 const TokenSet = new GQLListSchema('TokenSet', {
@@ -24,14 +26,7 @@ const TokenSet = new GQLListSchema('TokenSet', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        organization: {
-            schemaDoc: 'Organization owner of tokens',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         importRemoteSystem: {
             schemaDoc: 'Remote system name',
