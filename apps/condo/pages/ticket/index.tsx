@@ -89,6 +89,14 @@ export const TicketsPageContent = ({
 
     const loading = isTicketsFetching
 
+    const handleRowAction = useCallback((record) => {
+        return {
+            onClick: async () => {
+                await router.push(`/ticket/${record.id}/`)
+            },
+        }
+    }, [router])
+
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
     const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
@@ -240,6 +248,7 @@ export const TicketsPageContent = ({
                                             loading={loading}
                                             dataSource={tickets}
                                             columns={tableColumns}
+                                            onRow={handleRowAction}
                                             components={tableComponents}
                                             data-cy={'ticket__table'}
                                         />
