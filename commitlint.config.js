@@ -5,7 +5,7 @@ module.exports = {
             2, // level: error
             'always',
             ({ header }) => {
-                const standalonePrefixes = ['HOTFIX', 'INFRA']
+                const standalonePrefixes = ['HOTFIX', 'INFRA', 'REFACTOR']
                 for (let prefix of standalonePrefixes) {
                     if (header.match(new RegExp(`^${prefix} \\w+`, 'i'))) {
                         return [true]
