@@ -20,6 +20,11 @@ const Message = new GQLListSchema('Message', {
             type: 'Relationship',
             ref: 'Organization',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
         },
 
         user: {

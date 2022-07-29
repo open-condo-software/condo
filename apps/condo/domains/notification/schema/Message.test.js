@@ -11,13 +11,13 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
     expectToThrowInternalError,
-    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
 
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Message', () => {
     test('admin: create Message', async () => {
@@ -43,6 +43,20 @@ describe('Message', () => {
         expect(obj.deliveredAt).toEqual(null)
         expect(obj.sentAt).toEqual(null)
         expect(obj.readAt).toEqual(null)
+    })
+
+    test('admin can\'t update organization', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const [obj] = await createTestMessage(adminClient)
+        const [newOrganization] = await createTestOrganization(adminClient)
+        const payload = {
+            organization: { connect: newOrganization.id },
+        }
+        await catchErrorFrom(async () => {
+            await updateTestMessage(adminClient, obj.id, payload)
+        }, (e) => {
+            expect(e.errors[0].message).toContain('Field "organization" is not defined by type "MessageUpdateInput"')
+        })
     })
 
     test('admin: update Message', async () => {
