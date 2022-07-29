@@ -174,8 +174,39 @@ const Ticket = new GQLListSchema('Ticket', {
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
         },
-        classifierRule: {
+        placeClassifier: {
+            schemaDoc: '@deprecated',
+            type: Relationship,
+            ref: 'TicketPlaceClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+        problemClassifier: {
+            schemaDoc: '@deprecated',
+            type: Relationship,
+            ref: 'TicketProblemClassifier',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            access: {
+                read: true,
+                create: false,
+                update: false,
+            },
+        },
+        classifier: {
             schemaDoc: 'Valid combination of 3 classifiers',
             type: Relationship,
             ref: 'TicketClassifierRule',
@@ -336,6 +367,7 @@ const Ticket = new GQLListSchema('Ticket', {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
+            console.log(resolvedData)
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
             const resolvedStatusId = get(resolvedData, 'status', null)
@@ -424,7 +456,7 @@ const Ticket = new GQLListSchema('Ticket', {
              * 👉 When a new "single" or "many" relation field will be added to Ticket,
              * new resolver should be implemented in `ticketChangeDisplayNameResolversForSingleRelations` and `relatedManyToManyResolvers`
              */
-            const { property, unitName, sectionName, sectionType, unitType, floorName, classifierRule } = Ticket.schema.fields
+            const { property, unitName, sectionName, sectionType, unitType, floorName, classifier } = Ticket.schema.fields
 
             await storeChangesIfUpdated(
                 buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
@@ -433,7 +465,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 relatedManyToManyResolvers,
                 [
                     { property, unitName, sectionName, sectionType, unitType, floorName },
-                    { classifierRule },
+                    { classifier },
                 ]
             )(...args)
 

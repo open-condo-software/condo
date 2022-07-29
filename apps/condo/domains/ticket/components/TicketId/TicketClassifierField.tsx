@@ -19,9 +19,9 @@ export const TicketClassifierField: React.FC<TicketClassifierFieldProps> = ({ ti
     const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
 
     const ticketClassifierNames = useMemo(() => compact([
-        get(ticket, ['classifierRule', 'place', 'name']),
-        get(ticket, ['classifierRule', 'category', 'name']),
-        get(ticket, ['classifierRule', 'problem', 'name']),
+        get(ticket, ['classifier', 'place', 'name']),
+        get(ticket, ['classifier', 'category', 'name']),
+        get(ticket, ['classifier', 'problem', 'name']),
     ]), [ticket])
 
     const getClassifierTextType = useCallback(

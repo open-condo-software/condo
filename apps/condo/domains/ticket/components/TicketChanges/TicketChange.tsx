@@ -116,7 +116,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['assigneeDisplayName', AssigneeMessage],
         ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
-        ['classifierRuleDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
         ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
         ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add', change: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
@@ -190,15 +189,15 @@ const useChangedFieldMessagesOf = (ticketChange) => {
 
                 return !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value
             },
-            classifierRuleDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
+            classifierDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let placeClassifierToDisplay
-                console.log(ticketChange['classifierRuleDisplayNameFrom'])
+                console.log(ticketChange['classifierDisplayNameFrom'])
                 
                 if (type === TicketChangeFieldMessageType.From) {
-                    placeClassifierToDisplay = ticketChange['classifierRuleDisplayNameFrom']
+                    placeClassifierToDisplay = ticketChange['classifierDisplayNameFrom']
                 }
                 else if (type === TicketChangeFieldMessageType.To) {
-                    placeClassifierToDisplay = ticketChange['classifierRuleDisplayNameTo']
+                    placeClassifierToDisplay = ticketChange['classifierDisplayNameTo']
                 }
 
                 return placeClassifierToDisplay

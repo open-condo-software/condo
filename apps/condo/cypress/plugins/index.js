@@ -58,11 +58,11 @@ module.exports = async (on, config) => {
         async 'keystone:createTickets' (ticketAttrs) {
             const client = await makeLoggedInClient(ticketAttrs.userAttrs)
             const support = await makeClientWithSupportUser()
-            const [ticketClassifierRule] = await createTestTicketClassifierRule(support)
+            const [ticketClassifier] = await createTestTicketClassifierRule(support)
 
-            const classifierRule = { connect: { id: ticketClassifierRule.id } }
-            const categoryClassifier = { connect: { id: ticketClassifierRule.category.id } }
-            const ticketExtraFields = { categoryClassifier, classifierRule }
+            const classifier = { connect: { id: ticketClassifier.id } }
+            const categoryClassifier = { connect: { id: ticketClassifier.category.id } }
+            const ticketExtraFields = { categoryClassifier, classifier }
 
             const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })

@@ -21,7 +21,7 @@ interface Options {
 }
 interface ITicketThreeLevelsClassifierHookInput {
     initialValues: {
-        classifierRule: string
+        classifier: string
         placeClassifier: string
         categoryClassifier: string
         problemClassifier?: string
@@ -29,7 +29,7 @@ interface ITicketThreeLevelsClassifierHookInput {
     }
 }
 
-interface ITicketClassifierRuleType {
+interface ITicketClassifierType {
     id?: string
     place?: string
     category?: string
@@ -137,7 +137,7 @@ const useTicketClassifierSelectHook = ({
 const CLASSIFIER_ROW_GUTTER: [Gutter, Gutter] = [40, 10]
 
 export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
-    classifierRule,
+    classifier,
     placeClassifier,
     categoryClassifier,
     problemClassifier,
@@ -147,7 +147,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.ProblemLabel' })
-    const ruleRef = useRef<ITicketClassifierRuleType>({ id: classifierRule, place: null, category:null, problem: null })
+    const ruleRef = useRef<ITicketClassifierType>({ id: classifier, place: null, category:null, problem: null })
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)
     const validations = useTicketValidations()
@@ -320,7 +320,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             }
         }
         ticketForm.current.setFields([
-            { name: 'classifierRule', value: ruleRef.current.id },
+            { name: 'classifier', value: ruleRef.current.id },
             { name: 'placeClassifier', value: ruleRef.current.place },
             { name: 'categoryClassifier', value: ruleRef.current.category },
             { name: 'problemClassifier', value: ruleRef.current.problem },
@@ -368,7 +368,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             ticketForm.current = form
             return (
                 <Row gutter={CLASSIFIER_ROW_GUTTER}>
-                    <Form.Item name={'classifierRule'} rules={validations.classifierRule} noStyle={true}>
+                    <Form.Item name={'classifier'} rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden' />
                     </Form.Item>
                     <Col span={12} data-cy={'ticket__place-select-item'}>
