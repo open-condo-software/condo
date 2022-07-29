@@ -630,7 +630,7 @@ describe('Resident', () => {
             const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
             const [newOrganization] = await createTestOrganization(adminClient)
             const payload = {
-                organization: { connect: newOrganization.id }
+                organization: { connect: newOrganization.id },
             }
             await catchErrorFrom(async () => {
                 await updateTestResident(adminClient, obj.id, payload)
