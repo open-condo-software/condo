@@ -27122,7 +27122,7 @@ export type OrganizationLink = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  /**  Organization that gets access  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   from?: Maybe<Organization>;
   /**  Organization that gives access  */
   to?: Maybe<Organization>;
@@ -35612,7 +35612,7 @@ export type ServiceConsumer = {
   residentAcquiringIntegrationContext?: Maybe<ResidentAcquiringIntegrationContext>;
   /**  Account number taken from resident. This is what resident think his account number is  */
   accountNumber?: Maybe<Scalars['String']>;
-  /**  The organization providing the service (performing the work). Payments for the service will eventually be sent to this organization (it is possible that the payment will come to the partner, but in the end some of the money will still come to this organization). This organization may differ from the Resident.organization, which means that the service is provided by another organization  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Organization data, that is returned for current resident in mobile client  */
   residentOrganization?: Maybe<ResidentOrganization>;
@@ -49444,7 +49444,7 @@ export type TokenSet = {
   sender?: Maybe<SenderField>;
   /**  User owner of tokens  */
   user?: Maybe<User>;
-  /**  Organization owner of tokens  */
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
   /**  Remote system name  */
   importRemoteSystem?: Maybe<Scalars['String']>;
