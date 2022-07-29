@@ -10,6 +10,7 @@ const { ServiceConsumer, Resident } = require('../utils/serverSchema')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const get = require('lodash/get')
+const omit = require('lodash/omit')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
@@ -136,7 +137,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 let id
                 if (existingServiceConsumer) {
                     await ServiceConsumer.update(context, existingServiceConsumer.id, {
-                        ...attrs,
+                        // We don't update organization!
+                        ...omit(attrs, 'organization'),
                         deletedAt: null,
                     })
                     id = existingServiceConsumer.id
