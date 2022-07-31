@@ -10,6 +10,7 @@ const access = require('@condo/domains/billing/access/RegisterBillingReceiptsSer
 const { find, getById, GQLCustomSchema } = require('@core/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const Big = require('big.js')
 
 const RECEIPTS_LIMIT = 100
 
@@ -191,16 +192,41 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         ...{
             property: _.get(propertiesIndexById, _.get(receipt, ['property'] )),
             account: _.get(accountsIndexById, _.get(receipt, ['account'])),
+            category: { id: _.get(receipt, ['category']) },
         },
     }))
-    const receiptsIndex = Object.fromEntries(existingReceiptsWithData.map((receipt) => ([getBillingReceiptKey(receipt), receipt.id])))
+    const receiptsIndex = Object.fromEntries(existingReceiptsWithData.map((receipt) => ([getBillingReceiptKey(receipt), receipt])))
 
-    const receiptsToAdd = receipts.filter(((item) => !Reflect.has(receiptsIndex, getBillingReceiptKey(
-        { ...item, ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
-    ))))
-    const receiptsToUpdate = receipts.filter(((item) => Reflect.has(receiptsIndex, getBillingReceiptKey(
-        { ...item, ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
-    ))))
+    const receiptsToUpdate = []
+    const receiptsToAdd = []
+    const notChangedReceipts = []
+
+    receipts.forEach((item) => {
+        const receiptKey = getBillingReceiptKey(
+            {
+                ...item,
+                ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+        )
+
+        const receiptExists = Reflect.has(receiptsIndex, receiptKey)
+
+        if (!receiptExists) {
+            receiptsToAdd.push(item)
+        } else {
+            const existingReceiptByKey = receiptsIndex[receiptKey]
+
+            const b1 = new Big(existingReceiptByKey.toPay)
+            const b2 = new Big(item.toPay)
+            const shouldUpdateReceipt = !b1.eq(b2)
+
+            if (shouldUpdateReceipt) {
+                item.id = existingReceiptByKey.id
+                receiptsToUpdate.push(item)
+            } else {
+                notChangedReceipts.push(item)
+            }
+        }
+    })
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
@@ -227,6 +253,8 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     const updatedReceipts = []
     for (const item of receiptsToUpdate) {
 
+        const itemId = item.id
+
         item.category = { connect: { id: _.get(item, ['category', 'id']) } }
         item.context = { connect: { id: _.get(item, ['context', 'id']) } }
 
@@ -242,11 +270,13 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
         const cleanItem = _.omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
 
-        const updatedReceipt = await BillingReceipt.update(context, item.id, cleanItem)
+        const updatableItem = _.omit(cleanItem, ['context', 'id'])
+
+        const updatedReceipt = await BillingReceipt.update(context, itemId, updatableItem)
         updatedReceipts.push(updatedReceipt)
     }
 
-    return { createdReceipts: newReceipts, updatedReceipts: updatedReceipts,  notChangedReceipts: existingReceipts }
+    return { createdReceipts: newReceipts, updatedReceipts: updatedReceipts, notChangedReceipts: notChangedReceipts }
 }
 
 const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingReceiptsService', {
