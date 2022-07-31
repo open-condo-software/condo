@@ -506,7 +506,7 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(data).toHaveLength(2)
             })
 
-            test('BillingReceipts are updated if they refer to the same receipt', async () => {
+            test('BillingReceipts are not updated and not created if they refer to the same receipt', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [integration] = await createTestBillingIntegration(admin)
                 const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
@@ -518,29 +518,35 @@ describe('RegisterBillingReceiptsService', () => {
                     receipts: [
                         {
                             ...receiptInput,
-                            importId: faker.random.alphaNumeric(24),
                         },
                     ],
                 }
                 await registerBillingReceiptsByTestClient(admin, payload)
+
+                const existingBillingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+                const existingBillingReceiptId = existingBillingReceipts[0].id
+                const existingBillingReceiptUpdatedAt = existingBillingReceipts[0].updatedAt
 
                 const payload2 = {
                     context: { id: billingContext.id },
                     receipts: [
                         {
                             ...receiptInput,
-                            importId: faker.random.alphaNumeric(24),
                         },
                     ],
                 }
                 const [data] = await registerBillingReceiptsByTestClient(admin, payload2)
 
                 const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
                 const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
                 expect(billingProperties).toHaveLength(1)
+                expect(billingAccounts).toHaveLength(1)
                 expect(billingReceipts).toHaveLength(1)
-                expect(data).toHaveLength(1)
+                expect(data).toHaveLength(0)
+                expect(billingReceipts[0].id).toEqual(existingBillingReceiptId)
+                expect(billingReceipts[0].updatedAt).toEqual(existingBillingReceiptUpdatedAt)
             })
 
             test('BillingReceipts are updated if only toPay is different', async () => {
@@ -556,11 +562,11 @@ describe('RegisterBillingReceiptsService', () => {
                         {
                             ...receiptInput,
                             toPay: '190.00',
-                            importId: faker.random.alphaNumeric(24),
                         },
                     ],
                 }
-                await registerBillingReceiptsByTestClient(admin, payload)
+                const [ existingBillingReceipts ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const existingBillingReceiptId = existingBillingReceipts[0].id
 
                 const payload2 = {
                     context: { id: billingContext.id },
@@ -568,7 +574,6 @@ describe('RegisterBillingReceiptsService', () => {
                         {
                             ...receiptInput,
                             toPay: '200.00',
-                            importId: faker.random.alphaNumeric(24),
                         },
                     ],
                 }
@@ -580,6 +585,8 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(billingProperties).toHaveLength(1)
                 expect(billingReceipts).toHaveLength(1)
                 expect(data).toHaveLength(1)
+                expect(billingReceipts[0].id).toEqual(existingBillingReceiptId)
+                expect(billingReceipts[0].toPay).toEqual('200.00000000')
             })
 
             test.skip('BillingReceipts are updated if only services are different', async () => {
@@ -603,7 +610,7 @@ describe('RegisterBillingReceiptsService', () => {
 
             })
 
-            test.skip('Management company republish receipts for one property', async () => {
+            test.skip('Management company republish receipts only for one property', async () => {
 
             })
         })
