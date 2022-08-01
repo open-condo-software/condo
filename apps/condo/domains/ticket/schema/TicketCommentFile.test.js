@@ -283,7 +283,7 @@ describe('TicketCommentFile', () => {
                 const { phone } = residentClient.userAttrs
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [contact] = await createTestContact(admin, organization, property, {
@@ -314,7 +314,7 @@ describe('TicketCommentFile', () => {
                 const unitName = faker.random.alphaNumeric(5)
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -345,7 +345,7 @@ describe('TicketCommentFile', () => {
                     canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-                await createTestResident(adminClient, residentClient.user, organization, property, {
+                await createTestResident(adminClient, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(userClient, organization, property)
@@ -377,7 +377,7 @@ describe('TicketCommentFile', () => {
                     canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
-                await createTestResident(adminClient, residentClient.user, organization, property, {
+                await createTestResident(adminClient, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -427,10 +427,10 @@ describe('TicketCommentFile', () => {
                     canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
-                await createTestResident(adminClient, residentClient.user, organization, property, {
+                await createTestResident(adminClient, residentClient.user, property, {
                     unitName,
                 })
-                await createTestResident(adminClient, anotherResidentClient.user, organization, property, {
+                await createTestResident(adminClient, anotherResidentClient.user, property, {
                     unitName: anotherUnitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -468,7 +468,7 @@ describe('TicketCommentFile', () => {
                     canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
-                await createTestResident(adminClient, residentClient.user, organization, property, {
+                await createTestResident(adminClient, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -497,7 +497,7 @@ describe('TicketCommentFile', () => {
                     canManageTicketComments: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, employeeClient.user, role)
-                await createTestResident(adminClient, residentClient.user, organization, property, {
+                await createTestResident(adminClient, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -522,7 +522,7 @@ describe('TicketCommentFile', () => {
                 const unitName = faker.random.alphaNumeric(5)
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -552,7 +552,7 @@ describe('TicketCommentFile', () => {
                 const unitName = faker.random.alphaNumeric(5)
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -581,7 +581,7 @@ describe('TicketCommentFile', () => {
                 const unitName = faker.random.alphaNumeric(5)
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
