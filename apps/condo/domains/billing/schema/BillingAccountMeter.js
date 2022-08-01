@@ -11,7 +11,7 @@ const access = require('@condo/domains/billing/access/BillingAccountMeter')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const BillingAccountMeter = new GQLListSchema('BillingAccountMeter', {
     schemaDoc: 'All `personal meter` (non `whole-building meter`) objects from `billing data source`. In case of the meter can measure several resources we create a separate object for each resource',
