@@ -62,7 +62,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         updateTicketStatus({ status: { connect: { id: value } }, statusUpdatedAt: new Date() })
     }, [updateTicketStatus])
 
-    const { cancelTicketModal, openModal } = useTicketCancelModal(updateTicket, statuses)
+    const { cancelTicketModal, openModal } = useTicketCancelModal(updateTicket)
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
         const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
@@ -83,11 +83,11 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
 
     const handleChange = useCallback(({ value }) => {
         if (statuses.find((status) => status.id === value).type === TicketStatusTypeType.Canceled) {
-            openModal()
+            openModal(value)
         } else {
             updateTicket(value)
         }
-    }, [ticket, statuses, updateTicket])
+    }, [ticket, statuses, updateTicket, openModal])
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
