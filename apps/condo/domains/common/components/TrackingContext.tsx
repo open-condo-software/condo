@@ -67,7 +67,8 @@ interface IUseTracking {
 }
 
 const useTracking: IUseTracking = () => {
-    const { route } = useRouter()
+    const router = useRouter()
+    const route = get(router, 'route', '')
     const { trackerInstances, eventProperties, userProperties } = useTrackingContext()
 
     const logEvent = useCallback(({ eventName, eventProperties: localEventProperties = {}, denyDuplicates }: ITrackerLogEventType) => {
