@@ -12,7 +12,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 
 const TICKET_CLASSIFIER_ATTRIBUTES_FIELDS = ' classifier { id place { id name } category { id name } problem { id name } }'
 const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`
-const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt isResidentTicket reviewValue reviewComment deadline organization { id name country } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone unitName unitType } operator { id name } assignee { id name } executor { id name } details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt isResidentTicket reviewValue reviewComment deadline organization { id name country } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone unitName unitType } operator { id name } assignee { id name } executor { id name } details related { id details } isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -135,7 +135,7 @@ const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
     }
 `
 
-const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} }`
+const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} }`
 
 // Actually there is no `ResidentTicket` Keystone schema presented.
 // Here we will get a set of declarations of GraphQL mutation query strings for CRUD operations.
