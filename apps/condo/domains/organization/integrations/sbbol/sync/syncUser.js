@@ -49,6 +49,7 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
                 id: existingUser.id,
                 data: {
                     email: null,
+                    ...dvSenderFields,
                 },
             },
             returnFields: 'id',
@@ -95,7 +96,7 @@ const syncUser = async ({ context, userInfo }) => {
 
         const user = await createItem({
             listKey: 'User',
-            item: userInfo,
+            item: { ...userInfo, ...dvSenderFields },
             returnFields,
             ...context,
         })
@@ -116,7 +117,7 @@ const syncUser = async ({ context, userInfo }) => {
                 userPhone: userInfo.phone,
                 dv: 1,
             },
-            sender: dvSenderFields.sender,
+            ...dvSenderFields,
         })
 
         await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
@@ -145,6 +146,7 @@ const syncUser = async ({ context, userInfo }) => {
                 data: {
                     ...update,
                     ...importFields,
+                    ...dvSenderFields,
                 },
             },
             returnFields,
