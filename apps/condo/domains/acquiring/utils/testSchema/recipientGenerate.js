@@ -9,7 +9,7 @@ function createValidRecipient (extra = {}) {
 
     const bic = createValidRuBic()
     const bankAccount = createValidBankAccount(bic)
-    const tin = createValidTin()
+    const tin = createValidTin10()
 
     const validRecipient = {
         name: faker.company.companyName(),
@@ -47,7 +47,7 @@ function createValidRuBic () {
     return '04' + faker.datatype.number({ min: 1000000, max: 9999999 }).toString()
 }
 
-function createValidTin () {
+function createValidTin10 () {
     const tin = faker.datatype.number({
         min: Math.pow(10, 9),
         max: Math.pow(10, 10) - 1,
@@ -58,10 +58,23 @@ function createValidTin () {
     return tin.replace(/.$/, lastNumber)
 }
 
+function createValidTin12 () {
+    const tin = faker.datatype.number({
+        min: Math.pow(10, 10),
+        max: Math.pow(10, 11) - 1,
+    }).toString()
+
+    const penultNumber = getTinControlSumRU(tin)
+    const lastNumber = getTinControlSumRU(tin + penultNumber)
+
+    return tin.replace(/.$/, penultNumber) + lastNumber
+}
+
 
 module.exports = {
     createValidRecipient,
     createValidBankAccount,
     createValidRuBic,
-    createValidTin,
+    createValidTin10,
+    createValidTin12,
 }

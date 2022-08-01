@@ -52,7 +52,7 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createValidRuBic } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 const { createValidBankAccount } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
-const { createValidTin } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
+const { createValidTin10 } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -461,7 +461,7 @@ function createValidRecipientTODO (extra = {}) {
 
     const bic = createValidRuBic()
     const bankAccount = createValidBankAccount(bic)
-    const tin = createValidTin()
+    const tin = createValidTin10()
 
     const validRecipient = {
         name: faker.company.companyName(),
