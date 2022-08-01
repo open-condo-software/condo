@@ -57,10 +57,12 @@ export const TicketsPageContent = ({
     tableColumns,
     searchTicketsQuery,
     sortBy,
-    filterMetas,
     isTicketsFetching,
     total,
     tickets,
+    MultipleFiltersModal,
+    ResetFiltersModalButton,
+    setIsMultipleFiltersModalVisible,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -83,7 +85,6 @@ export const TicketsPageContent = ({
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
 
     searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
 
@@ -270,7 +271,12 @@ const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+
     const filterMetas = useTicketTableFilters()
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
+
+
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -299,10 +305,12 @@ const TicketsPage: ITicketIndexPage = () => {
             tableColumns={tableColumns}
             searchTicketsQuery={searchTicketsQuery}
             sortBy={sortBy}
-            filterMetas={filterMetas}
             isTicketsFetching={isTicketsFetching}
             total={total}
             tickets={tickets}
+            MultipleFiltersModal={MultipleFiltersModal}
+            ResetFiltersModalButton={ResetFiltersModalButton}
+            setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
         />
     )
 }

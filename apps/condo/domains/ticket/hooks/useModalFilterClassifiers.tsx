@@ -111,7 +111,8 @@ export function useModalFilterClassifiers () {
 
     const router = useRouter()
 
-    const ClassifierLoaderRef = useRef<ClassifiersQueryLocal>()
+    const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
+
     const ruleRef = useRef({ place: [], category: [] })
 
     const onUserSelect = useCallback(async (id, type) => {
@@ -162,10 +163,10 @@ export function useModalFilterClassifiers () {
                     }
                 }
 
-                ClassifierLoaderRef.current
+                ClassifierLoader
                     .findRulesByIds(query, type, ruleRef.current[type])
                     .then(data => {
-                        resolve([type, ClassifierLoaderRef.current.rulesToOptions(data, type)])
+                        resolve([type, ClassifierLoader.rulesToOptions(data, type)])
                     })
             })
         }))
@@ -189,9 +190,7 @@ export function useModalFilterClassifiers () {
         const initialPlaceClassifierIds = getInitialClassifierValues(filters, PLACE_CLASSIFIER_KEYWORD)
         const initialCategoryClassifierIds = getInitialClassifierValues(filters, CATEGORY_CLASSIFIER_KEYWORD)
 
-        ClassifierLoaderRef.current = new ClassifiersQueryLocal(client)
-
-        ClassifierLoaderRef.current.init().then(async () => {
+        ClassifierLoader.init().then(async () => {
             if (!isEmpty(initialPlaceClassifierIds) || !isEmpty(initialCategoryClassifierIds)) {
                 ruleRef.current = {
                     place: initialPlaceClassifierIds,
@@ -200,7 +199,7 @@ export function useModalFilterClassifiers () {
                 await updateLevels()
             } else {
                 CLASSIFIER_TYPES.forEach(type => {
-                    ClassifierLoaderRef.current.search('', type).then(classifiers => {
+                    ClassifierLoader.search('', type).then(classifiers => {
                         Setter[type].all(classifiers)
                     })
                 })
@@ -213,7 +212,7 @@ export function useModalFilterClassifiers () {
         })
 
         return () => {
-            ClassifierLoaderRef.current.clear()
+            ClassifierLoader.clear()
         }
     }, [router.query, client, Setter, updateLevels])
 
