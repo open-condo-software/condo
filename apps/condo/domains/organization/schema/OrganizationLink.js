@@ -8,7 +8,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const access = require('@condo/domains/organization/access/OrganizationLink')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const OrganizationLink = new GQLListSchema('OrganizationLink', {
