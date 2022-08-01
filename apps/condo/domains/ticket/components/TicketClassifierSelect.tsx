@@ -320,7 +320,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             }
         }
         ticketForm.current.setFields([
-            { name: 'classifier', value: { connect: { id: ruleRef.current.id } } },
+            { name: 'classifier', value: ruleRef.current.id },
             { name: 'placeClassifier', value: ruleRef.current.place },
             { name: 'categoryClassifier', value: ruleRef.current.category },
             { name: 'problemClassifier', value: ruleRef.current.problem },
