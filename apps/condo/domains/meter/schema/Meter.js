@@ -16,7 +16,7 @@ const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILA
 
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 const { MeterReading } = require('../utils/serverSchema')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const Meter = new GQLListSchema('Meter', {
