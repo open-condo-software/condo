@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { Typography, Tooltip } from 'antd'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
@@ -19,6 +19,7 @@ import { EmptyTableCell } from './EmptyTableCell'
 import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
 import { isNull } from 'lodash'
+import Link from 'next/link'
 
 type RenderReturnType = string | React.ReactNode
 
@@ -92,11 +93,22 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
     )
 }
 
+const withLink = (content: JSX.Element | string, href: string) => {
+    const handleStopPropagation = (e) => e.stopPropagation()
+
+    return (
+        <Link href={href}>
+            <a onClick={handleStopPropagation}>
+                {content}
+            </a>
+        </Link>
+    )
+}
 
 /**
  * Type for getTableCellRenderer fn
  */
-type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean | EllipsisConfig, postfix?: string | React.ReactElement, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string) => (text?: string) => React.ReactElement
+type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean | EllipsisConfig, postfix?: string | React.ReactElement, extraHighlighterProps?: Partial<TTextHighlighterProps>, extraPostfixProps?: TextProps, extraTitle?: string, href?: string) => (text?: string) => React.ReactElement
 
 /**
  * Returned function renders provided text as a cell with highlighted search and multi row ellipsis (if requested)
@@ -107,6 +119,7 @@ type TTableCellRendererFN = (search?: FilterValue | string, ellipsis?: boolean |
  * @param extraHighlighterProps
  * @param extraPostfixProps
  * @param extraTitle
+ * @param href
  * @return cell contents renderer fn
  */
 export const getTableCellRenderer: TTableCellRendererFN = (
@@ -116,6 +129,7 @@ export const getTableCellRenderer: TTableCellRendererFN = (
     extraHighlighterProps,
     extraPostfixProps,
     extraTitle,
+    href?: string,
 ) =>
     (text) => {
         const title = extraTitle ? extraTitle : text ? `${text} ${postfix || ''}` : null
@@ -124,20 +138,15 @@ export const getTableCellRenderer: TTableCellRendererFN = (
         const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
         const tableCellContent = useMemo(() => {
-            if (!ellipsis) return <EmptyTableCell>{text && highlightedContent}</EmptyTableCell>
-
-            return (
-                <EmptyTableCell>
-                    {
-                        text && (
-                            <Typography.Paragraph ellipsis={ellipsisConfig} style={ELLIPSIS_STYLES}>
-                                {highlightedContent}
-                            </Typography.Paragraph>
-                        )
-                    }
-                </EmptyTableCell>
+            const cellContent = text && (!ellipsis ?
+                highlightedContent :
+                (<Typography.Paragraph ellipsis={ellipsisConfig} style={ELLIPSIS_STYLES}>
+                    {highlightedContent}
+                </Typography.Paragraph>)
             )
-        }, [ellipsis, text, ellipsisConfig, highlightedContent])
+
+            return <EmptyTableCell>{href ? withLink(cellContent, href) : cellContent}</EmptyTableCell>
+        }, [ellipsis, text, ellipsisConfig, highlightedContent, href])
 
         // NOTE Tooltip -> span -> content
         // This hack (span) is needed for tooltip to appear
