@@ -45,12 +45,26 @@ describe('Message', () => {
         expect(obj.readAt).toEqual(null)
     })
 
-    test('admin can\'t update organization', async () => {
+    test('cannot connect another organization', async () => {
         const adminClient = await makeLoggedInAdminClient()
         const [obj] = await createTestMessage(adminClient)
         const [newOrganization] = await createTestOrganization(adminClient)
         const payload = {
             organization: { connect: newOrganization.id },
+        }
+        await catchErrorFrom(async () => {
+            await updateTestMessage(adminClient, obj.id, payload)
+        }, (e) => {
+            expect(e.errors[0].message).toContain('Field "organization" is not defined by type "MessageUpdateInput"')
+        })
+    })
+
+    test('cannot disconnect organization', async () => {
+        const adminClient = await makeLoggedInAdminClient()
+        const [obj] = await createTestMessage(adminClient)
+        await createTestOrganization(adminClient)
+        const payload = {
+            organization: { disconnectAll: true },
         }
         await catchErrorFrom(async () => {
             await updateTestMessage(adminClient, obj.id, payload)
