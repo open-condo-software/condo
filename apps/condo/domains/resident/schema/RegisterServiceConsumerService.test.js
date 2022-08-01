@@ -31,7 +31,7 @@ describe('RegisterServiceConsumerService', () => {
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: billingAccountAttrs.unitName,
         })
 
@@ -59,7 +59,7 @@ describe('RegisterServiceConsumerService', () => {
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: billingAccountAttrs.unitName,
         })
 
@@ -92,7 +92,7 @@ describe('RegisterServiceConsumerService', () => {
         const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, organization, [ billingIntegration ])
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, undefined, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: billingAccountAttrs.unitName,
         })
 
@@ -138,7 +138,7 @@ describe('RegisterServiceConsumerService', () => {
         await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: USER_UNIT_NAME,
         })
 
@@ -174,7 +174,7 @@ describe('RegisterServiceConsumerService', () => {
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: billingAccountAttrs.unitName,
         })
 
@@ -208,7 +208,7 @@ describe('RegisterServiceConsumerService', () => {
         await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, undefined, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: USER_UNIT_NAME,
         })
 
@@ -233,7 +233,7 @@ describe('RegisterServiceConsumerService', () => {
         await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, undefined, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: '21',
         })
 
@@ -272,7 +272,7 @@ describe('RegisterServiceConsumerService', () => {
         const [billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
 
         await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName: billingAccountAttrs.unitName,
         })
 

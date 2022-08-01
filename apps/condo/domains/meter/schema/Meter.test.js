@@ -264,7 +264,7 @@ describe('Meter', () => {
                 const [property] = await createTestProperty(adminClient, organization)
                 const [billingProperty] = await createTestBillingProperty(adminClient, context)
                 const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
 
@@ -462,7 +462,7 @@ describe('Meter', () => {
                 const [property] = await createTestProperty(adminClient, organization)
                 const [billingProperty] = await createTestBillingProperty(adminClient, context)
                 const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
                 await createTestServiceConsumer(adminClient, resident, organization, {
@@ -637,7 +637,7 @@ describe('Meter', () => {
                     const [property] = await createTestProperty(adminClient, organization)
                     const [billingProperty] = await createTestBillingProperty(adminClient, context)
                     const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-                    const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                    const [resident] = await createTestResident(adminClient, client.user, property, {
                         unitName,
                     })
                     await createTestServiceConsumer(adminClient, resident, organization, {
@@ -664,7 +664,7 @@ describe('Meter', () => {
                     const [property] = await createTestProperty(adminClient, organization)
                     const [billingProperty] = await createTestBillingProperty(adminClient, context)
                     const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-                    const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                    const [resident] = await createTestResident(adminClient, client.user, property, {
                         unitName,
                     })
                     await createTestServiceConsumer(adminClient, resident, organization, {
@@ -698,7 +698,7 @@ describe('Meter', () => {
                 const [property1] = await createTestProperty(adminClient, organization1)
                 const [billingProperty1] = await createTestBillingProperty(adminClient, context1)
                 const [billingAccount1] = await createTestBillingAccount(adminClient, context1, billingProperty1)
-                const [resident1] = await createTestResident(adminClient, client1.user, organization1, property1, {
+                const [resident1] = await createTestResident(adminClient, client1.user, property1, {
                     unitName,
                 })
                 await createTestServiceConsumer(adminClient, resident1, organization1, {
@@ -708,7 +708,7 @@ describe('Meter', () => {
                 const [property2] = await createTestProperty(adminClient, organization2)
                 const [billingProperty2] = await createTestBillingProperty(adminClient, context2)
                 const [billingAccount2] = await createTestBillingAccount(adminClient, context2, billingProperty2)
-                const [resident2] = await createTestResident(adminClient, client2.user, organization2, property2, {
+                const [resident2] = await createTestResident(adminClient, client2.user, property2, {
                     unitName,
                 })
                 await createTestServiceConsumer(adminClient, resident2, organization2, {
@@ -733,7 +733,7 @@ describe('Meter', () => {
                 const [property1] = await createTestProperty(adminClient, organization)
                 const [billingProperty1] = await createTestBillingProperty(adminClient, context)
                 const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty1)
-                const [resident1] = await createTestResident(adminClient, client1.user, organization, property1, {
+                const [resident1] = await createTestResident(adminClient, client1.user, property1, {
                     unitName,
                 })
                 await createTestServiceConsumer(adminClient, resident1, organization, {
@@ -742,7 +742,7 @@ describe('Meter', () => {
                 const [property2] = await createTestProperty(adminClient, organization)
                 const [billingProperty2] = await createTestBillingProperty(adminClient, context)
                 const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty2)
-                const [resident2] = await createTestResident(adminClient, client2.user, organization, property2, {
+                const [resident2] = await createTestResident(adminClient, client2.user, property2, {
                     unitName,
                 })
                 await createTestServiceConsumer(adminClient, resident2, organization, {
@@ -768,14 +768,14 @@ describe('Meter', () => {
                 const [property] = await createTestProperty(adminClient, organization)
                 const [billingProperty] = await createTestBillingProperty(adminClient, context)
                 const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident1] = await createTestResident(adminClient, client1.user, organization, property, {
+                const [resident1] = await createTestResident(adminClient, client1.user, property, {
                     unitName: unitName1,
                 })
                 await createTestServiceConsumer(adminClient, resident1, organization, {
                     accountNumber: billingAccount1.number,
                 })
                 const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident2] = await createTestResident(adminClient, client2.user, organization, property, {
+                const [resident2] = await createTestResident(adminClient, client2.user, property, {
                     unitName: unitName2,
                 })
                 await createTestServiceConsumer(adminClient, resident2, organization, {
@@ -798,7 +798,7 @@ describe('Meter', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
                 const accountNumber1 = faker.random.alphaNumeric(8)
@@ -826,7 +826,7 @@ describe('Meter', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
                 const accountNumber1 = faker.random.alphaNumeric(8)
@@ -850,7 +850,7 @@ describe('Meter', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
                 const accountNumber1 = faker.random.alphaNumeric(8)
@@ -874,7 +874,7 @@ describe('Meter', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
                 const accountNumber1 = faker.random.alphaNumeric(8)

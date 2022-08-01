@@ -35,7 +35,7 @@ describe('ServiceConsumer', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const [consumer] = await createTestServiceConsumer(adminClient, resident, userClient.organization, { billingAccount: { connect: { id: billingAccount.id } } })
 
@@ -51,7 +51,7 @@ describe('ServiceConsumer', () => {
             const [anotherOrganization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-            const [resident] = await createTestResident(adminClient, userClient.user, anotherOrganization, userClient.property)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestServiceConsumer(userClient, resident, userClient.organization)
@@ -62,7 +62,7 @@ describe('ServiceConsumer', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [billingProperty] = await createTestBillingProperty(adminClient, context)

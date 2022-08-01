@@ -28,7 +28,7 @@ const ServiceConsumer = generateGQLTestUtils(ServiceConsumerGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestResident (client, user, organization, property, extraAttrs = {}) {
+async function createTestResident (client, user, property, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -45,9 +45,6 @@ async function createTestResident (client, user, organization, property, extraAt
         address,
         addressMeta,
         ...extraAttrs,
-    }
-    if (organization) {
-        attrs.organization = { connect: { id: organization.id } }
     }
     if (property) {
         attrs.property = { connect: { id: property.id } }
@@ -144,7 +141,7 @@ async function makeClientWithServiceConsumer () {
     const client = await makeClientWithResidentAccessAndProperty()
     const adminClient = await makeLoggedInAdminClient()
 
-    const [resident] = await createTestResident(adminClient, client.user, client.organization, client.property)
+    const [resident] = await createTestResident(adminClient, client.user, client.property)
     const [consumer] = await createTestServiceConsumer(adminClient, resident, client.organization)
 
     client.resident = resident

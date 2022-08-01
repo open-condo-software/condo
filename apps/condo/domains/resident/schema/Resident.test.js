@@ -52,7 +52,7 @@ describe('Resident', () => {
                 addressMeta: addressMetaWithFlat,
             }
 
-            const [objCreated] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, attrs)
+            const [objCreated] = await createTestResident(adminClient, userClient.user, userClient.property, attrs)
             expect(objCreated.address).toEqual(userClient.property.addressMeta.value)
         })
     })
@@ -65,10 +65,10 @@ describe('Resident', () => {
                 address: userClient.property.address,
                 unitName: faker.random.alphaNumeric(3),
             }
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+            await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
 
             await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+                await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
@@ -83,7 +83,7 @@ describe('Resident', () => {
                 address: userClient.property.address,
                 unitName: '123a',
             }
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, fields)
+            await createTestResident(adminClient, userClient.user, userClient.property, fields)
 
             const duplicatedFields = {
                 address: fields.address.toUpperCase(),
@@ -91,7 +91,7 @@ describe('Resident', () => {
             }
 
             await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+                await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
@@ -106,7 +106,7 @@ describe('Resident', () => {
                 address: userClient.property.address,
                 unitName: faker.random.alphaNumeric(3),
             }
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
+            await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
 
             const addressMetaWithFlat = cloneDeep(userClient.property.addressMeta)
             addressMetaWithFlat.data.flat = '123'
@@ -120,7 +120,7 @@ describe('Resident', () => {
             }
 
             await catchErrorFrom(async () => {
-                await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFieldsWithFlatInAddress)
+                await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFieldsWithFlatInAddress)
             }, ({ errors, data }) => {
                 expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                 expect(errors[0].data.messages[0]).toMatch('Cannot create resident, because another resident with the same provided "address" and "unitName" already exists for current user')
@@ -136,8 +136,8 @@ describe('Resident', () => {
                 property: { connect: { id: userClient.property.id } },
                 unitName: faker.random.alphaNumeric(3),
             }
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, duplicatedFields)
-            const [obj] = await createTestResident(adminClient, userClient2.user, userClient.organization, userClient.property, duplicatedFields)
+            await createTestResident(adminClient, userClient.user, userClient.property, duplicatedFields)
+            const [obj] = await createTestResident(adminClient, userClient2.user, userClient.property, duplicatedFields)
             expect(obj.id).toMatch(UUID_RE)
         })
 
@@ -154,7 +154,7 @@ describe('Resident', () => {
                 }
 
                 await catchErrorFrom(async () => {
-                    await createTestResident(adminClient, userClient.user, userClient.organization, propertyWithAnotherAddress, attrs)
+                    await createTestResident(adminClient, userClient.user, propertyWithAnotherAddress, attrs)
                 }, ({ errors, data }) => {
                     expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
                     expect(errors[0].data.messages[0]).toMatch('Cannot connect property, because its address differs from address of resident')
@@ -176,7 +176,7 @@ describe('Resident', () => {
                     },
                 }
 
-                const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, extraAttrs)
+                const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.property, extraAttrs)
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -200,7 +200,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property)
+            await createTestResident(adminClient, residentClient.user, userClient.property)
             const [ticketFile] = await createTestTicketFile(residentClient)
             expect(ticketFile.createdBy.id).toEqual(residentClient.user.id)
         })
@@ -210,7 +210,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+            await createTestResident(adminClient, residentClient.user, userClient.property, {
                 unitName,
             })
             const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
@@ -224,7 +224,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+            await createTestResident(adminClient, residentClient.user, userClient.property, {
                 unitName,
             })
             const [ticket] = await createTestTicket(residentClient, userClient.organization, userClient.property, {
@@ -242,7 +242,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
             const unitName = faker.random.alphaNumeric(8)
-            await createTestResident(adminClient, residentClient.user, userClient.organization, userClient.property, {
+            await createTestResident(adminClient, residentClient.user, userClient.property, {
                 unitName,
             })
             const [ticketFile] = await createTestTicketFile(residentClient)
@@ -260,7 +260,7 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.residentOrganization).toBeDefined()
@@ -269,16 +269,6 @@ describe('Resident', () => {
                 expect(obj.residentOrganization.country).toEqual(userClient.organization.country)
                 expect(Object.keys(obj.residentOrganization)).toHaveLength(3)
             })
-
-            it('returns null if no related organization', async () => {
-                const userClient = await makeClientWithProperty()
-                const adminClient = await makeLoggedInAdminClient()
-
-                const [{ id }] = await createTestResident(adminClient, userClient.user, null, userClient.property)
-                await addResidentAccess(userClient.user)
-                const [obj] = await Resident.getAll(userClient, { id })
-                expect(obj.residentOrganization).toBeNull()
-            })
         })
 
         describe('residentProperty', () => {
@@ -286,7 +276,7 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.residentProperty).toBeDefined()
@@ -307,7 +297,7 @@ describe('Resident', () => {
                 }
                 console.log('user and admin clients created')
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, null, attrs)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, null, attrs)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.residentProperty).toBeNull()
@@ -328,7 +318,7 @@ describe('Resident', () => {
                     },
                 })
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -339,7 +329,7 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -353,7 +343,7 @@ describe('Resident', () => {
                 const [integration] = await createTestBillingIntegration(adminClient)
                 await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -370,7 +360,7 @@ describe('Resident', () => {
                     addressMeta: buildFakeAddressMeta(address),
                 }
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, null, null, attrs)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, null, attrs)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
                 expect(obj.organizationFeatures).toBeNull()
@@ -382,7 +372,7 @@ describe('Resident', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
                 const unitName = faker.random.alphaNumeric(8)
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
 
@@ -401,7 +391,7 @@ describe('Resident', () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
                 const unitName = faker.random.alphaNumeric(8)
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
 
@@ -414,7 +404,7 @@ describe('Resident', () => {
                 const client = await makeClientWithResidentUser()
                 const [organization] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, organization)
-                const [resident] = await createTestResident(adminClient, client.user, organization, null, {
+                const [resident] = await createTestResident(adminClient, client.user, null, {
                     address: property.address,
                     addressMeta: property.addressMeta,
                 })
@@ -422,7 +412,7 @@ describe('Resident', () => {
                 await createTestMeter(adminClient, organization, property, resource)
 
                 const [obj] = await Resident.getAll(client, { id: resident.id })
-                expect(obj.organizationFeatures.hasMeters).toBe(false)
+                expect(obj.organizationFeatures).toBe(null)
             })
 
             it('correctly sets hasMeters: "true" and hasBillingData: "true" is billingData and meters exists in organization', async () => {
@@ -446,7 +436,7 @@ describe('Resident', () => {
                     unitName,
                 })
 
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName,
                 })
 
@@ -467,7 +457,7 @@ describe('Resident', () => {
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, [billingIntegration])
                 await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -485,7 +475,7 @@ describe('Resident', () => {
                 const [billingIntegration] = await createTestBillingIntegration(adminClient)
                 await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, billingIntegration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -502,7 +492,7 @@ describe('Resident', () => {
                 const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, [billingIntegration])
                 await createTestAcquiringIntegrationContext(adminClient, userClient.organization, acquiringIntegration)
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -515,7 +505,7 @@ describe('Resident', () => {
                 const userClient = await makeClientWithProperty()
                 const adminClient = await makeLoggedInAdminClient()
 
-                const [{ id }] = await createTestResident(adminClient, userClient.user, null, userClient.property)
+                const [{ id }] = await createTestResident(adminClient, userClient.user, userClient.property)
                 await addResidentAccess(userClient.user)
                 const [obj] = await Resident.getAll(userClient, { id })
 
@@ -535,7 +525,7 @@ describe('Resident', () => {
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             await createTestBillingAccount(adminClient, context, billingProperty)
 
-            const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj, attrs] = await createTestResident(adminClient, userClient.user, userClient.property)
             expect(obj.id).toMatch(UUID_RE)
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -558,7 +548,7 @@ describe('Resident', () => {
             const [organization] = await createTestOrganization(adminClient)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestResident(userClient, userClient.user, organization, userClient.property)
+                await createTestResident(userClient, userClient.user, userClient.property)
             })
         })
 
@@ -566,7 +556,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const anonymous = await makeClient()
             await expectToThrowAuthenticationErrorToObj(async () => {
-                await createTestResident(anonymous, userClient.user, userClient.organization, userClient.property)
+                await createTestResident(anonymous, userClient.user, userClient.property)
             })
         })
     })
@@ -575,7 +565,7 @@ describe('Resident', () => {
         it('can be read by admin', async () => {
             const userClient = await makeClientWithProperty()
             const admin = await makeLoggedInAdminClient()
-            const [obj, attrs] = await createTestResident(admin, userClient.user, userClient.organization, userClient.property)
+            const [obj, attrs] = await createTestResident(admin, userClient.user, userClient.property)
             const objs = await Resident.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs.length).toBeGreaterThanOrEqual(1)
             expect(objs).toEqual(expect.arrayContaining([
@@ -594,7 +584,7 @@ describe('Resident', () => {
         it('cannot be read by user, who is employed in organization, which manages associated property', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            await createTestResident(adminClient, userClient.user, userClient.property)
             await expectToThrowAccessDeniedErrorToObjects(async () => {
                 await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             })
@@ -605,8 +595,8 @@ describe('Resident', () => {
             await addResidentAccess(userClient.user)
             const anotherUserClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
-            await createTestResident(adminClient, anotherUserClient.user, anotherUserClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
+            await createTestResident(adminClient, anotherUserClient.user, userClient.property)
             const objs = await Resident.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
@@ -616,7 +606,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            await createTestResident(adminClient, userClient.user, userClient.property)
             await expectToThrowAuthenticationErrorToObjects(async () => {
                 await Resident.getAll(anonymousClient)
             })
@@ -627,7 +617,7 @@ describe('Resident', () => {
         it('organization field cannot be updated', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
             const [newOrganization] = await createTestOrganization(adminClient)
             const payload = {
                 organization: { connect: newOrganization.id },
@@ -641,7 +631,7 @@ describe('Resident', () => {
         it('cannot be updated by changing address, addressMeta, property or unitName', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             await catchErrorFrom(async () => {
                 const payload = {
@@ -683,7 +673,7 @@ describe('Resident', () => {
         it('cannot be updated by other user with type resident', async () => {
             const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const otherUserClient = await makeClientWithResidentAccessAndProperty()
 
@@ -695,7 +685,7 @@ describe('Resident', () => {
         it('can be updated by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const [objUpdated, attrs] = await updateTestResident(adminClient, obj.id)
 
@@ -718,7 +708,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
 
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await updateTestResident(anonymousClient, obj.id)
@@ -731,7 +721,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
 
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Resident.delete(adminClient, obj.id)
@@ -742,7 +732,7 @@ describe('Resident', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
 
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Resident.delete(userClient, obj.id)
@@ -754,7 +744,7 @@ describe('Resident', () => {
             const userClient = await makeClientWithProperty()
             const anonymousClient = await makeClient()
 
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await Resident.delete(anonymousClient, obj.id)
@@ -764,7 +754,7 @@ describe('Resident', () => {
         it('can be soft-deleted using update operation by admin', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const [objUpdated, attrs] = await Resident.softDelete(adminClient, obj.id)
 
@@ -779,7 +769,7 @@ describe('Resident', () => {
         it('can be soft-deleted using update operation by current user with type resident', async () => {
             const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             // NOTE: USING RAW SINCE WE CANNOT QUERY PROPERTY OF DELETED RESIDENT ANYMORE
             const { data } = await Resident.softDelete(userClient, obj.id, {}, { raw: true })
@@ -796,7 +786,7 @@ describe('Resident', () => {
         it('cannot be soft-deleted using update operation by current user with type resident when other fields gets passed as variables', async () => {
             const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const notAllowedPayload = {
                 address: faker.address.streetAddress(true),
@@ -810,7 +800,7 @@ describe('Resident', () => {
         it('cannot be soft-deleted using update operation by other user with type resident', async () => {
             const userClient = await makeClientWithResidentAccessAndProperty()
             const adminClient = await makeLoggedInAdminClient()
-            const [obj] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+            const [obj] = await createTestResident(adminClient, userClient.user, userClient.property)
 
             const otherUserClient = await makeClientWithResidentAccessAndProperty()
 

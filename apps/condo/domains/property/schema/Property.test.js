@@ -409,11 +409,11 @@ describe('Property', () => {
             const { organization, property } = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, residentClient.user, organization, property)
+            await createTestResident(adminClient, residentClient.user, property)
 
             const another = await makeClientWithProperty()
             const anotherResidentClient = await makeClientWithResidentUser()
-            await createTestResident(adminClient, anotherResidentClient.user, another.organization, another.property)
+            await createTestResident(adminClient, anotherResidentClient.user, another.property)
 
             const [anotherOrganization2] = await createTestOrganization(adminClient)
             await createTestProperty(adminClient, anotherOrganization2, { map: buildingMapJson })
