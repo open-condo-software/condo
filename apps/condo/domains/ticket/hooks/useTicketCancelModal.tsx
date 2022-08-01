@@ -9,9 +9,9 @@ const MODAL_BUTTON_CANCEL_STYLE: CSSProperties = { fontSize: 16 }
 
 export const useTicketCancelModal: useTicketCancelModalType = (updateTicket) => {
     const intl = useIntl()
-    const cancelModalTitle = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.title' })
-    const cancelButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.cancelButtonLabel' })
-    const cancelModalContent = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.content' })
+    const CancelModalTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.title' })
+    const CancelButtonLabelMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.cancelButtonLabel' })
+    const CancelModalContentMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.content' })
 
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
     const [statusCanceledId, setStatusCanceledId] = useState<string | null>(null)
@@ -35,14 +35,14 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket) => 
         <Modal
             visible={isModalVisible}
             onCancel={closeModal}
-            title={cancelModalTitle}
-            footer={<Button onClick={handleCancelTicket} type='sberDefaultGradient'>{cancelButtonLabel}</Button>}
+            title={CancelModalTitleMessage}
+            footer={<Button onClick={handleCancelTicket} type='sberDefaultGradient'>{CancelButtonLabelMessage}</Button>}
         >
             <Typography.Text type='secondary' style={MODAL_BUTTON_CANCEL_STYLE}>
-                {cancelModalContent}
+                {CancelModalContentMessage}
             </Typography.Text>
         </Modal>
-    ), [cancelButtonLabel, cancelModalContent, cancelModalTitle, closeModal, handleCancelTicket, isModalVisible])
+    ), [CancelButtonLabelMessage, CancelModalContentMessage, CancelModalTitleMessage, closeModal, handleCancelTicket, isModalVisible])
 
     return { cancelTicketModal, openModal, closeModal }
 }
