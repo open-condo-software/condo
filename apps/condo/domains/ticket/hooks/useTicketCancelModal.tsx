@@ -1,32 +1,29 @@
-import { TicketStatus, TicketStatusTypeType } from '@app/condo/schema'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Modal, Typography } from 'antd'
 import { Button } from '@app/condo/domains/common/components/Button'
 import { useIntl } from '@core/next/intl'
 
-type useTicketCancelModalType = (updateTicket: (id: string) => void, statuses: TicketStatus[]) => { openModal: () => void, cancelTicketModal: JSX.Element, closeModal: () => void }
+type useTicketCancelModalType = (updateTicket: (id: string) => void) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 
 const MODAL_BUTTON_CANCEL_STYLE: CSSProperties = { fontSize: 16 }
 
-export const useTicketCancelModal: useTicketCancelModalType = (updateTicket, statuses) => {
+export const useTicketCancelModal: useTicketCancelModalType = (updateTicket) => {
     const intl = useIntl()
     const cancelModalTitle = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.title' })
     const cancelButtonLabel = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.cancelButtonLabel' })
     const cancelModalContent = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.content' })
 
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
+    const [statusCanceledId, setStatusCanceledId] = useState<string | null>(null)
 
-    const statusCanceledId = useMemo(
-        () => statuses.find((status) => status.type === TicketStatusTypeType.Canceled)?.id,
-        [statuses]
-    )
-
-    const openModal = useCallback(() => {
+    const openModal = useCallback((statusCanceledId: string) => {
         setIsModalVisible(true)
+        setStatusCanceledId(statusCanceledId)
     }, [])
 
     const closeModal = useCallback(() => {
         setIsModalVisible(false)
+        setStatusCanceledId(null)
     }, [])
 
     const handleCancelTicket = useCallback(() => {
