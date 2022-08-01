@@ -84,7 +84,7 @@ const Recipient = new GQLListSchema('Recipient', {
         },
 
         bankAccount: {
-            schemaDoc: 'Number of bank account of this recipient',
+            schemaDoc: 'Bank account number of this recipient',
             type: Text,
             isRequired: true,
             hooks: {

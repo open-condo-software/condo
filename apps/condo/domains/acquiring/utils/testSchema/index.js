@@ -46,6 +46,9 @@ const {
 } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 const { Recipient: RecipientGQL } = require('@condo/domains/acquiring/gql')
+const { createValidRuBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+const { createValidBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
+const { createValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -400,17 +403,42 @@ async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, ac
     return [data.result, attrs]
 }
 
+function createValidRecipient (extra = {}) {
+    const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
+
+    const bic = createValidRuBic()
+    const bankAccount = createValidBankAccount(bic)
+    const tin = createValidTin()
+
+    const validRecipient = {
+        name: faker.company.companyName(),
+        tin,
+        iec: faker.datatype.number(range(9)).toString(),
+        bic,
+        bankAccount,
+        bankName: faker.company.companyName(),
+        territoryCode: faker.datatype.number().toString(),
+        offsettingAccount: faker.finance.account(20).toString(),
+    }
+    return {
+        ...validRecipient,
+        ...extra,
+    }
+}
+
 async function createTestRecipient (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!organization || !organization.id) throw new Error('no organization')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestRecipient logic for generate fields
-
+    const recipient = createValidRecipient()
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        importId: faker.datatype.uuid(),
+        ...recipient,
+        isApproved: false,
         ...extraAttrs,
     }
     const obj = await Recipient.create(client, attrs)
@@ -421,8 +449,6 @@ async function updateTestRecipient (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestRecipient logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -647,5 +673,6 @@ module.exports = {
     updateTestPaymentsFilterTemplate,
     registerMultiPaymentForOneReceiptByTestClient,
     Recipient, createTestRecipient, updateTestRecipient,
+    createValidRecipient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -24,7 +24,8 @@ const {
     expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 
-const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
 const dayjs = require('dayjs')
@@ -448,7 +449,7 @@ describe('AcquiringIntegrationContext', () => {
             const [organization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-            const recipient = createTestRecipient()
+            const recipient = createValidRecipient()
             const reason = faker.lorem.sentence(1)
             const email = faker.internet.email()
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { email, reason, recipient })

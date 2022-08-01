@@ -10,17 +10,16 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     makeResidentClientWithOwnReceipt,
     createReceiptsReader,
-    createTestRecipient,
     createTestBillingProperty,
     createTestBillingAccount,
     updateTestBillingAccount,
-    createTestBillingRecipient,
     BillingReceipt,
     createTestBillingReceipt,
     createTestBillingReceipts,
     updateTestBillingReceipt,
     updateTestBillingReceipts,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestRecipient, createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -814,9 +813,9 @@ describe('BillingReceipt', () => {
                 expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
             })
             test('Should connect to existing recipient, if passed explicitly', async () => {
-                const recipientAttrs = createTestRecipient()
+                const recipientAttrs = createValidRecipient()
                 const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
-                const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
+                const [recipient] = await createTestRecipient(admin, context.organization, recipientAttrs)
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                     recipient: receiptRecipientField,
                     receiver: { connect: { id: recipient.id } },
@@ -825,9 +824,9 @@ describe('BillingReceipt', () => {
                 expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
             })
             test('Should automatically connect to existing recipient, if receiver is not passed', async () => {
-                const recipientAttrs = createTestRecipient()
+                const recipientAttrs = createValidRecipient()
                 const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
-                const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
+                const [recipient] = await createTestRecipient(admin, context.organization, recipientAttrs)
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                     recipient: receiptRecipientField,
                 })

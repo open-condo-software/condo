@@ -72,10 +72,10 @@ function createValidBankAccount (bic) {
     let controlSum = 0
 
     for (const i in controlString) {
-        controlSum += (BANK_ACCOUNT_WEIGHTS[i] * controlString[i]) % 10
+        controlSum = (controlSum + (BANK_ACCOUNT_WEIGHTS[i] * controlString[i])) % 10
     }
 
-    const lastNumber = 10 - controlSum % 10
+    const lastNumber = controlSum ?  (10 - controlSum) : controlSum
 
     return bankAccount + lastNumber
 }

@@ -153,14 +153,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const contextId = get(newItem, 'context')
             const recipient = get(newItem, 'recipient')
 
-            const integrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
-            const organizationId = get(integrationContext, 'organization')
-
             let receiverId
             const sameRecipient = await Recipient.getOne(context, {
-                organization: { id: organizationId },
-                tin: get(recipient, 'tin'),
-                iec: get(recipient, 'iec'),
                 bic: get(recipient, 'bic'),
                 bankAccount: get(recipient, 'bankAccount'),
                 deletedAt: null, // TODO(zuch): DOMA-2395 Move deletedAt filter to getOne
@@ -170,6 +164,9 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 receiverId = sameRecipient.id
             } else {
                 const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
+
+                const integrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+                const organizationId = get(integrationContext, 'organization')
 
                 const createdRecipient = await Recipient.create(context, {
                     dv: 1,

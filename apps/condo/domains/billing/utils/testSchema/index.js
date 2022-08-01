@@ -30,9 +30,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { createValidRuBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
-const { createValidBankAccount } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
-const { createValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
+const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -52,6 +50,9 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { createValidRuBic } = require('../../../acquiring/utils/validate/bic.utils')
+const { createValidBankAccount } = require('../../../acquiring/utils/validate/bankAccount.utils')
+const { createValidTin } = require('../../../acquiring/utils/validate/tin.utils')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -469,7 +470,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         period: '2021-12-01',
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
-        recipient: createTestRecipient(),
+        recipient: createValidRecipient(),
         services: [
             {
                 id: faker.datatype.number().toString(),
@@ -516,7 +517,7 @@ async function createTestBillingReceipts (client, contexts, properties, accounts
                 period: '2021-12-01',
                 importId: faker.random.alphaNumeric(8),
                 toPay: (faker.datatype.number() + 50).toString(),
-                recipient: createTestRecipient(),
+                recipient: createValidRecipient(),
                 services: [
                     {
                         id: faker.datatype.number().toString(),
@@ -624,7 +625,7 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     if (!context.id) throw new Error('no context')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const recipient = createTestRecipient()
+    const recipient = createValidRecipient()
     const attrs = {
         dv: 1,
         sender,
@@ -753,29 +754,6 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
     return { organizationClient: client, integrationClient: integrationClient }
 }
 
-function createTestRecipient (extra = {}) {
-    const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
-
-    const bic = createValidRuBic()
-    const bankAccount = createValidBankAccount(bic)
-    const tin = createValidTin()
-
-    const validRecipient = {
-        name: faker.company.companyName(),
-        tin,
-        iec: faker.datatype.number(range(9)).toString(),
-        bic,
-        bankAccount,
-        bankName: faker.company.companyName(),
-        territoryCode: faker.datatype.number().toString(),
-        offsettingAccount: faker.finance.account(20).toString(),
-    }
-    return {
-        ...validRecipient,
-        ...extra,
-    }
-}
-
 async function makeResidentClientWithOwnReceipt(existingResidentClient) {
 
     let residentClient = existingResidentClient
@@ -851,7 +829,6 @@ module.exports = {
     createReceiptsReader,
     makeClientWithPropertyAndBilling,
     BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
-    createTestRecipient,
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
     makeResidentClientWithOwnReceipt,
     makeServiceUserForIntegration,

@@ -12,11 +12,10 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 
 const {
-    VALID_RU_TIN_10,
-    VALID_RU_TIN_12,
-    INVALID_RU_TIN_10,
-    INVALID_RU_TIN_12,
-    SOME_RANDOM_LETTERS,
+    VALID_TINS,
+    INVALID_CONTROL_SUM_TIN_10,
+    INVALID_CONTROL_SUM_TIN_12,
+    WRONG_FORMAT_TIN,
 } = require('@condo/domains/acquiring/utils/validate/tin.utils.spec')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -309,28 +308,28 @@ describe('organization TIN: various cases',  () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
         // TODO(DOMA-1897): Create organization by ordinary user, not admin to respect real flow.
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_RU_TIN_10, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_TINS[0], country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
         expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(VALID_RU_TIN_10)
+        expect(organizationData[0].tin).toEqual(VALID_TINS[0])
     })
 
     test('admin: create Organization with valid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_RU_TIN_12, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_TINS[1], country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
         expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(VALID_RU_TIN_12)
+        expect(organizationData[0].tin).toEqual(VALID_TINS[1])
     })
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
         const createOrgAction = async () => {
-            await createTestOrganization(admin, { tin: INVALID_RU_TIN_10, country: RUSSIA_COUNTRY })
+            await createTestOrganization(admin, { tin: INVALID_CONTROL_SUM_TIN_10, country: RUSSIA_COUNTRY })
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
@@ -339,7 +338,7 @@ describe('organization TIN: various cases',  () => {
     test('admin: create Organization with invalid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
         const createOrgAction = async () => {
-            await createTestOrganization(admin, { tin: INVALID_RU_TIN_12, country: RUSSIA_COUNTRY })
+            await createTestOrganization(admin, { tin: INVALID_CONTROL_SUM_TIN_12, country: RUSSIA_COUNTRY })
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
@@ -348,7 +347,7 @@ describe('organization TIN: various cases',  () => {
     test('admin: create Organization with random letters 10 chars RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
         const createOrgAction = async () => {
-            await createTestOrganization(admin, { tin: SOME_RANDOM_LETTERS, country: RUSSIA_COUNTRY })
+            await createTestOrganization(admin, { tin: WRONG_FORMAT_TIN, country: RUSSIA_COUNTRY })
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
