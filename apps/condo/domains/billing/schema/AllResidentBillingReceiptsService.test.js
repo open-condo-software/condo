@@ -613,7 +613,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 const MARCH_PERIOD = '2022-03-01'
 
-                const SINGLE_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
+                const SINGLE_RECIPIENT = createValidRecipient({ name: 'Electricity & co' })
 
                 const [marchHousingReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
