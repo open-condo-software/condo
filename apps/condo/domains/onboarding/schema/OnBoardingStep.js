@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const { LocalizedText } = require('@core/keystone/fields')
 const access = require('@condo/domains/onboarding/access/OnBoardingStep')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
     schemaDoc: 'Logic part of user app guide.',
