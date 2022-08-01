@@ -438,7 +438,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.placeClassifier = get(classifier, 'place', null)
                 resolvedData.problemClassifier = get(classifier, 'problem', null)
                 resolvedData.categoryClassifier = get(classifier, 'category', null)
-                console.log(resolvedData)
             }
 
             return resolvedData
