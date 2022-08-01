@@ -105,7 +105,7 @@ describe('SendMessageToSupportService', () => {
         const [property] = await createTestProperty(adminClient, organization)
 
         await createTestResident(adminClient, userClient.user, userClient.property)
-        await createTestResident(adminClient, userClient.user, organization, property)
+        await createTestResident(adminClient, userClient.user, property)
         await addResidentAccess(userClient.user)
 
         const payload = {
