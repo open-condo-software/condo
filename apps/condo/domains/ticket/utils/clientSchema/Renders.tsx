@@ -34,6 +34,8 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
 
     return function render (number: string, ticket: Ticket) {
         const deadline = dayjs(get(ticket, 'deadline'))
+        const id = get(ticket, 'id')
+        const href = `/ticket/${id}`
         let extraHighlighterProps
         let extraTitle = number
 
@@ -77,7 +79,7 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
             </div>
         )
 
-        return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle)(number)
+        return getTableCellRenderer(search, false, postfix, extraHighlighterProps, null, extraTitle, href)(number)
     }
 }
 
