@@ -86,21 +86,24 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         return filter<TicketClassifier>(this.rules, query)
     }
 
-    public async findRulesByIds (query: ITicketClassifierWhereInput, type: string, selectedIds: string[]): Promise<TicketClassifier[]> {
-        const filtered = []
-        for (const key in query)
-            filtered.push(...this.rules.filter(rule => query[key].ids.includes(rule[key].id)))
-
-        if (filtered.length === 0)
-            return this.rules
-
-        for (const selectedId of selectedIds) {
-            if (!filtered.find(rule => rule[type].id === selectedId)) {
-                filtered.push(...this.rules.filter(rule => rule[type].id === selectedId))
+    public async findRulesBySelectedClassifiers (place, category, problem): Promise<TicketClassifier[]> {
+        const rules = this.rules.filter(rule => {
+            if (!isEmpty(place) && !place.includes(rule.place.id)) {
+                return false
             }
-        }
 
-        return filtered
+            if (!isEmpty(category) && !category.includes(rule.category.id)) {
+                return false
+            }
+
+            if (!isEmpty(problem) && (!rule.problem || !problem.includes(rule.problem.id))) {
+                return false
+            }
+
+            return true
+        })
+
+        return rules
     }
 
     public async search (input: string, type: string): Promise<Options[]> {
