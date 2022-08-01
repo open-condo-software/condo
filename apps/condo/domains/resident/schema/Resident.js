@@ -26,6 +26,8 @@ const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 const { manageResidentToTicketClientConnections } = require('../tasks')
+const { addOrganizationFieldPlugin } = require(
+    '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -42,19 +44,19 @@ const Resident = new GQLListSchema('Resident', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        organization: {
-            schemaDoc: 'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: false,
-            knexOptions: { isNotNullable: false }, // Relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-            access: {
-                read: true,
-                create: true,
-                update: false,
-            },
-        },
+        // organization: {
+        //     schemaDoc: 'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
+        //     type: Relationship,
+        //     ref: 'Organization',
+        //     isRequired: false,
+        //     knexOptions: { isNotNullable: false }, // Relationship only!
+        //     kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        //     access: {
+        //         read: true,
+        //         create: true,
+        //         update: true,
+        //     },
+        // },
 
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
@@ -195,7 +197,7 @@ const Resident = new GQLListSchema('Resident', {
             ...UNIT_TYPE_FIELD,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [addOrganizationFieldPlugin({ fromField: 'property' }), uuided(), versioned(), tracked(), softDeleted(), historical()],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
             const { address, addressMeta, unitName, unitType, user: userId } = resolvedData

@@ -54,7 +54,6 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
                 if (property) {
                     attrs.property = { connect: { id: property.id } }
-                    attrs.organization = { connect: { id: property.organization.id } }
                 }
 
                 if (!attrs.unitType) {

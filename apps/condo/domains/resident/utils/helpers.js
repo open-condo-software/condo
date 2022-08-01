@@ -19,7 +19,6 @@ const connectResidents = async (context, residents, property) => {
     const shouldConnect = Boolean(property) && propertyId
     const attrs = {
         property: shouldConnect ? { connect: { id: propertyId } } : { disconnectAll: true },
-        organization: shouldConnect ? { connect: { id: property.organization.id } } : { disconnectAll: true },
     }
 
     for (const resident of residents) {

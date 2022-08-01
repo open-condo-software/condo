@@ -34734,8 +34734,6 @@ export type Resident = {
   sender?: Maybe<SenderField>;
   /**  Mobile user account  */
   user?: Maybe<User>;
-  /**  Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet  */
-  organization?: Maybe<Organization>;
   /**  Organization data, that is returned for current resident in mobile client  */
   residentOrganization?: Maybe<ResidentOrganization>;
   /**  Property, in which this person resides. Can be missing, when a resident has been registered, but there is no Property in our system yet  */
@@ -34754,6 +34752,8 @@ export type Resident = {
   unitName?: Maybe<Scalars['String']>;
   /**  Type of unit, such as parking lot or flat  */
   unitType?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. It is filled in on the server and is read-only  */
+  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34858,12 +34858,12 @@ export type ResidentCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34887,7 +34887,6 @@ export type ResidentHistoryRecord = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
@@ -34897,6 +34896,7 @@ export type ResidentHistoryRecord = {
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -34914,7 +34914,6 @@ export type ResidentHistoryRecordCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
@@ -34924,6 +34923,7 @@ export type ResidentHistoryRecordCreateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34946,7 +34946,6 @@ export type ResidentHistoryRecordUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
   user?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
   property?: Maybe<Scalars['String']>;
   residentProperty?: Maybe<Scalars['JSON']>;
@@ -34956,6 +34955,7 @@ export type ResidentHistoryRecordUpdateInput = {
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34987,10 +34987,6 @@ export type ResidentHistoryRecordWhereInput = {
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   residentOrganization?: Maybe<Scalars['JSON']>;
   residentOrganization_not?: Maybe<Scalars['JSON']>;
   residentOrganization_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -35069,6 +35065,10 @@ export type ResidentHistoryRecordWhereInput = {
   unitType_not_ends_with_i?: Maybe<Scalars['String']>;
   unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -35319,12 +35319,12 @@ export type ResidentUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   user?: Maybe<UserRelateToOneInput>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   property?: Maybe<PropertyRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -35351,8 +35351,6 @@ export type ResidentWhereInput = {
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
   address?: Maybe<Scalars['String']>;
@@ -35399,6 +35397,8 @@ export type ResidentWhereInput = {
   unitType_not?: Maybe<Scalars['String']>;
   unitType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   unitType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -39919,8 +39919,6 @@ export enum SortResidentsBy {
   DvDesc = 'dv_DESC',
   UserAsc = 'user_ASC',
   UserDesc = 'user_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   PropertyAsc = 'property_ASC',
   PropertyDesc = 'property_DESC',
   AddressAsc = 'address_ASC',
@@ -39929,6 +39927,8 @@ export enum SortResidentsBy {
   UnitNameDesc = 'unitName_DESC',
   UnitTypeAsc = 'unitType_ASC',
   UnitTypeDesc = 'unitType_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

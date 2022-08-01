@@ -96,7 +96,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
             await addResidentAccess(userClient.user)
 
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, { unitName: billingAccountAttrs.unitName })
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, { unitName: billingAccountAttrs.unitName })
             const payload = {
                 residentId: resident.id,
                 accountNumber: billingAccountAttrs.number,
@@ -192,7 +192,7 @@ describe('AllResidentBillingReceiptsService', () => {
             const [billingAccountA2, billingAccountAttrsA2] = await createTestBillingAccount(adminClient, contextA, billingPropertyA)
 
             await addResidentAccess(userClient.user)
-            const [residentA] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            const [residentA] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrsA.unitName,
             })
 
@@ -203,7 +203,7 @@ describe('AllResidentBillingReceiptsService', () => {
             }
             await registerServiceConsumerByTestClient(userClient, serviceConsumerPayloadA)
 
-            const [residentA2] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            const [residentA2] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrsA2.unitName,
             })
 
@@ -225,7 +225,7 @@ describe('AllResidentBillingReceiptsService', () => {
             const [billingPropertyB] = await createTestBillingProperty(adminClient, contextB)
             const [billingAccountB, billingAccountAttrsB] = await createTestBillingAccount(adminClient, contextB, billingPropertyB)
 
-            const [residentB] = await createTestResident(adminClient, userClient.user, organizationB, propertyB, {
+            const [residentB] = await createTestResident(adminClient, userClient.user, propertyB, {
                 unitName: billingAccountAttrsB.unitName,
             })
 
@@ -272,7 +272,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 const [receipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
                 await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount2)
 
-                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                const [resident] = await createTestResident(adminClient, client.user, property, {
                     unitName: billingAccountAttrs.unitName,
                 })
                 const [firstServiceConsumer] = await registerServiceConsumerByTestClient(client, {
@@ -319,7 +319,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 })
 
                 await addResidentAccess(userClient.user)
-                const [residentA] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                const [residentA] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountA.unitName,
                 })
 
@@ -352,7 +352,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 await addResidentAccess(userClient.user)
 
-                const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
 
@@ -363,7 +363,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 }
                 await registerServiceConsumerByTestClient(userClient, payload)
 
-                const [resident2] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                const [resident2] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs2.unitName,
                 })
 
@@ -393,7 +393,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
             await addResidentAccess(userClient.user)
 
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrs.unitName,
             })
             const payload = {
@@ -437,7 +437,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 await addResidentAccess(userClient.user)
 
-                const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
                 const payload = {
@@ -506,7 +506,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 await addResidentAccess(userClient.user)
 
-                const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
                 const payload = {
@@ -599,7 +599,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 await addResidentAccess(userClient.user)
 
-                const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+                const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                     unitName: billingAccountAttrs.unitName,
                 })
                 const payload = {
@@ -678,7 +678,7 @@ describe('AllResidentBillingReceiptsService', () => {
             await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
 
             await addResidentAccess(userClient.user)
-            const [resident] = await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrs.unitName,
             })
             const payload = {
@@ -694,7 +694,7 @@ describe('AllResidentBillingReceiptsService', () => {
             const [billingAccount2] = await createTestBillingAccount(adminClient, context2, billingProperty2)
 
             await addResidentAccess(hackerClient.user)
-            const [hackerResident] = await createTestResident(adminClient, hackerClient.user, hackerClient.organization, hackerClient.property, {
+            const [hackerResident] = await createTestResident(adminClient, hackerClient.user, hackerClient.property, {
                 unitName: billingAccount2.unitName,
             })
             const hackerPayload = {
@@ -721,7 +721,7 @@ describe('AllResidentBillingReceiptsService', () => {
             const [context] = await createTestBillingIntegrationOrganizationContext(adminClient, userClient.organization, integration)
             const [billingProperty] = await createTestBillingProperty(adminClient, context)
             const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(adminClient, context, billingProperty)
-            await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property, {
+            await createTestResident(adminClient, userClient.user, userClient.property, {
                 unitName: billingAccountAttrs.unitName,
             })
             await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount)
