@@ -329,11 +329,11 @@ const Property = new GQLListSchema('Property', {
                     const userInfo = { dv: updatedItem.dv, sender: updatedItem.sender }
                     await manageTicketPropertyAddressChange.delay(updatedItem.id, userInfo)
                     // Reconnect residents (if any) to oldest non-deleted property with address = updatedItem.address
-                    await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address)
+                    await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address, updatedItem.dv, updatedItem.sender)
                 }
 
                 // Reconnect residents (if any) to oldest non-deleted property with address = affectedAddress
-                await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress)
+                await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress, updatedItem.dv, updatedItem.sender)
 
                 if (isSoftDeleteOperation) {
                     await softDeleteTicketHintPropertiesByProperty(context, updatedItem)

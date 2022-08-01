@@ -18,7 +18,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
  * @param propertyId
  * @returns {Promise<void>}
  */
-async function manageResidentToPropertyAndOrganizationConnections (address) {
+async function manageResidentToPropertyAndOrganizationConnections (address, dv, sender) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     //  get oldest non-deleted property with same address
@@ -43,10 +43,10 @@ async function manageResidentToPropertyAndOrganizationConnections (address) {
         })
 
         // Disconnect residents before reconnecting
-        await disconnectResidents(context, residents)
+        await disconnectResidents(context, residents, dv, sender)
         // We have residents, not connected to oldest non-deleted property
         // They should be reconnected to oldestProperty
-        await connectResidents(context, residents, oldestProperty)
+        await connectResidents(context, residents, oldestProperty, dv, sender)
     } else {
         const residents = await ResidentAPI.getAll(context, {
             address_i: address,
@@ -55,7 +55,7 @@ async function manageResidentToPropertyAndOrganizationConnections (address) {
 
         // We have no non-deleted properties with such address
         // All residents with such address should be disconnected
-        await disconnectResidents(context, residents)
+        await disconnectResidents(context, residents, dv, sender)
     }
 }
 

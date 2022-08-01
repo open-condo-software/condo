@@ -11,13 +11,15 @@ const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverS
  * @param property (Property)
  * @returns {Promise<void>}
  */
-const connectResidents = async (context, residents, property) => {
+const connectResidents = async (context, residents, property, dv, sender) => {
     // Nothing to connect
     if (!Array.isArray(residents) || isEmpty(residents)) return
-    
+
     const propertyId = get(property, 'id')
     const shouldConnect = Boolean(property) && propertyId
     const attrs = {
+        dv,
+        sender,
         property: shouldConnect ? { connect: { id: propertyId } } : { disconnectAll: true },
     }
 
@@ -37,7 +39,7 @@ const connectResidents = async (context, residents, property) => {
  * @param residents (Resident[])
  * @returns {Promise<void>}
  */
-const disconnectResidents = async (context, residents) => await connectResidents(context, residents, null)
+const disconnectResidents = async (context, residents, dv, sender) => await connectResidents(context, residents, null, dv, sender)
 
 module.exports = {
     connectResidents,
