@@ -29,7 +29,7 @@ const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fiel
                     resolvedData['organization'] = get(objWithOrganization, 'organization')
                 }
 
-                // If parent object is set to null -> set organization to null if it is possible
+                // If we cannot resolve organization from parent object -> set organization to null if it is possible
                 if (objWithOrganizationId === null && !isRequired) {
                     resolvedData['organization'] = null
                 }
