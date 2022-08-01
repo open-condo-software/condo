@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingRecipient')
 const { INTEGRATION_CONTEXT_FIELD } = require('@condo/domains/billing/schema/fields/relations')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const BillingRecipient = new GQLListSchema('BillingRecipient', {
     schemaDoc: 'Organization\' billing information: bank account, bic, and so on',
