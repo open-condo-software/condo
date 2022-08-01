@@ -191,7 +191,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             },
             classifierDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 let placeClassifierToDisplay
-                console.log(ticketChange['classifierDisplayNameFrom'])
                 
                 if (type === TicketChangeFieldMessageType.From) {
                     placeClassifierToDisplay = ticketChange['classifierDisplayNameFrom']
