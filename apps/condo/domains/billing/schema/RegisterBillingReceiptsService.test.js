@@ -15,16 +15,10 @@ const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/
 const {
     makeServiceUserForIntegration,
     makeOrganizationIntegrationManager,
-    makeContextWithOrganizationAndIntegrationAsAdmin,
-    makeResidentClientWithOwnReceipt,
-    createReceiptsReader,
-    createTestRecipient,
     createTestBillingProperty,
     createTestBillingAccount,
-    updateTestBillingAccount,
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
-    createTestBillingRecipient,
     BillingReceipt,
     BillingAccount,
     BillingProperty,
@@ -697,7 +691,32 @@ describe('RegisterBillingReceiptsService', () => {
         })
 
         describe('Hacky cases', () => {
-            test.skip('Hacker can not load receipts into other billing context related to other org')
+            test('Hacker can not load receipts into other billing context related to other org', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+                const { managerUserClient } = await makeOrganizationIntegrationManager(billingContext)
+
+                const [organization2] = await createTestOrganization(admin)
+                const [integration2] = await createTestBillingIntegration(admin)
+                const [billingContext2] = await createTestBillingIntegrationOrganizationContext(admin, organization2, integration2)
+                const { managerUserClient: hackerClient } = await makeOrganizationIntegrationManager(billingContext2)
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload(),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(hackerClient, payload)
+                const billingProperties = await BillingProperty.getAll(managerUserClient, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(managerUserClient, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(0)
+                expect(billingReceipts).toHaveLength(0)
+                expect(data).toHaveLength(0)
+            })
         })
     })
 
@@ -759,7 +778,6 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(e.errors[0].message).toContain('Too many receipts in one query!')
             })
         })
-
 
         test.skip('Mutation checks wrong category-id', async () => {
             const [organization] = await createTestOrganization(admin)
