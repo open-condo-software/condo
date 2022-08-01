@@ -12,7 +12,6 @@ const { OrganizationEmployee: OrganizationEmployeeApi, Organization: Organizatio
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncOrganization } = require('./syncOrganization')
-
 const index = require('@app/condo/index')
 const { keystone } = index
 
@@ -104,6 +103,7 @@ describe('syncOrganization from SBBOL', () => {
                     data: {
                         importId: organizationData.importId,
                         importRemoteSystem: organizationData.importRemoteSystem,
+                        ...dvSenderFields,
                     },
                 },
             })
