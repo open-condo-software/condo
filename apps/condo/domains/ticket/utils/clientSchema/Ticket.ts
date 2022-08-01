@@ -18,7 +18,7 @@ export interface ITicketFormState {
     organization?: string
     status?: string
     source?: string
-    classifierRule?: string
+    classifier?: string
     canReadByResident?: boolean
     lastResidentCommentAt?: string
     lastAnsweredToResidentAt?: string
