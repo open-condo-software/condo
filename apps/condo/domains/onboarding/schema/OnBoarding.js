@@ -7,7 +7,7 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const access = require('@condo/domains/onboarding/access/OnBoarding')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OnBoarding = new GQLListSchema('OnBoarding', {
     schemaDoc: 'User action guide. It should be used to build complex hierarchical systems of user actions.',
