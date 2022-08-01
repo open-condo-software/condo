@@ -456,6 +456,29 @@ async function updateTestBillingAccountMeterReading (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+function createValidRecipientTODO (extra = {}) {
+    const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
+
+    const bic = createValidRuBic()
+    const bankAccount = createValidBankAccount(bic)
+    const tin = createValidTin()
+
+    const validRecipient = {
+        name: faker.company.companyName(),
+        tin,
+        iec: faker.datatype.number(range(9)).toString(),
+        bic,
+        bankAccount,
+        bankName: faker.company.companyName(),
+        territoryCode: faker.datatype.number().toString(),
+        offsettingAccount: faker.finance.account(20).toString(),
+    }
+    return {
+        ...validRecipient,
+        ...extra,
+    }
+}
+
 async function createTestBillingReceipt (client, context, property, account, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -470,7 +493,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         period: '2021-12-01',
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
-        recipient: createValidRecipient(),
+        recipient: createValidRecipientTODO(),
         services: [
             {
                 id: faker.datatype.number().toString(),
