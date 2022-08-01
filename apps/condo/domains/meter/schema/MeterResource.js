@@ -5,7 +5,7 @@
 const { LocalizedText } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const MeterResource = new GQLListSchema('MeterResource', {
     schemaDoc: 'Kind of consumed resource, measured by meter',
