@@ -1,5 +1,6 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { validateBic, createValidRuBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
+const { createValidRuBic } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 
 const SPACES = SPACE_SYMBOLS.split('')
 

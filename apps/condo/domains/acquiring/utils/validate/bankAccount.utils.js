@@ -10,7 +10,6 @@
  */
 
 
-const faker = require('faker')
 const { validateBic } = require('@condo/domains/acquiring/utils/validate/bic.utils')
 
 const EMPTY = 'Bank account is empty'
@@ -64,22 +63,6 @@ class RecipientBankAccountValidation {
 
 }
 
-function createValidBankAccount (bic) {
-    const bankAccount = faker.finance.account(19).toString()
-
-    const controlString = bic.substr(-3) + bankAccount
-
-    let controlSum = 0
-
-    for (const i in controlString) {
-        controlSum = (controlSum + (BANK_ACCOUNT_WEIGHTS[i] * controlString[i])) % 10
-    }
-
-    const lastNumber = controlSum ?  (10 - controlSum) : controlSum
-
-    return bankAccount + lastNumber
-}
-
 const validateBankAccount = (bankAccount, bic) => {
     const validator = new RecipientBankAccountValidation()
     const { result, errors } = validator.validateBankAccount(bankAccount, bic)
@@ -87,7 +70,7 @@ const validateBankAccount = (bankAccount, bic) => {
 }
 
 module.exports = {
-    createValidBankAccount,
     validateBankAccount,
+    BANK_ACCOUNT_WEIGHTS,
 }
 

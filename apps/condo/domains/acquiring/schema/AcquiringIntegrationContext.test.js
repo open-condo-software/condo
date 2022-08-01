@@ -25,7 +25,7 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 
 const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
-const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
 const dayjs = require('dayjs')

@@ -7,8 +7,6 @@
  * 3) Сhecking checksum verification for TIN
  */
 
-const faker = require('faker')
-
 const EMPTY = 'Tin is empty'
 const NOT_NUMERIC = 'Tin can contain only numeric digits'
 const WRONG_LENGTH = 'Tin length was expected to be 10 or 12, but received '
@@ -69,17 +67,6 @@ class RecipientTinValidation {
     }
 }
 
-function createValidTin () {
-    const tin = faker.datatype.number({
-        min: Math.pow(10, 9),
-        max: Math.pow(10, 10) - 1,
-    }).toString()
-
-    const lastNumber = getTinControlSumRU(tin)
-
-    return tin.replace(/.$/, lastNumber)
-}
-
 const validateTin = (tin) => {
     const validator = new RecipientTinValidation()
     const { result, errors } = validator.validateTin(tin)
@@ -87,6 +74,6 @@ const validateTin = (tin) => {
 }
 
 module.exports = {
-    createValidTin,
+    getTinControlSumRU,
     validateTin,
 }

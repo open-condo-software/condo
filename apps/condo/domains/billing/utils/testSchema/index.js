@@ -30,7 +30,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -50,9 +50,9 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { createValidRuBic } = require('../../../acquiring/utils/validate/bic.utils')
-const { createValidBankAccount } = require('../../../acquiring/utils/validate/bankAccount.utils')
-const { createValidTin } = require('../../../acquiring/utils/validate/tin.utils')
+const { createValidRuBic } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
+const { createValidBankAccount } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
+const { createValidTin } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')

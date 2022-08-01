@@ -1,5 +1,6 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
-const { validateTin, createValidTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
+const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
+const { createValidTin } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -56,7 +57,6 @@ describe('validateTin()', () => {
         const { result } = validateTin(tin)
         expect(result).toBe(true)
     })
-    //TODO: Test for country
 })
 
 module.exports = {

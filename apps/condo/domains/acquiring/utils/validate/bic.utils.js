@@ -7,8 +7,6 @@
  * 3) Сhecking the country code for compliance
  */
 
-const faker = require('faker')
-
 const EMPTY = 'Bic is empty'
 const NOT_NUMERIC = 'Bic can contain only numeric digits'
 const WRONG_LENGTH = 'Bic length was expected to be 9, but received '
@@ -20,9 +18,6 @@ class RecipientBicValidation {
     errors = []
 
     validateForNumbersAndLength (bic) {
-        if (!bic.length) {
-            this.errors.push(EMPTY)
-        }
         if (/[^0-9]/.test(bic)) {
             this.errors.push(NOT_NUMERIC)
         }
@@ -34,6 +29,10 @@ class RecipientBicValidation {
 
     validateBic (bic, country) {
         const bicWithoutSpaces = bic.toString().trim()
+
+        if (!bic.length) {
+            this.errors.push(EMPTY)
+        }
 
         if (country === 'ru') {
             const countryCode = bicWithoutSpaces.substr(0, 2)
@@ -51,11 +50,6 @@ class RecipientBicValidation {
     }
 }
 
-function createValidRuBic () {
-    return '04' + faker.datatype.number({ min: 1000000, max: 9999999 }).toString()
-}
-
-
 const validateBic = (bic, country = 'ru') => {
     const validator = new RecipientBicValidation()
     const { result, errors } = validator.validateBic(bic, country)
@@ -63,7 +57,6 @@ const validateBic = (bic, country = 'ru') => {
 }
 
 module.exports = {
-    createValidRuBic,
     validateBic,
 }
 

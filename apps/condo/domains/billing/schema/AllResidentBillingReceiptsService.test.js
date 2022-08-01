@@ -11,7 +11,7 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 
 const { makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
-const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')

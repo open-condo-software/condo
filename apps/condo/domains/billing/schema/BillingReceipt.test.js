@@ -19,7 +19,8 @@ const {
     updateTestBillingReceipt,
     updateTestBillingReceipts,
 } = require('@condo/domains/billing/utils/testSchema')
-const { createTestRecipient, createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestRecipient } = require('@condo/domains/acquiring/utils/testSchema')
+const { createValidRecipient } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
