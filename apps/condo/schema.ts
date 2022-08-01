@@ -45846,6 +45846,7 @@ export type TicketFilter = {
   unitName?: Maybe<Array<Maybe<Scalars['String']>>>;
   placeClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   categoryClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
+  problemClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientPhone?: Maybe<Array<Maybe<Scalars['String']>>>;
   author?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;

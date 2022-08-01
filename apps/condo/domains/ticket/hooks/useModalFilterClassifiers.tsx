@@ -11,6 +11,7 @@ import { useApolloClient } from '@core/next/apollo'
 import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
 import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
+import { get } from 'lodash'
 
 const { Option } = Select
 
@@ -32,17 +33,16 @@ const useTicketClassifierSelect = ({
     const [searchClassifiers, setSearchClassifiers] = useState([])
     const [stateForm, setForm] = useState<FormInstance>(null)
 
-    const classifiersRef = useRef(null)
     const optionsRef = useRef([])
 
-    const setClassifiers = (classifiers) => {
+    const setClassifiers = useCallback((classifiers) => {
         setClassifiersFromRules(classifiers)
         setSearchClassifiers([])
-    }
+    }, [])
 
-    function setSelected (value) {
+    const setSelected = useCallback((value) => {
         stateForm && stateForm.setFieldsValue({ [keyword]: value })
-    }
+    }, [keyword, stateForm])
 
     const Setter = useMemo(() => ({
         all: setClassifiers,
@@ -54,11 +54,11 @@ const useTicketClassifierSelect = ({
         optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
     }, [classifiers, searchClassifiers])
 
-    const handleChange = (form: FormInstance, value) => {
+    const handleChange = useCallback((form: FormInstance, value) => {
         if (isFunction(onChange)) onChange(value)
 
         form.setFieldsValue({ [keyword]: value })
-    }
+    }, [keyword, onChange])
 
     const SelectComponent = useCallback( (props) => {
         const { disabled, style, form } = props
@@ -94,26 +94,30 @@ const useTicketClassifierSelect = ({
     return {
         SelectComponent,
         set: Setter,
-        ref: classifiersRef,
     }
 }
 
 const CLASSIFIER_TYPES = [TicketClassifierTypes.place, TicketClassifierTypes.category]
 const PLACE_CLASSIFIER_KEYWORD = 'placeClassifier'
 const CATEGORY_CLASSIFIER_KEYWORD = 'categoryClassifier'
-const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => (
-    Array.isArray(filters[keyword]) ?
-        [...filters[keyword]] : [filters[keyword]]
-)
+const PROBLEM_CLASSIFIER_KEYWORD = 'problemClassifier'
+
+const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => {
+    const initialValueFromFilter = get(filters, keyword)
+
+    if (!isEmpty(initialValueFromFilter)) {
+        return Array.isArray(initialValueFromFilter) ? initialValueFromFilter : [initialValueFromFilter]
+    } else {
+        return []
+    }
+}
 
 export function useModalFilterClassifiers () {
     const client = useApolloClient()
-
     const router = useRouter()
-
     const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
 
-    const ruleRef = useRef({ place: [], category: [] })
+    const ruleRef = useRef({ place: [], category: [], problem: [] })
 
     const onUserSelect = useCallback(async (id, type) => {
         ruleRef.current = { ...ruleRef.current, [type]: id }
@@ -136,43 +140,33 @@ export function useModalFilterClassifiers () {
         keyword: PLACE_CLASSIFIER_KEYWORD,
     })
 
+    const {
+        set: problemSet,
+        SelectComponent: ProblemSelect,
+    } = useTicketClassifierSelect({
+        onChange: (id) => onUserSelect(id, TicketClassifierTypes.problem),
+        keyword: PROBLEM_CLASSIFIER_KEYWORD,
+    })
+
     const Setter = useMemo(() => (
         {
             place: placeSet,
             category: categorySet,
+            problem: problemSet,
         }
-    ), [placeSet, categorySet])
+    ), [placeSet, categorySet, problemSet])
 
     const loadLevels = useCallback(async () => {
-        const { place, category } = ruleRef.current
+        const { place, category, problem } = ruleRef.current
 
-        const LOAD_RULES_ARRAY = [
-            { category, type: 'place' },
-            { place, type: 'category' },
-        ]
+        const rules = await ClassifierLoader.findRulesBySelectedClassifiers(place, category, problem)
 
-        const loadedRules = await Promise.all(LOAD_RULES_ARRAY.map(selector => {
-            const { type, ...querySelectors } = selector
-
-            return new Promise<[string, Options[]]>(resolve => {
-                const query = {}
-
-                for (const key in querySelectors) {
-                    if (querySelectors[key]) {
-                        query[key] = { ids: querySelectors[key] }
-                    }
-                }
-
-                ClassifierLoader
-                    .findRulesByIds(query, type, ruleRef.current[type])
-                    .then(data => {
-                        resolve([type, ClassifierLoader.rulesToOptions(data, type)])
-                    })
-            })
-        }))
-
-        return Object.fromEntries(loadedRules)
-    }, [])
+        return {
+            place: ClassifierLoader.rulesToOptions(rules, 'place'),
+            category: ClassifierLoader.rulesToOptions(rules, 'category'),
+            problem: ClassifierLoader.rulesToOptions(rules, 'problem').filter(rule => rule.id),
+        }
+    }, [ClassifierLoader])
 
     const updateLevels = useCallback(async (selected = {} ) => {
         ruleRef.current = { ...ruleRef.current, ...selected }
@@ -189,12 +183,14 @@ export function useModalFilterClassifiers () {
         const { filters } = parseQuery(router.query)
         const initialPlaceClassifierIds = getInitialClassifierValues(filters, PLACE_CLASSIFIER_KEYWORD)
         const initialCategoryClassifierIds = getInitialClassifierValues(filters, CATEGORY_CLASSIFIER_KEYWORD)
+        const initialProblemClassifierIds = getInitialClassifierValues(filters, PROBLEM_CLASSIFIER_KEYWORD)
 
         ClassifierLoader.init().then(async () => {
             if (!isEmpty(initialPlaceClassifierIds) || !isEmpty(initialCategoryClassifierIds)) {
                 ruleRef.current = {
                     place: initialPlaceClassifierIds,
                     category: initialCategoryClassifierIds,
+                    problem: initialProblemClassifierIds,
                 }
                 await updateLevels()
             } else {
@@ -207,6 +203,7 @@ export function useModalFilterClassifiers () {
                 ruleRef.current = {
                     place: [],
                     category: [],
+                    problem: [],
                 }
             }
         })
@@ -216,5 +213,5 @@ export function useModalFilterClassifiers () {
         }
     }, [router.query, client, Setter, updateLevels])
 
-    return { CategorySelect, PlaceSelect }
+    return useMemo(() => ({ CategorySelect, PlaceSelect, ProblemSelect }), [CategorySelect, PlaceSelect, ProblemSelect])
 }

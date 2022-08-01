@@ -28,6 +28,7 @@ const TicketFilterFields = {
     unitName: '[String]',
     placeClassifier: '[String]',
     categoryClassifier: '[String]',
+    problemClassifier: '[String]',
     clientPhone: '[String]',
     author: '[String]',
     reviewValue: '[String]',

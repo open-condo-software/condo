@@ -55,6 +55,7 @@ const filterUnit = getStringContainsFilter('unitName')
 const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['classifier', 'place', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['classifier', 'category', 'id'], 'array', 'string', 'in')
+const filterProblemClassifier = getFilter(['classifier', 'problem', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifierSearch = getStringContainsFilter(['classifier', 'category', 'name'])
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
@@ -137,7 +138,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { CategorySelect, PlaceSelect } = useModalFilterClassifiers()
+    const { CategorySelect, PlaceSelect, ProblemSelect } = useModalFilterClassifiers()
 
     return useMemo(() => {
         return [
@@ -369,6 +370,18 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                         placeholder: CategoryClassifierLabel,
                         mode: 'multiple',
                     }),
+                },
+            },
+            {
+                keyword: 'problemClassifier',
+                filters: [filterProblemClassifier],
+                component: {
+                    type: ComponentType.Custom,
+                    modalFilterComponent: (form) => <ProblemSelect form={form} />,
+                    modalFilterComponentWrapper: {
+                        label: 'В чем проблема?',
+                        size: FilterComponentSize.Medium,
+                    },
                 },
             },
             {
