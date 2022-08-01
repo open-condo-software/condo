@@ -93,7 +93,7 @@ export const getHighlightedContents: TGetHighlightedFN = (search, postfix, extra
     )
 }
 
-const withLink = (content: JSX.Element | string, href: string) => {
+const renderLink = (content: JSX.Element | string, href: string) => {
     const handleStopPropagation = (e) => e.stopPropagation()
 
     return (
@@ -145,7 +145,7 @@ export const getTableCellRenderer: TTableCellRendererFN = (
                 </Typography.Paragraph>)
             )
 
-            return <EmptyTableCell>{href ? withLink(cellContent, href) : cellContent}</EmptyTableCell>
+            return <EmptyTableCell>{href ? renderLink(cellContent, href) : cellContent}</EmptyTableCell>
         }, [ellipsis, text, ellipsisConfig, highlightedContent, href])
 
         // NOTE Tooltip -> span -> content
