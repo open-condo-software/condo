@@ -46,7 +46,7 @@ const renderComment = (comment, locale) => {
 /**
  * Converts record obtained from database to JSON representation for file row
  *
- * @param ticket
+ * @param ticket - record of Ticket with related objects converted by `GqlWithKnexLoadList` to its display names (for example `Ticket.source` -> `Ticket.source.name`)
  * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
  */
 const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifier }) => {
@@ -82,7 +82,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
 
     return {
         number: ticket.number,
-        source: ticket.source || EMPTY_VALUE,
+        source: i18n(ticket.source, { locale }) || EMPTY_VALUE,
         organization: ticket.organization,
         property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
         unitName: ticket.unitName,
