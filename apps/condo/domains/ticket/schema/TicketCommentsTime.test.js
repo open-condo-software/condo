@@ -180,7 +180,7 @@ describe('TicketCommentsTime', () => {
                 const { phone } = residentClient.userAttrs
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [contact] = await createTestContact(admin, organization, property, {
@@ -220,7 +220,7 @@ describe('TicketCommentsTime', () => {
                 const { phone } = residentClient.userAttrs
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [contact] = await createTestContact(admin, organization, property, {
@@ -256,7 +256,7 @@ describe('TicketCommentsTime', () => {
                 const { phone } = residentClient.userAttrs
                 const content = faker.lorem.sentence()
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [contact] = await createTestContact(admin, organization, property, {
