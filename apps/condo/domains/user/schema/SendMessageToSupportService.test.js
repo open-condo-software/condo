@@ -24,7 +24,7 @@ describe('SendMessageToSupportService', () => {
     test('with attachments, with emailFrom', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
-        await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+        await createTestResident(adminClient, userClient.user, userClient.property)
 
         const os = 'android v11'
 
@@ -81,7 +81,7 @@ describe('SendMessageToSupportService', () => {
     test('no attachments', async () => {
         const residentClient = await makeClientWithResidentAccessAndProperty()
         const adminClient = await makeLoggedInAdminClient()
-        await createTestResident(adminClient, residentClient.user, residentClient.organization, residentClient.property)
+        await createTestResident(adminClient, residentClient.user, residentClient.property)
 
         const payload = {
             text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}`,
@@ -104,7 +104,7 @@ describe('SendMessageToSupportService', () => {
         const [organization] = await registerNewOrganization(userClient)
         const [property] = await createTestProperty(adminClient, organization)
 
-        await createTestResident(adminClient, userClient.user, userClient.organization, userClient.property)
+        await createTestResident(adminClient, userClient.user, userClient.property)
         await createTestResident(adminClient, userClient.user, organization, property)
         await addResidentAccess(userClient.user)
 
