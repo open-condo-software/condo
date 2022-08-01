@@ -15,7 +15,7 @@ const access = require('@condo/domains/resident/access/ServiceConsumer')
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
