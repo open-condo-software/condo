@@ -11,7 +11,7 @@ const { WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
