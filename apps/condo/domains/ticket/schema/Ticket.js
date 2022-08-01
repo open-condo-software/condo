@@ -201,7 +201,8 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'TicketProblemClassifier',
             isRequired: false,
             knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },access: {
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            access: {
                 create: false,
                 read: true,
                 update: false,
@@ -432,11 +433,12 @@ const Ticket = new GQLListSchema('Ticket', {
                 if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
             }
             if (resolvedData.classifier) {
-                const classifier = await getById('TicketClassifierRule', existingItem.classifier)
-                
-                resolvedData.placeClassifier = classifier.place
-                resolvedData.problemClassifier = classifier.problem
-                resolvedData.categoryClassifier = classifier.category
+                const classifier = await getById('TicketClassifierRule', resolvedData.classifier)
+
+                resolvedData.placeClassifier = get(classifier, 'place', null)
+                resolvedData.problemClassifier = get(classifier, 'problem', null)
+                resolvedData.categoryClassifier = get(classifier, 'category', null)
+                console.log(resolvedData)
             }
 
             return resolvedData
