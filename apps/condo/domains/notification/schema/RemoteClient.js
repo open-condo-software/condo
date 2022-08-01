@@ -14,6 +14,7 @@ const { REQUIRED_NO_VALUE_ERROR, VALUE_TOO_SHORT } = require('@condo/domains/com
 const access = require('@condo/domains/notification/access/RemoteClient')
 
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES } = require('../constants/constants')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const APP_ID_MIN_LENGTH = 14
 
@@ -24,9 +25,6 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
                 'adding/changing token value and connecting device to user (whose authorization was passed within request). ' +
                 'All such interactions should be done via SyncRemoteClientService.',
     fields: {
-        dv: DV_FIELD,
-        sender: SENDER_FIELD,
-
         deviceId: {
             schemaDoc: 'Mobile/web device ID, which is used to identify a device. One user can have many devices, and one device can be used by many users once upon a time.',
             type: Text,
@@ -109,7 +107,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadRemoteClients,
         create: access.canManageRemoteClients,
