@@ -13,7 +13,7 @@ const { getById } = require('@core/keystone/schema')
 const { Virtual } = require('@keystonejs/fields')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 const { RAW_DATA_FIELD } = require('./fields/common')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
     schemaDoc: 'All `property` objects from `billing data source`',
