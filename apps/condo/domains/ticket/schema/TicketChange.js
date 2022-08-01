@@ -17,7 +17,7 @@ const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
 const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const getTranslation = (translations, key) => {
     if (translations[key]) return translations[key]
