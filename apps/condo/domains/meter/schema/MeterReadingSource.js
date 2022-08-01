@@ -8,7 +8,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const access = require('@condo/domains/meter/access/MeterReadingSource')
 const { METER_READING_SOURCE_TYPES } = require('@condo/domains/meter/constants/constants')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 
