@@ -6,8 +6,10 @@ import { Button } from '@condo/domains/common/components/Button'
 import { useCurrentBuild } from './useCurrentBuild'
 import { usePrevious } from './usePrevious'
 
-
-
+/**
+ * Periodically fetch information about build and compare it with previous value
+ * If a change is found, a notification is shown to the user asking them to reload the tab
+ */
 export function useHotCodeReload (): void {
     const intl = useIntl()
     const NotificationTitle = intl.formatMessage({ id: 'HotCodeReload.title' })
