@@ -49,7 +49,7 @@ import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
-import { useHotUpdate } from '@condo/domains/common/hooks/useHotUpdate'
+import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { GlobalAppsContainer } from '../domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 
@@ -151,7 +151,7 @@ const MenuItems: React.FC = () => {
 
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
-    useHotUpdate()
+    useHotCodeReload()
     dayjs.locale(intl.locale)
 
     const LayoutComponent = Component.container || BaseLayout
