@@ -55,7 +55,7 @@ const {
 } = require('@condo/domains/acquiring/constants/errors')
 const dayjs = require('dayjs')
 const Big = require('big.js')
-const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {
