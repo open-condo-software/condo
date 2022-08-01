@@ -35184,7 +35184,7 @@ export type ResidentTicketCreateInput = {
   placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
   problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
-  classifierRule?: Maybe<TicketClassifierRuleRelateToOneInput>;
+  classifier?: Maybe<TicketClassifierRuleRelateToOneInput>;
 };
 
 export type ResidentTicketOutput = {
@@ -35211,7 +35211,7 @@ export type ResidentTicketOutput = {
   updatedAt?: Maybe<Scalars['String']>;
   placeClassifier?: Maybe<TicketPlaceClassifier>;
   problemClassifier?: Maybe<TicketProblemClassifier>;
-  classifierRule?: Maybe<TicketClassifierRule>;
+  classifier?: Maybe<TicketClassifierRule>;
   categoryClassifier?: Maybe<TicketCategoryClassifier>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderField>;
