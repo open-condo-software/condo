@@ -7,7 +7,7 @@ const get = require('lodash/get')
 
 const { triggersManager } = require('@core/triggers')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
-const { GQLListSchema, getByCondition } = require('@core/keystone/schema')
+const { GQLListSchema, getByCondition, getById } = require('@core/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
@@ -175,9 +175,10 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             access: {
-                read: true,
                 create: false,
+                read: true,
                 update: false,
+                delete: false,
             },
         },
         placeClassifier: {
@@ -188,9 +189,10 @@ const Ticket = new GQLListSchema('Ticket', {
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             access: {
-                read: true,
                 create: false,
+                read: true,
                 update: false,
+                delete: false,
             },
         },
         problemClassifier: {
@@ -199,11 +201,11 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'TicketProblemClassifier',
             isRequired: false,
             knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
-            access: {
-                read: true,
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },access: {
                 create: false,
+                read: true,
                 update: false,
+                delete: false,
             },
         },
         classifier: {
@@ -367,7 +369,6 @@ const Ticket = new GQLListSchema('Ticket', {
         resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
-            console.log(resolvedData)
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
             const resolvedStatusId = get(resolvedData, 'status', null)
@@ -429,6 +430,13 @@ const Ticket = new GQLListSchema('Ticket', {
                 if (!resolvedData.clientName) resolvedData.clientName = contact.name
                 if (!resolvedData.clientEmail) resolvedData.clientEmail = contact.email
                 if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
+            }
+            if (resolvedData.classifier) {
+                const classifier = await getById('TicketClassifierRule', existingItem.classifier)
+                
+                resolvedData.placeClassifier = classifier.place
+                resolvedData.problemClassifier = classifier.problem
+                resolvedData.categoryClassifier = classifier.category
             }
 
             return resolvedData
