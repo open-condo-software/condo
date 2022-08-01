@@ -12,6 +12,8 @@ import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/
 import Select from '@condo/domains/common/components/antd/Select'
 
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
+import { TicketStatusTypeType } from '@app/condo/schema'
+import { useTicketCancelModal } from '@app/condo/domains/ticket/hooks/useTicketCancelModal'
 
 interface IStyledSelect {
     color: string
@@ -42,7 +44,6 @@ const StyledSelect = styled(Select)<IStyledSelect>`
 
 export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, loading: parentLoading, ...props }) => {
     const intl = useIntl()
-
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
     const [isUpdating, setUpdating] = useState(false)
     const handleUpdate = useCallback(() => {
@@ -55,6 +56,13 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         action:() => update(variables, ticket),
         intl,
     }), [ticket])
+
+    const updateTicket = useCallback((value) => {
+        setUpdating(true)
+        updateTicketStatus({ status: { connect: { id: value } }, statusUpdatedAt: new Date() })
+    }, [updateTicketStatus])
+
+    const { cancelTicketModal, openModal } = useTicketCancelModal(updateTicket, statuses)
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
         const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
@@ -74,9 +82,12 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
-        setUpdating(true)
-        updateTicketStatus({ status: { connect: { id: value } }, statusUpdatedAt: new Date() })
-    }, [ticket, setUpdating])
+        if (statuses.find((status) => status.id === value).type === TicketStatusTypeType.Canceled) {
+            openModal()
+        } else {
+            updateTicket(value)
+        }
+    }, [ticket, statuses, updateTicket])
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
@@ -88,20 +99,23 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
     const isDisabled = isEmpty(statuses) || isLoading
 
     return (
-        <StyledSelect
-            color={color}
-            backgroundColor={backgroundColor}
-            disabled={isDisabled}
-            loading={isLoading}
-            onChange={handleChange}
-            defaultValue={selectValue}
-            value={selectValue}
-            bordered={false}
-            labelInValue
-            eventName={'TicketStatusSelect'}
-            {...props}
-        >
-            {options}
-        </StyledSelect>
+        <>
+            <StyledSelect
+                color={color}
+                backgroundColor={backgroundColor}
+                disabled={isDisabled}
+                loading={isLoading}
+                onChange={handleChange}
+                defaultValue={selectValue}
+                value={selectValue}
+                bordered={false}
+                labelInValue
+                eventName={'TicketStatusSelect'}
+                {...props}
+            >
+                {options}
+            </StyledSelect>
+            {cancelTicketModal}
+        </>
     )
 }
