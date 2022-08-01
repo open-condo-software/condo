@@ -44,20 +44,6 @@ const Resident = new GQLListSchema('Resident', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        // organization: {
-        //     schemaDoc: 'Organization, that provides service to this resident. Can be missing, when a resident has been registered, but there is no Organization, that serves specified address in our system yet',
-        //     type: Relationship,
-        //     ref: 'Organization',
-        //     isRequired: false,
-        //     knexOptions: { isNotNullable: false }, // Relationship only!
-        //     kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        //     access: {
-        //         read: true,
-        //         create: true,
-        //         update: true,
-        //     },
-        // },
-
         // The reason for this field is to avoid adding check for resident user into global Organization read access.
         // This field have specific use case for mobile client.
         residentOrganization: {
