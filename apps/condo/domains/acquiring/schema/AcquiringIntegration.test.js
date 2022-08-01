@@ -4,7 +4,7 @@
 
 import { DV_UNKNOWN_VERSION_ERROR } from '@condo/domains/common/constants/errors'
 import { NO_INSTRUCTION_OR_MESSAGE_ERROR } from '@condo/domains/miniapp/constants'
-import { expectToThrowGQLError } from '../../common/utils/testSchema'
+import { expectToThrowGQLError } from '@condo/domains/common/utils/testSchema'
 import { createTestMultiPayment } from '../utils/testSchema'
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
