@@ -933,6 +933,41 @@ describe('MeterReading', () => {
                 expect(meterReadings).toHaveLength(1)
             })
 
+            test('resident: can read meter reading from automatic meter', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const client = await makeClientWithResidentUser()
+                const unitName = faker.random.alphaNumeric(8)
+                const accountNumber = faker.random.alphaNumeric(8)
+                const [organization] = await createTestOrganization(adminClient)
+
+                const [property] = await createTestProperty(adminClient, organization)
+                const [resident] = await createTestResident(adminClient, client.user, organization, property, {
+                    unitName,
+                })
+                await createTestServiceConsumer(adminClient, resident, organization, {
+                    accountNumber,
+                })
+
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [app] = await createTestB2BApp(adminClient)
+                await createTestB2BAppContext(adminClient, app, organization)
+                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    unitName,
+                    accountNumber,
+                    isAutomatic: true,
+                    b2bApp: { connect: { id: app.id } },
+                })
+                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
+
+                const meterReadings = await MeterReading.getAll(client, {
+                    id: meterReading.id,
+                    meter: { id: meter.id },
+                })
+
+                expect(meterReadings).toHaveLength(1)
+            })
+
             test('resident: cannot read MeterReadings in other organization', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const client1 = await makeClientWithResidentUser()

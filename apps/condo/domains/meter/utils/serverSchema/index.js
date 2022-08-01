@@ -26,9 +26,9 @@ const MeterReadingFilterTemplate = generateServerUtils(MeterReadingFilterTemplat
  * Get all meters, which resident has access to,
  * Mostly used in access, that's why used native keystone utils
  * @param userId - id of user
- * @returns {Array<string>} list of meters ids which are available for resident
+ * @returns {Promise<Array<unknown>>} list of meters ids which are available for resident
  */
-const getAvailableResidentMetersIds = async (userId) => {
+const getAvailableResidentMeters = async (userId) => {
     const userResidents = await find('Resident', {
         user: { id: userId, deletedAt: null },
         property: { deletedAt: null },
@@ -56,13 +56,10 @@ const getAvailableResidentMetersIds = async (userId) => {
         ],
     }))
 
-    const availableMeters = await find('Meter', {
+    return await find('Meter', {
         OR: orStatement,
         deletedAt: null,
-        isAutomatic: false,
     })
-
-    return availableMeters.map(meter => meter.id)
 }
 
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
@@ -101,7 +98,7 @@ module.exports = {
     MeterReadingSource,
     Meter,
     MeterReading,
-    getAvailableResidentMetersIds,
+    getAvailableResidentMeters,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
     MeterReadingFilterTemplate,
