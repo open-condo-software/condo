@@ -209,12 +209,25 @@ describe('Payment', () => {
                 expect(updatedPayment).toBeDefined()
                 expect(updatedPayment).toEqual(expect.objectContaining(payload))
             })
-            test('admin can\'t update organization field', async () => {
+            test('cannot connect another organization', async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
                 const [ newOrganization ] = await createTestOrganization(admin)
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 const payload = {
                     organization: { connect: newOrganization.id },
+                }
+                await catchErrorFrom(async () => {
+                    await updateTestPayment(admin, payment.id, payload)
+                }, (e) => {
+                    expect(e.errors[0].message).toContain('Field "organization" is not defined by type "PaymentUpdateInput"')
+                })
+            })
+            test('cannot disconnect organization', async () => {
+                const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
+                await createTestOrganization(admin)
+                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                const payload = {
+                    organization: { disconnectAll: true },
                 }
                 await catchErrorFrom(async () => {
                     await updateTestPayment(admin, payment.id, payload)
