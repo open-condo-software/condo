@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const access = require('@condo/domains/meter/access/MeterReadingFilterTemplate')
 const { METER_READING_FILTER_FIELD } = require('./fields/MeterReadingFilters')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate', {
