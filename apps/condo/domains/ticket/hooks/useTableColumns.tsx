@@ -198,8 +198,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             {
                 title: ClassifierTitle,
                 dataIndex: ['classifier', 'category', 'name'],
-                filteredValue: getFilteredValue(filters, ['classifierRule', 'category', 'name']),
-                key: ['classifierRule', 'category', 'name'],
+                filteredValue: getFilteredValue(filters, ['classifier', 'category', 'name']),
+                key: ['classifier', 'category', 'name'],
                 width: COLUMNS_WIDTH.categoryClassifier,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'), // change categoryClassifier to ['classifierRule', 'category', 'name']
                 filterIcon: getFilterIcon,

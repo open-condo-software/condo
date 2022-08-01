@@ -196,9 +196,9 @@ const PdfView = () => {
                                 <Breadcrumb separator={<>≫<br/></>}>
                                     {
                                         compact([
-                                            get(ticket, ['classifierRule', 'place', 'name']),
-                                            get(ticket, ['classifierRule', 'category', 'name']),
-                                            get(ticket, ['classifierRule', 'problem', 'name']),
+                                            get(ticket, ['classifier', 'place', 'name']),
+                                            get(ticket, ['classifier', 'category', 'name']),
+                                            get(ticket, ['classifier', 'problem', 'name']),
                                         ]).map(name => {
                                             return (
                                                 <Breadcrumb.Item key={name}>{name}</Breadcrumb.Item>

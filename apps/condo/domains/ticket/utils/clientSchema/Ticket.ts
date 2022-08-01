@@ -10,7 +10,7 @@ import { Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs } fro
 import dayjs, { Dayjs } from 'dayjs'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
-const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifierRule']
+const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
 const DISCONNECT_ON_NULL = ['executor', 'contact']
 
 export interface ITicketFormState {
