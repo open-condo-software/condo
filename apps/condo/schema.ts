@@ -41108,6 +41108,10 @@ export enum SortTicketsBy {
   ExecutorDesc = 'executor_DESC',
   CategoryClassifierAsc = 'categoryClassifier_ASC',
   CategoryClassifierDesc = 'categoryClassifier_DESC',
+  PlaceClassifierAsc = 'placeClassifier_ASC',
+  PlaceClassifierDesc = 'placeClassifier_DESC',
+  ProblemClassifierAsc = 'problemClassifier_ASC',
+  ProblemClassifierDesc = 'problemClassifier_DESC',
   ClassifierAsc = 'classifier_ASC',
   ClassifierDesc = 'classifier_DESC',
   DetailsAsc = 'details_ASC',
@@ -41445,6 +41449,10 @@ export type Ticket = {
   executor?: Maybe<User>;
   /**  @deprecated  */
   categoryClassifier?: Maybe<TicketCategoryClassifier>;
+  /**  @deprecated  */
+  placeClassifier?: Maybe<TicketPlaceClassifier>;
+  /**  @deprecated  */
+  problemClassifier?: Maybe<TicketProblemClassifier>;
   /**  Valid combination of 3 classifiers  */
   classifier?: Maybe<TicketClassifierRule>;
   /**  Text description of the issue. Maybe written by a user or an operator  */
@@ -44846,6 +44854,8 @@ export type TicketCreateInput = {
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
+  problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
   classifier?: Maybe<TicketClassifierRuleRelateToOneInput>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
@@ -46179,6 +46189,8 @@ export type TicketHistoryRecord = {
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
+  placeClassifier?: Maybe<Scalars['String']>;
+  problemClassifier?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
@@ -46235,6 +46247,8 @@ export type TicketHistoryRecordCreateInput = {
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
+  placeClassifier?: Maybe<Scalars['String']>;
+  problemClassifier?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
@@ -46296,6 +46310,8 @@ export type TicketHistoryRecordUpdateInput = {
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
+  placeClassifier?: Maybe<Scalars['String']>;
+  problemClassifier?: Maybe<Scalars['String']>;
   classifier?: Maybe<Scalars['String']>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
@@ -46524,6 +46540,14 @@ export type TicketHistoryRecordWhereInput = {
   categoryClassifier_not?: Maybe<Scalars['String']>;
   categoryClassifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   categoryClassifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  placeClassifier?: Maybe<Scalars['String']>;
+  placeClassifier_not?: Maybe<Scalars['String']>;
+  placeClassifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  placeClassifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  problemClassifier?: Maybe<Scalars['String']>;
+  problemClassifier_not?: Maybe<Scalars['String']>;
+  problemClassifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  problemClassifier_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   classifier?: Maybe<Scalars['String']>;
   classifier_not?: Maybe<Scalars['String']>;
   classifier_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -49029,6 +49053,8 @@ export type TicketUpdateInput = {
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
+  problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
   classifier?: Maybe<TicketClassifierRuleRelateToOneInput>;
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
@@ -49228,6 +49254,10 @@ export type TicketWhereInput = {
   executor_is_null?: Maybe<Scalars['Boolean']>;
   categoryClassifier?: Maybe<TicketCategoryClassifierWhereInput>;
   categoryClassifier_is_null?: Maybe<Scalars['Boolean']>;
+  placeClassifier?: Maybe<TicketPlaceClassifierWhereInput>;
+  placeClassifier_is_null?: Maybe<Scalars['Boolean']>;
+  problemClassifier?: Maybe<TicketProblemClassifierWhereInput>;
+  problemClassifier_is_null?: Maybe<Scalars['Boolean']>;
   classifier?: Maybe<TicketClassifierRuleWhereInput>;
   classifier_is_null?: Maybe<Scalars['Boolean']>;
   details?: Maybe<Scalars['String']>;
