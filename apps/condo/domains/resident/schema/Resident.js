@@ -28,7 +28,7 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { manageResidentToTicketClientConnections } = require('../tasks')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
