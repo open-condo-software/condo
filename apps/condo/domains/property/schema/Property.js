@@ -33,8 +33,8 @@ const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tas
 const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
-const { softDeleteTicketHintPropertiesByProperty } = require('../../ticket/utils/serverSchema/resolveHelpers')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
