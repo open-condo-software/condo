@@ -67,7 +67,7 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 const omit = require('lodash/omit')
 const get = require('lodash/get')
-const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 const { createTestUser } = require('../../user/utils/testSchema')
 const { createTestAcquiringIntegrationContext } = require('../utils/testSchema')
 
