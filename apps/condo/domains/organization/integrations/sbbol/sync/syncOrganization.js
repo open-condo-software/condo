@@ -67,6 +67,7 @@ const createOrganization = async ({ context, user, organizationInfo }) => {
             id: organization.id,
             data: {
                 ...importInfo,
+                ...dvSenderFields,
             },
         },
         returnFields: 'id',
@@ -118,6 +119,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                             ...existingOrganization.meta,
                             ...organizationInfo.meta,
                         },
+                        ...dvSenderFields,
                     },
                 },
                 returnFields: returnFields,
