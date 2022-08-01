@@ -1933,6 +1933,8 @@ export type B2BAppAccessRightHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -1948,6 +1950,8 @@ export type B2BAppAccessRightHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -1969,6 +1973,8 @@ export type B2BAppAccessRightHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppAccessRightHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2033,6 +2039,18 @@ export type B2BAppAccessRightHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -2241,6 +2259,8 @@ export type B2BAppContextHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2259,6 +2279,8 @@ export type B2BAppContextHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2283,6 +2305,8 @@ export type B2BAppContextHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppContextHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2373,6 +2397,18 @@ export type B2BAppContextHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -2571,6 +2607,8 @@ export type B2BAppHistoryRecord = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2598,6 +2636,8 @@ export type B2BAppHistoryRecordCreateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2631,6 +2671,8 @@ export type B2BAppHistoryRecordUpdateInput = {
   updatedBy?: Maybe<Scalars['String']>;
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2BAppHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -2851,6 +2893,18 @@ export type B2BAppHistoryRecordWhereInput = {
   newId_not?: Maybe<Scalars['JSON']>;
   newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -37303,6 +37357,8 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -37345,6 +37401,8 @@ export enum SortB2BAppContextHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -37407,6 +37465,8 @@ export enum SortB2BAppHistoryRecordsBy {
   UpdatedAtDesc = 'updatedAt_DESC',
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
