@@ -311,7 +311,7 @@ describe('RegisterMultiPaymentService', () => {
                         deletedAt: dayjs().toISOString(),
                     })
                     const [secondContext] = await createTestAcquiringIntegrationContext(commonData.admin, batches[1].organization, secondAcquiring)
-                    const [secondResident] = await createTestResident(commonData.admin, commonData.client.user, batches[1].organization, batches[1].property)
+                    const [secondResident] = await createTestResident(commonData.admin, commonData.client.user, batches[1].property)
                     const [secondConsumer] = await createTestServiceConsumer(commonData.admin, secondResident, batches[1].organization, {
                         acquiringIntegrationContext: { connect: { id: secondContext.id } },
                         billingIntegrationContext: { connect: { id: batches[1].billingContext.id } },
