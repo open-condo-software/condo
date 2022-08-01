@@ -10,7 +10,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const {
     SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',

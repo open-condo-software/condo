@@ -7,7 +7,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const { TICKET_SOURCE_TYPES } = require('@condo/domains/ticket/constants/common')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const READ_ONLY_ACCESS = {
     read: true,
