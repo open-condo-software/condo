@@ -11,7 +11,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { values } = require('lodash')
 const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_CURRENCY } = require('../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../constants/errors')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment', {
