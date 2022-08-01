@@ -7,7 +7,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@core/k
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationAccessRight')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const AcquiringIntegrationAccessRight = new GQLListSchema('AcquiringIntegrationAccessRight', {

@@ -11,7 +11,7 @@ const { OrganizationEmployee, Organization } = require('@condo/domains/organizat
 const { get } = require('lodash')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { MAX_PROPERTIES_IN_DIVISION } = require('@condo/domains/division/constants')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const Division = new GQLListSchema('Division', {

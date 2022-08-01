@@ -14,7 +14,7 @@ const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constant
 const get = require('lodash/get')
 
 const Ajv = require('ajv')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const validationSchema = {
     type: 'object',

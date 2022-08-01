@@ -6,7 +6,7 @@ const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 const access = require('@condo/domains/ticket/access/UserTicketCommentReadTime')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const UserTicketCommentReadTime = new GQLListSchema('UserTicketCommentReadTime', {

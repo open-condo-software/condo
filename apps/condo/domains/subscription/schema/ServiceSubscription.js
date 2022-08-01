@@ -15,7 +15,7 @@ const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = requ
 const { Json } = require('@core/keystone/fields')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
-const { dvAndSender } = require('../../common/schema/plugins/dvAndSender')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
