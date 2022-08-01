@@ -68,7 +68,7 @@ const faker = require('faker')
 const omit = require('lodash/omit')
 const get = require('lodash/get')
 const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
-const { createTestUser } = require('../../user/utils/testSchema')
+const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestAcquiringIntegrationContext } = require('../utils/testSchema')
 
 describe('MultiPayment', () => {
