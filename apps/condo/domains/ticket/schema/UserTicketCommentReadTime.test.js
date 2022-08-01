@@ -131,7 +131,7 @@ describe('UserTicketCommentReadTime', () => {
                 const [property] = await createTestProperty(admin, organization)
                 const unitName = faker.random.alphaNumeric(5)
 
-                await createTestResident(admin, residentClient.user, organization, property, {
+                await createTestResident(admin, residentClient.user, property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(residentClient, organization, property, {
@@ -151,7 +151,7 @@ describe('UserTicketCommentReadTime', () => {
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
 
-                await createTestResident(admin, residentClient.user, userClient.organization, userClient.property, {
+                await createTestResident(admin, residentClient.user, userClient.property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
@@ -172,7 +172,7 @@ describe('UserTicketCommentReadTime', () => {
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
 
-                await createTestResident(admin, residentClient.user, userClient.organization, userClient.property, {
+                await createTestResident(admin, residentClient.user, userClient.property, {
                     unitName,
                 })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
