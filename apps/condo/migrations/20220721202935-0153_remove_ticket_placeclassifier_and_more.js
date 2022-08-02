@@ -7,14 +7,12 @@ exports.up = async (knex) => {
 --
 -- Remove field placeClassifier from ticket
 --
-SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE; 
---ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id";
+SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id";
 --ALTER TABLE "Ticket" DROP COLUMN "placeClassifier" CASCADE;
 --
 -- Remove field problemClassifier from ticket
 --
-SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE; 
---ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id";
+SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id";
 --ALTER TABLE "Ticket" DROP COLUMN "problemClassifier" CASCADE;
 --
 -- Remove field categoryClassifierDisplayNameFrom from ticketchange
@@ -171,11 +169,13 @@ ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "categoryClassifierDisplayNa
 --
 -- Remove field problemClassifier from ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" REFERENCES "TicketProblemClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE;
+ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL;
+ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" REFERENCES "TicketProblemClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE;
 --
 -- Remove field placeClassifier from ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
+ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL;
+ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
 CREATE INDEX IF NOT EXISTS "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
 CREATE INDEX IF NOT EXISTS "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
 COMMIT;
