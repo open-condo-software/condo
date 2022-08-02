@@ -218,7 +218,7 @@ class TicketEdit {
 
     changeTicketStatus () {
         cy.wait('@getAllTickets')
-        cy.wait('@getAllTicketClassifierRules')
+        cy.wait('@getAllTicketClassifiers')
         cy.wait('@getAllTicketFiles')
         cy.wait('@getAllTicketStatuses')
         cy.wait('@getAllOrganizationEmployees')
@@ -239,7 +239,7 @@ class TicketEdit {
 
         cy.wait([
             '@getAllTickets',
-            '@getAllTicketClassifierRules',
+            '@getAllTicketClassifiers',
             '@getAllProperties',
             '@getAllOrganizationEmployees',
         ])

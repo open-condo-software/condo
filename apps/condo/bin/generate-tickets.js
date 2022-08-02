@@ -1,7 +1,7 @@
 const {
     Ticket,
     TicketStatus,
-    TicketClassifierRule,
+    TicketClassifier,
     TicketComment,
 } = require('@condo/domains/ticket/utils/serverSchema')
 
@@ -118,7 +118,7 @@ class TicketGenerator {
 
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
-        this.classifiers = await TicketClassifierRule.getAll(this.context, { })
+        this.classifiers = await TicketClassifier.getAll(this.context, { })
         const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: this.organizationId })
         if (property) {
             this.property = property

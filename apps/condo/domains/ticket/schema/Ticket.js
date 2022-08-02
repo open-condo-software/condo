@@ -212,7 +212,7 @@ const Ticket = new GQLListSchema('Ticket', {
         classifier: {
             schemaDoc: 'Valid combination of 3 classifiers',
             type: Relationship,
-            ref: 'TicketClassifierRule',
+            ref: 'TicketClassifier',
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
@@ -433,7 +433,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 if (!resolvedData.clientPhone) resolvedData.clientPhone = contact.phone
             }
             if (resolvedData.classifier) {
-                const classifier = await getById('TicketClassifierRule', resolvedData.classifier)
+                const classifier = await getById('TicketClassifier', resolvedData.classifier)
 
                 resolvedData.placeClassifier = get(classifier, 'place', null)
                 resolvedData.problemClassifier = get(classifier, 'problem', null)

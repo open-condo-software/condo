@@ -12,7 +12,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestTicket, createTestTicketClassifierRule } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 
 let userObject = {}
 
@@ -58,7 +58,7 @@ module.exports = async (on, config) => {
         async 'keystone:createTickets' (ticketAttrs) {
             const client = await makeLoggedInClient(ticketAttrs.userAttrs)
             const support = await makeClientWithSupportUser()
-            const [ticketClassifier] = await createTestTicketClassifierRule(support)
+            const [ticketClassifier] = await createTestTicketClassifier(support)
 
             const classifier = { connect: { id: ticketClassifier.id } }
             const categoryClassifier = { connect: { id: ticketClassifier.category.id } }
