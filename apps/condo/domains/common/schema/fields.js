@@ -23,7 +23,7 @@ const SENDER_FIELD = {
         'Example `{ dv: 1, fingerprint: \'VaxSw2aXZa\'}`. ' +
         'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +
         'It\'s the device ID like browser / mobile application / remote system',
-    graphQLInputType: 'SenderFieldInput',
+    graphQLInputType: 'SenderFieldInput!',
     graphQLReturnType: 'SenderField',
     graphQLAdminFragment: '{ dv fingerprint }',
     extendGraphQLTypes: [
