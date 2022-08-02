@@ -374,7 +374,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const { link } = useOrganization()
 
     const handleSaveRef = useRef(null)
-    const [form, setForm] = useState<FormInstance>()
+    const [form] = Form.useForm()
 
     const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         sortBy: 'createdAt_ASC',
@@ -573,10 +573,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                         validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
                         handleSubmit={handleSubmit}
                         onChange={handleFormValuesChange}
+                        propsForm={form}
                     >
                         {
-                            ({ handleSave, form }) => {
-                                setForm(form)
+                            ({ handleSave }) => {
                                 handleSaveRef.current = handleSave
 
                                 return (

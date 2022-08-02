@@ -237,6 +237,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     onMutationCompleted?: (result) => void,
     style?: CSSProperties,
     children: IFormWithActionChildren
+    propsForm?: FormInstance
 }
 
 const FormWithAction: React.FC<IFormWithAction> = (props) => {
@@ -264,10 +265,12 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         validateTrigger,
         style,
         onFieldsChange,
+        propsForm,
         ...formProps
     } = props
 
-    const [form] = Form.useForm()
+    const [innerForm] = Form.useForm()
+    const form = propsForm ? propsForm : innerForm
     const [isLoading, setIsLoading] = useState(false)
 
     let create = null
