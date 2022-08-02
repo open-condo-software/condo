@@ -81,15 +81,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
     }, [loading, ticketStatuses])
 
-    const renderClassifier = useCallback((text, record) => {
-        
-        return function render (text, record) {
-            const placeClassifier = get(record, ['classifier', 'place', 'name'])            
-            const postfix = `\n(${placeClassifier})`
-    
-            return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)}
-    }, [search])
-
     const renderAddress = useCallback(
         (property) => getAddressRender(property, DeletedMessage, search),
         [DeletedMessage, search])
@@ -198,12 +189,12 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             {
                 title: ClassifierTitle,
                 dataIndex: ['classifier', 'category', 'name'],
-                filteredValue: getFilteredValue(filters, ['classifier', 'category', 'name']),
-                key: ['classifier', 'category', 'name'],
+                filteredValue: getFilteredValue(filters, 'categoryClassifier'),
+                key: 'categoryClassifier',
                 width: COLUMNS_WIDTH.categoryClassifier,
-                filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'), // change categoryClassifier to ['classifierRule', 'category', 'name']
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
                 filterIcon: getFilterIcon,
-                render: renderClassifier(intl, search),
+                render: getClassifierRender(intl, search),
                 ellipsis: true,
             },
             {

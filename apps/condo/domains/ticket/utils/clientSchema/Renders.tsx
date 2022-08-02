@@ -162,7 +162,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
 
 export const getClassifierRender = (intl, search: FilterValue) => {
     return function render (text, record) {
-        const placeClassifier = get(record, ['placeClassifier', 'name'])
+        const placeClassifier = get(record, ['classifier', 'place', 'name'])
         const postfix = `\n(${placeClassifier})`
 
         return getTableCellRenderer(search, true, postfix, null, POSTFIX_PROPS)(text)

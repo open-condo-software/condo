@@ -32,7 +32,6 @@ import { getIsResidentContactFilter, getTicketAttributesFilter } from '../utils/
 import {
     FilterModalCategoryClassifierSelect,
     FilterModalPlaceClassifierSelect, FilterModalProblemClassifierSelect,
-    useModalFilterClassifiers,
 } from './useModalFilterClassifiers'
 
 const filterNumber = getNumberFilter('number')
@@ -93,6 +92,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const SelectMessage = intl.formatMessage({ id: 'Select' })
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
+    const ProblemClassifierLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.ProblemClassifier' })
     const DivisionLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Division' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const AttributeLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Attribute' })
@@ -141,8 +141,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    // const { CategorySelect, PlaceSelect, ProblemSelect } = useModalFilterClassifiers()
 
     return useMemo(() => {
         return [
@@ -383,7 +381,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     type: ComponentType.Custom,
                     modalFilterComponent: (form) => <FilterModalProblemClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
-                        label: 'В чем проблема?',
+                        label: ProblemClassifierLabel,
                         size: FilterComponentSize.Medium,
                     },
                 },
