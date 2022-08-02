@@ -29,7 +29,11 @@ import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/com
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
 import { getIsResidentContactFilter, getTicketAttributesFilter } from '../utils/tables.utils'
-import { useModalFilterClassifiers } from './useModalFilterClassifiers'
+import {
+    FilterModalCategoryClassifierSelect,
+    FilterModalPlaceClassifierSelect, FilterModalProblemClassifierSelect,
+    useModalFilterClassifiers,
+} from './useModalFilterClassifiers'
 
 const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
@@ -138,7 +142,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const { CategorySelect, PlaceSelect, ProblemSelect } = useModalFilterClassifiers()
+    // const { CategorySelect, PlaceSelect, ProblemSelect } = useModalFilterClassifiers()
 
     return useMemo(() => {
         return [
@@ -348,7 +352,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterPlaceClassifier],
                 component: {
                     type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <PlaceSelect form={form} />,
+                    modalFilterComponent: (form) => <FilterModalPlaceClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
                         label: PlaceClassifierLabel,
                         size: FilterComponentSize.Medium,
@@ -360,7 +364,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterCategoryClassifier],
                 component: {
                     type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <CategorySelect form={form} />,
+                    modalFilterComponent: (form) => <FilterModalCategoryClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
                         label: CategoryClassifierLabel,
                         size: FilterComponentSize.Medium,
@@ -377,7 +381,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterProblemClassifier],
                 component: {
                     type: ComponentType.Custom,
-                    modalFilterComponent: (form) => <ProblemSelect form={form} />,
+                    modalFilterComponent: (form) => <FilterModalProblemClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
                         label: 'В чем проблема?',
                         size: FilterComponentSize.Medium,
