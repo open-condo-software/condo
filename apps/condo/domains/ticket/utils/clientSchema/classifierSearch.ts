@@ -135,7 +135,7 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         })
     }
 
-    public async search (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs, limit?: number): Promise<Options[]> {
+    public async search (input: string, type: string, variables?: QueryAllTicketCategoryClassifiersArgs, limit?: number): Promise<Options[]> {
         const maxSearchCount = limit ? limit : MAX_SEARCH_COUNT
 
         if (isEmpty(input)) {

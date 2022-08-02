@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useApolloClient } from '@core/next/apollo'
+import { useIntl } from '@core/next/intl'
 
 import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
 import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -22,6 +23,9 @@ const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: stri
 }
 
 function FilterModalBaseClassifierSelect ({ form, type }) {
+    const intl = useIntl()
+    const SelectMessage = intl.formatMessage({ id: 'Select' })
+
     const client = useApolloClient()
     const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
     const router = useRouter()
@@ -89,6 +93,7 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
             open={open}
             getPopupContainer={getFiltersModalPopupContainer}
             loading={loading}
+            placeholder={SelectMessage}
         />
     )
 }

@@ -530,6 +530,7 @@
   "pages.condo.ticket.filters.isResidentContact.true": "Житель",
   "pages.condo.ticket.filters.isResidentContact.false": "Не житель",
   "pages.condo.ticket.filters.lastCommentAt": "Дата последнего комментария",
+  "pages.condo.ticket.filters.ProblemClassifier": "В чем проблема?",
   "pages.condo.ticket.notification.success.message": "Заявка №{number} создана",
   "pages.condo.ticket.notification.success.description": "Перейти в карточку заявки",
   "pages.condo.ticket.id.Notes": "Заметки",
