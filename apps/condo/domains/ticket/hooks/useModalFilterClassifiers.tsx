@@ -78,6 +78,8 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
 
     return (
         <Select
+            filterOption
+            optionFilterProp={'label'}
             value={loading ? [] : selected}
             mode={'multiple'}
             onChange={handleSelectChange}
