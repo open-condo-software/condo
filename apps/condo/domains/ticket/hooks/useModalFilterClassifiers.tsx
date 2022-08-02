@@ -1,106 +1,15 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import uniqBy from 'lodash/uniqBy'
-import isFunction from 'lodash/isFunction'
-import { FormInstance, Select } from 'antd'
-import { useRouter } from 'next/router'
+import { Select } from 'antd'
+import { get } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
+import { useRouter } from 'next/router'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useIntl } from '@core/next/intl'
 import { useApolloClient } from '@core/next/apollo'
 
-import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
-import { ClassifiersQueryLocal, TicketClassifierTypes } from '../utils/clientSchema/classifierSearch'
-import { get } from 'lodash'
+import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
 
-const { Option } = Select
-
-interface Options {
-    id: string
-    name: string
-}
-
-const SHOW_SELECT_ACTIONS: ('focus' | 'click')[] = ['focus', 'click']
-
-const useTicketClassifierSelect = ({
-    onChange,
-    keyword,
-}) => {
-    const intl = useIntl()
-    const SelectMessage = intl.formatMessage({ id: 'Select' })
-
-    const [classifiers, setClassifiersFromRules] = useState([])
-    const [searchClassifiers, setSearchClassifiers] = useState([])
-    const [stateForm, setForm] = useState<FormInstance>(null)
-
-    const optionsRef = useRef([])
-
-    const setClassifiers = useCallback((classifiers) => {
-        setClassifiersFromRules(classifiers)
-        setSearchClassifiers([])
-    }, [])
-
-    const setSelected = useCallback((value) => {
-        stateForm && stateForm.setFieldsValue({ [keyword]: value })
-    }, [keyword, stateForm])
-
-    const Setter = useMemo(() => ({
-        all: setClassifiers,
-        one: setSelected,
-        search: setSearchClassifiers,
-    }), [])
-
-    useEffect(() => {
-        optionsRef.current = uniqBy([...classifiers, ...searchClassifiers], 'id')
-    }, [classifiers, searchClassifiers])
-
-    const handleChange = useCallback((form: FormInstance, value) => {
-        if (isFunction(onChange)) onChange(value)
-
-        form.setFieldsValue({ [keyword]: value })
-    }, [keyword, onChange])
-
-    const SelectComponent = useCallback( (props) => {
-        const { disabled, style, form } = props
-
-        if (!stateForm)
-            setForm(stateForm)
-
-        return (
-            <Select
-                showSearch
-                showArrow
-                style={style}
-                onChange={(value) => handleChange(form, value)}
-                optionFilterProp={'title'}
-                disabled={disabled}
-                value={form.getFieldValue(keyword)}
-                showAction={SHOW_SELECT_ACTIONS}
-                mode={'multiple'}
-                placeholder={SelectMessage}
-                getPopupContainer={getFiltersModalPopupContainer}
-            >
-                {
-                    Array.isArray(optionsRef.current) && optionsRef.current.map(classifier => (
-                        <Option value={classifier.id} key={classifier.id} title={classifier.name}>
-                            {classifier.name}
-                        </Option>
-                    ))
-                }
-            </Select>
-        )
-    }, [SelectMessage, handleChange, keyword, stateForm])
-
-    return {
-        SelectComponent,
-        set: Setter,
-    }
-}
-
-const CLASSIFIER_TYPES = [TicketClassifierTypes.place, TicketClassifierTypes.category]
-const PLACE_CLASSIFIER_KEYWORD = 'placeClassifier'
-const CATEGORY_CLASSIFIER_KEYWORD = 'categoryClassifier'
-const PROBLEM_CLASSIFIER_KEYWORD = 'problemClassifier'
+import { ClassifiersQueryLocal } from '../utils/clientSchema/classifierSearch'
 
 const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => {
     const initialValueFromFilter = get(filters, keyword)
@@ -112,106 +21,99 @@ const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: stri
     }
 }
 
-export function useModalFilterClassifiers () {
+function FilterModalBaseClassifierSelect ({ form, type }) {
     const client = useApolloClient()
-    const router = useRouter()
     const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
+    const router = useRouter()
 
-    const ruleRef = useRef({ place: [], category: [], problem: [] })
+    const [options, setOptions] = useState([])
+    const [selected, setSelected] = useState([])
+    const [open, setOpen] = useState(false)
+    const [loading, setLoading] = useState(false)
 
-    const onUserSelect = useCallback(async (id, type) => {
-        ruleRef.current = { ...ruleRef.current, [type]: id }
-        await updateLevels({ [type]: id })
-    }, [])
-
-    const {
-        set: categorySet,
-        SelectComponent: CategorySelect,
-    } = useTicketClassifierSelect({
-        onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
-        keyword: CATEGORY_CLASSIFIER_KEYWORD,
-    })
-
-    const {
-        set: placeSet,
-        SelectComponent: PlaceSelect,
-    } = useTicketClassifierSelect({
-        onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
-        keyword: PLACE_CLASSIFIER_KEYWORD,
-    })
-
-    const {
-        set: problemSet,
-        SelectComponent: ProblemSelect,
-    } = useTicketClassifierSelect({
-        onChange: (id) => onUserSelect(id, TicketClassifierTypes.problem),
-        keyword: PROBLEM_CLASSIFIER_KEYWORD,
-    })
-
-    const Setter = useMemo(() => (
-        {
-            place: placeSet,
-            category: categorySet,
-            problem: problemSet,
-        }
-    ), [placeSet, categorySet, problemSet])
-
-    const loadLevels = useCallback(async () => {
-        const { place, category, problem } = ruleRef.current
-
-        const rules = await ClassifierLoader.findRulesBySelectedClassifiers(place, category, problem)
-
-        return {
-            place: ClassifierLoader.rulesToOptions(rules, 'place'),
-            category: ClassifierLoader.rulesToOptions(rules, 'category'),
-            problem: ClassifierLoader.rulesToOptions(rules, 'problem').filter(rule => rule.id),
-        }
-    }, [ClassifierLoader])
-
-    const updateLevels = useCallback(async (selected = {} ) => {
-        ruleRef.current = { ...ruleRef.current, ...selected }
-        const options = await loadLevels()
-
-        Object.keys(Setter).forEach(type => {
-            Setter[type].all(options[type])
-            const isExisted = options[type].find(option => ruleRef.current[type] && ruleRef.current[type].includes(option.id))
-            Setter[type].one(isExisted ? ruleRef.current[type] : null)
+    useEffect(() => {
+        setLoading(true)
+        ClassifierLoader.init().then(async () => {
+            const classifiers = await ClassifierLoader.search('', type, null, 500)
+            setOptions(classifiers)
+            setLoading(false)
         })
-    }, [Setter, loadLevels])
+    }, [ClassifierLoader, type])
 
     useEffect(() => {
         const { filters } = parseQuery(router.query)
-        const initialPlaceClassifierIds = getInitialClassifierValues(filters, PLACE_CLASSIFIER_KEYWORD)
-        const initialCategoryClassifierIds = getInitialClassifierValues(filters, CATEGORY_CLASSIFIER_KEYWORD)
-        const initialProblemClassifierIds = getInitialClassifierValues(filters, PROBLEM_CLASSIFIER_KEYWORD)
+        const initialValueFromQuery = getInitialClassifierValues(filters, `${type}Classifier`)
+        const initialValueFromForm = form.getFieldValue(`${type}Classifier`)
 
-        ClassifierLoader.init().then(async () => {
-            if (!isEmpty(initialPlaceClassifierIds) || !isEmpty(initialCategoryClassifierIds)) {
-                ruleRef.current = {
-                    place: initialPlaceClassifierIds,
-                    category: initialCategoryClassifierIds,
-                    problem: initialProblemClassifierIds,
-                }
-                await updateLevels()
-            } else {
-                CLASSIFIER_TYPES.forEach(type => {
-                    ClassifierLoader.search('', type).then(classifiers => {
-                        Setter[type].all(classifiers)
-                    })
-                })
-
-                ruleRef.current = {
-                    place: [],
-                    category: [],
-                    problem: [],
-                }
-            }
-        })
-
-        return () => {
-            ClassifierLoader.clear()
+        if (initialValueFromQuery || initialValueFromForm) {
+            const initialValue = initialValueFromForm ? initialValueFromForm : initialValueFromQuery
+            setSelected(initialValue)
         }
-    }, [router.query, client, Setter, updateLevels])
+    }, [form, options, router.query, type])
 
-    return useMemo(() => ({ CategorySelect, PlaceSelect, ProblemSelect }), [CategorySelect, PlaceSelect, ProblemSelect])
+    const handleSelectChange = useCallback((value) => {
+        form.setFieldsValue({ [`${type}Classifier`]: value })
+        setSelected(value)
+    }, [form, type])
+
+    const onFocus = useCallback(() => {
+        setOpen(false)
+        const selectedPlaces = form.getFieldValue('placeClassifier')
+        const selectedCategories = form.getFieldValue('categoryClassifier')
+        const selectedProblems = form.getFieldValue('problemClassifier')
+
+        const rules = ClassifierLoader.findRulesBySelectedClassifiers(selectedPlaces, selectedCategories, selectedProblems)
+
+        setOptions(ClassifierLoader.rulesToOptions(rules, type))
+        setOpen(true)
+    }, [ClassifierLoader, form, type])
+
+    const handleBlur = useCallback(() => {
+        setOpen(false)
+    }, [])
+
+    const renderOptions = useMemo(() =>
+        options.map(classifier => ({ label: classifier.name, value: classifier.id })),
+    [options])
+
+    return (
+        <Select
+            value={loading ? [] : selected}
+            mode={'multiple'}
+            onChange={handleSelectChange}
+            options={renderOptions}
+            onFocus={onFocus}
+            onBlur={handleBlur}
+            open={open}
+            getPopupContainer={getFiltersModalPopupContainer}
+            loading={loading}
+        />
+    )
+}
+
+export function FilterModalPlaceClassifierSelect ({ form }) {
+    return (
+        <FilterModalBaseClassifierSelect
+            form={form}
+            type={'place'}
+        />
+    )
+}
+
+export function FilterModalCategoryClassifierSelect ({ form }) {
+    return (
+        <FilterModalBaseClassifierSelect
+            form={form}
+            type={'category'}
+        />
+    )
+}
+
+export function FilterModalProblemClassifierSelect ({ form }) {
+    return (
+        <FilterModalBaseClassifierSelect
+            form={form}
+            type={'problem'}
+        />
+    )
 }

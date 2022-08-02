@@ -396,7 +396,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         employee: { connect: { id: link.id } },
     }, refetch)
 
-    const handleResetFilters = useCallback(async () => {
+    const handleResetFilters = useCallback(() => {
         const keys = Object.keys(form.getFieldsValue())
         const emptyFields = keys.reduce((acc, key) => {
             acc[key] = undefined
@@ -508,7 +508,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false),
         [setIsMultipleFiltersModalVisible])
 
-    const handleTabChange = useCallback(async (filtersTemplateId) => {
+    const handleTabChange = useCallback((filtersTemplateId) => {
         const selectedTemplateId = get(selectedFiltersTemplate, 'id')
 
         if (selectedTemplateId === filtersTemplateId) {
@@ -522,7 +522,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }
 
         setIsSaveFiltersTemplateButtonDisabled(true)
-        await handleResetFilters()
+        handleResetFilters()
     }, [filtersTemplates, handleResetFilters, selectedFiltersTemplate])
 
     const handleFormValuesChange = useCallback(() => {

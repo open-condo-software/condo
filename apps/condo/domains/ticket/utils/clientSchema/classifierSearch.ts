@@ -106,9 +106,11 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         return rules
     }
 
-    public async search (input: string, type: string): Promise<Options[]> {
+    public async search (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs, limit?: number): Promise<Options[]> {
+        const maxSearchCount = limit ? limit : MAX_SEARCH_COUNT
+
         if (isEmpty(input)) {
-            return this[type].slice(0, MAX_SEARCH_COUNT)
+            return this[type].slice(0, maxSearchCount)
         } else {
             const search = input.toLocaleLowerCase()
             const result = []
@@ -116,11 +118,11 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
                 if (classifier.name.toLowerCase().indexOf(search) !== -1) {
                     result.push(classifier)
                 }
-                if (result.length > MAX_SEARCH_COUNT) {
+                if (result.length > maxSearchCount) {
                     break
                 }
             }
-            //const result = this[type].filter(place => place.name.toLowerCase().indexOf(search) !== -1)
+
             return result
         }
     }
