@@ -86,24 +86,53 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
         return filter<TicketClassifier>(this.rules, query)
     }
 
-    public async findRulesBySelectedClassifiers (place, category, problem): Promise<TicketClassifier[]> {
-        const rules = this.rules.filter(rule => {
-            if (!isEmpty(place) && !place.includes(rule.place.id)) {
-                return false
+    public findRulesBySelectedClassifiers (type, place, category, problem): TicketClassifier[] {
+        const placeIsEmpty = isEmpty(place)
+        const categoryIsEmpty = isEmpty(category)
+        const problemIsEmpty = isEmpty(problem)
+
+        if (placeIsEmpty && categoryIsEmpty && problemIsEmpty) {
+            return this.rules
+        }
+
+        switch (type) {
+            case 'place': {
+                if (!placeIsEmpty && categoryIsEmpty && problemIsEmpty) {
+                    return this.rules
+                }
+                break
             }
 
-            if (!isEmpty(category) && !category.includes(rule.category.id)) {
-                return false
+            case 'category': {
+                if (placeIsEmpty && !categoryIsEmpty && problemIsEmpty) {
+                    return this.rules
+                }
+                break
             }
 
-            if (!isEmpty(problem) && (!rule.problem || !problem.includes(rule.problem.id))) {
-                return false
+            case 'problem': {
+                if (placeIsEmpty && categoryIsEmpty && !problemIsEmpty) {
+                    return this.rules
+                }
+                break
+            }
+        }
+
+        return this.rules.filter(rule => {
+            if (!placeIsEmpty && place.includes(rule.place.id)) {
+                return true
             }
 
-            return true
+            if (!categoryIsEmpty && category.includes(rule.category.id)) {
+                return true
+            }
+
+            if (!problemIsEmpty && rule.problem && problem.includes(rule.problem.id)) {
+                return true
+            }
+
+            return false
         })
-
-        return rules
     }
 
     public async search (input: string, type: string, variables: QueryAllTicketCategoryClassifiersArgs, limit?: number): Promise<Options[]> {
