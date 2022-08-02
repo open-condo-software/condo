@@ -13,7 +13,7 @@ const { TicketComment: TicketCommentGQL } = require('@condo/domains/ticket/gql')
 const { TicketPlaceClassifier: TicketPlaceClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketCategoryClassifier: TicketCategoryClassifierGQL } = require('@condo/domains/ticket/gql')
 const { TicketProblemClassifier: TicketProblemClassifierGQL } = require('@condo/domains/ticket/gql')
-const { TicketClassifierRule: TicketClassifierRuleGQL } = require('@condo/domains/ticket/gql')
+const { TicketClassifier: TicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketSource: TicketSourceGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
@@ -36,7 +36,7 @@ const TicketSource = generateServerUtils(TicketSourceGQL)
 const TicketPlaceClassifier = generateServerUtils(TicketPlaceClassifierGQL)
 const TicketCategoryClassifier = generateServerUtils(TicketCategoryClassifierGQL)
 const TicketProblemClassifier = generateServerUtils(TicketProblemClassifierGQL)
-const TicketClassifierRule = generateServerUtils(TicketClassifierRuleGQL)
+const TicketClassifier = generateServerUtils(TicketClassifierGQL)
 
 const ResidentTicket = generateServerUtils(ResidentTicketGQL)
 
@@ -92,7 +92,7 @@ const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt
             ['Property', 'property', 'deletedAt'],
             ['TicketStatus', 'status', 'type'],
             ['TicketSource', 'source', 'name'],
-            ['TicketClassifierRule', 'classifier', 'id'],
+            ['TicketClassifier', 'classifier', 'id'],
         ],
         multipleRelations: [
             [
@@ -149,7 +149,7 @@ const loadTicketCommentsForExcelExport = async ({ ticketIds = [], sortBy = ['cre
 
 const loadClassifiersForExcelExport = async ({ rulesIds = [] }) => {
     const ticketClassifiersLoader = new GqlWithKnexLoadList({
-        listKey: 'TicketClassifierRule',
+        listKey: 'TicketClassifier',
         fields: 'id category place problem',
         singleRelations: [
             ['TicketCategoryClassifier', 'category', 'name'],
@@ -173,7 +173,7 @@ module.exports = {
     TicketPlaceClassifier,
     TicketCategoryClassifier,
     TicketProblemClassifier,
-    TicketClassifierRule,
+    TicketClassifier,
     ResidentTicket,
     TicketSource,
     loadTicketsBatchForExcelExport,

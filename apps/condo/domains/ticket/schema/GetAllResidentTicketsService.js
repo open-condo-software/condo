@@ -15,7 +15,7 @@ const fieldsObj = {
     unitName: 'String',
     status: 'TicketStatus',
     source: 'TicketSource',
-    classifier: 'TicketClassifierRule',
+    classifier: 'TicketClassifier',
     isEmergency: 'Boolean',
     isWarranty: 'Boolean',
     isPaid: 'Boolean',

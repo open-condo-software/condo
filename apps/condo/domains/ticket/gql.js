@@ -151,8 +151,8 @@ const TicketCategoryClassifier = generateGqlQueries('TicketCategoryClassifier', 
 const TICKET_PROBLEM_CLASSIFIER_FIELDS = `{ organization { id } name ${COMMON_FIELDS} }`
 const TicketProblemClassifier = generateGqlQueries('TicketProblemClassifier', TICKET_PROBLEM_CLASSIFIER_FIELDS)
 
-const TICKET_CLASSIFIER_RULE_FIELDS = `{ place { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
-const TicketClassifierRule = generateGqlQueries('TicketClassifierRule', TICKET_CLASSIFIER_RULE_FIELDS)
+const TICKET_CLASSIFIER_FIELDS = `{ place { id name } category { id name } problem { id name } ${COMMON_FIELDS} }`
+const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIER_FIELDS)
 
 const TICKET_FILTER_FIELDS = '{ completedAt lastCommentAt organization number createdAt status details property address division clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier clientPhone author contactIsNull }'
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
@@ -210,7 +210,7 @@ module.exports = {
     TicketPlaceClassifier,
     TicketCategoryClassifier,
     TicketProblemClassifier,
-    TicketClassifierRule,
+    TicketClassifier,
     RESIDENT_TICKET_FIELDS,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     TicketFilterTemplate,

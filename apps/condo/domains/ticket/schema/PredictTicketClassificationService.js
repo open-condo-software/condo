@@ -48,7 +48,7 @@ const PredictTicketClassificationService = new GQLCustomSchema('PredictTicketCla
     queries: [
         {
             access: canPredictTicketClassification,
-            schema: 'predictTicketClassification (data: PredictTicketClassificationInput!): TicketClassifierRule',
+            schema: 'predictTicketClassification (data: PredictTicketClassificationInput!): TicketClassifier',
             resolver: async (parent, args, context) => {
                 const { data: { details } } = args
                 const { endpoint, authKey, workspace } = ML_SPACE_TICKET_CLASSIFIER
@@ -70,11 +70,11 @@ const PredictTicketClassificationService = new GQLCustomSchema('PredictTicketCla
                 }
                 const result = await response.json()
                 const { prediction: [id] } = result
-                const ticketClassifierRule = await getById('TicketClassifierRule', id)
-                if (!ticketClassifierRule) {
+                const ticketClassifier = await getById('TicketClassifier', id)
+                if (!ticketClassifier) {
                     throw new GQLError(errors.TICKET_RULE_NOT_FOUND, context)
                 }
-                return ticketClassifierRule
+                return ticketClassifier
             },
         },
     ],

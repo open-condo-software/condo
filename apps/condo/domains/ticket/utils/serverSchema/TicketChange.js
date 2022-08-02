@@ -70,7 +70,7 @@ const ticketChangeDisplayNameResolversForSingleRelations = {
     },
     'classifier': async (itemId) => {
         if (!itemId) return null
-        const classifierGetById = await getById('TicketClassifierRule', itemId)
+        const classifierGetById = await getById('TicketClassifier', itemId)
         const placeClassifier = await getById('TicketPlaceClassifier', classifierGetById.place)
         const categoryClassifier = await getById('TicketCategoryClassifier', classifierGetById.category)
         let problemClassifier = null

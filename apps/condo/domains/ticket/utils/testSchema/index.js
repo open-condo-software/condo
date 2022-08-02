@@ -20,7 +20,7 @@ const {
     TicketPlaceClassifier: TicketPlaceClassifierGQL,
     TicketCategoryClassifier: TicketCategoryClassifierGQL,
     TicketProblemClassifier: TicketProblemClassifierGQL,
-    TicketClassifierRule: TicketClassifierRuleGQL,
+    TicketClassifier: TicketClassifierGQL,
 } = require('@condo/domains/ticket/gql')
 const { ResidentTicket: ResidentTicketGQL } = require('@condo/domains/ticket/gql')
 const { TicketFilterTemplate: TicketFilterTemplateGQL } = require('@condo/domains/ticket/gql')
@@ -48,7 +48,7 @@ const TicketComment = generateGQLTestUtils(TicketCommentGQL)
 const TicketPlaceClassifier = generateGQLTestUtils(TicketPlaceClassifierGQL)
 const TicketCategoryClassifier = generateGQLTestUtils(TicketCategoryClassifierGQL)
 const TicketProblemClassifier = generateGQLTestUtils(TicketProblemClassifierGQL)
-const TicketClassifierRule = generateGQLTestUtils(TicketClassifierRuleGQL)
+const TicketClassifier = generateGQLTestUtils(TicketClassifierGQL)
 const ResidentTicket = generateGQLTestUtils(ResidentTicketGQL)
 const TicketFilterTemplate = generateGQLTestUtils(TicketFilterTemplateGQL)
 const TicketCommentFile = generateGQLTestUtils(TicketCommentFileGQL)
@@ -302,7 +302,7 @@ async function updateTestTicketProblemClassifier (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestTicketClassifierRule (client, extraAttrs = {}) {
+async function createTestTicketClassifier (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const admin = await makeLoggedInAdminClient()
@@ -317,11 +317,11 @@ async function createTestTicketClassifierRule (client, extraAttrs = {}) {
         problem: { connect: { id: problem.id } },
         ...extraAttrs,
     }
-    const obj = await TicketClassifierRule.create(client, attrs)
+    const obj = await TicketClassifier.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestTicketClassifierRule (client, id, extraAttrs = {}) {
+async function updateTestTicketClassifier (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -330,7 +330,7 @@ async function updateTestTicketClassifierRule (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await TicketClassifierRule.update(client, id, attrs)
+    const obj = await TicketClassifier.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -684,9 +684,9 @@ module.exports = {
     TicketPlaceClassifier,
     TicketCategoryClassifier,
     TicketProblemClassifier,
-    TicketClassifierRule,
+    TicketClassifier,
     TicketComment, createTestTicketComment, updateTestTicketComment,
-    createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier, createTestTicketClassifierRule, updateTestTicketClassifierRule,
+    createTestTicketPlaceClassifier, updateTestTicketPlaceClassifier, createTestTicketCategoryClassifier, updateTestTicketCategoryClassifier, createTestTicketProblemClassifier, updateTestTicketProblemClassifier, createTestTicketClassifier, updateTestTicketClassifier,
     createResidentTicketByTestClient,
     updateResidentTicketByTestClient,
     TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate,
