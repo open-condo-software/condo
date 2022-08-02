@@ -364,6 +364,10 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...',
             type: Json,
         },
+        deferredUntil: {
+            schemaDoc: 'Date until which the ticket is deferred',
+            type: DateTimeUtc,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
