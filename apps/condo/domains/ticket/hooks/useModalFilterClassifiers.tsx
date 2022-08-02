@@ -62,7 +62,7 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
         const selectedCategories = form.getFieldValue('categoryClassifier')
         const selectedProblems = form.getFieldValue('problemClassifier')
 
-        const rules = ClassifierLoader.findRulesBySelectedClassifiers(selectedPlaces, selectedCategories, selectedProblems)
+        const rules = ClassifierLoader.findRulesBySelectedClassifiers(type, selectedPlaces, selectedCategories, selectedProblems)
 
         setOptions(ClassifierLoader.rulesToOptions(rules, type))
         setOpen(true)
