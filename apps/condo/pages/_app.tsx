@@ -165,17 +165,20 @@ const MyApp = ({ Component, pageProps }) => {
     } = useEndTrialSubscriptionReminderPopup()
 
     // Use UI interfaces for all tasks, that are supposed to be tracked
-    const { TicketExportTask } = useTicketExportTaskUIInterface()
+    const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketExportTasks } = TicketExportTask.storage.useTasks({ status: TASK_STATUS.PROCESSING })
+    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
     const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
     // ... another task records should be loaded here
 
-    const initialTaskRecords = useMemo(() => [...miniAppTasks], [miniAppTasks])
-    const uiInterfaces = useMemo(() => ({ MiniAppTask: MiniAppTaskUIInterface }), [MiniAppTaskUIInterface])
+    const initialTaskRecords = useMemo(() => [...miniAppTasks, ...ticketExportTasks], [miniAppTasks, ticketExportTasks])
+    const uiInterfaces = useMemo(() => ({
+        MiniAppTask: MiniAppTaskUIInterface,
+        TicketExportTask: TicketExportTaskUIInterface,
+    }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface])
     
 
     return (
@@ -194,7 +197,7 @@ const MyApp = ({ Component, pageProps }) => {
                             <OnBoardingProvider>
                                 <SubscriptionProvider>
                                     <TasksContextProvider
-                                        initialTaskRecords={initialTaskRecords}
+                                        preloadedTaskRecords={initialTaskRecords}
                                         uiInterfaces={uiInterfaces}
                                     >
                                         <GlobalAppsContainer/>
