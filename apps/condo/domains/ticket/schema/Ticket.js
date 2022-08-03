@@ -388,6 +388,14 @@ const Ticket = new GQLListSchema('Ticket', {
                 }
             }
 
+            if (userType === RESIDENT && operation === 'create') {
+                overrideTicketFieldsForResidentUserType(context, resolvedData)
+                await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
+                setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
+            }
+
+            await connectContactToTicket(context, resolvedData, existingItem)
+
             // When creating ticket or updating ticket address,
             // if client is not passed in resolvedData,
             // we find a registered user with a phone number that matches the contact's phone number
@@ -401,14 +409,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     await setClientIfContactPhoneAndTicketAddressMatchesResidentFields(operation, resolvedData, existingItem)
                 }
             }
-
-            if (userType === RESIDENT && operation === 'create') {
-                overrideTicketFieldsForResidentUserType(context, resolvedData)
-                await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
-                setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
-            }
-
-            await connectContactToTicket(context, resolvedData, existingItem)
 
             const newItem = { ...existingItem, ...resolvedData }
             const propertyId = get(newItem, 'property', null)

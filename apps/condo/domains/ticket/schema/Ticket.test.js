@@ -1384,6 +1384,34 @@ describe('Ticket', () => {
                     expect(readTicket.client.id).toEqual(residentClient.user.id)
                 })
             })
+
+            test('should be filled automatically on ticket with isResidentTicket creation if clientPhone number and ticket address matches the resident phone number and address', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone, name } = residentClient.userAttrs
+
+                await createTestResident(admin, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+                const [ticket] = await createTestTicket(admin, organization, property, {
+                    unitName,
+                    unitType,
+                    clientPhone: phone,
+                    clientName: name,
+                    isResidentTicket: true,
+                    canReadByResident: true,
+                })
+
+                const readTicket = await Ticket.getOne(residentClient, { id: ticket.id })
+
+                expect(readTicket.client.id).toEqual(residentClient.user.id)
+            })
         })
 
         describe('contact', function () {
