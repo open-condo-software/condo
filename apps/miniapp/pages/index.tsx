@@ -13,17 +13,11 @@ import { useOrganization } from '@miniapp/domains/common/utils/organization'
 
 const { publicRuntimeConfig: { condoUrl } } = getConfig()
 
-const IndexPage = () => {
+const TasksExample = () => {
     const intl = useIntl()
-    const auth = useOidcAuth()
-    const organizationData = useOrganization()
-
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
     const TasksTitleMsg = intl.formatMessage({ id: 'pages.index.tasks.Title' })
     const TasksAddMsg = intl.formatMessage({ id: 'pages.index.tasks.Add' })
     const TasksUpdateMsg = intl.formatMessage({ id: 'pages.index.tasks.Update' })
-    const userDataMsg = intl.formatMessage({ id: 'UserData' })
-    const organizationDataMsg = intl.formatMessage({ id: 'OrganizationData' })
 
     const [latestTaskRecord, setLatestTaskRecord] = useState({})
 
@@ -40,7 +34,7 @@ const IndexPage = () => {
         }
         const message = {
             type: 'task',
-            command: 'add',
+            command: 'create',
             record,
         }
         setLatestTaskRecord(record)
@@ -63,6 +57,34 @@ const IndexPage = () => {
 
     return (
         <>
+            <Typography.Title level={2}>
+                {TasksTitleMsg}
+            </Typography.Title>
+            <Button onClick={postMessageToAddTask} type="primary">
+                {TasksAddMsg}
+            </Button>
+            <Typography.Paragraph>
+                Latest added task: {JSON.stringify(latestTaskRecord, null, '\t')}
+            </Typography.Paragraph>
+
+            <Button onClick={postMessageToUpdateTask} type="primary">
+                {TasksUpdateMsg}
+            </Button>
+        </>
+    )
+}
+
+const IndexPage = () => {
+    const intl = useIntl()
+    const auth = useOidcAuth()
+    const organizationData = useOrganization()
+
+    const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
+    const userDataMsg = intl.formatMessage({ id: 'UserData' })
+    const organizationDataMsg = intl.formatMessage({ id: 'OrganizationData' })
+
+    return (
+        <>
             <Head>
                 <title>{PageTitleMsg}</title>
             </Head>
@@ -82,19 +104,7 @@ const IndexPage = () => {
                         </Typography.Text>
                     </Typography.Paragraph>
 
-                    <Typography.Title level={2}>
-                        {TasksTitleMsg}
-                    </Typography.Title>
-                    <Button onClick={postMessageToAddTask} type="primary">
-                        {TasksAddMsg}
-                    </Button>
-                    <Typography.Paragraph>
-                        Latest added task: {JSON.stringify(latestTaskRecord, null, '\t')}
-                    </Typography.Paragraph>
-
-                    <Button onClick={postMessageToUpdateTask} type="primary">
-                        {TasksUpdateMsg}
-                    </Button>
+                    <TasksExample/>
                 </PageContent>
             </PageWrapper>
         </>
