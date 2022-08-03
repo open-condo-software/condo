@@ -573,7 +573,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                         validateTrigger={MODAL_FORM_VALIDATE_TRIGGER}
                         handleSubmit={handleSubmit}
                         onChange={handleFormValuesChange}
-                        propsForm={form}
+                        formInstance={form}
                     >
                         {
                             ({ handleSave }) => {
