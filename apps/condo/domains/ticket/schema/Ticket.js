@@ -16,6 +16,7 @@ const {
     JSON_EXPECT_OBJECT_ERROR,
     STATUS_UPDATED_AT_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
+    WRONG_VALUE,
 } = require('@condo/domains/common/constants/errors')
 const {
     CLIENT_PHONE_LANDLINE_FIELD,
@@ -44,8 +45,9 @@ const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
-const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES } = require('../constants')
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('../constants')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const dayjs = require('dayjs')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -367,11 +369,27 @@ const Ticket = new GQLListSchema('Ticket', {
         deferredUntil: {
             schemaDoc: 'Date until which the ticket is deferred',
             type: DateTimeUtc,
+            hooks: {
+                validateInput: async ({ resolvedData, addFieldValidationError, existingItem, originalInput }) => {
+                    if (!resolvedData.deferredUntil) return
+
+                    const deferredUntil = dayjs(resolvedData.deferredUntil)
+                    const currentDate = dayjs()
+                    const differenceInDays = deferredUntil.diff(currentDate, 'days')
+
+                    if (differenceInDays < 0) {
+                        return addFieldValidationError(`${WRONG_VALUE} the value of the "deferredUntil" field must be greater than the current date`)
+                    }
+                    if (differenceInDays > 365) {
+                        return addFieldValidationError(`${WRONG_VALUE} the value of the "deferredUntil" field must be no more than 1 year old than the current date`)
+                    }
+                },
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
-        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem, originalInput }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
@@ -389,6 +407,10 @@ const Ticket = new GQLListSchema('Ticket', {
 
                     calculateReopenedCounter(existingItem, resolvedData, existedStatus, resolvedStatus)
                     calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
+
+                    if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
+                        resolvedData.deferredUntil = get(originalInput, 'deferredUntil', dayjs().toISOString())
+                    }
                 }
             }
 
@@ -459,6 +481,14 @@ const Ticket = new GQLListSchema('Ticket', {
                         return addValidationError(`${ STATUS_UPDATED_AT_ERROR }statusUpdatedAt] Incorrect \`statusUpdatedAt\``)
                     }
                 }
+            }
+
+            const newItem = { ...existingItem, ...resolvedData }
+
+            const status = await getById('TicketStatus', newItem.status)
+
+            if (!newItem.deferredUntil && status.type === DEFERRED_STATUS_TYPE) {
+                return addValidationError(`${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
             }
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
