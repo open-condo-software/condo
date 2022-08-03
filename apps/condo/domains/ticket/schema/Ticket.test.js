@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
@@ -52,7 +53,13 @@ const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/t
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
-const { REVIEW_VALUES } = require('../constants')
+const {
+    REVIEW_VALUES,
+    DEFERRED_STATUS_TYPE,
+    CANCELED_STATUS_TYPE,
+    NEW_OR_REOPENED_STATUS_TYPE
+} = require('../constants')
+const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
 
 describe('Ticket', () => {
     describe('CRUD', () => {
@@ -96,6 +103,7 @@ describe('Ticket', () => {
             expect(obj.executor).toEqual(null)
             expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
             expect(obj.completedAt).toEqual(null)
+            expect(obj.deferredUntil).toEqual(null)
         })
 
         test('user: create Ticket without status', async () => {
@@ -1660,6 +1668,88 @@ describe('Ticket', () => {
                 expect(updatedTicket2.completedAt).toMatch(DATETIME_RE)
                 expect(dayjs(updatedTicket2.completedAt).isAfter(updatedTicket.completedAt)).toBeTruthy()
             })
+        })
+
+        describe('deferredUntil and status', () => {
+            test('deferredUntil is null should not be with status "deferred"', async () => {
+                const client = await makeClientWithProperty()
+
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        status: { connect: { id: STATUS_IDS.DEFERRED } },
+                    })
+                }, `${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
+            })
+            test('"deferredUntil" field must be no more than 1 year old than the current date', async () => {
+                const deferredUntil = dayjs().add(2, 'years').toISOString()
+                const client = await makeClientWithProperty()
+
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil,
+                    })
+                }, `${WRONG_VALUE} the value of the "deferredUntil" field must be no more than 1 year old than the current date`)
+            })
+            test('the value of the "deferredUntil" field must be greater than the current date', async () => {
+                const deferredUntil = dayjs().subtract(1, 'days').toISOString()
+                const client = await makeClientWithProperty()
+
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil,
+                    })
+                }, `${WRONG_VALUE} the value of the "deferredUntil" field must be greater than the current date`)
+            })
+        })
+    })
+
+    describe('deferred tickets', () => {
+        describe('changing the status from "Postponed" to any other without "deferredUntil", the value of the "postponedUntil" field is changed to the current date.', () => {
+            const cases = [[NEW_OR_REOPENED_STATUS_TYPE, STATUS_IDS.OPEN], [CANCELED_STATUS_TYPE, STATUS_IDS.DECLINED]]
+            test.each(cases)('change ticket status from "deferred" to %p', async (statusType, statusId) => {
+                const client = await makeClientWithProperty()
+                const deferredUntil = dayjs().add(2, 'days').toISOString()
+
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil,
+                })
+
+                const [updatedTicket, updatedAttrs] = await updateTestTicket(client, ticket.id, {
+                    status: { connect: { id: statusId } },
+                })
+
+                const differenceDays = dayjs().diff(dayjs(updatedTicket.deferredUntil), 'days')
+
+                expect(differenceDays).toEqual(0)
+                expect(updatedTicket.status).toEqual(expect.objectContaining({ id: updatedAttrs.status.connect.id }))
+            })
+        })
+        test('deferredUntil is null should not be with status "deferred"', async () => {
+            const client = await makeClientWithProperty()
+
+            const [ticket, attrs] = await createTestTicket(client, client.organization, client.property, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(ticket.deferredUntil).toEqual(null)
+            expect(ticket.status).toEqual(expect.objectContaining({ id: attrs.status.connect.id }))
+        })
+        test('should can change "postponedUntil" field', async () => {
+            const client = await makeClientWithProperty()
+            let deferredUntil = dayjs().add(2, 'days').toISOString()
+
+            const [ticket, attrs] = await createTestTicket(client, client.organization, client.property, {
+                status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil,
+            })
+
+            deferredUntil = dayjs().add(10, 'days').toISOString()
+
+            const [updatedTicket] = await updateTestTicket(client, ticket.id, {
+                deferredUntil,
+            })
+
+            expect(updatedTicket.deferredUntil).toEqual(deferredUntil)
+            expect(updatedTicket.status).toEqual(expect.objectContaining({ id: attrs.status.connect.id }))
         })
     })
 
