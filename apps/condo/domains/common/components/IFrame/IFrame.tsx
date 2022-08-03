@@ -129,7 +129,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
         const preFetch = async () => {
             if (isOnClient) {
                 try {
-                    const result = await fetch(pageUrl, { method: 'HEAD' })
+                    const result = await fetch(pageUrl, { method: 'HEAD', redirect: 'manual' })
                     if (result.status >= 400) {
                         setIsError(true)
                     }
