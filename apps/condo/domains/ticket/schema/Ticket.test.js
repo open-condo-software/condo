@@ -57,7 +57,7 @@ const {
     REVIEW_VALUES,
     DEFERRED_STATUS_TYPE,
     CANCELED_STATUS_TYPE,
-    NEW_OR_REOPENED_STATUS_TYPE
+    NEW_OR_REOPENED_STATUS_TYPE,
 } = require('../constants')
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
 
@@ -1679,6 +1679,30 @@ describe('Ticket', () => {
                         status: { connect: { id: STATUS_IDS.DEFERRED } },
                     })
                 }, `${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
+            })
+            test(`should not create ticket with "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE}`, async () => {
+                const deferredUntil = dayjs().add(2, 'days').toISOString()
+                const client = await makeClientWithProperty()
+
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestTicket(client, client.organization, client.property, {
+                        status: { connect: { id: STATUS_IDS.OPEN } }, deferredUntil,
+                    })
+                }, `${WRONG_VALUE} should not create ticket with "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE}`)
+            })
+            test(`should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`, async () => {
+                const deferredUntil = dayjs().add(2, 'days').toISOString()
+                const client = await makeClientWithProperty()
+
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    status: { connect: { id: STATUS_IDS.OPEN } },
+                })
+
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestTicket(client, ticket.id, {
+                        deferredUntil,
+                    })
+                }, `${WRONG_VALUE} should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`)
             })
             test('"deferredUntil" field must be no more than 1 year old than the current date', async () => {
                 const deferredUntil = dayjs().add(2, 'years').toISOString()
