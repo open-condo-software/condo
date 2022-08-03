@@ -1,4 +1,5 @@
 import React from 'react'
+import { User } from '../../../../schema'
 
 // Should be used in case when there is no technical way to tell exactly the progress of the task
 export const TASK_PROGRESS_UNKNOWN = 'TASK_PROGRESS_UNKNOWN'
@@ -27,6 +28,15 @@ export type TaskRecord = {
     progress: TaskRecordProgress
 
     status: TASK_STATUS
+
+    // User, that has launched this task.
+    // This field will be used for filtering tasks in frontend to display to current user only its own tasks.
+    // Filtering on backend is not enough because for User with `isAdmin` flag we need to:
+    // - return all tasks in Keystone admin section
+    // - return only his own tasks in "public" section
+    user: {
+        id: string,
+    }
     
     // Used to find appropriate `ITask` interface implementation for this record
     __typename: string
@@ -67,7 +77,7 @@ type TasksWhereCondition = {
  * Storage-agnostic task query and management operations
  */
 export interface ITasksStorage {
-    useTasks: (where: TasksWhereCondition) => { records: TaskRecord[] }
+    useTasks: (where: TasksWhereCondition, user: User) => { records: TaskRecord[] }
     useTask: (id: string) => { record: TaskRecord, stopPolling: StopPollingFunction }
     useCreateTask: UseCreateTaskFunction,
     useUpdateTask: UseUpdateTaskFunction,

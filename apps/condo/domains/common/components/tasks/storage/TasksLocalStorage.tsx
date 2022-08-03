@@ -23,16 +23,19 @@ const isServerSide = typeof window === 'undefined'
  */
 export class TasksLocalStorage implements ITasksStorage {
 
-    useTasks ({ status }) {
+    useTasks ({ status }, user) {
         if (isServerSide) {
             // Gracefully return empty results in SSR mode, no need to throw errors or do something extra
+            return { records: [] }
+        }
+        if (!user) {
             return { records: [] }
         }
         const tasks = this.getAllItemsFromStorage()
         if (!status) {
             return tasks
         }
-        const records = tasks.filter(task => task.status === status)
+        const records = tasks.filter(task => task.status === status && task.user && task.user.id === user.id)
         return { records }
     }
 
