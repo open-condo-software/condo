@@ -21,3 +21,7 @@ Use: `yarn workspace @app/condo node ./bin/delete-meters-by-property-ids.js prop
 # Remove legacy tables and columns
 
 Use: `yarn workspace @app/condo node ./bin/fix-database-migration-state.js` command
+
+# Changing Organization inn
+
+Use: `yarn workspace @app/condo node ./bin/change-organization-inn.js <org_id> <new_inn>` command
