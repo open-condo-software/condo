@@ -24,7 +24,7 @@ const RESEND_MESSAGE = gql`
     }
 `
 
-const REMOTE_CLIENT_FIELDS = `{deviceId appId pushToken pushTransport devicePlatform meta owner { id } ${COMMON_FIELDS}}`
+const REMOTE_CLIENT_FIELDS = `{deviceId appId pushToken pushTransport devicePlatform meta owner { id, type } ${COMMON_FIELDS}}`
 
 const RemoteClient = generateGqlQueries('RemoteClient', REMOTE_CLIENT_FIELDS)
 

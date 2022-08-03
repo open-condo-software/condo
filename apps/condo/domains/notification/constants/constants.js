@@ -38,6 +38,8 @@ const BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE = 'BILLING_RECEIPT_AVAILABLE_NO_
 const BILLING_RECEIPT_ADDED_TYPE = 'BILLING_RECEIPT_ADDED'
 const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
 const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
+const RESIDENT_UPGRADE_APP_TYPE = 'RESIDENT_UPGRADE_APP'
+const STAFF_UPGRADE_APP_TYPE = 'STAFF_UPGRADE_APP'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -66,6 +68,8 @@ const MESSAGE_TYPES = [
     BILLING_RECEIPT_ADDED_TYPE,
     BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
+    RESIDENT_UPGRADE_APP_TYPE,
+    STAFF_UPGRADE_APP_TYPE,
 ]
 
 /**
@@ -313,6 +317,22 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
+    [RESIDENT_UPGRADE_APP_TYPE]: {
+        dv: { required: true },
+        data: {
+            userId: { required: true },
+            userType: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [STAFF_UPGRADE_APP_TYPE]: {
+        dv: { required: true },
+        data: {
+            userId: { required: true },
+            userType: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -414,4 +434,6 @@ module.exports = {
     DEVICE_PLATFORM_ANDROID,
     DEVICE_PLATFORM_IOS,
     DEVICE_PLATFORM_WEB,
+    RESIDENT_UPGRADE_APP_TYPE,
+    STAFF_UPGRADE_APP_TYPE,
 }

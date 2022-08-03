@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 
 const DATE_FORMAT = 'YYYY-MM-DD'
+const DATE_FORMAT_Z = 'YYYY-MM-DDTHH:mm:ssZ[Z]'
 
 /**
  * Returns date adjusted to first day of the month. Can be formatted to DATE_FORMAT
@@ -33,4 +34,5 @@ module.exports = {
     getMonthStart,
     getStartDates,
     DATE_FORMAT,
+    DATE_FORMAT_Z,
 }

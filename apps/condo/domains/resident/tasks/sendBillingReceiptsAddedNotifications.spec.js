@@ -5,7 +5,6 @@ const { setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/t
 
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
-    BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')

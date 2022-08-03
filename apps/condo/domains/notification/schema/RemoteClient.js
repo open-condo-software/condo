@@ -8,7 +8,6 @@ const { Json } = require('@core/keystone/fields')
 const { GQLListSchema } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
-const { SENDER_FIELD, DV_FIELD } = require('@condo/domains/common/schema/fields')
 const { REQUIRED_NO_VALUE_ERROR, VALUE_TOO_SHORT } = require('@condo/domains/common/constants/errors')
 
 const access = require('@condo/domains/notification/access/RemoteClient')
@@ -16,7 +15,7 @@ const access = require('@condo/domains/notification/access/RemoteClient')
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES } = require('../constants/constants')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
-const APP_ID_MIN_LENGTH = 14
+const APP_ID_MIN_LENGTH = 7
 
 const RemoteClient = new GQLListSchema('RemoteClient', {
     schemaDoc:  'Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. ' +
