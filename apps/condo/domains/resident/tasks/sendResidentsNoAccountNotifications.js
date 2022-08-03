@@ -1,6 +1,6 @@
 const pino = require('pino')
 const falsey = require('falsey')
-const { get, isEmpty, uniq, isNull } = require('lodash')
+const { get, isEmpty, uniq } = require('lodash')
 const dayjs = require('dayjs')
 
 const conf = require('@core/config')
@@ -9,7 +9,7 @@ const { getRedisClient } = require('@core/keystone/redis')
 
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
-const { getStartDates, DATE_FORMAT } = require('@condo/domains/common/utils/date')
+const { getStartDates, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
@@ -185,7 +185,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     const redisClient = getRedisClient()
 
     const { thisMonthStart } = getStartDates()
-    const today = dayjs().format(DATE_FORMAT)
+    const today = dayjs().format(DATE_FORMAT_Z)
     const requestPeriod = period || thisMonthStart
     const contextWhere = { status: CONTEXT_FINISHED_STATUS, deletedAt: null }
     const billingContexts = billingContextId
@@ -200,7 +200,6 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
 
     for (const billingContext of billingContexts) {
         const redisVarName = `${REDIS_LAST_DATE_KEY}-${period}-${billingContext.id}`
-        const handleLastDtChange = async (createdAt) => { await redisClient.set(redisVarName, createdAt) }
 
         /**
          * This represents min value for billingReceipt createdAt to start processing from
@@ -220,7 +219,10 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         logger.info({ message: 'Processing data for:', organization: billingContext.organization.name, organizationId: billingContext.organization.id })
 
         await sendResidentsNoAccountNotificationsForContext(billingContext, receiptsWhere)
-        await handleLastDtChange(today)
+        /**
+         * Store datetime for period + billingContext, so that for next execution continue from billing receipts added after this datetime moment.
+         */
+        await redisClient.set(redisVarName, today)
     }
 }
 

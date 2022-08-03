@@ -163,7 +163,7 @@ describe('RemoteClient', () => {
             const admin = await makeLoggedInAdminClient()
 
             await expectToThrowValidationFailureError(
-                async () => await createTestRemoteClient(admin, { appId: faker.datatype.uuid().substring(0, 10) }),
+                async () => await createTestRemoteClient(admin, { appId: faker.datatype.uuid().substring(0, 5) }),
                 '[value:tooShort:appId] Value is too short',
             )
         })
