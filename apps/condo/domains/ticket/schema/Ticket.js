@@ -468,7 +468,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
             return resolvedData
         },
-        validateInput: async ({ resolvedData, existingItem, addValidationError, context }) => {
+        validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
             if (resolvedData.statusUpdatedAt) {
@@ -484,10 +484,24 @@ const Ticket = new GQLListSchema('Ticket', {
             }
 
             const newItem = { ...existingItem, ...resolvedData }
+            const resolvedStatus = await getById('TicketStatus', newItem.status)
 
-            const status = await getById('TicketStatus', newItem.status)
+            if (newItem.deferredUntil) {
+                if (operation === 'create') {
+                    if (resolvedStatus.type !== DEFERRED_STATUS_TYPE) {
+                        return addValidationError(`${WRONG_VALUE} should not create ticket with "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE}`)
+                    }
+                }
 
-            if (!newItem.deferredUntil && status.type === DEFERRED_STATUS_TYPE) {
+                if (operation === 'update') {
+                    const existingStatus = await getById('TicketStatus', existingItem.status)
+                    if (existingStatus.type !== DEFERRED_STATUS_TYPE && resolvedStatus.type !== DEFERRED_STATUS_TYPE) {
+                        return addValidationError(`${WRONG_VALUE} should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`)
+                    }
+                }
+            }
+
+            if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
                 return addValidationError(`${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
             }
         },
