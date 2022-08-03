@@ -257,6 +257,7 @@ export const displayTasksProgress = ({ notificationApi, tasks }: IDisplayTasksPr
         key: 'tasks',
         className: 'tasks',
         duration: 0,
+        top: 60,
         description: (
             <TasksProgress tasks={tasks}/>
         ),
