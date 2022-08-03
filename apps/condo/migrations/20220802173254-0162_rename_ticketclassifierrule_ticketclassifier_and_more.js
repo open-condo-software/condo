@@ -14,6 +14,7 @@ exports.up = async (knex) => {
 -- Rename table for ticketclassifier to TicketClassifier
 --
 ALTER TABLE "TicketClassifierRule" RENAME TO "TicketClassifier";
+ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" TO "Ticket_classifier_7a786997_fk_TicketClassifier_id";
 --
 -- Rename table for ticketclassifierhistoryrecord to TicketClassifierHistoryRecord
 --
@@ -34,6 +35,7 @@ ALTER TABLE "TicketClassifierHistoryRecord" RENAME TO "TicketClassifierRuleHisto
 -- Rename table for ticketclassifier to TicketClassifier
 --
 ALTER TABLE "TicketClassifier" RENAME TO "TicketClassifierRule";
+ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifier_id" TO "Ticket_classifier_7a786997_fk_TicketClassifierRule_id";
 --
 -- Rename model ticketclassifierrulehistoryrecord to ticketclassifierhistoryrecord
 --
