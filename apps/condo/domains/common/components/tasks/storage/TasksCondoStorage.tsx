@@ -13,8 +13,11 @@ export class TasksCondoStorage implements ITasksStorage {
         this.clientSchema = clientSchema
     }
 
-    useTasks ({ status }) {
-        const { objs } = this.clientSchema.useObjects({ where: { status } })
+    useTasks ({ status }, user) {
+        if (!user) {
+            return { records: [] }
+        }
+        const { objs } = this.clientSchema.useObjects({ where: { status, user: { id: user.id } } })
         return { records: objs }
     }
 

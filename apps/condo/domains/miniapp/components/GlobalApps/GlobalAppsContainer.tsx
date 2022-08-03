@@ -7,6 +7,7 @@ import isFunction from 'lodash/isFunction'
 import omit from 'lodash/omit'
 import { v4 as uuidV4 } from 'uuid'
 import { MutationEmitter, MUTATION_RESULT_EVENT } from '@core/next/apollo'
+import { useAuth } from '@core/next/auth'
 import { SortB2BAppsBy } from '@app/condo/schema'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
@@ -36,6 +37,7 @@ const MODAL_CLOSE_APP_REASON = 'externalCommand'
 const TASK_GET_PROCESSING_STATUS = 'CondoWebGetProcessingTasks'
 
 export const GlobalAppsContainer: React.FC = () => {
+    const { user } = useAuth()
     const { objs } = B2BApp.useObjects({
         where: {
             isGlobal: true,
@@ -82,8 +84,9 @@ export const GlobalAppsContainer: React.FC = () => {
             progress: message.taskProgress,
             description: message.taskDescription,
             status: message.taskStatus,
-            __typename: 'MiniAppTask',
             sender: event.origin,
+            user,
+            __typename: 'MiniAppTask',
         }
 
         if (message.taskOperation === 'create') {

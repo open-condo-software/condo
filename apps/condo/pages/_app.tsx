@@ -11,7 +11,7 @@ import Head from 'next/head'
 import dayjs from 'dayjs'
 
 import { withApollo } from '@core/next/apollo'
-import { withAuth } from '@core/next/auth'
+import { useAuth, withAuth } from '@core/next/auth'
 import { useIntl, withIntl } from '@core/next/intl'
 import { useOrganization, withOrganization } from '@core/next/organization'
 
@@ -150,14 +150,15 @@ const MenuItems: React.FC = () => {
 }
 
 const TasksProvider = ({ children }) => {
+    const { user } = useAuth()
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
-    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING })
+    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING }, user)
+    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING }, user)
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(() => [...miniAppTasks, ...ticketExportTasks], [miniAppTasks, ticketExportTasks])

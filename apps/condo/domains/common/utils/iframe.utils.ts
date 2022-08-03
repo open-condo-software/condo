@@ -21,7 +21,7 @@ export type RequirementType = 'auth' | 'organization'
 export type LoadingStatuses = 'done'
 
 // TYPES DECLARATION BLOCK
-type TaskMessageType = {
+export type TaskMessageType = {
     id?: string,
     type: 'task',
     taskId: string,
@@ -29,8 +29,10 @@ type TaskMessageType = {
     taskDescription: string,
     taskProgress: number,
     taskStatus: TASK_STATUS,
-    taskOperation: 'create' | 'update',
+    taskOperation: TaskOperationType,
 }
+
+export type TaskProgressPayloadType = Omit<TaskMessageType, 'type' | 'taskOperation'>
 
 type TaskGetMessageType = {
     type: 'task',
@@ -378,7 +380,7 @@ export const sendMessage = (message: Record<string, unknown>, receiver: Window, 
     }
 }
 
-export const sendCreateTaskProgress = (taskProgressPayload: Omit<TaskMessageType, 'type' | 'taskOperation'>, receiver: Window, receiverOrigin: string): void => {
+export const sendCreateTaskProgress = (taskProgressPayload: TaskProgressPayloadType, receiver: Window, receiverOrigin: string): void => {
     sendMessage({
         type: TASK_MESSAGE_TYPE,
         taskOperation: 'create',
@@ -386,7 +388,7 @@ export const sendCreateTaskProgress = (taskProgressPayload: Omit<TaskMessageType
     }, receiver, receiverOrigin)
 }
 
-export const sendUpdateTaskProgress = (taskProgressPayload: Omit<TaskMessageType, 'type' | 'taskOperation'>, receiver: Window, receiverOrigin: string): void => {
+export const sendUpdateTaskProgress = (taskProgressPayload: TaskProgressPayloadType, receiver: Window, receiverOrigin: string): void => {
     sendMessage({
         type: TASK_MESSAGE_TYPE,
         taskOperation: 'update',
