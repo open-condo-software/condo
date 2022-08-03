@@ -15,6 +15,7 @@ const {
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
+    TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -24,10 +25,12 @@ const { Ticket, TicketCommentsTime } = require('./serverSchema')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
+const dayjs = require('dayjs')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
+const TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE = 'TICKET_WITHOUT_RESIDENT_CREATED'
 
 /**
  * Detects possible events within Ticket schema request
@@ -37,8 +40,8 @@ const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
  * @returns {{}}
  */
 const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
-    const isCreateOperation =  operation === 'create'
-    const isUpdateOperation =  operation === 'update'
+    const isCreateOperation = operation === 'create'
+    const isUpdateOperation = operation === 'update'
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
     const prevExecutorId = !isCreateOperation && get(existingItem, 'executor')
     const prevStatusId = !isCreateOperation && get(existingItem, 'status')
@@ -52,6 +55,8 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     const isStatusAdded = isCreateOperation && !!nextStatusId
     const isStatusUpdated = isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
     const client = get(updatedItem, 'client')
+    const isResidentTicket = get(updatedItem, 'isResidentTicket')
+    const canReadByResident = get(updatedItem, 'canReadByResident')
     const result = {}
 
     /**
@@ -78,6 +83,11 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
      */
     result[STATUS_CHANGED_EVENT_TYPE] = client && (isStatusAdded || isStatusUpdated)
 
+    /**
+     * ticket created and the resident does not have a mobile app
+     */
+    result[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] = isCreateOperation && isResidentTicket && !client && canReadByResident
+
     return result
 }
 
@@ -100,6 +110,7 @@ const sendTicketNotifications = async (requestData) => {
     const nextExecutorId = get(updatedItem, 'executor')
     const nextStatusId = get(updatedItem, 'status')
     const clientId = get(updatedItem, 'client')
+    const clientPhone = get(updatedItem, 'clientPhone')
     const statusReopenedCounter = get(updatedItem, 'statusReopenedCounter')
     const createdBy = get(updatedItem, 'createdBy')
     const updatedBy = get(updatedItem, 'updatedBy')
@@ -215,6 +226,29 @@ const sendTicketNotifications = async (requestData) => {
                 },
                 sender: updatedItem.sender,
                 organization: { id: organization.id },
+            })
+        }
+    }
+
+    if (eventTypes[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] && clientPhone) {
+        const today = dayjs().format('YYYY-MM-DD')
+        const uniqKey = `${today}_${clientPhone}`
+
+        const messageWithSameUniqKey = await getByCondition('Message', {
+            uniqKey,
+            type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
+        })
+
+        if (!messageWithSameUniqKey) {
+            await sendMessage(context, {
+                lang,
+                to: { phone: clientPhone },
+                type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
+                uniqKey,
+                meta: {
+                    dv: 1,
+                },
+                sender: updatedItem.sender,
             })
         }
     }
