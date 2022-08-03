@@ -2,6 +2,7 @@ const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { isEmpty } = require('lodash')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
 
 class ChangeOrganizationInn {
     constructor (org_id, new_inn) {
@@ -11,11 +12,7 @@ class ChangeOrganizationInn {
     }
 
     async connect () {
-        const resolved = path.resolve('./index.js')
-        const { distDir, keystone, apps } = require(resolved)
-        const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-        await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-        await keystone.connect()
+        const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp'] })
         this.context = await keystone.createContext({ skipAccessControl: true })
     }
 
