@@ -25,7 +25,8 @@ const {
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
-    MESSAGE_SENT_STATUS,
+    MESSAGE_ERROR_STATUS,
+    MESSAGE_SENT_STATUS, TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 
@@ -50,7 +51,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const {
@@ -1416,7 +1417,7 @@ describe('Ticket', () => {
             })
         })
 
-        describe('contact', function () {
+        describe('contact', () => {
             describe('isResident ticket is true', function () {
                 it('should be created and connected if no contact matches with clientPhone, unitName and unitType', async () => {
                     const admin = await makeLoggedInAdminClient()
@@ -2109,6 +2110,154 @@ describe('Ticket', () => {
                     const messageCount = await Message.count(admin, messageWhere)
                     expect(messageCount).toEqual(0)
                 })
+            })
+        })
+
+        describe('Ticket created', () => {
+            test('send sms after create ticket with isResidentTicket is true and without resident matches contact data', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithProperty()
+
+                const clientName = faker.name.firstName()
+                const clientPhone = createTestPhone()
+                const today = dayjs().format('YYYY-MM-DD')
+
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    isResidentTicket: true,
+                    canReadByResident: true,
+                    clientName,
+                    clientPhone,
+                })
+
+                expect(ticket.client).toBeNull()
+
+                const messageWhere = { phone: clientPhone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const message = await Message.getOne(admin, messageWhere)
+
+                expect(message.id).toMatch(UUID_RE)
+                expect(message.uniqKey).toEqual(`${today}_${clientPhone}`)
+
+                await waitFor(async () => {
+                    const message1 = await Message.getOne(admin, messageWhere)
+
+                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message1.processingMeta.transport).toEqual('sms')
+
+                    const content = message1.processingMeta.messageContext
+
+                    expect(content.phone).toEqual(clientPhone)
+                    expect(content.message).toBeDefined()
+                })
+            })
+
+            test('dont send sms 2 times a day to one number', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithProperty()
+
+                const clientName = faker.name.firstName()
+                const clientPhone = createTestPhone()
+                const today = dayjs().format('YYYY-MM-DD')
+
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    isResidentTicket: true,
+                    canReadByResident: true,
+                    clientName,
+                    clientPhone,
+                })
+
+                expect(ticket.client).toBeNull()
+
+                const messageWhere = { phone: clientPhone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const message = await Message.getOne(admin, messageWhere)
+
+                expect(message.id).toMatch(UUID_RE)
+                expect(message.uniqKey).toEqual(`${today}_${clientPhone}`)
+
+                await createTestTicket(client, client.organization, client.property, {
+                    isResidentTicket: true,
+                    canReadByResident: true,
+                    clientName,
+                    clientPhone,
+                })
+
+                const messages = await Message.getAll(admin, messageWhere)
+
+                expect(messages).toHaveLength(1)
+            })
+
+            test('dont send sms if ticket.isResidentTicket is false', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithProperty()
+
+                const clientName = faker.name.firstName()
+                const clientPhone = createTestPhone()
+
+                await createTestTicket(client, client.organization, client.property, {
+                    isResidentTicket: false,
+                    clientName,
+                    clientPhone,
+                })
+
+                const messageWhere = { phone: clientPhone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const message = await Message.getOne(admin, messageWhere)
+
+                expect(message).toBeUndefined()
+            })
+
+            test('dont send sms if resident matches ticket contact data', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone, name } = residentClient.userAttrs
+
+                await createTestResident(admin, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                await createTestTicket(admin, organization, property, {
+                    isResidentTicket: true,
+                    canReadByResident: true,
+                    clientName: name,
+                    clientPhone: phone,
+                    unitName,
+                    unitType,
+                })
+
+                const messageWhere = { phone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const message = await Message.getOne(admin, messageWhere)
+
+                expect(message).toBeUndefined()
+            })
+
+            test('dont send sms if resident user create ticket', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const { phone } = residentClient.userAttrs
+
+                await createTestResident(admin, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const messageWhere = { phone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const message = await Message.getOne(admin, messageWhere)
+
+                expect(message).toBeUndefined()
             })
         })
     })
