@@ -30,7 +30,7 @@ class ChangeOrganizationInn {
     }
 }
 
-const deleteMetersScript = async (org_id, new_inn) => {
+const changeOrganizationInnScript = async (org_id, new_inn) => {
     if (isEmpty(org_id)) {
         throw new Error('org_id not found!')
     }
@@ -45,7 +45,7 @@ const deleteMetersScript = async (org_id, new_inn) => {
 
 const [org_id, new_inn] = [process.argv[2], process.argv[3]]
 
-deleteMetersScript(org_id, new_inn).then(() => {
+changeOrganizationInnScript(org_id, new_inn).then(() => {
     console.log('\r\n')
     console.log('All done')
     process.exit(0)
