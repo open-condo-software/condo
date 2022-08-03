@@ -12,8 +12,6 @@ import { Gutter } from 'antd/es/grid/row'
 import { TicketFormItem } from './BaseTicketForm'
 import { PREDICT_TICKET_CLASSIFICATION_QUERY } from '@condo/domains/ticket/gql.js'
 import { MIN_DESCRIPTION_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-
 
 interface Options {
     id: string
@@ -153,7 +151,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     const validations = useTicketValidations()
     const ticketForm = useRef(null)
     const hasUserSetClassifier = useRef<boolean>(false)
-    const hasPredictionFeature = hasFeature('classifier')
 
     const stopPredict = useCallback(() => {
         if (!ruleRef.current.category && !ruleRef.current.place) {
@@ -164,7 +161,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     }, [hasUserSetClassifier])
 
     const predictTicketClassifier = async (details) => {
-        if (!hasPredictionFeature || !details || details.length < MIN_DESCRIPTION_LENGTH) {
+        if (!details || details.length < MIN_DESCRIPTION_LENGTH) {
             return
         }
         if (ruleRef.current && (ruleRef.current.category || ruleRef.current.place) && hasUserSetClassifier.current) {
