@@ -149,21 +149,7 @@ const MenuItems: React.FC = () => {
     )
 }
 
-const MyApp = ({ Component, pageProps }) => {
-    const intl = useIntl()
-    useHotCodeReload()
-    dayjs.locale(intl.locale)
-
-    const LayoutComponent = Component.container || BaseLayout
-    // TODO(Dimitreee): remove this mess later
-    const HeaderAction = Component.headerAction
-    const RequiredAccess = Component.requiredAccess || React.Fragment
-
-    const {
-        EndTrialSubscriptionReminderPopup,
-        isEndTrialSubscriptionReminderPopupVisible,
-    } = useEndTrialSubscriptionReminderPopup()
-
+const TasksProvider = ({ children }) => {
     // Use UI interfaces for all tasks, that are supposed to be tracked
     const { TicketExportTask: TicketExportTaskUIInterface } = useTicketExportTaskUIInterface()
     const { MiniAppTask: MiniAppTaskUIInterface } = useMiniappTaskUIInterface()
@@ -179,7 +165,31 @@ const MyApp = ({ Component, pageProps }) => {
         MiniAppTask: MiniAppTaskUIInterface,
         TicketExportTask: TicketExportTaskUIInterface,
     }), [MiniAppTaskUIInterface, TicketExportTaskUIInterface])
-    
+
+    return (
+        <TasksContextProvider
+            preloadedTaskRecords={initialTaskRecords}
+            uiInterfaces={uiInterfaces}
+        >
+            {children}
+        </TasksContextProvider>
+    )
+}
+
+const MyApp = ({ Component, pageProps }) => {
+    const intl = useIntl()
+    useHotCodeReload()
+    dayjs.locale(intl.locale)
+
+    const LayoutComponent = Component.container || BaseLayout
+    // TODO(Dimitreee): remove this mess later
+    const HeaderAction = Component.headerAction
+    const RequiredAccess = Component.requiredAccess || React.Fragment
+
+    const {
+        EndTrialSubscriptionReminderPopup,
+        isEndTrialSubscriptionReminderPopupVisible,
+    } = useEndTrialSubscriptionReminderPopup()
 
     return (
         <>
@@ -196,10 +206,7 @@ const MyApp = ({ Component, pageProps }) => {
                         <TrackingProvider>
                             <OnBoardingProvider>
                                 <SubscriptionProvider>
-                                    <TasksContextProvider
-                                        preloadedTaskRecords={initialTaskRecords}
-                                        uiInterfaces={uiInterfaces}
-                                    >
+                                    <TasksProvider>
                                         <GlobalAppsContainer/>
                                         <LayoutContextProvider>
                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
@@ -213,7 +220,7 @@ const MyApp = ({ Component, pageProps }) => {
                                                 </RequiredAccess>
                                             </LayoutComponent>
                                         </LayoutContextProvider>
-                                    </TasksContextProvider>
+                                    </TasksProvider>
                                 </SubscriptionProvider>
                             </OnBoardingProvider>
                         </TrackingProvider>
