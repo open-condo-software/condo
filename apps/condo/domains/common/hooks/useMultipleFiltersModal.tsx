@@ -40,7 +40,7 @@ import { Loader } from '../components/Loader'
 import { DeleteButtonWithConfirmModal } from '../components/DeleteButtonWithConfirmModal'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 import {
-    ComponentType,
+    ComponentType, FilterComponentSize,
     FilterComponentType,
     FiltersMeta,
     getFiltersModalPopupContainer,
@@ -50,11 +50,6 @@ import {
 import { colors } from '../constants/style'
 import { Tooltip } from '../components/Tooltip'
 import { Ticket } from '@app/condo/schema'
-
-enum FilterComponentSize {
-    Medium = 12,
-    Large = 24,
-}
 
 interface IFilterComponentProps<T> {
     name: string
@@ -262,6 +257,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
         if (!modalFilterComponentWrapper) return
 
         const size = get(modalFilterComponentWrapper, 'size')
+        const spaceSizeAfter = get(modalFilterComponentWrapper, 'spaceSizeAfter')
         const label = get(modalFilterComponentWrapper, 'label')
         const formItemProps = get(modalFilterComponentWrapper, 'formItemProps')
         const type = get(component, 'type')
@@ -277,23 +273,28 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
         const queryToValueProcessor = getQueryToValueProcessorByType(type)
 
         return (
-            <FilterComponent
-                key={keyword}
-                name={keyword}
-                filters={filters}
-                size={size}
-                label={label}
-                formItemProps={formItemProps}
-                queryToValueProcessor={queryToValueProcessor}
-            >
-                {Component}
-            </FilterComponent>
+            <>
+                <FilterComponent
+                    key={keyword}
+                    name={keyword}
+                    filters={filters}
+                    size={size}
+                    label={label}
+                    formItemProps={formItemProps}
+                    queryToValueProcessor={queryToValueProcessor}
+                >
+                    {Component}
+                </FilterComponent>
+                {
+                    spaceSizeAfter && <Col span={spaceSizeAfter}/>
+                }
+            </>
         )
     })
 }
 
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { position: 'absolute', left: '10px' }
-const MODAL_PROPS: ModalProps = { width: 840 }
+const MODAL_PROPS: ModalProps = { width: 978 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
 const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
@@ -551,7 +552,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const ModalFormItems = useCallback(() => {
         return (
             <Col span={24}>
-                <Row justify="space-between" gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
+                <Row gutter={FILTER_WRAPPERS_GUTTER} id={FILTERS_POPUP_CONTAINER_ID}>
                     {modalComponents}
                 </Row>
             </Col>

@@ -1,7 +1,11 @@
-import React, { useMemo } from 'react'
-import { get } from 'lodash'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import {
+    BuildingUnitSubType,
+    TicketCategoryClassifier as TicketCategoryClassifierType,
+    TicketSource as TicketSourceType,
+    TicketStatus as TicketStatusType,
+    TicketWhereInput,
+} from '@app/condo/schema'
+import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 
 import {
     ComponentType,
@@ -10,28 +14,29 @@ import {
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
 import {
-    BuildingUnitSubType,
-    TicketWhereInput,
-    TicketSource as TicketSourceType,
-    TicketStatus as TicketStatusType,
-    TicketCategoryClassifier as TicketCategoryClassifierType,
-} from '@app/condo/schema'
-import {
     getDayRangeFilter,
     getFilter,
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@core/next/organization'
+import { get } from 'lodash'
+import React, { useMemo } from 'react'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
-import { searchEmployeeUser, searchOrganizationDivision, searchOrganizationProperty } from '../utils/clientSchema/search'
+import {
+    searchEmployeeUser,
+    searchOrganizationDivision,
+    searchOrganizationProperty,
+} from '../utils/clientSchema/search'
 import { getIsResidentContactFilter, getTicketAttributesFilter } from '../utils/tables.utils'
 import {
     FilterModalCategoryClassifierSelect,
-    FilterModalPlaceClassifierSelect, FilterModalProblemClassifierSelect,
+    FilterModalPlaceClassifierSelect,
+    FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
 
 const filterNumber = getNumberFilter('number')
@@ -212,55 +217,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
-                        size: FilterComponentSize.Large,
+                        size: FilterComponentSize.MediumLarge,
                     },
                     columnFilterComponentWrapper: {
                         width: '400px',
-                    },
-                },
-            },
-            {
-                keyword: 'createdAt',
-                filters: [filterCreatedAtRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: DateMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'completedAt',
-                filters: [filterCompletedAtRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: CompletedAtMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'source',
-                filters: [filterSource],
-                component: {
-                    type: ComponentType.Select,
-                    options: sourceOptions,
-                    props: {
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: SourceMessage,
-                        size: FilterComponentSize.Medium,
                     },
                 },
             },
@@ -282,35 +242,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: DivisionLabel,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'sectionName',
-                filters: [filterSection],
-                component: {
-                    type: ComponentType.TagsSelect,
-                    props: {
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: SectionMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'floorName',
-                filters: [filterFloor],
-                component: {
-                    type: ComponentType.TagsSelect,
-                    props: {
-                        placeholder: SelectMessage,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: FloorMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -327,7 +259,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: UnitTypeMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -341,7 +273,37 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: UnitMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
+                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'sectionName',
+                filters: [filterSection],
+                component: {
+                    type: ComponentType.TagsSelect,
+                    props: {
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: SectionMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'floorName',
+                filters: [filterFloor],
+                component: {
+                    type: ComponentType.TagsSelect,
+                    props: {
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: FloorMessage,
+                        size: FilterComponentSize.Small,
+                        spaceSizeAfter: FilterComponentSize.Small,
                     },
                 },
             },
@@ -353,7 +315,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     modalFilterComponent: (form) => <FilterModalPlaceClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
                         label: PlaceClassifierLabel,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -365,7 +327,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     modalFilterComponent: (form) => <FilterModalCategoryClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
                         label: CategoryClassifierLabel,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                     getComponentFilterDropdown: getSelectFilterDropdown({
                         options: categoryClassifiersOptions,
@@ -382,7 +344,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     modalFilterComponent: (form) => <FilterModalProblemClassifierSelect form={form} />,
                     modalFilterComponentWrapper: {
                         label: ProblemClassifierLabel,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -399,7 +361,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: StatusMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -416,38 +378,25 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AttributeLabel,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
+                        spaceSizeAfter: FilterComponentSize.Small,
                     },
                 },
             },
             {
-                keyword: 'lastCommentAt',
-                filters: [filterLastCommentAtRange],
-                component: {
-                    type: ComponentType.DateRange,
-                    props: {
-                        placeholder: [StartDateMessage, EndDateMessage],
-                    },
-                    modalFilterComponentWrapper: {
-                        label: LastCommentAtMessage,
-                        size: FilterComponentSize.Medium,
-                    },
-                },
-            },
-            {
-                keyword: 'reviewValue',
-                filters: [filterReviewValue],
+                keyword: 'source',
+                filters: [filterSource],
                 component: {
                     type: ComponentType.Select,
-                    options: reviewValueOptions,
+                    options: sourceOptions,
                     props: {
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
-                        label: ReviewValueMessage,
-                        size: FilterComponentSize.Medium,
+                        label: SourceMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -464,7 +413,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: IsResidentContactLabel,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -478,22 +427,39 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: ClientPhoneMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
             {
-                keyword: 'deadline',
-                filters: [filterDeadlineRange],
+                keyword: 'lastCommentAt',
+                filters: [filterLastCommentAtRange],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
                         placeholder: [StartDateMessage, EndDateMessage],
-                        disabledDate: () => false,
                     },
                     modalFilterComponentWrapper: {
-                        label: CompleteBeforeMessage,
-                        size: FilterComponentSize.Medium,
+                        label: LastCommentAtMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'reviewValue',
+                filters: [filterReviewValue],
+                component: {
+                    type: ComponentType.Select,
+                    options: reviewValueOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: ReviewValueMessage,
+                        size: FilterComponentSize.Small,
+                        spaceSizeAfter: FilterComponentSize.Small,
                     },
                 },
             },
@@ -512,7 +478,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: ExecutorMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -531,7 +497,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AssigneeMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -548,7 +514,50 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AuthorMessage,
-                        size: FilterComponentSize.Medium,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'createdAt',
+                filters: [filterCreatedAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: DateMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'completedAt',
+                filters: [filterCompletedAtRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CompletedAtMessage,
+                        size: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'deadline',
+                filters: [filterDeadlineRange],
+                component: {
+                    type: ComponentType.DateRange,
+                    props: {
+                        placeholder: [StartDateMessage, EndDateMessage],
+                        disabledDate: () => false,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: CompleteBeforeMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },

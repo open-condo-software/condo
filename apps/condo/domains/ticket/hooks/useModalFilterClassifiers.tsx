@@ -82,6 +82,7 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
 
     return (
         <Select
+            showArrow
             filterOption
             optionFilterProp={'label'}
             value={loading ? [] : selected}
