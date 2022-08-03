@@ -21,7 +21,9 @@ import { NextRouter } from 'next/router'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 
 export enum FilterComponentSize {
+    Small = 8,
     Medium = 12,
+    MediumLarge = 16,
     Large = 24,
 }
 
