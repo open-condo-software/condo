@@ -203,6 +203,8 @@
   "ContactRoles.confirmDeleteTitle": "Удаление роли",
   "ContactRoles.confirmDeleteMessage": "Удалить эту роль?",
   "ContactRoles.editing": "Редактирование роли",
+  "ContactRoles.readOnlyRoleWarningTitle": "Нередактируемая роль",
+  "ContactRoles.readOnlyRoleWarningMessage": "Вы можете создавать и редактировать новые роли жителей. Предсозданные роли редактировать и удалять нельзя. Данная роль — как раз из таких.",
   "contact.role.owner.name": "Собственник",
   "contact.role.resident.name": "Резидент",
   "contact.role.guest.name": "Гость",
