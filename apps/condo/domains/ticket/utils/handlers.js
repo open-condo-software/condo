@@ -16,7 +16,7 @@ const {
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
-    TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
+    TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -237,14 +237,14 @@ const sendTicketNotifications = async (requestData) => {
 
         const messageWithSameUniqKey = await getByCondition('Message', {
             uniqKey,
-            type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
+            type: TRACK_TICKET_IN_DOMA_APP_TYPE,
         })
 
         if (!messageWithSameUniqKey) {
             await sendMessage(context, {
                 lang,
                 to: { phone: clientPhone },
-                type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
+                type: TRACK_TICKET_IN_DOMA_APP_TYPE,
                 uniqKey,
                 meta: {
                     dv: 1,
