@@ -26,7 +26,8 @@ const {
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
     MESSAGE_ERROR_STATUS,
-    MESSAGE_SENT_STATUS, TICKET_WITHOUT_RESIDENT_CREATED_TYPE,
+    MESSAGE_SENT_STATUS,
+    TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 
@@ -2131,7 +2132,7 @@ describe('Ticket', () => {
 
                 expect(ticket.client).toBeNull()
 
-                const messageWhere = { phone: clientPhone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toMatch(UUID_RE)
@@ -2167,7 +2168,7 @@ describe('Ticket', () => {
 
                 expect(ticket.client).toBeNull()
 
-                const messageWhere = { phone: clientPhone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toMatch(UUID_RE)
@@ -2198,7 +2199,7 @@ describe('Ticket', () => {
                     clientPhone,
                 })
 
-                const messageWhere = { phone: clientPhone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message).toBeUndefined()
@@ -2228,7 +2229,7 @@ describe('Ticket', () => {
                     unitType,
                 })
 
-                const messageWhere = { phone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message).toBeUndefined()
@@ -2254,7 +2255,7 @@ describe('Ticket', () => {
                     unitType,
                 })
 
-                const messageWhere = { phone, type: TICKET_WITHOUT_RESIDENT_CREATED_TYPE }
+                const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message).toBeUndefined()
