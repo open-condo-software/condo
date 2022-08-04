@@ -163,16 +163,6 @@ export const EditContactForm: React.FC = () => {
                                         <Col span={24}>
                                             <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
-                                                labelAlign="left"
-                                                name="role"
-                                                label={RoleLabel}
-                                            >
-                                                <ContactRoleSelect roles={roles}/>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Form.Item
-                                                {...INPUT_LAYOUT_PROPS}
                                                 labelAlign={'left'}
                                                 name={'phone'}
                                                 label={PhoneLabel}
@@ -194,6 +184,16 @@ export const EditContactForm: React.FC = () => {
                                                 rules={validations.email}
                                             >
                                                 <Input placeholder={ExampleEmailMessage}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign="left"
+                                                name="role"
+                                                label={RoleLabel}
+                                            >
+                                                <ContactRoleSelect roles={roles}/>
                                             </Form.Item>
                                         </Col>
                                         <Space size={40} style={{ paddingTop: '36px' }}>
