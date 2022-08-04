@@ -1,3 +1,4 @@
+import get from 'lodash/get'
 import { ITasksStorage } from '../index'
 import { IGenerateHooksResult } from '../../../utils/codegeneration/generate.hooks'
 import { TASK_POLL_INTERVAL } from '../../../constants/tasks'
@@ -14,10 +15,7 @@ export class TasksCondoStorage implements ITasksStorage {
     }
 
     useTasks ({ status }, user) {
-        if (!user) {
-            return { records: [] }
-        }
-        const { objs } = this.clientSchema.useObjects({ where: { status, user: { id: user.id } } })
+        const { objs } = this.clientSchema.useObjects({ where: { status, user: { id: get(user, 'id') } } })
         return { records: objs }
     }
 
