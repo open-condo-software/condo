@@ -17,6 +17,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -79,9 +80,10 @@ const ChangePasswordPage: AuthPage = () => {
     const onFinish = (values: typeof initialValues) => {
         setIsSaving(true)
         const { token, password } = values
+        const sender = getClientSideSenderInfo()
         return runMutation({
             mutation: changePassword,
-            variables: { data: { token, password } },
+            variables: { data: { token, password, dv: 1, sender } },
             onCompleted: async ({ data: { result } }) => {
                 await signInByPhone({
                     phone: result.phone,
