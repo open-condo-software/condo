@@ -13,13 +13,14 @@ const LAYOUT = {
 }
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
-const APARTMENT_COMPLEX_NAME_FIELD_PROPS = {
+const COMMON_FORM_ITEM_PROPS = {
     labelCol: {
         sm: 6,
     },
     wrapperCol: {
         sm: 8,
     },
+    colon: false,
 }
 
 type BaseTicketPropertyHintFormProps = {
@@ -86,7 +87,8 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                                     name={'name'}
                                     label={NameMessage}
                                     labelAlign={'left'}
-                                    {...APARTMENT_COMPLEX_NAME_FIELD_PROPS}
+                                    required
+                                    {...COMMON_FORM_ITEM_PROPS}
                                 >
                                     <Input disabled={!organizationId}/>
                                 </Form.Item>

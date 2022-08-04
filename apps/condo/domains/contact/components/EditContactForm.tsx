@@ -26,6 +26,7 @@ const INPUT_LAYOUT_PROPS = {
     wrapperCol: {
         span: 13,
     },
+    colon: false,
 }
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
