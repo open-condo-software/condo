@@ -1,12 +1,16 @@
+import get from 'lodash/get'
 import { useIntl } from '@core/next/intl'
-import styled from '@emotion/styled'
-import { Row, Col, Typography, Alert } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import { fontSize } from 'html2canvas/dist/types/css/property-descriptors/font-size'
-import { fontStyle } from 'html2canvas/dist/types/css/property-descriptors/font-style'
+
 import React from 'react'
-import { colors } from '../../../common/constants/style'
-import { Recipient } from './Recipient'
+import { Row, Col, Typography, Alert } from 'antd'
+import styled from '@emotion/styled'
+import { Gutter } from 'antd/es/grid/row'
+import { colors } from '@condo/domains/common/constants/style'
+
+import { useOrganization } from '@core/next/organization'
+import { Recipient } from '@condo/domains/organization/components/Recipient'
+
+import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
@@ -23,9 +27,35 @@ const StyledAlert = styled(Alert)`
   }
 `
 
-export const RecipientSettingsContent = (props) => {
+export const RecipientSettingsContent = () => {
     const intl = useIntl()
     const PaymentsDetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
+    const AlertTitle = intl.formatMessage({ id: 'pages.condo.settings.recipient.alert.title' })
+    const AlertContent = intl.formatMessage({ id: 'pages.condo.settings.recipient.alert.content' })
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+
+    //TODO(MAXIMDANILOV): go from BillingRecipient to Index
+    const {
+        obj: context,
+    } = BillingIntegrationOrganizationContext.useObject({
+        where: { organization: { id: userOrganizationId } },
+    })
+
+    const contextId = get(context, ['id'], null)
+
+
+    const {
+        loading: isRecipientsLoading,
+        objs: recipients,
+    } = BillingRecipient.useObjects({
+        where: {
+            context: { id : contextId },
+            isApproved: true,
+        },
+    })
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -34,21 +64,20 @@ export const RecipientSettingsContent = (props) => {
             </Col>
             <Col span={24}>
                 <StyledAlert
-                    message={<Typography.Text strong={true}>{'На эти реквизиты приходят оплаты от жителей через моб. приложение Дома́'}</Typography.Text>}
-                    description={'Напоминаем, что реквизиты взяты из Договора присоединения Поставщика услуг к Правилам. Если возникнут вопросы — напишите на help@doma.ai'}
+                    message={<Typography.Text strong={true}>{AlertTitle}</Typography.Text>}
+                    description={AlertContent}
                     showIcon
                     type={'warning'}
                 />
             </Col>
-            <Col span={24}>
-                <Recipient />
-            </Col>
-            <Col span={24}>
-                <Recipient />
-            </Col>
 
-
-
+            {
+                recipients.map((recipient, index) => {
+                    return (
+                        <Recipient recipient={recipient} key={index}/>
+                    )
+                })
+            }
         </Row>
     )
 }
