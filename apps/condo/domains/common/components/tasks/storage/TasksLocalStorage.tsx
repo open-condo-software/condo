@@ -1,4 +1,5 @@
 import find from 'lodash/find'
+import get from 'lodash/get'
 import findIndex from 'lodash/findIndex'
 import isFunction from 'lodash/isFunction'
 import { ITasksStorage, OnCompleteFunc } from '../index'
@@ -35,7 +36,7 @@ export class TasksLocalStorage implements ITasksStorage {
         if (!status) {
             return tasks
         }
-        const records = tasks.filter(task => task.status === status && task.user && task.user.id === user.id)
+        const records = tasks.filter(task => task.status === status && task.user && get(task, 'user.id') === user.id)
         return { records }
     }
 
