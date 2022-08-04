@@ -11,7 +11,6 @@ const { GQLListSchema, getById } = require('@core/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
 
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')

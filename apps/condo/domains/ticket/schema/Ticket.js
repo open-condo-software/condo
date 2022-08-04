@@ -28,7 +28,7 @@ const {
 } = require('@condo/domains/common/schema/fields')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { buildSetOfFieldsToTrackFrom, storeChangesIfUpdated } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
-const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/Ticket')

@@ -13,7 +13,7 @@ const {
     JSON_UNKNOWN_VERSION_ERROR,
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
-const { hasValidJsonStructure, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
