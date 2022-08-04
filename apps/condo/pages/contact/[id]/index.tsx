@@ -114,12 +114,10 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                     />
                                                 }
                                                 {
-                                                    contactRole && (
-                                                        <FieldPairRow
-                                                            fieldTitle={ContactRoleTitle}
-                                                            fieldValue={get(contactRole, 'name')}
-                                                        />
-                                                    )
+                                                    <FieldPairRow
+                                                        fieldTitle={ContactRoleTitle}
+                                                        fieldValue={get(contactRole, 'name', '—')}
+                                                    />
                                                 }
                                             </Row>
                                         </FrontLayerContainer>
