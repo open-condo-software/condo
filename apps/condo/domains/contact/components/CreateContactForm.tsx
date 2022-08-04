@@ -30,6 +30,7 @@ const INPUT_LAYOUT_PROPS = {
     style: {
         paddingBottom: '12px',
     },
+    colon: false,
 }
 
 const BottomLineWrapper = styled.div`
