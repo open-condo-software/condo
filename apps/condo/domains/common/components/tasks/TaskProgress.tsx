@@ -6,7 +6,7 @@ import { InfoCircleOutlined, MinusOutlined } from '@ant-design/icons'
 import { useIntl } from '@core/next/intl'
 import { Col, List, Progress, Row, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
-import { TASK_COMPLETED_STATUS } from '../../constants/tasks'
+import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } from '../../constants/tasks'
 import { colors } from '../../constants/style'
 import {
     ITaskTrackableItem,
@@ -20,6 +20,7 @@ import {
 import { CheckIcon } from '../icons/Check'
 import { ExpandIcon } from '../icons/ExpandIcon'
 import { CrossIcon } from '../icons/CrossIcon'
+import { CloseCircleIcon } from '../icons/CloseCircleIcon'
 
 const InfiniteSpinningStyle = css`
   @keyframes rotate {
@@ -107,6 +108,8 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
         />
         {task.status === TASK_COMPLETED_STATUS ? (
             <TaskProgressDoneIcon onClick={removeTask}/>
+        ) : (task.status === TASK_ERROR_STATUS) ? (
+            <CloseCircleIcon onClick={removeTask} />
         ) : (
             <CircularProgress progress={progress}/>
         )}
