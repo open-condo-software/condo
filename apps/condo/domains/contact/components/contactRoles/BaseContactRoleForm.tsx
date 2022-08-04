@@ -1,13 +1,12 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { useIntl } from '@core/next/intl'
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -42,6 +41,8 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 }) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
+    const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
+    const DoneMessage = intl.formatMessage({ id: 'Done' })
 
     const router = useRouter()
 
@@ -69,6 +70,13 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                 <FormWithAction
                     initialValues={initialValues}
                     action={handleFormSubmit}
+                    OnCompletedMsg={
+                        <>
+                            <Typography.Text strong>{DoneMessage}</Typography.Text>
+                            <br/>
+                            <Typography.Text>{ChangesSavedMessage}</Typography.Text>
+                        </>
+                    }
                     {...LAYOUT}
                 >
                     {({ handleSave, isLoading, form }) => (
