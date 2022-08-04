@@ -78,10 +78,6 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                     if (value === null) return // null is OK
                     if (!hasValidJsonStructure(args, true, 1, {}))
                         return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
-                    const { dv } = value
-                    if (dv !== 1) {
-                        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
-                    }
                 },
             },
         },

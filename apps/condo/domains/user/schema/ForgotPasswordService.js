@@ -115,7 +115,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
         },
         {
             access: true,
-            type: 'input ChangePasswordWithTokenInput { token: String!, password: String!, sender: SenderFieldInput, dv: Int }',
+            type: 'input ChangePasswordWithTokenInput { token: String!, password: String!, sender: SenderFieldInput!, dv: Int! }',
         },
         {
             access: true,

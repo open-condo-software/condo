@@ -118,7 +118,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
     },
     hooks: {
         validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
-            if (!hasDvAndSenderFields( resolvedData, context, addValidationError)) return
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
             
