@@ -31,12 +31,12 @@ function hasDbFields (databaseRequired, resolvedData, existingItem = {}, context
 }
 
 // TODO: DOMA-663 research if we need this validation regexp at all
-const VALID_JSON_FIELD_CONSTRAINTS_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/
+const VALID_JSON_FIELD_CONSTRAINTS_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,128}$/
 const JSON_STRUCTURE_FIELDS_CONSTRAINTS = {
     fingerprint: {
         presence: true,
         format: VALID_JSON_FIELD_CONSTRAINTS_FORMAT_REGEXP,
-        length: { minimum: 5, maximum: 42 },
+        length: { minimum: 5, maximum: 128 },
     },
 }
 

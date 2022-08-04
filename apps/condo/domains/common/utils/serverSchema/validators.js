@@ -15,8 +15,8 @@ const DV_VERSION_MISMATCH_ERROR = {
 const SENDER_FIELD_CONSTRAINTS = {
     fingerprint: {
         presence: true,
-        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
-        length: { minimum: 5, maximum: 42 },
+        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,128}$/,
+        length: { minimum: 5, maximum: 128 },
     },
     dv: {
         numericality: {

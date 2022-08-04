@@ -57,6 +57,7 @@ const keystoneConfig = (IS_BUILD_PHASE) ? {
     cookieSecret: v4(),
     adapter: getAdapter('undefined'),
 } : prepareDefaultKeystoneConfig(conf)
+
 const keystone = new Keystone({
     ...keystoneConfig,
     onConnect: async () => {
@@ -215,8 +216,8 @@ module.exports = {
                 {
                     fingerprint: {
                         presence: true,
-                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
-                        length: { minimum: 5, maximum: 42 },
+                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,128}$/,
+                        length: { minimum: 5, maximum: 128 },
                     },
                 })
             if (!isSenderValid) {
