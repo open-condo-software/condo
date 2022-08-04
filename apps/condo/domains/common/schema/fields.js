@@ -5,11 +5,11 @@ const { Json, SignedDecimal } = require('@core/keystone/fields')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { PHONE_WRONG_FORMAT_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
+/** @deprecated use dvSenderPlugin! */
 const DV_FIELD = {
     type: Integer,
     schemaDoc: 'Data structure Version',
@@ -17,6 +17,7 @@ const DV_FIELD = {
     kmigratorOptions: { null: false },
 }
 
+/** @deprecated use dvSenderPlugin ! */
 const SENDER_FIELD = {
     type: Json,
     schemaDoc: 'Client-side device identification used for the anti-fraud detection. ' +
