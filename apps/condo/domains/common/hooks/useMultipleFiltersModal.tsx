@@ -30,6 +30,7 @@ import {
     QueryArgType,
 } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { useLayoutContext } from '../components/LayoutContext'
 
 import DatePicker from '../components/Pickers/DatePicker'
 import DateRangePicker from '../components/Pickers/DateRangePicker'
@@ -247,7 +248,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
     }
 }
 
-function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance): React.ReactElement[] {
+function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMeta<T>>, form: FormInstance, breakpoints): React.ReactElement[] {
     if (!form) return
 
     return filterMetas.map(filterMeta => {
@@ -278,7 +279,7 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
                     key={keyword}
                     name={keyword}
                     filters={filters}
-                    size={size}
+                    size={(breakpoints.xs && !breakpoints.md) ? 24 : size}
                     label={label}
                     formItemProps={formItemProps}
                     queryToValueProcessor={queryToValueProcessor}
@@ -293,7 +294,6 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
     })
 }
 
-const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { position: 'absolute', left: '10px' }
 const MODAL_PROPS: ModalProps = { width: 978 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
@@ -373,6 +373,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const { link } = useOrganization()
+    const { breakpoints } = useLayoutContext()
 
     const handleSaveRef = useRef(null)
     const [form] = Form.useForm()
@@ -466,45 +467,58 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSubmitButtonClick = useCallback(() => handleSaveRef.current(), [])
 
     const modalFooter = useMemo(() => [
-        <ResetFiltersModalButton
-            key={'reset'}
-            handleReset={handleResetFilters}
-            style={RESET_FILTERS_BUTTON_STYLE}
-        />,
-        selectedFiltersTemplate && (
-            <DeleteButtonWithConfirmModal
-                key={'delete'}
-                title={DeleteTitle}
-                message={DeleteMessage}
-                okButtonLabel={DeleteLabel}
-                action={handleDeleteFiltersTemplate}
-                buttonCustomProps={{ type: 'sberDangerGhost' }}
-            />
-        ),
-        <Button
-            key={'saveFilters'}
-            onClick={handleSaveFiltersTemplate}
-            disabled={isSaveFiltersTemplateButtonDisabled}
-            eventName={'ModalFilterSaveClick'}
-            type={'sberGrey'}
-            secondary
-        >
-            {SaveTemplateMessage}
-        </Button>,
-        <Button
-            key={'submit'}
-            onClick={handleSubmitButtonClick}
-            eventName={'ModalFilterSubmitClick'}
-            type={'sberPrimary'}
-            data-cy={'common__filters-button-submit'}
-        >
-            {ApplyMessage}
-        </Button>,
-    ], [
-        DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, ApplyMessage, handleDeleteFiltersTemplate,
-        handleResetFilters, handleSaveFiltersTemplate, handleSubmitButtonClick, isSaveFiltersTemplateButtonDisabled,
-        selectedFiltersTemplate,
-    ])
+        <Row key={'footer'} justify={'space-between'} gutter={[0, 10]}>
+            <Col>
+                <ResetFiltersModalButton
+                    key={'reset'}
+                    handleReset={handleResetFilters}
+                />
+            </Col>
+            <Col>
+                <Row gutter={[20, 10]}>
+                    {
+                        selectedFiltersTemplate && (
+                            <Col>
+                                <DeleteButtonWithConfirmModal
+                                    key={'delete'}
+                                    title={DeleteTitle}
+                                    message={DeleteMessage}
+                                    okButtonLabel={DeleteLabel}
+                                    action={handleDeleteFiltersTemplate}
+                                    buttonCustomProps={{ type: 'sberDangerGhost' }}
+                                />
+                            </Col>
+                        )
+                    }
+                    <Col>
+                        <Button
+                            key={'saveFilters'}
+                            onClick={handleSaveFiltersTemplate}
+                            disabled={isSaveFiltersTemplateButtonDisabled}
+                            eventName={'ModalFilterSaveClick'}
+                            type={'sberGrey'}
+                            secondary
+                        >
+                            {SaveTemplateMessage}
+                        </Button>
+                    </Col>
+                    <Col>
+                        <Button
+                            key={'submit'}
+                            onClick={handleSubmitButtonClick}
+                            eventName={'ModalFilterSubmitClick'}
+                            type={'sberPrimary'}
+                            data-cy={'common__filters-button-submit'}
+                        >
+                            {ApplyMessage}
+                        </Button>
+                    </Col>
+                </Row>
+            </Col>
+        </Row>,
+    ], [DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, ApplyMessage,
+        handleDeleteFiltersTemplate, handleResetFilters, handleSaveFiltersTemplate, handleSubmitButtonClick,
+        isSaveFiltersTemplateButtonDisabled])
 
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false),
         [setIsMultipleFiltersModalVisible])
@@ -547,7 +561,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
     const initialFormValues = useMemo(() => get(selectedFiltersTemplate, 'fields', filters), [filters, selectedFiltersTemplate])
-    const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form), [filterMetas, form, initialFormValues])
+    const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
         return (
