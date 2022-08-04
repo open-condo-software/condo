@@ -15,7 +15,7 @@ const { Checkbox } = require('@keystonejs/fields')
 
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
-const { hasDbFields, hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
+const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const {
     DV_UNKNOWN_VERSION_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
