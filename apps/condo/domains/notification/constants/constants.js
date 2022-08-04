@@ -161,7 +161,6 @@ const MESSAGE_META = {
     },
     [TICKET_WITHOUT_RESIDENT_CREATED_TYPE]: {
         dv: { defaultValue: '', required: true },
-        data: { },
     },
     [TICKET_STATUS_OPENED_TYPE]: {
         dv: { defaultValue: '', required: true },
