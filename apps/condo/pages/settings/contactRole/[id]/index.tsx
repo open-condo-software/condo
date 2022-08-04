@@ -58,6 +58,8 @@ const TheContactRolePage = (): JSX.Element => {
 
     const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
+    const isDefaultRole = !!get(contactRole, 'organization', null)
+
     if (loading) {
         return <Loader/>
     }
@@ -73,12 +75,12 @@ const TheContactRolePage = (): JSX.Element => {
                         <Col span={24}>
                             <Typography.Title>{contactRoleTitleMessage}</Typography.Title>
                         </Col>
-                        {canManageContactRoles && !get(contactRole, 'organization', null) && (<Col>
+                        {canManageContactRoles && !isDefaultRole && (<Col>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <Alert
                                         icon={<ExclamationCircleOutlined/>}
-                                        message={<strong>{ReadOnlyRoleWarningTitle}</strong>}
+                                        message={<Typography.Text strong>{ReadOnlyRoleWarningTitle}</Typography.Text>}
                                         description={ReadOnlyRoleWarningMessage}
                                         type="warning"
                                         showIcon
@@ -97,7 +99,7 @@ const TheContactRolePage = (): JSX.Element => {
                             </Row>
                         </Col>
                         {
-                            canManageContactRoles && get(contactRole, 'organization', null) && (
+                            canManageContactRoles && isDefaultRole && (
                                 <Col span={24}>
                                     <ActionBar>
                                         <Link href={`/settings/contactRole/${contactRoleId}/update`}>
