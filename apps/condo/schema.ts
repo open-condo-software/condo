@@ -20617,6 +20617,12 @@ export type Mutation = {
    * 			}
    * 		}
    * 	},
+   * 	"TICKET_WITHOUT_RESIDENT_CREATED": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
    * 	"TICKET_STATUS_OPENED": {
    * 		"dv": {
    * 			"defaultValue": "",
@@ -37287,6 +37293,7 @@ export enum SendMessageType {
   MessageForwardedToSupport = 'MESSAGE_FORWARDED_TO_SUPPORT',
   TicketAssigneeConnected = 'TICKET_ASSIGNEE_CONNECTED',
   TicketExecutorConnected = 'TICKET_EXECUTOR_CONNECTED',
+  TicketWithoutResidentCreated = 'TICKET_WITHOUT_RESIDENT_CREATED',
   TicketStatusOpened = 'TICKET_STATUS_OPENED',
   TicketStatusInProgress = 'TICKET_STATUS_IN_PROGRESS',
   TicketStatusCompleted = 'TICKET_STATUS_COMPLETED',

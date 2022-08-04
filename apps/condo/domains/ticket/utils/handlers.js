@@ -1,4 +1,5 @@
 const get = require('lodash/get')
+const dayjs = require('dayjs')
 
 const conf = require('@condo/config')
 const { getByCondition, find, getById } = require('@condo/keystone/schema')
@@ -25,7 +26,6 @@ const { Ticket, TicketCommentsTime } = require('./serverSchema')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
-const dayjs = require('dayjs')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -84,7 +84,8 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
     result[STATUS_CHANGED_EVENT_TYPE] = client && (isStatusAdded || isStatusUpdated)
 
     /**
-     * ticket created and the resident does not have a mobile app
+     * ticket created and the resident does not have a mobile app or
+     * does not have an address as in ticket
      */
     result[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] = isCreateOperation && isResidentTicket && !client && canReadByResident
 
