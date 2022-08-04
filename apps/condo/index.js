@@ -220,7 +220,7 @@ module.exports = {
                     },
                 })
             if (!isSenderValid) {
-                res.cookie('sender', JSON.stringify({ fingerprint: makeId(12), dv: 1 }))
+                res.cookie('sender', JSON.stringify({ fingerprint: cookies['userId'] || makeId(12), dv: 1 }))
                 res.cookie('dv', 1)
             }
             next()

@@ -3,7 +3,7 @@
  */
 
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET } = require('@core/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET, UUID_RE } = require('@core/keystone/test.utils')
 
 const {
     User,
@@ -249,6 +249,18 @@ describe('User utils', () => {
         expect(user.id).toMatch(/^[A-Za-z0-9-]+$/g)
         expect(userAttrs.email).toBeTruthy()
         expect(userAttrs.password).toBeTruthy()
+    })
+
+    test('createUser() with dv/sender cookies', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const newCookie = `${admin.getCookie()}; sender=%7B%22fingerprint%22%3A%22xY1byOxr6wCu%22%2C%22dv%22%3A1%7D; dv=1`
+        admin.setHeaders({
+            Cookie: newCookie,
+        })
+        const [user, attrs] = await createTestUser(admin, { dv: undefined, sender: undefined })
+        expect(attrs.dv).toBeUndefined()
+        expect(attrs.sender).toBeUndefined()
+        expect(user.id).toMatch(UUID_RE)
     })
 
     test('createUser() with wrong dv', async () => {
