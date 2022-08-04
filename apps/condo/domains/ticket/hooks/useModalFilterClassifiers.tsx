@@ -77,7 +77,9 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
     }, [])
 
     const renderOptions = useMemo(() =>
-        options.map(classifier => ({ label: classifier.name, value: classifier.id })),
+        options
+            .map(classifier => ({ label: classifier.name, value: classifier.id }))
+            .filter(option => !isEmpty(option.label)),
     [options])
 
     return (

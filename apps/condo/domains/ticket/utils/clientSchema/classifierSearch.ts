@@ -114,6 +114,10 @@ export class ClassifiersQueryLocal implements IClassifiersSearch {
                 if (placeIsEmpty && categoryIsEmpty && !problemIsEmpty) {
                     return this.rules
                 }
+
+                if (!categoryIsEmpty) {
+                    return this.rules.filter(rule => category.includes(rule.category.id))
+                }
                 break
             }
         }
