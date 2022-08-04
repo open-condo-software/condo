@@ -121,7 +121,7 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                 const cases = [
                     [2, faker.random.alphaNumeric(8)],
                     [1, faker.random.alphaNumeric(3)],
-                    [1, faker.random.alphaNumeric(60)],
+                    [1, faker.random.alphaNumeric(130)],
                     [1, 'КиРиЛЛиЦА'],
                 ]
                 test.each(cases)('dv: %p, fingerprint: %p', async (dv, fingerprint) => {
