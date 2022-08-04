@@ -1,5 +1,5 @@
 /*
- * Validator BankAccount
+ * BankAccount validator
  *
  * You need a BIC for validation
  *

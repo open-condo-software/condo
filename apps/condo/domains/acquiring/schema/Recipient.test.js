@@ -15,180 +15,270 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { Recipient, createTestRecipient, updateTestRecipient } = require('@condo/domains/acquiring/utils/testSchema')
+const { makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingRecipient, makeClientWithIntegrationAccess, createTestBillingIntegrationOrganizationContext, makeOrganizationIntegrationManager, BillingRecipient,
+    updateTestBillingRecipient,
+} = require('../../billing/utils/testSchema')
+const { createTestOrganization } = require('../../organization/utils/testSchema')
+const { RUSSIA_COUNTRY } = require('../../common/constants/countries')
+const { TicketComment } = require('../../ticket/utils/testSchema')
 
 describe('Recipient', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 3) check
-                expect(true).toEqual(true)
-                // TODO(codegen): write others fields here! provide as match fields as you can here!
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const [recipient] = await createTestRecipient(admin, organization)
+
+                expect(recipient.importId).toBeDefined()
+                expect(recipient.tin).toBeDefined()
+                expect(recipient.iec).toBeDefined()
+                expect(recipient.bic).toBeDefined()
+                expect(recipient.bankAccount).toBeDefined()
+                expect(recipient.name).toBeDefined()
+                expect(recipient.isApproved).toBeDefined()
+                expect(recipient.meta).toBeDefined()
             })
 
-            // // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            // test('support can', async () => {
-            //     const client = await makeClientWithSupportUser()  // TODO(codegen): create SUPPORT client!
-            //
-            //     const [obj, attrs] = await createTestRecipient(client)  // TODO(codegen): write 'support: create Recipient' test
-            //
-            //     expect(obj.id).toMatch(UUID_RE)
-            //     expect(obj.dv).toEqual(1)
-            //     expect(obj.sender).toEqual(attrs.sender)
-            //     expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            // })
-            //
-            // test('user can', async () => {
-            //     const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-            //
-            //     const [obj, attrs] = await createTestRecipient(client)  // TODO(codegen): write 'user: create Recipient' test
-            //
-            //     expect(obj.id).toMatch(UUID_RE)
-            //     expect(obj.dv).toEqual(1)
-            //     expect(obj.sender).toEqual(attrs.sender)
-            //     expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            // })
-            //
-            // test('anonymous can\'t', async () => {
-            //     const client = await makeClient()
-            //
-            //     await expectToThrowAuthenticationErrorToObj(async () => {
-            //         await createTestRecipient(client)  // TODO(codegen): write 'anonymous: create Recipient' test
-            //     })
-            // })
+            test('support can', async () => {
+                const support = await makeClientWithSupportUser()
+
+                const [organization] = await createTestOrganization(support)
+
+                const [recipient] = await createTestRecipient(support, organization)
+
+                expect(recipient.importId).toBeDefined()
+                expect(recipient.tin).toBeDefined()
+                expect(recipient.iec).toBeDefined()
+                expect(recipient.bic).toBeDefined()
+                expect(recipient.bankAccount).toBeDefined()
+                expect(recipient.name).toBeDefined()
+                expect(recipient.isApproved).toBeDefined()
+                expect(recipient.meta).toBeDefined()
+            })
+
+            test('billing integration can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const integrationClient = await makeClientWithIntegrationAccess()
+
+                const [ organization ] = await createTestOrganization(admin)
+                await createTestBillingIntegrationOrganizationContext(admin, organization, integrationClient.integration)
+
+                const [obj] = await createTestRecipient(integrationClient, organization)
+
+                expect(obj.importId).toBeDefined()
+                expect(obj.tin).toBeDefined()
+                expect(obj.iec).toBeDefined()
+                expect(obj.bic).toBeDefined()
+                expect(obj.bankAccount).toBeDefined()
+                expect(obj.name).toBeDefined()
+                expect(obj.isApproved).toBeDefined()
+                expect(obj.meta).toBeDefined()
+            })
+
+            test('organization integration manager can\'t', async () => {
+                const { managerUserClient, organization } = await makeOrganizationIntegrationManager()
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestRecipient(managerUserClient, organization)
+                })
+            })
+
+            test('user can\'t create BillingRecipient', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestRecipient(user, organization)
+                })
+            })
+
+            test('anonymous can\'t create BillingRecipient', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const anonymous = await makeClient()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await createTestRecipient(anonymous, organization)
+                })
+            })
         })
 
-        // describe('update', () => {
-        //     test('admin can', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         const [obj, attrs] = await updateTestRecipient(admin, objCreated.id)
-        //
-        //         expect(obj.dv).toEqual(1)
-        //         expect(obj.sender).toEqual(attrs.sender)
-        //         expect(obj.v).toEqual(2)
-        //     })
-        //
-        //     // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-        //     test('support can', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
-        //         const [obj, attrs] = await updateTestRecipient(client, objCreated.id)  // TODO(codegen): write 'support: update Recipient' test
-        //
-        //         expect(obj.id).toMatch(UUID_RE)
-        //         expect(obj.dv).toEqual(1)
-        //         expect(obj.sender).toEqual(attrs.sender)
-        //         expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        //     })
-        //
-        //     test('user can', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-        //         const [obj, attrs] = await updateTestRecipient(client, objCreated.id)  // TODO(codegen): write 'user: update Recipient' test
-        //
-        //         expect(obj.id).toMatch(UUID_RE)
-        //         expect(obj.dv).toEqual(1)
-        //         expect(obj.sender).toEqual(attrs.sender)
-        //         expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-        //     })
-        //
-        //     test('anonymous can\'t', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClient()
-        //         await expectToThrowAuthenticationErrorToObj(async () => {
-        //             await updateTestRecipient(client, objCreated.id)  // TODO(codegen): write 'anonymous: update Recipient' test
-        //         })
-        //     })
-        // })
-        //
-        // describe('hard delete', () => {
-        //     test('admin can\'t', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         await expectToThrowAccessDeniedErrorToObj(async () => {
-        //             await Recipient.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete Recipient' test
-        //         })
-        //     })
-        //
-        //     test('user can\'t', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-        //         await expectToThrowAccessDeniedErrorToObj(async () => {
-        //             await Recipient.delete(client, objCreated.id)  // TODO(codegen): write 'user: delete Recipient' test
-        //         })
-        //     })
-        //
-        //     test('anonymous can\'t', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [objCreated] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClient()
-        //         await expectToThrowAuthenticationErrorToObj(async () => {
-        //             await Recipient.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete Recipient' test
-        //         })
-        //     })
-        // })
-        //
-        // describe('read', () => {
-        //     test('admin can', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [obj, attrs] = await createTestRecipient(admin)
-        //
-        //         const objs = await Recipient.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
-        //
-        //         expect(objs.length).toBeGreaterThanOrEqual(1)
-        //         expect(objs).toEqual(expect.arrayContaining([
-        //             expect.objectContaining({
-        //                 id: obj.id,
-        //                 // TODO(codegen): write fields which important to ADMIN access check
-        //             }),
-        //         ]))
-        //     })
-        //
-        //     test('user can', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [obj, attrs] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-        //         const objs = await Recipient.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-        //
-        //         expect(objs).toHaveLength(1)
-        //         expect(objs[0]).toMatchObject({
-        //             id: obj.id,
-        //             // TODO(codegen): write fields which important to USER access check
-        //         })
-        //     })
-        //
-        //     // TODO(codegen): write test for user1 doesn't have access to user2 data if it's applicable
-        //
-        //     test('anonymous can\'t', async () => {
-        //         const admin = await makeLoggedInAdminClient()
-        //         const [obj, attrs] = await createTestRecipient(admin)
-        //
-        //         const client = await makeClient()
-        //         await expectToThrowAuthenticationErrorToObjects(async () => {
-        //             await Recipient.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read Recipient' test
-        //         })
-        //     })
-        // })
-    })
+        describe('read', () => {
+            test('admin can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
 
-    // describe('Validation tests', () => {
-    //     test('Should have correct dv field (=== 1)', async () => {
-    //         // TODO(codegen): check it!
-    //     })
-    // })
-    //
-    // describe('notifications', () => {
-    //     // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
-    // })
+                const [ createdObj ] = await createTestRecipient(admin, organization)
+                const [ readObj ] = await Recipient.getAll(admin, { id: createdObj.id })
+
+                expect(readObj.importId).toEqual(createdObj.importId)
+                expect(readObj.tin).toEqual(createdObj.tin)
+                expect(readObj.iec).toEqual(createdObj.iec)
+                expect(readObj.bic).toEqual(createdObj.bic)
+                expect(readObj.bankAccount).toEqual(createdObj.bankAccount)
+                expect(readObj.name).toEqual(createdObj.name)
+                expect(readObj.isApproved).toEqual(createdObj.isApproved)
+            })
+
+            test('support can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const support = await makeClientWithSupportUser()
+
+                const [ createdObj ] = await createTestRecipient(support, organization)
+                const [ readObj ] = await Recipient.getAll(support, { id: createdObj.id })
+
+                expect(readObj.importId).toEqual(createdObj.importId)
+                expect(readObj.tin).toEqual(createdObj.tin)
+                expect(readObj.iec).toEqual(createdObj.iec)
+                expect(readObj.bic).toEqual(createdObj.bic)
+                expect(readObj.bankAccount).toEqual(createdObj.bankAccount)
+                expect(readObj.name).toEqual(createdObj.name)
+                expect(readObj.isApproved).toEqual(createdObj.isApproved)
+            })
+
+            test('organization integration manager can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const { managerUserClient, organization } = await makeOrganizationIntegrationManager()
+
+                const [ createdObj ] = await createTestRecipient(admin, organization)
+                const [ readObj ] = await Recipient.getAll(managerUserClient, { id: createdObj.id })
+
+                expect(readObj.importId).toEqual(createdObj.importId)
+                expect(readObj.tin).toEqual(createdObj.tin)
+                expect(readObj.iec).toEqual(createdObj.iec)
+                expect(readObj.bic).toEqual(createdObj.bic)
+                expect(readObj.bankAccount).toEqual(createdObj.bankAccount)
+                expect(readObj.name).toEqual(createdObj.name)
+                expect(readObj.isApproved).toEqual(createdObj.isApproved)
+            })
+
+            test('integration service account can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const integrationClient = await makeClientWithIntegrationAccess()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                const [ createdObj ] = await createTestRecipient(integrationClient, organization)
+                const [ readObj ] = await Recipient.getAll(integrationClient, { id: createdObj.id })
+
+                expect(readObj.importId).toEqual(createdObj.importId)
+                expect(readObj.tin).toEqual(createdObj.tin)
+                expect(readObj.iec).toEqual(createdObj.iec)
+                expect(readObj.bic).toEqual(createdObj.bic)
+                expect(readObj.bankAccount).toEqual(createdObj.bankAccount)
+                expect(readObj.name).toEqual(createdObj.name)
+                expect(readObj.isApproved).toEqual(createdObj.isApproved)
+            })
+
+            test('user can\'t', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                await createTestRecipient(admin, organization)
+
+                const readObjects = await Recipient.getAll(user)
+
+                expect(readObjects).toHaveLength(0)
+            })
+
+            test('anonymous can\'t', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const anonymous = await makeClient()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                await createTestRecipient(admin, organization)
+
+                await expectToThrowAuthenticationErrorToObjects(async () => {
+                    await Recipient.getAll(anonymous)
+                })
+            })
+        })
+
+        describe('update', () => {
+            test('admin can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const [ createdObj ] = await createTestRecipient(admin, organization)
+                const [ updatedObj ] = await updateTestRecipient(admin, createdObj.id, { isApproved: true })
+
+                expect(createdObj.id).toEqual(updatedObj.id)
+                expect(createdObj.isApproved).toEqual(false)
+                expect(updatedObj.isApproved).toEqual(true)
+            })
+
+            test('support can', async () => {
+                const support = await makeClientWithSupportUser()
+                const [organization] = await createTestOrganization(support)
+
+                const [ createdObj ] = await createTestRecipient(support, organization)
+                const [ updatedObj ] = await updateTestRecipient(support, createdObj.id, { isApproved: true })
+
+                expect(createdObj.id).toEqual(updatedObj.id)
+                expect(createdObj.isApproved).toEqual(false)
+                expect(updatedObj.isApproved).toEqual(true)
+            })
+
+            test('integration service account can update BillingRecipient', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const integrationClient = await makeClientWithIntegrationAccess()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                const [ createdObj ] = await createTestRecipient(integrationClient, organization)
+                const [ updatedObj ] = await updateTestRecipient(integrationClient, createdObj.id, { offsettingAccount: 123123 })
+
+                expect(createdObj.id).toEqual(updatedObj.id)
+                expect(createdObj.isApproved).toEqual(false)
+                expect(updatedObj.isApproved).toEqual(true)
+            })
+
+            test('organization integration manager can\'t update BillingRecipient', async () => {
+
+                const admin = await makeLoggedInAdminClient()
+                const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager()
+                const [context] = await createTestBillingIntegrationOrganizationContext(managerUserClient, organization, integration)
+
+                const [ createdObj ] = await createTestBillingRecipient(admin, context)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBillingRecipient(managerUserClient,
+                    createdObj.id, { isApproved: true })
+                })
+            })
+
+            test('user can\'t update BillingRecipients', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+                const [ createdObj ] = await createTestBillingRecipient(adminClient, context)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBillingRecipient(user,
+                    createdObj.id, { isApproved: true })
+                })
+            })
+
+            test('anonymous can\'t update BillingRecipients', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+                const [ createdObj ] = await createTestBillingRecipient(adminClient, context)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBillingRecipient(user,
+                    createdObj.id, { isApproved: true })
+                })
+            })
+        })
+    })
 })
