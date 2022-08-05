@@ -12,7 +12,6 @@ import { canManageContacts } from '@condo/domains/organization/permissions'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@core/next/intl'
 import { useOrganization } from '@core/next/organization'
-import styled from '@emotion/styled'
 import { Col, Form, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
@@ -31,17 +30,6 @@ const INPUT_LAYOUT_PROPS = {
 }
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
-
-// This over-styling is needed to place an asterisk to the right of required field label
-const FormItemWithRightAsterisk = styled(Form.Item)`
-  .ant-form-item-required:before {
-    order: 1;
-  }
-
-  .ant-form-item-required:after:empty {
-    display: none;
-  }
-`
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
@@ -161,7 +149,7 @@ export const EditContactForm: React.FC = () => {
                                             </Typography.Title>
                                         </Col>
                                         <Col span={24}>
-                                            <FormItemWithRightAsterisk
+                                            <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
                                                 labelAlign={'left'}
                                                 name={'name'}
@@ -171,10 +159,10 @@ export const EditContactForm: React.FC = () => {
                                                 rules={validations.name}
                                             >
                                                 <Input placeholder={FullNamePlaceholderMessage}/>
-                                            </FormItemWithRightAsterisk>
+                                            </Form.Item>
                                         </Col>
                                         <Col span={24}>
-                                            <FormItemWithRightAsterisk
+                                            <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
                                                 labelAlign={'left'}
                                                 name={'phone'}
@@ -184,7 +172,7 @@ export const EditContactForm: React.FC = () => {
                                                 rules={validations.phone}
                                             >
                                                 <PhoneInput placeholder={ExamplePhoneMessage} block/>
-                                            </FormItemWithRightAsterisk>
+                                            </Form.Item>
                                         </Col>
                                         <Col span={24}>
                                             <Form.Item
