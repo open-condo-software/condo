@@ -19,7 +19,6 @@ const {
 const { CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 
 const index = require('@app/condo/index')
-const exp = require('constants')
 const { keystone } = index
 
 const prepareUserAndMeter = async ({ nextVerificationDate }) => {
