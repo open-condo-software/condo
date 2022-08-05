@@ -9,11 +9,7 @@ import { useRouter } from 'next/router'
 import { useMemo } from 'react'
 import { IntlShape } from 'react-intl/src/types'
 
-const getTypeRenderer = (intl: IntlShape) => (organization, record: TableRecord) => {
-    const DefaultType = intl.formatMessage({ id: 'ContactRoles.types.default' })
-    const CustomType = intl.formatMessage({ id: 'ContactRoles.types.custom' })
-    return organization ? CustomType : DefaultType
-}
+const getTypeRenderer = (intl: IntlShape) => (organization, record: TableRecord) => intl.formatMessage({ id: organization ? 'ContactRoles.types.custom' : 'ContactRoles.types.default' })
 
 export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
     const intl = useIntl()
