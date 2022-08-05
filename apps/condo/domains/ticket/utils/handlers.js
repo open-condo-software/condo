@@ -235,23 +235,16 @@ const sendTicketNotifications = async (requestData) => {
         const today = dayjs().format('YYYY-MM-DD')
         const uniqKey = `${today}_${clientPhone}`
 
-        const messageWithSameUniqKey = await getByCondition('Message', {
-            uniqKey,
+        await sendMessage(context, {
+            lang,
+            to: { phone: clientPhone },
             type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+            uniqKey,
+            meta: {
+                dv: 1,
+            },
+            sender: updatedItem.sender,
         })
-
-        if (!messageWithSameUniqKey) {
-            await sendMessage(context, {
-                lang,
-                to: { phone: clientPhone },
-                type: TRACK_TICKET_IN_DOMA_APP_TYPE,
-                uniqKey,
-                meta: {
-                    dv: 1,
-                },
-                sender: updatedItem.sender,
-            })
-        }
     }
 }
 

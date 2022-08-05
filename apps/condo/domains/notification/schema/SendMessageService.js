@@ -1,4 +1,4 @@
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/notification/access/SendMessageService')
@@ -11,6 +11,7 @@ const {
 const { deliverMessage } = require('../tasks')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { TRACK_TICKET_IN_DOMA_APP_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const errors = {
     EMAIL_FROM_REQUIRED: {
@@ -137,11 +138,22 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.phone) messageAttrs.phone = to.phone
                 if (to.user) messageAttrs.user = { connect: to.user }
 
-                const message = await Message.create(context, messageAttrs)
+                let messageWithSameUniqKey
+                if (uniqKey) {
+                    messageWithSameUniqKey = await getByCondition('Message', {
+                        uniqKey,
+                        type,
+                    })
+                }
 
-                await deliverMessage.delay(message.id)
+                const message = messageWithSameUniqKey ? messageWithSameUniqKey : await Message.create(context, messageAttrs)
+
+                if (!messageWithSameUniqKey) {
+                    await deliverMessage.delay(message.id)
+                }
 
                 return {
+                    isDuplicateMessage: !!messageWithSameUniqKey,
                     id: message.id,
                     status: message.status,
                 }
