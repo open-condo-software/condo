@@ -28,7 +28,7 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = `new_${userAttrs.password}`
-            const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
+            const [result] = await changePasswordWithTokenByTestClient(client, { token, password, dv: 1, sender: { dv: 1, fingerprint: 'tests' }  })
             expect(result).toEqual({ status: 'ok', phone:  userAttrs.phone })
 
             const newClient = await makeLoggedInClient({ phone: userAttrs.phone, password })
@@ -44,7 +44,7 @@ describe('ForgotPasswordAction Service', () => {
             const password = `new_${userAttrs.password}`
 
             await updateTestForgotPasswordAction(admin, id, { expiresAt: new Date(Date.now()).toISOString() })
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password, dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
@@ -66,7 +66,7 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = userAttrs.password.slice(0, MIN_PASSWORD_LENGTH - 1)
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password, dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
@@ -96,7 +96,7 @@ describe('ForgotPasswordAction Service', () => {
             const client = await makeLoggedInClient(userAttrs)
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '', dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
@@ -147,7 +147,7 @@ describe('ForgotPasswordAction Service', () => {
             const [result] = await changePasswordWithTokenByTestClient(client, { token, password })
             expect(result).toEqual({ status: 'ok', phone:  userAttrs.phone })
 
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password, dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
 
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
@@ -171,7 +171,7 @@ describe('ForgotPasswordAction Service', () => {
             const password = `new_${userAttrs.password}`
 
             await updateTestForgotPasswordAction(admin, id, { expiresAt: new Date(Date.now()).toISOString() })
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password, dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: 'Unable to find non-expired ConfirmPhoneAction by specified token',
@@ -193,7 +193,7 @@ describe('ForgotPasswordAction Service', () => {
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             const password = userAttrs.password.slice(0, MIN_PASSWORD_LENGTH - 1)
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password, dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
@@ -223,7 +223,7 @@ describe('ForgotPasswordAction Service', () => {
             const client = await makeClient()
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
-            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '' } })
+            const { errors } = await client.mutate(CHANGE_PASSWORD_WITH_TOKEN_MUTATION, { data: { token, password: '', dv: 1, sender: { dv: 1, fingerprint: 'tests' } } })
             expect(errors).toHaveLength(1)
             expect(errors).toMatchObject([{
                 message: `Password length is less then ${MIN_PASSWORD_LENGTH} characters`,
