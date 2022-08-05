@@ -2,6 +2,8 @@ const falsey = require('falsey')
 
 const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
 
+jest.setTimeout(60000)
+
 if (EXTRA_LOGGING) {
     // Patch tests to include their own name
     jasmine.getEnv().addReporter({ // eslint-disable-line
