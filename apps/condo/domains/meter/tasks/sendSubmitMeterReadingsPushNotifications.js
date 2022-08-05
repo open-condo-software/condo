@@ -251,7 +251,7 @@ const sendMessagesForExpiredMeterVerificationDate = async ({ context, metersWith
                         url: `${conf.SERVER_URL}/meter/`,
                     },
                 },
-                organization: { connect: { id: meter.organization.id } },
+                organization: meter.organization && { connect: { id: meter.organization.id } },
             }
 
             await sendMessageSafely({ context, message })
