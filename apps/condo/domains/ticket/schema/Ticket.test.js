@@ -1685,6 +1685,7 @@ describe('Ticket', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toMatch(UUID_RE)
+                expect(message.organization.id).toEqual(ticket.organization.id)
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -1721,6 +1722,7 @@ describe('Ticket', () => {
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toMatch(UUID_RE)
+                expect(message.organization.id).toEqual(ticket.organization.id)
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
@@ -1752,6 +1754,8 @@ describe('Ticket', () => {
                 const message = await Message.getAll(admin, messageWhere)
 
                 expect(message).toHaveLength(2)
+                expect(message[0].organization.id).toEqual(ticket.organization.id)
+                expect(message[1].organization.id).toEqual(ticket.organization.id)
             })
         })
 
@@ -1779,6 +1783,7 @@ describe('Ticket', () => {
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+                    expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
 
@@ -1857,6 +1862,7 @@ describe('Ticket', () => {
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+                    expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
 
@@ -1905,6 +1911,7 @@ describe('Ticket', () => {
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+                    expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
 
@@ -1953,6 +1960,7 @@ describe('Ticket', () => {
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+                    expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
 
