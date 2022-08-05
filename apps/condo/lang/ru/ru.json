@@ -201,6 +201,7 @@
   "ContactRoles.add": "Создать роль",
   "ContactRoles.createRoleTitle": "Создание роли",
   "ContactRoles.name": "Название",
+  "ContactRoles.namePlaceholderValue": "Например, «Арендатор»",
   "ContactRoles.type": "Тип роли",
   "ContactRoles.types.default": "Предустановленная",
   "ContactRoles.types.custom": "Пользовательская",

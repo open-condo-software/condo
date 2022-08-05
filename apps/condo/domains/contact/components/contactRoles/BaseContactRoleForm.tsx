@@ -42,6 +42,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 }) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
+    const NamePlaceholderValue = intl.formatMessage({ id: 'ContactRoles.namePlaceholderValue' })
     const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
     const ReadyMessage = intl.formatMessage({ id: 'Ready' })
 
@@ -90,7 +91,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                                     required
                                     {...COMMON_FORM_ITEM_PROPS}
                                 >
-                                    <Input disabled={!organizationId}/>
+                                    <Input disabled={!organizationId} placeholder={NamePlaceholderValue}/>
                                 </Form.Item>
                             </Col>
                             {children({ handleSave, isLoading, form })}

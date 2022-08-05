@@ -201,6 +201,7 @@
   "ContactRoles.add": "Creating a new role",
   "ContactRoles.createRoleTitle": "New role",
   "ContactRoles.name": "Name",
+  "ContactRoles.namePlaceholderValue": "For example, «Owner»",
   "ContactRoles.type": "Type",
   "ContactRoles.types.default": "Default",
   "ContactRoles.types.custom": "Custom",
