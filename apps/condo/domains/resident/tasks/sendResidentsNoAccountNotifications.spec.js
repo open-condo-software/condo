@@ -28,6 +28,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         const message = await Message.getOne(admin, messageWhere)
 
         expect(message).toBeDefined()
+        expect(message.organization.id).toEqual(resident.residentOrganization.id)
     })
 
     it('sends nothing for receipt with resident having billing account', async () => {
@@ -61,5 +62,6 @@ describe('sendResidentsNoAccountNotifications', () => {
         const messages = await Message.getAll(admin, messageWhere)
 
         expect(messages).toHaveLength(1)
+        expect(messages[0].organization.id).toEqual(resident.residentOrganization.id)
     })
 })

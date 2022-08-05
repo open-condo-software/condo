@@ -45,6 +45,7 @@ const prepareAndSendNotification = async (context, resident, period) => {
     const country = get(resident, 'residentOrganization.country')
     const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
     const notificationKey = makeMessageKey(period, resident.property.id, resident.id)
+    const organizationId = get(resident, 'residentOrganization.id')
 
     const data = {
         residentId: resident.id,
@@ -62,6 +63,7 @@ const prepareAndSendNotification = async (context, resident, period) => {
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-residents-no-account-notifications' },
         uniqKey: notificationKey,
+        organization: organizationId && { connect: { id: organizationId } },
     }
 
     try {
