@@ -14,6 +14,8 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 import { TicketStatusTypeType } from '@app/condo/schema'
 import { useTicketCancelModal } from '@app/condo/domains/ticket/hooks/useTicketCancelModal'
+import { useTicketDeferModal } from '../hooks/useTicketDeferModal'
+import { Dayjs } from 'dayjs'
 
 interface IStyledSelect {
     color: string
@@ -62,7 +64,17 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         updateTicketStatus({ status: { connect: { id: value } }, statusUpdatedAt: new Date() })
     }, [updateTicketStatus])
 
-    const { cancelTicketModal, openModal } = useTicketCancelModal(updateTicket)
+    const updateDeferredTicket = useCallback((statusDeferredId: string, deferredDate: Dayjs) => {
+        setUpdating(true)
+        updateTicketStatus({
+            status: { connect: { id: statusDeferredId } },
+            statusUpdatedAt: new Date(),
+            deferredUntil: deferredDate.toISOString(),
+        })
+    }, [updateTicketStatus])
+
+    const { cancelTicketModal, openModal: openCancelModal } = useTicketCancelModal(updateTicket)
+    const { deferTicketModal, openModal: openTicketDeferModal } = useTicketDeferModal(updateDeferredTicket)
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {
         const { value, label } = TicketStatus.convertGQLItemToFormSelectState(status)
@@ -82,12 +94,15 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
-        if (statuses.find((status) => status.id === value).type === TicketStatusTypeType.Canceled) {
-            openModal(value)
+        const selectedStatus = statuses.find((status) => status.id === value)
+        if (selectedStatus.type === TicketStatusTypeType.Canceled) {
+            openCancelModal(value)
+        } else if (selectedStatus.type === TicketStatusTypeType.Deferred) {
+            openTicketDeferModal(value)
         } else {
             updateTicket(value)
         }
-    }, [ticket, statuses, updateTicket, openModal])
+    }, [ticket, statuses, updateTicket, openCancelModal])
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
@@ -116,6 +131,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
                 {options}
             </StyledSelect>
             {cancelTicketModal}
+            {deferTicketModal}
         </>
     )
 }
