@@ -6,7 +6,13 @@ import { get, isUndefined } from 'lodash'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
-import { Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs } from '@app/condo/schema'
+import {
+    Ticket,
+    TicketCreateInput,
+    TicketUpdateInput,
+    QueryAllTicketsArgs,
+    TicketStatusTypeType,
+} from '@app/condo/schema'
 import dayjs, { Dayjs } from 'dayjs'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 
@@ -40,8 +46,8 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
     if (!ticket) return
     const result: ITicketFormState = {}
     const deadline = ticket['deadline']
-    const deferredUntil = ticket['deferredUntil']
     const statusType = get(ticket,  'status.type', null)
+    const deferredUntil = statusType === TicketStatusTypeType.Deferred ? ticket['deferredUntil'] : undefined
 
     for (const key of Object.keys(ticket)) {
         const relationId = get(ticket[key], 'id')
@@ -49,7 +55,7 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
     }
 
     result['deadline'] = deadline && dayjs(deadline)
-    result['deferredUntil'] = deferredUntil && dayjs(deferredUntil)
+    deferredUntil && (result['deferredUntil'] = deferredUntil && dayjs(deferredUntil))
     result['statusType'] = statusType
 
     return result

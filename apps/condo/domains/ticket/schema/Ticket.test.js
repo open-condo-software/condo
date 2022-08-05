@@ -1775,6 +1775,23 @@ describe('Ticket', () => {
             expect(updatedTicket.deferredUntil).toEqual(deferredUntil)
             expect(updatedTicket.status).toEqual(expect.objectContaining({ id: attrs.status.connect.id }))
         })
+        test('ticket with "deferredUntil" field and with status not "deferred" should can edit without "deferredUntil" field', async () => {
+            const client = await makeClientWithProperty()
+            let deferredUntil = dayjs().add(2, 'days').toISOString()
+
+            const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil,
+            })
+
+            await updateTestTicket(client, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+            const [secondUpdatedTicket] = await updateTestTicket(client, ticket.id, {
+                deadline: deferredUntil,
+            })
+
+            expect(secondUpdatedTicket.deadline).toEqual(deferredUntil)
+        })
     })
 
     describe('notifications', () => {

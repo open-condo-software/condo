@@ -468,7 +468,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
             return resolvedData
         },
-        validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation }) => {
+        validateInput: async ({ resolvedData, existingItem, addValidationError, context, operation, originalInput }) => {
             // Todo(zuch): add placeClassifier, categoryClassifier and classifierRule
             if (!hasDbFields(['organization', 'source', 'status', 'details'], resolvedData, existingItem, context, addValidationError)) return
             if (resolvedData.statusUpdatedAt) {
@@ -495,7 +495,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
                 if (operation === 'update') {
                     const existingStatus = await getById('TicketStatus', existingItem.status)
-                    if (existingStatus.type !== DEFERRED_STATUS_TYPE && resolvedStatus.type !== DEFERRED_STATUS_TYPE) {
+                    if (originalInput.deferredUntil && existingStatus.type !== DEFERRED_STATUS_TYPE && resolvedStatus.type !== DEFERRED_STATUS_TYPE) {
                         return addValidationError(`${WRONG_VALUE} should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`)
                     }
                 }
