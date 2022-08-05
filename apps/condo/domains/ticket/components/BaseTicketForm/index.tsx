@@ -5,6 +5,7 @@ import {
     PropertyWhereInput,
     Ticket,
     TicketFile as TicketFileType,
+    TicketStatusTypeType,
 } from '@app/condo/schema'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 
@@ -38,6 +39,7 @@ import { TicketAssignments } from './TicketAssignments'
 
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
+import { TicketDeferredDateField } from './TicketDeferredDateField'
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
@@ -199,7 +201,11 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <TicketDeadlineField initialValues={initialValues} />
+                            {
+                                initialValues.statusType === TicketStatusTypeType.Deferred
+                                    ? <TicketDeferredDateField />
+                                    : <TicketDeadlineField initialValues={initialValues} />
+                            }
                         </Col>
                     </Row>
                 </Col>
