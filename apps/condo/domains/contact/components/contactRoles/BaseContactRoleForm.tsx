@@ -43,7 +43,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
     const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
-    const DoneMessage = intl.formatMessage({ id: 'Done' })
+    const ReadyMessage = intl.formatMessage({ id: 'Ready' })
 
     const router = useRouter()
 
@@ -73,7 +73,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                     action={handleFormSubmit}
                     OnCompletedMsg={
                         <>
-                            <Typography.Text strong>{DoneMessage}</Typography.Text>
+                            <Typography.Text strong>{ReadyMessage}</Typography.Text>
                             <br/>
                             <Typography.Text>{ChangesSavedMessage}</Typography.Text>
                         </>
