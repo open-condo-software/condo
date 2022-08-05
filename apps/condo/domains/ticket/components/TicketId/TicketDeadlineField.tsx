@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+import { Ticket, TicketStatusTypeType } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getDeadlineType, getHumanizeDeadlineDateDifference, TicketDeadlineType } from '@app/condo/domains/ticket/utils/helpers'
@@ -20,6 +20,7 @@ export const TicketDeadlineField: React.FC<TicketDeadlineFieldProps> = ({ ticket
     const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
 
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
+    const isDeferredTicket = ticket.status.type === TicketStatusTypeType.Deferred
     const getTicketDeadlineMessage = useCallback(() => {
         if (!ticketDeadline) return
 
@@ -55,7 +56,7 @@ export const TicketDeadlineField: React.FC<TicketDeadlineFieldProps> = ({ ticket
     const overdueMessage = useMemo(() => getTicketDeadlineMessage(),
         [getTicketDeadlineMessage])
 
-    return ticketDeadline ? (
+    return !isDeferredTicket && ticketDeadline ? (
         <PageFieldRow title={Deadline} ellipsis={{ rows: 2 }}>
             <Typography.Text strong> {dayjs(ticketDeadline).format('DD MMMM YYYY')} </Typography.Text>
             {overdueMessage}
