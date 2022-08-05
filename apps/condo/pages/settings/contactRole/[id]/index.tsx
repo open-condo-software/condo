@@ -38,6 +38,9 @@ const TheContactRolePage = (): JSX.Element => {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'ContactRoles.confirmDeleteMessage' })
     const ReadOnlyRoleWarningTitle = intl.formatMessage({ id: 'ContactRoles.readOnlyRoleWarningTitle' })
     const ReadOnlyRoleWarningMessage = intl.formatMessage({ id: 'ContactRoles.readOnlyRoleWarningMessage' })
+    const TypeMessage = intl.formatMessage({ id: 'ContactRoles.type' })
+    const DefaultType = intl.formatMessage({ id: 'ContactRoles.types.default' })
+    const CustomType = intl.formatMessage({ id: 'ContactRoles.types.custom' })
 
     const router = useRouter()
     const { link } = useOrganization()
@@ -58,7 +61,7 @@ const TheContactRolePage = (): JSX.Element => {
 
     const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
-    const isDefaultRole = !!get(contactRole, 'organization', null)
+    const isCustomRole = !!get(contactRole, 'organization', null)
 
     if (loading) {
         return <Loader/>
@@ -75,7 +78,7 @@ const TheContactRolePage = (): JSX.Element => {
                         <Col span={24}>
                             <Typography.Title>{contactRoleTitleMessage}</Typography.Title>
                         </Col>
-                        {canManageContactRoles && !isDefaultRole && (<Col>
+                        {canManageContactRoles && !isCustomRole && (<Col>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                 <Col span={24}>
                                     <Alert
@@ -96,10 +99,15 @@ const TheContactRolePage = (): JSX.Element => {
                                         {contactRoleName}
                                     </PageFieldRow>
                                 </Col>
+                                <Col span={24}>
+                                    <PageFieldRow title={TypeMessage}>
+                                        {isCustomRole ? CustomType : DefaultType}
+                                    </PageFieldRow>
+                                </Col>
                             </Row>
                         </Col>
                         {
-                            canManageContactRoles && isDefaultRole && (
+                            canManageContactRoles && isCustomRole && (
                                 <Col span={24}>
                                     <ActionBar>
                                         <Link href={`/settings/contactRole/${contactRoleId}/update`}>
