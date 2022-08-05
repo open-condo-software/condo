@@ -55,6 +55,7 @@ import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
+import { TicketDeferredDateField } from '@condo/domains/ticket/components/TicketId/TicketDeferredDateField'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -65,6 +66,7 @@ const TicketContent = ({ ticket }) => {
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <TicketReviewField ticket={ticket} />
+                        <TicketDeferredDateField ticket={ticket} />
                         <TicketDeadlineField ticket={ticket} />
                         <TicketPropertyField ticket={ticket} />
                         <TicketClientField ticket={ticket} />
