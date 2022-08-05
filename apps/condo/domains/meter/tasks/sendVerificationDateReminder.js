@@ -210,6 +210,7 @@ const generateReminderMessages = async ({ context, reminders }) => {
                             url: `${ conf.SERVER_URL }/meter/`,
                         },
                     },
+                    organization: { connect: { id: meter.organization.id } },
                 }
             })
         )
