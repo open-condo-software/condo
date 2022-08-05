@@ -93,7 +93,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput, uniqKey: String }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationRelateToOneInput, uniqKey: String }',
         },
         {
             access: true,
@@ -120,14 +120,14 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
             resolver: async (parent, args, context) => {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
-                const { dv, sender, to, emailFrom, type, meta, lang, uniqKey } = data
+                const { dv, sender, to, emailFrom, type, meta, lang, uniqKey, organization } = data
                 if (!to.user && !to.email && !to.phone) throw new GQLError(errors.USER_OR_EMAIL_OR_PHONE_REQUIRED, context)
 
                 if (emailFrom && !to.email) throw new GQLError(errors.EMAIL_FROM_REQUIRED, context)
 
                 await checkSendMessageMeta(type, meta, context)
 
-                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom, uniqKey }
+                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom, uniqKey, organization }
 
                 // TODO(pahaz): add email/phone validation
                 if (to.email) messageAttrs.email = to.email

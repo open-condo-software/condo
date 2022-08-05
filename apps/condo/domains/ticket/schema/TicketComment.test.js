@@ -1043,6 +1043,7 @@ describe('TicketComment', () => {
 
             expect(message).toBeDefined()
             expect(message.id).toMatch(UUID_RE)
+            expect(message.organization.id).toEqual(ticket.organization.id)
 
             await waitFor(async () => {
                 const message1 = await Message.getOne(admin, messageWhere)
@@ -1115,6 +1116,7 @@ describe('TicketComment', () => {
             const messages = await Message.getAll(admin, messageWhere)
 
             expect(messages).toHaveLength(1)
+            expect(messages[0].organization.id).toEqual(ticket.organization.id)
         })
 
     })
