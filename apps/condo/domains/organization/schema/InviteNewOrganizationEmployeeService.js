@@ -164,6 +164,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 
                 const organizationCountry = get(userOrganization, 'country', 'en')
                 const organizationName = get(userOrganization, 'name')
+                const organizationId = get(userOrganization, 'id')
 
                 await sendMessage(context, {
                     lang: organizationCountry,
@@ -180,6 +181,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         dv: 1,
                     },
                     sender: data.sender,
+                    organization: { connect: { id: organizationId } },
                 })
 
                 return await getById('OrganizationEmployee', employee.id)
@@ -223,6 +225,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
 
                 const organizationCountry = get(employeeOrganization, 'country', 'en')
                 const organizationName = get(employeeOrganization, 'name')
+                const organizationId = get(employeeOrganization, 'id')
 
                 await sendMessage(context, {
                     lang: organizationCountry,
@@ -239,6 +242,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         dv: 1,
                     },
                     sender: sender,
+                    organization: { connect: { id: organizationId } },
                 })
 
                 return await getById('OrganizationEmployee', existedEmployee.id)

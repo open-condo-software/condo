@@ -73,6 +73,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                         expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                         expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(message1.organization.id).toEqual(client.organization.id)
                     })
                 })
 
@@ -289,6 +290,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         expect(messages[0].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
                         expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
                         expect(messages[1].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[1].organization.id).toEqual(client.organization.id)
                     })
                 })
             })
