@@ -19,6 +19,7 @@ const {
 const { CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 
 const index = require('@app/condo/index')
+const exp = require('constants')
 const { keystone } = index
 
 const prepareUserAndMeter = async ({ nextVerificationDate }) => {
@@ -103,6 +104,7 @@ describe('Submit meter readings push notification', () => {
             meterId: meter.id,
         })
         expect(messages).toHaveLength(1)
+        expect(messages[0].organization.id).toEqual(meter.organization.id)
     })
 
     it('should send messages for empty readings and not valid nextVerificationDate', async () => {
@@ -120,6 +122,8 @@ describe('Submit meter readings push notification', () => {
             meterId: meter.id,
         })
         expect(messages).toHaveLength(2)
+        expect(messages[0].organization.id).toEqual(meter.organization.id)
+        expect(messages[1].organization.id).toEqual(meter.organization.id)
     })
 
     it('should send messages for empty readings and undefined nextVerificationDate', async () => {
@@ -137,5 +141,6 @@ describe('Submit meter readings push notification', () => {
             meterId: meter.id,
         })
         expect(messages).toHaveLength(1)
+        expect(messages[0].organization.id).toEqual(meter.organization.id)
     })
 })
