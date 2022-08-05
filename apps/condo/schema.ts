@@ -10564,8 +10564,8 @@ export enum CacheControlScope {
 export type ChangePasswordWithTokenInput = {
   token: Scalars['String'];
   password: Scalars['String'];
-  sender?: Maybe<SenderFieldInput>;
-  dv?: Maybe<Scalars['Int']>;
+  sender: SenderFieldInput;
+  dv: Scalars['Int'];
 };
 
 export type ChangePasswordWithTokenOutput = {
