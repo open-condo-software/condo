@@ -1,3 +1,4 @@
+import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
@@ -6,10 +7,18 @@ import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { useIntl } from '@core/next/intl'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'
+import { IntlShape } from 'react-intl/src/types'
+
+const getTypeRenderer = (intl: IntlShape) => (organization, record: TableRecord) => {
+    const DefaultType = intl.formatMessage({ id: 'ContactRoles.types.default' })
+    const CustomType = intl.formatMessage({ id: 'ContactRoles.types.custom' })
+    return organization ? CustomType : DefaultType
+}
 
 export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
     const intl = useIntl()
-    const nameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
+    const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
+    const TypeMessage = intl.formatMessage({ id: 'ContactRoles.type' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -17,7 +26,7 @@ export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T
     return useMemo(() => {
         return [
             {
-                title: nameMessage,
+                title: NameMessage,
                 filteredValue: getFilteredValue<IFilters>(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
@@ -26,6 +35,12 @@ export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T
                 filterIcon: getFilterIcon,
                 ellipsis: true,
             },
+            {
+                title: TypeMessage,
+                dataIndex: 'organization',
+                key: 'type',
+                render: getTypeRenderer(intl),
+            },
         ]
-    }, [nameMessage, filters, filterMetas])
+    }, [NameMessage, filters, filterMetas])
 }
