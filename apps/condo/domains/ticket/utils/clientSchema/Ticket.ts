@@ -40,6 +40,8 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
     if (!ticket) return
     const result: ITicketFormState = {}
     const deadline = ticket['deadline']
+    const deferredUntil = ticket['deferredUntil']
+    const statusType = get(ticket,  'status.type', null)
 
     for (const key of Object.keys(ticket)) {
         const relationId = get(ticket[key], 'id')
@@ -47,6 +49,8 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
     }
 
     result['deadline'] = deadline && dayjs(deadline)
+    result['deferredUntil'] = deferredUntil && dayjs(deferredUntil)
+    result['statusType'] = statusType
 
     return result
 }
