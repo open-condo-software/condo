@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { useMutation, useQuery } from '@core/next/apollo'
-import { useIntl } from '@core/next/intl'
+import { useMutation, useQuery } from '@condo/next/apollo'
+import { useIntl } from '@condo/next/intl'
 
 const getObjects = (objectsContainer, converter) => (objectsContainer && objectsContainer.objs) ? objectsContainer.objs.map(converter) : []
 
