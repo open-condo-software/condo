@@ -327,26 +327,6 @@ describe('TriggersManager', () => {
             it('if there is no rules found', (done) => {
                 let triggerActionExecuted = false
 
-                const mockTrigger = {
-                    rule: {
-                        conditions: {
-                            all: [
-                                {
-                                    fact: 'fact',
-                                    operator: 'equal',
-                                    value: 'should be triggered',
-                                },
-                            ],
-                        },
-                        event: {
-                            type: 'mockTrigger',
-                        },
-                    },
-                    action: () => {
-                        triggerActionExecuted = true
-                    },
-                }
-
                 triggersManager.executeTrigger({ fact: 'should be triggered' }, {}).then(() => {
                     expect(triggerActionExecuted).toBeFalsy()
                     done()
