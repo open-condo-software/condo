@@ -1,5 +1,5 @@
 {
-    "name": "@core/codegen",
+    "name": "@condo/codegen",
     "version": "1.0.0",
     "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/packages/@core.codegen",
     "dependencies": {
