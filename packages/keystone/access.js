@@ -2,7 +2,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get } = require('lodash')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 
 const userIsAuthenticated = (args) => {
     const { authentication: { item: user } } = args

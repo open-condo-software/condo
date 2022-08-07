@@ -1,5 +1,5 @@
-const { composeNonResolveInputHook } = require('@core/keystone/plugins/utils')
-const { plugin } = require('@core/keystone/plugins/utils/typing')
+const { composeNonResolveInputHook } = require('@condo/keystone/plugins/utils')
+const { plugin } = require('@condo/keystone/plugins/utils/typing')
 
 const { SENDER_FIELD, DV_FIELD } = require('@{{app}}/domains/common/schema/fields')
 const { hasDvAndSenderFields } = require('@{{app}}/domains/common/utils/validation.utils')

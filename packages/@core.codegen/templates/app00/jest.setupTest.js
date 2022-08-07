@@ -1,6 +1,6 @@
 const falsey = require('falsey')
 
-const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@condo/keystone/test.utils')
 const conf = require('@core/config')
 const index = require('@app/condo/index')
 
