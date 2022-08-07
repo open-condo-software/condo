@@ -1,5 +1,5 @@
 node_modules
-packages/@core.bicrypt/build
+packages/bicrypt/build
 dist
 out
 .next
