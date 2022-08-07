@@ -4,7 +4,7 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const get = require('lodash/get')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 async function canReadOnBoardingSteps ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

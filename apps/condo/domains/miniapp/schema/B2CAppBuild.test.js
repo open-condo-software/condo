@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 const path = require('path')
-const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@condo/keystone/test.utils')
 const conf = require('@core/config')
 
 const {

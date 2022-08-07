@@ -7,12 +7,10 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { getByCondition, find, getById } = require('@core/keystone/schema')
+const { getByCondition, find, getById } = require('@condo/keystone/schema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const isEmpty = require('lodash/isEmpty')
 const compact = require('lodash/compact')
 const uniq = require('lodash/uniq')
-const omit = require('lodash/omit')
 const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('../constants')
 const { getTicketFieldsMatchesResidentFieldsQuery } = require('../utils/accessSchema')
 

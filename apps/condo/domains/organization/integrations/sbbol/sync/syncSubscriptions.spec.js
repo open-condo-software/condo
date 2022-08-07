@@ -3,7 +3,7 @@
  */
 
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
-const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { find } = require('lodash')

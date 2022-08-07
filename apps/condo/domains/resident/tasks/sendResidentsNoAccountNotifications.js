@@ -4,8 +4,8 @@ const { get, isEmpty, uniq } = require('lodash')
 const dayjs = require('dayjs')
 
 const conf = require('@core/config')
-const { getSchemaCtx } = require('@core/keystone/schema')
-const { getRedisClient } = require('@core/keystone/redis')
+const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getRedisClient } = require('@condo/keystone/redis')
 
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
@@ -55,11 +55,10 @@ const prepareAndSendNotification = async (context, resident, period) => {
         period,
     }
 
-    const messageType = BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE
     const messageData = {
         lang: locale,
         to: { user: { id: resident.user.id } },
-        type: messageType,
+        type: BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-residents-no-account-notifications' },
         uniqKey: notificationKey,

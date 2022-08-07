@@ -1,5 +1,5 @@
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
 const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, createTestConfirmPhoneAction, UserAdmin, makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')

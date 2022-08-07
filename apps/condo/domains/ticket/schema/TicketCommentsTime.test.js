@@ -5,7 +5,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
 
 const { TicketCommentsTime, createTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -60,7 +60,7 @@ describe('TicketCommentsTime', () => {
 
                 const content = faker.lorem.sentence()
                 const [ticket] = await createTestTicket(userClient, organization, property)
-                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                await createTestTicketComment(userClient, ticket, userClient.user, {
                     type: ORGANIZATION_COMMENT_TYPE,
                     content,
                 })
@@ -87,7 +87,7 @@ describe('TicketCommentsTime', () => {
 
                 const content = faker.lorem.sentence()
                 const [ticket] = await createTestTicket(userClient, organization, property)
-                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                await createTestTicketComment(userClient, ticket, userClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                     content,
                 })
@@ -113,7 +113,7 @@ describe('TicketCommentsTime', () => {
 
                 const content = faker.lorem.sentence()
                 const [ticket] = await createTestTicket(adminClient, organization, property)
-                const [ticketComment] = await createTestTicketComment(adminClient, ticket, userClient.user, {
+                await createTestTicketComment(adminClient, ticket, userClient.user, {
                     type: RESIDENT_COMMENT_TYPE,
                     content,
                 })

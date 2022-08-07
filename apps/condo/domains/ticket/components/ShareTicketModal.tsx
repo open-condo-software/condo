@@ -19,7 +19,7 @@ import { useRouter } from 'next/router'
 import crypto from 'crypto'
 import getConfig from 'next/config'
 import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants/crypto'
-import { Organization } from '@core/keystone/schema'
+import { Organization } from '@condo/keystone/schema'
 import { get, isEmpty } from 'lodash'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 

@@ -1,4 +1,4 @@
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/notification/access/SendMessageService')
@@ -9,7 +9,7 @@ const {
     MESSAGE_RESENDING_STATUS,
 } = require('../constants/constants')
 const { deliverMessage } = require('../tasks')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 
 const errors = {
@@ -150,7 +150,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         {
             access: access.canSendMessage,
             schema: 'resendMessage(data: ResendMessageInput!): ResendMessageOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, message: messageInput } = data
 

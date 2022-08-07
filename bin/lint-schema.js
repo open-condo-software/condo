@@ -3,7 +3,7 @@ const path = require('path')
 const { File } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
 const APPS = ['condo']
@@ -11,7 +11,7 @@ const APPS = ['condo']
 function verifySchema (keystone) {
     let errorCounter = 0
     const report = (msg) => { throw new Error(`WRONG-SCHEMA-DEFINITION[${errorCounter}]: ${msg}`) }
-    Object.entries(keystone.lists).forEach(([key, list]) => {
+    Object.entries(keystone.lists).forEach(([, list]) => {
         list.fields.forEach((field) => {
             if (field.isRelationship && !field.many) {
                 const { kmigratorOptions, knexOptions } = field.config

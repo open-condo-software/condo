@@ -6,8 +6,6 @@
 const faker = require('faker')
 const { makeClientWithResidentUser } = require(
     '@condo/domains/user/utils/testSchema')
-const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
 const { get } = require('lodash')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
@@ -20,7 +18,7 @@ const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const Resident = generateGQLTestUtils(ResidentGQL)

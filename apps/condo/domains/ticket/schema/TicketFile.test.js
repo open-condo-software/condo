@@ -6,8 +6,8 @@ const { updateTestOrganizationEmployee } = require('@condo/domains/organization/
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
 const { 
     TicketFile, 
     createTestTicketFile, 

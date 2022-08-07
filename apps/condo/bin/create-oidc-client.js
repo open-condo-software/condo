@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
 const { createOidcClient } = require('@condo/domains/user/oidc')
 

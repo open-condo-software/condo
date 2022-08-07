@@ -4,8 +4,8 @@
 const { uniq, get } = require('lodash')
 const dayjs = require('dayjs')
 
-const { GQLCustomSchema } = require('@core/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const conf = require('@core/config')
 
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
@@ -54,7 +54,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
         {
             access: access.canExportMeterReadings,
             schema: 'exportMeterReadings (data: ExportMeterReadingsInput!): ExportMeterReadingsOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { where, sortBy, timeZone: timeZoneFromUser } = args.data
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)

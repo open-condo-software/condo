@@ -1,9 +1,9 @@
 const { get } = require('lodash')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { getById, GQLCustomSchema } = require('@core/keystone/schema')
+const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
 const access = require('@condo/domains/organization/access/AcceptOrRejectOrganizationInviteService')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 
 const errors = {
@@ -54,7 +54,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
             access: access.canAcceptOrRejectOrganizationInvite,
             // todo(DOMA-2305) Use type instead of ID!
             schema: 'acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { id, data } = args
                 const authedItem = context.authedItem
                 if (!authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
@@ -92,7 +92,7 @@ const AcceptOrRejectOrganizationInviteService = new GQLCustomSchema('AcceptOrRej
         {
             access: access.canAcceptOrRejectOrganizationInvite,
             schema: 'acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { inviteCode, data } = args
                 const authedItem = context.authedItem
                 if (!authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')

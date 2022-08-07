@@ -12,7 +12,7 @@ const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/u
 
 const { createTestTicket } = require('../utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@condo/keystone/test.utils')
 
 const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 
@@ -270,7 +270,7 @@ describe('TicketChange', () => {
 
         await catchErrorFrom(async () => {
             await updateTestTicketChange(client, objCreated.id)
-        }, ({ errors, data }) => {
+        }, ({ errors }) => {
             // Custom match should be used here, because error message contains
             // suggestions, like "Did you mean …", that cannot be known in advance
             // So, just inspect basic part of the message
@@ -296,7 +296,7 @@ describe('TicketChange', () => {
 
         await catchErrorFrom(async () => {
             await updateTestTicketChange(anonymous, objCreated.id)
-        }, ({ errors, data }) => {
+        }, ({ errors }) => {
             // Custom match should be used here, because error message contains
             // suggestions, like "Did you mean …", that cannot be known in advance
             // So, just inspect basic part of the message
@@ -343,7 +343,7 @@ describe('TicketChange', () => {
 
         await catchErrorFrom(async () => {
             await TicketChange.delete(anonymous, objCreated.id)
-        }, ({ errors, data }) => {
+        }, ({ errors }) => {
             // Custom match should be used here, because error message contains
             // suggestions, like "Did you mean …", that cannot be known in advance
             // So, just inspect basic part of the message

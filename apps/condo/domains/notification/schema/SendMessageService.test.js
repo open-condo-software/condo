@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
 const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,

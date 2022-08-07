@@ -3,10 +3,10 @@
  */
 
 const { Text, DateTimeUtc, Select, Relationship, Virtual } = require('@keystonejs/fields')
-const { getById, find } = require('@core/keystone/schema')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { getById, find } = require('@condo/keystone/schema')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const {
     CURRENCY_CODE_FIELD,
@@ -220,7 +220,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         integration: ACQUIRING_INTEGRATION_FIELD,
     },
     hooks: {
-        validateInput: async ({ resolvedData, context, addValidationError, operation, existingItem }) => {
+        validateInput: async ({ resolvedData, addValidationError, operation, existingItem }) => {
             if (operation === 'create') {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {

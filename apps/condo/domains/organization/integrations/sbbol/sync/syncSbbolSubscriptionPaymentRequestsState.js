@@ -1,5 +1,5 @@
 const { logger: baseLogger } = require('../common')
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const { initSbbolFintechApi } = require('../SbbolFintechApi')
 const { ServiceSubscriptionPayment, ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')

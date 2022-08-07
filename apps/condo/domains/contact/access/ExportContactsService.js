@@ -3,7 +3,7 @@ const {
     checkOrganizationPermission,
     checkRelatedOrganizationPermission,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 const get = require('lodash/get')
 
 async function canExportContactsToExcel ({ args: { data: { where } }, authentication: { item: user } }) {

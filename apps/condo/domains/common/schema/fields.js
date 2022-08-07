@@ -1,6 +1,6 @@
 const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
 const { Decimal } = require('@keystonejs/fields')
-const { Json, SignedDecimal } = require('@core/keystone/fields')
+const { Json, SignedDecimal } = require('@condo/keystone/fields')
 
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { PHONE_WRONG_FORMAT_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')

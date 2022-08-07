@@ -1,4 +1,4 @@
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const dayjs = require('dayjs')
 const isoWeek = require('dayjs/plugin/isoWeek')
@@ -63,7 +63,7 @@ const TicketReportService = new GQLCustomSchema('TicketReportService', {
         {
             access: access.canReadTicketReportWidgetData,
             schema: 'ticketReportWidgetData(data: TicketReportWidgetInput!): TicketReportWidgetOutput',
-            resolver: async (parent, args, context, info, extra) => {
+            resolver: async (parent, args, context) => {
                 const { periodType, offset = 0, userOrganizationId } = args.data
                 const statuses = await getOrganizationStatuses(context, userOrganizationId)
                 const statusesMap = Object.fromEntries(statuses.map(({ type, name }) => ([type, name])))

@@ -4,7 +4,7 @@
 
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
 
 const {
     Payment,
@@ -30,7 +30,6 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError, catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     PAYMENT_ERROR_STATUS,
     PAYMENT_INIT_STATUS,

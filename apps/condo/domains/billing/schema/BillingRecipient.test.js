@@ -6,7 +6,7 @@ import {
     expectToThrowGraphQLRequestError,
 } from '@condo/domains/common/utils/testSchema'
 
-const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {

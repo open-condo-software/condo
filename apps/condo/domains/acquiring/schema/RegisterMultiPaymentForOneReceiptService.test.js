@@ -8,7 +8,7 @@ const dayjs = require('dayjs')
 const {
     makeClient,
     makeLoggedInAdminClient,
-} = require('@core/keystone/test.utils')
+} = require('@condo/keystone/test.utils')
 const {
     AcquiringIntegration,
     registerMultiPaymentForOneReceiptByTestClient,

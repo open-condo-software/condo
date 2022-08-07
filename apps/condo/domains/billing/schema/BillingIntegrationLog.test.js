@@ -7,7 +7,7 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 const { makeOrganizationIntegrationManager } = require('@condo/domains/billing/utils/testSchema')
 const { makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { BillingIntegrationLog, createTestBillingIntegrationLog, updateTestBillingIntegrationLog, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     expectToThrowAuthenticationErrorToObjects,

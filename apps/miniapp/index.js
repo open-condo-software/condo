@@ -5,21 +5,19 @@ const { isObject, get } = require('lodash')
 const { Keystone } = require('@keystonejs/keystone')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
-const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 
 const conf = require('@core/config')
-const { EmptyApp } = require('@core/keystone/test.utils')
-const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
-const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
+const { EmptyApp } = require('@condo/keystone/test.utils')
+const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
+const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
 
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 const { formatError } = require('@miniapp/domains/common/utils/apolloErrorFormatter')
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
 
-const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
 // NOTE: should be disabled in production: https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/

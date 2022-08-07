@@ -3,7 +3,7 @@
  */
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')

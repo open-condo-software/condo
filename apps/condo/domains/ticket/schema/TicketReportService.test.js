@@ -6,7 +6,7 @@ const { makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee } = requir
 const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { createTestTicket, getTicketReport } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToResult, expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 describe('TicketReportService', () => {

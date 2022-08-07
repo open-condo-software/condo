@@ -5,10 +5,10 @@
 const { pick, get } = require('lodash')
 
 const { Text, Relationship, Virtual } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
+const { GQLListSchema } = require('@condo/keystone/schema')
 
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
-const { getById } = require('@core/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { getById } = require('@condo/keystone/schema')
 
 const access = require('@condo/domains/resident/access/ServiceConsumer')
 

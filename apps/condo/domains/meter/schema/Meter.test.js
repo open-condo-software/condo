@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeClient, UUID_RE, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, UUID_RE, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
 

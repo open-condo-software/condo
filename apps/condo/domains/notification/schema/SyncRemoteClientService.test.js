@@ -4,7 +4,7 @@
  */
 const faker = require('faker')
 
-const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { RemoteClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 

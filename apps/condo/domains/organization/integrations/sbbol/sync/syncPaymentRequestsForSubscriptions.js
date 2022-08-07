@@ -1,5 +1,5 @@
 const { ServiceSubscription, ServiceSubscriptionPayment } = require('@condo/domains/subscription/utils/serverSchema')
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const dayjs = require('dayjs')
 const { initSbbolFintechApi } = require('../SbbolFintechApi')
 const { SBBOL_YEARLY_SUBSCRIPTION_PRICE, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_CURRENCY } = require('@condo/domains/subscription/constants')

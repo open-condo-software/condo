@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 
 const conf = require('@core/config')
-const { getByCondition, find, getById } = require('@core/keystone/schema')
+const { getByCondition, find, getById } = require('@condo/keystone/schema')
 
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -21,7 +21,6 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
-const { PUSH_TRANSPORT } = require('@condo/domains/notification/constants/constants')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')

@@ -2,7 +2,7 @@ const dayjs = require('dayjs')
 const {
     makeLoggedInAdminClient,
     makeClient,
-} = require('@core/keystone/test.utils')
+} = require('@condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,

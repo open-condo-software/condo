@@ -1,12 +1,12 @@
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const access = require('@condo/domains/contact/access/ExportContactsService')
 const { loadContactsForExcelExport } = require('@condo/domains/contact/utils/serverSchema')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const dayjs = require('dayjs')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { getHeadersTranslations, EXPORT_TYPE_CONTACTS } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
@@ -44,7 +44,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
         {
             access: access.canExportContactsToExcel,
             schema: 'exportContactsToExcel(data: ExportContactsToExcelInput!): ExportContactsToExcelOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { where, sortBy } = args.data
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 

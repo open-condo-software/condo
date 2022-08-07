@@ -9,7 +9,7 @@ const { generateServerUtils } = require('@condo/domains/common/utils/codegenerat
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
 const uniq = require('lodash/uniq')
 const flatten = require('lodash/flatten')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Division = generateServerUtils(DivisionGQL)

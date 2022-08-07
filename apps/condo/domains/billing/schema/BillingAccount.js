@@ -3,14 +3,13 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema, getById } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccount')
 const {
     JSON_EXPECT_OBJECT_ERROR,
-    JSON_UNKNOWN_VERSION_ERROR,
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -91,7 +90,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         auth: true,
     },
     hooks: {
-        validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
+        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: accountContextId, property: propertyId } = newItem
 

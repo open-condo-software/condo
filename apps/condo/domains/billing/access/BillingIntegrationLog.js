@@ -4,7 +4,7 @@
 const { get } = require('lodash')
 
 const { checkBillingIntegrationsAccessRights } = require('../utils/accessSchema')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 async function canReadBillingIntegrationLogs ({ authentication: { item: user } }) {

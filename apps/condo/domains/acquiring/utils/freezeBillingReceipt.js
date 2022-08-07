@@ -1,4 +1,4 @@
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
 /**
@@ -6,7 +6,7 @@ const { getById } = require('@core/keystone/schema')
  * to make frozen copy of them if they change later
  * This will allow support to resolve some customers conflicts
  *
- * @param {Object} flatReceipt BillingReceipt received by "find" from "@core/keystone/schema"
+ * @param {Object} flatReceipt BillingReceipt received by "find" from "@condo/keystone/schema"
  */
 
 async function freezeBillingReceipt (flatReceipt) {

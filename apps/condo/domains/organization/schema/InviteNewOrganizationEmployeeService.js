@@ -1,5 +1,5 @@
 const passwordGenerator = require('generate-password')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -9,8 +9,8 @@ const access = require('@condo/domains/organization/access/InviteNewOrganization
 const guards = require('../utils/serverSchema/guards')
 const get = require('lodash/get')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { getById } = require('@core/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { getById } = require('@condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
 const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
 

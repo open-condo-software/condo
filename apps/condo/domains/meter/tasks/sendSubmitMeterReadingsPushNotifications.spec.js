@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@condo/keystone/test.utils')
 const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const {

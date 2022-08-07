@@ -3,8 +3,8 @@
  */
 
 const { Text, Select, Checkbox, DateTimeUtc, Integer, Decimal } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
@@ -12,7 +12,7 @@ const get = require('lodash/get')
 const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require(
     './fields/SbbolOfferAcceptField')
 const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('./fields/SbbolOfferAcceptField')
-const { Json } = require('@core/keystone/fields')
+const { Json } = require('@condo/keystone/fields')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')

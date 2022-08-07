@@ -1,7 +1,7 @@
 const { isObject } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const conf = require('@core/config')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')

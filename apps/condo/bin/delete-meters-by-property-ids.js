@@ -1,5 +1,5 @@
 const path = require('path')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { isEmpty } = require('lodash')

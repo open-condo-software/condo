@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 const uniq = require('lodash/uniq')
-const { getById, find } = require('@core/keystone/schema')
+const { getById, find } = require('@condo/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 

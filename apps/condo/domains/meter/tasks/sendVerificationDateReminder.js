@@ -2,7 +2,7 @@ const dayjs = require('dayjs')
 const { get, flatten, uniq } = require('lodash')
 
 const conf = require('@core/config')
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')

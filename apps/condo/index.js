@@ -13,17 +13,17 @@ const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const conf = require('@core/config')
-const { prepareDefaultKeystoneConfig, getAdapter } = require('@core/keystone/setup.utils')
-const { registerSchemas } = require('@core/keystone/KSv5v6/v5/registerSchema')
-const { schemaDocPreprocessor } = require('@core/keystone/preprocessors/schemaDoc')
-const { escapeSearchPreprocessor } = require('@core/keystone/preprocessors/escapeSearch')
+const { prepareDefaultKeystoneConfig, getAdapter } = require('@condo/keystone/setup.utils')
+const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
+const { schemaDocPreprocessor } = require('@condo/keystone/preprocessors/schemaDoc')
+const { escapeSearchPreprocessor } = require('@condo/keystone/preprocessors/escapeSearch')
 
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { KeystoneCacheMiddleware } = require('@core/keystone/cache')
+const { KeystoneCacheMiddleware } = require('@condo/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerPlugin } = require('@condo/domains/common/utils/GraphQLLoggerApp')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
@@ -108,7 +108,7 @@ registerSchemas(keystone, [
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
     const { registerTriggers } = require('@core/triggers')
-    const { registerTasks } = require('@core/keystone/tasks')
+    const { registerTasks } = require('@condo/keystone/tasks')
 
     registerTasks([
         require('@condo/domains/notification/tasks'),

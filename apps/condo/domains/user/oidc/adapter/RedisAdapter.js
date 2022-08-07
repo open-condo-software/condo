@@ -2,7 +2,7 @@
 
 const { isEmpty } = require('lodash')
 
-const { getRedisClient } = require('@core/keystone/redis')
+const { getRedisClient } = require('@condo/keystone/redis')
 
 const OIDC_REDIS_KEY_PREFIX = 'oidc'
 

@@ -1,4 +1,4 @@
-const { getByCondition } = require('@core/keystone/schema')
+const { getByCondition } = require('@condo/keystone/schema')
 const get = require('lodash/get')
 
 async function checkAccessRight (userId, appId, accessRightModel) {

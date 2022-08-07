@@ -5,9 +5,9 @@
 const { Relationship } = require('@keystonejs/fields')
 const { get } = require('lodash')
 
-const { Json } = require('@core/keystone/fields')
-const { find, getById, GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { find, getById, GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 

@@ -5,8 +5,8 @@
 const get = require('lodash/get')
 
 const { Text, Select, Integer, Checkbox, Password, Virtual } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 // TODO(pahaz): move it to core? or vendor this plugin?
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')

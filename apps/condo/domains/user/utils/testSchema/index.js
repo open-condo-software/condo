@@ -7,7 +7,7 @@ const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
 const isEmpty = require('lodash/isEmpty')
-const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION, CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
@@ -37,8 +37,8 @@ function createTestPhone () {
     const { country_code, mobile_begin_with, phone_number_lengths } = faker.random.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
     const length = max(phone_number_lengths)
     const code = String(faker.random.arrayElement(mobile_begin_with))
-    const phone = faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
-    return phone
+
+    return faker.phone.phoneNumber('+' + country_code + code + repeat('#', length - code.length))
 }
 
 function createTestLandlineNumber () {

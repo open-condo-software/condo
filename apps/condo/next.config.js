@@ -6,7 +6,7 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 // Tell webpack to compile the "@condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
-const withTM = require('next-transpile-modules')(['@condo/next', '@core/keystone', 'rc-table', '@condo/domains'])
+const withTM = require('next-transpile-modules')(['@condo/next', '@condo/keystone', 'rc-table', '@condo/domains'])
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'

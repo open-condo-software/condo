@@ -4,7 +4,7 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, checkRelatedOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 
 async function canExportMeterReadings ({ args: { data: { where } }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

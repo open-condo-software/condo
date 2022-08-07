@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -15,13 +15,10 @@ const {
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 
 const {
-    PUSH_FAKE_TOKEN_SUCCESS,
-    PUSH_TRANSPORT_FIREBASE,
     MESSAGE_SENT_STATUS,
     TICKET_COMMENT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
-const { syncRemoteClientByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')

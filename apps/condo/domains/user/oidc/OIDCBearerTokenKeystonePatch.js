@@ -1,6 +1,6 @@
 const { get } = require('lodash')
 
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 const { createAdapterClass } = require('./adapter')

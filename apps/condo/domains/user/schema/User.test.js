@@ -3,7 +3,7 @@
  */
 
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET, UUID_RE } = require('@core/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET, UUID_RE } = require('@condo/keystone/test.utils')
 
 const {
     User,
@@ -19,7 +19,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
-const { DEFAULT_TEST_USER_IDENTITY } = require('@core/keystone/test.utils')
+const { DEFAULT_TEST_USER_IDENTITY } = require('@condo/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
 const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -370,7 +370,6 @@ describe('UserHistoryRecord', () => {
         const name = getRandomString()
 
         const [user] = await createTestUser(admin)
-        const sender = user.sender
         await User.update(admin, user.id, { name, dv: 1, sender: user.sender })
 
         const objs = await UserHistoryAdmin.getAll(admin, { history_id: user.id }, { sortBy: ['history_date_ASC'] })

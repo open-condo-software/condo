@@ -5,7 +5,7 @@
  */
 const faker = require('faker')
 const get = require('lodash/get')
-const { makeLoggedInAdminClient } = require("@core/keystone/test.utils");
+const { makeLoggedInAdminClient } = require("@condo/keystone/test.utils");
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require("@condo/domains/organization/utils/testSchema");
 const { makeClientWithNewRegisteredAndLoggedInUser } = require("@condo/domains/user/utils/testSchema");
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')

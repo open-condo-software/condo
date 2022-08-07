@@ -3,7 +3,7 @@
  */
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
 
 const { Division, createTestDivision, updateTestDivision } = require('@condo/domains/division/utils/testSchema')
 const {

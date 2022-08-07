@@ -4,11 +4,11 @@
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Ticket, TicketSource } = require('@condo/domains/ticket/utils/serverSchema')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 const { get } = require('lodash')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 const errors = {
@@ -59,7 +59,7 @@ const CreateResidentTicketService = new GQLCustomSchema('CreateResidentTicketSer
                 description: 'Corresponding resident, to create the ticket for, is fetched from current logged in user',
                 errors,
             },
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv: newTicketDv, sender: newTicketSender, details, source: SourceRelateToOneInput, property: PropertyRelateToOneInput, unitName } = data
 

@@ -15,7 +15,7 @@ import { useState } from 'react'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
-import { omitRecursively } from '@core/keystone/fields/Json/utils/cleaner'
+import { omitRecursively } from '@condo/keystone/fields/Json/utils/cleaner'
 
 interface IOrganization {
     id: string

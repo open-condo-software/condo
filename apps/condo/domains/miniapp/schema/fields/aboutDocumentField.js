@@ -1,4 +1,4 @@
-const { Json } = require('@core/keystone/fields')
+const { Json } = require('@condo/keystone/fields')
 const Ajv = require('ajv')
 
 const SectionJsonSchema = {

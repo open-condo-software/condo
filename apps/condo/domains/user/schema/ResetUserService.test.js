@@ -3,8 +3,8 @@
  */
 
 const faker = require('faker')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const {

@@ -6,7 +6,7 @@ const faker = require('faker')
 const get = require('lodash/get')
 const sample = require('lodash/sample')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@condo/keystone/test.utils')
 
 const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 

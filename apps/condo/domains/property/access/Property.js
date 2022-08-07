@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getById, find } = require('@core/keystone/schema')
+const { getById, find } = require('@condo/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -58,7 +58,7 @@ async function canManageProperties ({ authentication: { item: user }, originalIn
     return false
 }
 
-async function canManageIsApprovedField ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageIsApprovedField ({ authentication: { item: user }, originalInput }) {
     if (user.isAdmin || user.isSupport) return true
 
     // If user is not support, then he only can drop isApproved field

@@ -1,6 +1,6 @@
 const faker = require('faker')
 
-const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -25,7 +25,7 @@ describe('RegisterNewOrganizationService', () => {
     describe('called by User', () => {
         it('creates new Organization', async () => {
             const admin = await makeLoggedInAdminClient()
-            const [user, userAttrs] = await createTestUser(admin)
+            const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
 
             const name = faker.company.companyName()

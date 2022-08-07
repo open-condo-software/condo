@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 const Big = require('big.js')
 
-const { getById, find, GQLCustomSchema } = require('@core/keystone/schema')
+const { getById, find, GQLCustomSchema } = require('@condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentService')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
@@ -14,12 +14,11 @@ const {
     DIRECT_PAYMENT_PATH,
     GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
-const { JSON_STRUCTURE_FIELDS_CONSTRAINTS } = require('@condo/domains/common/utils/validation.utils')
 // TODO(savelevMatthew): REPLACE WITH SERVER SCHEMAS AFTER GQL REFACTORING
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')

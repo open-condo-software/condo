@@ -1,5 +1,5 @@
 const { Relationship } = require('@keystonejs/fields')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
 

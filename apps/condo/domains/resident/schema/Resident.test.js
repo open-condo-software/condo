@@ -12,7 +12,7 @@ const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
 
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
@@ -545,7 +545,7 @@ describe('Resident', () => {
         it('cannot be created by user', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
-            const [organization] = await createTestOrganization(adminClient)
+            await createTestOrganization(adminClient)
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestResident(userClient, userClient.user, userClient.property)
