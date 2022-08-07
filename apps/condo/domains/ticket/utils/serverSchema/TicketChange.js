@@ -1,6 +1,6 @@
 const { get, map, cloneDeep, uniq, difference } = require('lodash')
 const { TicketChange } = require('./index')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 /*
     TODO(antonal): when this function will be used, strange errors occuring, like "Cannot query field "statusReopenedCounterFrom" on type "TicketChange".',"

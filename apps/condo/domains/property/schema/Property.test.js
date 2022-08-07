@@ -4,7 +4,7 @@
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -177,7 +177,7 @@ describe('Property', () => {
 
     test('user: can not create Property when same address exist in user organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
-        const [_, attrs] = await createTestProperty(client, client.organization)
+        const [, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
         await catchErrorFrom(async () => {
             await createTestProperty(client, client.organization, { address })
@@ -232,7 +232,7 @@ describe('Property', () => {
         const client = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithProperty()
 
-        const [_, attrs] = await createTestProperty(client, client.organization)
+        const [, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
 
         const [property] = await createTestProperty(client2, client2.organization, { address })
@@ -244,7 +244,7 @@ describe('Property', () => {
         const client = await makeClientWithProperty()
         const client2 = await makeClientWithProperty()
 
-        const [_, attrs] = await createTestProperty(client, client.organization)
+        const [, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
 
         const [property2] = await createTestProperty(client2, client2.organization)
@@ -296,7 +296,7 @@ describe('Property', () => {
 
     test('user: can not update Property address when another Property with same address present within the organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
-        const [_, attrs] = await createTestProperty(client, client.organization)
+        const [, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
         const [property] = await createTestProperty(client, client.organization)
         await catchErrorFrom(async () => {
@@ -406,7 +406,7 @@ describe('Property', () => {
 
     describe('Resident access', () => {
         it('can read only properties, it resides in', async () => {
-            const { organization, property } = await makeClientWithProperty()
+            const { property } = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
             await createTestResident(adminClient, residentClient.user, property)

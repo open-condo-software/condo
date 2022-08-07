@@ -1,8 +1,7 @@
 const path = require('path')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { isEmpty } = require('lodash')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
 class ChangeOrganizationInn {
     constructor (org_id, new_inn) {

@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@core/keystone/test.utils')
+const { setFakeClientMode } = require('@condo/keystone/test.utils')
 const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')

@@ -1,8 +1,8 @@
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { getByCondition } = require('@core/keystone/schema')
-const { isSoftDelete } = require('@core/keystone/access')
+const { getByCondition } = require('@condo/keystone/schema')
+const { isSoftDelete } = require('@condo/keystone/access')
 
 async function canReadServiceConsumers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

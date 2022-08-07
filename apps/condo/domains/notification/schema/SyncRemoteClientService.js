@@ -3,7 +3,7 @@
  */
 const get = require('lodash/get')
 
-const { GQLCustomSchema, getById, getByCondition } = require('@core/keystone/schema')
+const { GQLCustomSchema, getById, getByCondition } = require('@condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
@@ -49,9 +49,8 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                 const attrs = { dv, sender, deviceId, appId, pushToken, pushTransport, devicePlatform, meta, owner }
                 const where = { deviceId, appId, pushTransport, devicePlatform }
                 const data = await RemoteClient.updateOrCreate(context, where, attrs)
-                const result = await getById('RemoteClient', data.id)
 
-                return result
+                return await getById('RemoteClient', data.id)
             },
         },
     ],

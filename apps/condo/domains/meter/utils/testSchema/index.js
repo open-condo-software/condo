@@ -24,7 +24,7 @@ const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 
 async function createTestMeterResource (client, extraAttrs = {}) {

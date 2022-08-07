@@ -4,8 +4,8 @@
 
 const get = require('lodash/get')
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema, getById } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/miniapp/access/B2CAppProperty')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')

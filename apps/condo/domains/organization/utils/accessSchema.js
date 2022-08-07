@@ -1,4 +1,4 @@
-const { getByCondition, find } = require('@core/keystone/schema')
+const { getByCondition, find } = require('@condo/keystone/schema')
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
     if (!userId || !organizationId) return false

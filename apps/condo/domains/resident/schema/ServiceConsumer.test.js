@@ -3,7 +3,7 @@
  */
 const faker = require('faker')
 
-const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -48,7 +48,7 @@ describe('ServiceConsumer', () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithProperty()
             const [organization] = await createTestOrganization(adminClient)
-            const [anotherOrganization] = await createTestOrganization(adminClient)
+            await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization)
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             const [resident] = await createTestResident(adminClient, userClient.user, userClient.property)

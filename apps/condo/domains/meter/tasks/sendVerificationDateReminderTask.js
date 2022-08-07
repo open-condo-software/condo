@@ -1,5 +1,5 @@
 const dayjs = require('dayjs')
-const { createCronTask } = require('@core/keystone/tasks')
+const { createCronTask } = require('@condo/keystone/tasks')
 const { sendVerificationDateReminder } = require('./sendVerificationDateReminder')
 
 /**

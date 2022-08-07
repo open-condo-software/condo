@@ -9,7 +9,7 @@ const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 async function canReadContactRoles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

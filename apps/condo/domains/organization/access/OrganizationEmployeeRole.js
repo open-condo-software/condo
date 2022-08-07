@@ -3,7 +3,7 @@
  */
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getByCondition, getById } = require('@core/keystone/schema')
+const { getByCondition, getById } = require('@condo/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const get = require('lodash/get')
 

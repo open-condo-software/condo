@@ -3,8 +3,8 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
@@ -81,7 +81,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         isHidden: IS_HIDDEN_FIELD,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError, existingItem }) => {
+        validateInput: ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
                 return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)

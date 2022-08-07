@@ -1,9 +1,9 @@
-const { getSchemaCtx, getById } = require('@core/keystone/schema')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { getSchemaCtx, getById } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
 

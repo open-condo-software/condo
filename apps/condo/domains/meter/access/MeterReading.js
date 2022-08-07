@@ -11,7 +11,7 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
 const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 async function canReadMeterReadings ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()

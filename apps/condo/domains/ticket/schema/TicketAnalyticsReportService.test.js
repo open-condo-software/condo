@@ -7,7 +7,7 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestTicket, makeClientWithTicket, createTestTicketCategoryClassifier, getTicketAnalyticsReport, getTicketAnalyticsExport  } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToResult, expectToThrowGraphQLRequestError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
-const { makeClient, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const isObsConfigured = require('@condo/domains/common/utils/testSchema/isObsConfigured')
 
 const NULL_REPLACES = {

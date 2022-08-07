@@ -4,11 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { has } = require('lodash')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 const dayjs = require('dayjs')
@@ -17,7 +14,7 @@ const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('../../constants')
 const { SUBSCRIPTION_TYPE } = require('../../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../../constants/errors')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 

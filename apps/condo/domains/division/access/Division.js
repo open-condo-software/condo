@@ -5,7 +5,7 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { checkOrganizationPermission, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const get = require('lodash/get')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 async function canReadDivisions ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

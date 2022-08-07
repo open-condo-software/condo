@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const { makeLoggedInAdminClient, setFakeClientMode } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestOrganization,

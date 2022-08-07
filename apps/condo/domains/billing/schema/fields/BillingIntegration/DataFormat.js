@@ -4,7 +4,7 @@ const {
     BILLING_INTEGRATION_DATA_FORMAT_INPUT_NAME,
 } = require('@condo/domains/billing/constants/constants')
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
-const { Json } = require('@core/keystone/fields')
+const { Json } = require('@condo/keystone/fields')
 
 const DataFormatFields = {
     hasToPayDetails: 'Boolean!',

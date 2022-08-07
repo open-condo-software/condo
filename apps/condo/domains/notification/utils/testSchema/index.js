@@ -8,7 +8,7 @@ const isEmpty = require('lodash/isEmpty')
 const sample = require('lodash/sample')
 const get = require('lodash/get')
 
-const { getRandomString } = require('@core/keystone/test.utils')
+const { getRandomString } = require('@condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 

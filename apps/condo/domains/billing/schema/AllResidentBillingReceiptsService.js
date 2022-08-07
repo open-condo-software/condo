@@ -8,7 +8,7 @@ const Big = require('big.js')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
@@ -17,7 +17,7 @@ const {
 } = require('../constants/constants')
 const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-const { GQLCustomSchema, find } = require('@core/keystone/schema')
+const { GQLCustomSchema, find } = require('@condo/keystone/schema')
 
 
 /**

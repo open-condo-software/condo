@@ -1,6 +1,6 @@
 const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const Upload = require('graphql-upload/public/Upload')
@@ -113,8 +113,7 @@ const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow
                 status: COMPLETED,
                 file,
             }
-            const updatedTask = await taskServerUtils.update(context, task.id, data)
-            return updatedTask
+            return await taskServerUtils.update(context, task.id, data)
         })
 )
 

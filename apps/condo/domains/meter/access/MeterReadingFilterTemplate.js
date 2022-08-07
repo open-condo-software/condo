@@ -4,7 +4,7 @@
  */
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { getByCondition, getById } = require('@core/keystone/schema')
+const { getByCondition, getById } = require('@condo/keystone/schema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadMeterReadingFilterTemplates ({ authentication: { item: user } }) {

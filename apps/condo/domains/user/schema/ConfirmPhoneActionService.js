@@ -1,7 +1,7 @@
 const { v4: uuid } = require('uuid')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
-const { GQLCustomSchema } = require('@core/keystone/schema')
+const { GQLCustomSchema } = require('@condo/keystone/schema')
 const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
 const {
     ConfirmPhoneAction,
@@ -19,7 +19,7 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 

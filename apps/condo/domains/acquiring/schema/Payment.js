@@ -5,9 +5,9 @@ const { get } = require('lodash')
 const Big = require('big.js')
 
 const { Text, Relationship, DateTimeUtc, Select } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema, getById } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const {

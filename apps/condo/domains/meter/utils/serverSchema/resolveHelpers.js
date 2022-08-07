@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 
 async function addClientInfoToResidentMeterReading (context, resolvedData) {
     const user = get(context, ['req', 'user'])

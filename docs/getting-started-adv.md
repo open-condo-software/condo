@@ -197,7 +197,7 @@ yarn upgrade-interactive --latest
 
 ## TESTS_FAKE_CLIENT_MODE
 
-`@core/keystone/test.utils` can work in two modes:
+`@condo/keystone/test.utils` can work in two modes:
  1. Real client mode. Allow sending HTTP/1.1 requests to a remote server
  2. Fake client mode. Allow using fake express requests by `supertest` lib 
 

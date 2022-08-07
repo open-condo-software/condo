@@ -1,6 +1,6 @@
 const isEmpty = require('lodash/isEmpty')
 
-const { find } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 
 const { PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
 const { FirebaseAdapter } = require('@condo/domains/notification/adapters/firebaseAdapter')

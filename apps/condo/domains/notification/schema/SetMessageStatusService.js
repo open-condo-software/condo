@@ -3,7 +3,7 @@
  */
 const get = require('lodash/get')
 
-const { GQLCustomSchema, getByCondition } = require('@core/keystone/schema')
+const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SetMessageStatusService')
 const { Message: MessageAPI } = require('@condo/domains/notification/utils/serverSchema')
@@ -42,7 +42,7 @@ const SetMessageStatusService = new GQLCustomSchema('SetMessageStatusService', {
         {
             access: access.canSetMessageStatus,
             schema: 'setMessageStatus(data: SetMessageStatusInput!): SetMessageStatusOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data: { dv, sender, message: messageInput, deliveredAt, readAt } } = args
                 const existingItem = await getByCondition('Message', { id: messageInput.id, deletedAt: null })
                 const currentStatus = get(existingItem, 'status', null)

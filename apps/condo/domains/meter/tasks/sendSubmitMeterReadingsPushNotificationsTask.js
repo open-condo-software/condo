@@ -1,4 +1,4 @@
-const { createCronTask } = require('@core/keystone/tasks')
+const { createCronTask } = require('@condo/keystone/tasks')
 const { sendSubmitMeterReadingsPushNotifications } = require('./sendSubmitMeterReadingsPushNotifications')
 
 /**

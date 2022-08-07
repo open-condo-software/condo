@@ -3,7 +3,7 @@
  */
 
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { expectToThrowAccessDeniedErrorToObjects, expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 

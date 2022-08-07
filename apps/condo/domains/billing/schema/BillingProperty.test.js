@@ -26,7 +26,7 @@ const {
     expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 

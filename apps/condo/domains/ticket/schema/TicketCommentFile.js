@@ -3,8 +3,8 @@
  */
 
 const { Relationship, File } = require('@keystonejs/fields')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/ticket/access/TicketCommentFile')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')

@@ -1,6 +1,6 @@
 const get = require('lodash/get')
-const { find } = require('@core/keystone/schema')
-const { getById, getByCondition } = require('@core/keystone/schema')
+const { find } = require('@condo/keystone/schema')
+const { getById, getByCondition } = require('@condo/keystone/schema')
 
 const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')

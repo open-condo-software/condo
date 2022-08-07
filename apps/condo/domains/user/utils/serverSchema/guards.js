@@ -2,8 +2,8 @@ const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
 const conf = require('@core/config')
-const { GQLError } = require('@core/keystone/errors')
-const { getRedisClient } = require('@core/keystone/redis')
+const { GQLError } = require('@condo/keystone/errors')
+const { getRedisClient } = require('@condo/keystone/redis')
 
 const { MAX_SMS_FOR_IP_BY_DAY, MAX_SMS_FOR_PHONE_BY_DAY } = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')

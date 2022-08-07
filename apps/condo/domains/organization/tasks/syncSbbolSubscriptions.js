@@ -1,6 +1,5 @@
-const { createCronTask } = require('@core/keystone/tasks')
+const { createCronTask } = require('@condo/keystone/tasks')
 const { syncSubscriptions } = require('../integrations/sbbol/sync/syncSubscriptions')
-const dayjs = require('dayjs')
 
 /**
  * Syncs new and cancelled subscriptions

@@ -9,10 +9,9 @@
  */
 const path = require('path')
 const { values } = require('lodash')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const conf = require('@core/config')
-const { getRandomString, prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { getRandomString, prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
 const { changeClientSecret, refreshAllTokens, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
 

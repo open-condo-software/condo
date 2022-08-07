@@ -1,9 +1,9 @@
 const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { EXPORT_CONTACTS_TO_EXCEL } = require('@condo/domains/contact/gql')
-const { makeClient } = require('@core/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const faker = require('faker')
 

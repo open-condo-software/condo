@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { METER_READING_SOURCE_INTERNAL_IMPORT_TYPE } = require('@condo/domains/meter/constants/constants')
 const { MeterReadingSource } = require('../utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { createTestMeterReadingSource, updateTestMeterReadingSource } = require('@condo/domains/meter/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,

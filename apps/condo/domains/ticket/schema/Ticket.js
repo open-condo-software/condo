@@ -7,9 +7,9 @@ const get = require('lodash/get')
 
 const { triggersManager } = require('@core/triggers')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
-const { GQLListSchema, getByCondition, getById } = require('@core/keystone/schema')
-const { Json, AutoIncrementInteger } = require('@core/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema, getByCondition, getById } = require('@condo/keystone/schema')
+const { Json, AutoIncrementInteger } = require('@condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const {
     PROPERTY_REQUIRED_ERROR,

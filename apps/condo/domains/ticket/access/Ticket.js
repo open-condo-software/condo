@@ -3,17 +3,14 @@
  */
 
 const get = require('lodash/get')
-const uniq = require('lodash/uniq')
-const compact = require('lodash/compact')
-const flatten = require('lodash/flatten')
 const omit = require('lodash/omit')
 const isEmpty = require('lodash/isEmpty')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { getById, find } = require('@core/keystone/schema')
+const { getById, find } = require('@condo/keystone/schema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 

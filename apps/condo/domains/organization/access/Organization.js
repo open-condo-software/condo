@@ -4,8 +4,8 @@
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { get, uniq, compact } = require('lodash')
-const access = require('@core/keystone/access')
-const { find } = require('@core/keystone/schema')
+const access = require('@condo/keystone/access')
+const { find } = require('@condo/keystone/schema')
 
 async function canReadOrganizations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

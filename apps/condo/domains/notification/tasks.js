@@ -1,8 +1,8 @@
 const isEmpty = require('lodash/isEmpty')
 
 const conf = require('@core/config')
-const { createTask } = require('@core/keystone/tasks')
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { createTask } = require('@condo/keystone/tasks')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')

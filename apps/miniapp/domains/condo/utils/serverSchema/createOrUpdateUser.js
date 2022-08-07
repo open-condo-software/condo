@@ -1,4 +1,4 @@
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 const { OIDC_SENDER_FIELD_VALUE } = require('@miniapp/domains/common/constants/oidc')
 

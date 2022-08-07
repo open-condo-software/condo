@@ -8,16 +8,15 @@ const Ajv = require('ajv')
 const dayjs = require('dayjs')
 
 const { Text, Select, Virtual, Integer, CalendarDay, Decimal } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { Checkbox } = require('@keystonejs/fields')
 
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const {
-    DV_UNKNOWN_VERSION_ERROR,
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_SCHEMA_VALIDATION_ERROR,
     JSON_EXPECT_OBJECT_ERROR,

@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 
 const { errors } = require('./RegisterNewUserService')

@@ -1,4 +1,4 @@
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const { REGISTER_NEW_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql.js')
 const { updateItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { createConfirmedEmployee } = require('@condo/domains/organization/utils/serverSchema/Organization')
@@ -106,10 +106,9 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
         // Organization was not imported from SBBOL, but maybe, it was created before with the same TIN
         const existingOrganization = userOrganizations.find(({ tin }) => tin === organizationInfo.meta.inn)
         if (!existingOrganization) {
-            const newOrganization = await createOrganization({ context, user, organizationInfo, dvSenderFields })
-            return newOrganization
+            return await createOrganization({ context, user, organizationInfo, dvSenderFields })
         } else {
-            const updatedOrganization = await updateItem({
+            return await updateItem({
                 listKey: 'Organization',
                 item: {
                     id: existingOrganization.id,
@@ -125,7 +124,6 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                 returnFields: returnFields,
                 ...context,
             })
-            return updatedOrganization
         }
     } else {
         const isAlreadyEmployee = userOrganizations.find(org => org.id === importedOrganization.id)

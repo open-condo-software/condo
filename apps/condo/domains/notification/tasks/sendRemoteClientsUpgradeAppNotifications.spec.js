@@ -4,7 +4,7 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
 
@@ -133,7 +133,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         }
         const messages = await Message.getAll(admin, messageWhere)
 
-        expect(messages.length).toEqual(1)
+        expect(messages).toHaveLength(1)
     })
 
 })

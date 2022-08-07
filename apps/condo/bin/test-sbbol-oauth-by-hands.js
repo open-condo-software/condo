@@ -2,7 +2,7 @@ const { generators } = require('openid-client')
 const readline = require('readline')
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 const { initializeSbbolAuthApi } = require('@condo/domains/organization/integrations/sbbol/utils')
 const { getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/common')
 
@@ -27,7 +27,7 @@ async function main () {
     const urlInput = await askQuestion('Past you redirect url: ')
     const tokenSet = await api.completeAuth(urlInput, checks)
     console.log(tokenSet)
-    const { access_token, refresh_token } = tokenSet
+    const { access_token } = tokenSet
     const userInfo = await api.fetchUserInfo(access_token)
     console.log(userInfo)
 

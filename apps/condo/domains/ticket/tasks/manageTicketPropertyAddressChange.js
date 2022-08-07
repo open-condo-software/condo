@@ -1,6 +1,6 @@
-const { getSchemaCtx, find } = require('@core/keystone/schema')
+const { getSchemaCtx, find } = require('@condo/keystone/schema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-const { createTask } = require('@core/keystone/tasks')
+const { createTask } = require('@condo/keystone/tasks')
 
 /**
  * Launched when address of some property was changed to sync propertyAddress field of all linked tickets

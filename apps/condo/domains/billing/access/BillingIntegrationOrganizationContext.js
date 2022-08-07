@@ -4,7 +4,7 @@
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { get } = require('lodash')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 

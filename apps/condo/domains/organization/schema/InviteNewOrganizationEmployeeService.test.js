@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@condo/keystone/test.utils')
 
 const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 

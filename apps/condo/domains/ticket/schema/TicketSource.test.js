@@ -1,6 +1,6 @@
 const isEmpty = require('lodash/isEmpty')
 
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { getAvailableLocales, getTranslations } = require('@condo/domains/common/utils/localesLoader')
 

@@ -4,7 +4,7 @@ const falsey = require('falsey')
 const { get } = require('lodash')
 
 const conf = require('@core/config')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { OrganizationEmployeeRole } = require('./index')

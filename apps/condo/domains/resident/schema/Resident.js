@@ -4,8 +4,8 @@
 
 const { pick, get, isNull } = require('lodash')
 const { Text, Relationship, Virtual } = require('@keystonejs/fields')
-const { GQLListSchema, getById } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { GQLListSchema, getById } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const { ADDRESS_META_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 

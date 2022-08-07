@@ -4,7 +4,7 @@
 
 const get = require('lodash/get')
 
-const { getById, getByCondition } = require('@core/keystone/schema')
+const { getById, getByCondition } = require('@condo/keystone/schema')
 
 const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')

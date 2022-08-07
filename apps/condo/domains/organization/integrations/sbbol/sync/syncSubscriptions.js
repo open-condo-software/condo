@@ -5,7 +5,7 @@ const { ServiceSubscription } = require('@condo/domains/subscription/utils/serve
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { dvSenderFields } = require('../constants')
 const { processArrayOf } = require('@condo/domains/common/utils/parallel')
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 

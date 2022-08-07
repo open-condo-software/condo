@@ -6,7 +6,7 @@ const faker = require('faker')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
     AcquiringIntegrationContext,
@@ -26,11 +26,9 @@ const {
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 const dayjs = require('dayjs')
 const { expectToThrowGQLError } = require('../../common/utils/testSchema')
-const { createTestUser } = require('../../user/utils/testSchema')
 
 describe('AcquiringIntegrationContext', () => {
     describe('CRUD tests', () => {

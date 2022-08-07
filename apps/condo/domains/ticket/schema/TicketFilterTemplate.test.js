@@ -3,7 +3,7 @@
  */
 
 const faker = require('faker')
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@condo/keystone/test.utils')
 
 const { TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate } = require('@condo/domains/ticket/utils/testSchema')
 const {

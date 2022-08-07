@@ -5,8 +5,8 @@ const faker = require('faker')
 const { addBillingIntegrationAndContext } = require('@condo/domains/billing/utils/testSchema')
 const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
 
-const { makeClient } = require('@core/keystone/test.utils')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
@@ -123,12 +123,12 @@ describe('RegisterServiceConsumerService', () => {
 
         const { billingIntegration, billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, userClient.organization)
         const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext)
-        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, {
+        await createTestBillingAccount(adminClient, billingIntegrationContext, billingProperty, {
             number: USER_ACCOUNT_NUMBER,
             unitName: USER_UNIT_NAME,
         })
 
-        const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, userClient.organization, [ billingIntegration ])
+        await addAcquiringIntegrationAndContext(adminClient, userClient.organization, [ billingIntegration ])
 
         const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
         await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {

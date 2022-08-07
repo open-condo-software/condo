@@ -3,9 +3,9 @@
  */
 
 const { Select, Virtual } = require('@keystonejs/fields')
-const LocalizedText  = require('@core/keystone/fields/LocalizedText')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const LocalizedText  = require('@condo/keystone/fields/LocalizedText')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketStatus')
 const { TICKET_STATUS_TYPES } = require('../constants')

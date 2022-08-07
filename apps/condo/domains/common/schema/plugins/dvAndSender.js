@@ -1,14 +1,14 @@
 const pluralize = require('pluralize')
 const nextCookies = require('next-cookies')
 
-const { composeNonResolveInputHook, composeResolveInputHook } = require('@core/keystone/plugins/utils')
-const { plugin } = require('@core/keystone/plugins/utils/typing')
+const { composeNonResolveInputHook, composeResolveInputHook } = require('@condo/keystone/plugins/utils')
+const { plugin } = require('@condo/keystone/plugins/utils/typing')
 
 const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
 const { Integer } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
+const { Json } = require('@condo/keystone/fields')
 
-const dvAndSender = ({ dvField, senderField } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
+const dvAndSender = () => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     const dvField = 'dv'
     const senderField = 'sender'
 
@@ -35,7 +35,7 @@ const dvAndSender = ({ dvField, senderField } = {}) => plugin(({ fields = {}, ho
         kmigratorOptions: { null: false },
     }
 
-    const newResolveInput = ({ resolvedData, existingItem, operation, context }) => {
+    const newResolveInput = ({ resolvedData, operation, context }) => {
         if ((operation === 'create' || operation === 'update') && context.req) {
             const cookies = nextCookies({ req: context.req })
             if (!resolvedData.hasOwnProperty(dvField) && cookies.hasOwnProperty(dvField)) {
@@ -56,7 +56,7 @@ const dvAndSender = ({ dvField, senderField } = {}) => plugin(({ fields = {}, ho
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
 
-    const newValidateInput = ({ resolvedData, context, addValidationError, operation, listKey, itemId }) => {
+    const newValidateInput = ({ resolvedData, context, operation, listKey, itemId }) => {
         let key, name
         if (operation === 'read') {
             if (itemId) {

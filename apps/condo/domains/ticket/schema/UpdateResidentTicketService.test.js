@@ -7,10 +7,9 @@ const { updateResidentTicketByTestClient } = require('@condo/domains/ticket/util
 const faker = require('faker')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { makeClient } = require('@core/keystone/test.utils')
+const { makeClient } = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
-const { NOT_FOUND_ERROR, NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
  
 describe('UpdateResidentTicketService', () => {
     test('resident: can update ticket', async () => {
@@ -63,7 +62,7 @@ describe('UpdateResidentTicketService', () => {
 
         await catchErrorFrom(async () => {
             await updateResidentTicketByTestClient(userClient, ticket.id, payload)
-        }, ({ errors, data }) => {
+        }, ({ errors }) => {
             expect(errors).toHaveLength(1)
             expect(errors[0].message).toContain('Field "unitName" is not defined by type "ResidentTicketUpdateInput"')
         })

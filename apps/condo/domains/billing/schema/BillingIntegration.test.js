@@ -5,9 +5,9 @@ import { catchErrorFrom } from '@condo/domains/common/utils/testSchema'
 import { v4 } from 'uuid'
 import { DOCUMENT_BLOCK_MULTIPLE_EXAMPLE, DOCUMENT_BLOCK_SINGLE_EXAMPLE } from '@condo/domains/miniapp/utils/testSchema'
 
-const { getRandomString } = require('@core/keystone/test.utils')
+const { getRandomString } = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const {
     expectToThrowAuthenticationErrorToObjects,

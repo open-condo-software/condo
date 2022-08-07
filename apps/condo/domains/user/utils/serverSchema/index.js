@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const { getByCondition } = require('@core/keystone/schema')
+const { getByCondition } = require('@condo/keystone/schema')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const has = require('lodash/has')

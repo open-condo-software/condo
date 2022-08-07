@@ -1,7 +1,7 @@
 const conf = require('@core/config')
 const faker = require('faker')
-const { createCronTask } = require('@core/keystone/tasks')
-const { getSchemaCtx } = require('@core/keystone/schema')
+const { createCronTask } = require('@condo/keystone/tasks')
+const { getSchemaCtx } = require('@condo/keystone/schema')
 const { changeClientSecret, getOrganizationAccessToken } = require('../integrations/sbbol/utils')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}

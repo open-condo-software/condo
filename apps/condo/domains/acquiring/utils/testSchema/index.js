@@ -19,7 +19,7 @@ const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = r
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 

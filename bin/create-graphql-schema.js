@@ -5,8 +5,8 @@ const fs = require('fs')
 const { promisify } = require('util')
 const { printSchema } = require('graphql')
 
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
-const { taskQueue } = require('@core/keystone/tasks')
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
+const { taskQueue } = require('@condo/keystone/tasks')
 
 const writeFile = promisify(fs.writeFile)
 
@@ -32,7 +32,7 @@ async function getGraphQLSchema (keystoneModule) {
     return result
 }
 
-async function generate ({ name, namePath }) {
+async function generate ({ namePath }) {
     await writeFile(path.join(namePath, 'codegen.yaml'), CODEGEN_CONFIG)
     const schema = await getGraphQLSchema(require(path.join(namePath, 'index')))
     await writeFile(path.join(namePath, 'schema.graphql'), schema)

@@ -6,7 +6,7 @@ const { throwAuthenticationError } = require('@condo/domains/common/utils/apollo
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { checkB2CAppAccessRight } = require('../utils/accessSchema')
 const get = require('lodash/get')
-const { getById } = require('@core/keystone/schema')
+const { getById } = require('@condo/keystone/schema')
 
 async function canReadB2CAppProperties ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

@@ -3,7 +3,7 @@
  */
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { getById, GQLCustomSchema } = require('@core/keystone/schema')
+const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
 const { BillingIntegrationOrganizationContext, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
@@ -12,7 +12,7 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('../../common/constants/errors')
 
@@ -55,14 +55,13 @@ async function getResidentBillingAccount (context, billingIntegrationContext, ac
     if (!Array.isArray(billingAccountsInUnit)) {
         return [] // No accounts are found for this user
     }
-    const applicableBillingAccounts = billingAccountsInUnit.filter(
+    return billingAccountsInUnit.filter(
         (billingAccount) => {
             return (accountNumber === billingAccount.number) ||
-                   (accountNumber.trim() === billingAccount.number) ||
-                   (accountNumber === billingAccount.globalId)
+                (accountNumber.trim() === billingAccount.number) ||
+                (accountNumber === billingAccount.globalId)
         }
     )
-    return applicableBillingAccounts
 }
 
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {

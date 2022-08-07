@@ -3,10 +3,10 @@
  */
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
-const { UUID_RE } = require('@core/keystone/test.utils')
+const { UUID_RE } = require('@condo/keystone/test.utils')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { ResidentTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('GetAllResidentTicketsService', () => {

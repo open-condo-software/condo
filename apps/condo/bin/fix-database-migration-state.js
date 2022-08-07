@@ -9,7 +9,7 @@
  *      yarn workspace @app/condo node bin/fix-database-migration-state.js
  */
 
-const { prepareKeystoneExpressApp } = require('@core/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
 const index = require('@app/condo')
 

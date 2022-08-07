@@ -4,9 +4,9 @@
 const { get } = require('lodash')
 const { Text, Relationship, Select } = require('@keystonejs/fields')
 
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 
 const { REQUIRED_NO_VALUE_ERROR, VALUE_TOO_SHORT } = require('@condo/domains/common/constants/errors')
 

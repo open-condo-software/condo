@@ -5,7 +5,7 @@ const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants
 const { MeterResource } = require('../utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { createTestMeterResource, updateTestMeterResource } = require('@condo/domains/meter/utils/testSchema')
 
 const METER_RESOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP = /^meterResource\.([a-zA-Z])+\.name$/

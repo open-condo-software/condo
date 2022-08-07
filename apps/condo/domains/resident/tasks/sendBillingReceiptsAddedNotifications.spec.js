@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@core/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {

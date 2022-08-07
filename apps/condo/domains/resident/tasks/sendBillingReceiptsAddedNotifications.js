@@ -3,8 +3,8 @@ const falsey = require('falsey')
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
 const conf = require('@core/config')
-const { getSchemaCtx } = require('@core/keystone/schema')
-const { getRedisClient } = require('@core/keystone/redis')
+const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getRedisClient } = require('@condo/keystone/redis')
 
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')

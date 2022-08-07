@@ -1,5 +1,5 @@
 const path = require('path')
-const { find, getByCondition } = require('@core/keystone/schema')
+const { find, getByCondition } = require('@condo/keystone/schema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')

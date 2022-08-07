@@ -16,13 +16,13 @@
  * 2. User wants to remove all his data from our system.
  */
 
-const { GQLCustomSchema, getById } = require('@core/keystone/schema')
+const { GQLCustomSchema, getById } = require('@condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/ResetUserService')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@core/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@condo/keystone/errors')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
@@ -71,7 +71,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 summary: 'Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure',
                 errors,
             },
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data } = args
                 const { dv, sender, user } = data
                 if (!user.id) throw new Error('resetUser(): no user.id')

@@ -8,7 +8,7 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 const { escape, isEmpty, get } = require('lodash')
 
-const { makeLoggedInAdminClient, setFakeClientMode } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@condo/keystone/test.utils')
 
 const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')

@@ -4,7 +4,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@core/keystone/test.utils')
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -12,27 +12,21 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@condo/domains/common/utils/testSchema')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 
 const {
-    PUSH_TRANSPORT_FIREBASE,
-    PUSH_FAKE_TOKEN_SUCCESS,
-    PUSH_FAKE_TOKEN_FAIL,
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
-    MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
-const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 
 const {
     createTestOrganizationLink,
@@ -525,13 +519,13 @@ describe('Ticket', () => {
             const unitName1 = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
 
-            const [residentWithTicket] = await createTestResident(admin, residentWithTicketClient.user, property1, {
+            await createTestResident(admin, residentWithTicketClient.user, property1, {
                 unitName: unitName1,
             })
-            const [residentFromAnotherProperty] = await createTestResident(admin, residentFromAnotherPropertyClient.user, property2, {
+            await createTestResident(admin, residentFromAnotherPropertyClient.user, property2, {
                 unitName: unitName1,
             })
-            const [residentFromAnotherUnit] = await createTestResident(admin, residentFromAnotherUnitClient.user, property1, {
+            await createTestResident(admin, residentFromAnotherUnitClient.user, property1, {
                 unitName: unitName2,
             })
             const [contact] = await createTestContact(admin, organization, property1, {
@@ -831,12 +825,12 @@ describe('Ticket', () => {
             const [divisionLimitedRole] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canReadEntitiesOnlyInScopeOfDivision: true,
             })
-            const [divisionLimitedEmployee] = await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
+            await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
 
             const [organization1] = await createTestOrganization(admin)
             const [property1] = await createTestProperty(admin, organization1)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization1)
-            const [employee] = await createTestOrganizationEmployee(admin, organization1, client.user, role, {})
+            await createTestOrganizationEmployee(admin, organization1, client.user, role, {})
 
             await createTestTicket(admin, organization, property)
             const [ticket] = await createTestTicket(admin, organization1, property1)
