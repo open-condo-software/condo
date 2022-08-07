@@ -86,7 +86,7 @@ jobs:
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
 
-          yarn jest ./packages/@core.keystone --maxWorkers=2
+          yarn jest ./packages/keystone --maxWorkers=2
 
           yarn workspace @app/condo lint-schema
 
