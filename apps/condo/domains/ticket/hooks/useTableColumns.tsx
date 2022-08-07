@@ -1,11 +1,11 @@
-import React, { useCallback, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import { identity } from 'lodash/util'
 
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
+import { useAuth } from '@condo/next/auth'
+import { useIntl } from '@condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 import {
     getAddressRender,
@@ -66,8 +66,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const { breakpoints } = useLayoutContext()
 
     const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
-
-    const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)

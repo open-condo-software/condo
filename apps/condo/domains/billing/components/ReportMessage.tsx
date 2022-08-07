@@ -1,4 +1,4 @@
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useMemo } from 'react'
 import { Typography, Tooltip } from 'antd'
 import React from 'react'

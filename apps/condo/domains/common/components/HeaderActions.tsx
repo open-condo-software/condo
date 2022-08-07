@@ -1,5 +1,5 @@
 import React from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import Router from 'next/router'
 import { Tabs } from 'antd'
 import { RemoveTabsLineWrapper } from '@condo/domains/user/components/containers/styles'

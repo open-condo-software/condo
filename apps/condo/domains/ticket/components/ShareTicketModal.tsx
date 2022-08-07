@@ -7,8 +7,8 @@ import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/
 import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
 import Link from 'next/link'
-import { useIntl } from '@core/next/intl'
-import { useMutation } from '@core/next/apollo'
+import { useIntl } from '@condo/next/intl'
+import { useMutation } from '@condo/next/apollo'
 import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
 import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -54,7 +54,7 @@ const collapse = css`
     border-radius: 8px;
   }
   & .ant-collapse-content > .ant-collapse-content-box {
-    padding: 0px 19px 22px;
+    padding: 0 19px 22px;
   }
 
   & .ant-select-multiple .ant-select-selection-item {

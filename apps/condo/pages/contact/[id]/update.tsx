@@ -1,6 +1,6 @@
 import React from 'react'
 import Head from 'next/head'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EditContactForm } from '@condo/domains/contact/components/EditContactForm'

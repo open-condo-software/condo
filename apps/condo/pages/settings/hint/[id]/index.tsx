@@ -6,8 +6,8 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'

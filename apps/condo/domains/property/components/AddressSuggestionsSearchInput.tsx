@@ -4,7 +4,7 @@ import pickBy from 'lodash/pickBy'
 import { notification, Select, SelectProps, Typography } from 'antd'
 import { OptionProps } from 'antd/lib/mentions'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { grey } from '@ant-design/colors'
 import styled from '@emotion/styled'
 

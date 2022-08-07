@@ -2,7 +2,7 @@ import { isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { createContext, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
-import { useLazyQuery } from '@core/next/apollo'
+import { useLazyQuery } from '@condo/next/apollo'
 import { GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
 interface IRegisterContext {
@@ -17,11 +17,11 @@ interface IRegisterContext {
 }
 
 export const RegisterContext = createContext<IRegisterContext>({
-    handleReCaptchaVerify: (action: string) => null,
+    handleReCaptchaVerify: () => null,
     token: '',
-    setToken: (token) => null,
+    setToken: () => null,
     phone: '',
-    setPhone: (phone) => null,
+    setPhone: () => null,
     tokenError: null,
     setTokenError: (error) => null,
     isConfirmed: false,

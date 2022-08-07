@@ -1,6 +1,6 @@
 import React, { useMemo, CSSProperties } from 'react'
 import { MessageDescriptor } from '@formatjs/intl/src/types'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import Big from 'big.js'
 import { Row, Col, Typography } from 'antd'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'

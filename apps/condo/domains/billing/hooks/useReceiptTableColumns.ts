@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
 
 export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) => {

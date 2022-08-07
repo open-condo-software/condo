@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useRef, useCallback } from 'react'
-import { useAuth } from '@core/next/auth'
-import { useOrganization } from '@core/next/organization'
+import { useAuth } from '@condo/next/auth'
+import { useOrganization } from '@condo/next/organization'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import pick from 'lodash/pick'

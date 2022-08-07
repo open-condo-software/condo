@@ -5,9 +5,8 @@ import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import {
     MobileMenuItemsContainer,

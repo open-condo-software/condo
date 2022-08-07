@@ -3,7 +3,7 @@ import { Typography } from 'antd'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'

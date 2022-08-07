@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import cloneDeep from 'lodash/cloneDeep'

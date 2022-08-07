@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { TicketChange } from './TicketChange'
 import { Col, Row, Typography, Button, Skeleton } from 'antd'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { green } from '@ant-design/colors'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"

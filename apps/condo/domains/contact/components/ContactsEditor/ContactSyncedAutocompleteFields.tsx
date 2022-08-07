@@ -5,27 +5,13 @@ import { AutoComplete, Col, Radio } from 'antd'
 import { get } from 'lodash'
 import { MinusCircleOutlined } from '@ant-design/icons'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 import { ContactValue } from './index'
-
-/**
- * Prevent crash of `String.match`, when providing a regular expression string value,
- * that containts special characters.
- *
- * @example
- *
- *      someString.match(escapeRegex(value))
- *
- * @see https://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
- */
-function escapeRegex (string) {
-    return String(string).replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')
-}
 
 const DEBOUNCE_TIMEOUT_IN_MS = 800
 

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Row, Col, Typography, Tag, Space, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
@@ -24,7 +24,7 @@ import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 
 interface IPropertyInfoPanelProps {
     title: string

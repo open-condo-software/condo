@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'

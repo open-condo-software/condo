@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Typography } from 'antd'
 
 import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'

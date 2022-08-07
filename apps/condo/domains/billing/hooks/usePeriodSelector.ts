@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useRef } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 const { getPreviousPeriods } = require('@condo/domains/billing/utils/period')
 import get from 'lodash/get'
 import qs from 'qs'

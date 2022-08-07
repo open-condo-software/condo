@@ -3,8 +3,8 @@ import { get, isEmpty } from 'lodash'
 import React, { useEffect, useMemo } from 'react'
 import { Form, Typography, Space } from 'antd'
 
-import { useOrganization } from '@core/next/organization'
-import { useIntl } from '@core/next/intl'
+import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 
 import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'

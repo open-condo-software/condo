@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Tooltip } from 'antd'
 import React from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useFocusContext } from './FocusContextProvider'
 import { gradients } from '@condo/domains/common/constants/style'
 
@@ -26,13 +26,13 @@ const FocusWrapper = styled.div`
 
     @keyframes gradient-animation {
       0% {
-        background-position: 15% 0%;
+        background-position: 15% 0;
       }
       50% {
         background-position: 85% 100%;
       }
       100% {
-        background-position: 15% 0%;
+        background-position: 15% 0;
       }
     }
 

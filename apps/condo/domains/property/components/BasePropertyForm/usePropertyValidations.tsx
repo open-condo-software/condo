@@ -1,5 +1,5 @@
 import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 type IFormFieldsRuleMap = {
     [key: string]: Rule[]

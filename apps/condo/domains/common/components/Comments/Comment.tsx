@@ -10,8 +10,8 @@ import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 
 import { User, TicketComment } from '@app/condo/schema'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
+import { useAuth } from '@condo/next/auth'
+import { useIntl } from '@condo/next/intl'
 
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
@@ -62,7 +62,7 @@ const CommentStyle = css`
     margin-bottom: 6px;
     border-radius: 8px;
     padding: 0;
-    box-shadow: rgba(0,0,0,0.15) 0px 1px 3px;
+    box-shadow: rgba(0,0,0,0.15) 0 1px 3px;
     font-size: 14px;
     line-height: 22px;
 

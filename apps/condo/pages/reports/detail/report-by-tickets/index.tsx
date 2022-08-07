@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRe
 import { css, jsx } from '@emotion/react'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import {
     PageContent,
     PageHeader,
@@ -12,12 +12,12 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Tooltip, Typography } from 'antd'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import sum from 'lodash/sum'
 import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
-import { useApolloClient, useLazyQuery } from '@core/next/apollo'
+import { useApolloClient, useLazyQuery } from '@condo/next/apollo'
 
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'
@@ -27,7 +27,7 @@ import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/comm
 import { Button } from '@condo/domains/common/components/Button'
 import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import RadioGroupWithIcon, { radioButtonBorderlessCss } from '@condo/domains/common/components/RadioGroupWithIcon'
+import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
@@ -44,7 +44,6 @@ import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSear
 import {
     searchEmployeeUser,
     searchOrganizationProperty,
-    searchProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
 import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
@@ -142,10 +141,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
     const ResponsibleTitle = intl.formatMessage({ id: 'field.Responsible' })
     const ApplyButtonTitle = intl.formatMessage({ id: 'Show' })
-    const PresetWeek = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Week' })
-    const PresetMonth = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Month' })
-    const PresetQuarter = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Quarter' })
-    const PresetYear = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.PeriodPreset.Year' })
     const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
 
@@ -255,7 +250,6 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     }, [responsibleList])
 
     const onSpecificationChange = useCallback((e) => setSpecification(e), [])
-    const onRangePresetChange = useCallback((preset) => setDateRangePreset(preset.target.value), [])
     const onDateRangeChange = useCallback((range) => setDateRange(range), [])
 
     return (

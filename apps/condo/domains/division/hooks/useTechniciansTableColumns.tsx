@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
 

@@ -7,7 +7,7 @@ import {
     makeAntdData,
     reValidateExData,
 } from '@condo/domains/common/utils/excel.utils'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import styled from '@emotion/styled'
 import { Button, Col, Form, Progress, Row, Table, Tooltip, Typography, Upload } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -47,7 +47,7 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
         const titleToIndex = Object.fromEntries(cols.map((col) => [col.title, col.dataIndex]))
         const remapped = Object.fromEntries(
             Object.entries(allValues)
-                .filter(([k, v]) => v)
+                .filter(([, v]) => v)
                 .map(([k, v]) => [titleToIndex[v], k]),
         )
         setValues(allValues)
@@ -227,7 +227,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
     </>
 }
 
-function renderCell (obj, record, rowIndex) {
+function renderCell (obj) {
     if (!obj) return null
     if (typeof obj !== 'object') return <ErrorText>!! RENDER-ERROR: {obj} !!</ErrorText>
     if (obj.status) {

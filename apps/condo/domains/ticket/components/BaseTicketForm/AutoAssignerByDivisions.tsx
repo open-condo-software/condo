@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { find, get, map } from 'lodash'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Alert, FormInstance } from 'antd'
 import { Division } from '@condo/domains/division/utils/clientSchema'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { formatAddressWithoutCityFrom } from '@condo/domains/property/utils/helpers'
 import { Division as DivisionSchema } from '@app/condo/schema'
-import { useAuth } from '@core/next/auth'
+import { useAuth } from '@condo/next/auth'
 
 const getResponsibleAndExecutorFrom = (divisions, categoryClassifier, defaultResponsibleUserId) => {
     let responsible

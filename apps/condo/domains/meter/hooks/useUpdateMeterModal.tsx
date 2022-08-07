@@ -3,7 +3,7 @@ import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { Meter as MeterType } from '@app/condo/schema'
 import {

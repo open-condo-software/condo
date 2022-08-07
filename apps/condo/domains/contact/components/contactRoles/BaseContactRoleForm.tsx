@@ -1,7 +1,7 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
@@ -33,12 +33,10 @@ type BaseTicketPropertyHintFormProps = {
 }
 
 export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
-    hintFilters,
     children,
     action,
     organizationId,
     initialValues,
-    mode,
 }) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })

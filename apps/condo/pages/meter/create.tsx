@@ -1,9 +1,9 @@
 import Head from 'next/head'
 import React from 'react'
 import { Typography, Row, Col } from 'antd'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { Gutter } from 'antd/es/grid/row'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { CreateMeterReadingsForm } from '@condo/domains/meter/components/CreateMeterReadingsForm'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'

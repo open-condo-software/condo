@@ -11,8 +11,8 @@ import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 import styled from '@emotion/styled'
 import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
@@ -81,7 +81,6 @@ export const CreateContactForm: React.FC = () => {
 
     const {
         loading: isRolesLoading,
-        count: totalRoles,
         objs: roles,
     } = ContactRole.useObjects({
         where: {

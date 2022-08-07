@@ -8,7 +8,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Editor } from '@tinymce/tinymce-react'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Loader } from '@condo/domains/common/components/Loader'

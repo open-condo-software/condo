@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { IContextProps } from './index'
 import {
     QueryMeta,
@@ -9,7 +8,7 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
 import { BillingReceiptWhereInput, SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
@@ -44,7 +43,6 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const { isSmall } = useLayoutContext()
 
     const contextPeriod = get(context, ['lastReport', 'period'], null)
     const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')

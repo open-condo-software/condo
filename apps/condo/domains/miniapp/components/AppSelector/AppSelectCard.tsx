@@ -4,7 +4,7 @@ import { useRouter } from 'next/router'
 import styled from '@emotion/styled'
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { TagContainer } from '../TagContainer'
 
 interface AppSelectCardProps {

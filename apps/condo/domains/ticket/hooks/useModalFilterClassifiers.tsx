@@ -4,8 +4,8 @@ import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useApolloClient } from '@core/next/apollo'
-import { useIntl } from '@core/next/intl'
+import { useApolloClient } from '@condo/next/apollo'
+import { useIntl } from '@condo/next/intl'
 
 import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
 import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'

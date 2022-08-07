@@ -10,8 +10,8 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { canManageContacts } from '@condo/domains/organization/permissions'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 import { Col, Form, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
@@ -67,8 +67,6 @@ export const EditContactForm: React.FC = () => {
     })
 
     const {
-        loading: isRolesLoading,
-        count: totalRoles,
         objs: roles,
     } = ContactRole.useObjects({
         where: {

@@ -21,8 +21,8 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
 

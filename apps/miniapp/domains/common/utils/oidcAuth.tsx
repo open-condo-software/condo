@@ -1,4 +1,4 @@
-import { useAuth } from '@core/next/auth'
+import { useAuth } from '@condo/next/auth'
 import { useOrganization } from '@miniapp/domains/common/utils/organization'
 import getConfig from 'next/config'
 import Router from 'next/router'

@@ -5,7 +5,7 @@ import { BuildingMap } from '@app/condo/schema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Tabs } from 'antd'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 const { TabPane } = Tabs
 
@@ -25,7 +25,7 @@ const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
     padding: 0,
 }
 
-export const PropertyPanels: React.FC<IPropertyPanels> = ({ mapValidationError, mode, map, updateMap, handleSave, address }) => {
+export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map }) => {
     const intl = useIntl()
     const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })

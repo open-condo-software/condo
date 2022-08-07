@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { Form, Typography } from 'antd'
 import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import BasePropertyForm from '../BasePropertyForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 interface IUpdatePropertyForm {

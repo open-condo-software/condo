@@ -4,12 +4,12 @@ import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
-import { Col, Radio, RadioChangeEvent, Row, RowProps, Tabs, Typography } from 'antd'
+import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 
 import { GetServerSideProps } from 'next'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'

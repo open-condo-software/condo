@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { Gutter } from 'antd/es/grid/row'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { BuildingUnitSubType, SortMeterReadingsBy, SortMetersBy, Meter as MeterType, MeterReading as MeterReadingType } from '@app/condo/schema'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'

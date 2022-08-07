@@ -1,6 +1,6 @@
 import { EllipsisOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -19,8 +19,8 @@ import {
     queryToSorter,
     sorterToQuery,
 } from '@condo/domains/organization/utils/helpers'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 
 import { Col, Dropdown, Menu, Row, Tooltip, Typography } from 'antd'
 import { Table } from '@condo/domains/common/components/Table/Index'
@@ -55,7 +55,6 @@ export const EmployeesPageContent = ({
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const { shouldTableScroll } = useLayoutContext()
 
     const {
         fetchMore,

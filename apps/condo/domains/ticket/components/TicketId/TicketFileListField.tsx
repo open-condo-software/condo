@@ -1,7 +1,7 @@
 import React from 'react'
 import { isEmpty } from 'lodash'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'

@@ -5,7 +5,7 @@ import {
     TicketPlaceClassifier as TicketPlaceClassifierGQL,
     TicketProblemClassifier as TicketProblemClassifierGQL,
 } from '@condo/domains/ticket/gql'
-import { ApolloClient } from '@core/next/apollo'
+import { ApolloClient } from '@condo/next/apollo'
 import { filter, isEmpty, sortBy } from 'lodash'
 import { QueryAllTicketCategoryClassifiersArgs, TicketClassifier } from '@app/condo/schema'
 
@@ -204,7 +204,7 @@ const searchClassifiersByType = {
 
 export class ClassifiersQueryRemote implements IClassifiersSearch {
 
-    constructor (private client: ApolloClient, private rules = [], private place = [], private category = [], private problem = []) {}
+    constructor (private client: ApolloClient) {}
 
     public async init (): Promise<void> {
         return

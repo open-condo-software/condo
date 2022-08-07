@@ -5,7 +5,7 @@ import PaymentsTable from '@condo/domains/acquiring/components/payments/Payments
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { Typography } from 'antd'
 import { get, isString } from 'lodash'
 import React, { useMemo } from 'react'

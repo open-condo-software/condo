@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import React, { CSSProperties, useCallback, useState } from 'react'
 import { Col, DatePicker, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'

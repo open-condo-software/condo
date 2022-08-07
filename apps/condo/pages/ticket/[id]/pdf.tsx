@@ -2,7 +2,7 @@ import { Col, Row, Typography, Space, notification, Breadcrumb } from 'antd'
 import get from 'lodash/get'
 import dynamic from 'next/dynamic'
 import React, { useEffect, useRef } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import {
