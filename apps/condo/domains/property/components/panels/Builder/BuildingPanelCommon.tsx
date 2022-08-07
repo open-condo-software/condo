@@ -2,7 +2,7 @@
 import React, { useRef, useEffect, useCallback } from 'react'
 import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
 import { jsx, css } from '@emotion/react'
 import styled from '@emotion/styled'

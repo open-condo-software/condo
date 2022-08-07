@@ -6,7 +6,7 @@ import { colors, fontSizes, shadows } from '@condo/domains/common/constants/styl
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import {

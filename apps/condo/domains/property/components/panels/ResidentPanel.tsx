@@ -1,4 +1,4 @@
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Space, Tooltip } from 'antd'
 import React from 'react'

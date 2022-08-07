@@ -3,7 +3,7 @@ import React, { useMemo } from 'react'
 import { css, jsx } from '@emotion/react'
 import { Dropdown, DropDownProps, Menu, MenuProps } from 'antd'
 import { Button } from '@condo/domains/common/components/Button'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import {
     FlatIcon,
     FloorIcon,

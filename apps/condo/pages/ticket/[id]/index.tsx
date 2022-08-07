@@ -15,9 +15,9 @@ import {
     SortTicketCommentFilesBy,
     SortTicketCommentsBy,
 } from '@app/condo/schema'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useAuth } from '@condo/next/auth'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'

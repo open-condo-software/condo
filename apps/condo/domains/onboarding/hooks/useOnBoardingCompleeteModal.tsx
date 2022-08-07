@@ -2,7 +2,7 @@ import React, { useState, Dispatch, SetStateAction } from 'react'
 import { Col, Modal, Row, Typography } from 'antd'
 import { useRouter } from 'next/router'
 import styled from '@emotion/styled'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { Poster } from '@condo/domains/common/components/Poster'
 

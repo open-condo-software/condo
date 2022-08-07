@@ -1,9 +1,8 @@
 import { useCallback, useMemo } from 'react'
-import get from 'lodash/get'
 import { FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { PropertyWhereInput } from '@app/condo/schema'
 

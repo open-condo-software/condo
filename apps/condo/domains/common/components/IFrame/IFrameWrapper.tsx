@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { css, Global } from '@emotion/react'
-import { useAuth } from '@core/next/auth'
-import { useOrganization } from '@core/next/organization'
+import { useAuth } from '@condo/next/auth'
+import { useOrganization } from '@condo/next/organization'
 import getConfig from 'next/config'
 import { sendLoadedStatus, sendRequirementRequest, sendSize } from '@condo/domains/common/utils/iframe.utils'
 

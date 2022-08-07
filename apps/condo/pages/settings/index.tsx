@@ -14,12 +14,12 @@ import { SubscriptionPane } from '@condo/domains/subscription/components/Subscri
 import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 

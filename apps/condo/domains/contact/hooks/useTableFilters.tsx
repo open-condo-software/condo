@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useMemo } from 'react'
+import { useIntl } from '@condo/next/intl'
 
 import {
     ComponentType,

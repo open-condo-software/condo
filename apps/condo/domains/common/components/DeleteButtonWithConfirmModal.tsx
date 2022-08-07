@@ -1,10 +1,10 @@
-import { ModalProps, Typography } from 'antd'
+import { Typography } from 'antd'
 import { Button, CustomButtonProps } from './Button'
 import Modal from 'antd/lib/modal/Modal'
 import React, { useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 export interface IDeleteActionButtonWithConfirmModal {
     title: string

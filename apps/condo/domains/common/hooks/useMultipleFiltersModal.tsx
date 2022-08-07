@@ -14,7 +14,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
 import { FormItemProps } from 'antd/es'
 import { CloseOutlined } from '@ant-design/icons'
@@ -22,7 +22,7 @@ import { Gutter } from 'antd/es/grid/row'
 import isFunction from 'lodash/isFunction'
 import isEmpty from 'lodash/isEmpty'
 import pickBy from 'lodash/pickBy'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 
 import {
     OptionType,

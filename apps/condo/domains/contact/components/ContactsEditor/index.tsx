@@ -3,7 +3,7 @@ import { Col, Form, FormInstance, Row, Tabs } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { PlusCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Gutter } from 'antd/lib/grid/row'
 
 import find from 'lodash/find'

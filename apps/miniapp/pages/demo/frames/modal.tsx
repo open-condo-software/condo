@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { Alert } from 'antd'
 import { useRouter } from 'next/router'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { PageContent, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
 import { Button } from '@condo/domains/common/components/Button'
 import Head from 'next/head'

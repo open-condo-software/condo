@@ -6,7 +6,7 @@ import { DeleteFilled, EditFilled } from '@ant-design/icons'
 import { UploadRequestOption } from 'rc-upload/lib/interface'
 import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { File } from '@app/condo/schema'
 
 import { Button } from '@condo/domains/common/components/Button'

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback } from 'react'
-import { useMutation } from '@core/next/apollo'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
+import { useMutation } from '@condo/next/apollo'
+import { useAuth } from '@condo/next/auth'
+import { useIntl } from '@condo/next/intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/domains/user/gql'
 

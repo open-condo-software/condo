@@ -3,7 +3,7 @@ import { get } from 'lodash'
 import Link from 'next/link'
 import { useMemo } from 'react'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'

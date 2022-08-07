@@ -1,5 +1,5 @@
 import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
 

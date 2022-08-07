@@ -5,7 +5,7 @@ import {
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import { useMemo } from 'react'

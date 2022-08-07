@@ -5,7 +5,7 @@ import { Select, SelectProps, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
 import uniqBy from 'lodash/uniqBy'
 import { ApolloClient } from '@apollo/client'
-import { useApolloClient } from '@core/next/apollo'
+import { useApolloClient } from '@condo/next/apollo'
 
 import { WhereType } from '../utils/tables.utils'
 import throttle from 'lodash/throttle'

@@ -1,11 +1,11 @@
 import dayjs from 'dayjs'
-import { useOrganization } from '@core/next/organization'
-import { useApolloClient } from '@core/next/apollo'
+import { useOrganization } from '@condo/next/organization'
+import { useApolloClient } from '@condo/next/apollo'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import isEmpty from 'lodash/isEmpty'
 import { SortMetersBy } from '@app/condo/schema'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useMemo } from 'react'
 
 import {
@@ -159,7 +159,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             accountNumber,
             meterResourceTypeAbbr,
             meterNumber,
-            numberOfTariffs,
+            ,
             value1,
             value2,
             value3,

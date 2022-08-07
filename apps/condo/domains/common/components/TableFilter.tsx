@@ -8,7 +8,7 @@ import { FilterDropdownProps } from 'antd/lib/table/interface'
 import { FilterFilled } from '@ant-design/icons'
 import styled from '@emotion/styled'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { colors } from '../constants/style'
 import { Button } from './Button'

@@ -5,7 +5,7 @@ import { get } from 'lodash'
 import Link from 'next/link'
 import React, { CSSProperties, useMemo } from 'react'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'

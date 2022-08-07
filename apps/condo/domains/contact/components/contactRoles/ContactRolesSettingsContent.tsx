@@ -7,7 +7,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -29,7 +29,7 @@ const StyledTable = styled(Table)`
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
-export const ContactRolesSettingsContent = (props) => {
+export const ContactRolesSettingsContent = () => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'ContactRoles' })
     const AddMessage = intl.formatMessage({ id: 'ContactRoles.add' })

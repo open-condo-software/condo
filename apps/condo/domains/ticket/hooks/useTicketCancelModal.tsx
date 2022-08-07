@@ -1,7 +1,7 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Modal, Typography } from 'antd'
 import { Button } from '@app/condo/domains/common/components/Button'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 

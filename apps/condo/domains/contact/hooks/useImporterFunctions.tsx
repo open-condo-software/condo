@@ -1,11 +1,11 @@
 import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
-import { useOrganization } from '@core/next/organization'
-import { useApolloClient } from '@core/next/apollo'
+import { useOrganization } from '@condo/next/organization'
+import { useApolloClient } from '@condo/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import get from 'lodash/get'
 import { Contact } from '../utils/clientSchema'
 import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, PARKING_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } from '@condo/domains/property/constants/common'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')

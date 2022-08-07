@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { Modal, Typography, FormInstance } from 'antd'
-import { useIntl } from '@core/next/intl'
+import { Modal, FormInstance } from 'antd'
+import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
 import { Button } from '@condo/domains/common/components/Button'
 import { isEqual, pick } from 'lodash'

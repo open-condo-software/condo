@@ -1,7 +1,7 @@
 import { getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { DivisionWhereInput } from '@app/condo/schema'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 const filterName = getStringContainsFilter('name')
 const filterProperties = (search: string) => {

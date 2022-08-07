@@ -1,14 +1,14 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import { DiffOutlined, FilterFilled } from '@ant-design/icons'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { SortMeterReadingsBy } from '@app/condo/schema'
 import { Gutter } from 'antd/es/grid/row'
 

@@ -2,11 +2,11 @@
 import React, { useContext, useEffect } from 'react'
 import { Button, Form, Space } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import ExcelExporterButton from './FormTableExcelImport'
 import { CreateFormListItemButton, ExtraDropdownActionsMenu } from './FormList'
 import FormTable from './FormTable'
-import { useAuth } from '@core/next/auth'
+import { useAuth } from '@condo/next/auth'
 import { useImmerReducer } from 'use-immer'
 import { DeleteOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
 import Router from 'next/router'
@@ -126,7 +126,7 @@ function _useTableRowForm () {
     }
 }
 
-function RenderActionsColumn (text, item, index) {
+function RenderActionsColumn (text, item) {
     const intl = useIntl()
     const AreYouSureMessage = intl.formatMessage({ id: 'AreYouSure' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })

@@ -3,7 +3,7 @@ import { Card, Image, Space, Typography, Row, Col } from 'antd'
 import styled from '@emotion/styled'
 import dayjs from 'dayjs'
 import { colors } from '@condo/domains/common/constants/style'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 import { TagContainer } from '../TagContainer'
 

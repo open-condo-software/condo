@@ -2,7 +2,7 @@ import PaymentsPageContent from '@condo/domains/acquiring/components/payments/Pa
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Typography } from 'antd'
 import Head from 'next/head'
 import React, { CSSProperties } from 'react'

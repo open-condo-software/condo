@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Dayjs } from 'dayjs'
 import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import isEmpty from 'lodash/isEmpty'
 
 import { Meter } from '../utils/clientSchema'

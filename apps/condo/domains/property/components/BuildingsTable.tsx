@@ -17,7 +17,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, notification, Row } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/es/grid/row'

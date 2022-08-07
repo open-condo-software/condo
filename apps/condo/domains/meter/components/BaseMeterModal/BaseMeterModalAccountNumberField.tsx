@@ -7,7 +7,7 @@ import { Gutter } from 'antd/es/grid/row'
 import uniq from 'lodash/uniq'
 import isEmpty from 'lodash/isEmpty'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { Meter } from '../../utils/clientSchema'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'

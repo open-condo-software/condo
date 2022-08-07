@@ -7,8 +7,8 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@core/next/intl'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@condo/next/organization'
 import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -50,7 +50,6 @@ export const SettingsContent = () => {
     const canManageTicketPropertyHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketPropertyHints']), [userOrganization])
 
     const [search, handleSearchChange] = useSearch<IFilters>(false)
-    const { shouldTableScroll } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

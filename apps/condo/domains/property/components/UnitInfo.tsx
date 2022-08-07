@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Gutter } from 'antd/es/grid/row'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, FormInstance, Row } from 'antd'
 import get from 'lodash/get'
 
@@ -9,7 +9,6 @@ import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType } from '@
 
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
@@ -97,8 +96,6 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         selectedSectionType,
         setSelectedSectionType,
     } = props
-
-    const { isSmall } = useLayoutContext()
 
     const [selectedSectionName, setSelectedSectionName] = useState<string>(get(initialValues, 'sectionName'))
     const [selectedFloorName, setSelectedFloorName] = useState<string>(get(initialValues, 'floorName'))

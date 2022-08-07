@@ -6,7 +6,7 @@ import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoO
 import {
     useServiceSubscriptionWelcomePopup,
 } from '@condo/domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -15,7 +15,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 import { WelcomePopup } from '@condo/domains/onboarding/components/WelcomePopup'
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/common'
 
 interface IOnBoardingIndexPage extends React.FC {

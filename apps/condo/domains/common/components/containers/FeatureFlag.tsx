@@ -18,7 +18,7 @@ import React, { ReactNode, useState } from 'react'
 import { Modal, Switch, Alert } from 'antd'
 
 import getConfig from 'next/config'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 

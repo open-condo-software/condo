@@ -2,7 +2,7 @@ import { Typography, Row, Col } from 'antd'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import Head from 'next/head'
 import React from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 

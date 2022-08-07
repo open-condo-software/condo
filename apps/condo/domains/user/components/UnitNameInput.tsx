@@ -5,7 +5,7 @@ import isEmpty from 'lodash/isEmpty'
 import React, { useCallback } from 'react'
 
 import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'

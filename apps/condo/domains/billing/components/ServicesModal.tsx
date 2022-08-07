@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react'
 import { Modal, Typography, Space, Table, ConfigProvider } from 'antd'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
 import { BillingReceipt } from '@app/condo/schema'
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'

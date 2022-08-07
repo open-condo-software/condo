@@ -5,9 +5,9 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 
 import { BaseQueryOptions } from '@apollo/client'
-import { useIntl } from '@core/next/intl'
-import { useAuth } from '@core/next/auth'
-import { useOrganization } from '@core/next/organization'
+import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@condo/next/auth'
+import { useOrganization } from '@condo/next/organization'
 
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'

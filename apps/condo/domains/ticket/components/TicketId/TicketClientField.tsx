@@ -1,7 +1,7 @@
 import { Typography } from 'antd'
 import { get } from 'lodash'
 import Link from 'next/link'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import React, { useMemo } from 'react'
 import { Ticket } from '@app/condo/schema'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'

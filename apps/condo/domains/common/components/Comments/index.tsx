@@ -3,7 +3,7 @@ import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, 
 import { Empty, Tabs, Typography } from 'antd'
 import styled from '@emotion/styled'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
 
 import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'

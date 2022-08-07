@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { Col, Modal, Row, Typography } from 'antd'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_FILTERED_ELEMENTS } from '@condo/domains/ticket/constants/restrictions'
 

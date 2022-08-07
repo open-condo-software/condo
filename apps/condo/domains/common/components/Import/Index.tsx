@@ -9,7 +9,7 @@ import {
 } from '@condo/domains/common/utils/importer'
 import { Modal, Popover, Typography, Space } from 'antd'
 import { useImporter } from '@condo/domains/common/hooks/useImporter'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import {
     ModalContext,
     getUploadSuccessModalConfig,

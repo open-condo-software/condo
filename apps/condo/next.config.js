@@ -3,10 +3,10 @@ const conf = require('@core/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
-// Tell webpack to compile the "@core/next" package, necessary
+// Tell webpack to compile the "@condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
-const withTM = require('next-transpile-modules')(['@core/next', '@core/keystone', 'rc-table', '@condo/domains'])
+const withTM = require('next-transpile-modules')(['@condo/next', '@core/keystone', 'rc-table', '@condo/domains'])
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
@@ -55,7 +55,7 @@ module.exports = withTM(withLess(withCSS({
             },
         ]
     },
-    webpack: (config, options) => {
+    webpack: (config) => {
         const plugins = config.plugins
 
         // NOTE: Replace Moment.js with Day.js in antd project

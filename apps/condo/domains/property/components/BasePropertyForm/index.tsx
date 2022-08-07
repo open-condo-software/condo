@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, Form, notification, Row, Typography, RowProps, FormInstance } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import isEmpty from 'lodash/isEmpty'

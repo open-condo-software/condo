@@ -5,7 +5,7 @@ import Head from 'next/head'
 import getConfig from 'next/config'
 import React from 'react'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 function introspectionProvider (query) {
     return fetch('/admin/api', {

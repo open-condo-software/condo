@@ -1,19 +1,16 @@
-import React, { CSSProperties, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { identity } from 'lodash/util'
 import get from 'lodash/get'
-import { Checkbox } from 'antd'
 
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getTextFilterDropdown, getFilterIcon, FilterContainer } from '@condo/domains/common/components/TableFilter'
-import { getTableCellRenderer, renderCellWithHighlightedContents } from '@condo/domains/common/components/Table/Renders'
+import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
 import { createSorterMap, IFilters } from '../utils/helpers'
 import { OrganizationEmployeeRole } from '../utils/clientSchema'
 import { getOptionFilterDropdown } from '../../common/components/Table/Filters'
-
-const FILTER_DROPDOWN_CHECKBOX_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column' }
 
 export const useTableColumns = (
     organizationId: string,
