@@ -1,9 +1,9 @@
 {
-  "name": "start-up-kit",
+  "name": "condo",
   "description": "Easy and Fast StartUp development kit",
   "private": true,
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit",
-  "homepage": "https://github.com/pahaz/hackathon-boilerplate-starter-kit",
+  "repository": "https://github.com/open-condo-software/condo",
+  "homepage": "https://github.com/open-condo-software/condo",
   "license": "MIT",
   "workspaces": [
     "apps/*",
@@ -61,7 +61,7 @@
     },
     "ignorePatterns": [
       "dist",
-      "packages/@core.codegen/templates/**/*",
+      "packages/codegen/templates/**/*",
       "*schema.ts"
     ],
     "rules": {
