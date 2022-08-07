@@ -10,7 +10,7 @@ const nunjucks = require('nunjucks')
 const { Readable } = require('stream')
 const { replace } = require('lodash')
 const pluralize = require('pluralize')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'

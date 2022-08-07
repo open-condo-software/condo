@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 
 const { GQLCustomSchema } = require('@condo/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')

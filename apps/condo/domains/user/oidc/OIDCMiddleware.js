@@ -1,7 +1,7 @@
 const express = require('express')
 const Provider = require('oidc-provider')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
 
 const createConfiguration = require('./configuration')
@@ -9,7 +9,7 @@ const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch
 const { logger } = require('./logger')
 
 class OIDCMiddleware {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware ({ keystone }) {
         // NOTE(pahaz): #MEMORYLEAK it's memory leak at:
         //       at new CacheableLookup (../../node_modules/oidc-provider/node_modules/cacheable-lookup/source/index.js:91:14)
         //       at Object.<anonymous> (../../node_modules/oidc-provider/lib/helpers/request.js:11:19)
@@ -32,7 +32,7 @@ class OIDCMiddleware {
             next()
         }
 
-        app.get('/oidc/interaction/:uid', setNoCache, async (req, res, next) => {
+        app.get('/oidc/interaction/:uid', setNoCache, async (req, res) => {
             /*
                 This code is based on: https://github.com/panva/node-oidc-provider/blob/main/example/routes/express.js
 

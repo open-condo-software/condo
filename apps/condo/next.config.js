@@ -1,5 +1,5 @@
 // @ts-check
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')

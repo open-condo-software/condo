@@ -1,7 +1,7 @@
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { logger: baseLogger } = require('./common')
 const { getOrganizationAccessToken } = require('./utils')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}

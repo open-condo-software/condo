@@ -1,6 +1,6 @@
 const { pickBy, get, isEmpty, isObject } = require('lodash')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getById } = require('@condo/keystone/schema')
 const { GQLError } = require('@condo/keystone/errors')
 

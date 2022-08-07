@@ -3,7 +3,7 @@ const falsey = require('falsey')
 const { get, isEmpty, uniq } = require('lodash')
 const dayjs = require('dayjs')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 

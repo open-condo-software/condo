@@ -13,7 +13,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { exportTicketsTask } = require('../tasks/exportTicketsTask')
 const { getFileMetaAfterChange } = require('../../common/utils/fileAdapter')
 
@@ -86,8 +86,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             isRequired: true,
             hooks: {
                 resolveInput: async ({ context }) => {
-                    const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-                    return locale
+                    return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 },
             },
         },

@@ -1,4 +1,4 @@
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 

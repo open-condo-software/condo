@@ -3,6 +3,6 @@
 Example:
 
 ```js
-const conf = require('@core/config')
+const conf = require('@condo/config')
 console.log(conf.PROJECT_NAME)
 ```

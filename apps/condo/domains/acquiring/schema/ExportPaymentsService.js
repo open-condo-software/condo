@@ -15,7 +15,7 @@ const { get } = require('lodash')
 const { getHeadersTranslations, EXPORT_TYPE_PAYMENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 

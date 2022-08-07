@@ -4,7 +4,7 @@ const { Issuer, custom } = require('openid-client') // certified openid client w
 const jwtDecode = require('jwt-decode') // decode jwt without validation
 const { logger: baseLogger } = require('./common')
 const util = require('util')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -85,18 +85,15 @@ class SbbolOauth2Api {
 
     async completeAuth (inputOrReq, checks) {
         const params = this.client.callbackParams(inputOrReq)
-        const tokenSet = await this.client.callback(this.redirectUrl, params, checks)
-        return tokenSet
+        return await this.client.callback(this.redirectUrl, params, checks)
     }
 
     async refreshToken (refreshToken) {
-        const tokenSet = await this.client.refresh(refreshToken)
-        return tokenSet
+        return await this.client.refresh(refreshToken)
     }
 
     async fetchUserInfo (accessToken) {
-        const userInfo = await this.client.userinfo(accessToken)
-        return userInfo
+        return await this.client.userinfo(accessToken)
     }
 
     get userInfoUrl () {

@@ -2,7 +2,7 @@ const pino = require('pino')
 const falsey = require('falsey')
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 

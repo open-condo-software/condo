@@ -3,7 +3,7 @@ const pino = require('pino')
 const falsey = require('falsey')
 const { get } = require('lodash')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getById } = require('@condo/keystone/schema')
 const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 

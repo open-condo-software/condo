@@ -6,7 +6,7 @@ const { StaticApp } = require('@keystonejs/app-static')
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const access = require('@condo/keystone/access')
 const { EmptyApp } = require('@condo/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')

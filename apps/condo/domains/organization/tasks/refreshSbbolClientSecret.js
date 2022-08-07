@@ -1,4 +1,4 @@
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const faker = require('faker')
 const { createCronTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')

@@ -1,5 +1,5 @@
 const { v4: uuid } = require('uuid')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { RESET_PASSWORD_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const RESET_PASSWORD_TOKEN_EXPIRY = conf.USER__RESET_PASSWORD_TOKEN_EXPIRY || 1000 * 60 * 60 * 24
 const { MIN_PASSWORD_LENGTH, STAFF } = require('@condo/domains/user/constants/common')
@@ -228,7 +228,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 schema: 'Changes password and authorizes this action via correct token, that should correspond to either ForgotPasswordAction (deprecated) or `ConfirmPhoneAction`',
                 errors: errors.changePasswordWithToken,
             },
-            resolver: async (parent, args, context, info, extra) => {
+            resolver: async (parent, args, context) => {
                 // TODO(DOMA-3209): check the dv, sender value
                 const { data: { token, password, sender, dv } } = args
 

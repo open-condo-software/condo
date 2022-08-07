@@ -10,7 +10,7 @@
 const path = require('path')
 const { values } = require('lodash')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getRandomString, prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
 const { changeClientSecret, refreshAllTokens, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')

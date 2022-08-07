@@ -31,11 +31,11 @@ const { GraphQLError, printError } = require('graphql')
 const ensureError = require('ensure-error')
 const { serializeError } = require('serialize-error')
 const cuid = require('cuid')
-const { pick, pickBy, identity, toArray, _, toString, isObject } = require('lodash')
+const { pick, pickBy, identity, toArray, _, toString } = require('lodash')
 
 const { graphqlLogger } = require('@keystonejs/keystone/lib/Keystone/logger')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 

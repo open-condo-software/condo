@@ -1,4 +1,4 @@
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')

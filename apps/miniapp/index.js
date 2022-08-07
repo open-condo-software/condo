@@ -8,7 +8,7 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { EmptyApp } = require('@condo/keystone/test.utils')
 const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
 const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')

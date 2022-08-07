@@ -6,7 +6,7 @@ const pino = require('pino')
 const falsey = require('falsey')
 
 const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')

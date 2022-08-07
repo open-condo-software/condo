@@ -1,5 +1,5 @@
 const isEmpty = require('lodash/isEmpty')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const captchaConfig = conf.GOOGLE_RECAPTCHA_CONFIG ? JSON.parse(conf.GOOGLE_RECAPTCHA_CONFIG) : {}
 const CAPTCHA_SCORE_URL = captchaConfig.CAPTCHA_SCORE_URL ? captchaConfig.CAPTCHA_SCORE_URL : 'https://www.google.com/recaptcha/api/siteverify'
 const SERVER_KEY = captchaConfig.SERVER_KEY

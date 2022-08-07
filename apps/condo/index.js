@@ -12,7 +12,7 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { prepareDefaultKeystoneConfig, getAdapter } = require('@condo/keystone/setup.utils')
 const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
 const { schemaDocPreprocessor } = require('@condo/keystone/preprocessors/schemaDoc')

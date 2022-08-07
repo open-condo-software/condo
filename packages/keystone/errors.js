@@ -65,7 +65,7 @@ const { ApolloError } = require('apollo-server-errors')
 const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 const cuid = require('cuid')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 
