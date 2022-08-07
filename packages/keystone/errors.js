@@ -4,7 +4,7 @@
  *
  * @example
  * ```js
- * const { GQLError, GQLErrorCode } = require('@core/keystone/errors')
+ * const { GQLError, GQLErrorCode } = require('@condo/keystone/errors')
  *
  * // Declare all errors, that can be thrown by a custom action, implemented below
  * const errors = {

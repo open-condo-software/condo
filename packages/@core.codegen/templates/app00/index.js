@@ -7,10 +7,10 @@ const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
 const conf = require('@core/config')
-const access = require('@core/keystone/access')
-const { EmptyApp } = require('@core/keystone/test.utils')
-const { prepareDefaultKeystoneConfig } = require('@core/keystone/setup.utils')
-const { registerSchemas } = require('@core/keystone/schema')
+const access = require('@condo/keystone/access')
+const { EmptyApp } = require('@condo/keystone/test.utils')
+const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
+const { registerSchemas } = require('@condo/keystone/schema')
 
 const keystone = new Keystone({
     ...prepareDefaultKeystoneConfig(conf),
