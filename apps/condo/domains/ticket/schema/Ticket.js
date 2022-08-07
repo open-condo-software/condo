@@ -5,7 +5,7 @@
 const isNull = require('lodash/isNull')
 const get = require('lodash/get')
 
-const { triggersManager } = require('@core/triggers')
+const { triggersManager } = require('@condo/triggers')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
 const { GQLListSchema, getByCondition, getById } = require('@condo/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@condo/keystone/fields')

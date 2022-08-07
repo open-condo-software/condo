@@ -107,7 +107,7 @@ registerSchemas(keystone, [
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
-    const { registerTriggers } = require('@core/triggers')
+    const { registerTriggers } = require('@condo/triggers')
     const { registerTasks } = require('@condo/keystone/tasks')
 
     registerTasks([

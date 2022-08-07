@@ -1,5 +1,5 @@
 {
-  "name": "@core/triggers",
+  "name": "@condo/triggers",
   "version": "1.0.0",
   "dependencies": {
     "json-rules-engine": "^6.1.2",
