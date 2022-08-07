@@ -1,4 +1,4 @@
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import Head from 'next/head'
 import { Typography } from 'antd'
 import ReactMarkdown from 'react-markdown'

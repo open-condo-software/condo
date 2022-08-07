@@ -9,9 +9,9 @@ You can wrap your App with this helpers!
 `pages/_app.js`:
 ```js
 import React from 'react'
-import { withApollo } from '@core/next/apollo'
-import { withAuth } from '@core/next/auth'
-import { withIntl } from '@core/next/intl'
+import { withApollo } from '@condo/next/apollo'
+import { withAuth } from '@condo/next/auth'
+import { withIntl } from '@condo/next/intl'
 
 const MyApp = ({ Component, pageProps }) => {
     return (<Component {...pageProps} />)
@@ -23,8 +23,8 @@ export default withApollo({ ssr: true })(withIntl({ ssr: true, messagesImporter:
 `Auth` and `Intl` example:
 ```js
 import React from 'react'
-import { useAuth } from '@core/next/auth'
-import { useIntl } from '@core/next/intl'
+import { useAuth } from '@condo/next/auth'
+import { useIntl } from '@condo/next/intl'
 
 const SignInPage = () => {
     const intl = useIntl()

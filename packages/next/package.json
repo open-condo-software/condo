@@ -1,5 +1,5 @@
 {
-  "name": "@core/next",
+  "name": "@condo/next",
   "version": "1.0.0",
   "main": "./index.js",
   "dependencies": {
@@ -12,5 +12,5 @@
     "react-intl": "^5.7.1",
     "eventemitter3": "^4.0.0"
   },
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/packages/@core.next"
+  "repository": "https://github.com/open-condo-software/condo/tree/master/packages/next"
 }
