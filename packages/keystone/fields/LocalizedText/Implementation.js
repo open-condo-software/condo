@@ -1,6 +1,6 @@
 const minimatch = require('minimatch')
 const { Text } = require('@keystonejs/fields')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
 
@@ -19,7 +19,7 @@ class LocalizedText extends Text.implementation {
 
     gqlOutputFieldResolvers () {
         return {
-            [this.path]: (item, args, context, info) => {
+            [this.path]: (item, args, context) => {
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 const translations = getTranslations(locale)
                 const fieldValue = item[this.path]
@@ -29,7 +29,7 @@ class LocalizedText extends Text.implementation {
                 }
                 return fieldValue
             },
-            [`${this.path}NonLocalized`]: (item, args, context, info) => {
+            [`${this.path}NonLocalized`]: (item) => {
                 return item[this.path]
             },
         }

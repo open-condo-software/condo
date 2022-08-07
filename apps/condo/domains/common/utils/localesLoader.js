@@ -1,11 +1,8 @@
 const path = require('path')
 const fs = require('fs')
 const process = require('process')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { get, template, isEmpty } = require('lodash')
-
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 
 const VARIABLE_REGEXP = /{([\s\S]+?)}/g
 

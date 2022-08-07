@@ -42,7 +42,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/
 const { UNKNOWN_GROUP_BY_FILTER } = require('../constants/errors')
 const { getHeadersTranslations, TICKETS_REPORTS_PREFIX } = require('@condo/domains/common/utils/exportToExcel')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const NULLABLE_GROUP_KEYS = ['categoryClassifier', 'executor', 'assignee']
 

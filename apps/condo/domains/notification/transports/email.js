@@ -3,7 +3,7 @@ const FormData = require('form-data')
 const https = require('https')
 const http = require('http')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const { EMAIL_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
@@ -57,7 +57,7 @@ async function send ({ to, emailFrom = null, cc, bcc, subject, text, html, meta 
     if (meta && meta.attachments) {
         const streamsPromises = meta.attachments.map((attachment) => {
             const { publicUrl, mimetype, originalFilename } = attachment
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 const httpx = HTTPX_REGEXP.test(publicUrl) ? http : https
                 httpx.get(publicUrl, (stream) => {
                     resolve({ originalFilename, mimetype, stream })

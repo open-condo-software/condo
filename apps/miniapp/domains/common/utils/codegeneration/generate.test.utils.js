@@ -1,4 +1,4 @@
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 

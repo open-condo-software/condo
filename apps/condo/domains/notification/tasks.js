@@ -1,6 +1,6 @@
 const isEmpty = require('lodash/isEmpty')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 

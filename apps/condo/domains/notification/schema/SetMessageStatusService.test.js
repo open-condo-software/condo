@@ -4,7 +4,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { makeLoggedInAdminClient, UUID_RE } = require('@condo/keystone/test.utils')
 
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')

@@ -5,7 +5,7 @@ const get = require('lodash/get')
 const isString = require('lodash/isString')
 const faker = require('faker')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const { logger } = require('@condo/domains/notification/utils')
 
@@ -52,7 +52,7 @@ class FirebaseAdapter {
         return result
     }
 
-    constructor (config = FIREBASE_CONFIG, throwOnError = false) {
+    constructor (config = FIREBASE_CONFIG) {
         try {
             if (isEmpty(config)) throw new Error(EMPTY_CONFIG_ERROR)
 

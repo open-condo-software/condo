@@ -2,7 +2,7 @@ const { isEmpty, get } = require('lodash')
 
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 const { StaticApp } = require('@keystonejs/app-static')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const { SberCloudFileAdapter, OBSFilesMiddleware } = require('./sberCloudFileAdapter')
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')

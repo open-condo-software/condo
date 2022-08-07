@@ -1,4 +1,4 @@
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { get } = require('lodash')
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { SBBOL_IMPORT_NAME } = require('./../common')

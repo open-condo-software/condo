@@ -27,7 +27,7 @@
  * yarn node bin/sbbol/crypto.js activate-certificate
  * ```
  */
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
 const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
 const { logger: baseLogger } = require('@condo/domains/organization/integrations/sbbol/common')

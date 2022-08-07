@@ -9,7 +9,7 @@ const { getSchemaCtx } = require('@condo/keystone/schema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
 const logger = baseLogger.child({ module: 'syncSubscriptions' })

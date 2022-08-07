@@ -1,4 +1,4 @@
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const dayjs = require('dayjs')
 const { get, unescape } = require('lodash')
 const Nunjucks = require('nunjucks')
@@ -130,7 +130,7 @@ function emailRenderer ({ message, env }) {
     return ret
 }
 
-function telegramRenderer ({ message, env }) {
+function telegramRenderer () {
     throw new Error('There was no telegram transport. Please write the renderer for Telegram.')
 }
 

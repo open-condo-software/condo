@@ -3,7 +3,7 @@ const falsey = require('falsey')
 const pino = require('pino')
 const { serializeError } = require('serialize-error')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 const { getRedisClient } = require('./redis')

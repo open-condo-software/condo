@@ -82,7 +82,7 @@ async function sendMessageToSupport (context, data) {
 const OidcClient = generateServerUtils(OidcClientGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
 

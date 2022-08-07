@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const { get, uniq, isNull } = require('lodash')
 const falsey = require('falsey')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')

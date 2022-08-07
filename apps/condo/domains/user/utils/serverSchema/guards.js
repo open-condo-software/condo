@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { GQLError } = require('@condo/keystone/errors')
 const { getRedisClient } = require('@condo/keystone/redis')
 

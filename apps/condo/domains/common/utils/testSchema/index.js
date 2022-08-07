@@ -1,8 +1,7 @@
 const { isFunction, get, isEmpty, template } = require('lodash')
 const falsey = require('falsey')
 
-const conf = require('@core/config')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const conf = require('@condo/config')
 const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))

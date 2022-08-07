@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getByCondition, find, getById } = require('@condo/keystone/schema')
 
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')

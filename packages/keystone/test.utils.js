@@ -14,7 +14,7 @@ const https = require('https')
 const { flattenDeep, fromPairs, toPairs, get } = require('lodash')
 const fs = require('fs')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
@@ -180,7 +180,7 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         cookiesObj = {
             ...cookiesObj,
             ...cookiesToSave.reduce((shapedCookies, cookieString) => {
-                const [rawCookie, ...flags] = cookieString.split('; ')
+                const [rawCookie] = cookieString.split('; ')
                 const [cookieName, value] = rawCookie.split('=')
                 return { ...shapedCookies, [cookieName]: value }
             }, {}),
@@ -355,7 +355,7 @@ async function waitFor (callback, options = null) {
 }
 
 class EmptyApp {
-    prepareMiddleware ({ keystone, dev, distDir }) {
+    prepareMiddleware () {
         return express()
     }
 }

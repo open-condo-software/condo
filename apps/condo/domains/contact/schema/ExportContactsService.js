@@ -10,7 +10,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/
 const { getHeadersTranslations, EXPORT_TYPE_CONTACTS } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/domains/common/utils/localesLoader')
 const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const get = require('lodash/get')
 const { ContactRole } = require('@condo/domains/contact/utils/serverSchema')
 

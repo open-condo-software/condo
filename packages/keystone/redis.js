@@ -2,7 +2,7 @@ const IORedis = require('ioredis')
 const pino = require('pino')
 const falsey = require('falsey')
 
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const REDIS_CLIENTS = {}
 const redisLogger = pino({ name: 'redis', enabled: falsey(conf.DISABLE_LOGGING) })

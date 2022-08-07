@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 const path = require('path')
 const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@condo/keystone/test.utils')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 const {
     B2CApp,

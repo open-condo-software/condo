@@ -5,7 +5,7 @@
  */
 const faker = require('faker')
 const path = require('path')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { UploadingFile } = require('@condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 

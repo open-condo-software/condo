@@ -2,7 +2,7 @@ const { SbbolRequestApi } = require('../SbbolRequestApi')
 const querystring = require('querystring')
 const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 const dayjs = require('dayjs')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
