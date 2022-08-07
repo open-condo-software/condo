@@ -1,0 +1,8 @@
+{
+    "name": "@condo/config",
+    "version": "1.0.0",
+    "dependencies": {
+        "dotenv": "^8.2.0"
+    },
+    "repository": "https://github.com/open-condo-software/condo/tree/master/packages/config"
+}

@@ -1,7 +1,7 @@
 {
     "name": "@condo/codegen",
     "version": "1.0.0",
-    "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/packages/@core.codegen",
+    "repository": "https://github.com/open-condo-software/condo/tree/master/packages/codegen",
     "dependencies": {
         "boxen": "^4.2.0",
         "chalk": "4.1.2",
