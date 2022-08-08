@@ -5,4 +5,5 @@
 
 export * as Message from './Message'
 export * as RemoteClient from './RemoteClient'
+export * as BlackList from './BlackList'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
