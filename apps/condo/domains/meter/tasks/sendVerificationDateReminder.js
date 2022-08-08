@@ -15,7 +15,7 @@ const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notifi
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLocalized } = require('@condo/domains/common/utils/localesLoader')
+const { getLocalized } = require('@condo/locales/loader')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
     return heads.map(head => {

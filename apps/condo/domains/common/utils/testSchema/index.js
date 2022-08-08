@@ -2,7 +2,7 @@ const { isFunction, get, isEmpty, template } = require('lodash')
 const falsey = require('falsey')
 
 const conf = require('@condo/config')
-const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
+const { getTranslations } = require('@condo/locales/loader')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 

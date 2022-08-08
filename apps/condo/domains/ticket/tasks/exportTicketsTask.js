@@ -14,7 +14,7 @@ const {
     EXPORT_TYPE_TICKETS,
     ticketStatusesTranslations,
 } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
+const { i18n } = require('@condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 

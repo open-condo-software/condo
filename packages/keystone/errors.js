@@ -66,8 +66,8 @@ const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject }
 const cuid = require('cuid')
 
 const conf = require('@condo/config')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
-const { getTranslations } = require('@condo/domains/common/utils/localesLoader')
+const { extractReqLocale } = require('@condo/locales/extractReqLocale')
+const { getTranslations } = require('@condo/locales/loader')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g

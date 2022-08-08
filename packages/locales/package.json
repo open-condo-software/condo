@@ -1,0 +1,9 @@
+{
+  "name": "@condo/locales",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "next-cookies": "^2.0.3"
+  },
+  "repository": "https://github.com/open-condo-software/condo/tree/master/packages/locales"
+}

@@ -12,8 +12,8 @@ const { createExportFile } = require('@condo/domains/common/utils/createExportFi
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { getHeadersTranslations, EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { i18n } = require('@condo/locales/loader')
+const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 
 const access = require('@condo/domains/meter/access/ExportMeterReadingsService')
 

@@ -8,7 +8,7 @@ const { get } = require('lodash')
 const extractReqLocale = (req) => {
     try {
         const cookieLocale = nextCookie({ req }).locale
-        // TODO(leonid-d): Necessary for the correct work of the locale on the share page in Telegram
+        // NOTE: Necessary for the correct work of the locale on the share page in Telegram
         const queryLocale = get(req, 'query.locale')
 
         const isTelegram = get(req, 'headers.user-agent', '').includes('Telegram')
