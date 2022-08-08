@@ -87,7 +87,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
         property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('pages.condo.ticket.field.PropertyWasDeleted', { locale })}`,
         unitName: ticket.unitName,
         unitType: ticket.unitType ? i18n(`pages.condo.ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
-        entranceName: ticket.sectionName,
+        entranceName: i18n(`field.sectionType.${ticket.sectionType}`) + ' ' + ticket.sectionName,
         floorName: ticket.floorName,
         clientName: ticket.clientName,
         contact: ticket.contact ? i18n('excelExport.tickets.ticketFromResident', { locale }) : i18n('excelExport.tickets.ticketFromNonResident', { locale }),
