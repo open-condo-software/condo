@@ -172,8 +172,6 @@ async function createTestBlackList (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBlackList logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
