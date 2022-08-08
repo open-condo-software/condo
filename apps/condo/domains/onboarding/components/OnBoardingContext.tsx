@@ -1,7 +1,7 @@
 import { BankFilled, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect, useMemo } from 'react'
+import React, { createContext, useContext, useEffect } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
