@@ -11,8 +11,6 @@ import {
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { BlackList as BlackListGQL } from '@condo/domains/notification/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
-
 const {
     useObject,
     useObjects,

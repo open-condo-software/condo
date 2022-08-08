@@ -5,7 +5,7 @@ const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
-const { Message } = require('@condo/domains/notification/utils/serverSchema')
+const { Message, BlackList } = require('@condo/domains/notification/utils/serverSchema')
 const { logger } = require('@condo/domains/notification/utils')
 
 const sms = require('./transports/sms')
@@ -98,6 +98,27 @@ async function deliverMessage (messageId) {
     const baseAttrs = {
         dv: message.dv,
         sender: message.sender,
+    }
+
+    const blackListWhere = {
+        OR: [
+            message.organization && { organization: { id: message.organization.id } },
+            message.user && { user: { id: message.user.id } },
+            message.phone && { phone: message.phone },
+            message.email && { email: message.email },
+        ].filter(Boolean),
+    }
+
+    const blackListRules = await BlackList.getAll(keystone, blackListWhere)
+    if (!isEmpty(blackListRules)) {
+        const isMessageTypeInBlackList = blackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
+
+        if (isMessageTypeInBlackList) {
+            return await Message.update(keystone, message.id, {
+                ...baseAttrs,
+                status: MESSAGE_ERROR_STATUS,
+            })
+        }
     }
 
     const transports = await _choseMessageTransport(message)
