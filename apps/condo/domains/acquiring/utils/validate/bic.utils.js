@@ -5,6 +5,9 @@
  * 1) Сhecking for emptiness
  * 2) Checking for length and format (3 digits, then 2 digits or capital letters, and 3 more digits)
  * 3) Сhecking the country code for compliance
+ *
+ * Example:
+ * BIC - 606000987
  */
 
 const EMPTY = 'Bic is empty'

@@ -7,6 +7,10 @@
  * 1) Сhecking for emptiness
  * 2) Checking for length and format (Consists of 20 digits)
  * 3) Сhecking checksum verification for BankAccount
+ *
+ * Example:
+ * BankAccount - 50286516400000008106
+ * BIC - 823397286
  */
 
 

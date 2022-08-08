@@ -5,6 +5,10 @@
  * 1) Сhecking for emptiness
  * 2) Checking for length and format (Consists of 10 or 12 digits)
  * 3) Сhecking checksum verification for TIN
+ *
+ * Example:
+ * TIN with 10 characters - 7791815382
+ * TIN with 12 characters - 397144170672
  */
 
 const EMPTY = 'Tin is empty'

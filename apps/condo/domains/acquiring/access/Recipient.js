@@ -14,7 +14,7 @@ async function canReadRecipients ({ authentication: { item: user } }) {
     return { organization: { employees_some: { user: { id: user.id }, deletedAt: null, isBlocked: false } } }
 }
 
-async function canManageRecipients ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageRecipients ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true

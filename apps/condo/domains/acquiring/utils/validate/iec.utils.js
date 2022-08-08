@@ -1,9 +1,12 @@
 /*
- * Validator IEC
+ * IEC validator
  *
  * The following checks are performed:
  * 1) Сhecking for emptiness
  * 2) Checking for length and format (3 digits, then 2 digits or capital letters, and 3 more digits)
+ *
+ * Example:
+ * IEC - 321333644
  */
 
 const EMPTY = 'Iec is empty'
