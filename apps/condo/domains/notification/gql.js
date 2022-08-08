@@ -46,6 +46,9 @@ const SET_MESSAGE_STATUS_MUTATION = gql`
     }
 `
 
+const BLACK_LIST_FIELDS = `{ organization { id } user { id } phone email ${COMMON_FIELDS} }`
+const BlackList = generateGqlQueries('BlackList', BLACK_LIST_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -57,5 +60,6 @@ module.exports = {
     DISCONNECT_USER_FROM_REMOTE_CLIENT_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
 
+    BlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
