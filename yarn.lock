@@ -9803,11 +9803,6 @@ ensure-error@^3.0.1:
   resolved "https://registry.yarnpkg.com/ensure-error/-/ensure-error-3.0.1.tgz#60c381f24baa8223115b2d56b2a340ff9ba5c52d"
   integrity sha512-J2e5Z3sgnA8en6+alf2VkO5cRwe75hHgSw0rJiMn5CEE4Yyw6GSgH31IBgwN9lugeCuPKHzuOF3X/RozAFsuhQ==
 
-ensure-error@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/ensure-error/-/ensure-error-4.0.0.tgz#8c7aedefd5a1f37c6802ff0bbc3cee726583388c"
-  integrity sha512-7Xenn3+R6tp2UqAbH9Jqs6QCSABQok+1VAhaPaF0jjm3iuhVHCblfBh18nYtpm3K9/V4Jpxz1JIqFZyrjstBtw==
-
 ent@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/ent/-/ent-2.2.0.tgz#e964219325a21d05f44466a2f686ed6ce5f5dd1d"
