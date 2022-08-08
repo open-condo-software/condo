@@ -41,7 +41,7 @@ const assigneePercentSummaryDataMapper = require('@condo/domains/ticket/utils/se
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { UNKNOWN_GROUP_BY_FILTER } = require('../constants/errors')
 const { getHeadersTranslations, TICKETS_REPORTS_PREFIX } = require('@condo/domains/common/utils/exportToExcel')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const conf = require('@condo/config')
 
 const NULLABLE_GROUP_KEYS = ['categoryClassifier', 'executor', 'assignee']

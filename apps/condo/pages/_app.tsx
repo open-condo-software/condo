@@ -20,7 +20,7 @@ import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleA
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { extractReqLocale } from '@condo/domains/common/utils/locale'
+import { extractReqLocale } from '@condo/locales/extractReqLocale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'

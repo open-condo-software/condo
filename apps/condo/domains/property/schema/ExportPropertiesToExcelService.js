@@ -11,8 +11,8 @@ const dayjs = require('dayjs')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema/')
 const { getHeadersTranslations, EXPORT_TYPE_BUILDINGS } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/domains/common/utils/localesLoader')
-const { extractReqLocale } = require('@condo/domains/common/utils/locale')
+const { i18n } = require('@condo/locales/loader')
+const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const conf = require('@condo/config')
 
 const errors = {

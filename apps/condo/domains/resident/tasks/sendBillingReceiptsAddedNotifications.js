@@ -22,7 +22,7 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLocalized } = require('@condo/domains/common/utils/localesLoader')
+const { getLocalized } = require('@condo/locales/loader')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const CHUNK_SIZE = 50

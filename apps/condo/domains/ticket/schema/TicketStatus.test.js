@@ -17,7 +17,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
-const { getTranslations, getAvailableLocales } = require('@condo/domains/common/utils/localesLoader')
+const { getTranslations, getAvailableLocales } = require('@condo/locales/loader')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
 describe('TicketStatus', () => {

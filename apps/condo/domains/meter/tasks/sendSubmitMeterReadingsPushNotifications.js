@@ -19,7 +19,7 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
-const { getLocalized } = require('@condo/domains/common/utils/localesLoader')
+const { getLocalized } = require('@condo/locales/loader')
 
 const logger = pino({
     name: 'submit_meter_readings_notifications',
