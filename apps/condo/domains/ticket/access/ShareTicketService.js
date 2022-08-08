@@ -1,4 +1,4 @@
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { getByCondition } = require('@condo/keystone/schema')
 

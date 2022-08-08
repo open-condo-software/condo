@@ -9,7 +9,7 @@ const { getByCondition } = require('../schema')
 const { find } = require('../schema')
 const { getById } = require('../schema')
 const { User } = require('./User')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 
 const Organization = new GQLListSchema('Organization', {
     fields: {

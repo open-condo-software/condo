@@ -2,7 +2,7 @@ const express = require('express')
 const Provider = require('oidc-provider')
 
 const conf = require('@condo/config')
-const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 
 const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')

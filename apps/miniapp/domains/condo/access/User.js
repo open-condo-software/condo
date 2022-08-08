@@ -4,7 +4,7 @@
 
 const access = require('@condo/keystone/access')
 
-const { throwAuthenticationError } = require('@miniapp/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 
 async function canReadUsers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

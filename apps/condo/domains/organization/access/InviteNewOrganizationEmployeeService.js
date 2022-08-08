@@ -1,5 +1,5 @@
 const { get } = require('lodash')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canInviteNewOrganizationEmployee ({ authentication: { item: user }, args }) {

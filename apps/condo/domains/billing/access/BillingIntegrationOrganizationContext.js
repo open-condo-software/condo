@@ -6,7 +6,7 @@ const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing
 const { get } = require('lodash')
 const { getById } = require('@condo/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 
 /**
  * Context could be read either by:

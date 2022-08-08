@@ -19,7 +19,7 @@ const { schemaDocPreprocessor } = require('@condo/keystone/preprocessors/schemaD
 const { escapeSearchPreprocessor } = require('@condo/keystone/preprocessors/escapeSearch')
 
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
-const { formatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { formatError } = require('@condo/keystone/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')

@@ -1,7 +1,7 @@
 const { get } = require('lodash')
 
 const { getSchemaCtx } = require('@condo/keystone/schema')
-const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 
 const { createAdapterClass } = require('./adapter')
 const { logger } = require('./logger')

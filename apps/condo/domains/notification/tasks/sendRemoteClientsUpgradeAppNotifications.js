@@ -9,7 +9,7 @@ const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBA
 const conf = require('@condo/config')
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { isEmpty } = require('lodash')
 const dayjs = require('dayjs')

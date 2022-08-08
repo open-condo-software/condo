@@ -6,7 +6,7 @@ const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { getById, find } = require('@condo/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { uniq, compact } = require('lodash')
 
