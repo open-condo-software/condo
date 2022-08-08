@@ -90,3 +90,54 @@ function testSign() {
 signatureCreate: 64.247ms
 ::signature:: IQzuJvL7JF6iUi5rm/sX/2pHP+vpD4QIfeGtgR1QPAj42flkfwve6P5aOUqiX5q+EKRiOh27P2pYoUC5BZ36Wg==
 ```
+
+For developing on macos (on Linux it will work without docker)
+
+1. Add real password and path for eds key to .env in current folder
+```
+BICRYPT='{"passPhrase":"***","keyPath":"./****.key"}'
+```
+2. Add key to this folder (Get it from kubernetes dashboard)
+3. Build docker image and start it
+```
+docker build --platform linux/amd64 . -t bicrypt
+docker run --expose 7777 --name bicrypt bicrypt
+```
+4. Add record to .env file in eps folder
+```
+USE_DOCKER_TO_SIGN_WITH_BICRYPT='{"port":"7777"}'
+```
+Run docker image on 7777 port name it bicrypt and turn on logging
+```
+docker logs -f bicrypt
+```
+
+You will see something like this as it works in debug mode
+
+```
+[STEP] INIT = 0
+[STEP] INIT RANDOM = 0
+[STEP] READ KEY = 0
+A3QZTT04sA9905_��⮭���� = 0
+<order><action>group_list</action><agent>A9905</agent><terminal>990510V</terminal><pay_type>ПЛАСТ_СПИС</pay_type><version_protocol>1.3.7</version_protocol></order> = 172
+b����D�iܔ��%�BA���a����
+�+'-�>�Y[}�4�u�Hq�� = 0ދ�+�V�����L��u
+[STEP] PUT SIGNATURE STRUCTURE = 0
+ * EMPTY-BUFFER-START = 0
+нb����D�iܔ��%�BA���a����
+�+'-�>�Y[}�4�u�HqA3QZTT04sA9905_��⮭����BICS = 95
+ * EMPTY-BUFFER-END = 0
+ * SIGNATURE-LENGTH = 95
+[STEP] SIGNATURE CHECK = 0
+ * SIGNATURE INFO = 0
+A3QZTT04sA9905_��⮭���� = 24
+b����D�iܔ��%�BA���a����
+�+'-�>�Y[}�4�u�Hq�� = 64�+�V�����L��u
+ * STRUCTURE LENGTH = 95
+[STEP] CLOSE KEY = 0
+[STEP] CLOSE CONTEXT = 0
+{
+  xml: '<order><action>group_list</action><agent>A9905</agent><terminal>990510V</terminal><pay_type>ПЛАСТ_СПИС</pay_type><version_protocol>1.3.7</version_protocol></order>',
+  signature: '0L0fYo6O6dZEj2kZ3JTirSXMQkHj4aZhieO/2gzx3ouqK/xWmZKHk+RMmfJ1DZArJy37Hj68WVt9EwObNJ51gUhxQTNRWlRUMDRzQTk5MDVfka7irq2orYiRGEJJQ1M='
+}
+```
