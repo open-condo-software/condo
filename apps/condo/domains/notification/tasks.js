@@ -4,7 +4,7 @@ const conf = require('@condo/config')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
-const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const { logger } = require('@condo/domains/notification/utils')
 

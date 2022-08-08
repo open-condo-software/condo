@@ -4,7 +4,7 @@
 
 const get = require('lodash/get')
 const { getById } = require('@condo/keystone/schema')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { checkB2CAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
 

@@ -15,7 +15,7 @@ const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
 
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
-const { formatError } = require('@miniapp/domains/common/utils/apolloErrorFormatter')
+const { formatError } = require('@condo/keystone/apolloErrorFormatter')
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
 
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'

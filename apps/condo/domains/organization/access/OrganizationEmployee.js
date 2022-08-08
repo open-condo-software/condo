@@ -3,7 +3,7 @@
  */
 const { getByCondition } = require('@condo/keystone/schema')
 const { getById } = require('@condo/keystone/schema')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('../utils/accessSchema')
 
 async function canReadOrganizationEmployees ({ authentication: { item: user } }) {

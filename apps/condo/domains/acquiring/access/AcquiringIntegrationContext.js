@@ -5,7 +5,7 @@
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { getById } = require('@condo/keystone/schema')
 const get = require('lodash/get')
 

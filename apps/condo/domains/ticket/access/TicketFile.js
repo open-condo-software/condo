@@ -6,7 +6,7 @@ const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrgani
 const { getById } = require('@condo/keystone/schema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 
 
 async function canReadTicketFiles ({ authentication: { item: user } }) {

@@ -1,5 +1,5 @@
 
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { getByCondition } = require('@condo/keystone/schema')
 const { isSoftDelete } = require('@condo/keystone/access')

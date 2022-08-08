@@ -7,7 +7,7 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { getStartDates, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')

@@ -1,4 +1,4 @@
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 function checkAccessToResidentTicketActions ({ item: user }) {

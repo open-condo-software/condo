@@ -4,7 +4,7 @@
 
 const { checkAcquiringIntegrationAccessRight } = require(
     '@condo/domains/acquiring/utils/accessSchema')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 

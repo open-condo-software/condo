@@ -6,7 +6,7 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { safeFormatError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')

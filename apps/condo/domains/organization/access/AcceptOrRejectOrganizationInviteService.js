@@ -1,5 +1,5 @@
 const { get } = require('lodash')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const { getByCondition, getById } = require('@condo/keystone/schema')
 
 async function canAcceptOrRejectOrganizationInvite ({ authentication: { item: user }, args }) {

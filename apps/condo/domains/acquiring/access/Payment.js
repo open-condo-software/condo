@@ -6,7 +6,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 const { checkAcquiringIntegrationAccessRight } = require('../utils/accessSchema')
 
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 const get = require('lodash/get')
 
 async function canReadPayments ({ authentication: { item: user } }) {
