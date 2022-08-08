@@ -22,16 +22,11 @@ const {
     BillingReceipt,
     BillingAccount,
     BillingProperty,
-    createTestBillingReceipt,
-    createTestBillingReceipts,
-    updateTestBillingReceipt,
-    updateTestBillingReceipts,
     updateTestBillingIntegrationAccessRight,
     createRegisterBillingReceiptsPayload,
 } = require('@condo/domains/billing/utils/testSchema')
 
 const {
-    makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
@@ -709,13 +704,19 @@ describe('RegisterBillingReceiptsService', () => {
                     ],
                 }
 
-                const [ data ] = await registerBillingReceiptsByTestClient(hackerClient, payload)
+                await catchErrorFrom(async () => {
+                    await registerBillingReceiptsByTestClient(hackerClient, payload)
+                }, (e) => {
+                    expect(e.errors[0].message).toContain('You do not have access to this resource')
+                })
+
                 const billingProperties = await BillingProperty.getAll(managerUserClient, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(managerUserClient, { context: { id: billingContext.id } })
                 const billingReceipts = await BillingReceipt.getAll(managerUserClient, { context: { id: billingContext.id } })
 
                 expect(billingProperties).toHaveLength(0)
+                expect(billingAccounts).toHaveLength(0)
                 expect(billingReceipts).toHaveLength(0)
-                expect(data).toHaveLength(0)
             })
         })
     })
