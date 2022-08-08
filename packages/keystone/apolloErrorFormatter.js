@@ -26,7 +26,7 @@ const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
 const { ApolloError, AuthenticationError } = require('apollo-server-errors')
-const { GraphQLError, printError } = require('graphql')
+const { printError } = require('graphql')
 
 const ensureError = require('ensure-error')
 const { pick, pickBy, identity, toArray, _, toString, get, set, isArray } = require('lodash')
@@ -95,7 +95,9 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
     //  + 'path' -- GraphQL query path with aliases
     //  + 'extensions' -- some extra context
     //  + 'originalError' -- original Error instance
-    if (error instanceof ApolloError || error instanceof GraphQLError) {
+    // NOTE: Comparing by instances is not safe even if only minor version of package change!
+    const errorInstanceName = get(error, ['constructor', 'name'])
+    if (errorInstanceName === 'ApolloError' || errorInstanceName === 'GraphQLError') {
         const pickKeys3 = ['path', 'locations']
         Object.assign(result, pickBy(pick(error, pickKeys3), identity))
         const developerErrorMessage = printError(error)
