@@ -1,3 +1,5 @@
+const { RESIDENT, SERVICE, STAFF, USER_TYPES } = require('@condo/config/constants')
+
 const MIN_PASSWORD_LENGTH = 8
 const LOCK_TIMEOUT = 1
 const SMS_CODE_LENGTH = 4
@@ -8,12 +10,6 @@ const SAFE_CAPTCHA_SCORE = 0.5
 const TROW_ERRORS_ON_LOW_CAPTCHA_SCORE = false
 const MAX_SMS_FOR_IP_BY_DAY = 100
 const MAX_SMS_FOR_PHONE_BY_DAY = 20
-
-// Value of `User.type`, that indicates, that this user is a resident (from mobile client).
-const RESIDENT = 'resident'
-const STAFF = 'staff'
-const SERVICE = 'service'
-const USER_TYPES = [STAFF, RESIDENT, SERVICE]
 
 module.exports = {
     MIN_PASSWORD_LENGTH,
