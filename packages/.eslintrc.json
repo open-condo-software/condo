@@ -1,0 +1,21 @@
+// Expand root eslint config by specifying additional rules
+{
+  "rules": {
+    // Restrict import using "import" keyword
+    "no-restricted-imports": ["error", {
+      "patterns": [
+        // Packages should not depend on apps,
+        // But can be dependent on other packages
+        "@app/**/*",
+        // Import from domains are also restircted
+        "**/domains/**/*"
+      ]
+    }],
+    // Restrict import using "require" syntax
+    "no-restricted-modules": ["error", {
+      "patterns": [
+        "**/domains/**/*"
+      ]
+    }]
+  }
+}

@@ -61,7 +61,6 @@
     },
     "ignorePatterns": [
       "dist",
-      "packages/codegen/templates/**/*",
       "*schema.ts"
     ],
     "rules": {
