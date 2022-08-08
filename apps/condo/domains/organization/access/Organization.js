@@ -43,7 +43,6 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
         return {}
     }
 
-    //TODO:Исправить для billing integration
     return {
         OR: [
             { employees_some: { user: { id: user.id } } },

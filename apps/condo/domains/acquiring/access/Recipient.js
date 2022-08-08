@@ -19,7 +19,6 @@ async function canManageRecipients ({ authentication: { item: user }, originalIn
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    //TODO: Исправить для billingIntegration
     return false
 }
 
