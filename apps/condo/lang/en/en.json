@@ -537,7 +537,7 @@
   "pages.condo.ticket.filters.isResidentContact.true": "resident",
   "pages.condo.ticket.filters.isResidentContact.false": "not resident",
   "pages.condo.ticket.filters.lastCommentAt": "Last comment date",
-  "pages.condo.ticket.filters.ProblemClassifier": "What is the problem?",
+  "pages.condo.ticket.filters.ProblemClassifier": "What is the problem",
   "pages.condo.ticket.notification.success.message": "Ticket №{number} created",
   "pages.condo.ticket.notification.success.description": "Go to ticket card",
   "pages.condo.ticket.id.Notes": "Notes",
