@@ -1,7 +1,7 @@
 import { BankFilled, CheckOutlined, CreditCardFilled, ProfileFilled, WechatFilled } from '@ant-design/icons'
 import get from 'lodash/get'
 import Router, { useRouter } from 'next/router'
-import React, { createContext, useContext, useEffect } from 'react'
+import React, { createContext, useContext, useEffect, useMemo } from 'react'
 import { useAuth } from '@core/next/auth'
 import { useApolloClient } from '@core/next/apollo'
 import { HouseIcon } from '@condo/domains/common/components/icons/HouseIcon'
@@ -99,6 +99,8 @@ export const OnBoardingProvider: React.FC = (props) => {
         },
     }
 
+    const stepsCompleted = onBoardingSteps.filter(step => step.completed)
+
     const decoratedSteps = onBoardingSteps.map((step) => {
         const stepKey = getStepKey(step)
 
@@ -140,7 +142,7 @@ export const OnBoardingProvider: React.FC = (props) => {
                 })
             }
         })
-    }, [onBoarding, onBoardingSteps, isOnBoardingCompleteVisible])
+    }, [onBoarding, onBoardingSteps, isOnBoardingCompleteVisible, stepsCompleted])
 
     return (
         <OnBoardingContext.Provider value={{
