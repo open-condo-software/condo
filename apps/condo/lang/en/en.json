@@ -1307,6 +1307,7 @@
   "excelExport.headers.tickets.residentComments": "Comments with resident",
   "excelExport.headers.tickets.source": "Source",
   "excelExport.headers.tickets.deadline": "Deadline",
+  "excelExport.headers.tickets.deferredUntil": "Deferred until",
   "excelExport.headers.tickets.reviewValue": "Review score",
   "excelExport.headers.tickets.reviewComment": "Review comment",
   "excelExport.headers.tickets.statusReopenedCounter": "Number of reopens",
