@@ -4,7 +4,7 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from '@emotion/styled'
 import { InfoCircleOutlined, MinusOutlined } from '@ant-design/icons'
 import { useIntl } from '@condo/next/intl'
-import { Col, List, Progress, Row, Typography } from 'antd'
+import { Col, List, notification, Progress, Row, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
 import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } from '../../constants/tasks'
 import { colors } from '../../constants/style'
@@ -265,4 +265,9 @@ export const displayTasksProgress = ({ notificationApi, tasks }: IDisplayTasksPr
             <TasksProgress tasks={tasks}/>
         ),
     })
+}
+
+export const closeTasksProgress = () => {
+    // NOTE: `notificationApi` obtained via `notification.useNotification` does not have `close` method ;) That's why we have a little inconsistency here
+    notification.close('tasks')
 }
