@@ -28,7 +28,7 @@
     "crypto": "^1.0.1",
     "dayjs": "^1.10.6",
     "emittery": "^0.7.1",
-    "ensure-error": "^4.0.0",
+    "ensure-error": "^3.0.1",
     "express-session": "^1.17.2",
     "faker": "^5.5.3",
     "falsey": "^1.0.0",
