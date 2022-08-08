@@ -1307,6 +1307,7 @@
   "excelExport.headers.tickets.residentComments": "Коммент. с жителем",
   "excelExport.headers.tickets.source": "Источник",
   "excelExport.headers.tickets.deadline": "Выполнить до",
+  "excelExport.headers.tickets.deferredUntil": "Отложена до",
   "excelExport.headers.tickets.reviewValue": "Оценка заявки",
   "excelExport.headers.tickets.reviewComment": "Комментарий к оценке",
   "excelExport.headers.tickets.statusReopenedCounter": "Возвратов заявки",

@@ -109,6 +109,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
         executor: ticket.executor || EMPTY_VALUE,
         assignee: ticket.assignee || EMPTY_VALUE,
         deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
+        deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
         reviewValue: ticket.reviewValue ? reviewValuesTranslations[ticket.reviewValue] : EMPTY_VALUE,
         reviewComment: ticket.reviewComment || EMPTY_VALUE,
         statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
