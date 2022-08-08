@@ -10,9 +10,11 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { BlackList, createTestBlackList, updateTestBlackList } = require('@condo/domains/notification/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { BlackList, createTestBlackList, updateTestBlackList, Message } = require('@condo/domains/notification/utils/testSchema')
 const { createTestBillingIntegrationLog } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee, reInviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_SENT_STATUS, EMAIL_TRANSPORT, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
 
 describe('BlackList', () => {
     describe('accesses', () => {
@@ -106,6 +108,57 @@ describe('BlackList', () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await BlackList.getAll(anonymousClient)
                 })
+            })
+        })
+    })
+
+    describe('logic', () => {
+        it('dont send invite notification if message type and email added in BlackList', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userAttrs = {
+                name: faker.name.firstName(),
+                email: createTestEmail(),
+                phone: createTestPhone(),
+            }
+            const client = await makeClientWithRegisteredOrganization()
+
+            await createTestBlackList(admin, {
+                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                email: userAttrs.email,
+            })
+
+            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+
+            await waitFor(async () => {
+                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                const messages = await Message.getAll(admin, messageWhere)
+
+                expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
+                expect(messages[0].processingMeta).toBeNull()
+            })
+        })
+
+        it('dont send any notifications to phone if BlackList rule type is empty', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userAttrs = {
+                name: faker.name.firstName(),
+                email: createTestEmail(),
+                phone: createTestPhone(),
+            }
+            const client = await makeClientWithRegisteredOrganization()
+
+            await createTestBlackList(admin, {
+                email: userAttrs.email,
+            })
+
+            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+
+            await waitFor(async () => {
+                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                const messages = await Message.getAll(admin, messageWhere)
+
+                expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
+                expect(messages[0].processingMeta).toBeNull()
             })
         })
     })

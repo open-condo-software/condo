@@ -19,6 +19,8 @@ const BlackList = new GQLListSchema('BlackList', {
             options: MESSAGE_TYPES,
             dataType: 'string',
             isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true },
         },
 
         description: {
