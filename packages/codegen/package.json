@@ -8,5 +8,10 @@
         "ncp": "^2.0.0",
         "nunjucks": "^3.2.2",
         "yargs": "^16.2.0"
+    },
+    "eslintConfig": {
+        "ignorePatterns": [
+            "templates/**/*"
+        ]
     }
 }
