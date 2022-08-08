@@ -6,7 +6,7 @@ const falsey = require('falsey')
 const pino = require('pino')
 const serializers = require('pino-std-serializers')
 
-const { safeFormatError } = require('./apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 
 const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'data.password', 'data.secret']
 const REQ_LOG_KEY = 'req'
