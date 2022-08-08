@@ -49,7 +49,7 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  * @param organizationId
  * @returns {Promise<void>}
  */
-const prepareAndSendNotification = async (context, receipt, resident, organizationId) => {
+const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country')
     const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
@@ -81,7 +81,7 @@ const prepareAndSendNotification = async (context, receipt, resident, organizati
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: organizationId && { connect: { id: organizationId } },
+        organization: resident.organization && { connect: { id: resident.organization.id } },
     }
 
     try {
@@ -143,12 +143,11 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
             for (const consumer of consumers) {
                 const resident = get(consumer, 'resident')
-                const organizationId = get(consumer, ['organization', 'id'])
 
                 // ServiceConsumer has no connection to Resident
                 if (!resident) continue
 
-                const success = await prepareAndSendNotification(context, receipt, resident, organizationId)
+                const success = await prepareAndSendNotification(context, receipt, resident)
 
                 successConsumerCnt += success
             }

@@ -35,7 +35,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             expect(message).not.toBeNull()
             expect(lastDt).toEqual(receipt.createdAt)
-            expect(message.organization.id).toEqual(resident.residentOrganization.id)
+            expect(message.organization.id).toEqual(resident.organization.id)
         })
 
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0 and missing toPayDetails', async () => {
@@ -55,7 +55,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             expect(message).not.toBeNull()
             expect(lastDt).toEqual(receipt.createdAt)
-            expect(message.organization.id).toEqual(resident.residentOrganization.id)
+            expect(message.organization.id).toEqual(resident.organization.id)
         })
 
         it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay = 0.0', async () => {
@@ -88,7 +88,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             const message = await Message.getOne(admin, messageWhere)
 
             expect(message).not.toBeNull()
-            expect(message.organization.id).toEqual(resident.residentOrganization.id)
+            expect(message.organization.id).toEqual(resident.organization.id)
         })
 
         it('sends only one notification for same receipt', async () => {
@@ -106,7 +106,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             const messages = await Message.getAll(admin, messageWhere)
 
             expect(messages).toHaveLength(1)
-            expect(messages[0].organization.id).toEqual(resident.residentOrganization.id)
+            expect(messages[0].organization.id).toEqual(resident.organization.id)
         })
 
         it('sends nothing for receipt with no ServiceConsumer record', async () => {
