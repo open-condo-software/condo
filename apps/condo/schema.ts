@@ -10499,6 +10499,8 @@ export type BlackList = {
   _label_?: Maybe<Scalars['String']>;
   /**  The type of message we want to block (null means all types)  */
   type?: Maybe<Scalars['String']>;
+  /**  The reason why the entry was added to the BlackList  */
+  description?: Maybe<Scalars['String']>;
   /**  The organization we want to block from sending messages to  */
   organization?: Maybe<Organization>;
   /**  The user to whom we want to block sending messages  */
@@ -10525,6 +10527,7 @@ export type BlackList = {
 
 export type BlackListCreateInput = {
   type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
@@ -10552,6 +10555,7 @@ export type BlackListHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -10573,6 +10577,7 @@ export type BlackListHistoryRecord = {
 
 export type BlackListHistoryRecordCreateInput = {
   type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -10599,6 +10604,7 @@ export enum BlackListHistoryRecordHistoryActionType {
 
 export type BlackListHistoryRecordUpdateInput = {
   type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
@@ -10638,6 +10644,24 @@ export type BlackListHistoryRecordWhereInput = {
   type_not_ends_with_i?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -10775,6 +10799,7 @@ export type BlackListHistoryRecordsUpdateInput = {
 
 export type BlackListUpdateInput = {
   type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
   phone?: Maybe<Scalars['String']>;
@@ -10797,6 +10822,24 @@ export type BlackListWhereInput = {
   type_not?: Maybe<Scalars['String']>;
   type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   user?: Maybe<UserWhereInput>;
@@ -38990,6 +39033,8 @@ export enum SortBillingRecipientsBy {
 export enum SortBlackListHistoryRecordsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
   PhoneAsc = 'phone_ASC',
   PhoneDesc = 'phone_DESC',
   EmailAsc = 'email_ASC',
@@ -39015,6 +39060,8 @@ export enum SortBlackListHistoryRecordsBy {
 export enum SortBlackListsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   UserAsc = 'user_ASC',

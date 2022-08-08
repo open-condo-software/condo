@@ -21,6 +21,11 @@ const BlackList = new GQLListSchema('BlackList', {
             isRequired: false,
         },
 
+        description: {
+            schemaDoc: 'The reason why the entry was added to the BlackList',
+            type: Text,
+        },
+
         organization: {
             schemaDoc: 'The organization we want to block from sending messages to',
             type: Relationship,
