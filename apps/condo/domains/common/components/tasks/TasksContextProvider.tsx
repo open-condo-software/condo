@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { notification } from 'antd'
+import dayjs from 'dayjs'
 import filter from 'lodash/filter'
 import identity from 'lodash/identity'
 import findIndex from 'lodash/findIndex'
@@ -7,7 +8,7 @@ import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
-import { displayTasksProgress } from './TaskProgress'
+import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 
 
 // Map of task schema name to its UI interface implementation
@@ -51,8 +52,9 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
     // NOTE: Initial state of `tasks` cannot be initialized with `preloadedTaskRecords` prop, because a hook in parent component that loads tasks
     // will rerender this component as data comes, so, the state will not be reinitialized.
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
-    // Because it is impossible to initial assign it to `tasks` state, handle it separately
-    const [latestUpdatedTask, setLatestUpdatedTask] = useState<ITaskTrackableItem>()
+    // Timestamp of latest update in tasks without changing length of trackable tasks array
+    // Used to trigger `useEffects` when tasks are updated or deleted. Relying on length of tasks is not enough in effects
+    const [latestUpdate, setLatestUpdate] = useState<number>()
 
     // After first render we can await tasks from network requests
     // As they will come, we should add them to state
@@ -76,8 +78,10 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
                 notificationApi,
                 tasks,
             })
-        }
-    }, [tasks.length, latestUpdatedTask])
+        } else (
+            closeTasksProgress()
+        )
+    }, [tasks.length, latestUpdate])
 
     /**
      * To make notifications work with all context providers of our MyApp component,
@@ -117,7 +121,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
                     ...prevTasks[index],
                     record,
                 }
-                setLatestUpdatedTask(updatedTask)
+                setLatestUpdate(dayjs().unix())
                 return [
                     ...prevTasks.slice(0, index),
                     updatedTask,
@@ -132,6 +136,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
                 return
             }
             setTasks(prevState => prevState.filter((task) => task.record.id !== record.id))
+            setLatestUpdate(dayjs().unix())
         },
         tasks,
     }
