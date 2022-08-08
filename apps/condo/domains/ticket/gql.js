@@ -39,6 +39,8 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'canReadByResidentTo',
     'deadlineFrom',
     'deadlineTo',
+    'deferredUntilFrom',
+    'deferredUntilTo',
     'statusReopenedCounterFrom',
     'statusReopenedCounterTo',
     'statusReasonFrom',

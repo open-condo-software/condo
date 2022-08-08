@@ -602,7 +602,7 @@
   "pages.condo.ticket.TicketChanges.classifier": "классификатор",
   "pages.condo.ticket.TicketChanges.address": "адрес",
   "pages.condo.ticket.TicketChanges.deadline": "срок заявки",
-  "pages.condo.ticket.TicketChanges.deferredUntil": "срок, до которого откладывается заявка",
+  "pages.condo.ticket.TicketChanges.deferredUntil": "срок, на который откладывается заявка",
   "pages.condo.ticket.TicketChanges.ticketType": "тип заявки",
   "pages.condo.ticket.TicketChanges.canReadByResident": "видимость заявки",
   "pages.condo.ticket.TicketChanges.canReadByResident.true": "отображается",
