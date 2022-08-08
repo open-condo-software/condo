@@ -89,6 +89,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
     const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
+    const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deferredUntil' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
@@ -117,6 +118,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
+        ['deferredUntil', DeferredUntilMessage],
         ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
         ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add', change: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
     ]
@@ -152,6 +154,9 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 return <Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>
             },
             deadline: (field, value) => {
+                return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
+            },
+            deferredUntil: (field, value) => {
                 return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
             },
             clientPhone: (field, value) => (
