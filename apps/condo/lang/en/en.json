@@ -602,6 +602,7 @@
   "pages.condo.ticket.TicketChanges.classifier": "classifier",
   "pages.condo.ticket.TicketChanges.address": "address",
   "pages.condo.ticket.TicketChanges.deadline": "deadline",
+  "pages.condo.ticket.TicketChanges.deferredUntil": "period until which the ticket is deferred",
   "pages.condo.ticket.TicketChanges.ticketType": "ticket type",
   "pages.condo.ticket.TicketChanges.canReadByResident": "visibility of the ticket",
   "pages.condo.ticket.TicketChanges.canReadByResident.true": "displayed",
