@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -15,6 +15,7 @@ const { MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageU
 const { createTestBillingIntegrationLog } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee, reInviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_SENT_STATUS, EMAIL_TRANSPORT, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 
 describe('MessageUserBlackList', () => {
     describe('accesses', () => {
@@ -158,7 +159,7 @@ describe('MessageUserBlackList', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(messages[0].processingMeta).toBeNull()
+                expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_USER_BLACK_LIST)
             })
         })
     })
