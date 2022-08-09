@@ -26,6 +26,7 @@ const MessageBlackList = new GQLListSchema('MessageBlackList', {
         description: {
             schemaDoc: 'The reason why the entry was added to the MessageBlackList',
             type: Text,
+            isRequired: true,
         },
 
         organization: {

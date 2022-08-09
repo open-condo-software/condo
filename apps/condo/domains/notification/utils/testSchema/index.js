@@ -171,10 +171,12 @@ async function setMessageStatusByTestClient(client, extraAttrs = {}) {
 async function createTestMessageBlackList (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const description = faker.random.alphaNumeric(8)
 
     const attrs = {
         dv: 1,
         sender,
+        description,
         ...extraAttrs,
     }
     const obj = await MessageBlackList.create(client, attrs)
