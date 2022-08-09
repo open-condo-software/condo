@@ -200,7 +200,7 @@ describe('safeFormatError hide=false', () => {
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case1', () => {
         const error = new GraphQLError('msg1', [GQL_FIELD_NODE_EXAMPLE])
         const result = safeFormatError(error)
-        expect(result).toEqual(expect.objectContaining({
+        expect(result).toEqual({
             'message': 'msg1',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^GraphQLError: msg1/),
@@ -211,12 +211,13 @@ describe('safeFormatError hide=false', () => {
                     'line': 3,
                 },
             ],
-        }))
+            'extensions': {},
+        })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case2', () => {
         const error = new GraphQLError('msg2', null, GQL_SOURCE_EXAMPLE, [9])
         const result = safeFormatError(error)
-        expect(result).toEqual(expect.objectContaining({
+        expect(result).toEqual({
             'message': 'msg2',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^GraphQLError: msg2/),
@@ -227,7 +228,8 @@ describe('safeFormatError hide=false', () => {
                     'line': 3,
                 },
             ],
-        }))
+            'extensions': {},
+        })
     })
     test('safeFormatError(new GraphQLError) with path', () => {
         const error = new GraphQLError('msg3', null, null, null, [
@@ -237,7 +239,7 @@ describe('safeFormatError hide=false', () => {
             'field',
         ])
         const result = safeFormatError(error)
-        expect(result).toEqual(expect.objectContaining({
+        expect(result).toEqual({
             'message': 'msg3',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^GraphQLError: msg3/),
@@ -247,13 +249,14 @@ describe('safeFormatError hide=false', () => {
                 'to',
                 'field',
             ],
-        }))
+            'extensions': {},
+        })
     })
     test('safeFormatError(new GraphQLError) based on keystone error', () => {
         const original = new Error('original')
         const error = new GraphQLError('msg5', null, null, null, null, original)
         const result = safeFormatError(error)
-        expect(result).toEqual(expect.objectContaining({
+        expect(result).toEqual({
             'message': 'msg5',
             'name': 'GraphQLError',
             'stack': expect.stringMatching(/^Error: original/),
@@ -262,13 +265,14 @@ describe('safeFormatError hide=false', () => {
                 'name': 'Error',
                 'stack': expect.stringMatching(/^Error: original/),
             },
-        }))
+            'extensions': {},
+        })
     })
     test('safeFormatError(new GraphQLError) with original error', () => {
         const original = new NestedError({ message: 'Hello', internalData: { foo: [2] }, data: { bar: '33' } })
         const error = new GraphQLError('msg4', null, null, null, null, original)
         const result = safeFormatError(error)
-        expect(result).toEqual(expect.objectContaining({
+        expect(result).toEqual({
             'data': {  // keystone specific
                 'bar': '33',
             },
@@ -283,7 +287,8 @@ describe('safeFormatError hide=false', () => {
                 'data': { bar: '33' },
                 'time_thrown': expect.stringMatching(/^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/),
             },
-        }))
+            'extensions': {},
+        })
     })
 })
 
@@ -421,6 +426,7 @@ describe('safeFormatError hide=true', () => {
                     'line': 3,
                 },
             ],
+            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) with printable GQL_SOURCE_EXAMPLE case2', () => {
@@ -436,6 +442,7 @@ describe('safeFormatError hide=true', () => {
                     'line': 3,
                 },
             ],
+            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) with path', () => {
@@ -455,6 +462,7 @@ describe('safeFormatError hide=true', () => {
                 'to',
                 'field',
             ],
+            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) based on keystone error', () => {
@@ -464,6 +472,7 @@ describe('safeFormatError hide=true', () => {
         expect(result).toEqual({
             'message': 'msg5',
             'name': 'GraphQLError',
+            'extensions': {},
         })
     })
     test('safeFormatError(new GraphQLError) with original error', () => {
@@ -476,6 +485,7 @@ describe('safeFormatError hide=true', () => {
             },
             'message': 'msg4',
             'name': 'NestedError',
+            'extensions': {},
         })
     })
 })
