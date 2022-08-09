@@ -14,6 +14,7 @@
     // Restrict import using "require" syntax
     "no-restricted-modules": ["error", {
       "patterns": [
+        "@app/**/*",
         "**/domains/**/*"
       ]
     }]

@@ -1,4 +1,8 @@
-const { RESIDENT, SERVICE, STAFF, USER_TYPES } = require('@condo/config/constants')
+// Value of `User.type`, that indicates, that this user is a resident (from mobile client).
+const RESIDENT = 'resident'
+const STAFF = 'staff'
+const SERVICE = 'service'
+const USER_TYPES = [STAFF, RESIDENT, SERVICE]
 
 const MIN_PASSWORD_LENGTH = 8
 const LOCK_TIMEOUT = 1

@@ -1,3 +1,4 @@
+// TODO (DOMA-3868) Move this package to app/condo, remove this package and redeclare functions used in other packages locally
 const nextCookie = require('next-cookies')
 const { get } = require('lodash')
 
