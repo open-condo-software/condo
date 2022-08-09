@@ -18,7 +18,7 @@ const {
 } = require('@condo/domains/notification/gql')
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 
-const { BlackList: BlackListGQL } = require('@condo/domains/notification/gql')
+const { MessageBlackList: MessageBlackListGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -109,7 +109,7 @@ async function setMessageStatus (context, data) {
     })
 }
 
-const BlackList = generateServerUtils(BlackListGQL)
+const MessageBlackList = generateServerUtils(MessageBlackListGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -120,6 +120,6 @@ module.exports = {
     syncRemoteClient,
     disconnectUserFromRemoteClient,
     setMessageStatus,
-    BlackList,
+    MessageBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
