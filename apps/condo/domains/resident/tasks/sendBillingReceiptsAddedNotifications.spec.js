@@ -9,6 +9,8 @@ const {
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
+const { Resident } = require('@condo/domains/resident/utils/testSchema')
+
 const { makeBillingReceiptWithResident } = require('./spec.helpers')
 const { makeMessageKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
 
@@ -124,6 +126,28 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             expect(message).toBeUndefined()
         })
+
+        it('sends nothing to deleted resident', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+
+            await Resident.softDelete(admin, resident.id)
+
+            let lastDt
+            const setLastDt = (dt) => lastDt = dt
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                uniqKey: notificationKey,
+            }
+            const message = await Message.getOne(admin, messageWhere)
+
+            expect(message).toBeUndefined()
+        })
+
     })
 
     describe('Helper functions', () => {

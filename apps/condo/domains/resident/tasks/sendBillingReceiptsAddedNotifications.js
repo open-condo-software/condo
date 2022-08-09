@@ -123,11 +123,10 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
         const contextIds = uniq(receipts.map(receipt => get(receipt, 'context.id')))
         const accountIds = uniq(receipts.map(receipt => get(receipt, 'account.id')))
         const serviceConsumerWhere = {
-            AND: [
-                { billingAccount: { id_in: accountIds, deletedAt: null } },
-                { billingIntegrationContext: { id_in: contextIds, deletedAt: null } },
-                { deletedAt: null },
-            ],
+            billingAccount: { id_in: accountIds, deletedAt: null },
+            billingIntegrationContext: { id_in: contextIds, deletedAt: null },
+            deletedAt: null,
+            resident: { deletedAt: null },
         }
         const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumerWhere })
         const consumersByAccountId = groupBy(serviceConsumers, (item) => get(item, 'billingAccount.id'))
