@@ -29,12 +29,14 @@ const {
 
 const { SET_MESSAGE_STATUS_MUTATION } = require('@condo/domains/notification/gql')
 const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
+const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
 const RemoteClient = generateGQLTestUtils(RemoteClientGQL)
 
 const MessageUserBlackList = generateGQLTestUtils(MessageUserBlackListGQL)
+const MessageOrganizationBlackList = generateGQLTestUtils(MessageOrganizationBlackListGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -198,11 +200,45 @@ async function updateTestMessageUserBlackList (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMessageOrganizationBlackList (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const description = faker.random.alphaNumeric(8)
+    const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
+
+    const attrs = {
+        dv: 1,
+        sender,
+        description,
+        type,
+        ...extraAttrs,
+    }
+    const obj = await MessageOrganizationBlackList.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMessageOrganizationBlackList (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMessageOrganizationBlackList logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MessageOrganizationBlackList.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient, setMessageStatusByTestClient,
     RemoteClient, createTestRemoteClient, updateTestRemoteClient, syncRemoteClientByTestClient, disconnectUserFromRemoteClientByTestClient,
     MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList,
+    MessageOrganizationBlackList, createTestMessageOrganizationBlackList, updateTestMessageOrganizationBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

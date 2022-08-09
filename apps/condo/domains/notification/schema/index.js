@@ -10,6 +10,7 @@ const { SyncRemoteClientService } = require('./SyncRemoteClientService')
 const { DisconnectUserFromRemoteClientService } = require('./DisconnectUserFromRemoteClientService')
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { MessageUserBlackList } = require('./MessageUserBlackList')
+const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -20,5 +21,6 @@ module.exports = {
     DisconnectUserFromRemoteClientService,
     SetMessageStatusService,
     MessageUserBlackList,
+    MessageOrganizationBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
