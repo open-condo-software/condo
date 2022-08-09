@@ -4,6 +4,15 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+update "OrganizationEmployee" t
+SET "deletedAt" = '2022-08-10T11:11:11Z'
+where t."deletedAt" IS NULL and exists (
+  select 1 from "OrganizationEmployee"
+  where "user" = t."user" and "organization" = t."organization" and "createdAt" < t."createdAt" and id != t."id" and "deletedAt" IS NULL
+);
+
+
 --
 -- Create constraint OrganizationEmployee_unique_user_and_organization on model organizationemployee
 --
