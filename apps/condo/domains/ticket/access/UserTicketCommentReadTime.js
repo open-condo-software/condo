@@ -41,6 +41,7 @@ async function canManageUserTicketCommentReadTimes ({ authentication: { item: us
                     ],
                 },
                 user: { id: user.id },
+                deletedAt: null,
             })
 
             if (organizationEmployee) return true
