@@ -143,6 +143,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     messageWithSameUniqKey = await getByCondition('Message', {
                         uniqKey,
                         type,
+                        deletedAt: null,
                     })
                 }
 
