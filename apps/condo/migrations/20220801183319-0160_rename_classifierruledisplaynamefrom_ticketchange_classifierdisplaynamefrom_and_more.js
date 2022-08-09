@@ -24,15 +24,20 @@ ALTER TABLE "TicketChange" RENAME COLUMN "classifierRuleIdTo" TO "classifierIdTo
 -- Rename field classifierRule on tickethistoryrecord to classifier
 --
 ALTER TABLE "TicketHistoryRecord" RENAME COLUMN "classifierRule" TO "classifier";
+
 --
 -- Remove field classifierRule from ticket
 --
-SET CONSTRAINTS "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id";
-ALTER TABLE "Ticket" DROP COLUMN "classifierRule" CASCADE;
+--SET CONSTRAINTS "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id";
+--ALTER TABLE "Ticket" DROP COLUMN "classifierRule" CASCADE;
 --
 -- Add field classifier to ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN "classifier" uuid NULL CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" REFERENCES "TicketClassifierRule"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" IMMEDIATE;
+--ALTER TABLE "Ticket" ADD COLUMN "classifier" uuid NULL CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" REFERENCES "TicketClassifierRule"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" IMMEDIATE;
+
+ALTER TABLE "Ticket" RENAME COLUMN "classifierRule" TO "classifier";
+ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" TO "Ticket_classifier_7a786997_fk_TicketClassifierRule_id";
+
 --
 -- Add field placeClassifier to ticket
 --
@@ -50,8 +55,9 @@ ALTER TABLE "TicketHistoryRecord" ADD COLUMN "placeClassifier" uuid NULL;
 --
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN "problemClassifier" uuid NULL;
 CREATE INDEX "Ticket_classifier_7a786997" ON "Ticket" ("classifier");
-CREATE INDEX "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
-CREATE INDEX "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
+-- NOTE: kmigrator do not delete indexes or recreate it after renaming of the column
+CREATE INDEX IF NOT EXISTS "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
+CREATE INDEX IF NOT EXISTS "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
 COMMIT;
 
     `)
@@ -76,17 +82,22 @@ ALTER TABLE "Ticket" DROP COLUMN "problemClassifier" CASCADE;
 -- Add field placeClassifier to ticket
 --
 ALTER TABLE "Ticket" DROP COLUMN "placeClassifier" CASCADE;
+
 --
 -- Add field classifier to ticket
 --
-ALTER TABLE "Ticket" DROP COLUMN "classifier" CASCADE;
+--ALTER TABLE "Ticket" DROP COLUMN "classifier" CASCADE;
 --
 -- Remove field classifierRule from ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN "classifierRule" uuid NULL CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" REFERENCES "TicketClassifierRule"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" IMMEDIATE;
+--ALTER TABLE "Ticket" ADD COLUMN "classifierRule" uuid NULL CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" REFERENCES "TicketClassifierRule"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" IMMEDIATE;
 --
 -- Rename field classifierRule on tickethistoryrecord to classifier
 --
+
+ALTER TABLE "Ticket" RENAME COLUMN "classifier" TO "classifierRule";
+ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" TO "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id";
+
 ALTER TABLE "TicketHistoryRecord" RENAME COLUMN "classifier" TO "classifierRule";
 --
 -- Rename field classifierRuleIdTo on ticketchange to classifierIdTo
