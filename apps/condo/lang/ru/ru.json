@@ -984,6 +984,7 @@
   "ticket.deadline.ToComplete": "На выполнение {days}",
   "ticket.deadline.LessThenDay": "На выполнение менее 24ч.",
   "ticket.deadline.Overdue": "Просрочена на {days}",
+  "tasks.export.error.NOTHING_TO_EXPORT": "Не найдено записей для экспорта по выбранным критериям фильтрации",
   "tasks.progressNotification.title": "Операции в процессе",
   "tasks.progressNotification.description": "Это окно можно закрыть. Все процессы продолжатся",
   "tasks.TicketExportTask.progress.title": "Выгрузка заявок",

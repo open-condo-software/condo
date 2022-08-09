@@ -984,6 +984,7 @@
   "ticket.deadline.ToComplete": "To complete {days}",
   "ticket.deadline.LessThenDay": "To be completed in less than 24 hours",
   "ticket.deadline.Overdue": "Overdue by {days}",
+  "tasks.export.error.NOTHING_TO_EXPORT": "No records found for export with specified filtering conditions",
   "tasks.progressNotification.title": "Operations in progress",
   "tasks.progressNotification.description": "You can close this panel, all operations will be continued",
   "tasks.TicketExportTask.progress.title": "Exporting tickets",

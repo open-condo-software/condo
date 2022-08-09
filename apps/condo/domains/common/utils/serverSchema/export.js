@@ -7,12 +7,10 @@ const Upload = require('graphql-upload/public/Upload')
 
 const errors = {
     NOTHING_TO_EXPORT: {
-        query: 'exportTicketsToExcel',
-        variable: ['data', 'property'],
         code: BAD_USER_INPUT,
         type: NOTHING_TO_EXPORT,
-        message: 'No tickets found to export',
-        messageForUser: 'api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT',
+        message: 'No records to export for {schema} with id "{id}"',
+        messageForUser: 'tasks.export.error.NOTHING_TO_EXPORT',
     },
 }
 
@@ -53,7 +51,21 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
         const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
         if (batch.length === 0) {
             if (offset === 0) {
-                throw new GQLError(errors.NOTHING_TO_EXPORT, context)
+                await taskServerUtils.update(context, task.id, {
+                    dv: 1,
+                    sender: {
+                        dv: 1,
+                        fingerprint: TASK_WORKER_FINGERPRINT,
+                    },
+                    status: COMPLETED,
+                })
+                throw new GQLError({
+                    ...errors.NOTHING_TO_EXPORT,
+                    messageInterpolation: {
+                        schema: taskServerUtils.gql.SINGULAR_FORM,
+                        id: task.id,
+                    },
+                })
             }
         } else {
             const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
@@ -95,6 +107,8 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) =>
     })
     return uploadInput
 }
+
+// TODO(antonal): write tests with mocks of `taskServerUtils`. Currently this util is tested for domain-specific usage
 
 const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, task, taskServerUtils }) => (
     loadRecordsAndConvertToFileRows({
