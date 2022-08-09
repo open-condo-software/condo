@@ -28,13 +28,13 @@ const {
 } = require('@condo/domains/notification/gql')
 
 const { SET_MESSAGE_STATUS_MUTATION } = require('@condo/domains/notification/gql')
-const { MessageBlackList: MessageBlackListGQL } = require('@condo/domains/notification/gql')
+const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
 const RemoteClient = generateGQLTestUtils(RemoteClientGQL)
 
-const MessageBlackList = generateGQLTestUtils(MessageBlackListGQL)
+const MessageUserBlackList = generateGQLTestUtils(MessageUserBlackListGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -168,7 +168,8 @@ async function setMessageStatusByTestClient(client, extraAttrs = {}) {
 
     return [data.result, attrs]
 }
-async function createTestMessageBlackList (client, extraAttrs = {}) {
+
+async function createTestMessageUserBlackList (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const description = faker.random.alphaNumeric(8)
@@ -179,11 +180,11 @@ async function createTestMessageBlackList (client, extraAttrs = {}) {
         description,
         ...extraAttrs,
     }
-    const obj = await MessageBlackList.create(client, attrs)
+    const obj = await MessageUserBlackList.create(client, attrs)
     return [obj, attrs]
 }
 
-async function updateTestMessageBlackList (client, id, extraAttrs = {}) {
+async function updateTestMessageUserBlackList (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -193,7 +194,7 @@ async function updateTestMessageBlackList (client, id, extraAttrs = {}) {
         sender,
         ...extraAttrs,
     }
-    const obj = await MessageBlackList.update(client, id, attrs)
+    const obj = await MessageUserBlackList.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -202,6 +203,6 @@ async function updateTestMessageBlackList (client, id, extraAttrs = {}) {
 module.exports = {
     Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient, setMessageStatusByTestClient,
     RemoteClient, createTestRemoteClient, updateTestRemoteClient, syncRemoteClientByTestClient, disconnectUserFromRemoteClientByTestClient,
-    MessageBlackList, createTestMessageBlackList, updateTestMessageBlackList,
+    MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
