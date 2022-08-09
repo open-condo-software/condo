@@ -162,27 +162,4 @@ describe('MessageUserBlackList', () => {
             })
         })
     })
-
-    describe('constraints', () => {
-        it('support can create MessageUserBlackList', async () => {
-            const supportClient = await makeClientWithSupportUser()
-            const userAttrs = {
-                name: faker.name.firstName(),
-                email: createTestEmail(),
-                phone: createTestPhone(),
-            }
-
-            await createTestMessageUserBlackList(supportClient, {
-                type: null,
-                email: userAttrs.email,
-            })
-
-            const [blackList] = await createTestMessageUserBlackList(supportClient, {
-                type: null,
-                email: userAttrs.email,
-            })
-
-            expect(blackList.id).toMatch(UUID_RE)
-        })
-    })
 })

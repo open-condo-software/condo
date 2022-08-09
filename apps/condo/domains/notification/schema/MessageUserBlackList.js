@@ -14,7 +14,6 @@ const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constan
 const MessageUserBlackList = new GQLListSchema('MessageUserBlackList', {
     schemaDoc: 'Rule for blocking messages (specific type or all) for user, phone or email',
     fields: {
-
         user: {
             schemaDoc: 'The user to whom we want to block sending messages',
             type: Relationship,
