@@ -3,9 +3,9 @@
  */
 
 const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File, Url } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/notification/access/MessageOrganizationBlackList')
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
