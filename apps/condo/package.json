@@ -87,7 +87,7 @@
     "oidc-provider": "^7.10.6",
     "openid-client": "4.7.4",
     "phone": "3.1.17",
-    "qs": "6.10.3",
+    "qs": "6.11.0",
     "raw-loader": "^4.0.2",
     "rc-queue-anim": "^1.8.5",
     "react": "^16.13.1",
