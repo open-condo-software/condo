@@ -81,7 +81,7 @@ const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, 
 //                 toCreate.push(convertToGQLInput({ obj, operation }))
 //                 break
 //             case UPDATE:
-//                 toUpdate.push({ convertToGQLInput ({ obj, operation }) })
+//                 toUpdate.push(convertToGQLInput ({ obj, operation }))
 //                 break
 //             case DELETE:
 //                 toDelete.push(convertToGQLInput({ obj, operation }))
@@ -356,11 +356,12 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     } = receiptInput
 
                     const propertyFromInput = { address }
-                    const accountFromInput = { unitName, unitType, number: accountNumber, property: propertyFromInput }
-                    const receiptFromInput = { category, period, property: propertyFromInput, account: accountFromInput, services, recipient: { tin, iec, bic, bankAccount } }
-
                     const propertyKey = getBillingPropertyKey( propertyFromInput )
+
+                    const accountFromInput = { unitName, unitType, number: accountNumber, property: propertyFromInput }
                     const accountKey = getBillingAccountKey( accountFromInput )
+
+                    const receiptFromInput = { category, period, property: propertyFromInput, account: accountFromInput, services, recipient: { tin, iec, bic, bankAccount } }
                     const receiptKey = getBillingReceiptKey(receiptFromInput)
 
                     if (!index.propertyIndex[propertyKey]) {
