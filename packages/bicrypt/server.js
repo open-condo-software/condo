@@ -3,7 +3,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const app = express()
 
-const { CondoBicryptSign } = require('@core/bicrypt')
+const { CondoBicryptSign } = require('@condo/bicrypt')
 const { passPhrase, keyPath } = process.env.BICRYPT ? JSON.parse(process.env.BICRYPT) : {}
 
 const bicryptSign = new CondoBicryptSign({ passPhrase, keyPath })

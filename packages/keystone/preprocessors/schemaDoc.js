@@ -110,7 +110,7 @@ const injectDocumentation = (queryOrMutationConfig) => (
 
 /**
  * Renders documentation for each custom query and mutation in GraphiQL
- * Should be passed into array of preprocessors for `registerSchemas` util from `packages/@core.keystone/schema.js`
+ * Should be passed into array of preprocessors for `registerSchemas` util from `packages/keystone/schema.js`
  *
  * @example
  * ```js
