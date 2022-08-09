@@ -63,7 +63,7 @@ export const useTicketExportTask = ({ where, sortBy, format, timeZone, user }) =
 
     return {
         TaskUIInterface,
-        TaskLauncher: () => (
+        TaskLauncher: ({ disabled }) => (
             <TaskLauncher
                 label={ExportAsExcelLabel}
                 taskUIInterface={TaskUIInterface}
@@ -76,6 +76,7 @@ export const useTicketExportTask = ({ where, sortBy, format, timeZone, user }) =
                     timeZone,
                     user: { connect: { id: user.id } },
                 }}
+                disabled={disabled}
             />
         ),
     }

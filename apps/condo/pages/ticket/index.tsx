@@ -102,7 +102,7 @@ export const TicketsPageContent = ({
     const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
     const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(loading)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
-    const isNoTicketsData = !tickets.length && isEmpty(filters) && !loading
+    const noTicketsWithoutFilters = !tickets.length && isEmpty(filters) && !loading
 
     const { TaskLauncher } = useTicketExportTask({
         where: searchTicketsQuery,
@@ -139,7 +139,7 @@ export const TicketsPageContent = ({
                 }/>
                 <TablePageContent>
                     {
-                        isNoTicketsData
+                        noTicketsWithoutFilters
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
@@ -253,7 +253,7 @@ export const TicketsPageContent = ({
                                             data-cy={'ticket__table'}
                                         />
                                     </Col>
-                                    <TaskLauncher/>
+                                    <TaskLauncher disabled={isEmpty(tickets)}/>
                                 </Row>
                             )
                     }
