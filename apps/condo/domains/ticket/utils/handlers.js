@@ -137,7 +137,7 @@ const sendTicketNotifications = async (requestData) => {
                 },
             },
             sender: updatedItem.sender,
-            organization: { connect: { id: organization.id } },
+            organization: { id: organization.id },
         })
     }
 
@@ -158,7 +158,7 @@ const sendTicketNotifications = async (requestData) => {
                 },
             },
             sender: updatedItem.sender,
-            organization: { connect: { id: organization.id } },
+            organization: { id: organization.id },
         })
     }
 
@@ -215,7 +215,7 @@ const sendTicketNotifications = async (requestData) => {
                     },
                 },
                 sender: updatedItem.sender,
-                organization: { connect: { id: organization.id } },
+                organization: { id: organization.id },
             })
         }
     }
@@ -278,7 +278,7 @@ const sendTicketCommentNotifications = async (requestData) => {
                 },
             },
             sender: updatedItem.sender,
-            organization: { connect: { id: organization.id } },
+            organization: { id: organization.id },
         })
     }
 }

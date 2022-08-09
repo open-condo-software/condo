@@ -46,7 +46,6 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  * @param keystone
  * @param receipt
  * @param resident
- * @param organizationId
  * @returns {Promise<void>}
  */
 const prepareAndSendNotification = async (context, receipt, resident) => {
@@ -81,7 +80,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-billing-receipts-added-notifications' },
         uniqKey: notificationKey,
-        organization: resident.organization && { connect: { id: resident.organization.id } },
+        organization: resident.organization && { id: resident.organization.id },
     }
 
     try {

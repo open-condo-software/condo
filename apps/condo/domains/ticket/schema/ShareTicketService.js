@@ -45,7 +45,7 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
                             details: ticket.details,
                         },
                         sender,
-                        organization: employee.organization && { connect: { id: employee.organization.id } },
+                        organization: employee.organization && { id: employee.organization.id },
                     })
                 }))
                 return { status: 'ok' }

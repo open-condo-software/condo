@@ -63,7 +63,7 @@ const prepareAndSendNotification = async (context, resident, period) => {
         meta: { dv: 1, data },
         sender: { dv: 1, fingerprint: 'send-residents-no-account-notifications' },
         uniqKey: notificationKey,
-        organization: organizationId && { connect: { id: organizationId } },
+        organization: organizationId && { id: organizationId },
     }
 
     try {

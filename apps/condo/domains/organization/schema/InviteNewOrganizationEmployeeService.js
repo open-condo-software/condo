@@ -181,7 +181,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         dv: 1,
                     },
                     sender: data.sender,
-                    organization: { connect: { id: organizationId } },
+                    organization: { id: organizationId },
                 })
 
                 return await getById('OrganizationEmployee', employee.id)
@@ -242,7 +242,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         dv: 1,
                     },
                     sender: sender,
-                    organization: { connect: { id: organizationId } },
+                    organization: { id: organizationId },
                 })
 
                 return await getById('OrganizationEmployee', existedEmployee.id)
