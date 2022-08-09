@@ -93,7 +93,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationRelateToOneInput, uniqKey: String }',
+            type: 'input SendMessageInput { dv: Int!, sender: SenderFieldInput!, to: SendMessageToInput!, emailFrom: String, type: SendMessageType!, lang: SendMessageLang!, meta: JSON!, organization: OrganizationWhereUniqueInput, uniqKey: String }',
         },
         {
             access: true,
@@ -127,7 +127,10 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
 
                 await checkSendMessageMeta(type, meta, context)
 
-                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom, uniqKey, organization }
+                const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom, uniqKey }
+                if (organization) {
+                    messageAttrs['organization'] = { connect: organization }
+                }
 
                 // TODO(pahaz): add email/phone validation
                 if (to.email) messageAttrs.email = to.email

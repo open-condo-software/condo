@@ -35591,7 +35591,7 @@ export type SendMessageInput = {
   type: SendMessageType;
   lang: SendMessageLang;
   meta: Scalars['JSON'];
-  organization?: Maybe<OrganizationRelateToOneInput>;
+  organization?: Maybe<OrganizationWhereUniqueInput>;
   uniqKey?: Maybe<Scalars['String']>;
 };
 
