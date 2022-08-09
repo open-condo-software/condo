@@ -8,6 +8,10 @@ exports.up = async (knex) => {
 -- Add field deferredUntil to ticket
 --
 ALTER TABLE "Ticket" ADD COLUMN "deferredUntil" timestamp with time zone NULL;
+
+UPDATE "Ticket" 
+SET "deferredUntil" = '2022-09-01'
+WHERE "status" = 'c14a58e0-6b5d-4ec2-b91c-980a90509c7f';
 --
 -- Add field deferredUntilFrom to ticketchange
 --
