@@ -46,8 +46,8 @@ const SET_MESSAGE_STATUS_MUTATION = gql`
     }
 `
 
-const MESSAGE_BLACK_LIST_FIELDS = `{ organization { id } user { id } description phone email ${COMMON_FIELDS} }`
-const MessageBlackList = generateGqlQueries('MessageBlackList', MESSAGE_BLACK_LIST_FIELDS)
+const MESSAGE_USER_BLACK_LIST_FIELDS = `{ user { id } phone email description ${COMMON_FIELDS} }`
+const MessageUserBlackList = generateGqlQueries('MessageUserBlackList', MESSAGE_USER_BLACK_LIST_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -59,6 +59,6 @@ module.exports = {
     SYNC_REMOTE_CLIENT_MUTATION,
     DISCONNECT_USER_FROM_REMOTE_CLIENT_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
-    MessageBlackList,
+    MessageUserBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
