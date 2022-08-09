@@ -8,10 +8,10 @@ const { makeLoggedInAdminClient, UUID_RE } = require('@condo/keystone/test.utils
 
 const { expectToThrowAccessDeniedErrorToObj, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
 const {
-    createTestOrganization,
+    createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { createTestTicket, createTestUserTicketCommentReadTime, updateTestUserTicketCommentReadTime, UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/testSchema')
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -48,6 +48,29 @@ describe('UserTicketCommentReadTime', () => {
                 await expectToThrowInternalError(async () => {
                     await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
                 }, `${UNIQUE_CONSTRAINT_ERROR} "unique_user_and_ticket"`)
+            })
+
+            it('can create UserTicketCommentReadTime if user has another soft deleted employee in organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [employeeRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageTickets: true,
+                })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, employeeRole)
+
+                await updateTestOrganizationEmployee(admin, employee.id, {
+                    deletedAt: 'true',
+                })
+
+                await createTestOrganizationEmployee(admin, organization, userClient.user, employeeRole)
+
+                const [ticket] = await createTestTicket(userClient, organization, property)
+                const [userTicketCommentRead] = await createTestUserTicketCommentReadTime(userClient, userClient.user, ticket)
+
+                expect(userTicketCommentRead.id).toMatch(UUID_RE)
             })
         })
 
