@@ -5,7 +5,7 @@ const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
-const { Message, MessageUserBlackList } = require('@condo/domains/notification/utils/serverSchema')
+const { Message, MessageUserBlackList, MessageOrganizationBlackList } = require('@condo/domains/notification/utils/serverSchema')
 const { logger } = require('@condo/domains/notification/utils')
 
 const sms = require('./transports/sms')
@@ -100,19 +100,38 @@ async function deliverMessage (messageId) {
         sender: message.sender,
     }
 
-    const blackListWhere = {
+    if (message.organization) {
+        const messageOrganizationBlackListWhere = {
+            type: message.type,
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: message.organization.id } },
+            ],
+        }
+        const messageOrganizationBlackListRules = await MessageOrganizationBlackList.getAll(keystone, messageOrganizationBlackListWhere)
+
+        if (!isEmpty(messageOrganizationBlackListRules)) {
+            return await Message.update(keystone, message.id, {
+                ...baseAttrs,
+                status: MESSAGE_ERROR_STATUS,
+            })
+        }
+    }
+
+    const messageUserBlackListWhere = {
         OR: [
             message.user && { user: { id: message.user.id } },
             message.phone && { phone: message.phone },
             message.email && { email: message.email },
         ].filter(Boolean),
+        deletedAt: null,
     }
+    const messageUserBlackListRules = await MessageUserBlackList.getAll(keystone, messageUserBlackListWhere)
 
-    const blackListRules = await MessageUserBlackList.getAll(keystone, blackListWhere)
-    if (!isEmpty(blackListRules)) {
-        const isMessageTypeInBlackList = blackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
+    if (!isEmpty(messageUserBlackListRules)) {
+        const isMessageTypeInUserBlackList = messageUserBlackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
 
-        if (isMessageTypeInBlackList) {
+        if (isMessageTypeInUserBlackList) {
             return await Message.update(keystone, message.id, {
                 ...baseAttrs,
                 status: MESSAGE_ERROR_STATUS,
