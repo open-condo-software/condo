@@ -36,6 +36,33 @@ const conf = require('@condo/config')
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 const COMMON_ERROR_CASES = {}
 
+/**
+ * Takes object as argument and returns names of its class, parent's class and so on
+ * @param object
+ * @returns {string[]}
+ * @private
+ */
+function _getClassList (object) {
+    if (object && object.constructor && object.constructor instanceof Function) {
+        let baseClass = object.constructor
+        const result = [object.constructor.name]
+
+        while (baseClass) {
+            const newBaseClass = Object.getPrototypeOf(baseClass)
+            if (newBaseClass && newBaseClass !== Object && newBaseClass.name) {
+                baseClass = newBaseClass
+                result.push(newBaseClass.name)
+            } else {
+                break
+            }
+        }
+
+        return result
+    }
+
+    return []
+}
+
 function _getAllErrorMessages (error) {
     const messages = []
     const m1 = get(error, 'message')
@@ -96,8 +123,8 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
     //  + 'extensions' -- some extra context
     //  + 'originalError' -- original Error instance
     // NOTE: Comparing by instances is not safe even if only minor version of package change!
-    const errorInstanceName = get(error, ['constructor', 'name'])
-    if (errorInstanceName === 'ApolloError' || errorInstanceName === 'GraphQLError') {
+    const errorClassNames = _getClassList(error)
+    if (errorClassNames.includes('ApolloError') || errorClassNames.includes('GraphQLError')) {
         const pickKeys3 = ['path', 'locations']
         Object.assign(result, pickBy(pick(error, pickKeys3), identity))
         const developerErrorMessage = printError(error)
