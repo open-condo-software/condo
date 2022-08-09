@@ -40366,6 +40366,10 @@ export enum SortTicketChangesBy {
   UnitTypeFromDesc = 'unitTypeFrom_DESC',
   UnitTypeToAsc = 'unitTypeTo_ASC',
   UnitTypeToDesc = 'unitTypeTo_DESC',
+  DeferredUntilFromAsc = 'deferredUntilFrom_ASC',
+  DeferredUntilFromDesc = 'deferredUntilFrom_DESC',
+  DeferredUntilToAsc = 'deferredUntilTo_ASC',
+  DeferredUntilToDesc = 'deferredUntilTo_DESC',
   OrganizationIdFromAsc = 'organizationIdFrom_ASC',
   OrganizationIdFromDesc = 'organizationIdFrom_DESC',
   OrganizationIdToAsc = 'organizationIdTo_ASC',
@@ -40859,6 +40863,8 @@ export enum SortTicketHistoryRecordsBy {
   UnitNameDesc = 'unitName_DESC',
   UnitTypeAsc = 'unitType_ASC',
   UnitTypeDesc = 'unitType_DESC',
+  DeferredUntilAsc = 'deferredUntil_ASC',
+  DeferredUntilDesc = 'deferredUntil_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -41232,6 +41238,8 @@ export enum SortTicketsBy {
   UnitTypeDesc = 'unitType_DESC',
   SourceAsc = 'source_ASC',
   SourceDesc = 'source_DESC',
+  DeferredUntilAsc = 'deferredUntil_ASC',
+  DeferredUntilDesc = 'deferredUntil_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -41579,6 +41587,8 @@ export type Ticket = {
   source?: Maybe<TicketSource>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMeta?: Maybe<Scalars['JSON']>;
+  /**  Date until which the ticket is deferred  */
+  deferredUntil?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -42088,6 +42098,10 @@ export type TicketChange = {
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   /**  In the case of remote system sync, you can store some extra analytics. Examples: email, name, phone, ...  */
   sourceMetaTo?: Maybe<Scalars['JSON']>;
+  /**  Date until which the ticket is deferred  */
+  deferredUntilFrom?: Maybe<Scalars['String']>;
+  /**  Date until which the ticket is deferred  */
+  deferredUntilTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organizationIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
@@ -42248,6 +42262,8 @@ export type TicketChangeCreateInput = {
   unitTypeTo?: Maybe<Scalars['String']>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaTo?: Maybe<Scalars['JSON']>;
+  deferredUntilFrom?: Maybe<Scalars['String']>;
+  deferredUntilTo?: Maybe<Scalars['String']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -42365,6 +42381,8 @@ export type TicketChangeUpdateInput = {
   unitTypeTo?: Maybe<Scalars['String']>;
   sourceMetaFrom?: Maybe<Scalars['JSON']>;
   sourceMetaTo?: Maybe<Scalars['JSON']>;
+  deferredUntilFrom?: Maybe<Scalars['String']>;
+  deferredUntilTo?: Maybe<Scalars['String']>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdTo?: Maybe<Scalars['ID']>;
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -42915,6 +42933,22 @@ export type TicketChangeWhereInput = {
   sourceMetaTo_not?: Maybe<Scalars['JSON']>;
   sourceMetaTo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMetaTo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  deferredUntilFrom?: Maybe<Scalars['String']>;
+  deferredUntilFrom_not?: Maybe<Scalars['String']>;
+  deferredUntilFrom_lt?: Maybe<Scalars['String']>;
+  deferredUntilFrom_lte?: Maybe<Scalars['String']>;
+  deferredUntilFrom_gt?: Maybe<Scalars['String']>;
+  deferredUntilFrom_gte?: Maybe<Scalars['String']>;
+  deferredUntilFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deferredUntilFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deferredUntilTo?: Maybe<Scalars['String']>;
+  deferredUntilTo_not?: Maybe<Scalars['String']>;
+  deferredUntilTo_lt?: Maybe<Scalars['String']>;
+  deferredUntilTo_lte?: Maybe<Scalars['String']>;
+  deferredUntilTo_gt?: Maybe<Scalars['String']>;
+  deferredUntilTo_gte?: Maybe<Scalars['String']>;
+  deferredUntilTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deferredUntilTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organizationIdFrom?: Maybe<Scalars['ID']>;
   organizationIdFrom_not?: Maybe<Scalars['ID']>;
   organizationIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -44915,6 +44949,7 @@ export type TicketCreateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  deferredUntil?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46251,6 +46286,7 @@ export type TicketHistoryRecord = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  deferredUntil?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -46309,6 +46345,7 @@ export type TicketHistoryRecordCreateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  deferredUntil?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46372,6 +46409,7 @@ export type TicketHistoryRecordUpdateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  deferredUntil?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46753,6 +46791,14 @@ export type TicketHistoryRecordWhereInput = {
   sourceMeta_not?: Maybe<Scalars['JSON']>;
   sourceMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  deferredUntil?: Maybe<Scalars['String']>;
+  deferredUntil_not?: Maybe<Scalars['String']>;
+  deferredUntil_lt?: Maybe<Scalars['String']>;
+  deferredUntil_lte?: Maybe<Scalars['String']>;
+  deferredUntil_gt?: Maybe<Scalars['String']>;
+  deferredUntil_gte?: Maybe<Scalars['String']>;
+  deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -49115,6 +49161,7 @@ export type TicketUpdateInput = {
   unitType?: Maybe<Scalars['String']>;
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
+  deferredUntil?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49427,6 +49474,14 @@ export type TicketWhereInput = {
   sourceMeta_not?: Maybe<Scalars['JSON']>;
   sourceMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sourceMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  deferredUntil?: Maybe<Scalars['String']>;
+  deferredUntil_not?: Maybe<Scalars['String']>;
+  deferredUntil_lt?: Maybe<Scalars['String']>;
+  deferredUntil_lte?: Maybe<Scalars['String']>;
+  deferredUntil_gt?: Maybe<Scalars['String']>;
+  deferredUntil_gte?: Maybe<Scalars['String']>;
+  deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
