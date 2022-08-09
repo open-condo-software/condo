@@ -5,7 +5,7 @@ const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
-const { Message, BlackList } = require('@condo/domains/notification/utils/serverSchema')
+const { Message, MessageBlackList } = require('@condo/domains/notification/utils/serverSchema')
 const { logger } = require('@condo/domains/notification/utils')
 
 const sms = require('./transports/sms')
@@ -109,7 +109,7 @@ async function deliverMessage (messageId) {
         ].filter(Boolean),
     }
 
-    const blackListRules = await BlackList.getAll(keystone, blackListWhere)
+    const blackListRules = await MessageBlackList.getAll(keystone, blackListWhere)
     if (!isEmpty(blackListRules)) {
         const isMessageTypeInBlackList = blackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
 
