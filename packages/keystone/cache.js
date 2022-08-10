@@ -43,7 +43,9 @@ class KeystoneCacheMiddleware {
         app.use((req, res, next) => {
             const requestId = get(req, ['headers', 'x-request-id'])
             res.on('close', () => {
-                if (requestId) { delete this.cache[requestId] }
+                if (requestId) {
+                    delete this.cache[requestId]
+                }
             })
             next()
         })
@@ -87,7 +89,7 @@ const patchQuery = (queryContext, query, cache) => {
 
             // Drop the key, if the operation type is mutation
             const operationType = get(info, ['operation', 'operation'])
-            if (operationType !== 'query') {
+            if (operationType !== 'query' && get(cache, [requestId, key])) {
                 delete cache[requestId][key]
             }
 
@@ -97,7 +99,7 @@ const patchQuery = (queryContext, query, cache) => {
         }
         const listResult = await query.call(queryContext, args, context, gqlName, info, from)
 
-        if (requestId && key) { cache[requestId][key] = listResult }
+        if (requestId && key && get(cache, [requestId, key])) { cache[requestId][key] = listResult }
 
         return listResult
     }
