@@ -11,13 +11,15 @@ const { OrganizationEmployeeRole } = require('./index')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { DEFAULT_ROLES } = require('../../constants/common')
 const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/common')
-const { safeFormatError } = require('./apolloErrorFormatter')
+const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 
 const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
 if (SALES_CRM_WEBHOOKS_URL && !SALES_CRM_WEBHOOKS_URL.subscriptions && !SALES_CRM_WEBHOOKS_URL.organizations) {
     throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
 }
+
+const TIMEOUT = 1000 * 3
 
 async function createOrganization (context, data) {
     return await execGqlWithoutAccess(context, {
@@ -100,8 +102,10 @@ async function pushOrganizationToSalesCRM (organization) {
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         }
-        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
-        logger.info({ pushToSalesCRMUrl: SALES_CRM_WEBHOOKS_URL.organizations, pushToSalesCRMData:data })
+        await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data, {
+            timeout: TIMEOUT, // Wait for 3 seconds
+        })
+        logger.info({ pushToSalesCRMUrl: SALES_CRM_WEBHOOKS_URL.organizations, pushToSalesCRMOrganizationData: data })
     } catch (error) {
         logger.warn({ pushToSalesCRMError: safeFormatError(error) })
     }
@@ -109,20 +113,22 @@ async function pushOrganizationToSalesCRM (organization) {
 
 async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
     if (!SALES_CRM_WEBHOOKS_URL) {
-        logger.error({ message: 'Unable to pushSubscriptionActivationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
+        logger.error({ pushToSalesCRMMessage: 'Unable to pushSubscriptionActivationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
         return
     }
     try {
-        await axios.post(SALES_CRM_WEBHOOKS_URL.subscriptions, {
+        const data = {
             payerInn,
             startAt,
             finishAt,
             isTrial,
-        }, {
-            timeout: 1000 * 3, // Wait for 3 seconds
+        }
+        await axios.post(SALES_CRM_WEBHOOKS_URL.subscriptions, data, {
+            timeout: TIMEOUT, // Wait for 3 seconds
         })
+        logger.info({ pushToSalesCRMUrl: SALES_CRM_WEBHOOKS_URL.organizations, pushToSalesCRMSubscriptionData: data })
     } catch (error) {
-        logger.warn({ message: 'Request to sales crm failed', error })
+        logger.warn({ pushToSalesCRMError: safeFormatError(error) })
     }
 }
 
