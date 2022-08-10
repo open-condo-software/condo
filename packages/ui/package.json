@@ -14,6 +14,13 @@
   "files": [
     "dist"
   ],
+  "scripts": {
+    "build:babel": "webpack",
+    "build:sb": "build-storybook",
+    "build:types": "tsc --emitDeclarationOnly --declarationMap",
+    "build": "yarn build:babel && yarn build:types",
+    "dev": "start-storybook -p 6006"
+  },
   "exports": {
     ".": "./dist/index.js",
     "./themes": "./dist/themes/index.js",
@@ -21,15 +28,16 @@
   },
   "typesVersions": {
     "*": {
-      ".": ["dist/index.d.ts"],
-      "themes": ["dist/themes/index.d.ts"],
-      "themes/default": ["dist/themes/default.d.ts"]
+      ".": [
+        "dist/index.d.ts"
+      ],
+      "themes": [
+        "dist/themes/index.d.ts"
+      ],
+      "themes/default": [
+        "dist/themes/default.d.ts"
+      ]
     }
-  },
-  "scripts": {
-    "build:babel": "webpack",
-    "build:types": "tsc --emitDeclarationOnly --declarationMap",
-    "build": "yarn build:babel && yarn build:types"
   },
   "peerDependencies": {
     "react": "^16.13.1",
@@ -44,6 +52,14 @@
     "@linaria/core": "^4.1.1",
     "@linaria/react": "^4.1.2",
     "@linaria/webpack-loader": "^4.1.2",
+    "@storybook/addon-actions": "^6.5.10",
+    "@storybook/addon-essentials": "^6.5.10",
+    "@storybook/addon-interactions": "^6.5.10",
+    "@storybook/addon-links": "^6.5.10",
+    "@storybook/builder-webpack5": "^6.5.10",
+    "@storybook/manager-webpack5": "^6.5.10",
+    "@storybook/react": "^6.5.10",
+    "@storybook/testing-library": "^0.0.13",
     "@types/react": "^18.0.17",
     "babel": "^6.23.0",
     "babel-loader": "^8.2.5",
@@ -53,5 +69,6 @@
     "typescript": "^4.7.4",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
-  }
+  },
+  "dependencies": {}
 }
