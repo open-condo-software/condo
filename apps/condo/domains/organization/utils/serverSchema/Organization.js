@@ -11,6 +11,7 @@ const { OrganizationEmployeeRole } = require('./index')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { DEFAULT_ROLES } = require('../../constants/common')
 const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/common')
+const { safeFormatError } = require('./apolloErrorFormatter')
 
 const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
@@ -84,7 +85,7 @@ async function findOrganizationEmployee (context, query) {
 
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
-        logger.error({ message: 'Unable to pushOrganizationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
+        logger.error({ pushToSalesCRMMessage: 'Unable to pushOrganizationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
         return
     }
     const { tin, name: orgName, createdBy } = organization
@@ -100,9 +101,9 @@ async function pushOrganizationToSalesCRM (organization) {
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         }
         await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
-        logger.info({ message: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
+        logger.info({ pushToSalesCRMUrl: SALES_CRM_WEBHOOKS_URL.organizations, pushToSalesCRMData:data })
     } catch (error) {
-        logger.warn({ message: 'Request to sales crm failed', error })
+        logger.warn({ pushToSalesCRMError: safeFormatError(error) })
     }
 }
 
