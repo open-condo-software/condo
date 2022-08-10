@@ -117,6 +117,8 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
             startAt,
             finishAt,
             isTrial,
+        }, {
+            timeout: 1000 * 3, // Wait for 3 seconds
         })
     } catch (error) {
         logger.warn({ message: 'Request to sales crm failed', error })
