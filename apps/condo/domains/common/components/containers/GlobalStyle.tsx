@@ -127,6 +127,28 @@ export default function GlobalStyle () {
                 background-color: ${colors.whiteTranslucent} !important;
                 width: 100%;
               }
+              
+              // disabled input
+              .ant-input:disabled, .ant-input-disabled, .ant-input-disabled:disabled {
+                color: ${colors.black};
+                opacity: .5;
+              }
+              
+              // disabled select
+              .ant-select.ant-select-disabled {
+                & > .ant-select-selector .ant-select-selection-item {
+                  color: ${colors.black};
+                }
+                opacity: .5;
+              }
+              
+              // disabled picker
+              .ant-picker.ant-picker-disabled {
+                input:disabled {
+                  color: ${colors.black};
+                }
+                opacity: .5;
+              }
 
               .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
                 border-color: ${colors.black};
