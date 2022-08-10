@@ -8,7 +8,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = r
 
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowInternalError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList, Message } = require('@condo/domains/notification/utils/testSchema')
@@ -16,6 +16,8 @@ const { createTestBillingIntegrationLog } = require('@condo/domains/billing/util
 const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee, reInviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_SENT_STATUS, EMAIL_TRANSPORT, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('MessageUserBlackList', () => {
     describe('accesses', () => {
@@ -161,6 +163,59 @@ describe('MessageUserBlackList', () => {
                 expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
                 expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_USER_BLACK_LIST)
             })
+        })
+    })
+
+    describe('constraints', () => {
+        it('unique user and type', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithRegisteredOrganization()
+
+            await createTestMessageUserBlackList(admin, {
+                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                user: { connect: { id: client.user.id } },
+            })
+
+            await expectToThrowInternalError(async () => {
+                await createTestMessageUserBlackList(admin, {
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    user: { connect: { id: client.user.id } },
+                })
+            }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_user_and_type"`)
+        })
+
+        it('unique phone and type', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const phone = createTestPhone()
+
+            await createTestMessageUserBlackList(admin, {
+                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                phone,
+            })
+
+            await expectToThrowInternalError(async () => {
+                await createTestMessageUserBlackList(admin, {
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    phone,
+                })
+            }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_phone_and_type"`)
+        })
+
+        it('unique email and type', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const email = createTestEmail()
+
+            await createTestMessageUserBlackList(admin, {
+                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                email,
+            })
+
+            await expectToThrowInternalError(async () => {
+                await createTestMessageUserBlackList(admin, {
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    email,
+                })
+            }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_email_and_type"`)
         })
     })
 })
