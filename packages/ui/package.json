@@ -10,7 +10,11 @@
   "files": [
     "dist"
   ],
-  "scripts": {},
+  "scripts": {
+    "build:babel": "webpack",
+    "build:types": "tsc --emitDeclarationOnly --declarationMap",
+    "build": "yarn build:babel && yarn build:types"
+  },
   "peerDependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
