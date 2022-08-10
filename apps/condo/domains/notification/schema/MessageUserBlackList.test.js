@@ -135,7 +135,7 @@ describe('MessageUserBlackList', () => {
                 const messages = await Message.getAll(admin, messageWhere)
 
                 expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(messages[0].processingMeta).toBeNull()
+                expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_USER_BLACK_LIST)
             })
         })
 
