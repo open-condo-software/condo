@@ -4,6 +4,7 @@ type ColorAndBG = {
 }
 
 export type ThemeColors = {
+    brandMain: string
     blacks: {
         black100: string
         gray75: string
@@ -28,8 +29,9 @@ export type ThemeColors = {
         other: ColorAndBG
     }
     errors: {
-        error: ColorAndBG,
-        warning: ColorAndBG,
+        information: ColorAndBG
+        error: ColorAndBG
+        warning: ColorAndBG
         success: ColorAndBG
     }
 }

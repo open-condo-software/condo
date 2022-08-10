@@ -1,6 +1,7 @@
 import { ThemeColors, ThemeGradients } from './types'
 
 export const colors: ThemeColors = {
+    brandMain: '#39CE66',
     blacks: {
         black100: '#222',
         gray75: '#82879F',
@@ -40,6 +41,10 @@ export const colors: ThemeColors = {
         },
     },
     errors: {
+        information: {
+            color: '#2696F3',
+            background: '#E7F4FF',
+        },
         error: {
             color: '#FF3B30',
             background: '#FFECEB',
