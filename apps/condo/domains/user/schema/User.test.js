@@ -459,17 +459,22 @@ describe('Cache tests', () => {
 
             const modifiedGQL = generateGqlQueries('User', `{ ${CLIENTS[i].fields.join(' ')} }`)
             const modifiedAPI = generateGQLTestUtils(modifiedGQL)
-            
-            const request = async () => { CLIENTS[i].result = [ await modifiedAPI.getAll(modifiedClient, { id: originalClientUserId }) ] }
+
+            CLIENTS[i].api = modifiedAPI
+            CLIENTS[i].client = modifiedClient
+        }
+
+        for (let i = 0; i < CLIENTS.length; ++i) {
+            const request = async () => { CLIENTS[i].result = await CLIENTS[i].api.getAll(CLIENTS[i].client, { id: originalClientUserId }) }
             requests.push(request())
         }
-        
+
         await Promise.all(requests)
 
         for (let i = 0; i < CLIENTS.length; ++i) {
 
             const fields = CLIENTS[i].fields
-            const user = CLIENTS[i].result[0][0]
+            const user = CLIENTS[i].result[0]
 
             for (let j = 0; j < fields.length; ++j) {
                 const property = fields[j]
