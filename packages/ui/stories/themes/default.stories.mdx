@@ -1,0 +1,67 @@
+import { Meta, ColorPalette, ColorItem } from '@storybook/addon-docs'
+import { gradients, colors } from '../../src/themes/default'
+
+<Meta title={'themes/default'}/>
+
+## Main colors
+
+> The brand palette helps in recognizing our products. It maintains continuity in visual language techniques and associates the product with the company's brand.
+
+<ColorPalette>
+    <ColorItem
+        title={'gradients.brand'}
+        subtitle={'Main brand gradients for default theme'}
+        colors={gradients.brand}
+    />
+    <ColorItem
+        title={'colors.brand'}
+        subtitle={'Main brand colors for default theme'}
+        colors={colors.brand}
+    />
+    <ColorItem
+        title={'colors.gray'}
+        subtitle={'Main color for usage in non-accent elements'}
+        colors={colors.gray}
+    />
+</ColorPalette>
+
+## System events colors
+
+> Complementary colors are used for accents, controls, interface states, and background fills. Consists of accent colors.
+> Mainly used in notifications and alerts
+
+<ColorPalette>
+    {Object.keys(colors.errors).map(key => (
+        <ColorItem
+            title={`colors.errors.${key}`}
+            subtitle={`${key.charAt(0).toUpperCase()+key.slice(1)} event`}
+            colors={colors.errors[key]}
+        />
+    ))}
+</ColorPalette>
+
+## Ticket types colors
+> Complementary colors are used for accents, controls, interface states, and background fills. Consists of accent colors.
+> Used to mark tickets with different tags
+
+<ColorPalette>
+    {Object.keys(colors.ticketType).map(key => (
+        <ColorItem
+            title={`colors.ticketType.${key}`}
+            subtitle={`${key.charAt(0).toUpperCase()+key.slice(1)} ticket type`}
+            colors={colors.ticketType[key]}
+        />
+    ))}
+</ColorPalette>
+
+## Ticket statuses colors
+> Complementary colors are used for accents, controls, interface states, and background fills. Consists of accent colors.
+> Used to highlight ticket current status as well as it's status changes
+
+<ColorPalette>
+    <ColorItem
+        title={'colors.ticketStatus'}
+        subtitle={'Can be used as text color or as background when paired with white text'}
+        colors={colors.ticketStatus}
+    />
+</ColorPalette>

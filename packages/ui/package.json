@@ -53,6 +53,7 @@
     "@linaria/react": "^4.1.2",
     "@linaria/webpack-loader": "^4.1.2",
     "@storybook/addon-actions": "^6.5.10",
+    "@storybook/addon-docs": "^6.5.10",
     "@storybook/addon-essentials": "^6.5.10",
     "@storybook/addon-interactions": "^6.5.10",
     "@storybook/addon-links": "^6.5.10",

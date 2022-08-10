@@ -1,8 +1,10 @@
 import { ThemeColors, ThemeGradients } from './types'
 
 export const colors: ThemeColors = {
-    brandMain: '#39CE66',
-    blacks: {
+    brand: {
+        main: '#39CE66',
+    },
+    gray: {
         black100: '#222',
         gray75: '#82879F',
         gray50: '#D0D3E5',
@@ -41,7 +43,7 @@ export const colors: ThemeColors = {
         },
     },
     errors: {
-        information: {
+        info: {
             color: '#2696F3',
             background: '#E7F4FF',
         },
@@ -61,7 +63,9 @@ export const colors: ThemeColors = {
 }
 
 export const gradients: ThemeGradients = {
-    main: 'linear-gradient(117.93deg, #4CD174 17.32%, #6DB8F2 82.68%)',
-    mainHovered: 'linear-gradient(117.93deg, #3DCB68 17.32%, #58A6E2 82.68%)',
-    mainPressed: 'linear-gradient(117.93deg, #2ABB56 17.32%, #3996DD 82.68%)',
+    brand: {
+        main: 'linear-gradient(117.93deg, #4CD174 17.32%, #6DB8F2 82.68%)',
+        mainHovered: 'linear-gradient(117.93deg, #3DCB68 17.32%, #58A6E2 82.68%)',
+        mainPressed: 'linear-gradient(117.93deg, #2ABB56 17.32%, #3996DD 82.68%)',
+    },
 }

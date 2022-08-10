@@ -4,8 +4,10 @@ type ColorAndBG = {
 }
 
 export type ThemeColors = {
-    brandMain: string
-    blacks: {
+    brand: {
+        main: string
+    }
+    gray: {
         black100: string
         gray75: string
         gray50: string
@@ -29,7 +31,7 @@ export type ThemeColors = {
         other: ColorAndBG
     }
     errors: {
-        information: ColorAndBG
+        info: ColorAndBG
         error: ColorAndBG
         warning: ColorAndBG
         success: ColorAndBG
@@ -37,9 +39,11 @@ export type ThemeColors = {
 }
 
 export type ThemeGradients = {
-    main: string
-    mainHovered: string
-    mainPressed: string
+    brand: {
+        main: string
+        mainHovered: string
+        mainPressed: string
+    }
 }
 
 export type Theme = {
