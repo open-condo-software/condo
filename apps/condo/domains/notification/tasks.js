@@ -21,7 +21,7 @@ const {
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('./constants/constants')
-const { MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const { MESSAGE_TYPE_IN_USER_BLACK_LIST, MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
@@ -117,7 +117,7 @@ async function deliverMessage (messageId) {
                 status: MESSAGE_ERROR_STATUS,
                 processingMeta: {
                     dv: 1,
-                    error: MESSAGE_TYPE_IN_USER_BLACK_LIST,
+                    error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST,
                 },
             })
         }
