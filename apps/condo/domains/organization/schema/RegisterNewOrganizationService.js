@@ -26,7 +26,7 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const adminRole = defaultRoles.Administrator
                 await createConfirmedEmployee(context, organization, context.authedItem, adminRole, extraData)
                 await createTrialSubscription(context, organization, extraData)
-                pushOrganizationToSalesCRM(organization)
+                await pushOrganizationToSalesCRM(organization)
                 return await getById('Organization', organization.id)
             },
         },
