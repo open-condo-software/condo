@@ -1,15 +1,31 @@
 {
   "name": "@condo/ui",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "version": "0.0.1",
   "description": "A set of React UI components for developing applications inside the condo ecosystem",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "repository": "https://github.com/open-condo-software/condo/blob/master/packages/ui",
-  "author": "Matthew Savelev",
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "msavelyev@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
   "license": "MIT",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": "./dist/index.js",
+    "./themes": "./dist/themes/index.js",
+    "./themes/default": "./dist/themes/default.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": ["dist/index.d.ts"],
+      "themes": ["dist/themes/index.d.ts"],
+      "themes/default": ["dist/themes/default.d.ts"]
+    }
+  },
   "scripts": {
     "build:babel": "webpack",
     "build:types": "tsc --emitDeclarationOnly --declarationMap",

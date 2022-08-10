@@ -1,1 +1,1 @@
-export const name = '@condo/ui'
+export const a = 123

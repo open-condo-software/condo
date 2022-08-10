@@ -2,9 +2,13 @@ const path = require('path')
 
 module.exports = {
     mode: 'production',
-    entry: './src/index.ts',
+    entry: {
+        'index': './src/index.ts',
+        'themes/index': './src/themes/index.ts',
+        'themes/default': './src/themes/default.ts',
+    },
     output: {
-        filename: 'index.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
         clean: true,
         library: {
@@ -17,12 +21,12 @@ module.exports = {
         react: 'react',
     },
     resolve: {
-        extensions: ['.ts'],
+        extensions: ['.ts', '.tsx'],
     },
     module: {
         rules: [
             {
-                test: /\.(ts|tsx)$/,
+                test: /\.tsx?$/,
                 use: [
                     'babel-loader',
                     {
