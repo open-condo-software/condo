@@ -24,12 +24,12 @@ export const TicketDeferredDateField = () => {
             <Col span={isSmall ? 24 : 11}>
                 <TicketFormItem
                     label={DeferredUntilMessage}
-                    name='deferredUntil'
+                    name="deferredUntil"
                     required
                     data-cy={'ticket__deferredUntil-item'}
                 >
                     <DatePicker
-                        format='DD MMMM YYYY'
+                        format="DD MMMM YYYY"
                         disabledDate={handleDisabledDate}
                         style={DATE_PICKER_STYLE}
                         allowClear={false}
