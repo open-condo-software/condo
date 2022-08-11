@@ -4,7 +4,8 @@ import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@co
 import { RefSelectProps } from 'antd/lib/select'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import isObject from 'lodash/isObject'
+import compact from 'lodash/compact'
+import isArray from 'lodash/isArray'
 
 export interface CustomSelectProps<T> extends SelectProps<T> {
     eventName?: string
@@ -20,11 +21,23 @@ const Select = <T extends string | number | { value: any, label: any }> (props: 
     const componentProperties = { ...eventProperties }
 
     const onChangeCallback: CustomSelectProps<T>['onChange'] = (value, option) => {
-        if (eventName && isObject(option)) {
-            const selectedValue = get(option, 'title')
+        if (eventName) {
+            let selectedValue = null
+
+            if (isArray(option)) {
+                selectedValue = compact(option.map(opt => get(opt, 'title')))
+            } else {
+                selectedValue = get(option, 'title')
+            }
 
             if (selectedValue) {
                 componentProperties['component'] = { value: selectedValue }
+
+                const componentId = get(restProps, 'id')
+                if (componentId) {
+                    componentProperties['component']['id'] = componentId
+                }
+
                 logEvent({ eventName, eventProperties: componentProperties })
             }
         }

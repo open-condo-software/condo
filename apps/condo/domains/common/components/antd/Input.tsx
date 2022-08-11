@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import get from 'lodash/get'
 import { Input as BaseInput, InputProps } from 'antd'
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '../TrackingContext'
 
@@ -18,6 +19,11 @@ const Input = (props: CustomInputProps) => {
 
     if (restProps.value) {
         componentProperties['component'] = { value: restProps.value }
+
+        const componentId = get(restProps, 'id')
+        if (componentId) {
+            componentProperties['component']['id'] = componentId
+        }
     }
 
     useEffect(() => {

@@ -2,6 +2,7 @@
 // @ts-nocheck
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { Select, SelectProps, Typography } from 'antd'
+import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import uniqBy from 'lodash/uniqBy'
 import { ApolloClient } from '@apollo/client'
@@ -10,6 +11,11 @@ import { useApolloClient } from '@condo/next/apollo'
 import { WhereType } from '../utils/tables.utils'
 import throttle from 'lodash/throttle'
 import { isNeedToLoadNewElements } from '../utils/select.utils'
+import {
+    useTracking,
+    TrackingEventPropertiesType,
+    TrackingEventType,
+} from '@condo/domains/common/components/TrackingContext'
 
 
 type GraphQlSearchInputOption = {
@@ -39,6 +45,8 @@ export interface ISearchInputProps extends SelectProps<string> {
     formatLabel?: (option: GraphQlSearchInputOption) => JSX.Element
     renderOptions?: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[]
     infinityScroll?: boolean
+    eventName?: string
+    eventProperties?: TrackingEventPropertiesType
 }
 
 const DEBOUNCE_TIMEOUT = 800
@@ -55,6 +63,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         getInitialValueQuery,
         infinityScroll,
         disabled,
+        eventName: propEventName,
+        eventProperties = {},
         ...restProps
     } = props
     const client = useApolloClient()
@@ -63,6 +73,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const [data, setData] = useState([])
     const [isAllDataLoaded, setIsAllDataLoaded] = useState(false)
     const [value, setValue] = useState('')
+
+    const { logEvent, getEventName } = useTracking()
+
+    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
+    const componentProperties = { ...eventProperties }
 
     const renderOption = (option, index?) => {
         let optionLabel = option.text
@@ -127,6 +142,21 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
         if (onSelect) {
             onSelect(value, option)
+        }
+
+        if (eventName) {
+            const componentValue = get(option, 'title')
+
+            if (componentValue) {
+                const componentId = get(restProps, 'id')
+                componentProperties['component'] = { value: componentValue }
+
+                if (componentId) {
+                    componentProperties['component']['id'] = componentId
+                }
+
+                logEvent({ eventName, eventProperties: componentProperties })
+            }
         }
     }, [onSelect, props.mode])
 
