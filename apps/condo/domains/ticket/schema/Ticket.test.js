@@ -29,7 +29,7 @@ const {
     MESSAGE_SENT_STATUS,
     TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-const { Message } = require('@condo/domains/notification/utils/testSchema')
+const { Message, MessageOrganizationBlackList, updateTestMessageOrganizationBlackList } = require('@condo/domains/notification/utils/testSchema')
 
 const {
     createTestOrganizationLink,
@@ -52,7 +52,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 
 const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestEmail, createTestPhone, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const {
@@ -2115,6 +2115,19 @@ describe('Ticket', () => {
         })
 
         describe('Ticket created', () => {
+            beforeAll(async () => {
+                const supportClient = await makeClientWithSupportUser()
+                const allOrganizationsBlackList = await MessageOrganizationBlackList.getAll(supportClient, {
+                    organization_is_null: true,
+                })
+
+                for (const blackListRule of allOrganizationsBlackList) {
+                    await updateTestMessageOrganizationBlackList(supportClient, blackListRule.id, {
+                        deletedAt: 'true',
+                    })
+                }
+            })
+
             test('send sms after create ticket with isResidentTicket is true and without resident matches contact data', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
