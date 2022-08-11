@@ -27,11 +27,9 @@ export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWh
     }
 }
 
-export const roleToSearchQuery = (roleName: string): OrganizationEmployeeRoleWhereInput => {
+export const roleToSearchQuery = (roleName: string) => {
     return {
-        AND: [{
-            name_contains_i: roleName,
-        }],
+        role: { name_contains_i: `employee.role.${roleName}` },
     }
 }
 
@@ -82,8 +80,8 @@ export const searchToQuery = (search?: string): OrganizationEmployeeWhereInput[]
         { name_contains_i: search },
         { phone_contains_i: search },
         { email_contains_i: search },
-        { role: roleQuery },
         { position_contains_i: search },
+        roleQuery,
     ].filter(Boolean)
 }
 
