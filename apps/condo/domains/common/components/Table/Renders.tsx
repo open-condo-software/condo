@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo } from 'react'
-import { Typography, Tooltip } from 'antd'
+import React, { useMemo } from 'react'
+import { Typography } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { TextProps } from 'antd/es/typography/Text'
 import dayjs from 'dayjs'
 import get from 'lodash/get'

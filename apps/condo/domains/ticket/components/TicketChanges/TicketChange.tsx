@@ -1,5 +1,6 @@
 import React  from 'react'
-import { Row, Col, Typography, Tooltip } from 'antd'
+import { Row, Col, Typography } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { get, has, isEmpty, isNil } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'

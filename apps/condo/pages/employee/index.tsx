@@ -22,7 +22,8 @@ import {
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 
-import { Col, Dropdown, Menu, Row, Tooltip, Typography } from 'antd'
+import { Col, Dropdown, Menu, Row, Typography } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import Input from '@condo/domains/common/components/antd/Input'
 import { debounce, get } from 'lodash'

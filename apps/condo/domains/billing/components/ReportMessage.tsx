@@ -1,6 +1,7 @@
 import { useIntl } from '@condo/next/intl'
 import { useMemo } from 'react'
-import { Typography, Tooltip } from 'antd'
+import { Typography } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
 
 type LastReportType = {

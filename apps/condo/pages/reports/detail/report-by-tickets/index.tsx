@@ -11,7 +11,8 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Tooltip, Typography } from 'antd'
+import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { useOrganization } from '@condo/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'

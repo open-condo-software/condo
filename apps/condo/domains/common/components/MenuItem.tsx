@@ -9,7 +9,7 @@ import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/u
 import { colors } from '../constants/style'
 import { transitions } from '@condo/domains/common/constants/style'
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
-import { Tooltip } from './Tooltip'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 const IconWrapper = styled.div``
 
@@ -85,7 +85,7 @@ const makeLink = (content: JSX.Element, path: string) => {
 }
 
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
-    <Tooltip title={Message} placement='right' color={colors.black} textColor={colors.white}>
+    <Tooltip title={Message} placement='right'>
         {content}
     </Tooltip>
 )
