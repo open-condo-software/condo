@@ -1,5 +1,5 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Alert, Col, Modal, Row, Typography } from 'antd'
 import { Button } from '@app/condo/domains/common/components/Button'
 import DatePicker from '@app/condo/domains/common/components/Pickers/DatePicker'

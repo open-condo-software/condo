@@ -1,4 +1,4 @@
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Col, DatePicker, Row } from 'antd'
 import { TicketFormItem } from './index'
 import React, { useCallback } from 'react'
