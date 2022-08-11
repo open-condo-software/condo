@@ -1,5 +1,6 @@
 import React from 'react'
 import { Radio as DefaultRadio, RadioProps } from 'antd'
+import get from 'lodash/get'
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 export interface CustomRadioProps extends RadioProps {
@@ -16,6 +17,11 @@ const Radio = (props: CustomRadioProps) => {
 
     if (restProps.value) {
         componentProperties['component'] = { value: restProps.value }
+
+        const componentId = get(restProps, 'id')
+        if (componentId) {
+            componentProperties['component']['id'] = componentId
+        }
     }
 
     const onChangeCallback = eventName ? getTrackingWrappedCallback(eventName, componentProperties, onChange) : onChange

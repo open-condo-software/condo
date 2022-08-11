@@ -1,5 +1,6 @@
 import React from 'react'
 import { Checkbox as DefaultCheckbox, CheckboxProps } from 'antd'
+import get from 'lodash/get'
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 export interface CustomCheckboxProps extends CheckboxProps {
@@ -16,6 +17,11 @@ const Checkbox = (props: CustomCheckboxProps) => {
 
     if (restProps.children && typeof restProps.children === 'string') {
         componentProperties['component'] = { value: restProps.children }
+
+        const componentId = get(restProps, 'id')
+        if (componentId) {
+            componentProperties['component']['id'] = componentId
+        }
     }
 
     const onChangeCallback = eventName
