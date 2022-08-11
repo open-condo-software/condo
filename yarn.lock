@@ -3121,6 +3121,10 @@
   version "0.0.0"
   uid ""
 
+"@condo/ui@link:./packages/ui/src":
+  version "0.0.0"
+  uid ""
+
 "@condorb/domains@link:./apps/condorb/domains":
   version "0.0.0"
   uid ""
