@@ -1,1 +1,1 @@
-export const a = 123
+export { Test } from './components/Test'
