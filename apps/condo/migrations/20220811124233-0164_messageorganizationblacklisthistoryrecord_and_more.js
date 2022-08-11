@@ -78,6 +78,10 @@ CREATE INDEX "MessageOrganizationBlackList_deletedAt_9ea9b749" ON "MessageOrgani
 CREATE INDEX "MessageOrganizationBlackList_createdBy_1785322c" ON "MessageOrganizationBlackList" ("createdBy");
 CREATE INDEX "MessageOrganizationBlackList_organization_6dde9f4e" ON "MessageOrganizationBlackList" ("organization");
 CREATE INDEX "MessageOrganizationBlackList_updatedBy_9216d154" ON "MessageOrganizationBlackList" ("updatedBy");
+
+-- Manual insert TRACK_TICKET_IN_DOMA_APP to MessageOrganizationBlackList for all organizations
+INSERT INTO "MessageOrganizationBlackList" (dv, sender, organization, type, description, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', null, 'TRACK_TICKET_IN_DOMA_APP', 'initial black list rule','526266eb-8629-4d80-89b3-12b156d763ac', 1, '2022-08-11 00:00:00.000000', '2020-08-11 00:00:00.000000', null, null, null, null);
+
 COMMIT;
 
     `)

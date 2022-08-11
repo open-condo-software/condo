@@ -244,6 +244,7 @@ const sendTicketNotifications = async (requestData) => {
                 dv: 1,
             },
             sender: updatedItem.sender,
+            organization: { id: organization.id },
         })
     }
 }
