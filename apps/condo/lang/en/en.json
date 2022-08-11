@@ -555,7 +555,7 @@
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.title": "What will happen?",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.content": "After the date expires, the performer and responsible person will be automatically reset. The application status will become «Open» and it will appear at the top of the list - so you will not forget about it.",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.SaveButton.label": "Save",
-  "pages.condo.ticket.id.TicketDefer.CancelModal.title": "Leave a request in the selected status?",
+  "pages.condo.ticket.id.TicketDefer.CancelModal.title": "Leave the ticket in the selected status?",
   "pages.condo.ticket.id.TicketDefer.CancelModal.content": "If you wish to postpone your application, be sure to select a date until which the application will be postponed",
   "pages.condo.ticket.id.TicketDefer.CancelModal.SelectDateButton.label": "Choose a date and postpone",
   "pages.condo.ticket.id.TicketDefer.CancelModal.LeaveCurrentStatusButton.label": "Leave in current status",
