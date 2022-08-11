@@ -24,6 +24,7 @@ import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants
 import { Organization } from '@condo/keystone/schema'
 import { get, isEmpty } from 'lodash'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 const collapse = css`
   border-radius: 8px;
@@ -190,6 +191,8 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
     const { isSmall } = useLayoutContext()
 
+    const { logEvent, getEventName } = useTracking()
+
     const { date, number, details, id, locale, organization } = props
     const cipher = crypto.createCipher(ALGORITHM, SALT)
 
@@ -267,6 +270,14 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
         setOkVisible(false)
     }
 
+    const handleClickShareLink = (linkTitle: string) => () => {
+        const eventName = getEventName(TrackingEventType.Click)
+
+        if (eventName) {
+            logEvent({ eventName, eventProperties: { component: { value: linkTitle } } })
+        }
+    }
+
     return (
         <>
             <Button
@@ -306,6 +317,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             target='_blank'
                             rel='noreferrer'
                             href={`https://wa.me/?text=${encodeURIComponent(`${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`)}`}
+                            onClick={handleClickShareLink('whatsapp')}
                         >
                             <ShareButton>
                                 {WhatsappMessage}
@@ -318,6 +330,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                             target='_blank'
                             rel='noreferrer'
                             href={`https://t.me/share/url?url=${encodeURIComponent(`${origin}/share?q=${encryptedText}&locale=${locale || EN_LOCALE}`)}`}
+                            onClick={handleClickShareLink('telegram')}
                         >
                             <ShareButton>
                                 {TelegramMessage}
@@ -329,6 +342,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                         <Collapse expandIconPosition='right' css={collapse}>
                             <Collapse.Panel key='1' header={ToEmployeesEmailMessage}>
                                 <GraphQlSearchInput
+                                    id='send-employee-email'
                                     search={getEmployeeWithEmail(get(organization, 'id'))}
                                     showArrow={false}
                                     mode='multiple'
