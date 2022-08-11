@@ -75,7 +75,7 @@
         }
       ],
       "quotes": "off",
-      "jsx-quotes": ["error", "prefer-double"],
+      "jsx-quotes": ["warn", "prefer-double"],
       "@typescript-eslint/quotes": [
         "error",
         "single"
@@ -137,7 +137,7 @@
       "react/prop-types": "off",
       "react/no-children-prop": "off",
       "react/display-name": "warn",
-      "react/jsx-curly-brace-presence": "error",
+      "react/jsx-curly-brace-presence": "warn",
       "jest/no-disabled-tests": "warn",
       "jest/no-focused-tests": "error",
       "jest/no-identical-title": "error",
