@@ -21,6 +21,7 @@ schema.graphql
 yarn-error.log
 npm-debug.*
 ignore.*
+storybook-static
 
 # mobile
 *.jks
