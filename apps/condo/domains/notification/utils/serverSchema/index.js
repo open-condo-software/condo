@@ -20,6 +20,10 @@ const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constan
 
 const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
 const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
+const { MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL } = require('@condo/domains/notification/gql')
+const isEmpty = require('lodash/isEmpty')
+const get = require('lodash/get')
+const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -110,8 +114,64 @@ async function setMessageStatus (context, data) {
     })
 }
 
+async function checkMessageTypeInBlackList (context, message) {
+    if (message.organization) {
+        const messageOrganizationBlackListWhere = {
+            type: message.type,
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: message.organization.id } },
+            ],
+        }
+        const messageOrganizationBlackListRules = await MessageOrganizationBlackList.getAll(context, messageOrganizationBlackListWhere)
+
+        if (!isEmpty(messageOrganizationBlackListRules)) {
+            const messageOrganizationBlackListRule = messageOrganizationBlackListRules.find(rule => get(rule, ['organization', 'id']) === message.organization.id)
+            const allOrganizationsBlackListRule = messageOrganizationBlackListRules.find(rule => !rule.organization)
+
+            if (!messageOrganizationBlackListRule && allOrganizationsBlackListRule) {
+                const messageOrganizationWhiteListRule = await MessageOrganizationWhiteList.getOne(context, {
+                    type: message.type,
+                    organization: { id: message.organization.id },
+                })
+
+                if (messageOrganizationWhiteListRule) {
+                    return { error: null }
+                }
+            }
+
+            return {
+                error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST,
+            }
+        }
+    }
+
+    const messageUserBlackListWhere = {
+        OR: [
+            message.user && { user: { id: message.user.id } },
+            message.phone && { phone: message.phone },
+            message.email && { email: message.email },
+        ].filter(Boolean),
+        deletedAt: null,
+    }
+    const messageUserBlackListRules = await MessageUserBlackList.getAll(context, messageUserBlackListWhere)
+
+    if (!isEmpty(messageUserBlackListRules)) {
+        const isMessageTypeInUserBlackList = messageUserBlackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
+
+        if (isMessageTypeInUserBlackList) {
+            return {
+                error: MESSAGE_TYPE_IN_USER_BLACK_LIST,
+            }
+        }
+    }
+
+    return { error: null }
+}
+
 const MessageUserBlackList = generateServerUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlackListGQL)
+const MessageOrganizationWhiteList = generateServerUtils(MessageOrganizationWhiteListGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -124,5 +184,7 @@ module.exports = {
     setMessageStatus,
     MessageUserBlackList,
     MessageOrganizationBlackList,
+    MessageOrganizationWhiteList,
+    checkMessageTypeInBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

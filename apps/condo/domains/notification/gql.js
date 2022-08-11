@@ -52,6 +52,9 @@ const MessageUserBlackList = generateGqlQueries('MessageUserBlackList', MESSAGE_
 const MESSAGE_ORGANIZATION_BLACK_LIST_FIELDS = `{ organization { id } description ${COMMON_FIELDS} }`
 const MessageOrganizationBlackList = generateGqlQueries('MessageOrganizationBlackList', MESSAGE_ORGANIZATION_BLACK_LIST_FIELDS)
 
+const MESSAGE_ORGANIZATION_WHITE_LIST_FIELDS = `{ organization { id } description ${COMMON_FIELDS} }`
+const MessageOrganizationWhiteList = generateGqlQueries('MessageOrganizationWhiteList', MESSAGE_ORGANIZATION_WHITE_LIST_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -64,5 +67,6 @@ module.exports = {
     SET_MESSAGE_STATUS_MUTATION,
     MessageUserBlackList,
     MessageOrganizationBlackList,
+    MessageOrganizationWhiteList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
