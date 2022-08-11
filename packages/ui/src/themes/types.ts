@@ -30,7 +30,7 @@ export type ThemeColors = {
         warranty: ColorAndBG
         other: ColorAndBG
     }
-    errors: {
+    events: {
         info: ColorAndBG
         error: ColorAndBG
         warning: ColorAndBG

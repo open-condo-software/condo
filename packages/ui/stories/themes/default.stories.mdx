@@ -31,11 +31,11 @@ import { gradients, colors } from '../../src/themes/default'
 > Mainly used in notifications and alerts
 
 <ColorPalette>
-    {Object.keys(colors.errors).map(key => (
+    {Object.keys(colors.events).map(key => (
         <ColorItem
-            title={`colors.errors.${key}`}
+            title={`colors.events.${key}`}
             subtitle={`${key.charAt(0).toUpperCase()+key.slice(1)} event`}
-            colors={colors.errors[key]}
+            colors={colors.events[key]}
         />
     ))}
 </ColorPalette>

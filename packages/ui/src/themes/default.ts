@@ -42,7 +42,7 @@ export const colors: ThemeColors = {
             background: '#82879F',
         },
     },
-    errors: {
+    events: {
         info: {
             color: '#2696F3',
             background: '#E7F4FF',
