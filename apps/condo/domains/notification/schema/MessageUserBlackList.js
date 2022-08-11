@@ -8,6 +8,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/notification/access/MessageUserBlackList')
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+const { EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR } = require('@condo/domains/notification/constants/errors')
 
 const MessageUserBlackList = new GQLListSchema('MessageUserBlackList', {
     schemaDoc: 'Rule for blocking messages (specific type or all) for user, phone or email',
@@ -66,6 +67,13 @@ const MessageUserBlackList = new GQLListSchema('MessageUserBlackList', {
                 name: 'message_user_black_list_unique_email_and_type',
             },
         ],
+    },
+    hooks: {
+        validateInput: ({ resolvedData, operation, addValidationError }) => {
+            if (operation === 'create' && !resolvedData['phone'] || !resolvedData['email'] || !resolvedData['user']) {
+                return addValidationError(EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR)
+            }
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

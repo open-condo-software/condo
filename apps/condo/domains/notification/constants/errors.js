@@ -4,10 +4,12 @@ const EMPTY_CONFIG_ERROR = `Valid ${FIREBASE_CONFIG_ENV} should be provided with
 const EMPTY_NOTIFICATION_TITLE_BODY_ERROR = 'Missing notification.title or notification.body'
 const MESSAGE_TYPE_IN_USER_BLACK_LIST = 'Notification not delivered because user, phone, or email of message added in MessageUserBlackList'
 const MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST = 'Notification not delivered because organization of message added in MessageOrganizationBlackList'
+const EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR = 'One of the "user", "phone" or "email" fields should be provided'
 
 module.exports = {
     EMPTY_CONFIG_ERROR,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
     MESSAGE_TYPE_IN_USER_BLACK_LIST,
     MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST,
+    EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR,
 }
