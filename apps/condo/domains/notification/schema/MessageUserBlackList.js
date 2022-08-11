@@ -70,7 +70,7 @@ const MessageUserBlackList = new GQLListSchema('MessageUserBlackList', {
     },
     hooks: {
         validateInput: ({ resolvedData, operation, addValidationError }) => {
-            if (operation === 'create' && !resolvedData['phone'] || !resolvedData['email'] || !resolvedData['user']) {
+            if (operation === 'create' && !resolvedData['phone'] && !resolvedData['email'] && !resolvedData['user']) {
                 return addValidationError(EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR)
             }
         },
