@@ -493,6 +493,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
                 if (operation === 'update') {
                     const existingStatus = await getById('TicketStatus', existingItem.status)
+                    // we shouldn't change the deferredUntil field unless it's for deferred tickets (before or after update)
                     if (originalInput.deferredUntil && existingStatus.type !== DEFERRED_STATUS_TYPE && resolvedStatus.type !== DEFERRED_STATUS_TYPE) {
                         return addValidationError(`${WRONG_VALUE} should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`)
                     }
