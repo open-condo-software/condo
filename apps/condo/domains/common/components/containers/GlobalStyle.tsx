@@ -185,6 +185,16 @@ export default function GlobalStyle () {
                 border-radius: 2px;
               }
 
+              .ant-tooltip > .ant-tooltip-content {
+                .ant-tooltip-inner {
+                  background-color: ${colors.white};
+                  color: ${colors.black};
+                }
+                .ant-tooltip-arrow {
+                  display: none;
+                }
+              }
+
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > thead > tr > th,
