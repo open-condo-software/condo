@@ -4,19 +4,17 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowInternalError,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowInternalError, expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList, Message } = require('@condo/domains/notification/utils/testSchema')
-const { createTestBillingIntegrationLog } = require('@condo/domains/billing/utils/testSchema')
-const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee, reInviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_SENT_STATUS, EMAIL_TRANSPORT, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
-const { MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_TYPE_IN_USER_BLACK_LIST, EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR } = require('@condo/domains/notification/constants/errors')
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('MessageUserBlackList', () => {
@@ -216,6 +214,16 @@ describe('MessageUserBlackList', () => {
                     email,
                 })
             }, `${UNIQUE_CONSTRAINT_ERROR} "message_user_black_list_unique_email_and_type"`)
+        })
+    })
+
+    describe('validations', async () => {
+        it('throw validation error if create MessageUserBlackList with empty user, phone and email fields', async () => {
+            const supportClient = await makeClientWithSupportUser()
+
+            await expectToThrowValidationFailureError(async () => {
+                await createTestMessageUserBlackList(supportClient)
+            }, EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR)
         })
     })
 })
