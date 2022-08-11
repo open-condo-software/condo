@@ -1,3 +1,22 @@
+const baseCssLoaders = [
+    'style-loader',
+    {
+        loader: 'css-loader',
+        options: {
+            importLoaders: 2,
+        },
+    },
+    'postcss-loader',
+]
+
+const lessRule = {
+    test: /\.less$/,
+    use: [
+        ...baseCssLoaders,
+        'less-loader'
+    ]
+}
+
 module.exports = {
     'stories': [
         '../stories/**/*.stories.mdx',
@@ -25,13 +44,27 @@ module.exports = {
                             '@linaria/webpack-loader',
                         ],
                     }
+                case String(/\.css$/):
+                    return {
+                        ...rule,
+                        use: baseCssLoaders
+                    }
                 default:
                     return rule
             }
         })
 
+        rules.push(lessRule)
+
         return {
             ...config,
+            resolve: {
+                ...config.resolve,
+                extensions: [
+                    ...config.resolve.extensions,
+                    '.less'
+                ],
+            },
             module: {
                 ...config.module,
                 rules,

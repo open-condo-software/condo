@@ -1,0 +1,9 @@
+.my-div {
+    background-color: black;
+    transform: rotate(30deg);
+    width: min-content;
+    color: white;
+}
+.multi-div {
+    background-color: lightblue;
+}
