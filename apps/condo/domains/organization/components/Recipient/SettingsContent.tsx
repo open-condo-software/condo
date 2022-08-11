@@ -1,5 +1,5 @@
 import get from 'lodash/get'
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 
 import React from 'react'
 import { Row, Col, Typography, Alert } from 'antd'
@@ -7,7 +7,7 @@ import styled from '@emotion/styled'
 import { Gutter } from 'antd/es/grid/row'
 import { colors } from '@condo/domains/common/constants/style'
 
-import { useOrganization } from '@core/next/organization'
+import { useOrganization } from '@condo/next/organization'
 import { Recipient } from '@condo/domains/organization/components/Recipient'
 
 import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'

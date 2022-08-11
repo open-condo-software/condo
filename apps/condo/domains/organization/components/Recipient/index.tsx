@@ -1,4 +1,4 @@
-import { useIntl } from '@core/next/intl'
+import { useIntl } from '@condo/next/intl'
 import { Row, Col, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import React, { CSSProperties } from 'react'
