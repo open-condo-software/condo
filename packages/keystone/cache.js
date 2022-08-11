@@ -27,7 +27,7 @@
  */
 
 const express = require('express')
-const { get } = require('lodash')
+const { get, set } = require('lodash')
 
 class KeystoneCacheMiddleware {
 
@@ -99,7 +99,7 @@ const patchQuery = (queryContext, query, cache) => {
         }
         const listResult = await query.call(queryContext, args, context, gqlName, info, from)
 
-        if (requestId && key && get(cache, [requestId, key])) { cache[requestId][key] = listResult }
+        if (requestId && key) { set(cache, [requestId, key], listResult) }
 
         return listResult
     }
