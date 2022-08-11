@@ -79,7 +79,7 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
                 <Button
                     onClick={handleSaveDeferredTicket}
                     disabled={!deferredDate}
-                    type='sberDefaultGradient'
+                    type="sberDefaultGradient"
                 >
                     {SaveButtonLabelMessage}
                 </Button>
@@ -98,7 +98,7 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
                 <Col span={24}>
                     <Alert
                         message={<Typography.Title level={5}>{InfoBlockTitleMessage}</Typography.Title>}
-                        type='warning'
+                        type="warning"
                         description={InfoBlockContentMessage}
                         showIcon
                     />
@@ -112,16 +112,16 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
             visible={isCancelModalVisible}
             onCancel={handleReset}
             title={CancelModalTitleMessage}
-            footer={<Row gutter={CANCEL_MODAL_FOOTER_GUTTER} justify='end'>
+            footer={<Row gutter={CANCEL_MODAL_FOOTER_GUTTER} justify="end">
                 <Col>
-                    <Button onClick={handleOpenDeferTicketModal} type='sberDefaultGradient'>{SelectDateButtonLabelMessage}</Button>
+                    <Button onClick={handleOpenDeferTicketModal} type="sberDefaultGradient">{SelectDateButtonLabelMessage}</Button>
                 </Col>
                 <Col>
-                    <Button onClick={handleReset} type='sberBlack'>{LeaveCurrentStatusButtonLabelMessage}</Button>
+                    <Button onClick={handleReset} type="sberBlack">{LeaveCurrentStatusButtonLabelMessage}</Button>
                 </Col>
             </Row>}
         >
-            <Typography.Text type='secondary' style={MODAL_CONTENT_TEXT_STYLE}>{CancelModalContentMessage}</Typography.Text>
+            <Typography.Text type="secondary" style={MODAL_CONTENT_TEXT_STYLE}>{CancelModalContentMessage}</Typography.Text>
         </Modal>
     ), [CancelModalContentMessage, CancelModalTitleMessage, LeaveCurrentStatusButtonLabelMessage, SelectDateButtonLabelMessage, handleOpenDeferTicketModal, handleReset, isCancelModalVisible])
 
