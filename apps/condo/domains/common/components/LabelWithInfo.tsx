@@ -2,7 +2,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import { Space } from 'antd'
 import React from 'react'
 import styled from '@emotion/styled'
-import { Tooltip } from './Tooltip'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 const StyledSpace = styled(Space)`
     &:hover {

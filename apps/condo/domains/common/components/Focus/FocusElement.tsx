@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Tooltip } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
 import { useIntl } from '@condo/next/intl'
 import { useFocusContext } from './FocusContextProvider'

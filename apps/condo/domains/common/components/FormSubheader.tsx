@@ -1,4 +1,5 @@
-import { Col, Row, Tooltip, Typography } from 'antd'
+import { Typography } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
 import { QuestionCircleFilled } from '@ant-design/icons'
 import { grey } from '@ant-design/colors'

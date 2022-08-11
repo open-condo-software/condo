@@ -10,6 +10,7 @@ import {
     Modal as DefaultModal,
     ModalProps,
 } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -48,8 +49,6 @@ import {
     getQueryToValueProcessorByType,
     updateQuery,
 } from '../utils/filters.utils'
-import { colors } from '../constants/style'
-import { Tooltip } from '../components/Tooltip'
 import { Ticket } from '@app/condo/schema'
 
 interface IFilterComponentProps<T> {
@@ -83,8 +82,7 @@ type FiltersTooltipProps<T> = {
     tickets: Ticket[]
 }
 
-const TOOLTIP_PARAGRAPH_STYLE: CSSProperties = { color: colors.white, margin: 0 }
-const TOOLTIP_TEXT_STYLE: CSSProperties = { color: colors.white }
+const TOOLTIP_PARAGRAPH_STYLE: CSSProperties = { margin: 0 }
 
 export const FiltersTooltip: React.FC<FiltersTooltipProps<unknown>> = ({ total, filters, tooltipData, tickets,  ...otherProps }) => {
     const rowindex = otherProps.children[0]?.props?.index
@@ -98,14 +96,14 @@ export const FiltersTooltip: React.FC<FiltersTooltipProps<unknown>> = ({ total, 
         filteredFieldsOutOfTable
             .map(({ label, getTooltipValue }, index) => (
                 <Typography.Paragraph style={TOOLTIP_PARAGRAPH_STYLE} key={index}>
-                    <Typography.Text style={TOOLTIP_TEXT_STYLE} strong> {label}: </Typography.Text> {getTooltipValue(ticket)}
+                    <Typography.Text strong> {label}: </Typography.Text> {getTooltipValue(ticket)}
                 </Typography.Paragraph>
             ))
     ), [filteredFieldsOutOfTable, ticket])
 
     if (total > 0 && filteredFieldsOutOfTable && filteredFieldsOutOfTable.length > 0) {
         return (
-            <Tooltip title={getTooltipText()} color={colors.black} >
+            <Tooltip title={getTooltipText()}>
                 <tr {...otherProps} />
             </Tooltip>
         )

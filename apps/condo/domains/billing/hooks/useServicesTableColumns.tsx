@@ -3,7 +3,7 @@ import { useIntl } from '@condo/next/intl'
 import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
-import { Tooltip } from 'antd'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 type AlignType = 'right' | 'left' | 'center'
 
