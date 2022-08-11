@@ -45,6 +45,8 @@ const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
 
 const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(TrackingContext)
 
+const DETAIL_PAGE_NAMES = ['create', 'update', 'hint', 'detail', 'forgot', 'signin', 'register', 'change-password']
+
 export enum TrackingEventType {
     Visit = 'Visit',
     Click = 'Click',
@@ -120,21 +122,10 @@ const useTracking: IUseTracking = () => {
         let domainSuffix = 'Index'
         let domainPostfix = ''
 
-        switch (detailPageName) {
-            case '[id]':
-                domainSuffix = 'Detail'
-                break
-            case 'create':
-            case 'update':
-            case 'hint':
-            case 'detail':
-            case 'signin':
-            case 'register':
-            case 'change-password':
-            case 'forgot':
-                domainSuffix = upperFirst(detailPageName)
-                break
-
+        if (detailPageName === '[id]') {
+            domainSuffix = 'Detail'
+        } else if (DETAIL_PAGE_NAMES.includes(detailPageName)) {
+            domainSuffix = upperFirst(detailPageName)
         }
 
         const postfixToken = customPage ? customPage : suffix
