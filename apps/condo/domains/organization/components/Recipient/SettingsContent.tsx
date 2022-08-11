@@ -17,8 +17,8 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 const StyledAlert = styled(Alert)`
   background-color: ${colors.warningAlert};
-  
-  .ant-alert-description > div {
+
+  & > .ant-alert-description > div {
     overflow: hidden;
   }
   
@@ -37,7 +37,7 @@ export const RecipientSettingsContent = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
 
-    //TODO(MAXIMDANILOV): go from BillingRecipient to Index
+    //TODO(MAXIMDANILOV): DOMA-3252 go from BillingRecipient to Index
     const {
         obj: context,
     } = BillingIntegrationOrganizationContext.useObject({

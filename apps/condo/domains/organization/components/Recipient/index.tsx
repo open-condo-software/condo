@@ -1,12 +1,16 @@
 import { useIntl } from '@core/next/intl'
 import { Row, Col, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import React, { CSSProperties } from 'react'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 
-const RECIPIENT_TITLE_CSS: CSSProperties = { fontSize: '20px', fontWeight: 700 }
-const RECIPIENT_TEXT_CSS: CSSProperties = { fontSize: '16px' }
+const RECIPIENT_TITLE_CSS: CSSProperties = { fontSize: fontSizes.large, fontWeight: 700 }
+const RECIPIENT_TEXT_CSS: CSSProperties = { fontSize: fontSizes.content }
 
 const DISPLAYED_RECIPIENT = ['tin', 'iec', 'bic', 'bankAccount']
+
+const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
 const RecipientRow = ({ recipientKey, recipientValue, styleText = RECIPIENT_TEXT_CSS }) => {
     const intl = useIntl()
@@ -28,7 +32,7 @@ export const Recipient = ({ recipient }) => {
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 24]}>
+            <Row gutter={VERTICAL_GUTTER}>
                 <RecipientRow
                     recipientKey={'name'}
                     recipientValue={recipient.name}

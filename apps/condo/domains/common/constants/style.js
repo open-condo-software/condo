@@ -44,7 +44,7 @@ const successBG = '#EBFAEF'
 const warningBg = '#FFECEB'
 const warningText = '#FF3B30'
 const infoIconColor = '#39CE66'
-const warningAlert = '#F086331A'
+const warningAlert = 'rgba(240, 134, 51, 0.1)'
 
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
@@ -118,6 +118,7 @@ const colors = {
 }
 
 const fontSizes = {
+    large: '20px',
     content: '16px',
     label: '14px',
     small: '12px',
