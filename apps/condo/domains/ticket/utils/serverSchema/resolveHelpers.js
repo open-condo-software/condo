@@ -10,6 +10,8 @@ const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/co
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { isUndefined } = require('lodash')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const dayjs = require('dayjs')
 
 function calculateTicketOrder (resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
@@ -36,6 +38,12 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
 
     if (resolvedStatusType === COMPLETED_STATUS_TYPE) {
         resolvedData['completedAt'] = now
+    }
+}
+
+function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus, originalInput) {
+    if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
+        resolvedData.deferredUntil = get(originalInput, 'deferredUntil', dayjs().toISOString())
     }
 }
 
@@ -193,4 +201,5 @@ module.exports = {
     calculateCompletedAt,
     softDeleteTicketHintPropertiesByProperty,
     connectContactToTicket,
+    calculateDeferredUntil,
 }

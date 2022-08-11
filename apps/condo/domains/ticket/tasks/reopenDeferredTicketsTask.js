@@ -1,5 +1,5 @@
-const { createCronTask } = require('@core/keystone/tasks')
-const { getSchemaCtx, find } = require('@core/keystone/schema')
+const { createCronTask } = require('@condo/keystone/tasks')
+const { getSchemaCtx, find } = require('@condo/keystone/schema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const dayjs = require('dayjs')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')

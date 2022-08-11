@@ -13,8 +13,8 @@ import Select from '@condo/domains/common/components/antd/Select'
 
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 import { TicketStatusTypeType } from '@app/condo/schema'
-import { useTicketCancelModal } from '@app/condo/domains/ticket/hooks/useTicketCancelModal'
-import { useTicketDeferModal } from '../hooks/useTicketDeferModal'
+import { useTicketCancelModal } from '@condo/domains/ticket/hooks/useTicketCancelModal'
+import { useTicketDeferModal } from '@condo/domains/ticket/hooks/useTicketDeferModal'
 import { Dayjs } from 'dayjs'
 
 interface IStyledSelect {

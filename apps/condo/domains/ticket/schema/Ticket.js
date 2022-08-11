@@ -48,6 +48,7 @@ const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('../constants')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const dayjs = require('dayjs')
+const { calculateDeferredUntil } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -407,10 +408,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
                     calculateReopenedCounter(existingItem, resolvedData, existedStatus, resolvedStatus)
                     calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
-
-                    if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
-                        resolvedData.deferredUntil = get(originalInput, 'deferredUntil', dayjs().toISOString())
-                    }
+                    calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus, originalInput)
                 }
             }
 
