@@ -13723,6 +13723,372 @@ export type MessageOrganizationBlackListsUpdateInput = {
   data?: Maybe<MessageOrganizationBlackListUpdateInput>;
 };
 
+/**  Rule for allowing the sending of a message by type for an organization, if there is a rule in the MessageOrganizationBlackList prohibiting the sending of messages for all organizations  */
+export type MessageOrganizationWhiteList = {
+  __typename?: 'MessageOrganizationWhiteList';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MessageOrganizationWhiteList List config, or
+   *  2. As an alias to the field set on 'labelField' in the MessageOrganizationWhiteList List config, or
+   *  3. As an alias to a 'name' field on the MessageOrganizationWhiteList List (if one exists), or
+   *  4. As an alias to the 'id' field on the MessageOrganizationWhiteList List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The organization we want to allow from sending messages  */
+  organization?: Maybe<Organization>;
+  /**  The type of message we want to allow  */
+  type?: Maybe<Scalars['String']>;
+  /**  The reason why the entry was added to the MessageOrganizationWhiteList  */
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MessageOrganizationWhiteListCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MessageOrganizationWhiteListHistoryRecord = {
+  __typename?: 'MessageOrganizationWhiteListHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MessageOrganizationWhiteListHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MessageOrganizationWhiteListHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MessageOrganizationWhiteListHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MessageOrganizationWhiteListHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MessageOrganizationWhiteListHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MessageOrganizationWhiteListHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MessageOrganizationWhiteListHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MessageOrganizationWhiteListHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MessageOrganizationWhiteListHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MessageOrganizationWhiteListHistoryRecordsCreateInput = {
+  data?: Maybe<MessageOrganizationWhiteListHistoryRecordCreateInput>;
+};
+
+export type MessageOrganizationWhiteListHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageOrganizationWhiteListHistoryRecordUpdateInput>;
+};
+
+export type MessageOrganizationWhiteListUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  type?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MessageOrganizationWhiteListWhereInput = {
+  AND?: Maybe<Array<Maybe<MessageOrganizationWhiteListWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MessageOrganizationWhiteListWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MessageOrganizationWhiteListWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MessageOrganizationWhiteListsCreateInput = {
+  data?: Maybe<MessageOrganizationWhiteListCreateInput>;
+};
+
+export type MessageOrganizationWhiteListsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageOrganizationWhiteListUpdateInput>;
+};
+
 export enum MessageStatusType {
   Sending = 'sending',
   Resending = 'resending',
@@ -18678,6 +19044,30 @@ export type Mutation = {
   deleteMessageOrganizationBlackList?: Maybe<MessageOrganizationBlackList>;
   /**  Delete multiple MessageOrganizationBlackList items by ID.  */
   deleteMessageOrganizationBlackLists?: Maybe<Array<Maybe<MessageOrganizationBlackList>>>;
+  /**  Create a single MessageOrganizationWhiteListHistoryRecord item.  */
+  createMessageOrganizationWhiteListHistoryRecord?: Maybe<MessageOrganizationWhiteListHistoryRecord>;
+  /**  Create multiple MessageOrganizationWhiteListHistoryRecord items.  */
+  createMessageOrganizationWhiteListHistoryRecords?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecord>>>;
+  /**  Update a single MessageOrganizationWhiteListHistoryRecord item by ID.  */
+  updateMessageOrganizationWhiteListHistoryRecord?: Maybe<MessageOrganizationWhiteListHistoryRecord>;
+  /**  Update multiple MessageOrganizationWhiteListHistoryRecord items by ID.  */
+  updateMessageOrganizationWhiteListHistoryRecords?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecord>>>;
+  /**  Delete a single MessageOrganizationWhiteListHistoryRecord item by ID.  */
+  deleteMessageOrganizationWhiteListHistoryRecord?: Maybe<MessageOrganizationWhiteListHistoryRecord>;
+  /**  Delete multiple MessageOrganizationWhiteListHistoryRecord items by ID.  */
+  deleteMessageOrganizationWhiteListHistoryRecords?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecord>>>;
+  /**  Create a single MessageOrganizationWhiteList item.  */
+  createMessageOrganizationWhiteList?: Maybe<MessageOrganizationWhiteList>;
+  /**  Create multiple MessageOrganizationWhiteList items.  */
+  createMessageOrganizationWhiteLists?: Maybe<Array<Maybe<MessageOrganizationWhiteList>>>;
+  /**  Update a single MessageOrganizationWhiteList item by ID.  */
+  updateMessageOrganizationWhiteList?: Maybe<MessageOrganizationWhiteList>;
+  /**  Update multiple MessageOrganizationWhiteList items by ID.  */
+  updateMessageOrganizationWhiteLists?: Maybe<Array<Maybe<MessageOrganizationWhiteList>>>;
+  /**  Delete a single MessageOrganizationWhiteList item by ID.  */
+  deleteMessageOrganizationWhiteList?: Maybe<MessageOrganizationWhiteList>;
+  /**  Delete multiple MessageOrganizationWhiteList items by ID.  */
+  deleteMessageOrganizationWhiteLists?: Maybe<Array<Maybe<MessageOrganizationWhiteList>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -23455,6 +23845,68 @@ export type MutationDeleteMessageOrganizationBlackListArgs = {
 
 
 export type MutationDeleteMessageOrganizationBlackListsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMessageOrganizationWhiteListHistoryRecordArgs = {
+  data?: Maybe<MessageOrganizationWhiteListHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMessageOrganizationWhiteListHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMessageOrganizationWhiteListHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageOrganizationWhiteListHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMessageOrganizationWhiteListHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMessageOrganizationWhiteListHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMessageOrganizationWhiteListHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMessageOrganizationWhiteListArgs = {
+  data?: Maybe<MessageOrganizationWhiteListCreateInput>;
+};
+
+
+export type MutationCreateMessageOrganizationWhiteListsArgs = {
+  data?: Maybe<Array<Maybe<MessageOrganizationWhiteListsCreateInput>>>;
+};
+
+
+export type MutationUpdateMessageOrganizationWhiteListArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MessageOrganizationWhiteListUpdateInput>;
+};
+
+
+export type MutationUpdateMessageOrganizationWhiteListsArgs = {
+  data?: Maybe<Array<Maybe<MessageOrganizationWhiteListsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMessageOrganizationWhiteListArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMessageOrganizationWhiteListsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -31200,6 +31652,22 @@ export type Query = {
   _allMessageOrganizationBlackListsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MessageOrganizationBlackList list.  */
   _MessageOrganizationBlackListsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MessageOrganizationWhiteListHistoryRecord items which match the where clause.  */
+  allMessageOrganizationWhiteListHistoryRecords?: Maybe<Array<Maybe<MessageOrganizationWhiteListHistoryRecord>>>;
+  /**  Search for the MessageOrganizationWhiteListHistoryRecord item with the matching ID.  */
+  MessageOrganizationWhiteListHistoryRecord?: Maybe<MessageOrganizationWhiteListHistoryRecord>;
+  /**  Perform a meta-query on all MessageOrganizationWhiteListHistoryRecord items which match the where clause.  */
+  _allMessageOrganizationWhiteListHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MessageOrganizationWhiteListHistoryRecord list.  */
+  _MessageOrganizationWhiteListHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MessageOrganizationWhiteList items which match the where clause.  */
+  allMessageOrganizationWhiteLists?: Maybe<Array<Maybe<MessageOrganizationWhiteList>>>;
+  /**  Search for the MessageOrganizationWhiteList item with the matching ID.  */
+  MessageOrganizationWhiteList?: Maybe<MessageOrganizationWhiteList>;
+  /**  Perform a meta-query on all MessageOrganizationWhiteList items which match the where clause.  */
+  _allMessageOrganizationWhiteListsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MessageOrganizationWhiteList list.  */
+  _MessageOrganizationWhiteListsMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -33833,6 +34301,56 @@ export type Query_AllMessageOrganizationBlackListsMetaArgs = {
   where?: Maybe<MessageOrganizationBlackListWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMessageOrganizationBlackListsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMessageOrganizationWhiteListHistoryRecordsArgs = {
+  where?: Maybe<MessageOrganizationWhiteListHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageOrganizationWhiteListHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMessageOrganizationWhiteListHistoryRecordArgs = {
+  where: MessageOrganizationWhiteListHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMessageOrganizationWhiteListHistoryRecordsMetaArgs = {
+  where?: Maybe<MessageOrganizationWhiteListHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageOrganizationWhiteListHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMessageOrganizationWhiteListsArgs = {
+  where?: Maybe<MessageOrganizationWhiteListWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageOrganizationWhiteListsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMessageOrganizationWhiteListArgs = {
+  where: MessageOrganizationWhiteListWhereUniqueInput;
+};
+
+
+export type Query_AllMessageOrganizationWhiteListsMetaArgs = {
+  where?: Maybe<MessageOrganizationWhiteListWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMessageOrganizationWhiteListsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -39874,6 +40392,54 @@ export enum SortMessageOrganizationBlackListHistoryRecordsBy {
 }
 
 export enum SortMessageOrganizationBlackListsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortMessageOrganizationWhiteListHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMessageOrganizationWhiteListsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   TypeAsc = 'type_ASC',
