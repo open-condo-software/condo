@@ -162,7 +162,7 @@ describe('MessageOrganizationBlackList', () => {
             }
             const client = await makeClientWithRegisteredOrganization()
 
-            const [allOrganizationsBlackList] = await createTestMessageOrganizationBlackList(admin, {
+            await createTestMessageOrganizationBlackList(admin, {
                 type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
             })
 

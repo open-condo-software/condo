@@ -22,8 +22,11 @@ describe('MessageUserBlackList', () => {
         describe('create', () => {
             it('support can create MessageUserBlackList', async () => {
                 const supportClient = await makeClientWithSupportUser()
+                const phone = createTestPhone()
 
-                const [blackList] = await createTestMessageUserBlackList(supportClient)
+                const [blackList] = await createTestMessageUserBlackList(supportClient, {
+                    phone,
+                })
 
                 expect(blackList.id).toMatch(UUID_RE)
             })
@@ -49,8 +52,12 @@ describe('MessageUserBlackList', () => {
             it('support can update MessageUserBlackList', async () => {
                 const supportClient = await makeClientWithSupportUser()
 
-                const [blackList] = await createTestMessageUserBlackList(supportClient)
+                const phone = createTestPhone()
                 const description = faker.random.alphaNumeric(8)
+
+                const [blackList] = await createTestMessageUserBlackList(supportClient, {
+                    phone,
+                })
 
                 const [updatedBlackList] = await updateTestMessageUserBlackList(supportClient, blackList.id, {
                     description,
@@ -63,8 +70,12 @@ describe('MessageUserBlackList', () => {
                 const supportClient = await makeClientWithSupportUser()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [blackList] = await createTestMessageUserBlackList(supportClient)
+                const phone = createTestPhone()
                 const description = faker.random.alphaNumeric(8)
+
+                const [blackList] = await createTestMessageUserBlackList(supportClient, {
+                    phone,
+                })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestMessageUserBlackList(userClient, blackList.id, {
@@ -77,8 +88,12 @@ describe('MessageUserBlackList', () => {
                 const supportClient = await makeClientWithSupportUser()
                 const anonymousClient = await makeClient()
 
-                const [blackList] = await createTestMessageUserBlackList(supportClient)
+                const phone = createTestPhone()
                 const description = faker.random.alphaNumeric(8)
+
+                const [blackList] = await createTestMessageUserBlackList(supportClient, {
+                    phone,
+                })
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestMessageUserBlackList(anonymousClient, blackList.id, {
@@ -92,8 +107,11 @@ describe('MessageUserBlackList', () => {
             it('user cannot read MessageUserBlackList', async () => {
                 const supportClient = await makeClientWithSupportUser()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const phone = createTestPhone()
 
-                await createTestMessageUserBlackList(supportClient)
+                await createTestMessageUserBlackList(supportClient, {
+                    phone,
+                })
 
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
                     await MessageUserBlackList.getAll(userClient)
@@ -103,8 +121,11 @@ describe('MessageUserBlackList', () => {
             it('anonymous cannot read MessageUserBlackList', async () => {
                 const supportClient = await makeClientWithSupportUser()
                 const anonymousClient = await makeClient()
+                const phone = createTestPhone()
 
-                await createTestMessageUserBlackList(supportClient)
+                await createTestMessageUserBlackList(supportClient, {
+                    phone,
+                })
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await MessageUserBlackList.getAll(anonymousClient)
