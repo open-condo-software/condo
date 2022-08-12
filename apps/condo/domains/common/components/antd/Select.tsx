@@ -6,6 +6,7 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import compact from 'lodash/compact'
 import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
 
 export interface CustomSelectProps<T> extends SelectProps<T> {
     eventName?: string
@@ -25,12 +26,12 @@ const Select = <T extends string | number | { value: any, label: any }> (props: 
             let selectedValue = null
 
             if (isArray(option)) {
-                selectedValue = compact(option.map(opt => get(opt, 'title')))
+                selectedValue = compact(option.map(opt => get(opt, 'title', false) || get(opt, 'label')))
             } else {
                 selectedValue = get(option, 'title')
             }
 
-            if (selectedValue) {
+            if (!isEmpty(selectedValue)) {
                 componentProperties['component'] = { value: selectedValue }
 
                 const componentId = get(restProps, 'id')
