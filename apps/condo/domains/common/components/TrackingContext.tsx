@@ -54,6 +54,7 @@ export enum TrackingEventType {
     Select = 'Select',
     Checkbox = 'Checkbox',
     Radio = 'Radio',
+    Daterange = 'Daterange',
     FollowExternalLink = 'FollowExternalLink',
     ImportComplete = 'ImportComplete',
 }
