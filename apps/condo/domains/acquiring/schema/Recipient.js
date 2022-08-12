@@ -5,15 +5,14 @@
 const get = require('lodash/get')
 
 const { Text, Checkbox } = require('@keystonejs/fields')
-const { Json } = require('@core/keystone/fields')
-const { GQLListSchema } = require('@core/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@core/keystone/plugins')
+const { Json } = require('@condo/keystone/fields')
+const { GQLListSchema } = require('@condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const access = require('@condo/domains/acquiring/access/Recipient')
 const { DV_FIELD, SENDER_FIELD, IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { hasDvAndSenderFields } = require('@condo/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@condo/domains/common/constants/errors')
 
 const { validateTin } = require('@condo/domains/acquiring/utils/validate/tin.utils')
 const { validateIec } = require('@condo/domains/acquiring/utils/validate/iec.utils')
@@ -141,7 +140,7 @@ const Recipient = new GQLListSchema('Recipient', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadRecipients,
         create: access.canManageRecipients,
@@ -150,15 +149,6 @@ const Recipient = new GQLListSchema('Recipient', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, context, addValidationError }) => {
-            if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-            const { dv } = resolvedData
-            if (dv === 1) {
-                // NOTE: version 1 specific translations. Don't optimize this logic
-            } else {
-                return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
-            }
-        },
         resolveInput: async ({ operation, resolvedData, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
 

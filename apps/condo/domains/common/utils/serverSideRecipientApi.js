@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 const fetch = require('node-fetch')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 
 
 const recipientSuggestionsConfig = conf['RECIPIENT_SUGGESTIONS_CONFIG'] && JSON.parse(conf['RECIPIENT_SUGGESTIONS_CONFIG'])

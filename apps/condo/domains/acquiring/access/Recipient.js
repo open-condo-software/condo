@@ -3,7 +3,7 @@
  */
 
 const { get } = require('lodash')
-const { throwAuthenticationError } = require('@condo/domains/common/utils/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 
 /**
  * Billing entity can be read either by:
