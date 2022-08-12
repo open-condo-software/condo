@@ -2,6 +2,7 @@
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
 import { jsx } from '@emotion/react'
 import { Affix, Col, Row, Space, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
@@ -56,6 +57,7 @@ import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketDeferredDateField } from '@condo/domains/ticket/components/TicketId/TicketDeferredDateField'
+import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -88,6 +90,8 @@ const TicketContent = ({ ticket }) => {
 
 const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
 const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
+const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
+const TAGS_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
 
 export const TicketPageContent = ({ organization, employee, TicketContent }) => {
     const intl = useIntl()
@@ -337,18 +341,25 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             </Row>
                                         </Col>
                                     </Row>
-                                    <Space direction={'horizontal'} style={{ marginTop: '1.6em ' }}>
-                                        {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                        {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
-                                        {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
-                                        {
-                                            statusReopenedCounter > 0 && (
-                                                <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
-                                                    {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
-                                                </TicketTag>
-                                            )
-                                        }
-                                    </Space>
+                                    <Row justify={'space-between'} align={'middle'} style={TAGS_ROW_STYLE} gutter={TAGS_ROW_GUTTER}>
+                                        <Col>
+                                            <Space direction={'horizontal'}>
+                                                {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
+                                                {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                                {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                                {
+                                                    statusReopenedCounter > 0 && (
+                                                        <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
+                                                            {ReturnedMessage.toLowerCase()} {statusReopenedCounter > 1 && `(${statusReopenedCounter})`}
+                                                        </TicketTag>
+                                                    )
+                                                }
+                                            </Space>
+                                        </Col>
+                                        <Col>
+                                            <TicketResidentFeatures ticket={ticket} />
+                                        </Col>
+                                    </Row>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
                                 <ActionBar>
