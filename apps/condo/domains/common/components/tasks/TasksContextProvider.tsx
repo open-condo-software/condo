@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useReducer, useRef } from 'react'
 import { notification } from 'antd'
 import dayjs from 'dayjs'
 import filter from 'lodash/filter'
@@ -54,7 +54,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
     // Timestamp of latest update in tasks without changing length of trackable tasks array
     // Used to trigger `useEffects` when tasks are updated or deleted. Relying on length of tasks is not enough in effects
-    const [latestUpdate, setLatestUpdate] = useState<number>()
+    const [lastUpdated, forceUpdate] = useReducer(x => x + 1, 0)
 
     // After first render we can await tasks from network requests
     // As they will come, we should add them to state
@@ -81,7 +81,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
         } else (
             closeTasksProgress()
         )
-    }, [tasks.length, latestUpdate])
+    }, [tasks.length, lastUpdated])
 
     /**
      * To make notifications work with all context providers of our MyApp component,
@@ -121,7 +121,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
                     ...prevTasks[index],
                     record,
                 }
-                setLatestUpdate(dayjs().unix())
+                forceUpdate()
                 return [
                     ...prevTasks.slice(0, index),
                     updatedTask,
@@ -136,7 +136,7 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
                 return
             }
             setTasks(prevState => prevState.filter((task) => task.record.id !== record.id))
-            setLatestUpdate(dayjs().unix())
+            forceUpdate()
         },
         tasks,
     }
