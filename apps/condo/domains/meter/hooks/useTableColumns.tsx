@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
-import { Typography } from 'antd'
+import { useCallback, useMemo } from 'react'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 
@@ -15,9 +14,7 @@ import {
     getTextRender,
     getTableCellRenderer, getAddressRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
-import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
-import { METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE } from '@condo/domains/meter/constants/constants'
+import { getResourceRender, getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
 
 const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
@@ -43,7 +40,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
-    const AutoMessage = intl.formatMessage({ id: 'pages.condo.meter.AutoPrefix' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -54,25 +50,6 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const renderAddress = useCallback((_, meterReading) =>
         getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
     [DeletedMessage, search])
-
-    const renderResource = useCallback((_, meterReading) => {
-        const value = get(meterReading, ['meter', 'resource', 'name'])
-        const isAutomatic = get(meterReading, ['meter', 'isAutomatic'], false)
-        const isExternalSource = Boolean(get(meterReading, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)
-
-        return (
-            <EmptyTableCell>
-                <Typography.Text title={value}>
-                    {value}
-                </Typography.Text>
-                {isAutomatic && isExternalSource && (
-                    <Typography.Text type='warning'>
-                        {` (${AutoMessage})`}
-                    </Typography.Text>
-                )}
-            </EmptyTableCell>
-        )
-    }, [AutoMessage])
 
     return useMemo(() => {
         return [
@@ -113,7 +90,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 key: 'resource',
                 width: '14%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'resource'),
-                render: renderResource,
+                render: getResourceRender(intl, search),
                 filterIcon: getFilterIcon,
             },
             {
@@ -195,6 +172,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
         search,
         sorterMap,
         renderAddress,
-        renderResource,
     ])
 }

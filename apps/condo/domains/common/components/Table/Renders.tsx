@@ -22,7 +22,7 @@ import { getAddressDetails } from '../../utils/helpers'
 import { isNull } from 'lodash'
 import Link from 'next/link'
 
-type RenderReturnType = string | React.ReactNode
+export type RenderReturnType = string | React.ReactNode
 
 const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
@@ -214,7 +214,7 @@ export const getDateRender = (intl, search?: FilterValue | string) => {
 
 export const getTextRender = (search?: FilterValue | string) => {
     return function render (text: string): RenderReturnType {
-        return renderCellWithHighlightedContents(search, text)
+        return getTableCellRenderer(search)(text)
     }
 }
 
@@ -227,12 +227,12 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
         const nonEmptyValues = values.filter(Boolean)
         if (nonEmptyValues.length) return nonEmptyValues.map(formatMeter)
 
-        return <EmptyTableCell/>
+        return null
     }
 
     // other resource 1-tariff meter
     if (get(values, '0')) return `${getIntegerPartOfReading(values[0])} ${measure}`
-    return <EmptyTableCell/>
+    return null
 }
 
 const dimText = (text: string, index: number) => (
