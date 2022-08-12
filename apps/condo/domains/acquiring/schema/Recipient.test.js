@@ -3,7 +3,7 @@
 '`
  */
 
-const { makeLoggedInAdminClient, makeClient } = require('@core/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj,
