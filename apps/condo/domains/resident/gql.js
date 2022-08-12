@@ -11,7 +11,11 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { id name country } property { id createdAt deletedAt } residentProperty { id name address } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { hasBillingData hasMeters } paymentCategories { id categoryName billingName acquiringName } }`
+const RESIDENT_ORGANIZATION_FIELDS = 'id name country'
+const RESIDENT_PROPERTY_FIELDS = 'id name address'
+const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
+const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'
+const RESIDENT_FIELDS = `{ user { id name } organization { id } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
@@ -35,5 +39,9 @@ module.exports = {
     REGISTER_RESIDENT_MUTATION,
     ServiceConsumer,
     REGISTER_SERVICE_CONSUMER_MUTATION,
+    RESIDENT_ORGANIZATION_FIELDS,
+    RESIDENT_PROPERTY_FIELDS,
+    ORGANIZATION_FEATURES_FIELDS,
+    PAYMENT_CATEGORIES_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

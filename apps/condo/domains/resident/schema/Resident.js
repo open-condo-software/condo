@@ -29,6 +29,7 @@ const { manageResidentToTicketClientConnections } = require('../tasks')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { RESIDENT_ORGANIZATION_FIELDS, RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -76,6 +77,7 @@ const Resident = new GQLListSchema('Resident', {
             type: Virtual,
             extendGraphQLTypes: ['type ResidentProperty { id: ID!, name: String, address: String! }'],
             graphQLReturnType: 'ResidentProperty',
+            graphQLReturnFragment: `{ ${RESIDENT_PROPERTY_FIELDS} }`,
             resolver: async (item) => {
                 if (item.property) {
                     const property = await getById('Property', item.property)
@@ -92,6 +94,7 @@ const Resident = new GQLListSchema('Resident', {
             type: Virtual,
             extendGraphQLTypes: ['type OrganizationFeatures { hasBillingData: Boolean!, hasMeters: Boolean! }'],
             graphQLReturnType: 'OrganizationFeatures',
+            graphQLReturnFragment: `{ ${ORGANIZATION_FEATURES_FIELDS} }`,
             resolver: async (item, _, context) => {
                 if (item.organization) {
                     const organizationId = get(item, 'organization', null)
@@ -126,6 +129,7 @@ const Resident = new GQLListSchema('Resident', {
             type: Virtual,
             extendGraphQLTypes: ['type PaymentCategory { id: String!, categoryName: String!, billingName: String! acquiringName: String! }'],
             graphQLReturnType: '[PaymentCategory]',
+            graphQLReturnFragment: `{ ${PAYMENT_CATEGORIES_FIELDS} }`,
             resolver: async (item, _, context) => {
                 return PAYMENT_CATEGORIES_META
                     .filter(x => x.active)
@@ -207,13 +211,17 @@ const Resident = new GQLListSchema('Resident', {
         },
         afterChange: async ({ updatedItem, originalInput }) => {
             const userId = get(updatedItem, 'user', null)
-            const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
-            const unitName = get(originalInput, 'unitName', null)
-            const unitType = get(originalInput, 'unitType', null)
+            const propertyId = get(updatedItem, 'property', null)
+            const unitName = get(updatedItem, 'unitName', null)
+            const unitType = get(updatedItem, 'unitType', null)
             const sender = get(originalInput, 'sender', null)
             const dv = get(originalInput, 'dv', null)
 
-            if (!isNull(propertyId) || !isNull(unitName) || !isNull(unitType)) {
+            const changedPropertyId = get(originalInput, ['property', 'connect', 'id'], null)
+            const changedUnitName = get(originalInput, 'unitName', null)
+            const changedUnitType = get(originalInput, 'unitType', null)
+
+            if (!isNull(changedPropertyId) || !isNull(changedUnitName) || !isNull(changedUnitType)) {
                 await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId, dv, sender)
             }
         },
