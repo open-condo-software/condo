@@ -45,6 +45,8 @@ export type TaskRecord = {
     // For example: local id at miniapp database whom would be used to update progress
     taskId?: string
     sender?: string
+
+    createdAt: string
 }
 
 /**
@@ -71,6 +73,8 @@ type UseDeleteTaskFunction = (attrs: unknown, onComplete: OnCompleteFunc) => (at
 
 type TasksWhereCondition = {
     status: TASK_STATUS,
+    // Helps to avoid displaying tasks, not completed for some reason, created on previous days
+    today?: boolean,
 }
 
 /**
