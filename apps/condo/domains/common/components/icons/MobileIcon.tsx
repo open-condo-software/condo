@@ -11,7 +11,11 @@ const MobileIconSVG = ({ active }) => (
     </svg>
 )
 
-export const MobileIcon = ({ active }) => {
+interface MobileIconProps {
+    active?: boolean
+}
+
+export const MobileIcon: React.FC<MobileIconProps> = ({ active = true }) => {
     const MobileIconComponent = useCallback(() => (
         <MobileIconSVG active={active} />
     ), [active])
