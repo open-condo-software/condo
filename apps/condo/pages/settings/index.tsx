@@ -5,23 +5,23 @@ import { SettingsPageContent } from '@condo/domains/common/components/settings/S
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
+    SETTINGS_TAB_PROPERTY_DETAILS,
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
-    SETTINGS_TAB_PROPERTY_DETAILS,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 import { useIntl } from '@condo/next/intl'
-import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
+import { useOrganization } from '@condo/next/organization'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
-import { useOrganization } from '@condo/next/organization'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 

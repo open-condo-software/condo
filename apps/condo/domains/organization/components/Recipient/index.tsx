@@ -1,9 +1,10 @@
-import { useIntl } from '@condo/next/intl'
-import { Row, Col, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
 import React, { CSSProperties } from 'react'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 
+import { useIntl } from '@condo/next/intl'
+
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 const RECIPIENT_TITLE_CSS: CSSProperties = { fontSize: fontSizes.large, fontWeight: 700 }
 const RECIPIENT_TEXT_CSS: CSSProperties = { fontSize: fontSizes.content }

@@ -1,17 +1,17 @@
 import get from 'lodash/get'
-import { useIntl } from '@condo/next/intl'
-
 import React from 'react'
-import { Row, Col, Typography, Alert } from 'antd'
 import styled from '@emotion/styled'
+import { Row, Col, Typography, Alert } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { colors } from '@condo/domains/common/constants/style'
 
+import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
-import { Recipient } from '@condo/domains/organization/components/Recipient'
+
+import { colors } from '@condo/domains/common/constants/style'
 
 import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 
+import { Recipient } from '@condo/domains/organization/components/Recipient'
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
@@ -36,7 +36,6 @@ export const RecipientSettingsContent = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-
     //TODO(MAXIMDANILOV): DOMA-3252 go from BillingRecipient to Index
     const {
         obj: context,
@@ -45,7 +44,6 @@ export const RecipientSettingsContent = () => {
     })
 
     const contextId = get(context, ['id'], null)
-
 
     const {
         loading: isRecipientsLoading,
@@ -64,7 +62,7 @@ export const RecipientSettingsContent = () => {
             </Col>
             <Col span={24}>
                 <StyledAlert
-                    message={<Typography.Text strong={true}>{AlertTitle}</Typography.Text>}
+                    message={<Typography.Text strong>{AlertTitle}</Typography.Text>}
                     description={AlertContent}
                     showIcon
                     type={'warning'}
