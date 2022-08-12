@@ -3,6 +3,7 @@ import get from 'lodash/get'
 import findIndex from 'lodash/findIndex'
 import isFunction from 'lodash/isFunction'
 import { ITasksStorage, OnCompleteFunc } from '../index'
+import dayjs from 'dayjs'
 
 const LOCAL_STORAGE_TASKS_KEY = 'tasks'
 
@@ -24,7 +25,7 @@ const isServerSide = typeof window === 'undefined'
  */
 export class TasksLocalStorage implements ITasksStorage {
 
-    useTasks ({ status }, user) {
+    useTasks ({ status, today }, user) {
         if (isServerSide) {
             // Gracefully return empty results in SSR mode, no need to throw errors or do something extra
             return { records: [] }
@@ -36,7 +37,11 @@ export class TasksLocalStorage implements ITasksStorage {
         if (!status) {
             return tasks
         }
-        const records = tasks.filter(task => task.status === status && task.user && get(task, 'user.id') === user.id)
+        const records = tasks.filter(task => (
+            task.status === status &&
+            task.user && get(task, 'user.id') === user.id &&
+            today ? dayjs(task.createdAt).isToday() : true
+        ))
         return { records }
     }
 

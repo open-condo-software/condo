@@ -22,6 +22,7 @@ import GlobalIframe from './GlobalIframe'
 import { TasksContext } from '@condo/domains/common/components/tasks/'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import IFrameModal from '../IFrameModal'
+import dayjs from 'dayjs'
 
 type ModalInfo = {
     url: string
@@ -87,6 +88,7 @@ export const GlobalAppsContainer: React.FC = () => {
             sender: event.origin,
             user,
             __typename: 'MiniAppTask',
+            createdAt: dayjs().toISOString(),
         }
 
         if (message.taskOperation === 'create') {

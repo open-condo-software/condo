@@ -157,8 +157,8 @@ const TasksProvider = ({ children }) => {
     // ... another interfaces of tasks should be used here
 
     // Load all tasks with 'processing' status
-    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING }, user)
-    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING }, user)
+    const { records: ticketExportTasks } = TicketExportTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING, today: true }, user)
+    const { records: miniAppTasks } = MiniAppTaskUIInterface.storage.useTasks({ status: TASK_STATUS.PROCESSING, today: true }, user)
     // ... another task records should be loaded here
 
     const initialTaskRecords = useMemo(() => [...miniAppTasks, ...ticketExportTasks], [miniAppTasks, ticketExportTasks])
