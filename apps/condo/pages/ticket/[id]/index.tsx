@@ -58,6 +58,7 @@ import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketDeferredDateField } from '@condo/domains/ticket/components/TicketId/TicketDeferredDateField'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
+import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -92,6 +93,7 @@ const TICKET_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12p
 const TICKET_UPDATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px', textAlign: 'end' }
 const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
 const TAGS_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
+const HINT_CARD_STYLE = { maxHeight: '3em ' }
 
 export const TicketPageContent = ({ organization, employee, TicketContent }) => {
     const intl = useIntl()
@@ -222,6 +224,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         ticketChangesResult.refetch()
     }
 
+    const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const ticketStatusType = get(ticket, ['status', 'type'])
     const disabledEditButton = useMemo(() => ticketStatusType === CLOSED_STATUS_TYPE, [ticketStatusType])
     const statusUpdatedAt = get(ticket, 'statusUpdatedAt')
@@ -264,7 +267,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                 <PageContent>
                     <Row gutter={[0, 40]}>
                         <Col lg={16} xs={24}>
-                            <Row gutter={[0, 40]}>
+                            <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col lg={18} xs={24}>
@@ -362,6 +365,12 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Row>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
+                                <Col span={24}>
+                                    <TicketPropertyHintCard
+                                        propertyId={ticketPropertyId}
+                                        hintContentStyle={HINT_CARD_STYLE}
+                                    />
+                                </Col>
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button

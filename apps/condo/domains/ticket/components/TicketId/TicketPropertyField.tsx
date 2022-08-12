@@ -1,19 +1,14 @@
 import { useCallback, useMemo } from 'react'
 import { get, isEmpty } from 'lodash'
 import Link from 'next/link'
-import { Col, Row, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Typography } from 'antd'
 
 import { useIntl } from '@condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
-import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
-
-const HINT_CARD_STYLE = { maxHeight: '5em ' }
-const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 16]
 
 type TicketPropertyFieldProps = {
     ticket: Ticket
@@ -91,25 +86,13 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
         </>
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket])
 
-    const propertyId = useMemo(() => get(ticket, ['property', 'id'], null), [ticket])
-
     return (
         <PageFieldRow title={AddressMessage} highlight ellipsis>
-            <Row gutter={SMALL_VERTICAL_GUTTER}>
-                <Col span={24}>
-                    {
-                        propertyWasDeleted ? (
-                            <DeletedPropertyAddressMessage />
-                        ) : <PropertyAddressMessage />
-                    }
-                </Col>
-                <Col span={24}>
-                    <TicketPropertyHintCard
-                        propertyId={propertyId}
-                        hintContentStyle={HINT_CARD_STYLE}
-                    />
-                </Col>
-            </Row>
+            {
+                propertyWasDeleted ? (
+                    <DeletedPropertyAddressMessage />
+                ) : <PropertyAddressMessage />
+            }
         </PageFieldRow>
     )
 }
