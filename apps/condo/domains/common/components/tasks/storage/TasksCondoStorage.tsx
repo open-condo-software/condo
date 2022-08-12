@@ -2,6 +2,7 @@ import get from 'lodash/get'
 import { ITasksStorage } from '../index'
 import { IGenerateHooksResult } from '../../../utils/codegeneration/generate.hooks'
 import { TASK_POLL_INTERVAL } from '../../../constants/tasks'
+import dayjs from 'dayjs'
 
 /**
  * Used to store tasks known by Condo API
@@ -14,8 +15,15 @@ export class TasksCondoStorage implements ITasksStorage {
         this.clientSchema = clientSchema
     }
 
-    useTasks ({ status }, user) {
-        const { objs } = this.clientSchema.useObjects({ where: { status, user: { id: get(user, 'id') } } })
+    useTasks ({ status, today }, user) {
+        const where: any = {
+            status,
+            user: { id: get(user, 'id') },
+        }
+        if (today) {
+            where.createdAt_gte = dayjs().startOf('day')
+        }
+        const { objs } = this.clientSchema.useObjects({ where })
         return { records: objs }
     }
 
