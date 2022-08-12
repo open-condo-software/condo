@@ -14,12 +14,12 @@ interface MobileIconProps {
     active?: boolean
 }
 
-export const MobileIcon: React.FC<MobileIconProps> = ({ active = true }) => {
+export const MobileIcon: React.FC<MobileIconProps> = ({ active = true, ...props }) => {
     const MobileIconComponent = useCallback(() => (
         <MobileIconSVG active={active} />
     ), [active])
 
     return (
-        <Icon component={MobileIconComponent} />
+        <Icon component={MobileIconComponent} {...props} />
     )
 }
