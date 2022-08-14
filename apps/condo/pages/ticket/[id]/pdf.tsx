@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 
 import { useIntl } from '@condo/next/intl'
+
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { createPdf } from '@condo/domains/common/utils/pdf'
