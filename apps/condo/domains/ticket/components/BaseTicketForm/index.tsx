@@ -371,6 +371,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         values.categoryClassifier = undefined // It is necessary for the front to save the logic of work. But use in mutation is not allowed
         values.placeClassifier = undefined // It is necessary for the front to save the logic of work. But use in mutation is not allowed
         values.problemClassifier = undefined // It is necessary for the front to save the logic of work. But use in mutation is not allowed
+        values.executor = values.executor ? values.executor : null
         return values
     }, [])
 
