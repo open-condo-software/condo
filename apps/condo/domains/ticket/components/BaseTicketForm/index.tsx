@@ -13,8 +13,8 @@ import {
     TicketFile as TicketFileType,
     TicketStatusTypeType,
 } from '@app/condo/schema'
-
 import { useIntl } from '@condo/next/intl'
+
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
