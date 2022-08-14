@@ -1,3 +1,9 @@
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { get, isEmpty, isFunction } from 'lodash'
+import { useRouter } from 'next/router'
+
 import {
     BuildingUnitSubType,
     Organization,
@@ -7,8 +13,9 @@ import {
     TicketFile as TicketFileType,
     TicketStatusTypeType,
 } from '@app/condo/schema'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 
+import { useIntl } from '@condo/next/intl'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
@@ -29,14 +36,8 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-import { useIntl } from '@condo/next/intl'
-import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import { get, isEmpty, isFunction } from 'lodash'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { TicketAssignments } from './TicketAssignments'
 
+import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
