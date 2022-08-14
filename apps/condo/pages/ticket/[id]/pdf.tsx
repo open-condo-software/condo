@@ -1,26 +1,27 @@
+import React, { useEffect, useRef } from 'react'
 import { Col, Row, Typography, Space, notification, Breadcrumb } from 'antd'
 import get from 'lodash/get'
+import compact from 'lodash/compact'
 import dynamic from 'next/dynamic'
-import React, { useEffect, useRef } from 'react'
+import { useRouter } from 'next/router'
+
 import { useIntl } from '@condo/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { createPdf } from '@condo/domains/common/utils/pdf'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { getTicketSectionAndFloorMessage } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import {
     getTicketCreateMessage,
     getTicketLabel,
     getTicketPdfName,
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
-import { createPdf } from '@condo/domains/common/utils/pdf'
-import { useRouter } from 'next/router'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { PageContent } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { compact } from 'lodash'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { getTicketSectionAndFloorMessage } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 
 interface ITicketDescriptionFieldProps {
     title?: string
