@@ -1,5 +1,5 @@
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/AbstractSuggestionProvider')
-const conf = require('@core/config')
+const conf = require('@condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
 
