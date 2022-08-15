@@ -35,6 +35,7 @@ async function checkRelatedOrganizationPermission (userId, organizationId, permi
 
 // TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
 async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, organizationId, permission) {
+    if (!userId || !organizationId) return false
     const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(userId, organizationId, permission)
     const hasPermissionInUserOrganization = await checkOrganizationPermission(userId, organizationId, permission)
     return Boolean(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
