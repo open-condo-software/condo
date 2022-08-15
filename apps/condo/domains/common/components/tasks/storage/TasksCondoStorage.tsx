@@ -23,8 +23,8 @@ export class TasksCondoStorage implements ITasksStorage {
         if (today) {
             where.createdAt_gte = dayjs().startOf('day')
         }
-        const { objs } = this.clientSchema.useObjects({ where })
-        return { records: objs }
+        const { objs, error } = this.clientSchema.useObjects({ where })
+        return { records: !error ? objs : [] }
     }
 
     useTask (id) {
