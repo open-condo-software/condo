@@ -17,7 +17,7 @@ const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILA
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 const { MeterReading } = require('../utils/serverSchema')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-const { deleteDeletedMeterMeterReadings } = require('@condo/domains/meter/tasks')
+const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 
 
 const Meter = new GQLListSchema('Meter', {
@@ -225,7 +225,7 @@ const Meter = new GQLListSchema('Meter', {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {
-                    await deleteDeletedMeterMeterReadings.delay(updatedItem, deletedMeterAt)
+                    await deleteReadingsOfDeletedMeter.delay(updatedItem, deletedMeterAt)
                 }
             }
         },
