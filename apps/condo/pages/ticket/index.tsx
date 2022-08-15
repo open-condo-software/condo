@@ -108,6 +108,7 @@ export const TicketsPageContent = ({
         where: searchTicketsQuery,
         sortBy,
         format: EXCEL,
+        locale: intl.locale,
         timeZone,
         user: auth.user,
     })
