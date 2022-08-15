@@ -16,7 +16,7 @@ import lowerCase from 'lodash/lowerCase'
 import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
-import { useIntl } from 'react-intl'
+import { useIntl } from '@condo/next/intl'
 
 const SORTABLE_PROPERTIES = ['name']
 const DEFAULT_SORT_BY = ['createdAt_DESC']

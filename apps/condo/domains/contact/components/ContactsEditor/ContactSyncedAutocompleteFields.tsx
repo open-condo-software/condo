@@ -102,6 +102,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         contacts.map(contact => ({
             value: contact[prop],
             item: contact,
+            children: null,
         }))
     , [contacts])
 

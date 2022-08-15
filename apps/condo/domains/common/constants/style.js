@@ -201,7 +201,7 @@ const antGlobalVariables = {
     '@alert-warning-border-color': colors.attentionBg,
     '@alert-warning-bg-color': colors.attentionBg,
     '@typography-title-margin-bottom': 0,
-    '@tooltip-bg': 'rgba(0, 0, 0)',
+    '@tooltip-bg': 'rgba(0, 0, 0, 0)',
     '@text-color': colors.sberGrey[9],
     '@text-color-secondary': textSecondary,
     '@success-color': green[6],

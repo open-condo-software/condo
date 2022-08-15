@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { Col, Form, Row, Space, Typography, RowProps } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage } from '@condo/next/intl'
 import { useMutation } from '@condo/next/apollo'
 import { useIntl } from '@condo/next/intl'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'

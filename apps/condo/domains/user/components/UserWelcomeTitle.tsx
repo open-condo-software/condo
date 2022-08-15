@@ -3,7 +3,7 @@
 import React from 'react'
 import { Image, Row, RowProps, Typography } from 'antd'
 import { jsx, css, keyframes } from '@emotion/react'
-import { useIntl } from 'react-intl'
+import { useIntl } from '@condo/next/intl'
 import Router from 'next/router'
 
 const WelcomeKeyFrames = keyframes`

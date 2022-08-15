@@ -15,7 +15,7 @@ type PickerType =
     | React.ComponentClass<Omit<PickerDateProps<Dayjs>, 'picker'>, any>
     | React.ComponentClass<Omit<PickerTimeProps<Dayjs>, 'picker'>, any>
 
-type PropsWithRef<P, R = any> = P & { ref?: React.ForwardedRef<R> }
+type PropsWithRef<P, R = any> = P & { ref?: React.Ref<R> }
 
 type DatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
     WeekPicker: React.FC<PropsWithRef<Omit<PickerDateProps<Dayjs>, 'picker'>>>,

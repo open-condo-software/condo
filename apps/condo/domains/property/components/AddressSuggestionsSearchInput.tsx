@@ -2,7 +2,6 @@ import React, { useCallback } from 'react'
 import identity from 'lodash/identity'
 import pickBy from 'lodash/pickBy'
 import { notification, Select, SelectProps, Typography } from 'antd'
-import { OptionProps } from 'antd/lib/mentions'
 
 import { useIntl } from '@condo/next/intl'
 import { grey } from '@ant-design/colors'
@@ -98,7 +97,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     )
 
     const handleOptionSelect = useCallback(
-        (value: string, option: OptionProps) => {
+        (value: string, option) => {
             try {
                 addressApi.cacheAddressMeta(value, JSON.parse(option.key))
             } catch (e) {

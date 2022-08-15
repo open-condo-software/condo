@@ -71,9 +71,6 @@ module.exports = function createConfiguration (context) {
             // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresintrospection - RFC7662 - OAuth 2.0 Token Introspection
             // introspection: { enabled: true }, // defaults to false
 
-            // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresissauthresp - OAuth 2.0 Authorization Server Issuer Identifier in Authorization Response
-            issAuthResp: { enabled: true, ack: 'draft-04' }, // defaults to false
-
             // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresjwtintrospection - JWT Response for OAuth Token Introspection
             // jwtIntrospection: { enabled: true },
 

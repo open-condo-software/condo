@@ -32,7 +32,16 @@ const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
 const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
-const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql.js')
+
+const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
+    mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
+        obj: authenticateUserWithPhoneAndPassword(data: { phone: $phone, password: $password }) {
+            item {
+                id
+            }
+        }
+    }
+`
 
 class UploadingFile {
     constructor (filePath) {
@@ -90,7 +99,7 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
         configureExpress,
     } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
-    if (excludeApps && dev) console.info(`prepareKeystoneExpressApp() with excluded apps:`, excludeApps, `apps:`, newApps.map(x => x.constructor.name))
+    if (excludeApps && dev) console.info('prepareKeystoneExpressApp() with excluded apps:', excludeApps, 'apps:', newApps.map(x => x.constructor.name))
     const { middlewares } = await keystone.prepare({ apps: newApps, distDir, dev })
     await keystone.connect()
     const app = express()

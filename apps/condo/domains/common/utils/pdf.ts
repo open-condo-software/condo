@@ -30,11 +30,11 @@ interface ICreatePdfOptions {
 }
 
 interface ICreatePdf {
-    (options: ICreatePdfOptions): Promise<Jspdf>
+    (options: ICreatePdfOptions): Promise<void | Jspdf>
 }
 
 interface ICreatePdfWithPageBreaks {
-    (options: Omit<ICreatePdfOptions, 'format'>): Promise<Jspdf>
+    (options: Omit<ICreatePdfOptions, 'format'>): Promise<void | Jspdf>
 }
 
 export const createPdf: ICreatePdf = (options) => {
