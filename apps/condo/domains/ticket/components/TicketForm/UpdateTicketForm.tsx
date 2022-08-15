@@ -40,7 +40,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     type='sberDefaultGradient'
                                     loading={isLoading}
                                     disabled={!property}
-                                    data-cy={'ticket__apply-changes-button'}
+                                    data-cy='ticket__apply-changes-button'
                                 >
                                     {ApplyChangesMessage}
                                 </Button>
@@ -89,7 +89,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader fill size={'large'}/> : null}
+                {(loading) ? <Loader fill size='large'/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )

@@ -35,7 +35,7 @@ export const AuthRequired: React.FC = ({ children }) => {
     const { isAuthenticated, isLoading } = auth
 
     if (isLoading) {
-        return <Loader fill size={'large'}/>
+        return <Loader fill size='large'/>
     }
 
     if (!isAuthenticated) {

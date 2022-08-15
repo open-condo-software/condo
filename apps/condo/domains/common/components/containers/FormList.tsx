@@ -79,8 +79,8 @@ function FormList ({ dataSource, renderItem, ...extra }) {
     if (!renderItem) throw new Error('renderItem prop is required')
 
     return <List
-        size="large"
-        itemLayout={'horizontal'}
+        size='large'
+        itemLayout='horizontal'
         dataSource={dataSource}
         renderItem={renderItemWrapper}
         {...extra}
@@ -132,7 +132,7 @@ function FormList ({ dataSource, renderItem, ...extra }) {
 
 function CreateFormListItemButton ({ label, ...extra }) {
     return <Button
-        type="dashed"
+        type='dashed'
         style={{ width: '100%' }}
         {...extra}
     >
@@ -412,7 +412,7 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     const handleSaveRef = useRef(null)
     const Buttons = []
     if (showCancelButton) {
-        Buttons.push((<Button key="cancel" type="sberPrimary" secondary onClick={cancelModal}>{CancelMessage}</Button>))
+        Buttons.push((<Button key='cancel' type='sberPrimary' secondary onClick={cancelModal}>{CancelMessage}</Button>))
     }
     return (<Modal
         title={ModalTitleMsg}
@@ -422,11 +422,11 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
             ...modalExtraFooter,
             ...Buttons,
             <Button
-                key="submit"
+                key='submit'
                 onClick={() => {
                     handleSaveRef.current()
                 }}
-                type="sberPrimary"
+                type='sberPrimary'
                 {...submitButtonProps}
             >
                 {SaveMessage}
@@ -435,7 +435,7 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
         centered
         {...modalProps}
     >
-        <Space direction={'vertical'} size={40}>
+        <Space direction='vertical' size={40}>
             {modalNotification}
             <FormWithAction {...props}>
                 {

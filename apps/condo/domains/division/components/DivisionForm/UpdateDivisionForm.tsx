@@ -39,7 +39,7 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
     if (error || loading) {
         return (
             <>
-                {(loading) ? <Loader size={'large'} fill/> : null}
+                {(loading) ? <Loader size='large' fill/> : null}
                 {(error) ? <Typography.Title>{error}</Typography.Title> : null}
             </>
         )
@@ -63,7 +63,7 @@ export const UpdateDivisionForm: React.FC<IUpdateDivisionForm> = ({ id }) => {
                                     <>
                                         <ActionBar>
                                             <FormResetButton
-                                                type={'sberPrimary'}
+                                                type='sberPrimary'
                                                 secondary
                                             />
                                             <Space size={12}>

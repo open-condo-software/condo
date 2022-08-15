@@ -52,7 +52,7 @@ export const TaskLauncher: React.FC<ITaskLauncherProps> = (props) => {
         <Form.Item noStyle>
             <ActionBar hidden={hidden}>
                 <Button
-                    type={'sberBlack'}
+                    type='sberBlack'
                     secondary
                     icon={<DatabaseFilled/>}
                     loading={loading}

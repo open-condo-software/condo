@@ -198,8 +198,8 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
         <PageWrapper ref={containerRef}>
             <Row gutter={[0, 20]}>
                 <Col span={24}>
-                    <Row justify={'space-between'}>
-                        <Typography.Text type={'secondary'}>
+                    <Row justify='space-between'>
+                        <Typography.Text type='secondary'>
                             {documentNumber}
                         </Typography.Text>
                         <Typography.Text>
@@ -219,7 +219,7 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
                 }
             </Row>
             <Row>
-                <Col span={24} className={'moneyContainer'}>
+                <Col span={24} className='moneyContainer'>
                     <Typography.Title level={4}>
                         {moneyAmount}
                     </Typography.Title>
@@ -239,7 +239,7 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
                     }
                 </Col>
             </Row>
-            <Row justify={'center'}>
+            <Row justify='center'>
                 <Typography.Title style={{ color: statusColor, textTransform: 'uppercase' }} level={4}>
                     {statusMessage}
                 </Typography.Title>

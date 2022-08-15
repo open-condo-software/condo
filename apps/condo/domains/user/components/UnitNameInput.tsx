@@ -79,7 +79,7 @@ const getOptionGroupBySectionType: React.FC<IGetOptionGroupBySectionType> = (pro
                 data-unitType={unitType}
                 data-unitName={String(unit.label)}
                 title={String(unit.label)}
-                data-cy={'user__unit-name-input-option'}
+                data-cy='user__unit-name-input-option'
                 style={BASE_UNIT_NAME_INPUT_OPTION_STYLE}
             >
                 {unit.label}
@@ -121,7 +121,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
             allowClear
             showSearch
             placeholder={placeholder}
-            optionFilterProp={'title'}
+            optionFilterProp='title'
             loading={loading}
             disabled={loading}
             {...restInputProps}

@@ -30,11 +30,11 @@ export const OnBoardingStepItem: React.FC<IOnBoardingStep> = (props) => {
 
     return (
         <StepContainer color={colors.transparent} type={props.type} onClick={handleClick}>
-            <Space direction={'horizontal'} size={16}>
+            <Space direction='horizontal' size={16}>
                 <IconContainer type={type}>
                     <StepIcon/>
                 </IconContainer>
-                <Space direction={'vertical'} size={4}>
+                <Space direction='vertical' size={4}>
                     <StepTitle>{title}</StepTitle>
                     <StepDescription>{description}</StepDescription>
                 </Space>

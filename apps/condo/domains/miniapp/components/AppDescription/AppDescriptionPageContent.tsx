@@ -113,7 +113,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                     {
                         Boolean(!instruction && appUrl) && (
                             <Col span={24}>
-                                <Typography.Text type={'secondary'}>
+                                <Typography.Text type='secondary'>
                                     {DefaultInstructionMessage}
                                 </Typography.Text>
                             </Col>
@@ -123,7 +123,7 @@ export const AppDescriptionPageContent: React.FC<AppDescriptionPageContentProps>
                         appUrl && (
                             <Col span={24}>
                                 <Button
-                                    type={'sberDefaultGradient'}
+                                    type='sberDefaultGradient'
                                     onClick={connectAction}
                                     disabled={disabledConnect}
                                 >

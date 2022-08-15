@@ -103,7 +103,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
 
     return (
-        <FullscreenWrapper mode={'view'} className={isFullscreen ? 'fullscreen' : '' }>
+        <FullscreenWrapper mode='view' className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
                     {
@@ -140,7 +140,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                         :
                         <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>
                             <ScrollContainer
-                                className="scroll-container"
+                                className='scroll-container'
                                 style={CHESS_SCROLL_CONTAINER_STYLE}
                                 vertical={false}
                                 horizontal={true}
@@ -235,15 +235,13 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                                         ))
                                 }
                             </ScrollContainer>
-                            {
-                                <BuildingChooseSections
-                                    builder={builder}
-                                    refresh={refresh}
-                                    toggleFullscreen={toggleFullscreen}
-                                    isFullscreen={isFullscreen}
-                                    mode="view"
-                                />
-                            }
+                            <BuildingChooseSections
+                                builder={builder}
+                                refresh={refresh}
+                                toggleFullscreen={toggleFullscreen}
+                                isFullscreen={isFullscreen}
+                                mode='view'
+                            />
                         </Col>
                 }
             </Row>

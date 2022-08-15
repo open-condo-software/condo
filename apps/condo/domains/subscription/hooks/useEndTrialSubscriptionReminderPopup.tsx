@@ -111,7 +111,7 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
                     </EndTrialSubscriptionReminderPopupParagraph>
                     <EndTrialSubscriptionReminderPopupParagraph>
                         <FormattedMessage
-                            id={'subscription.modal.endTrialReminder.daysToEndTrial' }
+                            id='subscription.modal.endTrialReminder.daysToEndTrial'
                             values={{
                                 days: subscription && dayjs.duration(dayjs(subscription.finishAt).diff(dayjs())).humanize(),
                             }}

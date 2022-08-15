@@ -112,9 +112,9 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     }, [intl, form, handleReCaptchaVerify])
 
     return (
-        <Row justify={'center'}>
+        <Row justify='center'>
             <Col span={16}>
-                <TabsAuthAction currentActiveKey={'/auth/register'}/>
+                <TabsAuthAction currentActiveKey='/auth/register'/>
             </Col>
             <Col span={24}>
                 <Form
@@ -122,7 +122,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                     name='register-input-phone'
                     onFinish={startConfirmPhone}
                     requiredMark={false}
-                    layout={'vertical'}
+                    layout='vertical'
                 >
                     <Row style={ROW_STYLES}>
                         <ResponsiveCol span={24}>
@@ -131,7 +131,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                     <Form.Item
                                         name='phone'
                                         label={REGISTER_PHONE_LABEL}
-                                        data-cy={'register-phone-item'}
+                                        data-cy='register-phone-item'
                                         rules={REGISTER_PHONE_RULES}
                                     >
                                         <PhoneInput
@@ -151,7 +151,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                                     <Typography.Link
                                                         style={{ color: colors.black }}
                                                         target='_blank'
-                                                        href={'/pdpc.pdf'}
+                                                        href='/pdpc.pdf'
                                                         rel='noreferrer'>
                                                         {ConsentContent}
                                                     </Typography.Link>
@@ -160,7 +160,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                                     <Typography.Link
                                                         style={{ color: colors.black }}
                                                         target='_blank'
-                                                        href={'/policy.pdf'}
+                                                        href='/policy.pdf'
                                                         rel='noreferrer'>
                                                         {PrivacyPolicyContent}
                                                     </Typography.Link>
@@ -178,7 +178,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                             type='sberDefaultGradient'
                                             htmlType='submit'
                                             loading={isLoading}
-                                            data-cy={'register-button'}
+                                            data-cy='register-button'
                                             block
                                         >
                                             {RegisterMsg}
@@ -192,10 +192,10 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                     <Form.Item>
                                         <Button
                                             key='submit'
-                                            type={'sberAction'}
+                                            type='sberAction'
                                             secondary
                                             icon={<SberIconWithoutLabel/>}
-                                            href={'/api/sbbol/auth'}
+                                            href='/api/sbbol/auth'
                                             block
                                         >
                                             {LoginBySBBOLMsg}

@@ -30,13 +30,13 @@ export const ShowMoreFieldsButton = ({ isAdditionalFieldsCollapsed, setIsAdditio
 
     return (
         <Button
-            type="text"
+            type='text'
             color={colors.black}
             onClick={handleShowMoreButtonClick}
             style={SHOW_MORE_BUTTON_STYLE}
         >
             <Typography.Text strong>
-                <Space direction={'horizontal'} align={'center'}>
+                <Space direction='horizontal' align='center'>
                     {isAdditionalFieldsCollapsed ? MoreParametersMessage : LessParametersMessage}
                     <ChevronIconWrapper direction={isAdditionalFieldsCollapsed ? 'down' : 'up'}>
                         <ChevronIcon />

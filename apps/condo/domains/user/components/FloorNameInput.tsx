@@ -19,7 +19,7 @@ export const FloorNameInput = ({ floors, ...restSelectProps }) => {
         <Select
             allowClear
             showSearch
-            optionFilterProp={'title'}
+            optionFilterProp='title'
             {...restSelectProps}
         >
             {options}

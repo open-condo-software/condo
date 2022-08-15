@@ -85,9 +85,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                 <Row gutter={[0, 24]}>
                     <Col span={24}>
                         <Form.Item
-                            name={'name'}
+                            name='name'
                             label={NameLabel}
-                            labelAlign={'left'}
+                            labelAlign='left'
                             rules={validations.name}
                             required
                             {...INPUT_LAYOUT_PROPS}
@@ -97,9 +97,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                     </Col>
                     <Col span={24}>
                         <Form.Item
-                            name={'properties'}
+                            name='properties'
                             label={PropertiesLabel}
-                            labelAlign={'left'}
+                            labelAlign='left'
                             {...INPUT_LAYOUT_PROPS}
                             validateFirst
                             rules={validations.properties}
@@ -108,7 +108,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                             <GraphQlSearchInput
                                 search={searchOrganizationProperty(organizationId)}
                                 showArrow={false}
-                                mode="multiple"
+                                mode='multiple'
                                 infinityScroll
                                 initialValue={get(props, ['initialValues', 'properties'], [])}
                             />
@@ -122,9 +122,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                     </Col>
                     <Col span={24}>
                         <Form.Item
-                            name={'responsible'}
+                            name='responsible'
                             label={ResponsibleLabel}
-                            labelAlign={'left'}
+                            labelAlign='left'
                             rules={validations.responsible}
                             {...INPUT_LAYOUT_PROPS}
                             required
@@ -145,9 +145,9 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                     </Col>
                     <Col span={24}>
                         <Form.Item
-                            name={'executors'}
+                            name='executors'
                             label={ExecutorsLabel}
-                            labelAlign={'left'}
+                            labelAlign='left'
                             rules={validations.executors}
                             {...INPUT_LAYOUT_PROPS}
                             required
@@ -157,7 +157,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                                     get(role, 'canBeAssignedAsExecutor', false)
                                 ))}
                                 showArrow={false}
-                                mode="multiple"
+                                mode='multiple'
                             />
                         </Form.Item>
                     </Col>

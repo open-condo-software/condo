@@ -85,7 +85,7 @@ const makeLink = (content: JSX.Element, path: string) => {
 }
 
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
-    <Tooltip title={Message} placement={'right'} color={colors.black} textColor={colors.white}>
+    <Tooltip title={Message} placement='right' color={colors.black} textColor={colors.white}>
         {content}
     </Tooltip>
 )
@@ -124,16 +124,16 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     const linkContent = isCollapsed
         ? (
-            <IconWrapper className="icon">
+            <IconWrapper className='icon'>
                 <ClientRenderedIcon icon={icon}/>
             </IconWrapper>
         )
         : (
             <Space size={14}>
-                <IconWrapper className="icon">
+                <IconWrapper className='icon'>
                     <ClientRenderedIcon icon={icon}/>
                 </IconWrapper>
-                <Typography.Text className="label">
+                <Typography.Text className='label'>
                     {Message}
                 </Typography.Text>
             </Space>

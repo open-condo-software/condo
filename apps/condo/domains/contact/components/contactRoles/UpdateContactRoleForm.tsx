@@ -23,7 +23,7 @@ export const UpdateContactRoleForm = ({ id }) => {
 
     if (loading) {
         return (
-            <Loader fill size="large"/>
+            <Loader fill size='large'/>
         )
     }
 
@@ -35,14 +35,14 @@ export const UpdateContactRoleForm = ({ id }) => {
                 ...contactRole,
                 organization: get(ContactRole, ['organization', 'id']),
             }}
-            mode="update"
+            mode='update'
         >
             {({ handleSave, isLoading }) => (
                 <ActionBar>
                     <Button
-                        key="submit"
+                        key='submit'
                         onClick={handleSave}
-                        type="sberDefaultGradient"
+                        type='sberDefaultGradient'
                         loading={isLoading}
                     >
                         {SaveLabel}

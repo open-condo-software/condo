@@ -27,7 +27,7 @@ export function useHotCodeReload (): void {
         if (buildId && previousBuildId && previousBuildId !== buildId) {
             const btn: React.ReactNode = (
                 <Button
-                    type={'sberDefaultGradient'}
+                    type='sberDefaultGradient'
                     onClick={handleNotificationClose}
                 >
                     {ButtonLabel}

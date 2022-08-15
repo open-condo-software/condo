@@ -45,14 +45,14 @@ type ICircularProgressProps = {
  */
 export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     <Progress
-        type="circle"
+        type='circle'
         width={22}
         strokeWidth={14}
         strokeColor={{
             '0%': '#4CD174',
             '100%': '#6DB8F2',
         }}
-        strokeLinecap="square"
+        strokeLinecap='square'
         showInfo={false}
         percent={progress === TASK_PROGRESS_UNKNOWN ? 99 : progress}
         css={progress === TASK_PROGRESS_UNKNOWN ? InfiniteSpinningStyle : {}}

@@ -47,7 +47,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
     ) : (
         <SettingsTabsComponent
             tabPosition={isSmall ? 'top' : 'right'}
-            type="card"
+            type='card'
             defaultActiveKey={defaultTab}
             activeKey={defaultTab}
             tabBarGutter={8}

@@ -21,7 +21,7 @@ const AccountNumberFormItem = ({ children, initialValues, rules }) => {
             label={AccountNumberMessage}
             required
             rules={rules}
-            name={'accountNumber'}
+            name='accountNumber'
             initialValue={initialValues.accountNumber}
         >
             {children}

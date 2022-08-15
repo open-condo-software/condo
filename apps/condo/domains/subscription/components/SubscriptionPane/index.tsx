@@ -111,7 +111,7 @@ export const SubscriptionPane: React.FC = () => {
                                                     ? SbbolSubscriptionDeclineMessage
                                                     : DefaultSubscriptionDeclineMessage
                                             }
-                                            type={'warning'}
+                                            type='warning'
                                             showIcon
                                         />
                                     </Col>

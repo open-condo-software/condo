@@ -154,12 +154,12 @@ function RenderActionsColumn (text, item) {
 
     return <Space>
         {(isUnsavedNew || editing) ?
-            <Button size="small" type={'primary'} onClick={validateFields} loading={loading}>
+            <Button size='small' type='primary' onClick={validateFields} loading={loading}>
                 <SaveOutlined/>
             </Button>
             : null}
         {(isUnsavedNew) ?
-            <Button size="small" type={'primary'} onClick={deleteRow}>
+            <Button size='small' type='primary' onClick={deleteRow}>
                 <DeleteOutlined/>
             </Button>
             :
@@ -270,7 +270,7 @@ function NewOrExportTableBlock ({ columns, table }) {
             onClick={handleAdd} label={CreateMessage}
             style={{ marginBottom: '16px', width: '100%' }}/>
         {(data.length) ?
-            <Space direction="vertical">
+            <Space direction='vertical'>
                 <FormTable
                     dataSource={data}
                     columns={columns.filter((x => x.create))}

@@ -31,14 +31,14 @@ export const TicketDeadlineField = ({ initialValues }) => {
     }, [])
 
     return (
-        <Row align={'bottom'} gutter={TICKET_DEADLINE_FIELD_ROW_GUTTER} justify={'space-between'}>
+        <Row align='bottom' gutter={TICKET_DEADLINE_FIELD_ROW_GUTTER} justify='space-between'>
             <Col span={isSmall ? 24 : 11}>
                 <TicketFormItem
                     label={CompleteBeforeMessage}
-                    name={'deadline'}
+                    name='deadline'
                     required
                     initialValue={INITIAL_DEADLINE_VALUE}
-                    data-cy={'ticket__deadline-item'}
+                    data-cy='ticket__deadline-item'
                 >
                     <DatePicker
                         format='DD MMMM YYYY'
@@ -52,9 +52,9 @@ export const TicketDeadlineField = ({ initialValues }) => {
             {
                 isAutoDetectedValue && (
                     <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={isSmall ? 24 : 11}>
-                        <Row justify={'start'} align={'middle'} style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
+                        <Row justify='start' align='middle' style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
                             <Col span={24}>
-                                <Typography.Text type={'secondary'} style={AUTO_COMPLETE_MESSAGE_STYLE}>
+                                <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>
                                     {AutoCompletionMessage}
                                 </Typography.Text>
                             </Col>

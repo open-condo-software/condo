@@ -30,7 +30,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
 
     return [
         (
-            <FocusContainer margin={'0'} key={'sbbol'}>
+            <FocusContainer margin='0' key='sbbol'>
                 <Row gutter={[0, 20]}>
                     <Col span={24}>
                         <Typography.Paragraph>
@@ -42,7 +42,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
                                 </Col>
                                 <Col>
                                     <Typography.Text>
-                                        <Row align={'middle'}>
+                                        <Row align='middle'>
                                             <Typography.Text>{ClientsMessage}</Typography.Text>&nbsp;<SberIcon/>
                                         </Row>
                                     </Typography.Text>
@@ -68,7 +68,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
                                         key='submit'
                                         type='sberAction'
                                         icon={<SberIconWithoutLabel/>}
-                                        href={'/api/sbbol/auth'}
+                                        href='/api/sbbol/auth'
                                     >
                                         {LoginBySbbolMessage}
                                     </Button>
@@ -79,7 +79,7 @@ export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, 
             </FocusContainer>
         ),
         (
-            <FocusContainer margin={'0'} key={'default'} className={focusContainerClassNames}>
+            <FocusContainer margin='0' key='default' className={focusContainerClassNames}>
                 <Row gutter={[0, 20]}>
                     <Col span={24}>
                         <Typography.Paragraph>

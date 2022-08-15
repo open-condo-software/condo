@@ -57,7 +57,7 @@ const TicketAssignments = ({
                             {name} {postfix}
                         </Typography.Text>
                         {matchedSpecialization && (
-                            <Typography.Text type="secondary">
+                            <Typography.Text type='secondary'>
                                 {`(${matchedSpecialization.name.toLowerCase()})`}
                             </Typography.Text>
                         )}
@@ -152,7 +152,7 @@ const TicketAssignments = ({
                     <Typography.Title level={3}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
                 <Col span={isSmall ? 24 : 18}>
-                    <Row justify={'space-between'}>
+                    <Row justify='space-between'>
                         {autoAssign && propertyId && (
                             <Col span={24}>
                                 <AutoAssignerByDivisions
@@ -166,7 +166,7 @@ const TicketAssignments = ({
                         )}
                         <Col span={11}>
                             <TicketFormItem
-                                name={'executor'}
+                                name='executor'
                                 rules={validations.executor}
                                 label={<LabelWithInfo title={ExecutorExtra} message={ExecutorLabel}/>}
                             >
@@ -183,8 +183,8 @@ const TicketAssignments = ({
                         </Col>
                         <Col span={11}>
                             <TicketFormItem
-                                data-cy={'ticket__assignee-item'}
-                                name={'assignee'}
+                                data-cy='ticket__assignee-item'
+                                name='assignee'
                                 rules={validations.assignee}
                                 label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
                             >

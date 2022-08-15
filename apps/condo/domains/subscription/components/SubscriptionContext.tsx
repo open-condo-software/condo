@@ -70,7 +70,7 @@ const ExpiredModal: React.FC = () => {
             title={ExpiredTitleMessage}
             visible={visible}
             footer={[
-                <Button key="submit" type='sberPrimary' onClick={() => setVisible(false)}>
+                <Button key='submit' type='sberPrimary' onClick={() => setVisible(false)}>
                     {OKMessage}
                 </Button>,
             ]}

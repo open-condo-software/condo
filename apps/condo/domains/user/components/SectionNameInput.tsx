@@ -52,7 +52,7 @@ export const SectionNameInput = (props) => {
             allowClear
             showSearch
             placeholder={placeholder}
-            optionFilterProp={'title'}
+            optionFilterProp='title'
             loading={loading}
             disabled={loading}
             {...restInputProps}

@@ -106,7 +106,7 @@ export const EmployeesPageContent = ({
 
     const dropDownMenu = (
         <Menu>
-            <Menu.Item key="1">
+            <Menu.Item key='1'>
                 <Tooltip title={NotImplementedYetMessage}>
                     {AddItemUsingUploadLabel}
                 </Tooltip>
@@ -129,10 +129,10 @@ export const EmployeesPageContent = ({
                                 message={EmptyListMessage}
                                 createRoute={ADD_EMPLOYEE_ROUTE}
                                 createLabel={CreateEmployee}/>
-                            : <Row gutter={[0, 40]} align={'middle'}>
+                            : <Row gutter={[0, 40]} align='middle'>
                                 <Col span={24}>
                                     <TableFiltersContainer>
-                                        <Row justify={'space-between'} gutter={[0, 40]}>
+                                        <Row justify='space-between' gutter={[0, 40]}>
                                             <Col xs={24} lg={6}>
                                                 <Input
                                                     placeholder={SearchPlaceholder}
@@ -149,16 +149,16 @@ export const EmployeesPageContent = ({
                                                         overlay={dropDownMenu}
                                                         buttonsRender={() => [
                                                             <Button
-                                                                key="left"
-                                                                type={'sberPrimary'}
+                                                                key='left'
+                                                                type='sberPrimary'
                                                                 style={{ borderRight: '1px solid white' }}
                                                                 onClick={handleAddEmployee}
                                                             >
                                                                 {CreateEmployee}
                                                             </Button>,
                                                             <Button
-                                                                key="right"
-                                                                type={'sberPrimary'}
+                                                                key='right'
+                                                                type='sberPrimary'
                                                                 style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
                                                                 icon={<EllipsisOutlined/>}
                                                             />,
@@ -172,7 +172,7 @@ export const EmployeesPageContent = ({
                                 <Col span={24}>
                                     <Table
                                         bordered
-                                        tableLayout={'fixed'}
+                                        tableLayout='fixed'
                                         loading={employeesLoading || loading}
                                         dataSource={employees}
                                         columns={tableColumns}

@@ -129,7 +129,7 @@ export const CreateEmployeeForm: React.FC = () => {
         <FormWithAction
             action={action}
             initialValues={initialValues}
-            layout={'horizontal'}
+            layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
             formValuesToMutationDataPreprocessor={(values) => {
@@ -157,7 +157,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                         <Col span={24}>
                                             <Row gutter={[0, 24]}>
                                                 <Col span={24}>
-                                                    <Form.Item name={'role'} label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'} >
+                                                    <Form.Item name='role' label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign='left' >
                                                         <EmployeeRoleSelect
                                                             employeeRoles={employeeRoles}
                                                         />
@@ -165,10 +165,10 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 </Col>
                                                 <Col span={24}>
                                                     <Form.Item
-                                                        name={'name'}
+                                                        name='name'
                                                         label={FullNameLabel}
                                                         {...INPUT_LAYOUT_PROPS}
-                                                        labelAlign={'left'}
+                                                        labelAlign='left'
                                                         required
                                                         rules={validations.name}
                                                     >
@@ -176,15 +176,15 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={24}>
-                                                    <Form.Item name={'position'} label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign={'left'}>
+                                                    <Form.Item name='position' label={PositionLabel} {...INPUT_LAYOUT_PROPS} labelAlign='left'>
                                                         <Input />
                                                     </Form.Item>
                                                 </Col>
                                                 <Col span={24}>
                                                     <Form.Item
-                                                        name={'phone'}
+                                                        name='phone'
                                                         label={PhoneLabel}
-                                                        labelAlign={'left'}
+                                                        labelAlign='left'
                                                         required
                                                         validateFirst
                                                         rules={validations.phone}
@@ -195,9 +195,9 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 </Col>
                                                 <Col span={24}>
                                                     <Form.Item
-                                                        name={'email'}
+                                                        name='email'
                                                         label={EmailLabel}
-                                                        labelAlign={'left'}
+                                                        labelAlign='left'
                                                         validateFirst
                                                         rules={validations.email}
                                                         {...INPUT_LAYOUT_PROPS}
@@ -215,13 +215,13 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                 get(selectedRole, 'canBeAssignedAsExecutor') && (
                                                                     <Col span={24}>
                                                                         <Form.Item
-                                                                            name={'specializations'}
+                                                                            name='specializations'
                                                                             label={SpecializationsLabel}
-                                                                            labelAlign={'left'}
+                                                                            labelAlign='left'
                                                                             validateFirst
                                                                             {...INPUT_LAYOUT_PROPS}
                                                                         >
-                                                                            <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                                            <GraphQlSearchInput mode='multiple' search={searchClassifers} />
                                                                         </Form.Item>
                                                                     </Col>
                                                                 )

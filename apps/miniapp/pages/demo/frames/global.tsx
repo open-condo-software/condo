@@ -61,38 +61,38 @@ const GlobalFramePage: React.FC = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Space direction={'horizontal'} wrap>
+                    <Space direction='horizontal' wrap>
                         <Button
-                            size={'small'}
-                            type={'sberDefaultGradient'}
+                            size='small'
+                            type='sberDefaultGradient'
                             onClick={getHandleNotification('info')}
                         >
                             {SendInfoMessage}
                         </Button>
                         <Button
-                            size={'small'}
-                            type={'sberDefaultGradient'}
+                            size='small'
+                            type='sberDefaultGradient'
                             onClick={getHandleNotification('warning')}
                         >
                             {SendWarningMessage}
                         </Button>
                         <Button
-                            size={'small'}
-                            type={'sberDefaultGradient'}
+                            size='small'
+                            type='sberDefaultGradient'
                             onClick={getHandleNotification('error')}
                         >
                             {SendErrorMessage}
                         </Button>
                         <Button
-                            size={'small'}
-                            type={'sberDefaultGradient'}
+                            size='small'
+                            type='sberDefaultGradient'
                             onClick={handleModalClick}
                         >
                             {OpenModalMessage}
                         </Button>
                         <Button
-                            size={'small'}
-                            type={'sberDefaultGradient'}
+                            size='small'
+                            type='sberDefaultGradient'
                             onClick={handleClear}
                         >
                             {ClearLogsMessage}

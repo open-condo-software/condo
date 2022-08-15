@@ -126,8 +126,8 @@ const TicketPropertyHintIdPage = () => {
                                     <ActionBar>
                                         <Link href={`/settings/hint/${hintId}/update`}>
                                             <Button
-                                                color={'green'}
-                                                type={'sberDefaultGradient'}
+                                                color='green'
+                                                type='sberDefaultGradient'
                                             >
                                                 {UpdateMessage}
                                             </Button>

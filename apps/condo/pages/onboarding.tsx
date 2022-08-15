@@ -69,7 +69,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                     <PageContent>
                         <Row gutter={GUTTER_TITLE}>
                             <Col span={24}>
-                                <Space direction={'vertical'} size={24}>
+                                <Space direction='vertical' size={24}>
                                     <Typography.Title level={1}>{Title}</Typography.Title>
                                     <Typography.Paragraph>{SubTitle}</Typography.Paragraph>
                                 </Space>

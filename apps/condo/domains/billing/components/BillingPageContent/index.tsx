@@ -57,7 +57,7 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
 
     if (contextLoading) {
         return (
-            <Loader fill size={'large'}/>
+            <Loader fill size='large'/>
         )
     }
 
@@ -86,11 +86,11 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
         logEvent({ eventName: 'BillingPageInProgressStatus', denyDuplicates: true })
         return (
-            <BasicEmptyListView image={'/dino/waiting.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+            <BasicEmptyListView image='/dino/waiting.png' imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
                     {ConnectionInProgressMessage}
                 </Typography.Title>
-                <Typography.Text type={'secondary'}>
+                <Typography.Text type='secondary'>
                     {WillBeReadySoonMessage}
                 </Typography.Text>
             </BasicEmptyListView>
@@ -100,11 +100,11 @@ export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access,
     if (context.status === CONTEXT_ERROR_STATUS) {
         logEvent({ eventName: 'BillingPageErrorStatus', denyDuplicates: true })
         return (
-            <BasicEmptyListView image={'/dino/fail.png'} imageStyle={BIG_DINO_STYLE} spaceSize={16}>
+            <BasicEmptyListView image='/dino/fail.png' imageStyle={BIG_DINO_STYLE} spaceSize={16}>
                 <Typography.Title level={3}>
                     {ErrorOccurredMessage}
                 </Typography.Title>
-                <Typography.Text type={'secondary'}>
+                <Typography.Text type='secondary'>
                     {ConnectSupportMessage}
                 </Typography.Text>
             </BasicEmptyListView>

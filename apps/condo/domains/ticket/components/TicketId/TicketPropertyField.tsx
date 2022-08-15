@@ -57,16 +57,16 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
 
     const DeletedPropertyAddressMessage = useCallback(() => (
         <>
-            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+            <Typography.Paragraph style={{ margin: 0 }} type='secondary'>
                 {renderPostfix}
             </Typography.Paragraph>
-            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+            <Typography.Paragraph style={{ margin: 0 }} type='secondary'>
                 {streetPart}
             </Typography.Paragraph>
-            <Typography.Text type={'secondary'}>
+            <Typography.Text type='secondary'>
                 <TicketUnitMessage />
             </Typography.Text>
-            <Typography.Text type={'secondary'}>
+            <Typography.Text type='secondary'>
                 ({ DeletedMessage })
             </Typography.Text>
         </>
@@ -74,7 +74,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
 
     const PropertyAddressMessage = useCallback(() => (
         <>
-            <Typography.Paragraph style={{ margin: 0 }} type={'secondary'}>
+            <Typography.Paragraph style={{ margin: 0 }} type='secondary'>
                 {renderPostfix}
             </Typography.Paragraph>
             <Link href={`/property/${get(ticket, ['property', 'id'])}`}>

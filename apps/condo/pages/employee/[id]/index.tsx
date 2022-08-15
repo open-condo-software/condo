@@ -92,7 +92,7 @@ export const EmployeePageContent = ({
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} justify={'center'}>
+                    <Row gutter={[0, 40]} justify='center'>
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
                         </Col>
@@ -126,7 +126,7 @@ export const EmployeePageContent = ({
                                         {isEmployeeEditable && (
                                             <Col span={24}>
                                                 <label>
-                                                    <Space direction={'horizontal'} size={8}>
+                                                    <Space direction='horizontal' size={8}>
                                                         <Switch
                                                             onChange={handleEmployeeBlock}
                                                             defaultChecked={isEmployeeBlocked}
@@ -225,11 +225,11 @@ export const EmployeePageContent = ({
                                         </Col>
                                         {isEmployeeEditable && (
                                             <Col span={24}>
-                                                <Space direction={'horizontal'} size={40}>
+                                                <Space direction='horizontal' size={40}>
                                                     <Link href={`/employee/${get(employee, 'id')}/update`}>
                                                         <Button
-                                                            color={'green'}
-                                                            type={'sberPrimary'}
+                                                            color='green'
+                                                            type='sberPrimary'
                                                             secondary
                                                             icon={<EditFilled />}
                                                         >

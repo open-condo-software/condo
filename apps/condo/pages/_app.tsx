@@ -117,9 +117,9 @@ const MenuItems: React.FC = () => {
             <FocusElement>
                 <OnBoardingProgressIconContainer>
                     <MenuItem
-                        path={'/onboarding'}
+                        path='/onboarding'
                         icon={OnBoardingProgress}
-                        label={'menu.OnBoarding'}
+                        label='menu.OnBoarding'
                         isCollapsed={isCollapsed}
                     />
                 </OnBoardingProgressIconContainer>
@@ -137,10 +137,10 @@ const MenuItems: React.FC = () => {
                     />
                 ))}
                 <MenuItem
-                    key="menu-item-settings"
-                    path={'/settings'}
+                    key='menu-item-settings'
+                    path='/settings'
                     icon={BarSettingIcon}
-                    label={'menu.Settings'}
+                    label='menu.Settings'
                     disabled={!link}
                     isCollapsed={isCollapsed}
                 />
@@ -196,11 +196,11 @@ const MyApp = ({ Component, pageProps }) => {
         <>
             <Head>
                 <meta
-                    name="viewport"
-                    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+                    name='viewport'
+                    content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
                 />
             </Head>
-            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize={'large'}>
+            <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
                     <GlobalStyle/>
                     <FocusContextProvider>

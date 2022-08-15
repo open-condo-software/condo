@@ -83,9 +83,9 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                             <Col span={24}>
                                 <Form.Item
-                                    name={'name'}
+                                    name='name'
                                     label={NameMessage}
-                                    labelAlign={'left'}
+                                    labelAlign='left'
                                     required
                                     {...COMMON_FORM_ITEM_PROPS}
                                 >

@@ -110,10 +110,10 @@ export const ContactsPageContent = ({
                                 rowValidator={contactValidator}
                                 objectCreator={contactCreator}
                                 domainTranslate={ContactTitle}
-                                exampleTemplateLink={'/contact-import-example.xlsx'}
+                                exampleTemplateLink='/contact-import-example.xlsx'
                             >
                                 <Button
-                                    type={'sberPrimary'}
+                                    type='sberPrimary'
                                     icon={<DiffOutlined/>}
                                     block
                                     secondary
@@ -124,10 +124,10 @@ export const ContactsPageContent = ({
                         createLabel={CreateContact}
                         containerStyle={{ display: isNoContactsData ? 'flex' : 'none' }}
                     />
-                    <Row gutter={ROW_VERTICAL_GUTTERS} align={'middle'} justify={'start'} hidden={isNoContactsData}>
+                    <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start' hidden={isNoContactsData}>
                         <Col span={24}>
                             <TableFiltersContainer>
-                                <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS}>
+                                <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
                                     <Col xs={24} lg={6}>
                                         <Input
                                             placeholder={SearchPlaceholder}
@@ -141,8 +141,8 @@ export const ContactsPageContent = ({
                                     <Col>
                                         <Row
                                             gutter={ROW_HORIZONTAL_GUTTERS}
-                                            align={'middle'}
-                                            justify={'center'}
+                                            align='middle'
+                                            justify='center'
                                         >
                                             <Col hidden={isSmall}>
                                                 {
@@ -160,10 +160,10 @@ export const ContactsPageContent = ({
                                                             rowValidator={contactValidator}
                                                             objectCreator={contactCreator}
                                                             domainTranslate={ContactTitle}
-                                                            exampleTemplateLink={'/contact-import-example.xlsx'}
+                                                            exampleTemplateLink='/contact-import-example.xlsx'
                                                         >
                                                             <Button
-                                                                type={'sberPrimary'}
+                                                                type='sberPrimary'
                                                                 icon={<DiffOutlined/>}
                                                                 block
                                                                 secondary
@@ -177,8 +177,8 @@ export const ContactsPageContent = ({
                                                     canManageContacts && (
                                                         <Button
                                                             block={!isSmall}
-                                                            key="left"
-                                                            type={'sberPrimary'}
+                                                            key='left'
+                                                            type='sberPrimary'
                                                             onClick={() => router.push(ADD_CONTACT_ROUTE)}
                                                         >
                                                             {CreateContact}

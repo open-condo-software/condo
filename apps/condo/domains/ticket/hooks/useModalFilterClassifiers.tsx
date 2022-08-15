@@ -86,9 +86,9 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
         <Select
             showArrow
             filterOption
-            optionFilterProp={'label'}
+            optionFilterProp='label'
             value={loading ? [] : selected}
-            mode={'multiple'}
+            mode='multiple'
             onChange={handleSelectChange}
             options={renderOptions}
             onFocus={onFocus}
@@ -105,7 +105,7 @@ export function FilterModalPlaceClassifierSelect ({ form }) {
     return (
         <FilterModalBaseClassifierSelect
             form={form}
-            type={'place'}
+            type='place'
         />
     )
 }
@@ -114,7 +114,7 @@ export function FilterModalCategoryClassifierSelect ({ form }) {
     return (
         <FilterModalBaseClassifierSelect
             form={form}
-            type={'category'}
+            type='category'
         />
     )
 }
@@ -123,7 +123,7 @@ export function FilterModalProblemClassifierSelect ({ form }) {
     return (
         <FilterModalBaseClassifierSelect
             form={form}
-            type={'problem'}
+            type='problem'
         />
     )
 }

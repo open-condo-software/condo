@@ -64,7 +64,7 @@ export const useUpdateMeterModal = (refetch) => {
             ? []
             : [
                 <DeleteButtonWithConfirmModal
-                    key={'delete'}
+                    key='delete'
                     title={ConfirmDeleteTitle}
                     message={ConfirmDeleteMessage}
                     okButtonLabel={DeleteMessage}

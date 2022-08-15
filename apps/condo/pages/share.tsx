@@ -67,11 +67,11 @@ const Share: IShareProps = ({ date, number, details, id }) => {
     return (
         <>
             <Head>
-                <meta property="og:site_name" content={ShareTitleMessage} />
-                <meta property="og:title" content={ShareTitleMessage} />
-                <meta property="og:description" content={ShareDetailsMessage} />
-                <meta property="og:updated_time" content="14400000" />
-                <meta property="og:image" content={`${origin}/logoSnippet.png`} />
+                <meta property='og:site_name' content={ShareTitleMessage} />
+                <meta property='og:title' content={ShareTitleMessage} />
+                <meta property='og:description' content={ShareDetailsMessage} />
+                <meta property='og:updated_time' content='14400000' />
+                <meta property='og:image' content={`${origin}/logoSnippet.png`} />
             </Head>
             <RedirectToTicket ticketId={id} />
         </>

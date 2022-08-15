@@ -18,9 +18,9 @@ export default function Custom500 (): React.ReactElement {
     const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.error.Description' })
 
     return (
-        <Row justify={'space-between'}>
+        <Row justify='space-between'>
             <Col span={24}>
-                <Row gutter={[0, 14]} justify={'center'}>
+                <Row gutter={[0, 14]} justify='center'>
                     <Col span={18}>
                         <Typography.Title>{PageTitle}</Typography.Title>
                     </Col>

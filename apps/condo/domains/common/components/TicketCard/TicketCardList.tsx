@@ -74,7 +74,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets })
     return (
         <Container isSmall={isSmall}>
             <AddressPartContainer>
-                <Space size={8} direction={'vertical'}>
+                <Space size={8} direction='vertical'>
                     <Typography.Text type='secondary'>
                         {AddressLabel}
                     </Typography.Text>
@@ -149,11 +149,11 @@ const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     }, [tickets])
 
     if (loading) {
-        return <Loader size={'large'} spinning fill />
+        return <Loader size='large' spinning fill />
     }
 
     return (
-        <Row gutter={TICKET_CARD_LIST_GUTTER} justify={'end'} align={'top'}>
+        <Row gutter={TICKET_CARD_LIST_GUTTER} justify='end' align='top'>
             {
                 addresses.map(([address, tickets], key) => (
                     <TicketCard

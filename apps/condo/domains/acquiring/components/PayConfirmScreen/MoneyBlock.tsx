@@ -42,7 +42,7 @@ export const MoneyBlock: React.FC<IMoneyBlockProps> = ({
     return (
         <Row gutter={[0, 4]}>
             <Col span={24}>
-                <Typography.Text type={'secondary'} style={TITLE_STYLES}>
+                <Typography.Text type='secondary' style={TITLE_STYLES}>
                     {TitleLabel}
                 </Typography.Text>
             </Col>

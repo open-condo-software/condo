@@ -138,7 +138,7 @@ const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }
                     <Typography.Paragraph strong style={EMPTY_CONTAINER_TEXT_STYLES}>
                         {PromptTitleMessage}
                     </Typography.Paragraph>
-                    <Typography.Paragraph type={'secondary'} style={EMPTY_CONTAINER_TEXT_STYLES}>
+                    <Typography.Paragraph type='secondary' style={EMPTY_CONTAINER_TEXT_STYLES}>
                         {PromptDescriptionMessage}
                     </Typography.Paragraph>
                 </>
@@ -215,7 +215,7 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
         </Typography.Text>
         {
             newCommentsIndicator && (
-                <NewCommentIndicator title={''} />
+                <NewCommentIndicator title='' />
             )
         }
     </>
@@ -367,11 +367,11 @@ const Comments: React.FC<ICommentsListProps> = ({
     return (
         <Container isSmall={isSmall}>
             <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
-            <CommentsTabsContainer isTitleHidden={isTitleHidden} className="card-container">
+            <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
                 <Tabs
                     defaultActiveKey={ORGANIZATION_COMMENT_TYPE}
                     centered
-                    type={'card'}
+                    type='card'
                     tabBarGutter={4}
                     onChange={handleTabChange}
                 >

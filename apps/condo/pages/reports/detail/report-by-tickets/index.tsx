@@ -267,10 +267,10 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                 <Col xs={24} sm={12} lg={4} offset={isSmall ? 0 : 1}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE}>
                         <Select value={specification} onChange={onSpecificationChange}>
-                            <Select.Option disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0} value={'day'}>
+                            <Select.Option disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0} value='day'>
                                 {SpecificationDays}
                             </Select.Option>
-                            <Select.Option value={'week'}>{SpecificationWeeks}</Select.Option>
+                            <Select.Option value='week'>{SpecificationWeeks}</Select.Option>
                         </Select>
                     </Form.Item>
                 </Col>
@@ -279,7 +279,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         <GraphQlSearchInput
                             allowClear
                             search={searchOrganizationProperty(userOrganizationId)}
-                            mode={'multiple'}
+                            mode='multiple'
                             infinityScroll
                             value={addressList}
                             onChange={onAddressChange}
@@ -295,7 +295,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                             <GraphQlSearchInput
                                 allowClear
                                 search={searchClassifiers}
-                                mode={'multiple'}
+                                mode='multiple'
                                 value={classifierList}
                                 maxTagCount='responsive'
                                 onChange={onClassifierChange}
@@ -339,7 +339,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Col>
                 )}
                 <Col span={24}>
-                    <Button onClick={applyFilters} type={'sberPrimary'}>{ApplyButtonTitle}</Button>
+                    <Button onClick={applyFilters} type='sberPrimary'>{ApplyButtonTitle}</Button>
                 </Col>
             </Row>
         </Form>
@@ -901,7 +901,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Tooltip>
                     </Col>
                 </Row>
-                <Row gutter={[0, 24]} align={'top'} justify={'space-between'}>
+                <Row gutter={[0, 24]} align='top' justify='space-between'>
                     <Col span={24}>
                         <Tabs
                             css={tabsCss}
@@ -917,7 +917,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Tabs>
                     </Col>
                     <Col span={24}>
-                        <Row justify={'space-between'} gutter={[0, 20]}>
+                        <Row justify='space-between' gutter={[0, 20]}>
                             <Col span={24}>
                                 <TicketAnalyticsPageFilter
                                     onChange={onFilterChange}

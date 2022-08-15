@@ -20,7 +20,7 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
         const NoReportMessage = intl.formatMessage({ id: 'NoReceiptsLoaded' })
         if (!lastReport) {
             return (
-                <Typography.Text type={'warning'}>
+                <Typography.Text type='warning'>
                     {NoReportMessage}
                 </Typography.Text>
             )
@@ -35,7 +35,7 @@ export const ReportMessage: React.FC<IReportMessageProps> = ({ lastReport }) => 
         const uploadMessage = `${DataWasUploadedPrefixMessage} ${ReportDateMessage}${DataWasUploadedSuffixMessage} ${ReportTimeMessage}`
         return (
             <>
-                <Typography.Text type={'warning'}>
+                <Typography.Text type='warning'>
                     {uploadMessage}
                 </Typography.Text>
                 &nbsp;

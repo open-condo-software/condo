@@ -180,8 +180,8 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     return (
         <Col span={24} md={20} xl={18} xxl={16}>
             <Row gutter={UNIT_FIELDS_GUTTER}>
-                <Col span={inputColSpan} data-cy={'unit-name-input-item'}>
-                    <TicketFormItem name={'unitName'} label={FlatNumberLabel}>
+                <Col span={inputColSpan} data-cy='unit-name-input-item'>
+                    <TicketFormItem name='unitName' label={FlatNumberLabel}>
                         <UnitNameInput
                             property={property}
                             loading={loading}
@@ -195,7 +195,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                     </TicketFormItem>
                 </Col>
                 <Col span={inputColSpan}>
-                    <TicketFormItem name={'sectionName'} label={SectionNameLabel}>
+                    <TicketFormItem name='sectionName' label={SectionNameLabel}>
                         <SectionNameInput
                             disabled={disableSectionInputCondition}
                             property={property}
@@ -204,7 +204,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
                     </TicketFormItem>
                 </Col>
                 <Col span={inputColSpan}>
-                    <TicketFormItem name={'floorName'} label={FloorNameLabel}>
+                    <TicketFormItem name='floorName' label={FloorNameLabel}>
                         <FloorNameInput
                             disabled={disableFloorInputCondition}
                             property={property}

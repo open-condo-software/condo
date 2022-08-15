@@ -190,7 +190,7 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
                 {getFilePreviewByMimetype(mimetype, url)}
                 <Typography.Paragraph ellipsis={ELLIPSIS_CONFIG} style={FILENAME_TEXT_STYLES}>
                     {fileName}
-                    <Typography.Text type={'secondary'}>
+                    <Typography.Text type='secondary'>
                         .{fileExt}
                     </Typography.Text>
                 </Typography.Paragraph>
@@ -243,21 +243,21 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
         [comment.createdAt, comment.updatedAt, dateShowMode])
     const actions = useMemo(() => user.id === comment.user.id && ([
         <Popconfirm
-            key="delete"
+            key='delete'
             title={ConfirmDeleteTitle}
             okText={ConfirmDeleteOkText}
             cancelText={ConfirmDeleteCancelText}
             onConfirm={handleDeleteComment}
         >
             <Button
-                size="large"
+                size='large'
                 css={DeleteButtonStyle}
                 icon={<DeleteFilled/>}
             />
         </Popconfirm>,
         <Button
-            key="update"
-            size="large"
+            key='update'
+            size='large'
             css={UpdateButtonStyle}
             icon={<EditFilled />}
             onClick={handleUpdateComment}
@@ -286,8 +286,8 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
                 </>
             }
             author={
-                <Typography.Text type={'secondary'}>
-                    <Typography.Text type={'secondary'} underline style={AUTHOR_TEXT_STYLES}>
+                <Typography.Text type='secondary'>
+                    <Typography.Text type='secondary' underline style={AUTHOR_TEXT_STYLES}>
                         {comment.user.name}
                     </Typography.Text>
                     ({getCommentAuthorRoleMessage(comment.user, intl)}),

@@ -134,11 +134,11 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                                             router.push(`/property?tab=${key}`)
                                         }}>
                                         <Tabs.TabPane
-                                            key="buildings"
+                                            key='buildings'
                                             tab={BuildingsTabTitle}
                                         />
                                         <Tabs.TabPane
-                                            key="divisions"
+                                            key='divisions'
                                             tab={DivisionsTabTitle}
                                         />
                                     </Tabs>

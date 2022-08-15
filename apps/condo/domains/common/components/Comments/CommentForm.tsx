@@ -147,7 +147,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         <UploadComponent
             initialFileList={editableCommentFiles}
             UploadButton={
-                <Button type={'text'}>
+                <Button type='text'>
                     <ClipIcon />
                 </Button>
             }
@@ -180,7 +180,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                     <Holder>
                         {
                             showHelperMessage && (
-                                <Row justify={'space-between'} style={COMMENT_HELPERS_ROW_STYLES}>
+                                <Row justify='space-between' style={COMMENT_HELPERS_ROW_STYLES}>
                                     <CommentHelperWrapper>
                                         <Typography.Text>
                                             {HelperMessage}
@@ -192,7 +192,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                 </Row>
                             )
                         }
-                        <div className={'wrapper'}>
+                        <div className='wrapper'>
                             <Form.Item
                                 name={fieldName}
                                 rules={validations.comment}
@@ -200,7 +200,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                 <InputWithCounter
                                     maxLength={MAX_COMMENT_LENGTH}
                                     placeholder={PlaceholderMessage}
-                                    className="white"
+                                    className='white'
                                     autoSize={INPUT_WITH_COUNTER_AUTOSIZE_CONFIG}
                                     onKeyDown={handleKeyDown}
                                     onKeyUp={(event) => {handleKeyUp(event, form)}}

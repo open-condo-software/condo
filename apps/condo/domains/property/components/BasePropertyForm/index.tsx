@@ -154,7 +154,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
                                     <Form.Item
-                                        name="address"
+                                        name='address'
                                         label={AddressLabel}
                                         rules={validations.address}
                                         {...INPUT_LAYOUT_PROPS}
@@ -170,7 +170,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             }} />
                                     </Form.Item>
                                     <Form.Item
-                                        name="map"
+                                        name='map'
                                         hidden
                                     >
                                         <Input />
@@ -180,7 +180,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>
                                     <Form.Item
-                                        name="name"
+                                        name='name'
                                         label={NameMsg}
                                         {...INPUT_LAYOUT_PROPS}
                                     >
@@ -191,7 +191,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                             <Row gutter={PROPERTY_ROW_GUTTER}>
                                 <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
-                                        name="area"
+                                        name='area'
                                         label={AreaTitle}
                                         rules={validations.area}
                                     >
@@ -200,7 +200,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 </Col>
                                 <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
-                                        name="yearOfConstruction"
+                                        name='yearOfConstruction'
                                         label={YearOfConstructionTitle}
                                         rules={validations.yearOfConstruction}
                                     ><Input /></Form.Item>

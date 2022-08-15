@@ -102,7 +102,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     
     const modalTitleMessage = `${AccountMessage} ${accountNumber}`
     const title = (
-        <Space direction={'vertical'} size={4}>
+        <Space direction='vertical' size={4}>
             <Typography.Title level={3}>
                 {modalTitleMessage}
             </Typography.Title>
@@ -139,12 +139,12 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 }}
                 footer={null}
                 centered
-                className={'services-modal'}
+                className='services-modal'
                 style={{ marginTop:40 }}
             >
                 <Table
                     bordered
-                    tableLayout={'auto'}
+                    tableLayout='auto'
                     columns={columns}
                     dataSource={dataSource}
                     pagination={false}
@@ -183,7 +183,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                         const pointedNumber = totalToPay.toFixed(2)
                         return (
                             <Table.Summary.Row>
-                                <Table.Summary.Cell index={0} align={'right'} colSpan={columns.length}>
+                                <Table.Summary.Cell index={0} align='right' colSpan={columns.length}>
                                     <Typography.Text strong>
                                         {moneyRender(pointedNumber)}
                                     </Typography.Text>

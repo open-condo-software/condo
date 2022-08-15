@@ -59,9 +59,9 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     return (
         <>
             <Button
-                key={'submit'}
+                key='submit'
                 onClick={showConfirm}
-                type={'sberDanger'}
+                type='sberDanger'
                 loading={isDeleting}
                 secondary
                 {...buttonCustomProps}
@@ -74,13 +74,13 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
                 onCancel={handleCancel}
                 footer={[
                     showCancelButton && (
-                        <Button key="cancel" type="sberPrimary" secondary onClick={handleCancel}>
+                        <Button key='cancel' type='sberPrimary' secondary onClick={handleCancel}>
                             {CancelMessage}
                         </Button>
                     ),
                     <Button
-                        key={'submit'}
-                        type={'sberDanger'}
+                        key='submit'
+                        type='sberDanger'
                         onClick={handleDeleteButtonClick}
                     >
                         {okButtonLabel}

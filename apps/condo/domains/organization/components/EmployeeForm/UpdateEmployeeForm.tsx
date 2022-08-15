@@ -111,7 +111,7 @@ export const UpdateEmployeeForm = () => {
         <FormWithAction
             action={formAction}
             initialValues={initialValues}
-            layout={'horizontal'}
+            layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values)=> {
                 const isRoleDeleted = !values.role && initialValues.role
@@ -142,7 +142,7 @@ export const UpdateEmployeeForm = () => {
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Row gutter={[0, 40]} justify={'center'}>
+                    <Row gutter={[0, 40]} justify='center'>
                         <Col xs={10} lg={2}>
                             <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
                         </Col>
@@ -159,8 +159,8 @@ export const UpdateEmployeeForm = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'role'}
+                                        labelAlign='left'
+                                        name='role'
                                         label={RoleLabel}
                                     >
                                         <EmployeeRoleSelect employeeRoles={employeeRoles} disabled={isMyEmployee} />
@@ -169,8 +169,8 @@ export const UpdateEmployeeForm = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'position'}
+                                        labelAlign='left'
+                                        name='position'
                                         label={PositionLabel}
                                     >
                                         <Input/>
@@ -179,8 +179,8 @@ export const UpdateEmployeeForm = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'email'}
+                                        labelAlign='left'
+                                        name='email'
                                         label={EmailLabel}
                                         validateFirst
                                         rules={validations.email}
@@ -198,13 +198,13 @@ export const UpdateEmployeeForm = () => {
                                                 if (get(selectedRole, 'canBeAssignedAsExecutor'))
                                                     return (<Col span={24}>
                                                         <Form.Item
-                                                            name={'specializations'}
+                                                            name='specializations'
                                                             label={SpecializationsLabel}
-                                                            labelAlign={'left'}
+                                                            labelAlign='left'
                                                             validateFirst
                                                             {...INPUT_LAYOUT_PROPS}
                                                         >
-                                                            <GraphQlSearchInput mode="multiple" search={searchClassifers} />
+                                                            <GraphQlSearchInput mode='multiple' search={searchClassifers} />
                                                         </Form.Item>
                                                     </Col>)
                                             }
@@ -212,13 +212,13 @@ export const UpdateEmployeeForm = () => {
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
-                                            type={'sberPrimary'}
+                                            type='sberPrimary'
                                             secondary
                                         />
                                         <Button
-                                            key={'submit'}
+                                            key='submit'
                                             onClick={handleSave}
-                                            type={'sberPrimary'}
+                                            type='sberPrimary'
                                             loading={isLoading}
                                         >
                                             {ApplyChangesMessage}

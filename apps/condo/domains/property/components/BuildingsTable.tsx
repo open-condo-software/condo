@@ -130,22 +130,22 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         objectCreator={propertyCreator}
                     >
                         <Button
-                            type={'sberPrimary'}
+                            type='sberPrimary'
                             icon={<DiffOutlined/>}
                             secondary
                         />
                     </ImportWrapper>
                 )}
-                createRoute="/property/create"
+                createRoute='/property/create'
                 createLabel={CreateProperty}
                 containerStyle={{ display: isNoBuildingsData ? 'flex' : 'none' }}
             />
-            <Row justify={'space-between'} gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
+            <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify="space-between" gutter={ROW_VERTICAL_GUTTERS}>
+                        <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
                             <Col xs={24} lg={12}>
-                                <Row align={'middle'} gutter={ROW_BIG_HORIZONTAL_GUTTERS}>
+                                <Row align='middle' gutter={ROW_BIG_HORIZONTAL_GUTTERS}>
                                     <Col xs={24} lg={12}>
                                         <Input
                                             placeholder={SearchPlaceholder}
@@ -161,18 +161,18 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                             downloadLink
                                                 ? (
                                                     <Button
-                                                        type={'inlineLink'}
+                                                        type='inlineLink'
                                                         icon={<DatabaseFilled/>}
                                                         loading={isXlsLoading}
-                                                        target="_blank"
+                                                        target='_blank'
                                                         href={downloadLink}
-                                                        rel="noreferrer">
+                                                        rel='noreferrer'>
                                                         {DownloadExcelLabel}
                                                     </Button>
                                                 )
                                                 : (
                                                     <Button
-                                                        type={'inlineLink'}
+                                                        type='inlineLink'
                                                         icon={<DatabaseFilled/>}
                                                         loading={isXlsLoading}
                                                         onClick={onExportToExcelButtonClicked}>
@@ -184,7 +184,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                 </Row>
                             </Col>
                             <Col xs={24} lg={12}>
-                                <Row justify={'end'} gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
+                                <Row justify='end' gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
                                     <Col hidden={isSmall}>
                                         {
                                             canManageProperties && (
@@ -197,10 +197,10 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                                     rowValidator={propertyValidator}
                                                     domainTranslate={PropertyTitle}
                                                     objectCreator={propertyCreator}
-                                                    exampleTemplateLink="/buildings-import-example.xlsx"
+                                                    exampleTemplateLink='/buildings-import-example.xlsx'
                                                 >
                                                     <Button
-                                                        type={'sberPrimary'}
+                                                        type='sberPrimary'
                                                         icon={<DiffOutlined/>}
                                                         secondary
                                                     />
@@ -212,7 +212,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                         {
                                             canManageProperties
                                                 ? (
-                                                    <Button type="sberPrimary" onClick={() => router.push('/property/create')}>
+                                                    <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
                                                         {CreateLabel}
                                                     </Button>
                                                 )

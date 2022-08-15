@@ -27,12 +27,12 @@ const AlertBody: React.FC = () => {
     }, [router])
 
     return (
-        <Space direction={'vertical'} size={12}>
+        <Space direction='vertical' size={12}>
             <Typography.Text>
                 {AlertMessage}
             </Typography.Text>
             <Button
-                type={'sberBlack'}
+                type='sberBlack'
                 onClick={handleClick}
             >
                 {AlertButtonMessage}
@@ -47,9 +47,9 @@ export const AlreadyConnectedBilling: React.FC = () => {
 
     return (
         <Alert
-            message={<Typography.Text strong type={'danger'}>{AlertTitle}</Typography.Text>}
+            message={<Typography.Text strong type='danger'>{AlertTitle}</Typography.Text>}
             description={<AlertBody/>}
-            type={'error'}
+            type='error'
             showIcon
             style={ALERT_BOX_STYLE}
         />

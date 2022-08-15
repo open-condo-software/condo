@@ -42,9 +42,9 @@ export const AuthHeader: React.FC<IAuthHeaderProps> = ({ headerAction }) => {
                                 <ActionContainer>{headerAction}</ActionContainer>
                             </Col>
                         </Row>
-                        <Row justify={'center'}>
+                        <Row justify='center'>
                             <Col style={MINI_POSTER_STYLES}>
-                                <Image preview={false} src={'/miniPoster.png'}/>
+                                <Image preview={false} src='/miniPoster.png'/>
                             </Col>
                         </Row>
                     </MobileHeader>

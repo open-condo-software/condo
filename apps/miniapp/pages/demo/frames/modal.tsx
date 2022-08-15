@@ -33,9 +33,9 @@ const GlobalFramePage: React.FC = () => {
             <PageWrapper>
                 <PageContent>
                     <IFrameWrapper>
-                        <Alert message={ContentMessage}  type={'info'} />
+                        <Alert message={ContentMessage}  type='info' />
                         <Button
-                            type={'sberDefaultGradient'}
+                            type='sberDefaultGradient'
                             onClick={handleModalClose}
                         >
                             {ButtonMessage}

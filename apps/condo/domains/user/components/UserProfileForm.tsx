@@ -73,13 +73,13 @@ export const UserProfileForm = () => {
         <FormWithAction
             action={formAction}
             initialValues={initialValues}
-            layout={'horizontal'}
+            layout='horizontal'
             ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             validateTrigger={['onBlur', 'onSubmit']}
         >
             {({ handleSave, isLoading }) => {
                 return (
-                    <Row gutter={[0, 40]} justify={'center'}>
+                    <Row gutter={[0, 40]} justify='center'>
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24}/>
                         </Col>
@@ -96,8 +96,8 @@ export const UserProfileForm = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'name'}
+                                        labelAlign='left'
+                                        name='name'
                                         label={FullNameLabel}
                                         rules={validations.name}
                                     >
@@ -107,8 +107,8 @@ export const UserProfileForm = () => {
                                 <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
-                                        labelAlign={'left'}
-                                        name={'email'}
+                                        labelAlign='left'
+                                        name='email'
                                         label={EmailLabel}
                                         rules={validations.email}
                                     >
@@ -116,9 +116,9 @@ export const UserProfileForm = () => {
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign={'left'} label={PasswordLabel}>
+                                    <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
                                         <Button
-                                            type={'inlineLink'}
+                                            type='inlineLink'
                                             onClick={handleResetPasswordAction}
                                         >
                                             {ChangePasswordLabel}
@@ -128,13 +128,13 @@ export const UserProfileForm = () => {
                                 <Col span={24}>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
-                                            type={'sberPrimary'}
+                                            type='sberPrimary'
                                             secondary
                                         />
                                         <Button
-                                            key={'submit'}
+                                            key='submit'
                                             onClick={handleSave}
-                                            type={'sberPrimary'}
+                                            type='sberPrimary'
                                             loading={isLoading}
                                         >
                                             {ApplyChangesMessage}

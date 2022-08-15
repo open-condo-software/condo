@@ -179,7 +179,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             showSearch
             autoClearSearchValue={autoClearSearchValue || false}
             allowClear={true}
-            optionFilterProp={'title'}
+            optionFilterProp='title'
             defaultActiveFirstOption={false}
             onSearch={handleSearch}
             onSelect={handleSelect}

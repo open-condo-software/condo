@@ -261,12 +261,12 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     }
 
     return (
-        <div className={'upload-control-wrapper'}>
+        <div className='upload-control-wrapper'>
             <Upload { ...options }>
                 {
                     UploadButton || (
                         <Button
-                            type={'sberDefaultGradient'}
+                            type='sberDefaultGradient'
                             secondary
                             icon={<EditFilled />}
                         >

@@ -90,7 +90,7 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
                     showArrow
                     style={DROPDOWN_SELECT_STYLE}
                     value={selectedKeys}
-                    optionFilterProp={'label'}
+                    optionFilterProp='label'
                     onChange={(e) => {
                         setSelectedKeys(e)
                         confirm({ closeDropdown: false })

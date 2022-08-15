@@ -69,7 +69,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
     const fieldsString = columns.filter(({ required }) => required).map(column => column.label).join(', ')
 
     return (
-        <Space direction={'vertical'} size={10} style={{ maxWidth: 300 }}>
+        <Space direction='vertical' size={10} style={{ maxWidth: 300 }}>
             <Typography.Text>
                 {ColumnsFormatMessage}
             </Typography.Text>
@@ -79,7 +79,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
                     <Button
                         onClick={downloadExample}
                         icon={<DownloadOutlined />}
-                        type={'inlineLink'}
+                        type='inlineLink'
                     >{DownloadExampleTitle}</Button>
                 )
             }

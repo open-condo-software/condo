@@ -98,7 +98,7 @@ export const OrganizationSelect: React.FC = () => {
 
             return (
                 <Select.Option
-                    data-cy={'organization-select-item'}
+                    data-cy='organization-select-item'
                     style={optionStyle}
                     key={value}
                     value={value}
@@ -138,16 +138,16 @@ export const OrganizationSelect: React.FC = () => {
                     <Select
                         ref={selectRef}
                         css={blackSelectCss}
-                        size={'middle'}
+                        size='middle'
                         showAction={ORGANIZATION_SELECT_SHOW_ACTIONS}
                         dropdownRender={menu => (
                             <div>
                                 {menu}
                                 <Button
-                                    type={'inlineLink'}
+                                    type='inlineLink'
                                     style={{ marginLeft: '12px', padding: '8px 0', fontSize: '14px' }}
                                     onClick={() => showCreateOrganizationModal(true)}
-                                    eventName="OrganizationSelectClickAddOrganization"
+                                    eventName='OrganizationSelectClickAddOrganization'
                                 >{AddOrganizationTitle}</Button>
                             </div>
                         )}

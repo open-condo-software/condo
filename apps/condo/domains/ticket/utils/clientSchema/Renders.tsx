@@ -69,7 +69,7 @@ export const getTicketNumberRender = (intl, breakpoints, userTicketsCommentReadT
 
         const postfix = hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt) && (
             <div style={breakpoints.xl ? NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL : {}}>
-                <Tooltip title={NewResidentCommentMessage} placement={'topRight'}>
+                <Tooltip title={NewResidentCommentMessage} placement='topRight'>
                     <Typography.Text title={NewResidentCommentMessage}>
                         <div style={NEW_COMMENTS_INDICATOR_WRAPPER_STYLES} >
                             <div style={NEW_COMMENTS_INDICATOR_STYLES} />
@@ -203,7 +203,7 @@ export const getStatusRender = (intl, search: FilterValue) => {
                 {
                     record.isEmergency && (
                         <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>
-                            <Typography.Text type="danger">
+                            <Typography.Text type='danger'>
                                 {EmergencyMessage}
                             </Typography.Text>
                         </TicketTag>

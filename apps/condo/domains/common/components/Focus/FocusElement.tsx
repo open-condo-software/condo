@@ -62,7 +62,7 @@ export const FocusElement: React.FC = ({ children }) => {
                 <Tooltip
                     title={Title}
                     visible
-                    placement={'right'}
+                    placement='right'
                 >
                     <FocusWrapper>
                         {children}

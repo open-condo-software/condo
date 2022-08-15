@@ -184,7 +184,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             return [
                 ...dataOptions,
                 (
-                    <Option key={'loader'} value={null} disabled>
+                    <Option key='loader' value={null} disabled>
                         <Loader style={SELECT_LOADER_STYLE}/>
                     </Option>
                 ),
@@ -210,10 +210,10 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             onPopupScroll={infinityScroll && handleScroll}
             ref={setSelectRef}
             placeholder={placeholder}
-            notFoundContent={fetching ? <Loader size="small" delay={0} fill/> : notFoundContent}
+            notFoundContent={fetching ? <Loader size='small' delay={0} fill/> : notFoundContent}
             // TODO(Dimitreee): remove ts ignore after combobox mode will be introduced after ant update
             // @ts-ignore
-            mode={'SECRET_COMBOBOX_MODE_DO_NOT_USE'}
+            mode='SECRET_COMBOBOX_MODE_DO_NOT_USE'
             showArrow={false}
             filterOption={false}
             autoClearSearchValue={false}

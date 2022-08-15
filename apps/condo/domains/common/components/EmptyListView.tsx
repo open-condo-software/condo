@@ -44,7 +44,7 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
                 image={image ? image : <EmptyIcon/>}
                 imageStyle={{ height: '200px', ...imageStyle }}
                 description={
-                    <Space direction={'vertical'} size={spaceSize || 0}>
+                    <Space direction='vertical' size={spaceSize || 0}>
                         {children}
                     </Space>
                 }
@@ -60,7 +60,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
 
     return (
         <BasicEmptyListView
-            image="dino/searching@2x.png"
+            image='dino/searching@2x.png'
             spaceSize={16}
             imageStyle={{ height: 200 }}
             containerStyle={containerStyle}
@@ -68,7 +68,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
             <Typography.Title level={4}>
                 {label}
             </Typography.Title>
-            <Typography.Text type={'secondary'}>
+            <Typography.Text type='secondary'>
                 {message}
             </Typography.Text>
             <Row gutter={[10, 0]} align='middle' justify='center' style={{ marginTop: '24px' }}>
@@ -81,7 +81,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
                 }
                 <Col>
                     <Button
-                        type={'sberDefaultGradient'}
+                        type='sberDefaultGradient'
                         onClick={() => router.push(createRoute)}
                     >
                         {createLabel}

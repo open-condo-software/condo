@@ -30,13 +30,13 @@ const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
     return (
         <IFrameWrapper withUser withOrganization>
-            <ConfigProvider locale={ANT_LOCALES[intl.locale || 'en']} componentSize={'large'}>
+            <ConfigProvider locale={ANT_LOCALES[intl.locale || 'en']} componentSize='large'>
                 <CacheProvider value={cache}>
                     <Head>
-                        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
+                        <link rel='shortcut icon' href='/favicon.ico' type='image/x-icon'/>
                         <meta
-                            name="viewport"
-                            content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover"
+                            name='viewport'
+                            content='width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover'
                         />
                     </Head>
                     <GlobalStyle/>

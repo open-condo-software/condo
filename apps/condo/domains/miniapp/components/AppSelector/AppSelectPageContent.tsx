@@ -155,7 +155,7 @@ export const AppSelectPageContent: React.FC = () => {
                                         style={TABS_CONTENT_CONTAINER_STYLE}
                                         tabBarStyle={TABS_NAV_STYLE}
                                     >
-                                        <Tabs.TabPane tab={AllCategoryMessage} key={'all'}>
+                                        <Tabs.TabPane tab={AllCategoryMessage} key='all'>
                                             <CardsContainer cardsPerRow={appsPerRow}>
                                                 {
                                                     unconnectedApps.map(app => {
@@ -178,7 +178,7 @@ export const AppSelectPageContent: React.FC = () => {
                                         </Tabs.TabPane>
                                         {
                                             isAnyBillingAvailable && (
-                                                <Tabs.TabPane tab={BillingCategoryMessage} key={'billing'}>
+                                                <Tabs.TabPane tab={BillingCategoryMessage} key='billing'>
                                                     <CardsContainer cardsPerRow={appsPerRow}>
                                                         {
                                                             unconnectedBillingsApps.map(app => {
@@ -204,7 +204,7 @@ export const AppSelectPageContent: React.FC = () => {
                                         }
                                         {
                                             isAnyAcquiringAvailable && (
-                                                <Tabs.TabPane tab={AcquiringCategoryMessage} key={'acquiring'}>
+                                                <Tabs.TabPane tab={AcquiringCategoryMessage} key='acquiring'>
                                                     <CardsContainer cardsPerRow={appsPerRow}>
                                                         {
                                                             unconnectedAcquiringApps.map(app => {
