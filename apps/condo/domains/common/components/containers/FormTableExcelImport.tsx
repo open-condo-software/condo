@@ -69,7 +69,7 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
             placeholder={SelectColumnMessage}
             optionFilterProp='children'
             filterOption={(input, option) =>
-                option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                String(option.children).toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
         >
             {

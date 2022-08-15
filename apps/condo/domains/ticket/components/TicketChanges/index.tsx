@@ -6,7 +6,7 @@ import { green } from '@ant-design/colors'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 // TODO(antonal): fix "Module not found: Can't resolve '@condo/schema'"
 // import { SortTicketChangesBy } from '@condo/schema'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage } from '@condo/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 interface ITicketChangesProps {

@@ -17,10 +17,20 @@ __media
 _example.js
 codegen.yaml
 schema.graphql
+
 # yarn + npm
 yarn-error.log
 npm-debug.*
 ignore.*
+
+# yarn berry
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
 
 # mobile
 *.jks

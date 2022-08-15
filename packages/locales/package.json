@@ -2,8 +2,12 @@
   "name": "@condo/locales",
   "version": "1.0.0",
   "dependencies": {
+    "@condo/config": "workspace:^",
     "lodash": "^4.17.21",
     "next-cookies": "^2.0.3"
+  },
+  "exports": {
+    "./*": "./*.js"
   },
   "repository": "https://github.com/open-condo-software/condo/tree/master/packages/locales"
 }

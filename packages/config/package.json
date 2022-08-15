@@ -1,5 +1,6 @@
 {
     "name": "@condo/config",
+    "main": "index.js",
     "version": "1.0.0",
     "dependencies": {
         "dotenv": "^8.2.0"

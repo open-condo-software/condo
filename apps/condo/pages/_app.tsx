@@ -280,8 +280,10 @@ export default (
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(MyApp),
-            ),
-        ),
+                })(
+                    MyApp
+                )
+            )
+        )
     )
 )

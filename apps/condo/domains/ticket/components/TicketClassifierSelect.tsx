@@ -66,7 +66,7 @@ const useTicketClassifierSelectHook = ({
 
     const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
-    const classifiersRef = useRef<HTMLSelectElement>(null)
+    const classifiersRef = useRef(null)
     const optionsRef = useRef<Options[]>([])
     const selectedRef = useRef<string>(null)
 

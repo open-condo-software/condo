@@ -1,4 +1,4 @@
-import { IntlProvider, useIntl } from 'react-intl'
+import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
 import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
 import nextCookie from 'next-cookies'
@@ -145,4 +145,5 @@ const withIntl = ({ ssr = false, ...opts } = {}) => PageComponent => {
 export {
     withIntl,
     useIntl,
+    FormattedMessage,
 }

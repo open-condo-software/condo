@@ -77,5 +77,5 @@
     "jest-watch-typeahead": "^0.6.1",
     "typescript": "^4.1.5"
   },
-  "repository": "https://github.com/pahaz/hackathon-boilerplate-starter-kit/tree/master/apps/{{ name }}"
+  "repository": "https://github.com/open-condo-software/condo/tree/master/apps/{{ name }}"
 }

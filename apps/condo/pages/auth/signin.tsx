@@ -5,7 +5,7 @@ import React from 'react'
 import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
 import Head from 'next/head'
-import { useIntl } from 'react-intl'
+import { useIntl } from '@condo/next/intl'
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()

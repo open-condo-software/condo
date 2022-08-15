@@ -9,7 +9,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
-import { FormattedMessage } from 'react-intl'
+import { FormattedMessage } from '@condo/next/intl'
 
 import {
     SortTicketChangesBy,

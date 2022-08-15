@@ -13,7 +13,7 @@ const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSende
 
 const access = require('@miniapp/domains/condo/access/User')
 const { SERVICE_USER_TYPE, USER_TYPES } = require('@miniapp/domains/condo/constants/user')
-const { CONDO_ORGANIZATION_KEY } = require('@insurance/domains/condo/constants/common')
+const { CONDO_ORGANIZATION_KEY } = require('@miniapp/domains/condo/constants/common')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'condo.User (exported from condo API)',

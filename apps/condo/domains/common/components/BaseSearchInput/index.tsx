@@ -1,4 +1,3 @@
-import { OptionProps } from 'antd/lib/mentions'
 import { isEmpty } from 'lodash'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
@@ -22,7 +21,7 @@ interface ISearchInput<S> extends Omit<CustomSelectProps<S>, 'onSelect'> {
     // TODO(Dimtireee): remove any
     search: (searchText, skip?) => Promise<Array<Record<string, any>>>
     initialValueGetter?: InitialValuesGetter
-    onSelect?: (value: string, option: OptionProps) => void
+    onSelect?: (value: string, option) => void
     infinityScroll?: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType

@@ -77,7 +77,7 @@ export const OrganizationSelect: React.FC = () => {
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     const { user } = useAuth()
-    const selectRef = useRef<HTMLSelectElement>(null)
+    const selectRef = useRef(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
 
     const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useObjects(

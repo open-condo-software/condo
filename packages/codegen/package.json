@@ -1,5 +1,6 @@
 {
     "name": "@condo/codegen",
+    "main": "index.js",
     "version": "1.0.0",
     "repository": "https://github.com/open-condo-software/condo/tree/master/packages/codegen",
     "dependencies": {
