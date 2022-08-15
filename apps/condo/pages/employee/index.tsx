@@ -200,13 +200,24 @@ const EmployeesPage = () => {
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const sortBy = sortFromQuery.length > 0 ? sortFromQuery : 'createdAt_DESC'
+    const Intl = useIntl()
+    const translates = Intl.messages
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
+
     const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
+    const employeeRoleNameSearchString = get(searchEmployeeQuery, 'AND[0].OR[4].role.name_contains_i', null)
+    const employeeRoleName = Object.keys(translates).find(key => (
+        translates[key].includes(employeeRoleNameSearchString)
+        && key.includes('employee.role'))
+    )
+    if (employeeRoleName) {
+        searchEmployeeQuery.AND[0].OR[4].role.name_contains_i = employeeRoleName
+    }
 
     return (
         <EmployeesPageContent

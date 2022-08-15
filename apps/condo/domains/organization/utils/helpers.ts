@@ -27,9 +27,9 @@ export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWh
     }
 }
 
-export const roleToSearchQuery = (roleName: string) => {
+export const roleToSearchQuery = (search: string) => {
     return {
-        role: { name_contains_i: `employee.role.${roleName}` },
+        role: { name_contains_i: search },
     }
 }
 
