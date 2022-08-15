@@ -1,40 +1,14 @@
-const { get, set } = require('lodash')
+const { get } = require('lodash')
 const cuid = require('cuid')
 const ensureError = require('ensure-error')
 const { serializeError } = require('serialize-error')
-const falsey = require('falsey')
-const pino = require('pino')
-const serializers = require('pino-std-serializers')
 
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
+const { safeFormatError } = require('../apolloErrorFormatter')
+const { getLogger } = require('./getLogger')
+const { normalizeQuery, normalizeVariables } = require('./normalize')
 
-const HIDE_GRAPHQL_VARIABLES_KEYS = ['secret', 'password', 'data.password', 'data.secret']
-const REQ_LOG_KEY = 'req'
-const graphqlLogger = pino({
-    name: 'graphql',
-    enabled: falsey(process.env.DISABLE_LOGGING),
-    serializers: {
-        [REQ_LOG_KEY]: serializers.req,
-    },
-})
+const graphqlLogger = getLogger('graphql')
 
-function normalizeQuery (string) {
-    if (!string) return ''
-    // NOTE(pahaz): https://spec.graphql.org/June2018/#sec-Insignificant-Commas
-    //   Similar to white space and line terminators, commas (,) are used to improve the legibility of source text
-    return string.replace(/[\s,]+/g, ' ').trim()
-}
-
-function normalizeVariables (object) {
-    if (!object) return undefined
-    const data = JSON.parse(JSON.stringify(object))
-    for (const key of HIDE_GRAPHQL_VARIABLES_KEYS) {
-        if (get(data, key)) {
-            set(data, key, '***')
-        }
-    }
-    return data
-}
 
 function getRequestLoggingContext (requestContext) {
     const reqId = get(requestContext, 'context.req.id')
@@ -58,7 +32,7 @@ function getRequestLoggingContext (requestContext) {
     const operationName = get(requestContext, 'operationName')
     const queryHash = get(requestContext, 'queryHash')
 
-    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash, url, ip, [REQ_LOG_KEY]: req }
+    return { reqId, authedItemId, sessionId, user, operationId, operationName, queryHash, url, ip, req }
 }
 
 /**
@@ -117,6 +91,5 @@ class GraphQLLoggerPlugin {
 }
 
 module.exports = {
-    normalizeQuery,
     GraphQLLoggerPlugin,
 }
