@@ -15,7 +15,7 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@commitlint/cli": "^13.1.0",
+    "@commitlint/cli": "13.2.1",
     "@graphql-codegen/cli": "1.21.8",
     "@graphql-codegen/typescript": "1.23.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
