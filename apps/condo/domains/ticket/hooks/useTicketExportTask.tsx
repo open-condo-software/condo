@@ -56,7 +56,7 @@ export const useTicketExportTaskUIInterface = () => {
     }
 }
 
-export const useTicketExportTask = ({ where, sortBy, format, timeZone, user }) => {
+export const useTicketExportTask = ({ where, sortBy, format, locale, timeZone, user }) => {
     const intl = useIntl()
     const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
     const { TicketExportTask: TaskUIInterface } = useTicketExportTaskUIInterface()
@@ -73,6 +73,7 @@ export const useTicketExportTask = ({ where, sortBy, format, timeZone, user }) =
                     where,
                     format,
                     sortBy: sortBy,
+                    locale,
                     timeZone,
                     user: { connect: { id: user.id } },
                 }}
