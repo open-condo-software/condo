@@ -62,6 +62,7 @@ async function getOrCreateContactByClientData (context, resolvedData, existingIt
         property: { id: propertyId },
         unitName,
         unitType,
+        deletedAt: null,
     })
 
     if (contact) return contact
