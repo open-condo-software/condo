@@ -72,7 +72,6 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
   left: ${({ padding }) => padding ? padding : '24px'};
   box-sizing: border-box;
   width: 100%;
-  background: ${colors.backgroundLightGrey};
 `
 const { TabPane } = Tabs
 
