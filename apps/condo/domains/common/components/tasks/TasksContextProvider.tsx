@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useReducer, useRef } from 'react'
 import { notification } from 'antd'
-import dayjs from 'dayjs'
 import filter from 'lodash/filter'
 import identity from 'lodash/identity'
 import findIndex from 'lodash/findIndex'
 import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
+import { useAuth } from '@condo/next/auth'
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
 import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 
@@ -49,6 +49,7 @@ const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInte
  * TODO: Progress should be tracked after closing progress panel
  */
 const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedTaskRecords = [], uiInterfaces, children }) => {
+    const { user } = useAuth()
     // NOTE: Initial state of `tasks` cannot be initialized with `preloadedTaskRecords` prop, because a hook in parent component that loads tasks
     // will rerender this component as data comes, so, the state will not be reinitialized.
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
@@ -65,6 +66,14 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
             uniqBy([...prevTasks, ...preloadedTasks], 'record.id')
         ))
     }, [preloadedTaskRecords.length])
+
+    // Clean up tasks to hide progress panel when user is logged out
+    useEffect(() => {
+        if (!user) {
+            setTasks([])
+            forceUpdate()
+        }
+    }, [user])
 
     // Keep reference to the variable, because functions in `tasksContextInterface` will lose it after assignment to `TasksContext.Provider`
     const tasksRef = useRef(tasks)
