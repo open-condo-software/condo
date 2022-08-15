@@ -27,7 +27,14 @@ export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWh
     }
 }
 
-export const roleToSearchQuery = (search: string) => {
+export const roleToSearchQuery = (search: string, translates) => {
+    if (translates) {
+        search = Object.keys(translates).find(key => (
+            translates[key].toLowerCase().includes(search.toLowerCase())
+            && key.includes('employee.role')
+            && !key.includes('description'))
+        )
+    }
     return {
         role: { name_contains_i: search },
     }
@@ -69,12 +76,12 @@ export const emailToQuery = (email?: string) => {
     }
 }
 
-export const searchToQuery = (search?: string): OrganizationEmployeeWhereInput[] => {
+export const searchToQuery = (search?: string, translates = null): OrganizationEmployeeWhereInput[] => {
     if (!search) {
         return
     }
 
-    const roleQuery = roleToSearchQuery(search)
+    const roleQuery = roleToSearchQuery(search, translates)
 
     return [
         { name_contains_i: search },
@@ -85,7 +92,7 @@ export const searchToQuery = (search?: string): OrganizationEmployeeWhereInput[]
     ].filter(Boolean)
 }
 
-export const filtersToQuery = (filters: IFilters): OrganizationEmployeeWhereInput => {
+export const filtersToQuery = (filters: IFilters, translates = null): OrganizationEmployeeWhereInput => {
     const name = get(filters, 'name')
     const phone = get(filters, 'phone')
     const email = get(filters, 'email')
@@ -94,7 +101,7 @@ export const filtersToQuery = (filters: IFilters): OrganizationEmployeeWhereInpu
     const search = get(filters, 'search')
 
     const roleQuery = roleToQuery(roles)
-    const searchQuery = searchToQuery(search)
+    const searchQuery = searchToQuery(search, translates)
 
     const filtersCollection = [
         name && { name_contains_i: name },
