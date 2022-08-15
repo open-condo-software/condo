@@ -17,6 +17,7 @@ const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILA
 const { Meter: MeterApi } = require('./../utils/serverSchema')
 const { MeterReading } = require('../utils/serverSchema')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { deleteDeletedMeterMeterReadings } = require('@condo/domains/meter/tasks')
 
 
 const Meter = new GQLListSchema('Meter', {
@@ -219,22 +220,12 @@ const Meter = new GQLListSchema('Meter', {
                 }
             }
         },
-        afterChange: async ({ context, operation, originalInput, updatedItem }) => {
+        afterChange: async ({ operation, originalInput, updatedItem }) => {
             if (operation === 'update') {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {
-                    const meterId = updatedItem.id
-                    const meterReadings = await MeterReading.getAll(context, { meter: { id: meterId } })
-
-                    // TODO(DOMA-3197) move it to worker
-                    for (const reading of meterReadings) {
-                        await MeterReading.update(context, reading.id, {
-                            deletedAt: deletedMeterAt,
-                            dv: updatedItem.dv,
-                            sender: updatedItem.sender,
-                        })
-                    }
+                    await deleteDeletedMeterMeterReadings.delay(updatedItem, deletedMeterAt)
                 }
             }
         },

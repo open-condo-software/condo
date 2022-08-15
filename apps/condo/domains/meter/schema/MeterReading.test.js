@@ -841,26 +841,6 @@ describe('MeterReading', () => {
                 expect(updatedMeterReading.id).toMatch(UUID_RE)
                 expect(updatedMeterReading.value1).toEqual(newValue)
             })
-
-            test('readings are deleted after the related meter is deleted', async () => {
-                const client = await makeClientWithProperty()
-
-                const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-                const [meterReading1] = await createTestMeterReading(client, meter, source)
-                const [meterReading2] = await createTestMeterReading(client, meter, source)
-
-                expect(meterReading1.deletedAt).toBeNull()
-                expect(meterReading2.deletedAt).toBeNull()
-
-                await updateTestMeter(client, meter.id, {
-                    deletedAt: new Date(),
-                })
-
-                expect(meterReading1.deletedAt).toBeDefined()
-                expect(meterReading2.deletedAt).toBeDefined()
-            })
         })
         describe('Read', () => {
             test('employee: can read MeterReadings', async () => {
