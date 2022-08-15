@@ -16186,10 +16186,10 @@ pgpass@1.x:
   dependencies:
     split2 "^3.1.1"
 
-phone@3.1.17:
-  version "3.1.17"
-  resolved "https://registry.yarnpkg.com/phone/-/phone-3.1.17.tgz#4cf6e8f3738ba35d5261979c98823005af459792"
-  integrity sha512-62vV6eQGP15iGzCPS+ugaEzuvxz6qWBUlKnrAqzKtGUMT3HlLD7vpoi9NA+Ty7M3KvnKI+idddOgufqu1XAeEA==
+phone@3.1.25:
+  version "3.1.25"
+  resolved "https://registry.yarnpkg.com/phone/-/phone-3.1.25.tgz#de5f8238110375831f953535c65c28e98347cfea"
+  integrity sha512-VA3vWF1WV/0DrpXRnANpZVQpT6wWO8GUdmz6RzyMNfSEV9qWZ2pX6fLYUXAIaYhMs/Bievqv5aXQTkK+e2Wp+Q==
 
 picomatch@^2.0.4, picomatch@^2.2.1, picomatch@^2.2.3:
   version "2.3.0"
