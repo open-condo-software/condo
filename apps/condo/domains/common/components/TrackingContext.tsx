@@ -57,6 +57,7 @@ export enum TrackingEventType {
     Daterange = 'Daterange',
     FollowExternalLink = 'FollowExternalLink',
     ImportComplete = 'ImportComplete',
+    OnBoardingStepsCompleted = 'OnBoardingStepsCompleted',
 }
 
 interface IGetEventName {

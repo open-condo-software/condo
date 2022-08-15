@@ -24,6 +24,7 @@ import {
 } from '@condo/domains/onboarding/utils/stepUtils'
 import { OnBoardingStepType } from './OnBoardingStepItem'
 import { ONBOARDING_COMPLETED_PROGRESS } from '@condo/domains/onboarding/constants'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 interface IDecoratedOnBoardingStepType extends Omit<IOnBoardingStep, 'action'> {
     stepAction: () => void,
@@ -61,7 +62,7 @@ export const OnBoardingProvider: React.FC = (props) => {
     const { setIsVisible: showCreateOrganizationModal, ModalForm } = useCreateOrganizationModalForm({})
     const { setIsVisible: showOnBoardingCompleteModal, OnBoardingCompleteModal, isVisible: isOnBoardingCompleteVisible } = useOnBoardingCompleteModal()
 
-    const { obj: onBoarding, refetch: refetchOnBoarding } = OnBoardingHooks
+    const { obj: onBoarding, refetch: refetchOnBoarding, loading: onBoardingLoading } = OnBoardingHooks
         .useObject(
             { where: { user: { id: get(user, 'id') } } },
             { fetchPolicy: 'network-only' },
@@ -75,6 +76,8 @@ export const OnBoardingProvider: React.FC = (props) => {
 
     const updateOnBoarding = OnBoardingHooks.useUpdate({}, () => refetchOnBoarding())
     const updateStep = OnBoardingStepHooks.useUpdate({})
+
+    const { logEvent } = useTracking()
 
     const onBoardingStepsConfig = {
         'create.Organization': {
@@ -112,6 +115,22 @@ export const OnBoardingProvider: React.FC = (props) => {
         }
     })
 
+    const progress = getOnBoardingProgress(onBoardingSteps, onBoarding)
+
+    useEffect(() => {
+        if (progress < 100 && !onBoardingLoading && !stepsLoading) {
+            logEvent({
+                eventName: TrackingEventType.OnBoardingStepsCompleted,
+                eventProperties: {
+                    onBoarding: {
+                        stepsCompleted: stepsCompleted.length,
+                    },
+                },
+            })
+        }
+    }, [stepsCompleted.length, onBoardingLoading, stepsLoading])
+
+
     useEffect(() => {
         onBoardingSteps.forEach(async (step) => {
             const stepKey = getStepKey(step)
@@ -146,7 +165,7 @@ export const OnBoardingProvider: React.FC = (props) => {
 
     return (
         <OnBoardingContext.Provider value={{
-            progress: getOnBoardingProgress(onBoardingSteps, onBoarding),
+            progress,
             onBoarding,
             isLoading: stepsLoading,
             onBoardingSteps: decoratedSteps,
