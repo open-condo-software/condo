@@ -32,7 +32,7 @@ const OrganizationName: React.FC<IOrganizationName> = (props) => {
 
     return (
         <Typography.Text style={{ fontSize: fontSizes.content }}>
-            { name } ({ <Button type={'inlineLink'} onClick={selectOrganization}>{ EnterMessage }</Button> })
+            { name } (<Button type='inlineLink' onClick={selectOrganization}>{ EnterMessage }</Button>)
         </Typography.Text>
     )
 }

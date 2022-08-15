@@ -143,18 +143,18 @@ export const TicketsPageContent = ({
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
-                                createRoute="/ticket/create"
+                                createRoute='/ticket/create'
                                 createLabel={CreateTicket}/>
                             : (
-                                <Row gutter={ROW_GUTTER} align={'middle'} justify={'center'}>
+                                <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                                     <Col span={24}>
                                         <TableFiltersContainer>
-                                            <Row justify={'end'} gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col flex={'auto'}>
+                                            <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
+                                                <Col flex='auto'>
                                                     <Row
                                                         gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
-                                                        align={'middle'}
-                                                        justify={'start'}
+                                                        align='middle'
+                                                        justify='start'
                                                     >
                                                         <Col xs={24} md={8}>
                                                             <Input
@@ -173,8 +173,8 @@ export const TicketsPageContent = ({
                                                                         onChange={handleEmergencyChange}
                                                                         checked={emergency}
                                                                         style={CHECKBOX_STYLE}
-                                                                        eventName={'TicketFilterCheckboxEmergency'}
-                                                                        data-cy={'ticket__filter-isEmergency'}
+                                                                        eventName='TicketFilterCheckboxEmergency'
+                                                                        data-cy='ticket__filter-isEmergency'
                                                                     >
                                                                         {EmergenciesLabel}
                                                                     </Checkbox>
@@ -184,8 +184,8 @@ export const TicketsPageContent = ({
                                                                         onChange={handlePaidChange}
                                                                         checked={paid}
                                                                         style={CHECKBOX_STYLE}
-                                                                        eventName={'TicketFilterCheckboxPaid'}
-                                                                        data-cy={'ticket__filter-isPaid'}
+                                                                        eventName='TicketFilterCheckboxPaid'
+                                                                        data-cy='ticket__filter-isPaid'
                                                                     >
                                                                         {PaidLabel}
                                                                     </Checkbox>
@@ -195,8 +195,8 @@ export const TicketsPageContent = ({
                                                                         onChange={handleWarrantyChange}
                                                                         checked={warranty}
                                                                         style={CHECKBOX_STYLE}
-                                                                        eventName={'TicketFilterCheckboxWarranty'}
-                                                                        data-cy={'ticket__filter-isWarranty'}
+                                                                        eventName='TicketFilterCheckboxWarranty'
+                                                                        data-cy='ticket__filter-isWarranty'
                                                                     >
                                                                         {WarrantiesLabel}
                                                                     </Checkbox>
@@ -206,8 +206,8 @@ export const TicketsPageContent = ({
                                                                         onChange={handleReturnedChange}
                                                                         checked={returned}
                                                                         style={CHECKBOX_STYLE}
-                                                                        eventName={'TicketFilterCheckboxReturned'}
-                                                                        data-cy={'ticket__filter-isReturned'}
+                                                                        eventName='TicketFilterCheckboxReturned'
+                                                                        data-cy='ticket__filter-isReturned'
                                                                     >
                                                                         {ReturnedLabel}
                                                                     </Checkbox>
@@ -217,7 +217,7 @@ export const TicketsPageContent = ({
                                                     </Row>
                                                 </Col>
                                                 <Col>
-                                                    <Row justify={'end'} align={'middle'}>
+                                                    <Row justify='end' align='middle'>
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
@@ -228,9 +228,9 @@ export const TicketsPageContent = ({
                                                         <Col>
                                                             <Button
                                                                 secondary
-                                                                type={'sberPrimary'}
+                                                                type='sberPrimary'
                                                                 onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                                                data-cy={'ticket__filters-button'}
+                                                                data-cy='ticket__filters-button'
                                                             >
                                                                 <FilterFilled/>
                                                                 {FiltersButtonLabel}
@@ -250,7 +250,7 @@ export const TicketsPageContent = ({
                                             columns={tableColumns}
                                             onRow={handleRowAction}
                                             components={tableComponents}
-                                            data-cy={'ticket__table'}
+                                            data-cy='ticket__table'
                                         />
                                     </Col>
                                     <TaskLauncher disabled={isEmpty(tickets)}/>

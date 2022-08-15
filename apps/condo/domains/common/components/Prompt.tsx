@@ -72,10 +72,10 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
             title={title}
             centered
             footer={[
-                <Button key="back" type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
+                <Button key='back' type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
                     {LeaveLabel}
                 </Button>,
-                <Button key="submit" type='sberPrimary' onClick={handleSave}>
+                <Button key='submit' type='sberPrimary' onClick={handleSave}>
                     {SaveLabel}
                 </Button>,
             ]}

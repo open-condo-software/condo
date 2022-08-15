@@ -162,7 +162,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
             colon={false}
             labelAlign='left'
             requiredMark={false}
-            layout={'vertical'}
+            layout='vertical'
         >
             <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
                 <ResponsiveCol span={18}>
@@ -199,13 +199,13 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                             <Form.Item
                                 name='smsCode'
                                 label={SmsCodeTitle}
-                                data-cy={'register-smscode-item'}
+                                data-cy='register-smscode-item'
                                 rules={SMS_CODE_VALIDATOR_RULES}
                             >
                                 <Input
                                     placeholder=''
-                                    inputMode={'numeric'}
-                                    pattern={'[0-9]*'}
+                                    inputMode='numeric'
+                                    pattern='[0-9]*'
                                     onChange={handleVerifyCode}
                                 />
                             </Form.Item>
@@ -213,13 +213,13 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                     </Row>
                 </ResponsiveCol>
                 <ResponsiveCol span={18}>
-                    <CountDownTimer action={resendSms} id={'RESEND_SMS'} timeout={SMS_CODE_TTL} autostart={true}>
+                    <CountDownTimer action={resendSms} id='RESEND_SMS' timeout={SMS_CODE_TTL} autostart={true}>
                         {({ countdown, runAction }) => {
                             const isCountDownActive = countdown > 0
                             return (
                                 isCountDownActive ?
 
-                                    <Space direction={'horizontal'} size={8}>
+                                    <Space direction='horizontal' size={8}>
                                         <Typography.Link
                                             style={{ color: colors.textSecondary }}
                                             disabled={true}

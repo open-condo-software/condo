@@ -87,8 +87,8 @@ export const AppCarouselCard: React.FC<AppCarouselCardProps> = ({ logoSrc, title
                         </Typography.Paragraph>
                     </Col>
                     <Col span={24}>
-                        <Space size={10} direction={'horizontal'}>
-                            <CheckIcon fill={'#222'}/>
+                        <Space size={10} direction='horizontal'>
+                            <CheckIcon fill='#222'/>
                             <ConnectContainer>
                                 {ConnectedLabel}
                             </ConnectContainer>

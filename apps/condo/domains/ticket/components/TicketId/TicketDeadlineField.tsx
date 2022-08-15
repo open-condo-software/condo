@@ -30,21 +30,21 @@ export const TicketDeadlineField: React.FC<TicketDeadlineFieldProps> = ({ ticket
         switch (deadlineType) {
             case TicketDeadlineType.MORE_THAN_DAY: {
                 return (
-                    <Typography.Text type={'warning'} strong>
+                    <Typography.Text type='warning' strong>
                         ({ToCompleteMessage.replace('{days}', dayDiff)})
                     </Typography.Text>
                 )
             }
             case TicketDeadlineType.LESS_THAN_DAY: {
                 return (
-                    <Typography.Text type={'warning'} strong>
+                    <Typography.Text type='warning' strong>
                         ({LessThenDayMessage})
                     </Typography.Text>
                 )
             }
             case TicketDeadlineType.OVERDUE: {
                 return (
-                    <Typography.Text type={'danger'} strong>
+                    <Typography.Text type='danger' strong>
                         ({OverdueMessage.replace('{days}', overdueDiff)})
                     </Typography.Text>
                 )

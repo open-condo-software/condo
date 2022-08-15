@@ -115,7 +115,7 @@ export const MetersPageContent = ({
                 <TablePageContent>
                     <EmptyListView
                         label={EmptyListLabel}
-                        message={''}
+                        message=''
                         button={(
                             <ImportWrapper
                                 objectsName={MeterReadingImportObjectsName}
@@ -131,11 +131,11 @@ export const MetersPageContent = ({
                                 rowValidator={meterReadingValidator}
                                 objectCreator={meterReadingCreator}
                                 domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                exampleTemplateLink={'/meter-import-example.xlsx'}
+                                exampleTemplateLink='/meter-import-example.xlsx'
                                 mutationErrorsToMessages={mutationErrorsToMessages}
                             >
                                 <Button
-                                    type={'sberPrimary'}
+                                    type='sberPrimary'
                                     icon={<DiffOutlined />}
                                     block
                                     secondary
@@ -148,13 +148,13 @@ export const MetersPageContent = ({
                     />
                     <Row
                         gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
-                        align={'middle'}
-                        justify={'center'}
+                        align='middle'
+                        justify='center'
                         hidden={isNoMeterData}
                     >
                         <Col span={24}>
                             <TableFiltersContainer>
-                                <Row justify={'space-between'} gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
+                                <Row justify='space-between' gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}>
                                     <Col xs={24} lg={7}>
                                         <Input
                                             placeholder={SearchPlaceholder}
@@ -164,7 +164,7 @@ export const MetersPageContent = ({
                                         />
                                     </Col>
                                     <Col>
-                                        <Row gutter={[10, 0]} align={'middle'} justify={'center'}>
+                                        <Row gutter={[10, 0]} align='middle' justify='center'>
                                             {
                                                 canManageMeterReadings && (
                                                     <Col>
@@ -181,11 +181,11 @@ export const MetersPageContent = ({
                                                             rowValidator={meterReadingValidator}
                                                             objectCreator={meterReadingCreator}
                                                             domainTranslate={MeterReadingImportObjectsNameManyGenitive}
-                                                            exampleTemplateLink={'/meter-import-example.xlsx'}
+                                                            exampleTemplateLink='/meter-import-example.xlsx'
                                                             mutationErrorsToMessages={mutationErrorsToMessages}
                                                         >
                                                             <Button
-                                                                type={'sberPrimary'}
+                                                                type='sberPrimary'
                                                                 icon={<DiffOutlined />}
                                                                 block
                                                                 secondary
@@ -197,7 +197,7 @@ export const MetersPageContent = ({
                                             <Col>
                                                 <Button
                                                     secondary
-                                                    type={'sberPrimary'}
+                                                    type='sberPrimary'
                                                     onClick={handleMultipleFiltersButtonClick}
                                                 >
                                                     <FilterFilled/>

@@ -191,7 +191,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                     (form) => (
                         <Row gutter={METER_MODAL_ROW_GUTTERS}>
                             <Col span={24}>
-                                <Row justify={'space-between'} gutter={METER_MODAL_ROW_GUTTERS}>
+                                <Row justify='space-between' gutter={METER_MODAL_ROW_GUTTERS}>
                                     <Col span={24}>
                                         <BaseMeterModalAccountNumberField
                                             initialValues={initialValues}
@@ -202,7 +202,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                     <Col span={24}>
                                         <BaseMeterModalFormItem
                                             label={ResourceMessage}
-                                            name={'resource'}
+                                            name='resource'
                                             rules={validations.resource}
                                             initialValue={initialResourceValue}
                                         >

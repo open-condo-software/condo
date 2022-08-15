@@ -97,7 +97,7 @@ const useTicketClassifierSelectHook = ({
                     onSelect={onChange}
                     onSearch={onSearch}
                     onClear={() => onChange(null)}
-                    optionFilterProp={'title'}
+                    optionFilterProp='title'
                     defaultActiveFirstOption={false}
                     disabled={disabled}
                     defaultValue={initialValue}
@@ -109,7 +109,7 @@ const useTicketClassifierSelectHook = ({
                 >
                     {
                         optionsRef.current.map(classifier => (
-                            <Option data-cy={'ticket__classifier-option'} value={classifier.id} key={classifier.id} title={classifier.name}>{classifier.name}</Option>
+                            <Option data-cy='ticket__classifier-option' value={classifier.id} key={classifier.id} title={classifier.name}>{classifier.name}</Option>
                         ))
                     }
 
@@ -365,30 +365,30 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
             ticketForm.current = form
             return (
                 <Row gutter={CLASSIFIER_ROW_GUTTER}>
-                    <Form.Item name={'classifier'} rules={validations.classifierRule} noStyle={true}>
+                    <Form.Item name='classifier' rules={validations.classifierRule} noStyle={true}>
                         <Input type='hidden' />
                     </Form.Item>
-                    <Col span={12} data-cy={'ticket__place-select-item'}>
+                    <Col span={12} data-cy='ticket__place-select-item'>
                         <TicketFormItem
                             label={PlaceClassifierLabel}
-                            name={'placeClassifier'}
+                            name='placeClassifier'
                             rules={validations.placeClassifier}
                         >
                             <PlaceSelect disabled={disabled} />
                         </TicketFormItem>
                     </Col>
-                    <Col span={12} data-cy={'ticket__category-select-item'}>
+                    <Col span={12} data-cy='ticket__category-select-item'>
                         <TicketFormItem
                             label={CategoryClassifierLabel}
-                            name={'categoryClassifier'}
+                            name='categoryClassifier'
                             rules={validations.categoryClassifier}
                         >
                             <CategorySelect disabled={disabled} />
                         </TicketFormItem>
                     </Col>
-                    <Col span={24} data-cy={'ticket-problem-select-item'}>
+                    <Col span={24} data-cy='ticket-problem-select-item'>
                         <TicketFormItem
-                            name={'problemClassifier'}
+                            name='problemClassifier'
                             label={ProblemClassifierLabel}
                         >
                             <ProblemSelect disabled={disabled} />

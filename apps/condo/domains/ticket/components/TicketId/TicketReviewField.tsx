@@ -34,12 +34,12 @@ export const TicketReviewField: React.FC<TicketReviewFieldProps> = ({ ticket }) 
                     ticketReviewValue ? (
                         <>
                             {reviewValueToText[ticketReviewValue]}&nbsp;
-                            <Typography.Text type={'secondary'}>
+                            <Typography.Text type='secondary'>
                                 ({ticketReviewComment ? ticketReviewComment.replace(';', ', ') : ReviewWithoutCommentMessage})
                             </Typography.Text>
                         </>
                     ) : (
-                        <Typography.Text type={'secondary'}>
+                        <Typography.Text type='secondary'>
                             {NoReviewMessage}
                         </Typography.Text>
                     )

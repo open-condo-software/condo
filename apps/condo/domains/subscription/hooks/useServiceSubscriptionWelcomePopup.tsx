@@ -111,7 +111,7 @@ export const useServiceSubscriptionWelcomePopup = (): IServiceSubscriptionWelcom
                     </ServiceSubscriptionWelcomePopupParagraph>
                     <ServiceSubscriptionWelcomePopupParagraph>
                         <FormattedMessage
-                            id={'subscription.modal.newClient.trialTimeEndDate' }
+                            id='subscription.modal.newClient.trialTimeEndDate'
                             values={{
                                 endDate: subscription ? dayjs(subscription.finishAt).format('DD/MM/YYYY') : null,
                             }}

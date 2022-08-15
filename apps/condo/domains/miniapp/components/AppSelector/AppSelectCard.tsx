@@ -87,7 +87,7 @@ export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disa
                     </Col>
                     <Col span={24}>
                         <Typography.Paragraph style={PARAGRAPH_STYLE} ellipsis={{ rows: 3 }}>
-                            <Typography.Text type={'secondary'}>
+                            <Typography.Text type='secondary'>
                                 {description}
                             </Typography.Text>
                         </Typography.Paragraph>
@@ -95,7 +95,7 @@ export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disa
                     <Col span={24}>
                         <Button
                             style={BUTTON_STYLES}
-                            type={'sberBlack'}
+                            type='sberBlack'
                             disabled={disabled}
                         >
                             {MoreMessage}
@@ -106,7 +106,7 @@ export const AppSelectCard: React.FC<AppSelectCardProps> = ({ logoSrc, tag, disa
             {
                 tag && (
                     <TagContainer right={4} top={4}>
-                        <Typography.Text type={'secondary'}>
+                        <Typography.Text type='secondary'>
                             {tag}
                         </Typography.Text>
                     </TagContainer>

@@ -148,7 +148,7 @@ export const SettingsContent = () => {
                     onRow={handleRowAction}
                     dataSource={ticketPropertyHints}
                     columns={tableColumns}
-                    data-cy={'ticketPropertyHint__table'}
+                    data-cy='ticketPropertyHint__table'
                 />
             </Col>
             {
@@ -156,7 +156,7 @@ export const SettingsContent = () => {
                     <Col span={24}>
                         <ActionBar>
                             <Button
-                                type={'sberDefaultGradient'}
+                                type='sberDefaultGradient'
                                 icon={<PlusCircleOutlined/>}
                                 onClick={handleAddHintButtonClick}
                             >

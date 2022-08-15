@@ -293,7 +293,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                     <Col lg={17} md={24}>
                                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>
                                             <Col span={24}>
-                                                <Row justify={'space-between'} gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
+                                                <Row justify='space-between' gutter={FORM_ROW_MEDIUM_VERTICAL_GUTTER}>
                                                     <Col span={24}>
                                                         <Typography.Title level={5}>
                                                             {ClientInfoMessage}
@@ -301,7 +301,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                     </Col>
                                                     <Col span={24}>
                                                         <Form.Item
-                                                            name={'property'}
+                                                            name='property'
                                                             label={AddressLabel}
                                                             rules={validations.property}
                                                             wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}

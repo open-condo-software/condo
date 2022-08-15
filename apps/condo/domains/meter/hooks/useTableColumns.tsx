@@ -66,7 +66,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                     {value}
                 </Typography.Text>
                 {isAutomatic && isExternalSource && (
-                    <Typography.Text type={'warning'}>
+                    <Typography.Text type='warning'>
                         {` (${AutoMessage})`}
                     </Typography.Text>
                 )}

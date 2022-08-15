@@ -54,7 +54,7 @@ const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({
                         </Typography.Title>
                     </Col>
                     <Col span={24}>
-                        <Space size={24} direction={'vertical'}>
+                        <Space size={24} direction='vertical'>
                             {
                                 parts.map((part, index) => {
                                     return <MoneyBlock
@@ -69,7 +69,7 @@ const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({
                         </Space>
                     </Col>
                 </Row>
-                <Button key={'submit'} type={'sberPrimary'} onClick={onConfirm} size={'large'} style={{ width: '100%' }}>
+                <Button key='submit' type='sberPrimary' onClick={onConfirm} size='large' style={{ width: '100%' }}>
                     {PayMessage}
                 </Button>
             </Container>

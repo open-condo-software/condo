@@ -62,7 +62,7 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
     const AlertDescription = useMemo(() => (
         <>
             <Typography.Paragraph style={TEXT_STYLES}>{AlertContent}</Typography.Paragraph>
-            <Typography.Link href={linkHref} target={'_blank'} style={HINT_LINK_STYLES}>
+            <Typography.Link href={linkHref} target='_blank' style={HINT_LINK_STYLES}>
                 {ShowHintsMessage}
             </Typography.Link>
         </>
@@ -73,7 +73,7 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
             message={AlertMessage}
             description={AlertDescription}
             showIcon
-            type={'warning'}
+            type='warning'
         />
     )
 }
@@ -221,7 +221,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
     if (organizationTicketPropertyHintPropertiesLoading) {
         return (
-            <Loader fill size={'large'}/>
+            <Loader fill size='large'/>
         )
     }
 
@@ -246,9 +246,9 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
                                         <Form.Item
-                                            name={'properties'}
+                                            name='properties'
                                             label={BuildingsMessage}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             validateFirst
                                             rules={validations.properties}
                                             required
@@ -260,7 +260,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                                 initialValue={initialPropertyIds}
                                                 search={searchOrganizationPropertyWithoutPropertyHint(organizationId, propertiesWithTicketPropertyHintIds)}
                                                 showArrow={false}
-                                                mode="multiple"
+                                                mode='multiple'
                                                 infinityScroll
                                             />
                                         </Form.Item>
@@ -269,9 +269,9 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                             </Col>
                             <Col span={24}>
                                 <Form.Item
-                                    name={'name'}
+                                    name='name'
                                     label={NameMessage}
-                                    labelAlign={'left'}
+                                    labelAlign='left'
                                     {...APARTMENT_COMPLEX_NAME_FIELD_PROPS}
                                 >
                                     <Input disabled={!organizationId} />
@@ -281,9 +281,9 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                 <Row>
                                     <Col span={6}>
                                         <Form.Item
-                                            name={'content'}
+                                            name='content'
                                             label={HintMessage}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             rules={validations.content}
                                             required
                                             {...HINT_CONTENT_FIELD_LAYOUT_PROPS}

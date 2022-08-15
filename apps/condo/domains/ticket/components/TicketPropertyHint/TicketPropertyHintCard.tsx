@@ -68,7 +68,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                     {
                         isContentOverflow && (
                             <Link href={`/property/${propertyId}/hint`} passHref>
-                                <a target={'_blank'}>
+                                <a target='_blank'>
                                     <Typography.Link underline style={LINK_STYLES}>
                                         {ExtraTitleMessage}
                                     </Typography.Link>

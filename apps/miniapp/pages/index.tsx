@@ -60,14 +60,14 @@ const TasksExample = () => {
             <Typography.Title level={2}>
                 {TasksTitleMsg}
             </Typography.Title>
-            <Button onClick={postMessageToAddTask} type="primary">
+            <Button onClick={postMessageToAddTask} type='primary'>
                 {TasksAddMsg}
             </Button>
             <Typography.Paragraph>
                 Latest added task: {JSON.stringify(latestTaskRecord, null, '\t')}
             </Typography.Paragraph>
 
-            <Button onClick={postMessageToUpdateTask} type="primary">
+            <Button onClick={postMessageToUpdateTask} type='primary'>
                 {TasksUpdateMsg}
             </Button>
         </>

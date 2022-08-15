@@ -8,8 +8,8 @@ const INITIAL_PROPS: CarouselProps = {
     slidesToShow: 4,
     infinite: false,
     arrows: true,
-    nextArrow: <ArrowButton type={'next'}/>,
-    prevArrow: <ArrowButton type={'prev'}/>,
+    nextArrow: <ArrowButton type='next'/>,
+    prevArrow: <ArrowButton type='prev'/>,
 }
 
 export const Carousel: React.FC<CarouselProps> = (props) => {

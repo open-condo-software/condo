@@ -58,7 +58,7 @@ const ModalHeader = ({ handleModalClose }) => {
     const TitleMessage = intl.formatMessage({ id: 'WelcomePopup.title' })
 
     return (
-        <Row justify={'space-between'}>
+        <Row justify='space-between'>
             <Col>
                 <Typography.Title level={3}>{TitleMessage}</Typography.Title>
             </Col>
@@ -79,16 +79,16 @@ const ModalFooter = ({ step, setStep, handleModalClose }) => {
     const handlePrevStepButtonClick = useCallback(() => setStep(currentStep => currentStep - 1), [setStep])
 
     return (
-        <Row style={MODAL_ROW_STYLES} justify={'space-between'}>
+        <Row style={MODAL_ROW_STYLES} justify='space-between'>
             <Col>
                 <Row gutter={[20, 0]}>
                     <Col>
-                        <Button onClick={handlePrevStepButtonClick} disabled={step === 0} type={'text'}>
+                        <Button onClick={handlePrevStepButtonClick} disabled={step === 0} type='text'>
                             ←
                         </Button>
                     </Col>
                     <Col>
-                        <Button onClick={handleNextStepButtonClick} disabled={step === 2} type={'text'}>
+                        <Button onClick={handleNextStepButtonClick} disabled={step === 2} type='text'>
                             →
                         </Button>
                     </Col>
@@ -96,7 +96,7 @@ const ModalFooter = ({ step, setStep, handleModalClose }) => {
             </Col>
             {
                 step === 2 && (
-                    <Button type={'sberDefaultGradient'} onClick={handleModalClose}>
+                    <Button type='sberDefaultGradient' onClick={handleModalClose}>
                         {OkMessage}
                     </Button>
                 )

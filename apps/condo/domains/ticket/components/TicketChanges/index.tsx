@@ -41,7 +41,7 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total, loa
                     ))}
                     {displayCount < total && (
                         <Button
-                            type="text"
+                            type='text'
                             onClick={() => {
                                 setDisplayCount(displayCount + CHANGES_PER_CHUNK)
                             }}
@@ -53,7 +53,7 @@ export const TicketChanges: React.FC<ITicketChangesProps> = ({ items, total, loa
                         >
                             ↓&nbsp;
                             <FormattedMessage
-                                id="pages.condo.ticket.TicketChanges.fetchMore"
+                                id='pages.condo.ticket.TicketChanges.fetchMore'
                                 values={{
                                     count: Math.min(total - displayCount, CHANGES_PER_CHUNK),
                                 }}

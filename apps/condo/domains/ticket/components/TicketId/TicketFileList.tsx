@@ -73,7 +73,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     }, [])
 
     return (
-        <div className={'upload-control-wrapper'} css={UploadListWrapperStyles}>
+        <div className='upload-control-wrapper' css={UploadListWrapperStyles}>
             <UploadList locale={{}} showRemoveIcon={false} items={uploadFiles} />
         </div>
     )

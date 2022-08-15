@@ -76,12 +76,12 @@ export const WelcomeHeaderTitle: React.FC = () => {
         <Row style={ROW_TITLE_STYLE} gutter={ITEMS_HEADER_GUTTER}>
             <Image
                 preview={false}
-                src={'/WomanHeaderWelcome.png'}
+                src='/WomanHeaderWelcome.png'
                 css={WomanPictureCSS}
             />
             <Image
                 preview={false}
-                src={'/ManHeaderWelcome.png'}
+                src='/ManHeaderWelcome.png'
                 css={ManPictureCSS}
             />
             <Typography.Text

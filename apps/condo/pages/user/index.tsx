@@ -41,7 +41,7 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
             <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} justify={'center'}>
+                    <Row gutter={[0, 40]} justify='center'>
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24}/>
                         </Col>
@@ -90,10 +90,10 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
                                             </Row>
                                         </Col>
                                         <Col span={24}>
-                                            <Link href={'/user/update'}>
+                                            <Link href='/user/update'>
                                                 <Button
-                                                    color={'green'}
-                                                    type={'sberPrimary'}
+                                                    color='green'
+                                                    type='sberPrimary'
                                                     secondary
                                                     icon={<EditFilled />}
                                                 >

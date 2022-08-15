@@ -86,7 +86,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
                 value={value}
                 title={label}
                 style={{ color }}
-                data-cy="ticket__status-select-option"
+                data-cy='ticket__status-select-option'
             >
                 {label}
             </Select.Option>
@@ -125,7 +125,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
                 value={selectValue}
                 bordered={false}
                 labelInValue
-                eventName={'TicketStatusSelect'}
+                eventName='TicketStatusSelect'
                 {...props}
             >
                 {options}

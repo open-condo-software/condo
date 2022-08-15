@@ -25,7 +25,7 @@ export const CreateContactRoleForm = () => {
             action={action}
             organizationId={organizationId}
             initialValues={{}}
-            mode="create"
+            mode='create'
         >
             {({ handleSave, isLoading }) => (
                 <ActionBar>

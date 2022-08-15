@@ -37,7 +37,7 @@ const radioButtonBorderlessCss = css`
 `
 
 const RadioGroupWithIcon: React.FC<RadioGroupProps> = ({ children, ...radioButtonGroupProps }) => {
-    return <Radio.Group className={'sberRadioGroup'} css={radioButtonCss} {...radioButtonGroupProps}>
+    return <Radio.Group className='sberRadioGroup' css={radioButtonCss} {...radioButtonGroupProps}>
         {children}
     </Radio.Group>
 }

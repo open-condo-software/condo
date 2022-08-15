@@ -340,7 +340,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         ) : (
                                             <Col span={24}>
                                                 <Button
-                                                    type="link"
+                                                    type='link'
                                                     style={BUTTON_STYLE}
                                                     onClick={handleClickOnPlusButton}
                                                     icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}

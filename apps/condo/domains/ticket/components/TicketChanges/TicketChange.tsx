@@ -43,7 +43,7 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
             <Col xs={24} lg={6}>
                 <Typography.Text style={isSmall && { fontSize: fontSizes.content }} disabled={isSmall}>
                     {formattedDate}
-                    <Typography.Text type={'secondary'}>, {formattedTime}</Typography.Text>
+                    <Typography.Text type='secondary'>, {formattedTime}</Typography.Text>
                 </Typography.Text>
             </Col>
             <Col xs={24} lg={18}>
@@ -165,7 +165,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             details: (field, value) => (
                 value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
                     <Tooltip title={value}
-                        placement="top"
+                        placement='top'
                         overlayStyle={{
                             maxWidth: '80%',
                         }}>
@@ -347,7 +347,7 @@ const SafeUserMention = ({ ticketChange }) => {
                 {ticketChange.changedByRole} {ticketChange.createdBy.name}
             </>
         ) : (
-            <Tooltip placement="top" title={DeletedCreatedAtNoticeDescription}>
+            <Tooltip placement='top' title={DeletedCreatedAtNoticeDescription}>
                 <span>{DeletedCreatedAtNoticeTitle}</span>
             </Tooltip>
         )

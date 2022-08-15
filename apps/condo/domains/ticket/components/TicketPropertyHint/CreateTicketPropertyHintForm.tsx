@@ -25,7 +25,7 @@ export const CreateTicketPropertyHintForm = () => {
             action={action}
             organizationId={organizationId}
             initialValues={{}}
-            mode={'create'}
+            mode='create'
         >
             {({ handleSave, isLoading }) => (
                 <ActionBar>

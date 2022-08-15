@@ -23,7 +23,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
 
     return (
         <Layout style={LAYOUT_STYLE}>
-            <Row align={'stretch'} justify={'center'}>
+            <Row align='stretch' justify='center'>
                 <AuthHeader headerAction={headerAction}/>
                 <Col lg={12} md={24} hidden={isSmall}>
                     <PosterWrapper>

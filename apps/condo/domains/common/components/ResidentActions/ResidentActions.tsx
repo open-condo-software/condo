@@ -25,16 +25,16 @@ const ResidentAppealDropdownOverlay = () => {
         <StyledMenu>
             <MenuItem
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                path={'/ticket/create'}
+                path='/ticket/create'
                 icon={AppealIcon}
-                label={'CreateAppeal'}
+                label='CreateAppeal'
             />
             <Divider style={{ margin: 0 }}/>
             <MenuItem
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                path={'/meter/create'}
+                path='/meter/create'
                 icon={MeterIcon}
-                label={'CreateMeterReading'}
+                label='CreateMeterReading'
             />
         </StyledMenu>
     )
@@ -59,9 +59,9 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
         >
             {
                 minified
-                    ? (<Button type={'sberGradient'} icon={<PlusOutlined />} shape={'circle'}/>)
+                    ? (<Button type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
                     : (
-                        <Button type={'sberGradient'} icon={<PlusOutlined />}>
+                        <Button type='sberGradient' icon={<PlusOutlined />}>
                             {ResidentAppealMessage}
                         </Button>
                     )

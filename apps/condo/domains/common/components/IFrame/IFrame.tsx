@@ -215,17 +215,17 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const styles = useMemo(() => getIframeStyles(isLoading), [isLoading])
     return (
         <Wrapper>
-            {shouldHaveLoader && isLoading && <Loader fill size={'large'}/>}
+            {shouldHaveLoader && isLoading && <Loader fill size='large'/>}
             {isError && (
                 <BasicEmptyListView
-                    image={'/dino/waiting@2x.png'}
+                    image='/dino/waiting@2x.png'
                     spaceSize={16}
                     imageStyle={EMPTY_VIEW_IMAGE_STYLE}
                 >
                     <Typography.Title level={4}>
                         {LoadingErrorTitle}
                     </Typography.Title>
-                    <Typography.Text type={'secondary'}>
+                    <Typography.Text type='secondary'>
                         {LoadingErrorMessage}
                     </Typography.Text>
                 </BasicEmptyListView>
@@ -237,7 +237,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
                 key={iframeKey}
                 frameBorder={0}
                 height={frameHeight}
-                scrolling={'no'}
+                scrolling='no'
                 ref={iFrameRef}
                 hidden={isError}
             />

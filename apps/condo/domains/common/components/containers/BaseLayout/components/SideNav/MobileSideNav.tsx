@@ -49,7 +49,7 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
             collapsed={isCollapsed}
             theme='light'
             css={MOBILE_SIDE_NAV_STYLES}
-            width={'100%'}
+            width='100%'
             collapsedWidth={0}
         >
             <MobileSideNavHeader>

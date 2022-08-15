@@ -26,7 +26,7 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
 
     if (loading) {
         return (
-            <Loader fill size={'large'}/>
+            <Loader fill size='large'/>
         )
     }
 
@@ -38,7 +38,7 @@ export const UpdateTicketPropertyHintForm = ({ id }) => {
                 ...ticketPropertyHint,
                 organization: get(TicketPropertyHint, ['organization', 'id']),
             }}
-            mode={'update'}
+            mode='update'
         >
             {({ handleSave, isLoading }) => (
                 <ActionBar>

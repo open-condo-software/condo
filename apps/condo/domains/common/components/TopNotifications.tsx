@@ -84,7 +84,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
                                                         removeNotification(notification.id)
                                                     }}
                                                     size={isSmall ? 'middle' : 'large'}
-                                                    type={'sberPrimary'}
+                                                    type='sberPrimary'
                                                     secondary={action.secondary}
                                                     key={idx}
                                                 >

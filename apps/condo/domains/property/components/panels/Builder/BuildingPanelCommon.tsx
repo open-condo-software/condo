@@ -110,7 +110,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
             </Typography.Text>
             {mode === 'view' && (
                 <Button
-                    type={'sberDefaultGradient'}
+                    type='sberDefaultGradient'
                     style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
                     secondary
                     onClick={createMapCallback}
@@ -182,10 +182,10 @@ export const BuildingChooseSections: React.FC<IBuildingChooseSectionsProps> = (p
                 {mode === 'view' ? (
                     <Button
                         style={FULLSCREEN_BUTTON_STYLE}
-                        type={'sberDefaultGradient'}
+                        type='sberDefaultGradient'
                         secondary
                         icon={isFullscreen ? <FullscreenExitOutlined /> : <FullscreenOutlined />}
-                        size={'large'}
+                        size='large'
                         onClick={toggleFullscreen}
                     >
                         {isFullscreen
@@ -280,8 +280,8 @@ export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
     return (
         <Radio.Group
             {...props}
-            optionType={'button'}
-            buttonStyle={'solid'}
+            optionType='button'
+            buttonStyle='solid'
             css={BuildingViewModeSelectCss}
         >
             <Radio.Button value={MapViewMode.section}>{ResidentialBuildingLabel}</Radio.Button>

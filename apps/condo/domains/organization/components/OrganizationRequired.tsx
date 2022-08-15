@@ -40,7 +40,7 @@ const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions
     let pageView = children
 
     if (isLoading || isLoadingAuth) {
-        pageView = <Loader fill size={'large'}/>
+        pageView = <Loader fill size='large'/>
     }
 
     if (!link && !isLoading) {

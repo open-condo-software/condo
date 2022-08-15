@@ -118,7 +118,7 @@ function ResetPageView () {
     }
     const Content = () => {
         if (isLoading) {
-            return <Loader size="large" />
+            return <Loader size='large' />
         }
 
         return (
@@ -131,7 +131,7 @@ function ResetPageView () {
                     initialValues={initialValues}
                     colon={false}
                     requiredMark={false}
-                    layout={'vertical'}
+                    layout='vertical'
                 >
                     <Row style={ROW_STYLES}>
                         <ResponsiveCol span={24}>
@@ -149,14 +149,14 @@ function ResetPageView () {
                                         name='phone'
                                         label={REGISTER_PHONE_LABEL}
                                         rules={validations.phone}
-                                        data-cy={'forgot-phone-item'}
+                                        data-cy='forgot-phone-item'
                                     >
                                         <PhoneInput style={FORM_PHONE_STYLES} placeholder={ExamplePhoneMsg} />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item>
-                                        <CountDownTimer action={startConfirmPhoneAction} id={'FORGOT_ACTION'} timeout={SMS_CODE_TTL}>
+                                        <CountDownTimer action={startConfirmPhoneAction} id='FORGOT_ACTION' timeout={SMS_CODE_TTL}>
                                             {({ countdown, runAction }) => {
                                                 const isCountDownActive = countdown > 0
 
@@ -174,7 +174,7 @@ function ResetPageView () {
                                                         loading={isLoading}
                                                         htmlType='submit'
                                                         style={{ width: '100%' }}
-                                                        data-cy={'forgot-button'}
+                                                        data-cy='forgot-button'
                                                     >
                                                         {isCountDownActive ? `${RestorePasswordMsg} ${countdown}` : RestorePasswordMsg}
                                                     </Button>

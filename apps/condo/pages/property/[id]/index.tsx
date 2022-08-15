@@ -51,14 +51,14 @@ const PROPERTY_INFO_PANEL_MESSAGE_TEXT_STYLE: React.CSSProperties = {
 
 const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type, large = false }) => (
     <FocusContainer style={PROPERTY_INFO_PANEL_STYLE}>
-        <Space direction={'vertical'} size={8}>
+        <Space direction='vertical' size={8}>
             <Typography.Text
                 {...{ type }}
                 style={large ? PROPERTY_INFO_PANEL_MESSAGE_STYLE : PROPERTY_INFO_PANEL_MESSAGE_TEXT_STYLE}
             >
                 {message}
             </Typography.Text>
-            <Typography.Text type={'secondary'}>{title}</Typography.Text>
+            <Typography.Text type='secondary'>{title}</Typography.Text>
         </Space>
     </FocusContainer>
 )
@@ -141,8 +141,8 @@ export const PropertyPageContent = ({ property, role }) => {
                             <Link href={`/property/${property.id}/update`}>
                                 <span>
                                     <Button
-                                        type={'sberDefaultGradient'}
-                                        size={'large'}
+                                        type='sberDefaultGradient'
+                                        size='large'
                                     >
                                         {EditPropertyTitle}
                                     </Button>
@@ -152,10 +152,10 @@ export const PropertyPageContent = ({ property, role }) => {
                                 !isNull(get(property, 'map')) && (
                                     <Link href={`/property/${property.id}/map/update`}>
                                         <Button
-                                            color={'green'}
-                                            type={'sberDefaultGradient'}
+                                            color='green'
+                                            type='sberDefaultGradient'
                                             secondary
-                                            size={'large'}
+                                            size='large'
                                         >
                                             {EditPropertyMapTitle}
                                         </Button>

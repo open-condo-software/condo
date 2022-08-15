@@ -67,8 +67,8 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     const intl = useIntl()
 
     return (
-        <Space direction={'horizontal'} size={10}>
-            <Typography.Text type={'secondary'}>{title}</Typography.Text>
+        <Space direction='horizontal' size={10}>
+            <Typography.Text type='secondary'>{title}</Typography.Text>
             <Typography.Text
                 {...{ type }}
                 strong={true}
@@ -198,11 +198,11 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
 
     return (
         <>
-            <Row gutter={ROW_GUTTER} align="middle" justify="center">
+            <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify="end" gutter={TAP_BAR_ROW_GUTTER}>
-                            <Col flex="auto">
+                        <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
+                            <Col flex='auto'>
                                 <Row gutter={TAP_BAR_ROW_GUTTER}>
                                     <Col xs={24} sm={12} lg={8}>
                                         <Input
@@ -225,7 +225,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             </Col>
 
                             <Col offset={1}>
-                                <Row justify="end" align="middle">
+                                <Row justify='end' align='middle'>
                                     {
                                         appliedFiltersCount > 0 && (
                                             <Col>
@@ -236,7 +236,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                     <Col>
                                         <Button
                                             secondary
-                                            type="sberPrimary"
+                                            type='sberPrimary'
                                             onClick={() => setIsMultipleFiltersModalVisible(true)}
                                         >
                                             <FilterFilled/>
@@ -252,7 +252,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
 
                 <Col span={24}>
                     <PaymentsSumTable>
-                        <Row justify="center" gutter={SUM_BAR_COL_GUTTER}>
+                        <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
                             <Col>
                                 <PaymentsSumInfo
                                     title={totalsSumTitle}
@@ -265,7 +265,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                     title={doneSumTitle}
                                     message={String(sumDonePayments)}
                                     currencyCode={currencyCode}
-                                    type={'success'}
+                                    type='success'
                                 />
                             </Col>
                             <Col>
@@ -273,7 +273,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                     title={withdrawnSumTitle}
                                     message={String(sumWithdrawnPayments)}
                                     currencyCode={currencyCode}
-                                    type={'warning'}
+                                    type='warning'
                                 />
                             </Col>
                         </Row>
@@ -304,15 +304,15 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                 centered
                 footer={[
                     <Button
-                        key={'close'}
-                        type={'sberDefaultGradient'}
+                        key='close'
+                        type='sberDefaultGradient'
                         onClick={() => setIsStatusDescModalVisible(false)}
                     >
                         {confirmTitle}
                     </Button>,
                 ]}
             >
-                <Typography.Text type={'secondary'}>
+                <Typography.Text type='secondary'>
                     {textStatusDescModal}
                 </Typography.Text>
             </Modal>

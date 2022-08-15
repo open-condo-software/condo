@@ -112,7 +112,7 @@ export const ContactRolesSettingsContent = () => {
                     onRow={handleRowAction}
                     dataSource={sortedRoles}
                     columns={tableColumns}
-                    data-cy={'contactRoles__table'}
+                    data-cy='contactRoles__table'
                 />
             </Col>
             {
@@ -120,7 +120,7 @@ export const ContactRolesSettingsContent = () => {
                     <Col span={24}>
                         <ActionBar>
                             <Button
-                                type={'sberDefaultGradient'}
+                                type='sberDefaultGradient'
                                 icon={<PlusCircleOutlined/>}
                                 onClick={handleAddHintButtonClick}
                             >

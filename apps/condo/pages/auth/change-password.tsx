@@ -123,7 +123,7 @@ const ChangePasswordPage: AuthPage = () => {
     }, [executeRecaptcha, token])
 
     if (isLoading) {
-        return <Loader size="large" delay={0} fill/>
+        return <Loader size='large' delay={0} fill/>
     }
 
     if (recoveryTokenError) {
@@ -168,11 +168,11 @@ const ChangePasswordPage: AuthPage = () => {
     return (
         <Form
             form={form}
-            name="change-password"
+            name='change-password'
             onFinish={onFinish}
             initialValues={initialValues}
             requiredMark={false}
-            layout={'vertical'}
+            layout='vertical'
         >
             <Row>
                 <ResponsiveCol>
@@ -187,12 +187,12 @@ const ChangePasswordPage: AuthPage = () => {
                                         {ResetTitle}
                                     </Typography.Title>
                                 </Form.Item>
-                                <Form.Item name="token" className={'error-only'}>
-                                    <Input type="hidden"/>
+                                <Form.Item name='token' className='error-only'>
+                                    <Input type='hidden'/>
                                 </Form.Item>
                                 <Col span={24}>
                                     <Form.Item
-                                        name="password"
+                                        name='password'
                                         label={CREATE_NEW_PASSWORD_SPAN}
                                         rules={validations.password}
                                     >
@@ -201,7 +201,7 @@ const ChangePasswordPage: AuthPage = () => {
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item
-                                        name="confirm"
+                                        name='confirm'
                                         label={CONFIRM_NEW_PASSWORD_SPAN}
                                         dependencies={['password']}
                                         rules={validations.confirmPassword}
@@ -217,7 +217,7 @@ const ChangePasswordPage: AuthPage = () => {
                                     key='submit'
                                     type='sberDefaultGradient'
                                     loading={isSaving}
-                                    htmlType="submit"
+                                    htmlType='submit'
                                     style={BUTTON_STYLES}
                                 >
                                     {SaveMsg} {AndSignInMsg}

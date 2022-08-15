@@ -56,8 +56,8 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 <LayoutTriggerWrapper>
                     <Button
                         onClick={toggleCollapsed}
-                        size={'small'}
-                        shape={'circle'}
+                        size='small'
+                        shape='circle'
                         icon={isCollapsed ? <RightOutlined style={{ fontSize: '13px' }} /> : <LeftOutlined style={{ fontSize: '13px' }}/>}
                     />
                 </LayoutTriggerWrapper>

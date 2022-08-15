@@ -51,7 +51,7 @@ export const AppConnectedPageContent: React.FC<AppConnectedPageContentProps> = (
             />
             <BasicEmptyListView
                 containerStyle={CONTAINER_STYLE}
-                image={'/dino/success@2x.png'}
+                image='/dino/success@2x.png'
                 imageStyle={IMAGE_STYLE}
             >
                 <Typography.Title level={2}>

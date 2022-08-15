@@ -136,7 +136,7 @@ export const Table: React.FC<ITableProps> = ({
         <DefaultTable
             scroll={tableScrollConfig}
             bordered
-            tableLayout={'fixed'}
+            tableLayout='fixed'
             style={TABLE_STYLE}
             loading={loading}
             rowKey={getRowKey}

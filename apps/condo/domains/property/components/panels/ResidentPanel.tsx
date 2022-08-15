@@ -23,7 +23,7 @@ const EmptyResidentBlock: React.FC = () => {
             <Space style={{ marginTop: '24px' }}>
                 <Tooltip title={NotImplementedYetMessage}>
                     <Button
-                        type={'sberPrimary'}
+                        type='sberPrimary'
                         secondary
                     >
                         {UploadFile}

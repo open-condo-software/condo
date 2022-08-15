@@ -37,12 +37,12 @@ const DocsGraphPage: React.FC = () => {
     return <>
         <Head>
             <link
-                rel="stylesheet"
-                href="https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.css"
+                rel='stylesheet'
+                href='https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.css'
             />
         </Head>
         <DynamicVoyager
-            workerURI={'https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.worker.js'}
+            workerURI='https://cdn.jsdelivr.net/npm/graphql-voyager/dist/voyager.worker.js'
             introspection={introspectionProvider}/>
     </>
 }

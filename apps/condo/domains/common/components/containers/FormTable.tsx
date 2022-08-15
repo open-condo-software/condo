@@ -186,9 +186,9 @@ function FormTable ({ columns, dataSource, pagination, onChangeFilterPaginationS
     // TODO(pahaz): add CellWrapper, RowWrapper if you know any use case?!
     return <TableContext.Provider value={{ ...tableContextInitialState, rowContextInitialState, RowInner, CellInner }}>
         <Table
-            rowKey={'id'}
-            tableLayout={'fixed'}
-            size="small"
+            rowKey='id'
+            tableLayout='fixed'
+            size='small'
             bordered
             components={TABLE_COMPONENTS}
             dataSource={dataSource}

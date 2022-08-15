@@ -204,7 +204,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             return (
                 <Select
                     defaultValue={get(filters, keyword)}
-                    optionFilterProp={'title'}
+                    optionFilterProp='title'
                     {...props}
                 >
                     {options.map(option => (
@@ -235,7 +235,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
         case ComponentType.TagsSelect: {
             return (
                 <Select
-                    mode="tags"
+                    mode='tags'
                     allowClear
                     style={TAGS_SELECT_STYLE}
                     dropdownStyle={TAGS_SELECT_DROPDOWN_STYLE}
@@ -326,13 +326,13 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     return (
         <Button
             style={style}
-            key={'reset'}
-            type={'text'}
+            key='reset'
+            type='text'
             onClick={handleReset}
             size={size}
-            data-cy={'common__filters-button-reset'}
+            data-cy='common__filters-button-reset'
         >
-            <Typography.Text strong type={'secondary'}>
+            <Typography.Text strong type='secondary'>
                 {ClearAllFiltersMessage} <CloseOutlined style={CLEAR_ALL_MESSAGE_STYLE} />
             </Typography.Text>
         </Button>
@@ -467,10 +467,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSubmitButtonClick = useCallback(() => handleSaveRef.current(), [])
 
     const modalFooter = useMemo(() => [
-        <Row key={'footer'} justify={'space-between'} gutter={[0, 10]}>
+        <Row key='footer' justify='space-between' gutter={[0, 10]}>
             <Col>
                 <ResetFiltersModalButton
-                    key={'reset'}
+                    key='reset'
                     handleReset={handleResetFilters}
                 />
             </Col>
@@ -480,7 +480,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                         selectedFiltersTemplate && (
                             <Col>
                                 <DeleteButtonWithConfirmModal
-                                    key={'delete'}
+                                    key='delete'
                                     title={DeleteTitle}
                                     message={DeleteMessage}
                                     okButtonLabel={DeleteLabel}
@@ -492,11 +492,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                     }
                     <Col>
                         <Button
-                            key={'saveFilters'}
+                            key='saveFilters'
                             onClick={handleSaveFiltersTemplate}
                             disabled={isSaveFiltersTemplateButtonDisabled}
-                            eventName={'ModalFilterSaveClick'}
-                            type={'sberGrey'}
+                            eventName='ModalFilterSaveClick'
+                            type='sberGrey'
                             secondary
                         >
                             {SaveTemplateMessage}
@@ -504,11 +504,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                     </Col>
                     <Col>
                         <Button
-                            key={'submit'}
+                            key='submit'
                             onClick={handleSubmitButtonClick}
-                            eventName={'ModalFilterSubmitClick'}
-                            type={'sberPrimary'}
-                            data-cy={'common__filters-button-submit'}
+                            eventName='ModalFilterSubmitClick'
+                            type='sberPrimary'
+                            data-cy='common__filters-button-submit'
                         >
                             {ApplyMessage}
                         </Button>
@@ -601,7 +601,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                                                 !isEmpty(filtersTemplates) ? (
                                                     <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
                                                         {templatesTabs}
-                                                        <TabPane tab={NewFilterMessage} key={'newFilter'}>
+                                                        <TabPane tab={NewFilterMessage} key='newFilter'>
                                                             <NewFiltersTemplateNameInput />
                                                         </TabPane>
                                                     </Tabs>

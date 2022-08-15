@@ -23,7 +23,7 @@ describe('BehaviorRecorder', () => {
 
         it('renders html in div for correct config params', () => {
             const result = TestRenderer.create(
-                <BehaviorRecorder engine="plerdy"/>
+                <BehaviorRecorder engine='plerdy'/>
             )
             expect(result.toJSON()).toMatchObject({
                 type: 'div',
@@ -37,7 +37,7 @@ describe('BehaviorRecorder', () => {
 
         it('renders null for not supported engine', () => {
             const result = TestRenderer.create(
-                <BehaviorRecorder engine="not_supported_engine"/>
+                <BehaviorRecorder engine='not_supported_engine'/>
             )
             expect(result.toJSON()).toBeNull()
         })

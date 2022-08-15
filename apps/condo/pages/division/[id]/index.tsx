@@ -133,11 +133,11 @@ export const DivisionPageContent = ({ division, loading, columns, role }: Divisi
                         <Link href={`/division/${division.id}/update`}>
                             <span>
                                 <Button
-                                    color={'green'}
-                                    type={'sberPrimary'}
+                                    color='green'
+                                    type='sberPrimary'
                                     secondary
                                     icon={<EditFilled />}
-                                    size={'large'}
+                                    size='large'
                                 >
                                     {UpdateTitle}
                                 </Button>

@@ -28,14 +28,14 @@ export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
 
     return (
         <div style={FILTER_CONTAINER_STYLES}>
-            <Space size={8} direction={'vertical'} align={'center'}>
+            <Space size={8} direction='vertical' align='center'>
                 {children}
                 {
                     showClearButton && (
                         <Button
-                            size={'small'}
+                            size='small'
                             onClick={clearFilters}
-                            type={'inlineLink'}
+                            type='inlineLink'
                         >
                             {ResetLabel}
                         </Button>
@@ -65,9 +65,9 @@ export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) =>
             {
                 showClearButton && (
                     <Button
-                        size={'small'}
+                        size='small'
                         onClick={clearFilters}
-                        type={'inlineLink'}
+                        type='inlineLink'
                     >
                         {ResetLabel}
                     </Button>

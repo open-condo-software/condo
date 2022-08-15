@@ -39,7 +39,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     }
 
     if (loading) {
-        return <Loader size={'large'} fill />
+        return <Loader size='large' fill />
     }
 
     return (

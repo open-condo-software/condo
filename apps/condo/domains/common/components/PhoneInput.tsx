@@ -102,7 +102,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             {...otherProps}
             // @ts-ignore
             ref={inputRef}
-            inputClass={'ant-input'}
+            inputClass='ant-input'
             value={String(value)}
             country={userOrganizationCountry}
             onChange={onChange}

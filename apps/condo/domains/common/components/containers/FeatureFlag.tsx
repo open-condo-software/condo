@@ -130,13 +130,13 @@ export const FeatureFlagsController: React.FC = () => {
                 onOk={handleOk}
                 cancelButtonProps={{ disabled: true }}
             >
-                <Alert message={ featureFlagsDescription } type="success" />
+                <Alert message={ featureFlagsDescription } type='success' />
                 {
                     allFeatures.map((name) => (
                         <>
                             <div style={{ paddingTop: '30px' }}>
                                 <h2><b>{name}</b></h2>
-                                <Switch defaultChecked={enabledFlags.includes(name)} checkedChildren="1" unCheckedChildren="0" onChange={() => toggleFeature(name)} />
+                                <Switch defaultChecked={enabledFlags.includes(name)} checkedChildren='1' unCheckedChildren='0' onChange={() => toggleFeature(name)} />
                             </div>
                         </>
                     ))

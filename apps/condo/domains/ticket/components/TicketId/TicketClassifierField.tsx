@@ -30,7 +30,7 @@ export const TicketClassifierField: React.FC<TicketClassifierFieldProps> = ({ ti
 
     return (
         <PageFieldRow title={ClassifierMessage} ellipsis>
-            <Breadcrumb separator="»">
+            <Breadcrumb separator='»'>
                 {
                     ticketClassifierNames.map((name, index) => {
                         return (

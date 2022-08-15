@@ -72,7 +72,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         <Form.Item noStyle>
             <ActionBar hidden={hidden}>
                 <Button
-                    type={'sberBlack'}
+                    type='sberBlack'
                     secondary
                     icon={<DatabaseFilled/>}
                     loading={isXlsLoading}

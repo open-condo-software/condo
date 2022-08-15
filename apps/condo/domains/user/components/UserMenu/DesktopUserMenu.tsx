@@ -89,11 +89,11 @@ export const DesktopUserMenu: React.FC = () => {
                                     type='link'
                                     style={{ paddingRight: 0, color: green[6], fontSize: '12px' }}
                                     onClick={goToUserProfile}
-                                    eventName="MenuClickUserProfile"
+                                    eventName='MenuClickUserProfile'
                                 >
                                     <Space size={16}>
                                         <AvatarContainer>
-                                            <UserAvatar iconSize={'6px'}/>
+                                            <UserAvatar iconSize='6px'/>
                                         </AvatarContainer>
                                         {userName}
                                     </Space>

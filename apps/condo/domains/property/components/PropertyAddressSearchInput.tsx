@@ -66,7 +66,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
-                    data-cy={'ticket__property-address-search-option'}
+                    data-cy='ticket__property-address-search-option'
                 >
                     {
                         searchValue === dataItem.text
@@ -98,8 +98,8 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
     const MemoizedBaseSearchInput = useCallback(() => (
         <BaseSearchInput
             {...props}
-            id={'propertyAddressSearchInput'}
-            eventName={'PropertyAddressSearchInput'}
+            id='propertyAddressSearchInput'
+            eventName='PropertyAddressSearchInput'
             search={searchAddress}
             renderOption={renderOption}
             initialValueGetter={initialValueGetter}

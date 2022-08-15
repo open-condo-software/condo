@@ -74,7 +74,7 @@ export const MapGL: React.FC<IMapProps> = ({ points, containerCss }) => {
 
     return (
         <>  
-            <div id="map-container" css={containerCss}/>
+            <div id='map-container' css={containerCss}/>
             { selected ? 
                 <Card style={{ width: 300, bottom: 20, position: 'absolute' }} >
                     <p>

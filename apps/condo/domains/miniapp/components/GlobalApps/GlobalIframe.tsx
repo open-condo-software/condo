@@ -18,7 +18,7 @@ const GlobalIframeForwardRef = React.forwardRef<HTMLIFrameElement, IGlobalIframe
             src={pageUrl}
             hidden={shouldHideIframe}
             frameBorder={0}
-            scrolling={'no'}
+            scrolling='no'
         />
     )
 })

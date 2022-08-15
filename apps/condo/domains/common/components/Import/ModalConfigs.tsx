@@ -64,7 +64,7 @@ export const getUploadProgressModalConfig = (
                                 <Progress
                                     format={(percent) => Math.floor(percent) + '%'}
                                     percent={progress}
-                                    status={'active'}
+                                    status='active'
                                 />
                                 <Alert
                                     style={{ marginTop: 16 }}

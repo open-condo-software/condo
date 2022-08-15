@@ -77,7 +77,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                 <title>{contactName}</title>
             </Head>
             <PageWrapper>
-                <Row gutter={[0, 40]} justify={'center'}>
+                <Row gutter={[0, 40]} justify='center'>
                     <Col xs={10} lg={3}>
                         <UserAvatar borderRadius={24}/>
                     </Col>
@@ -113,22 +113,20 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                         fieldValue={get(contact, ['email'])}
                                                     />
                                                 }
-                                                {
-                                                    <FieldPairRow
-                                                        fieldTitle={ContactRoleTitle}
-                                                        fieldValue={get(contactRole, 'name', '—')}
-                                                    />
-                                                }
+                                                <FieldPairRow
+                                                    fieldTitle={ContactRoleTitle}
+                                                    fieldValue={get(contactRole, 'name', '—')}
+                                                />
                                             </Row>
                                         </FrontLayerContainer>
                                     </Col>
                                     {isContactEditable && (
                                         <Col span={24}>
-                                            <Space direction={'horizontal'} size={40}>
+                                            <Space direction='horizontal' size={40}>
                                                 <Link href={`/contact/${get(contact, 'id')}/update`}>
                                                     <Button
-                                                        color={'green'}
-                                                        type={'sberPrimary'}
+                                                        color='green'
+                                                        type='sberPrimary'
                                                         secondary
                                                         icon={<EditFilled />}
                                                     >

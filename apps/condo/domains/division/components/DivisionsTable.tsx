@@ -77,13 +77,13 @@ export default function DivisionTable (props: BuildingTableProps) {
         ? <EmptyListView
             label={EmptyListLabel}
             message={EmptyListMessage}
-            createRoute="/division/create"
+            createRoute='/division/create'
             createLabel={CreateDivision}/>
         : (
-            <Row align={'middle'} gutter={ROW_VERTICAL_GUTTERS}>
+            <Row align='middle' gutter={ROW_VERTICAL_GUTTERS}>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify="space-between" align='middle' gutter={ROW_VERTICAL_GUTTERS}>
+                        <Row justify='space-between' align='middle' gutter={ROW_VERTICAL_GUTTERS}>
                             <Col xs={24} lg={6}>
                                 <Input
                                     placeholder={SearchPlaceholder}
@@ -102,10 +102,10 @@ export default function DivisionTable (props: BuildingTableProps) {
                                         }}
                                     >
                                         <Button
-                                            type={'inlineLink'}
+                                            type='inlineLink'
                                             icon={<DatabaseFilled/>}
-                                            target="_blank"
-                                            rel="noreferrer">{DownloadExcelLabel}
+                                            target='_blank'
+                                            rel='noreferrer'>{DownloadExcelLabel}
                                         </Button>
                                     </Typography.Text>
                                 </Tooltip>
@@ -114,7 +114,7 @@ export default function DivisionTable (props: BuildingTableProps) {
                                 {
                                     role?.canManageDivisions && (
                                         <Row justify={isSmall ? 'start' : 'end'}>
-                                            <Button type="sberPrimary" onClick={() => router.push('/division/create')}>
+                                            <Button type='sberPrimary' onClick={() => router.push('/division/create')}>
                                                 {CreateLabel}
                                             </Button>
                                         </Row>

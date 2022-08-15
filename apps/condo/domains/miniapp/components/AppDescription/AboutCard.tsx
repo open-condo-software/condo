@@ -76,13 +76,13 @@ export const AboutCard: React.FC<AboutCardProps> = ({ sections }) => {
                                 sections.map((section, index) => {
                                     return (
                                         <Col span={isSingleRow ? 24 : 12} key={index}>
-                                            <Card bordered={false} className={'about-block-card'}>
+                                            <Card bordered={false} className='about-block-card'>
                                                 <AboutImageWrapper>
                                                     <Image
                                                         src={section.imageSrc}
                                                         style={IMAGE_STYLE}
                                                         preview={false}
-                                                        className={'about-block-image'}
+                                                        className='about-block-image'
                                                     />
                                                 </AboutImageWrapper>
                                                 <Row gutter={[0, 8]} style={TEXT_BLOCK_STYLE}>
@@ -92,7 +92,7 @@ export const AboutCard: React.FC<AboutCardProps> = ({ sections }) => {
                                                         </Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
-                                                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE} type={'secondary'}>
+                                                        <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE} type='secondary'>
                                                             {section.description}
                                                         </Typography.Paragraph>
                                                     </Col>

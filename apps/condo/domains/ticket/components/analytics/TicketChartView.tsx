@@ -179,7 +179,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                         style={{ ...chartStyle }}
                         option={option}/>
                     {barChartPagedRenderEnabled ? (
-                        <Button style={{ width: '100%', marginTop: 16 }} type={'ghost'} onClick={loadMore}>
+                        <Button style={{ width: '100%', marginTop: 16 }} type='ghost' onClick={loadMore}>
                             {LoadMoreTitle} <DownOutlined />
                         </Button>
                     ) : null}

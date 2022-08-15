@@ -120,7 +120,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
                 search={searchAddress}
                 renderOption={renderOption}
                 onSelect={handleOptionSelect}
-                id={'addressSuggestionsSearchInput'}
+                id='addressSuggestionsSearchInput'
             />
         </BaseSearchInputWrapper>
 

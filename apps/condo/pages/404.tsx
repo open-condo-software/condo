@@ -23,7 +23,7 @@ export default function Custom404 (): React.ReactElement {
     const MainPagesMessageButton = intl.formatMessage({ id: 'pages.auth.MainPage' })
 
     return (
-        <Row justify={'center'}>
+        <Row justify='center'>
             <Col span={12}>
                 <Row gutter={ROW_MESSAGE_GUTTER}>
                     <Col span={18}>
@@ -40,7 +40,7 @@ export default function Custom404 (): React.ReactElement {
                             type='sberDefaultGradient'
                             htmlType='submit'
                             onClick={() => Router.push('/')}
-                            data-cy={'register-button'}
+                            data-cy='register-button'
                             block
                         >
                             {MainPagesMessageButton}

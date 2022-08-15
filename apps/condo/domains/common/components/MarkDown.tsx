@@ -15,7 +15,7 @@ export const MarkDown: React.FC<MarkDownProps> = ({ text, fontSize, shouldParseH
     const rehypePlugins = shouldParseHtml ? [rehypeRaw] : []
 
     return (
-        <Typography.Text type={'secondary'} style={style}>
+        <Typography.Text type='secondary' style={style}>
             <ReactMarkdown
                 rehypePlugins={rehypePlugins}
                 remarkPlugins={[remarkGfm]}

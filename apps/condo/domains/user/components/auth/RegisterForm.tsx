@@ -95,7 +95,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             initialValues={initialValues}
             colon={false}
             requiredMark={true}
-            layout={'vertical'}
+            layout='vertical'
             validateTrigger={['onBlur', 'onSubmit']}
         >
             <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
@@ -122,7 +122,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     name='name'
                                     label={NameMsg}
                                     rules={validators.name}
-                                    data-cy={'register-name-item'}
+                                    data-cy='register-name-item'
                                 >
                                     <RequiredFlagWrapper><Input placeholder={ExampleNameMsg}/></RequiredFlagWrapper>
                                 </Form.Item>
@@ -134,7 +134,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     name='email'
                                     label={EmailMsg}
                                     rules={validators.email}
-                                    data-cy={'register-email-item'}
+                                    data-cy='register-email-item'
                                 >
                                     <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
                                 </Form.Item>
@@ -146,7 +146,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     name='password'
                                     label={PasswordMsg}
                                     rules={validators.password}
-                                    data-cy={'register-password-item'}
+                                    data-cy='register-password-item'
                                 >
                                     <Input.Password autoComplete='new-password'/>
                                 </Form.Item>
@@ -159,7 +159,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     label={ConfirmPasswordMsg}
                                     dependencies={['password']}
                                     rules={validators.confirm}
-                                    data-cy={'register-confirmpassword-item'}
+                                    data-cy='register-confirmpassword-item'
                                 >
                                     <Input.Password/>
                                 </Form.Item>
@@ -175,7 +175,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                             htmlType='submit'
                             loading={isLoading}
                             style={BUTTON_STYLES}
-                            data-cy={'registercomplete-button'}
+                            data-cy='registercomplete-button'
                         >
                             {RegisterMsg}
                         </Button>

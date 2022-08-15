@@ -58,7 +58,7 @@ const OptionsField = ({ onChange, autoFocus, field, value, errors }) => {
             {accessError ? (
                 <ShieldIcon title={accessError.message} css={{ color: colors.N20, marginRight: '1em' }}/>
             ) : null}
-            {field.config.isRequired ? <Lozenge appearance="primary"> Required </Lozenge> : null}
+            {field.config.isRequired ? <Lozenge appearance='primary'> Required </Lozenge> : null}
             {field.config.adminDoc && <FieldDescription>{field.config.adminDoc}</FieldDescription>}
             <div>
                 {field.config.options.map(label => (

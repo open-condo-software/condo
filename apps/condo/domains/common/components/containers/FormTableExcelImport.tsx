@@ -66,7 +66,7 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
             allowClear={true}
             showSearch
             placeholder={SelectColumnMessage}
-            optionFilterProp="children"
+            optionFilterProp='children'
             filterOption={(input, option) =>
                 option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
             }
@@ -86,14 +86,14 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
     )
 
     return <Form
-        layout={'horizontal'}
-        size={'small'}
+        layout='horizontal'
+        size='small'
         form={form}
         onValuesChange={handleChanges}
         onFinish={onFinish}
     >
         {/* disable chrome autofill hack 1*/}
-        <Form.Item label="Hidden" name="name1" style={{ display: 'none' }}>
+        <Form.Item label='Hidden' name='name1' style={{ display: 'none' }}>
             <Input/>
         </Form.Item>
         {columns.map((column, index) => {
@@ -102,7 +102,7 @@ function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
             </Form.Item>
         })}
         <Form.Item>
-            <Button type="primary" htmlType="submit">{NextStepButtonLabel}</Button>
+            <Button type='primary' htmlType='submit'>{NextStepButtonLabel}</Button>
         </Form.Item>
     </Form>
 }
@@ -177,7 +177,7 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             onClick={() => setStep(1)} label={ImportFromFileButtonLabel}
             style={{ marginBottom: '16px', width: '100%', display: step === -1 ? 'block' : 'none' }}/>
         {(step > 0) ?
-            <Progress percent={(step * 33.33)} strokeColor="#52c41a" showInfo={false}/>
+            <Progress percent={(step * 33.33)} strokeColor='#52c41a' showInfo={false}/>
             : null}
         {(StepHelpText[step]) ?
             <Typography.Paragraph>{StepHelpText[step]}</Typography.Paragraph>
@@ -190,11 +190,11 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             // TODO(pahaz): is the customRequest required?: customRequest={() => {}}
             action={handleFile}
         >
-            <p className="ant-upload-drag-icon">
+            <p className='ant-upload-drag-icon'>
                 <InboxOutlined/>
             </p>
-            <p className="ant-upload-text">{ClickOrDragImportFileTextMessage}</p>
-            <p className="ant-upload-hint">{ClickOrDragImportFileHintMessage}</p>
+            <p className='ant-upload-text'>{ClickOrDragImportFileTextMessage}</p>
+            <p className='ant-upload-hint'>{ClickOrDragImportFileHintMessage}</p>
         </Upload.Dragger>
 
         <div style={{ marginBottom: '16px', display: step === 2 ? 'block' : 'none' }}>
@@ -216,10 +216,10 @@ function ExcelExporterButton ({ columns, setExportedData }) {
             <Row style={{ 'overflowX': 'scroll' }}>
                 <Col xs={24}>
                     <Table
-                        size={'small'} bordered
+                        size='small' bordered
                         columns={tableState.cols}
                         dataSource={tableState.data}
-                        tableLayout={'fixed'}
+                        tableLayout='fixed'
                     />
                 </Col>
             </Row>

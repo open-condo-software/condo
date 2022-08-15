@@ -28,15 +28,15 @@ export const MainContent: React.FC<IContextProps> = ({ context }) => {
             </Col>
             <Col span={24}>
                 <Tabs
-                    defaultActiveKey={'Accruals'}
+                    defaultActiveKey='Accruals'
                     tabBarStyle={{ marginBottom: 40 }}
                     style={{ overflow: 'visible' }}
                 >
-                    <Tabs.TabPane key={'Accruals'} tab={AccrualsTitle}>
+                    <Tabs.TabPane key='Accruals' tab={AccrualsTitle}>
                         <ReceiptsTable context={context}/>
                     </Tabs.TabPane>
                     <Tabs.TabPane
-                        key={'meters'}
+                        key='meters'
                         tab={(
                             <Tooltip title={NotImplementedYetMessage}>
                                 {MetersTitle}

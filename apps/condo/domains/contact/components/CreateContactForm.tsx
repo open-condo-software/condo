@@ -111,7 +111,7 @@ export const CreateContactForm: React.FC = () => {
     return (
         <FormWithAction
             action={action}
-            layout={'horizontal'}
+            layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
             formValuesToMutationDataPreprocessor={(values) => {
@@ -136,9 +136,9 @@ export const CreateContactForm: React.FC = () => {
                                 <Row gutter={[0, 24]}>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
-                                            name={'property'}
+                                            name='property'
                                             label={AddressLabel}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             validateFirst
                                             rules={validations.property}
                                             required
@@ -162,9 +162,9 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
-                                            name={'unitName'}
+                                            name='unitName'
                                             label={UnitLabel}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             required
                                             validateFirst
                                             rules={validations.unit}
@@ -190,10 +190,10 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
-                                            name={'name'}
+                                            name='name'
                                             label={FullNameLabel}
                                             {...INPUT_LAYOUT_PROPS}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             required
                                             validateFirst
                                             rules={validations.name}>
@@ -202,9 +202,9 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
-                                            name={'phone'}
+                                            name='phone'
                                             label={PhoneLabel}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             required
                                             validateFirst
                                             rules={validations.phone}
@@ -215,9 +215,9 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
-                                            name={'email'}
+                                            name='email'
                                             label={EmailLabel}
-                                            labelAlign={'left'}
+                                            labelAlign='left'
                                             validateFirst
                                             rules={validations.email}
                                             {...INPUT_LAYOUT_PROPS}
@@ -227,14 +227,14 @@ export const CreateContactForm: React.FC = () => {
                                     </Col>
                                     <Col lg={18} xs={24}>
                                         <Form.Item
-                                            name="role"
+                                            name='role'
                                             label={RoleLabel}
                                             {...INPUT_LAYOUT_PROPS}
-                                            labelAlign="left"
+                                            labelAlign='left'
                                         >
                                             {
                                                 isRolesLoading ? (
-                                                    <Loader fill size="small"/>
+                                                    <Loader fill size='small'/>
                                                 ) : (
                                                     <ContactRoleSelect roles={roles}/>
                                                 )

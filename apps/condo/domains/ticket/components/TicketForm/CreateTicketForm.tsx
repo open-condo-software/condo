@@ -45,7 +45,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                         type='sberDefaultGradient'
                                         loading={isLoading}
                                         disabled={disabledCondition}
-                                        data-cy={'ticket__submit-button'}
+                                        data-cy='ticket__submit-button'
                                         style={{ marginRight: '12px' }}
                                     >
                                         {CreateTicketMessage}
@@ -113,7 +113,7 @@ export const CreateTicketForm: React.FC = () => {
             </Typography.Text>
         ),
         description: (
-            <Typography.Link style={LINK_STYLES} href={`/ticket/${data.id}`} target={'_blank'} rel="noreferrer">
+            <Typography.Link style={LINK_STYLES} href={`/ticket/${data.id}`} target='_blank' rel='noreferrer'>
                 {SuccessNotificationDescription}
             </Typography.Link>
         ),

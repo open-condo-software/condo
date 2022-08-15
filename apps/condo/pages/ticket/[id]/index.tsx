@@ -300,10 +300,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                                 !isResidentTicket && !canReadByResident && (
                                                                     <Typography.Text type='secondary' style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                                         <FormattedMessage
-                                                                            id={'pages.condo.ticket.title.CanReadByResident'}
+                                                                            id='pages.condo.ticket.title.CanReadByResident'
                                                                             values={{
                                                                                 canReadByResident: (
-                                                                                    <Typography.Text type={'danger'}>
+                                                                                    <Typography.Text type='danger'>
                                                                                         {ResidentCannotReadTicketMessage}
                                                                                     </Typography.Text>
                                                                                 ),
@@ -326,7 +326,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                         ticket={ticket}
                                                         onUpdate={handleTicketStatusChanged}
                                                         loading={loading}
-                                                        data-cy={'ticket__status-select'}
+                                                        data-cy='ticket__status-select'
                                                     />
                                                 </Col>
                                                 {
@@ -335,7 +335,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                             <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
                                                                 {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
                                                             </Typography.Paragraph>
-                                                            <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type={'secondary'}>
+                                                            <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
                                                                 {TimeHasPassedMessage.replace('${time}', getTimeSinceCreation())}
                                                             </Typography.Paragraph>
                                                         </Col>
@@ -344,9 +344,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                             </Row>
                                         </Col>
                                     </Row>
-                                    <Row justify={'space-between'} align={'middle'} style={TAGS_ROW_STYLE} gutter={TAGS_ROW_GUTTER}>
+                                    <Row justify='space-between' align='middle' style={TAGS_ROW_STYLE} gutter={TAGS_ROW_GUTTER}>
                                         <Col>
-                                            <Space direction={'horizontal'}>
+                                            <Space direction='horizontal'>
                                                 {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
                                                 {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
                                                 {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
@@ -375,11 +375,11 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
                                             disabled={disabledEditButton}
-                                            color={'green'}
-                                            type={'sberDefaultGradient'}
+                                            color='green'
+                                            type='sberDefaultGradient'
                                             secondary
                                             icon={<EditFilled />}
-                                            data-cy={'ticket__update-link'}
+                                            data-cy='ticket__update-link'
                                         >
                                             {UpdateMessage}
                                         </Button>
@@ -387,10 +387,10 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     {
                                         !isSmall && (
                                             <Button
-                                                type={'sberDefaultGradient'}
+                                                type='sberDefaultGradient'
                                                 icon={<FilePdfFilled />}
                                                 href={`/ticket/${ticket.id}/pdf`}
-                                                target={'_blank'}
+                                                target='_blank'
                                                 secondary
                                             >
                                                 {PrintMessage}
@@ -426,7 +426,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     updateUserTicketCommentReadTime={updateUserTicketCommentReadTime}
                                     loadingUserTicketCommentReadTime={loadingUserTicketCommentReadTime}
                                     FileModel={TicketCommentFile}
-                                    fileModelRelationField={'ticketComment'}
+                                    fileModelRelationField='ticketComment'
                                     ticket={ticket}
                                     createAction={createCommentAction}
                                     updateAction={updateComment}

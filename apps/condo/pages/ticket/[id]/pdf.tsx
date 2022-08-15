@@ -32,8 +32,8 @@ const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title,
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
 
     return (
-        <Space direction={'vertical'} size={8}>
-            <Typography.Text type={'secondary'}>{title}</Typography.Text>
+        <Space direction='vertical' size={8}>
+            <Typography.Text type='secondary'>{title}</Typography.Text>
             <Typography.Text style={{ fontSize: fontSizes.content }}>{value || NotDefinedMessage}</Typography.Text>
         </Space>
     )
@@ -57,9 +57,9 @@ const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = ({ title, user 
     const phone = get(user, 'phone')
 
     return (
-        <Space direction={'vertical'} size={8}>
-            <Typography.Text type={'secondary'}>{title}</Typography.Text>
-            <Space size={4} direction={'vertical'} style={{ fontSize: fontSizes.content }}>
+        <Space direction='vertical' size={8}>
+            <Typography.Text type='secondary'>{title}</Typography.Text>
+            <Space size={4} direction='vertical' style={{ fontSize: fontSizes.content }}>
                 {name
                     ? <Typography.Text >{name}</Typography.Text>
                     : NotDefinedMessage
@@ -163,7 +163,7 @@ const PdfView = () => {
     return (
         <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
             <Col span={24}>
-                <Row align={'top'}>
+                <Row align='top'>
                     <Col span={16}>
                         <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
                             {`${TicketTitleMessage}
@@ -262,7 +262,7 @@ const PdfView = () => {
                     {NotesMessage}
                 </Typography.Title>
             </Col>
-            <Col span={24} id={'pdfLineInput'}/>
+            <Col span={24} id='pdfLineInput'/>
         </Row>
     )
 }

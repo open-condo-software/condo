@@ -98,7 +98,7 @@ const TopCardTitle: React.FC<TopCardTitleProps> = ({ logoSrc, title, description
                     </Typography.Title>
                 </Col>
                 <Col span={24}>
-                    <Typography.Paragraph style={WRAP_TEXT_STYLES} type={'secondary'}>
+                    <Typography.Paragraph style={WRAP_TEXT_STYLES} type='secondary'>
                         {description}
                     </Typography.Paragraph>
                 </Col>
@@ -129,9 +129,9 @@ export const TopCard: React.FC<TopCardProps> = ({
     return (
         <CardWrapper centered={isSmallLayout}>
             <Card bordered={true} title={<TopCardTitle title={title} description={description} partnerUrl={partnerUrl} tag={tag} logoSrc={logoSrc}/>}>
-                <Space size={[40, 0]} direction={'horizontal'} wrap={true}>
+                <Space size={[40, 0]} direction='horizontal' wrap={true}>
                     <Typography.Text ellipsis={true}>
-                        <Typography.Text type={'secondary'}>
+                        <Typography.Text type='secondary'>
                             {DeveloperMessage}:&nbsp;
                         </Typography.Text>
                         <Typography.Text strong>
@@ -139,7 +139,7 @@ export const TopCard: React.FC<TopCardProps> = ({
                         </Typography.Text>
                     </Typography.Text>
                     <Typography.Text ellipsis={true}>
-                        <Typography.Text type={'secondary'}>
+                        <Typography.Text type='secondary'>
                             {PublishedMessage}:&nbsp;
                         </Typography.Text>
                         <Typography.Text strong>
@@ -148,7 +148,7 @@ export const TopCard: React.FC<TopCardProps> = ({
                     </Typography.Text>
                     {
                         partnerUrl && (
-                            <Typography.Link target={'_blank'} href={partnerUrl}>
+                            <Typography.Link target='_blank' href={partnerUrl}>
                                 {PartnerSiteMessage}
                             </Typography.Link>
                         )
@@ -158,7 +158,7 @@ export const TopCard: React.FC<TopCardProps> = ({
             {
                 tag && (
                     <TagContainer right={40} top={isSmallLayout ? 40 : 56}>
-                        <Typography.Text type={'secondary'}>
+                        <Typography.Text type='secondary'>
                             {tag}
                         </Typography.Text>
                     </TagContainer>

@@ -85,7 +85,7 @@ const TheContactRolePage = (): JSX.Element => {
                                         icon={<ExclamationCircleOutlined/>}
                                         message={<Typography.Text strong>{ReadOnlyRoleWarningTitle}</Typography.Text>}
                                         description={ReadOnlyRoleWarningMessage}
-                                        type="warning"
+                                        type='warning'
                                         showIcon
                                     />
                                 </Col>
@@ -112,8 +112,8 @@ const TheContactRolePage = (): JSX.Element => {
                                     <ActionBar>
                                         <Link href={`/settings/contactRole/${contactRoleId}/update`}>
                                             <Button
-                                                color={'green'}
-                                                type={'sberDefaultGradient'}
+                                                color='green'
+                                                type='sberDefaultGradient'
                                             >
                                                 {UpdateMessage}
                                             </Button>

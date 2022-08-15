@@ -82,13 +82,13 @@ export const StatsCard: React.FC<IStatsCardProps> = (props) => {
     )
 
     const cardExtra = (
-        <Button style={CARD_EXTRA_STYLE} type={'inlineLink'} onClick={linkClick}>
+        <Button style={CARD_EXTRA_STYLE} type='inlineLink' onClick={linkClick}>
             {extraTitle}{<RightOutlined />}
         </Button>
     )
 
     return (
-        <Row gutter={STATS_CARD_ROW_GUTTER} align={'middle'}>
+        <Row gutter={STATS_CARD_ROW_GUTTER} align='middle'>
             <Col span={24}>
                 <Card
                     title={cardTitle}

@@ -66,7 +66,7 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
     return (
         <Table
             bordered
-            tableLayout={'fixed'}
+            tableLayout='fixed'
             scroll={getScrollConfig(isSmall)}
             dataSource={dataSource}
             columns={tableColumns as TableColumnsType}

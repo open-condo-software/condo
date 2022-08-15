@@ -143,14 +143,14 @@ const BUILDING_TOP_MODAL_TITLE_STYLE: React.CSSProperties = { fontWeight: 700 }
 
 const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible, onClose, title, children }) => (
     <TopModal visible={visible}>
-        <Row justify={'space-between'} align={'top'}>
+        <Row justify='space-between' align='top'>
             <Col span={22}>
                 {title !== null && (
                     <Typography.Title level={4} style={BUILDING_TOP_MODAL_TITLE_STYLE}>{title}</Typography.Title>
                 )}
             </Col>
             <Col span={2}>
-                <Button onClick={onClose} icon={<CloseOutlined />} size={'small'} type={'text'} />
+                <Button onClick={onClose} icon={<CloseOutlined />} size='small' type='text' />
             </Col>
         </Row>
         <Row>
@@ -284,7 +284,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
 
     return (
-        <FullscreenWrapper mode={'edit'} className='fullscreen'>
+        <FullscreenWrapper mode='edit' className='fullscreen'>
             <FullscreenHeader edit={true}>
                 <Row css={TopRowCss} justify='space-between'>
                     {address && (
@@ -368,7 +368,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     refresh={refresh}
                     isFullscreen
                 >
-                    <Space size={20} align={'center'}>
+                    <Space size={20} align='center'>
                         <Button
                             key='submit'
                             onClick={saveCallback}
@@ -387,7 +387,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Button>
                         {
                             mapValidationError ? (
-                                <Typography.Paragraph type="danger" style={{ width: '100%', textAlign: 'center' }}>
+                                <Typography.Paragraph type='danger' style={{ width: '100%', textAlign: 'center' }}>
                                     {mapValidationError}
                                 </Typography.Paragraph>
                             ) : null
@@ -486,13 +486,13 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
             {
                 builder.isEmpty ?
                     <Col span={24}>
-                        <EmptyBuildingBlock mode="edit" />
+                        <EmptyBuildingBlock mode='edit' />
                         <BuildingChooseSections
                             isFullscreen={isFullscreen}
                             toggleFullscreen={toggleFullscreen}
                             builder={builder}
                             refresh={refresh}
-                            mode="edit"
+                            mode='edit'
                         >
                             {children}
                         </BuildingChooseSections>
@@ -500,7 +500,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                     :
                     <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>
                         <ScrollContainer
-                            className="scroll-container"
+                            className='scroll-container'
                             vertical={false}
                             horizontal={true}
                             style={CHESS_SCROLL_CONTAINER_STYLE}
@@ -559,7 +559,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                             toggleFullscreen={toggleFullscreen}
                             builder={builder}
                             refresh={refresh}
-                            mode="edit"
+                            mode='edit'
                         >
                             {children}
                         </BuildingChooseSections>
@@ -781,7 +781,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptySections}>
-                    <Select.Option key={'create'} value={null}>{CreateNewLabel}</Select.Option>
+                    <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
                     {builder.map.sections.filter(section => !section.preview).map(section => (
                         <Select.Option
                             key={`copy-${section.id}`}
@@ -793,26 +793,26 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Select>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{SectionNameLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{SectionNameLabel}</Typography.Text>
                     <InputNumber
                         value={sectionName}
                         min={1}
                         onChange={setSectionNameValue}
                         style={INPUT_STYLE}
-                        type={'number'}
+                        type='number'
                     />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
-                    <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} style={INPUT_STYLE} type={'number'} />
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{FloorCountLabel}</Typography.Text>
+                    <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} style={INPUT_STYLE} type='number' />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{UnitTypeLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{UnitTypeLabel}</Typography.Text>
                     <Select value={unitType} onSelect={setUnitType}>
                         {Object.values(BuildingUnitSubType)
                             .filter(unitType => unitType !== BuildingUnitSubType.Parking)
@@ -826,16 +826,16 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
                 <Space
-                    direction={'vertical'}
+                    direction='vertical'
                     size={8}
                     hidden={minFloorHidden}
                 >
-                    <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
+                    <Typography.Text type='secondary'>{MinFloorLabel}</Typography.Text>
                     <InputNumber
                         value={minFloor}
                         onChange={setMinFloorValue}
                         style={INPUT_STYLE}
-                        type={'number'}
+                        type='number'
                     />
                 </Space>
                 <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
@@ -843,9 +843,9 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Typography.Text>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
-                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type={'number'}/>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
+                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type='number'/>
                 </Space>
             </Col>
             <Col span={24}>
@@ -957,7 +957,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8}>
+                <Space direction='vertical' size={8}>
                     <Typography.Text>{UnitTypeLabel}</Typography.Text>
                     <Select
                         value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
@@ -973,14 +973,14 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                     <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'} >{SectionLabel}</Typography.Text>
+                <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                    <Typography.Text type='secondary' >{SectionLabel}</Typography.Text>
                     <Select value={section} onSelect={updateSection} style={INPUT_STYLE}>
                         {sections.map((sec) => {
                             return <Option key={sec.id} value={sec.id}>{sec.label}</Option>
@@ -989,9 +989,9 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={BUTTON_SPACE_SIZE}>
-                    <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                        <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
+                <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
+                    <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                        <Typography.Text type='secondary' >{FloorLabel}</Typography.Text>
                         <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
                             {floors.map(floorOption => {
                                 return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
@@ -1065,8 +1065,8 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                     <InputNumber
                         value={name}
                         min={1}
@@ -1186,7 +1186,7 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptyParking}>
-                    <Select.Option key={'create'} value={null}>{CreateNewLabel}</Select.Option>
+                    <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
                     {builder.map.parking.filter(section => !section.preview).map(section => (
                         <Select.Option
                             key={`copy-${section.id}`}
@@ -1198,41 +1198,41 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Select>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{ParkingNameLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{ParkingNameLabel}</Typography.Text>
                     <InputNumber
                         value={parkingName}
                         min={1}
                         onChange={setParkingNameValue}
                         style={INPUT_STYLE}
-                        type={'number'}
+                        type='number'
                     />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{FloorCountLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{FloorCountLabel}</Typography.Text>
                     <InputNumber
                         value={floorCount}
                         onChange={setFloorCountValue}
                         style={INPUT_STYLE}
-                        type={'number'}
+                        type='number'
                         min={1}
                     />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden} style={{ marginTop: minFloorMargin }}>
                 <Space
-                    direction={'vertical'}
+                    direction='vertical'
                     size={8}
                     hidden={minFloorHidden}
                 >
-                    <Typography.Text type={'secondary'}>{MinFloorLabel}</Typography.Text>
+                    <Typography.Text type='secondary'>{MinFloorLabel}</Typography.Text>
                     <InputNumber
                         value={minFloor}
                         onChange={setMinFloorValue}
                         style={INPUT_STYLE}
-                        type={'number'}
+                        type='number'
                     />
                 </Space>
                 <Typography.Text onClick={toggleMinFloorVisible} style={TEXT_BUTTON_STYLE}>
@@ -1240,9 +1240,9 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 </Typography.Text>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{ParkingOnFloorLabel}</Typography.Text>
-                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type={'number'}/>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{ParkingOnFloorLabel}</Typography.Text>
+                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type='number'/>
                 </Space>
             </Col>
             <Col span={24}>
@@ -1291,8 +1291,8 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     return (
         <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8}>
-                    <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                <Space direction='vertical' size={8}>
+                    <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                     <InputNumber
                         value={parkingName}
                         min={1}
@@ -1309,7 +1309,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Button
                         secondary
                         onClick={updateParkingSection}
-                        type={'sberDefaultGradient'}
+                        type='sberDefaultGradient'
                     >
                         {SaveLabel}
                     </Button>
@@ -1417,8 +1417,8 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'} >{SectionLabel}</Typography.Text>
+                <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                    <Typography.Text type='secondary' >{SectionLabel}</Typography.Text>
                     <Select value={section} onSelect={updateSection} style={INPUT_STYLE}>
                         {sections.map((sec) => {
                             return <Option key={sec.id} value={sec.id}>{SectionTitlePrefix} {sec.label}</Option>
@@ -1427,8 +1427,8 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'} >{FloorLabel}</Typography.Text>
+                <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                    <Typography.Text type='secondary' >{FloorLabel}</Typography.Text>
                     <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
                         {floors.map(floorOption => {
                             return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
@@ -1437,9 +1437,9 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={BUTTON_SPACE_SIZE}>
-                    <Space direction={'vertical'} size={8}>
-                        <Typography.Text type={'secondary'}>{NameLabel}</Typography.Text>
+                <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
+                    <Space direction='vertical' size={8}>
+                        <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                         <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
                             {RenameNextUnitsLabel}
@@ -1542,8 +1542,8 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'}>{UnitTypeAtFloorLabel}</Typography.Text>
+                <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                    <Typography.Text type='secondary'>{UnitTypeAtFloorLabel}</Typography.Text>
                     <Select value={unitType} onSelect={setUnitType}>
                         {Object.values(BuildingUnitSubType)
                             .filter(unitType => unitType !== BuildingUnitSubType.Parking)
@@ -1557,8 +1557,8 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'}>{SectionLabel}</Typography.Text>
+                <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                    <Typography.Text type='secondary'>{SectionLabel}</Typography.Text>
                     <Select value={section} onSelect={setSection} style={INPUT_STYLE}>
                         {sections.map((sec, index) => {
                             return <Option key={sec.id} value={index}>{SectionTitlePrefix} {sec.label}</Option>
@@ -1567,26 +1567,26 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={8} style={INPUT_STYLE}>
-                    <Typography.Text type={'secondary'}>{FloorLabel}</Typography.Text>
+                <Space direction='vertical' size={8} style={INPUT_STYLE}>
+                    <Typography.Text type='secondary'>{FloorLabel}</Typography.Text>
                     <InputNumber
                         value={floor}
                         onChange={setFloorNumber}
                         max={maxFloor.current}
-                        type={'number'}
+                        type='number'
                         style={INPUT_STYLE}
                     />
                 </Space>
             </Col>
             <Col span={24}>
-                <Space direction={'vertical'} size={BUTTON_SPACE_SIZE}>
-                    <Space direction={'vertical'} size={8}>
-                        <Typography.Text type={'secondary'}>{UnitsOnFloorLabel}</Typography.Text>
+                <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
+                    <Space direction='vertical' size={8}>
+                        <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
                         <InputNumber
                             value={unitsOnFloor}
                             onChange={setUnitsOnFloorNumber}
                             style={INPUT_STYLE}
-                            type={'number'}
+                            type='number'
                             min={1}
                         />
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>

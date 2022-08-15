@@ -136,13 +136,13 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         <Col span={detailsColSpan}>
                             <Row>
                                 <Col span={24}>
-                                    <TicketFormItem name={'details'} rules={validations.details}>
+                                    <TicketFormItem name='details' rules={validations.details}>
                                         <InputWithCounter
                                             onBlur={handleInputBlur}
                                             placeholder={DescriptionPlaceholder}
                                             disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
-                                            data-cy={'ticket__description-input'}
+                                            data-cy='ticket__description-input'
                                         />
                                     </TicketFormItem>
                                     <Counter style={COUNTER_STYLES} />
@@ -171,22 +171,22 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         <Col span={24}>
                             <Row gutter={MEDIUM_HORIZONTAL_GUTTER}>
                                 <Col span={24} lg={6}>
-                                    <Form.Item name={'isEmergency'} valuePropName='checked'>
-                                        <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxEmergency'}>
+                                    <Form.Item name='isEmergency' valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction} eventName='TicketCreateCheckboxEmergency'>
                                             {EmergencyLabel}
                                         </Checkbox>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24} lg={6}>
-                                    <Form.Item name={'isPaid'} valuePropName='checked'>
-                                        <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxIsPaid'}>
+                                    <Form.Item name='isPaid' valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction} eventName='TicketCreateCheckboxIsPaid'>
                                             {PaidLabel}
                                         </Checkbox>
                                     </Form.Item>
                                 </Col>
                                 <Col span={24} lg={6}>
-                                    <Form.Item name={'isWarranty'} valuePropName='checked'>
-                                        <Checkbox disabled={disableUserInteraction} eventName={'TicketCreateCheckboxIsWarranty'}>
+                                    <Form.Item name='isWarranty' valuePropName='checked'>
+                                        <Checkbox disabled={disableUserInteraction} eventName='TicketCreateCheckboxIsWarranty'>
                                             {WarrantyLabel}
                                         </Checkbox>
                                     </Form.Item>
@@ -384,8 +384,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                     <>
                         {NoPropertiesMessage}&nbsp;
                         <Button
-                            type={'inlineLink'}
-                            size={'small'}
+                            type='inlineLink'
+                            size='small'
                             onClick={handleAddPropertiesClick}
                         >
                             {AddMessage}
@@ -435,15 +435,15 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         <Col span={24}>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                 <Col span={24}>
-                                    <Row gutter={BIG_HORIZONTAL_GUTTER} justify={'space-between'}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
                                         <Col span={propertyInfoColSpan}>
                                             <Row gutter={BIG_VERTICAL_GUTTER}>
                                                 <Col span={24}>
                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                         {NoPropertiesAlert}
-                                                        <Col span={24} data-cy={'ticket__property-address-search-input'}>
+                                                        <Col span={24} data-cy='ticket__property-address-search-input'>
                                                             <TicketFormItem
-                                                                name={'property'}
+                                                                name='property'
                                                                 label={AddressLabel}
                                                                 rules={PROPERTY_VALIDATION_RULES}
                                                             >
@@ -536,10 +536,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                             {
                                                                 !isResidentTicket && (
                                                                     <Col span={24}>
-                                                                        <Form.Item name={'canReadByResident'} valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                        <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
                                                                             <Checkbox
                                                                                 disabled={disableUserInteraction}
-                                                                                eventName={'TicketCreateCheckboxCanReadByResident'}
+                                                                                eventName='TicketCreateCheckboxCanReadByResident'
                                                                             >
                                                                                 {CanReadByResidentMessage}
                                                                             </Checkbox>

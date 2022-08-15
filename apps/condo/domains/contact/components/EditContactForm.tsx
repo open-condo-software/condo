@@ -120,7 +120,7 @@ export const EditContactForm: React.FC = () => {
             <FormWithAction
                 action={formAction}
                 initialValues={formInitialValues}
-                layout={'horizontal'}
+                layout='horizontal'
                 validateTrigger={['onBlur', 'onSubmit']}
                 formValuesToMutationDataPreprocessor={(values) => {
                     const role = get(values, 'role', null)
@@ -132,7 +132,7 @@ export const EditContactForm: React.FC = () => {
                 {
                     ({ handleSave, isLoading }) => {
                         return (
-                            <Row gutter={GUTTER_0_40} justify={'center'}>
+                            <Row gutter={GUTTER_0_40} justify='center'>
                                 <Col xs={10} lg={3}>
                                     <UserAvatar borderRadius={24}/>
                                 </Col>
@@ -149,8 +149,8 @@ export const EditContactForm: React.FC = () => {
                                         <Col span={24}>
                                             <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
-                                                labelAlign={'left'}
-                                                name={'name'}
+                                                labelAlign='left'
+                                                name='name'
                                                 label={NameLabel}
                                                 required={true}
                                                 validateFirst
@@ -162,8 +162,8 @@ export const EditContactForm: React.FC = () => {
                                         <Col span={24}>
                                             <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
-                                                labelAlign={'left'}
-                                                name={'phone'}
+                                                labelAlign='left'
+                                                name='phone'
                                                 label={PhoneLabel}
                                                 required={true}
                                                 validateFirst
@@ -175,8 +175,8 @@ export const EditContactForm: React.FC = () => {
                                         <Col span={24}>
                                             <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
-                                                labelAlign={'left'}
-                                                name={'email'}
+                                                labelAlign='left'
+                                                name='email'
                                                 label={EmailLabel}
                                                 required={false}
                                                 validateFirst
@@ -188,8 +188,8 @@ export const EditContactForm: React.FC = () => {
                                         <Col span={24}>
                                             <Form.Item
                                                 {...INPUT_LAYOUT_PROPS}
-                                                labelAlign="left"
-                                                name="role"
+                                                labelAlign='left'
+                                                name='role'
                                                 label={RoleLabel}
                                             >
                                                 <ContactRoleSelect roles={roles}/>
@@ -197,13 +197,13 @@ export const EditContactForm: React.FC = () => {
                                         </Col>
                                         <Space size={40} style={{ paddingTop: '36px' }}>
                                             <FormResetButton
-                                                type={'sberPrimary'}
+                                                type='sberPrimary'
                                                 secondary
                                             />
                                             <Button
-                                                key={'submit'}
+                                                key='submit'
                                                 onClick={handleSave}
-                                                type={'sberPrimary'}
+                                                type='sberPrimary'
                                                 loading={isLoading}
                                             >
                                                 {ApplyChangesMessage}

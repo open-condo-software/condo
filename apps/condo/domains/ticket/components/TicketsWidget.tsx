@@ -50,7 +50,7 @@ export const TicketsWidget = () => {
             loading={loading}
             dependencyArray={[userOrganizationId]}
         >
-            <Row gutter={[40, 20]} justify={'center'}>
+            <Row gutter={[40, 20]} justify='center'>
                 {
                     ticketData === null
                         ? (
