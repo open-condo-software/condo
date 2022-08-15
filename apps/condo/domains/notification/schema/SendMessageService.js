@@ -11,7 +11,6 @@ const {
 const { deliverMessage } = require('../tasks')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const { TRACK_TICKET_IN_DOMA_APP_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const errors = {
     EMAIL_FROM_REQUIRED: {
