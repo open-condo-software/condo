@@ -20,16 +20,16 @@ export const TicketDeferredDateField = () => {
     const handleDisabledDate = useCallback((current) => current < minDate || current > maxDate, [])
 
     return (
-        <Row align={'bottom'} gutter={TICKET_DEADLINE_FIELD_ROW_GUTTER} justify={'space-between'}>
+        <Row align='bottom' gutter={TICKET_DEADLINE_FIELD_ROW_GUTTER} justify='space-between'>
             <Col span={isSmall ? 24 : 11}>
                 <TicketFormItem
                     label={DeferredUntilMessage}
-                    name="deferredUntil"
+                    name='deferredUntil'
                     required
-                    data-cy={'ticket__deferredUntil-item'}
+                    data-cy='ticket__deferredUntil-item'
                 >
                     <DatePicker
-                        format="DD MMMM YYYY"
+                        format='DD MMMM YYYY'
                         disabledDate={handleDisabledDate}
                         style={DATE_PICKER_STYLE}
                         allowClear={false}
