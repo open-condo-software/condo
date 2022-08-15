@@ -1,0 +1,5 @@
+const UPPER_CASE_ALPHANUMERIC_REGEXP = /^[A-Z0-9_]+$/
+
+module.exports = {
+    UPPER_CASE_ALPHANUMERIC_REGEXP,
+}
