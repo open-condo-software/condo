@@ -30,7 +30,7 @@ class TicketGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0, organizationId ) {
+    constructor ({ ticketsByDay = { min: 20, max: 50 }, propertyIndex = 0, organizationId }) {
         this.ticketsByDay = ticketsByDay
         this.propertyIndex = propertyIndex
         this.organizationId = organizationId
