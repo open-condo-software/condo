@@ -212,12 +212,14 @@ const EmployeesPage = () => {
 
     const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery), organization: { id: userOrganizationId } }
     const employeeRoleNameSearchString = get(searchEmployeeQuery, 'AND[0].OR[4].role.name_contains_i', null)
-    const employeeRoleName = Object.keys(translates).find(key => (
-        translates[key].includes(employeeRoleNameSearchString)
-        && key.includes('employee.role'))
+    const employeeRoleNameWhereCondition = Object.keys(translates).find(key => (
+        typeof (employeeRoleNameSearchString) === 'string'
+        && translates[key].toLowerCase().includes(employeeRoleNameSearchString.toLowerCase())
+        && key.includes('employee.role')
+        && !key.includes('description'))
     )
-    if (employeeRoleName) {
-        searchEmployeeQuery.AND[0].OR[4].role.name_contains_i = employeeRoleName
+    if (employeeRoleNameWhereCondition) {
+        searchEmployeeQuery.AND[0].OR[4].role.name_contains_i = employeeRoleNameWhereCondition
     }
 
     return (
