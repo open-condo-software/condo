@@ -17,7 +17,7 @@ function normalizeVariables (object) {
             set(data, key, '***')
         }
     }
-    return data
+    return JSON.stringify(data)
 }
 
 module.exports = {

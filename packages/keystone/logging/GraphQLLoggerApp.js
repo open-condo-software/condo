@@ -62,7 +62,7 @@ class GraphQLLoggerPlugin {
                     def => `${def.operation} ${def.name ? `${def.name.value} ` : ''}{ .. }`,
                 )
                 const query = normalizeQuery(get(requestContext, 'request.query'))
-                const variables = JSON.stringify(normalizeVariables(get(requestContext, 'request.variables')))
+                const variables = normalizeVariables(get(requestContext, 'request.variables'))
 
                 graphqlLogger.info({ graphQLOperations, gql: { query, variables }, ...logData })
             },
