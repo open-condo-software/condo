@@ -25,7 +25,7 @@ const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { KeystoneCacheMiddleware } = require('@condo/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
-const { GraphQLLoggerPlugin } = require('@condo/domains/common/utils/GraphQLLoggerApp')
+const { GraphQLLoggerPlugin } = require('@condo/keystone/logging')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 const packageJson = require('@app/condo/package.json')
