@@ -7,8 +7,8 @@ const _ = require('lodash')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
-const { find, getById, GQLCustomSchema } = require('@core/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@core/keystone/errors')
+const { find, getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const Big = require('big.js')
 
