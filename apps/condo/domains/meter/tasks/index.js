@@ -1,9 +1,9 @@
 const sendVerificationDateReminderTask = require('./sendVerificationDateReminderTask')
 const sendSubmitMeterReadingsPushNotificationsTask = require('./sendSubmitMeterReadingsPushNotificationsTask')
-const deleteDeletedMeterMeterReadings = require('./deleteDeletedMeterMeterReadings')
+const deleteReadingsOfDeletedMeter = require('./deleteReadingsOfDeletedMeter')
 
 module.exports = {
     sendVerificationDateReminderTask,
     sendSubmitMeterReadingsPushNotificationsTask,
-    deleteDeletedMeterMeterReadings,
+    deleteReadingsOfDeletedMeter,
 }

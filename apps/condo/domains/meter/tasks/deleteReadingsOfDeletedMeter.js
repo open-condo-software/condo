@@ -5,7 +5,7 @@ const { MeterReading } = require('../utils/serverSchema')
 /**
  * Soft delete meter readings after soft delete meter
  */
-async function deleteDeletedMeterMeterReadings (deletedMeter, deletedMeterAt) {
+async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     const meterId = deletedMeter.id
@@ -23,4 +23,4 @@ async function deleteDeletedMeterMeterReadings (deletedMeter, deletedMeterAt) {
     }
 }
 
-module.exports = createTask('deleteDeletedMeterMeterReadings', deleteDeletedMeterMeterReadings)
+module.exports = createTask('deleteReadingsOfDeletedMeter', deleteReadingsOfDeletedMeter)

@@ -10,7 +10,7 @@ const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
-describe('Submit meter readings push notification', () => {
+describe('deleteReadingsOfDeletedMeter', () => {
     it('readings are deleted after the related meter is deleted', async () => {
         const client = await makeClientWithProperty()
 
