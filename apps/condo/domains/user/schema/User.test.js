@@ -417,24 +417,6 @@ describe('UserHistoryRecord', () => {
 })
 
 describe('Cache tests', () => {
-    test('Clients that ask for different set of fields get different set of fields', async () => {
-        const client = await makeClientWithNewRegisteredAndLoggedInUser()
-        
-        const userId = client.user.id
-        
-        const UserModifiedGQL = generateGqlQueries('User', '{ id name }')
-        const UserModifiedGQLAPI = generateGQLTestUtils(UserModifiedGQL)
-
-        client.setHeaders({ 'X-Request-Id': 'test' })
-
-        const [ userFromModifiedGQL ] = await UserModifiedGQLAPI.getAll(client, { id: userId })
-        const [ userFromNormalGQL ] = await User.getAll(client, { id: userId })
-
-        expect(userFromModifiedGQL.type).toBeUndefined()
-        expect(userFromModifiedGQL.id).toEqual(userFromNormalGQL.id)
-        expect(userFromNormalGQL.type).toBeDefined()
-    })
-
     test('Clients that ask for different set of fields in parallel get different set of fields', async () => {
         const originalClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
