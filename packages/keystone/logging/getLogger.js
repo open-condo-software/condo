@@ -4,7 +4,7 @@ const falsey = require('falsey')
 const serializers = require('pino-std-serializers')
 const { toString } = require('lodash')
 
-const { safeFormatError } = require('./apolloErrorFormatter')
+const { safeFormatError } = require('../apolloErrorFormatter')
 const { normalizeVariables } = require('./normalize')
 
 function getLogger (name) {

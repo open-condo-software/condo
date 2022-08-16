@@ -7,7 +7,7 @@ const GOOGLE_RECAPTCHA_CONFIG = conf.GOOGLE_RECAPTCHA_CONFIG ? JSON.parse(conf.G
 const CAPTCHA_SCORE_URL = GOOGLE_RECAPTCHA_CONFIG.CAPTCHA_SCORE_URL ? GOOGLE_RECAPTCHA_CONFIG.CAPTCHA_SCORE_URL : 'https://www.google.com/recaptcha/api/siteverify'
 const SERVER_KEY = GOOGLE_RECAPTCHA_CONFIG.SERVER_KEY
 const SAFE_CAPTCHA_SCORE = 0.5
-const TROW_ERRORS_ON_LOW_CAPTCHA_SCORE = false
+const THROW_ERRORS_ON_LOW_CAPTCHA_SCORE = false
 
 const logger = getLogger('googleRecaptcha3')
 
@@ -33,7 +33,7 @@ const captchaCheck = async (response, action = '') => {
         logger.info({ message: 'Captcha result', result })
 
         if (serverAnswer.ok) {
-            const isError = TROW_ERRORS_ON_LOW_CAPTCHA_SCORE && result.score < SAFE_CAPTCHA_SCORE
+            const isError = THROW_ERRORS_ON_LOW_CAPTCHA_SCORE && result.score < SAFE_CAPTCHA_SCORE
             if (result.action !== action) {
                 logger.error(`Captcha actions mismatch ${result.action} - ${action}`)
             }
