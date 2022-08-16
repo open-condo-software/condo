@@ -53,7 +53,6 @@ export const GlobalAppsContainer: React.FC = () => {
     const [modals, setModals] = useState<{ [id: string]: ModalInfo }>({})
     const [isDebug, setIsDebug] = useState(false)
 
-    // @ts-ignore
     const { addTask, updateTask, tasks } = useContext(TasksContext)
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
 
