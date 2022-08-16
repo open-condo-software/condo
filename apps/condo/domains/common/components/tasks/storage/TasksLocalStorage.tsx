@@ -4,6 +4,9 @@ import findIndex from 'lodash/findIndex'
 import isFunction from 'lodash/isFunction'
 import { ITasksStorage, OnCompleteFunc } from '../index'
 import dayjs from 'dayjs'
+import isToday from 'dayjs/plugin/isToday'
+
+dayjs.extend(isToday)
 
 const LOCAL_STORAGE_TASKS_KEY = 'tasks'
 
@@ -114,7 +117,7 @@ export class TasksLocalStorage implements ITasksStorage {
             }
         }
     }
-    
+
     private getAllItemsFromStorage () {
         // There is not `localStorage` on server-side
         if (!localStorage) {
