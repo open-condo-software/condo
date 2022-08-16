@@ -17,6 +17,9 @@ const {
 const { i18n } = require('@condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
+const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
+const { ERROR } = require('@condo/domains/common/constants/export')
+const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -168,6 +171,23 @@ const exportTickets = async (taskId) => {
     const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
     const task = await TicketExportTask.getOne(context, { id: taskId })
+
+    if (!task.locale) {
+        await TicketExportTask.update(context, task.id, {
+            dv: 1,
+            sender: {
+                dv: 1,
+                fingerprint: TASK_WORKER_FINGERPRINT,
+            },
+            status: ERROR,
+        })
+        throw new Error(`TicketExportTask with id "${task.id}" does not have value for "locale" field!`)
+    }
+
+    // NOTE: A field `TicketStatus.name` of type `LocalizedText` depends on `context.req` to determine current locale,
+    // but here it is not used in scope of HTTP-request — it's a scope of the worker
+    // which determines user requested locale from `TicketExportTask.locale` field value
+    setLocaleForKeystoneContext(context, task.locale)
 
     const statuses = await TicketStatus.getAll(context, {})
     const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
