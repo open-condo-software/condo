@@ -1,18 +1,18 @@
 const Queue = require('bull')
-const falsey = require('falsey')
-const pino = require('pino')
-const { serializeError } = require('serialize-error')
 
 const conf = require('@condo/config')
 
 const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 const { getRedisClient } = require('./redis')
+const { getLogger } = require('./logging')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
 
 // NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
+const logger = getLogger('worker')
+
 const taskQueue = new Queue('tasks', {
     /**
      * @param {'client' | 'subscriber' | 'bclient'} type
@@ -28,7 +28,6 @@ const taskQueue = new Queue('tasks', {
     },
 })
 
-const taskLogger = pino({ name: 'worker', enabled: falsey(conf.DISABLE_LOGGING) })
 const globalTaskOptions = {}
 const TASKS = new Map()
 const CRON_TASKS = new Map()
@@ -76,7 +75,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
 async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     // NOTE: it's just for test purposes
     // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-    console.warn(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}, ${JSON.stringify(preparedOpts)}); // (task options ignored)`)
+    logger.warn(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}, ${JSON.stringify(preparedOpts)}); // (task options ignored)`)
 
     const jobId = getRandomString()
     let error = undefined
@@ -84,11 +83,11 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     let status = 'processing'
     let executor = async function inProcessExecutor () {
         try {
-            console.info(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}) EXECUTION`)
+            logger.info(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}) EXECUTION`)
             result = await executeTask(name, preparedArgs, { id: jobId })
             status = 'completed'
         } catch (e) {
-            console.error('ScheduleInProcessTask() EXCEPTION:', e)
+            logger.error({ msg: 'ScheduleInProcessTask() EXCEPTION:', error })
             status = 'error'
             error = e
         }
@@ -101,7 +100,6 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
         awaitResult: async () => {
             return new Promise((res, rej) => {
                 const handler = setInterval(() => {
-                    console.log(status, result)
                     if (status === 'completed') {
                         clearInterval(handler)
                         res(result)
@@ -157,7 +155,6 @@ function registerTasks (modulesList) {
             Object.values(module).forEach(
                 (task) => {
                     if (task._type !== TASK_TYPE) {
-                        console.warn(task)
                         throw new Error('Wrong task module export format! What\'s this? You should wrap everything by createTask()')
                     }
                 })
@@ -186,46 +183,53 @@ function executeTask (name, args, job = null) {
     return fn.apply(job, args)
 }
 
+function getTaskLoggingContext (job) {
+    const data = job.toJSON()
+    if (typeof data.args !== 'undefined') data.args = JSON.stringify(data.args)
+    if (typeof data.returnvalue !== 'undefined') data.returnvalue = JSON.stringify(data.returnvalue)
+    return data
+}
+
 async function createWorker (keystoneModule) {
     // NOTE: we should have only one worker per node process!
     if (isWorkerCreated) {
-        taskLogger.warn({ message: 'Call createWorker() more than one time! (ignored)' })
+        logger.warn('Call createWorker() more than one time! (ignored)')
         return
     } else {
         isWorkerCreated = true
-        taskLogger.info({ message: 'Creating worker process' })
+        logger.info('Creating worker process')
     }
 
     // we needed to prepare keystone to use it inside tasks logic!
     if (keystoneModule) {
         await prepareKeystoneExpressApp(keystoneModule)
     } else {
-        taskLogger.warn({ message: 'Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!' })
+        logger.warn('Keystone APP context is not prepared! You can\'t use Keystone GQL query inside the tasks!')
     }
 
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
-        taskLogger.info({ job: job.id, status: 'processing', task: job.toJSON() })
+        logger.info({ job: job.id, status: 'processing', task: getTaskLoggingContext(job) })
         try {
             return await executeTask(job.name, job.data.args, job)
-        } catch (e) {
-            taskLogger.error({ job: job.id, status: 'error', error: serializeError(e), task: job.toJSON() })
-            throw e
+        } catch (error) {
+            logger.error({ job: job.id, status: 'error', error, task: getTaskLoggingContext(job) })
+            throw error
         }
     })
 
     taskQueue.on('failed', function (job) {
-        taskLogger.info({ job: job.id, status: 'failed', task: job.toJSON() })
+        logger.info({ job: job.id, status: 'failed', task: getTaskLoggingContext(job) })
     })
 
     taskQueue.on('completed', function (job) {
-        taskLogger.info({ job: job.id, status: 'completed', task: job.toJSON(), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
+        logger.info({ job: job.id, status: 'completed', task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
     })
 
     await taskQueue.isReady()
-    taskLogger.info({ message: 'Worker: ready to work!' })
+    logger.info('Worker: ready to work!')
     const cronTasksNames = [...CRON_TASKS.keys()]
     if (cronTasksNames.length > 0) {
-        taskLogger.info({ message: 'Worker: add repeatable tasks!', names: cronTasksNames })
+        logger.info({ msg: 'Worker: add repeatable tasks!', names: cronTasksNames })
         cronTasksNames.forEach((name) => {
             const fn = TASKS.get(name)
             fn.delay()
@@ -233,7 +237,7 @@ async function createWorker (keystoneModule) {
     }
     const removeTasksNames = REMOVE_CRON_TASKS.map(x => x[0])
     if (removeTasksNames.length > 0) {
-        taskLogger.info({ message: 'Worker: remove tasks!', names: removeTasksNames })
+        logger.info({ msg: 'Worker: remove tasks!', names: removeTasksNames })
         REMOVE_CRON_TASKS.forEach(([name, opts]) => {
             taskQueue.removeRepeatable(name, opts.repeat)
         })
