@@ -13,7 +13,9 @@ const { values } = require('lodash')
 const conf = require('@condo/config')
 const { getRandomString, prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
-const { changeClientSecret, refreshAllTokens, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
+const { changeClientSecret, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { SBBOL_IMPORT_NAME } = require('../common')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
@@ -23,6 +25,17 @@ const COMMAND = {
     CHANGE_CLIENT_SECRET: 'change-client-secret',
 }
 
+async function refreshAllTokens (context) {
+    // we need to refresh all tokens once per month
+    const organizations = await Organization.getAll(context, { importRemoteSystem: SBBOL_IMPORT_NAME })
+    await Promise.all(organizations.map(async organization => {
+        try {
+            await getOrganizationAccessToken(context, organization.importId)
+        } catch (error) {
+            console.log(error)
+        }
+    }))
+}
 
 const workerJob = async () => {
     const [command] = process.argv.slice(2)
