@@ -566,5 +566,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterTicketContact],
             },
         ]
-    }, [statuses, sources])
+    }, [statuses, sources, categoryClassifiers])
 }
