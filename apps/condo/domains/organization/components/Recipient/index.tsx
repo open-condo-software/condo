@@ -35,7 +35,7 @@ export const Recipient = ({ recipient }) => {
         <Col span={24}>
             <Row gutter={VERTICAL_GUTTER}>
                 <RecipientRow
-                    recipientKey={'name'}
+                    recipientKey='name'
                     recipientValue={recipient.name}
                     styleText={RECIPIENT_TITLE_CSS}
                 />

@@ -65,7 +65,7 @@ export const RecipientSettingsContent = () => {
                     message={<Typography.Text strong>{AlertTitle}</Typography.Text>}
                     description={AlertContent}
                     showIcon
-                    type={'warning'}
+                    type='warning'
                 />
             </Col>
 
