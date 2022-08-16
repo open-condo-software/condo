@@ -28,7 +28,7 @@ export const roleToQuery = (rolesIds: Array<string>): OrganizationEmployeeRoleWh
 }
 
 export const roleToSearchQuery = (search: string, translates) => {
-    let whereIn = [search]
+    let whereIn = []
     if (translates) {
         whereIn = Object.keys(translates).filter(key => (
             translates[key].toLowerCase().includes(search.toLowerCase())
