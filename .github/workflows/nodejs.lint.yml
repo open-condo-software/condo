@@ -16,9 +16,12 @@ jobs:
         node-version: [14.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
         with:
+          fetch-depth: 0
           submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Check lint with eslint
         uses: actions/setup-node@v1
