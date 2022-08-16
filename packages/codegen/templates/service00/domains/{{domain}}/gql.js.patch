@@ -16,9 +16,9 @@ const {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_BY_ID_QUERY
 /**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
-{% if type == "mutations" %}
+{% if type == "mutations" -%}
     {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION,
-{% else %} 
+{% else -%}
     {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_BY_ID_QUERY,
-{% endif %}
+{% endif -%}
 /**/
