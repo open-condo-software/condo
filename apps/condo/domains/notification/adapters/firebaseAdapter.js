@@ -6,8 +6,7 @@ const isString = require('lodash/isString')
 const faker = require('faker')
 
 const conf = require('@condo/config')
-
-const { logger } = require('@condo/domains/notification/utils')
+const { getLogger } = require('@condo/keystone/logging')
 
 const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL, FIREBASE_CONFIG_ENV } = require('../constants/constants')
 const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../constants/errors')
@@ -16,6 +15,8 @@ const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 
 const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CONFIG_ENV]) : null
 const DEFAULT_PUSH_SETTINGS = { apns: { payload: { aps: { 'mutable-content': 1 } } } }
+
+const logger = getLogger('firebaseAdapter')
 
 /**
  * Send push notification to pushToken via app, configured by FIREBASE_CONFIG in .helm (.env)
@@ -45,13 +46,13 @@ class FirebaseAdapter {
             if (isEmpty(config)) throw new Error(EMPTY_CONFIG_ERROR)
 
             this.app = admin.initializeApp({ credential: admin.credential.cert(config) })
-        } catch (e) {
+        } catch (error) {
             // Broken FireBase config on production is critical
             // CI within build faze 'thinks' that it's production :(
-            // if (!IS_BUILD_PHASE && IS_PRODUCTION || throwOnError) throw new Error(e)
+            // if (!IS_BUILD_PHASE && IS_PRODUCTION || throwOnError) throw new Error(error)
 
             // For CI/local tests config is useless because of emulation via FAKE tokens
-            logger.error(e)
+            logger.error({ msg: 'FirebaseAdapter error', error })
         }
         this.projectId = get(config, 'project_id', null)
         this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
@@ -195,7 +196,7 @@ class FirebaseAdapter {
 
                 result = this.injectFakeResults(fbResult, fakeNotifications)
             } catch (error) {
-                logger.error(error)
+                logger.error({ msg: 'sendNotification error', error })
 
                 result = { state: 'error', error }
             }
