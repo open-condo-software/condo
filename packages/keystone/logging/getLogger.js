@@ -12,8 +12,12 @@ function getLogger (name) {
         name, enabled: falsey(process.env.DISABLE_LOGGING),
         serializers: {
             'data': normalizeVariables,
+            'args': normalizeVariables,
+            'opts': normalizeVariables,
             'result': normalizeVariables,
             'reqId': toString,
+            'errId': toString,
+            'taskId': toString,
             'message': toString,
             'error': safeFormatError,
             'req': serializers.req,

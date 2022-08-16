@@ -184,10 +184,10 @@ function executeTask (name, args, job = null) {
 }
 
 function getTaskLoggingContext (job) {
-    const data = job.toJSON()
-    if (typeof data.args !== 'undefined') data.args = JSON.stringify(data.args)
-    if (typeof data.returnvalue !== 'undefined') data.returnvalue = JSON.stringify(data.returnvalue)
-    return data
+    const jobData = job.toJSON()
+    if (typeof jobData.data !== 'undefined') jobData.data = JSON.stringify(jobData.data)
+    if (typeof jobData.returnvalue !== 'undefined') jobData.returnvalue = JSON.stringify(jobData.returnvalue)
+    return jobData
 }
 
 async function createWorker (keystoneModule) {
@@ -208,21 +208,21 @@ async function createWorker (keystoneModule) {
     }
 
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
-        logger.info({ job: job.id, status: 'processing', task: getTaskLoggingContext(job) })
+        logger.info({ taskId: job.id, status: 'processing', task: getTaskLoggingContext(job) })
         try {
             return await executeTask(job.name, job.data.args, job)
         } catch (error) {
-            logger.error({ job: job.id, status: 'error', error, task: getTaskLoggingContext(job) })
+            logger.error({ taskId: job.id, status: 'error', error, task: getTaskLoggingContext(job) })
             throw error
         }
     })
 
     taskQueue.on('failed', function (job) {
-        logger.info({ job: job.id, status: 'failed', task: getTaskLoggingContext(job) })
+        logger.info({ taskId: job.id, status: 'failed', task: getTaskLoggingContext(job) })
     })
 
     taskQueue.on('completed', function (job) {
-        logger.info({ job: job.id, status: 'completed', task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
+        logger.info({ taskId: job.id, status: 'completed', task: getTaskLoggingContext(job), t0: job.finishedOn - job.timestamp, t1: job.processedOn - job.timestamp, t2: job.finishedOn - job.processedOn })
     })
 
     await taskQueue.isReady()
