@@ -62,7 +62,8 @@
     "react-test-renderer": "^16.13.1",
     "use-immer": "^0.4.1",
     "uuid": "^8.3.0",
-    "validator": "^13.1.1"
+    "validator": "^13.1.1",
+    "webpack": "^4.46.0"
   },
   "devDependencies": {
     "@testing-library/react": "^11.2.5",
