@@ -3,6 +3,7 @@ const { {{ convertSnakeCaseToUpperCase(name.replace("Service", "")) }}_MUTATION 
 /**/
 
 /* AUTOGENERATE MARKER <FACTORY> */
+
 async function {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -19,5 +20,5 @@ async function {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTes
 /**/
 
 /* AUTOGENERATE MARKER <EXPORTS> */
-{{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient
+    {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient,
 /**/
