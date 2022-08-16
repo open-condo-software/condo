@@ -201,8 +201,8 @@ const EmployeesPage = () => {
     const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const sortBy = sortFromQuery.length > 0 ? sortFromQuery : 'createdAt_DESC'
-    const Intl = useIntl()
-    const translates = Intl.messages
+    const intl = useIntl()
+    const translates = intl.messages
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
