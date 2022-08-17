@@ -7,27 +7,27 @@ exports.up = async (knex) => {
 --
 -- Add field dv to b2bappaccessrighthistoryrecord
 --
-ALTER TABLE "B2BAppAccessRightHistoryRecord" ADD COLUMN "dv" integer NULL;
+ALTER TABLE "B2BAppAccessRightHistoryRecord" ADD COLUMN IF NOT EXISTS "dv" integer NULL;
 --
 -- Add field sender to b2bappaccessrighthistoryrecord
 --
-ALTER TABLE "B2BAppAccessRightHistoryRecord" ADD COLUMN "sender" jsonb NULL;
+ALTER TABLE "B2BAppAccessRightHistoryRecord" ADD COLUMN IF NOT EXISTS "sender" jsonb NULL;
 --
 -- Add field dv to b2bappcontexthistoryrecord
 --
-ALTER TABLE "B2BAppContextHistoryRecord" ADD COLUMN "dv" integer NULL;
+ALTER TABLE "B2BAppContextHistoryRecord" ADD COLUMN IF NOT EXISTS "dv" integer NULL;
 --
 -- Add field sender to b2bappcontexthistoryrecord
 --
-ALTER TABLE "B2BAppContextHistoryRecord" ADD COLUMN "sender" jsonb NULL;
+ALTER TABLE "B2BAppContextHistoryRecord" ADD COLUMN IF NOT EXISTS "sender" jsonb NULL;
 --
 -- Add field dv to b2bapphistoryrecord
 --
-ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN "dv" integer NULL;
+ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN IF NOT EXISTS "dv" integer NULL;
 --
 -- Add field sender to b2bapphistoryrecord
 --
-ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN "sender" jsonb NULL;
+ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN IF NOT EXISTS "sender" jsonb NULL;
 COMMIT;
 
     `)
