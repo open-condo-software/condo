@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';   
+
 --
 -- Add field dv to b2bappaccessrighthistoryrecord
 --
@@ -28,6 +34,12 @@ ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN IF NOT EXISTS "dv" integer NULL;
 -- Add field sender to b2bapphistoryrecord
 --
 ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN IF NOT EXISTS "sender" jsonb NULL;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)

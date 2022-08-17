@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+        --
+        -- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+        --
+        SET statement_timeout = '1500s'; 
+    
         --
         -- Add "appId" field and update it's values
         --
@@ -40,6 +46,11 @@ exports.up = async (knex) => {
         -- Rename model "DeviceHistoryRecord" to "RemoteClientHistoryRecord";
         --
         ALTER TABLE "DeviceHistoryRecord" RENAME TO "RemoteClientHistoryRecord";
+    
+        --
+        -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+        --
+        SET statement_timeout = '10s';
     
     COMMIT;
     `)

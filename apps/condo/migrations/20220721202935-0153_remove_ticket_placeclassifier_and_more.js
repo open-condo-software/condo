@@ -4,12 +4,19 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';   
+    
 --
 -- Remove field placeClassifier from ticket
 --
 SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id";
 --ALTER TABLE "Ticket" DROP COLUMN "placeClassifier" CASCADE;
 ALTER TABLE "Ticket" RENAME COLUMN "placeClassifier" TO "placeClassifier_old";
+DROP INDEX IF EXISTS "Ticket_placeClassifier_01e3ec3a";
 
 --
 -- Remove field problemClassifier from ticket
@@ -17,6 +24,7 @@ ALTER TABLE "Ticket" RENAME COLUMN "placeClassifier" TO "placeClassifier_old";
 SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE; ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id";
 --ALTER TABLE "Ticket" DROP COLUMN "problemClassifier" CASCADE;
 ALTER TABLE "Ticket" RENAME COLUMN "problemClassifier" TO "problemClassifier_old";
+DROP INDEX IF EXISTS "Ticket_problemClassifier_f1bfcd39";
 --
 -- Remove field categoryClassifierDisplayNameFrom from ticketchange
 --
@@ -103,6 +111,12 @@ ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "classifierRuleIdFrom" uuid 
 -- Add field classifierRuleIdTo to ticketchange
 --
 ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "classifierRuleIdTo" uuid NULL;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
@@ -134,6 +148,7 @@ ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "problemClassifier" u
 --
 -- Remove field placeClassifier from tickethistoryrecord
 --
+ALTER TABLE "TicketHistoryRecord" RENAME COLUMN IF EXISTS "placeClassifier_old" TO "placeClassifier";
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL;
 --
 -- Remove field problemClassifierIdTo from ticketchange
@@ -190,6 +205,7 @@ ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL CONS
 --
 -- Remove field placeClassifier from ticket
 --
+ALTER TABLE "Ticket" RENAME COLUMN IF EXISTS "placeClassifier_old" TO "placeClassifier";
 ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
 CREATE INDEX IF NOT EXISTS "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
 CREATE INDEX IF NOT EXISTS "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");

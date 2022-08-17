@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';       
+
 --
 -- Remove field completedAtFrom from ticketchange
 --
@@ -20,6 +26,12 @@ ALTER TABLE "TicketChange" DROP COLUMN "lastCommentAtFrom" CASCADE;
 -- Remove field lastCommentAtTo from ticketchange
 --
 ALTER TABLE "TicketChange" DROP COLUMN "lastCommentAtTo" CASCADE;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
