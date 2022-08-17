@@ -1,28 +1,83 @@
-const { composeNonResolveInputHook } = require('@condo/keystone/plugins/utils')
+const pluralize = require('pluralize')
+const nextCookies = require('next-cookies')
+
+const { composeNonResolveInputHook, composeResolveInputHook } = require('@condo/keystone/plugins/utils')
 const { plugin } = require('@condo/keystone/plugins/utils/typing')
 
-const { SENDER_FIELD, DV_FIELD } = require('@address-service/domains/common/schema/fields')
-const { hasDvAndSenderFields } = require('@address-service/domains/common/utils/validation.utils')
-const { DV_UNKNOWN_VERSION_ERROR } = require('@address-service/domains/common/constants/errors')
+const { checkDvSender } = require('@address-service/domains/common/utils/serverSchema/validators')
+const { Integer } = require('@keystonejs/fields')
+const { Json } = require('@condo/keystone/fields')
 
-const dvAndSender = ({ requiredDv = 1 } = {}) => plugin(({ fields = {}, hooks = {}, ...rest }) => {
+const dvAndSender = () => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     const dvField = 'dv'
     const senderField = 'sender'
 
-    fields[dvField] = DV_FIELD
-    fields[senderField] = SENDER_FIELD
+    fields[dvField] = {
+        type: Integer,
+        schemaDoc: 'Data structure Version',
+        isRequired: true,
+        kmigratorOptions: { null: false },
+    }
+    fields[senderField] = {
+        type: Json,
+        schemaDoc: 'Client-side device identification used for the anti-fraud detection. ' +
+            'Example `{ dv: 1, fingerprint: \'VaxSw2aXZa\'}`. ' +
+            'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +
+            'It\'s the device ID like browser / mobile application / remote system',
+        graphQLInputType: 'SenderFieldInput',
+        graphQLReturnType: 'SenderField',
+        graphQLAdminFragment: '{ dv fingerprint }',
+        extendGraphQLTypes: [
+            'type SenderField { dv: Int!, fingerprint: String! }',
+            'input SenderFieldInput { dv: Int!, fingerprint: String! }',
+        ],
+        isRequired: true,
+        kmigratorOptions: { null: false },
+    }
 
-    const newValidateInput = ({ resolvedData, context, addValidationError }) => {
-        if (!hasDvAndSenderFields(resolvedData, context, addValidationError)) return
-        const { dv } = resolvedData
-        if (dv !== requiredDv) {
-            // NOTE: version 1 specific translations. Don't optimize this logic
-            return addValidationError(`${DV_UNKNOWN_VERSION_ERROR}dv] Unknown \`dv\``)
+    const newResolveInput = ({ resolvedData, operation, context }) => {
+        if ((operation === 'create' || operation === 'update') && context.req) {
+            const cookies = nextCookies({ req: context.req })
+            if (!resolvedData.hasOwnProperty(dvField) && cookies.hasOwnProperty(dvField)) {
+                let parsed = parseInt(cookies[dvField])
+                if (!isNaN(parsed)) {
+                    resolvedData[dvField] = parsed
+                }
+            }
+            if (!resolvedData.hasOwnProperty(senderField) && cookies.hasOwnProperty(senderField)) {
+                let parsed = (cookies[senderField])
+                if (parsed) {
+                    resolvedData[senderField] = parsed
+                }
+            }
         }
+        return resolvedData
+    }
+    const originalResolveInput = hooks.resolveInput
+    hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
+
+    const newValidateInput = ({ resolvedData, context, operation, listKey, itemId }) => {
+        let key, name
+        if (operation === 'read') {
+            if (itemId) {
+                key = 'query'
+                name = listKey
+            } else {
+                key = 'query'
+                name = 'all' + pluralize.plural(listKey)
+            }
+        } else {
+            // TODO(pahaz): think about multipleCreate / Update / Delete
+            key = 'mutation'
+            name = `${operation}${listKey}`
+        }
+        const error = { [key]: name }
+        checkDvSender(resolvedData, error, error, context)
     }
 
     const originalValidateInput = hooks.validateInput
     hooks.validateInput = composeNonResolveInputHook(originalValidateInput, newValidateInput)
+
     return { fields, hooks, ...rest }
 })
 
