@@ -19,8 +19,8 @@ const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fiel
             update: false,
         },
         hooks: {
-            resolveInput: async ({ resolvedData }) => {
-                const objWithOrganizationId = get(resolvedData, fromField, null)
+            resolveInput: async ({ resolvedData, existingItem }) => {
+                const objWithOrganizationId = get(resolvedData, fromField, null) || get(existingItem, fromField, null)
 
                 if (objWithOrganizationId) {
                     const schemaName = fields[fromField].ref
