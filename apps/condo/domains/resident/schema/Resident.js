@@ -181,7 +181,15 @@ const Resident = new GQLListSchema('Resident', {
             ...UNIT_TYPE_FIELD,
         },
     },
-    plugins: [addOrganizationFieldPlugin({ fromField: 'property' }), uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        addOrganizationFieldPlugin({ fromField: 'property' }),
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        historical(),
+    ],
     hooks: {
         validateInput: async ({ resolvedData, operation, addValidationError, context }) => {
             const { address, addressMeta, unitName, unitType, user: userId } = resolvedData
