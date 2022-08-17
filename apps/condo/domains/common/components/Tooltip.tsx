@@ -10,7 +10,7 @@ export const Tooltip: React.FC<TooltipProps> = (props) => {
     overlayInnerStyle.color = get(props, 'textColor', colors.black)
     const tooltipProps = {
         arrowPointAtCenter: true,
-        mouseEnterDelay: 0.3,
+        mouseEnterDelay: 0.15,
         color: colors.white,
         ...props,
         overlayInnerStyle,
