@@ -7,7 +7,7 @@ import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@condo/next/intl'
 
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
@@ -15,18 +15,31 @@ import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTic
 const StyledAlert = styled(Alert)`
   background-color: ${colors.successBG};
   border: none;
+
+  .ant-alert-description {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
   
   .ant-alert-description > div {
     overflow: hidden;
+    position: relative;
   }
   
-  & svg, & > .ant-alert-content > .ant-alert-message {
-   color: ${colors.black}; 
+  & svg {
+    font-size: 21px;
+    color: ${colors.successText};
+  }
+  
+  & > .ant-alert-content > .ant-alert-message {
+    font-size: 16px;
+    line-height: 21px;
+    color: ${colors.successText}};
   }
 `
 
 const TEXT_STYLES: CSSProperties = { color: colors.black }
-const LINK_STYLES: CSSProperties = { ...TEXT_STYLES, position: 'relative', bottom: '-7px', fontSize: fontSizes.content }
 
 type TicketPropertyHintCardProps = {
     propertyId: string
@@ -51,7 +64,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
         },
     })
 
-    const AlertMessage = <Typography.Text strong style={TEXT_STYLES}>{PropertyHintMessage}</Typography.Text>
+    const AlertMessage = <Typography.Text strong>{PropertyHintMessage}</Typography.Text>
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
 
     const { TicketPropertyHintContent, isContentOverflow } = useTicketPropertyHintContent()
@@ -69,7 +82,7 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                         isContentOverflow && (
                             <Link href={`/property/${propertyId}/hint`} passHref>
                                 <a target='_blank'>
-                                    <Typography.Link underline style={LINK_STYLES}>
+                                    <Typography.Link underline style={TEXT_STYLES}>
                                         {ExtraTitleMessage}
                                     </Typography.Link>
                                 </a>

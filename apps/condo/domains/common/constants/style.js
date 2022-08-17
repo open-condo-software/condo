@@ -41,6 +41,7 @@ const backgroundWhiteSecondary = '#E6E8F1'
 const attentionBg = '#FFF5E6'
 const attentionText = '#FF9500'
 const successBG = '#EBFAEF'
+const successText = '#34C759'
 const warningBg = '#FFECEB'
 const warningText = '#FF3B30'
 const infoIconColor = '#39CE66'
@@ -113,6 +114,7 @@ const colors = {
     warningBg,
     warningText,
     successBG,
+    successText,
     infoIconColor,
     warningAlert,
 }
