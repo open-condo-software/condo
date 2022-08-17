@@ -27,6 +27,14 @@ ALTER TABLE "TicketChange" DROP COLUMN "lastCommentAtFrom" CASCADE;
 --
 ALTER TABLE "TicketChange" DROP COLUMN "lastCommentAtTo" CASCADE;
 
+-- Restore ticket placeClassifier and problemClassifier
+update "Ticket" as t
+set "placeClassifier" = tc.place,
+ "categoryClassifier" = tc.category,
+ "problemClassifier" = tc.problem
+from "TicketClassifier" as tc
+where tc.id = t."classifier" and t."classifier" is not null;
+
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
