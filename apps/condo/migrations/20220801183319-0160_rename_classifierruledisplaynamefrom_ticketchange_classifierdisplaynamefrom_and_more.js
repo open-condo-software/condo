@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';   
+
 --
 -- Rename field classifierRuleDisplayNameFrom on ticketchange to classifierDisplayNameFrom
 --
@@ -37,6 +43,7 @@ ALTER TABLE "TicketHistoryRecord" RENAME COLUMN "classifierRule" TO "classifier"
 
 ALTER TABLE "Ticket" RENAME COLUMN "classifierRule" TO "classifier";
 ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" TO "Ticket_classifier_7a786997_fk_TicketClassifierRule_id";
+ALTER INDEX "Ticket_classifierRule_f7a8dbc1" RENAME TO "Ticket_classifier_7a786997";
 
 --
 -- Add field placeClassifier to ticket
@@ -54,10 +61,15 @@ ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "placeClassifier" uui
 -- Add field problemClassifier to tickethistoryrecord
 --
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL;
-CREATE INDEX IF NOT EXISTS "Ticket_classifier_7a786997" ON "Ticket" ("classifier");
 -- NOTE: kmigrator do not delete indexes or recreate it after renaming of the column
 CREATE INDEX IF NOT EXISTS "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
 CREATE INDEX IF NOT EXISTS "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
@@ -97,6 +109,8 @@ ALTER TABLE "Ticket" DROP COLUMN "placeClassifier" CASCADE;
 
 ALTER TABLE "Ticket" RENAME COLUMN "classifier" TO "classifierRule";
 ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" TO "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id";
+DROP INDEX IF EXISTS "Ticket_classifierRule_f7a8dbc1";
+ALTER INDEX "Ticket_classifier_7a786997" RENAME TO "Ticket_classifierRule_f7a8dbc1";
 
 ALTER TABLE "TicketHistoryRecord" RENAME COLUMN "classifier" TO "classifierRule";
 --
@@ -115,7 +129,6 @@ ALTER TABLE "TicketChange" RENAME COLUMN "classifierDisplayNameTo" TO "classifie
 -- Rename field classifierRuleDisplayNameFrom on ticketchange to classifierDisplayNameFrom
 --
 ALTER TABLE "TicketChange" RENAME COLUMN "classifierDisplayNameFrom" TO "classifierRuleDisplayNameFrom";
-CREATE INDEX "Ticket_classifierRule_f7a8dbc1" ON "Ticket" ("classifierRule");
 COMMIT;
 
     `)

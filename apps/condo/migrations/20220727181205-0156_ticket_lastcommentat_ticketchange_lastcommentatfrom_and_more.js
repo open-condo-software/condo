@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';   
+ 
 --
 -- Add field lastCommentAt to ticket
 --
@@ -20,11 +26,6 @@ ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "lastCommentAtTo" timestamp 
 -- Add field lastCommentAt to tickethistoryrecord
 --
 ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "lastCommentAt" timestamp with time zone NULL;
-
---
--- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
---
-SET statement_timeout = '1500s';
 
 UPDATE "Ticket"
 SET "lastCommentAt" = "TicketCommentsTime"."lastCommentAt"

@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';   
+
 --
 -- Add field b2bApp to meter
 --
@@ -22,6 +28,12 @@ ALTER TABLE "MeterHistoryRecord" ADD COLUMN IF NOT EXISTS "b2bApp" uuid NULL;
 ALTER TABLE "MeterHistoryRecord" ADD COLUMN IF NOT EXISTS "b2cApp" uuid NULL;
 CREATE INDEX IF NOT EXISTS "Meter_b2bApp_3101a0e5" ON "Meter" ("b2bApp");
 CREATE INDEX IF NOT EXISTS "Meter_b2cApp_4fbac346" ON "Meter" ("b2cApp");
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
