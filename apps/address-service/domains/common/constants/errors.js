@@ -1,9 +1,9 @@
-const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
-const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
-const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
+const DV_VERSION_MISMATCH = 'DV_VERSION_MISMATCH'
+
+// Provided value does not match the specified format. For example, not matches regexp, string length requirement, etc.
+const WRONG_FORMAT = 'WRONG_FORMAT'
 
 module.exports = {
-    WRONG_PASSWORD_ERROR,
-    EMPTY_PASSWORD_ERROR,
-    WRONG_EMAIL_ERROR,
+    DV_VERSION_MISMATCH,
+    WRONG_FORMAT,
 }
