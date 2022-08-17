@@ -14,6 +14,7 @@ const faker = require('faker')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
+const emptyParkingValueCases = [null, undefined]
 
 describe('Property', () => {
 
@@ -57,6 +58,47 @@ describe('Property', () => {
             const [obj] = await createTestProperty(client, client.organization, payload)
             expect(obj.id).toMatch(UUID_RE)
         })
+
+        test.each(emptyParkingValueCases)('gets created with `%p` value in `map.parking`', async (message, parking) => {
+            const map = {
+                'dv': 1,
+                'type': 'building',
+                'sections': [
+                    {
+                        'id': '5',
+                        'type': 'section',
+                        'index': 1,
+                        'name': '1',
+                        'preview': null,
+                        'floors': [
+                            {
+                                'id': '7',
+                                'type': 'floor',
+                                'index': 1,
+                                'name': '1',
+                                'units': [
+                                    {
+                                        'id': '6',
+                                        'type': 'unit',
+                                        'name': null,
+                                        'label': '1',
+                                        'preview': null,
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+                'parking': parking,
+            }
+            const client = await makeClientWithRegisteredOrganization()
+            const payload = {
+                map,
+            }
+            const [obj] = await createTestProperty(client, client.organization, payload)
+            expect(obj.id).toMatch(UUID_RE)
+        })
+
     })
 
     test('user: can use soft delete', async () => {

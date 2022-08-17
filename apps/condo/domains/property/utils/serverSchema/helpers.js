@@ -1,4 +1,4 @@
-const { get, omitBy, isNull } = require('lodash')
+const { get, omitBy, isNull, isArray } = require('lodash')
 
 const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!'
 
@@ -29,7 +29,7 @@ const getAddressUpToBuildingFrom = (addressMeta) => {
  */
 const normalizePropertyMap = ({ sections, parking, ...restMapProps }) => ({
     ...restMapProps,
-    parking: !isNull(parking) ? parking.map(({ floors, ...restSectionProps }) => ({
+    parking: isArray(parking) ? parking.map(({ floors, ...restSectionProps }) => ({
         ...restSectionProps,
         floors: floors.map(({ units, ...restFloorProps }) => ({
             ...restFloorProps,
