@@ -19,11 +19,11 @@ const TODAY = dayjs().format(DATE_FORMAT)
 const CHUNK_SIZE = 50
 
 const logger = pino({
-    name: 'send_billing_receipt_added_notifications',
+    name: 'send_remote_clients_upgrade_app_notifications',
     enabled: falsey(process.env.DISABLE_LOGGING),
 })
 
-const makeMessageKey = (deviceId, date) => `${date}:${deviceId}`
+const makeMessageKey = (entityId, date) => `${date}:${entityId}`
 
 /**
  * Prepares data for sendMessage to resident on available billing receipt, then tries to send the message
@@ -33,7 +33,7 @@ const makeMessageKey = (deviceId, date) => `${date}:${deviceId}`
  * @returns {Promise<void>}
  */
 const prepareAndSendNotification = async (context, remoteClient) => {
-    const notificationKey = makeMessageKey(remoteClient.deviceId, TODAY)
+    const notificationKey = makeMessageKey(remoteClient.owner.id, TODAY)
     const messageType = remoteClient.owner.type === 'resident' ? RESIDENT_UPGRADE_APP_TYPE : STAFF_UPGRADE_APP_TYPE
     const data = {
         userId: remoteClient.owner.id,
