@@ -15,10 +15,9 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 const { makeMessageKey, sendRemoteClientsUpgradeAppNotifications } = require('./sendRemoteClientsUpgradeAppNotifications')
-
-const { getRandomTokenData } = require('../utils/testSchema/helpers')
 
 const index = require('@app/condo/index')
 

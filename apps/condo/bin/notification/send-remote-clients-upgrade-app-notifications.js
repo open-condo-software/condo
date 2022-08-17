@@ -4,7 +4,7 @@
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
-const { sendRemoteClientsUpgradeAppNotifications } = require('@condo/domains/notification/tasks/index')
+const { sendRemoteClientsUpgradeAppNotifications } = require('../lib/sendRemoteClientsUpgradeAppNotifications')
 
 async function connectKeystone () {
     const resolved = path.resolve('./index.js')
@@ -33,4 +33,3 @@ main()
         console.error(e)
         process.exit(1)
     })
-
