@@ -7,21 +7,21 @@ exports.up = async (knex) => {
 --
 -- Add field b2bApp to meter
 --
-ALTER TABLE "Meter" ADD COLUMN "b2bApp" uuid NULL CONSTRAINT "Meter_b2bApp_3101a0e5_fk_B2BApp_id" REFERENCES "B2BApp"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Meter_b2bApp_3101a0e5_fk_B2BApp_id" IMMEDIATE;
+ALTER TABLE "Meter" ADD COLUMN IF NOT EXISTS "b2bApp" uuid NULL CONSTRAINT "Meter_b2bApp_3101a0e5_fk_B2BApp_id" REFERENCES "B2BApp"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Meter_b2bApp_3101a0e5_fk_B2BApp_id" IMMEDIATE;
 --
 -- Add field b2cApp to meter
 --
-ALTER TABLE "Meter" ADD COLUMN "b2cApp" uuid NULL CONSTRAINT "Meter_b2cApp_4fbac346_fk_B2CApp_id" REFERENCES "B2CApp"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Meter_b2cApp_4fbac346_fk_B2CApp_id" IMMEDIATE;
+ALTER TABLE "Meter" ADD COLUMN IF NOT EXISTS "b2cApp" uuid NULL CONSTRAINT "Meter_b2cApp_4fbac346_fk_B2CApp_id" REFERENCES "B2CApp"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Meter_b2cApp_4fbac346_fk_B2CApp_id" IMMEDIATE;
 --
 -- Add field b2bApp to meterhistoryrecord
 --
-ALTER TABLE "MeterHistoryRecord" ADD COLUMN "b2bApp" uuid NULL;
+ALTER TABLE "MeterHistoryRecord" ADD COLUMN IF NOT EXISTS "b2bApp" uuid NULL;
 --
 -- Add field b2cApp to meterhistoryrecord
 --
-ALTER TABLE "MeterHistoryRecord" ADD COLUMN "b2cApp" uuid NULL;
-CREATE INDEX "Meter_b2bApp_3101a0e5" ON "Meter" ("b2bApp");
-CREATE INDEX "Meter_b2cApp_4fbac346" ON "Meter" ("b2cApp");
+ALTER TABLE "MeterHistoryRecord" ADD COLUMN IF NOT EXISTS "b2cApp" uuid NULL;
+CREATE INDEX IF NOT EXISTS "Meter_b2bApp_3101a0e5" ON "Meter" ("b2bApp");
+CREATE INDEX IF NOT EXISTS "Meter_b2cApp_4fbac346" ON "Meter" ("b2cApp");
 COMMIT;
 
     `)
