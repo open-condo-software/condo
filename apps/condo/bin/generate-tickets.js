@@ -15,6 +15,7 @@ const { Client } = require('pg')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 dayjs.extend(utc)
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
@@ -30,9 +31,8 @@ class TicketGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 }, propertyIndex = 0, organizationId }) {
+    constructor ({ ticketsByDay = { min: 20, max: 50 }, organizationId }) {
         this.ticketsByDay = ticketsByDay
-        this.propertyIndex = propertyIndex
         this.organizationId = organizationId
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
@@ -72,7 +72,8 @@ class TicketGenerator {
 
     async generateTicket (timeStamp) {
         const unit = this.unit
-        const problem = this.problem
+        const classifier = this.pickRandomClassifier()
+        const status = this.pickRandomStatus()
         const data = {
             dv: 1,
             sender: { dv: 1, fingerprint: 'import' },
@@ -84,7 +85,7 @@ class TicketGenerator {
             floorName: unit.floor,
             unitName: unit.unit,
             source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-            classifierRule: { connect: { id: problem.id } },
+            classifier: { connect: { id: classifier.id } },
             operator: { connect: { id: this.user.id } },
             assignee: { connect: { id: this.user.id } },
             executor: { connect: { id: this.user.id } },
@@ -93,8 +94,11 @@ class TicketGenerator {
             isPaid: faker.datatype.boolean(),
             organization: { connect: { id: this.organization.id } },
             property:  { connect: { id: this.property.id } },
-            status: { connect: { id: this.status.id } },
+            status: { connect: { id: status.id } },
             deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().subtract(2, 'week').toISOString()).toISOString(),
+        }
+        if (status.type === DEFERRED_STATUS_TYPE) {
+            data.deferredUntil = dayjs().add(1, 'day').toISOString()
         }
         const result = await Ticket.create(this.context, data)
         await this.setCreatedAt(result.id, timeStamp)
@@ -116,7 +120,7 @@ class TicketGenerator {
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
         this.classifiers = await TicketClassifier.getAll(this.context, { })
-        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: this.organizationId })
+        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: { id: this.organizationId } })
         if (property) {
             this.property = property
         }
@@ -158,11 +162,11 @@ class TicketGenerator {
         return result
     }
 
-    get problem () {
+    pickRandomClassifier () {
         return this.classifiers[faker.datatype.number({ min: 0, max: this.classifiers.length - 1 })]
     }
 
-    get status () {
+    pickRandomStatus () {
         return this.statuses[faker.datatype.number({ min: 0, max: this.statuses.length - 1 })]
     }
 
