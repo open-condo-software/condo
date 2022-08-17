@@ -61,6 +61,7 @@ class AbstractSuggestionProvider {
     }
 
     /**
+     * Returns suggestions that still do not exist in the results of the provider
      * @param {string} s
      * @returns {Array}
      * @public
