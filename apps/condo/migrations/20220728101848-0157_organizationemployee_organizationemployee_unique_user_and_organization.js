@@ -6,7 +6,7 @@ exports.up = async (knex) => {
     BEGIN;
 
 --
--- Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
 --
 SET statement_timeout = '1500s';
 
@@ -22,8 +22,13 @@ where t."deletedAt" IS NULL and exists (
 -- Create constraint OrganizationEmployee_unique_user_and_organization on model organizationemployee
 --
 CREATE UNIQUE INDEX IF NOT EXISTS "OrganizationEmployee_unique_user_and_organization" ON "OrganizationEmployee" ("user", "organization") WHERE "deletedAt" IS NULL;
-COMMIT;
 
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
+COMMIT;
     `)
 }
 
