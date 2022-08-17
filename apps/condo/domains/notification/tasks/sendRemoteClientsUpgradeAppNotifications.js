@@ -9,7 +9,6 @@ const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBA
 const conf = require('@condo/config')
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { isEmpty } = require('lodash')
 const dayjs = require('dayjs')
@@ -30,7 +29,7 @@ const makeMessageKey = (deviceId, date) => `${date}:${deviceId}`
  * @param keystone
  * @param receipt
  * @param resident
- * @returns {Promise<void>}
+ * @returns {Promise<number>}
  */
 const prepareAndSendNotification = async (context, remoteClient) => {
     const notificationKey = makeMessageKey(remoteClient.deviceId, TODAY)
@@ -49,15 +48,8 @@ const prepareAndSendNotification = async (context, remoteClient) => {
         uniqKey: notificationKey,
     }
 
-    try {
-        await sendMessage(context, messageData)
-    } catch (e) {
-        logger.info({ message: 'sendMessage attempt:', error: safeFormatError(e), messageData })
-
-        return 0
-    }
-
-    return 1
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
