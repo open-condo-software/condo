@@ -1,12 +1,11 @@
 const isEmpty = require('lodash/isEmpty')
-const get = require('lodash/get')
 
 const conf = require('@condo/config')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
-const { Message, MessageUserBlackList, MessageOrganizationBlackList, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
+const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 const { logger } = require('@condo/domains/notification/utils')
 
 const sms = require('./transports/sms')
@@ -22,7 +21,6 @@ const {
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('./constants/constants')
-const { MESSAGE_TYPE_IN_USER_BLACK_LIST, MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
@@ -126,13 +124,12 @@ async function deliverMessage (messageId) {
         processingMeta,
     })
 
-    const transportsMeta = []
-    processingMeta.transportsMeta = transportsMeta
+    processingMeta.transportsMeta = []
 
     for (const transport of transports) {
         const transportMeta = { transport }
         processingMeta.transport = transport
-        transportsMeta.push(transportMeta)
+        processingMeta.transportsMeta.push(transportMeta)
 
         try {
             const adapter = TRANSPORTS[transport]
@@ -155,7 +152,7 @@ async function deliverMessage (messageId) {
         } catch (e) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(e, false)
-            logger.error({ step: 'deliverMessage()', messageId, transportMeta, transportsMeta, processingMeta })
+            logger.error({ step: 'deliverMessage()', messageId, transportMeta, processingMeta })
         }
     }
 
