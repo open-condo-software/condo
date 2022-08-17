@@ -90,19 +90,19 @@ ALTER TABLE "TicketHistoryRecord" RENAME COLUMN "problemClassifier" TO "problemC
 --
 -- Add field classifierRuleDisplayNameFrom to ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "classifierRuleDisplayNameFrom" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "classifierRuleDisplayNameFrom" text NULL;
 --
 -- Add field classifierRuleDisplayNameTo to ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "classifierRuleDisplayNameTo" text NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "classifierRuleDisplayNameTo" text NULL;
 --
 -- Add field classifierRuleIdFrom to ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "classifierRuleIdFrom" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "classifierRuleIdFrom" uuid NULL;
 --
 -- Add field classifierRuleIdTo to ticketchange
 --
-ALTER TABLE "TicketChange" ADD COLUMN "classifierRuleIdTo" uuid NULL;
+ALTER TABLE "TicketChange" ADD COLUMN IF NOT EXISTS "classifierRuleIdTo" uuid NULL;
 COMMIT;
 
     `)
