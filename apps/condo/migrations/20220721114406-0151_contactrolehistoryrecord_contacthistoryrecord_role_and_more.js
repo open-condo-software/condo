@@ -7,39 +7,39 @@ exports.up = async (knex) => {
 --
 -- Create model contactrolehistoryrecord
 --
-CREATE TABLE "ContactRoleHistoryRecord" ("organization" uuid NULL, "name" text NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "ContactRoleHistoryRecord" ("organization" uuid NULL, "name" text NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "dv" integer NULL, "sender" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Add field role to contacthistoryrecord
 --
-ALTER TABLE "ContactHistoryRecord" ADD COLUMN "role" uuid NULL;
+ALTER TABLE "ContactHistoryRecord" ADD COLUMN IF NOT EXISTS "role" uuid NULL;
 --
 -- Add field canManageContactRoles to organizationemployeerole
 --
-ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canManageContactRoles" boolean DEFAULT false NOT NULL;
+ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN IF NOT EXISTS "canManageContactRoles" boolean DEFAULT false NOT NULL;
 ALTER TABLE "OrganizationEmployeeRole" ALTER COLUMN "canManageContactRoles" DROP DEFAULT;
 --
 -- Add field canManageContactRoles to organizationemployeerolehistoryrecord
 --
-ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" ADD COLUMN "canManageContactRoles" boolean NULL;
+ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" ADD COLUMN IF NOT EXISTS "canManageContactRoles" boolean NULL;
 --
 -- Create model contactrole
 --
-CREATE TABLE "ContactRole" ("name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "createdBy" uuid NULL, "organization" uuid NULL, "updatedBy" uuid NULL);
+CREATE TABLE IF NOT EXISTS "ContactRole" ("name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "createdBy" uuid NULL, "organization" uuid NULL, "updatedBy" uuid NULL);
 --
 -- Add field role to contact
 --
-ALTER TABLE "Contact" ADD COLUMN "role" uuid NULL CONSTRAINT "Contact_role_26d902fc_fk_ContactRole_id" REFERENCES "ContactRole"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Contact_role_26d902fc_fk_ContactRole_id" IMMEDIATE;
+ALTER TABLE "Contact" ADD COLUMN IF NOT EXISTS "role" uuid NULL CONSTRAINT "Contact_role_26d902fc_fk_ContactRole_id" REFERENCES "ContactRole"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Contact_role_26d902fc_fk_ContactRole_id" IMMEDIATE;
 CREATE INDEX "ContactRoleHistoryRecord_history_id_329e5e3f" ON "ContactRoleHistoryRecord" ("history_id");
-ALTER TABLE "ContactRole" ADD CONSTRAINT "ContactRole_createdBy_e95de0c9_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "ContactRole" ADD CONSTRAINT "ContactRole_organization_3473e8d0_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "ContactRole" ADD CONSTRAINT "ContactRole_updatedBy_8770391c_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "ContactRole_createdAt_6f12345d" ON "ContactRole" ("createdAt");
-CREATE INDEX "ContactRole_updatedAt_66fe3d65" ON "ContactRole" ("updatedAt");
-CREATE INDEX "ContactRole_deletedAt_1c5d64e7" ON "ContactRole" ("deletedAt");
-CREATE INDEX "ContactRole_createdBy_e95de0c9" ON "ContactRole" ("createdBy");
-CREATE INDEX "ContactRole_organization_3473e8d0" ON "ContactRole" ("organization");
-CREATE INDEX "ContactRole_updatedBy_8770391c" ON "ContactRole" ("updatedBy");
-CREATE INDEX "Contact_role_26d902fc" ON "Contact" ("role");
+ALTER TABLE "ContactRole" ADD CONSTRAINT IF NOT EXISTS "ContactRole_createdBy_e95de0c9_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "ContactRole" ADD CONSTRAINT IF NOT EXISTS "ContactRole_organization_3473e8d0_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "ContactRole" ADD CONSTRAINT IF NOT EXISTS "ContactRole_updatedBy_8770391c_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+CREATE INDEX IF NOT EXISTS "ContactRole_createdAt_6f12345d" ON "ContactRole" ("createdAt");
+CREATE INDEX IF NOT EXISTS "ContactRole_updatedAt_66fe3d65" ON "ContactRole" ("updatedAt");
+CREATE INDEX IF NOT EXISTS "ContactRole_deletedAt_1c5d64e7" ON "ContactRole" ("deletedAt");
+CREATE INDEX IF NOT EXISTS "ContactRole_createdBy_e95de0c9" ON "ContactRole" ("createdBy");
+CREATE INDEX IF NOT EXISTS "ContactRole_organization_3473e8d0" ON "ContactRole" ("organization");
+CREATE INDEX IF NOT EXISTS "ContactRole_updatedBy_8770391c" ON "ContactRole" ("updatedBy");
+CREATE INDEX IF NOT EXISTS "Contact_role_26d902fc" ON "Contact" ("role");
 COMMIT;
 
     `)
