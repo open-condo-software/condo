@@ -37,7 +37,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         await sendRemoteClientsUpgradeAppNotifications({ deviceId: device.deviceId, appId: device.appId })
 
         const today = dayjs().format(DATE_FORMAT)
-        const notificationKey = makeMessageKey(device.deviceId, today)
+        const notificationKey = makeMessageKey(device.owner.id, today)
         const messageWhere = {
             type: RESIDENT_UPGRADE_APP_TYPE,
             uniqKey: notificationKey,
@@ -59,7 +59,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         await sendRemoteClientsUpgradeAppNotifications({ deviceId: device.deviceId, appId: device.appId })
 
         const today = dayjs().format(DATE_FORMAT)
-        const notificationKey = makeMessageKey(device.deviceId, today)
+        const notificationKey = makeMessageKey(device.owner.id, today)
         const messageWhere = {
             type: STAFF_UPGRADE_APP_TYPE,
             uniqKey: notificationKey,
@@ -81,7 +81,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         await sendRemoteClientsUpgradeAppNotifications({ deviceId: device.deviceId, appId: device.appId })
 
         const today = dayjs().format(DATE_FORMAT)
-        const notificationKey = makeMessageKey(device.deviceId, today)
+        const notificationKey = makeMessageKey(device.owner.id, today)
         const messageWhere = {
             type: RESIDENT_UPGRADE_APP_TYPE,
             uniqKey: notificationKey,
@@ -103,7 +103,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         await sendRemoteClientsUpgradeAppNotifications({ deviceId: device.deviceId, appId: device.appId })
 
         const today = dayjs().format(DATE_FORMAT)
-        const notificationKey = makeMessageKey(device.deviceId, today)
+        const notificationKey = makeMessageKey(device.owner.id, today)
         const messageWhere = {
             type: RESIDENT_UPGRADE_APP_TYPE,
             uniqKey: notificationKey,
@@ -126,7 +126,7 @@ describe('sendResidentsNoAccountNotifications', () => {
         await sendRemoteClientsUpgradeAppNotifications({ deviceId: device.deviceId, appId: device.appId })
 
         const today = dayjs().format(DATE_FORMAT)
-        const notificationKey = makeMessageKey(device.deviceId, today)
+        const notificationKey = makeMessageKey(device.owner.id, today)
         const messageWhere = {
             type: RESIDENT_UPGRADE_APP_TYPE,
             uniqKey: notificationKey,
