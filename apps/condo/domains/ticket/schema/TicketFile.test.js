@@ -17,11 +17,12 @@ const {
 
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketFile', () => {
     describe('User', () => {
         it('can create temporary TicketFile [no ticket relation]', async () => {
-            const client = await makeClientWithProperty()
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
             const [ticketFile, attrs] = await createTestTicketFile(client)
             expect(ticketFile.id).toMatch(UUID_RE)
             expect(ticketFile.dv).toEqual(1)
@@ -91,6 +92,15 @@ describe('TicketFile', () => {
                 // TODO(codegen): check 'user: delete TicketFile' test!
                 await TicketFile.delete(userClient, ticketFileCreated.id)
             })
+        })
+
+        it('can read own TicketFile', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [ticketFile] = await createTestTicketFile(client)
+
+            const readTicketFile = await TicketFile.getOne(client, { id: ticketFile.id })
+
+            expect(readTicketFile).toHaveProperty('id', ticketFile.id)
         })
     })
 
