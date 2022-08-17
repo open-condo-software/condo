@@ -34,7 +34,7 @@ export const getResourceRender = (intl, search?: FilterValue | string) => {
         const isExternalSource = Boolean(get(meterReading, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)
 
         const postfix = isAutomatic && isExternalSource ? (
-            <Typography.Text type={'warning'}>
+            <Typography.Text type='warning'>
                 {` (${AutoMessage})`}
             </Typography.Text>
         ) : null
