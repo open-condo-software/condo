@@ -30,23 +30,11 @@ class FirebaseAdapter {
      * Firebase rejects push if any of data fields is not a string, so we should convert all non-string fields to strings
      * @param data
      */
-    static prepareData (data = {}) {
-        const result = {}
-        const invalidFields = []
+    static prepareData (data = {}, token) {
+        const result = { token }
 
         for (const key in data) {
-            if (data.hasOwnProperty(key)) {
-                result[key] = data[key]
-
-                if (!isString(data[key])) {
-                    result[key] = String(data[key])
-                    invalidFields.push([key, data[key]])
-                }
-            }
-        }
-
-        if (!isEmpty(invalidFields)) {
-            logger.error(new Error('Push notification data fields should be strings.' + JSON.stringify(invalidFields)))
+            if (data.hasOwnProperty(key)) result[key] = isString(data[key]) ? data[key] : String(data[key])
         }
 
         return result
@@ -139,7 +127,7 @@ class FirebaseAdapter {
 
             target.push({
                 token: pushToken,
-                data: FirebaseAdapter.prepareData(data),
+                data: FirebaseAdapter.prepareData(data, pushToken),
                 notification,
                 ...DEFAULT_PUSH_SETTINGS,
             })
@@ -200,6 +188,10 @@ class FirebaseAdapter {
         if (!isNull(this.app) && !isEmpty(notifications)) {
             try {
                 const fbResult = await this.app.messaging().sendAll(notifications)
+
+                if (!isEmpty(fbResult.responses)) {
+                    fbResult.responses = fbResult.responses.map((response, idx) => ({ ...response, pushToken: notifications[idx].token }))
+                }
 
                 result = this.injectFakeResults(fbResult, fakeNotifications)
             } catch (error) {
