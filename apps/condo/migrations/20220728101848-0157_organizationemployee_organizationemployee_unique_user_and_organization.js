@@ -5,6 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 
+--
+-- Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+
 update "OrganizationEmployee" t
 SET "deletedAt" = '2022-08-10T11:11:11Z'
 where t."deletedAt" IS NULL and exists (
@@ -16,7 +21,7 @@ where t."deletedAt" IS NULL and exists (
 --
 -- Create constraint OrganizationEmployee_unique_user_and_organization on model organizationemployee
 --
-CREATE UNIQUE INDEX "OrganizationEmployee_unique_user_and_organization" ON "OrganizationEmployee" ("user", "organization") WHERE "deletedAt" IS NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS "OrganizationEmployee_unique_user_and_organization" ON "OrganizationEmployee" ("user", "organization") WHERE "deletedAt" IS NULL;
 COMMIT;
 
     `)
