@@ -192,7 +192,8 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {NormalizedSuggestion[]}
      */
     normalize (data) {
-        return []
+        // TODO(nas) add other fields
+        return data.map((item) => ({ value: item.value }))
     }
 
     /**
