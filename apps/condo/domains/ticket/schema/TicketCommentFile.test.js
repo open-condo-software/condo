@@ -10,7 +10,7 @@ const {
     updateTestTicketCommentFile,
     createTestTicket,
     createTestTicketComment,
-    TicketComment,
+    TicketComment, createTestTicketFile, TicketFile,
 } = require('@condo/domains/ticket/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -47,8 +47,12 @@ describe('TicketCommentFile', () => {
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
+                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, ticket)
                 const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
-                const [ticketCommentFile] = await createTestTicketCommentFile(userClient, ticket, ticketComment)
+
+                await updateTestTicketCommentFile(userClient, ticketCommentFile.id, {
+                    ticketComment: { connect: { id: ticketComment.id } },
+                })
 
                 expect(ticketCommentFile.id).toMatch(UUID_RE)
                 expect(ticketCommentFile.organization.id).toEqual(organization.id)
@@ -173,6 +177,15 @@ describe('TicketCommentFile', () => {
 
                 const comments = await TicketComment.getAll(clientTo)
                 expect(comments).toHaveLength(0)
+            })
+
+            it('can read own TicketCommentFile', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [ticketCommentFile] = await createTestTicketCommentFile(client)
+
+                const readTicketCommentFile = await TicketCommentFile.getOne(client, { id: ticketCommentFile.id })
+
+                expect(readTicketCommentFile).toHaveProperty('id', readTicketCommentFile.id)
             })
         })
 

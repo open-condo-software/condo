@@ -33,13 +33,17 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     }
 
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                { createdBy: { id: user.id } },
-            ],
-        },
+        OR: [
+            {
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
+                },
+            },
+            { createdBy: { id: user.id } },
+        ],
     }
 }
 
