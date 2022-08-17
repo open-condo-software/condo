@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';   
+
 --
 -- Create model ticketexporttaskhistoryrecord
 --
@@ -22,6 +28,12 @@ CREATE INDEX IF NOT EXISTS "TicketExportTask_deletedAt_c58b007c" ON "TicketExpor
 CREATE INDEX IF NOT EXISTS "TicketExportTask_createdBy_6c99ab1c" ON "TicketExportTask" ("createdBy");
 CREATE INDEX IF NOT EXISTS "TicketExportTask_updatedBy_d43aaff2" ON "TicketExportTask" ("updatedBy");
 CREATE INDEX IF NOT EXISTS "TicketExportTask_user_0b3acac6" ON "TicketExportTask" ("user");
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
