@@ -34,7 +34,7 @@ exports.up = async (knex) => {
         --
         -- Add unique constraint on "deviceId" + "appId" fields
         --
-        CREATE UNIQUE INDEX "remote_client_unique_deviceId_appId" ON "RemoteClient" ("deviceId", "appId") WHERE "deletedAt" IS NULL;
+        CREATE UNIQUE INDEX IF NOT EXISTS "remote_client_unique_deviceId_appId" ON "RemoteClient" ("deviceId", "appId") WHERE "deletedAt" IS NULL;
         
         --
         -- Rename model "DeviceHistoryRecord" to "RemoteClientHistoryRecord";
