@@ -1,5 +1,6 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import { useUnleashContext, useFlag, useFlagsStatus } from '@unleash/proxy-client-react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Col, Row, Typography } from 'antd'

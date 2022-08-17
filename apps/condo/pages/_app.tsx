@@ -51,7 +51,9 @@ import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniap
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
+import { FeatureFlagsProvider } from '../domains/common/components/FeatureFlagsContext'
 import { GlobalAppsContainer } from '../domains/miniapp/components/GlobalApps/GlobalAppsContainer'
+import { FlagProvider } from '@unleash/proxy-client-react'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -212,7 +214,9 @@ const MyApp = ({ Component, pageProps }) => {
                                         <LayoutContextProvider>
                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                 <RequiredAccess>
-                                                    <Component {...pageProps} />
+                                                    <FeatureFlagsProvider>
+                                                        <Component {...pageProps} />
+                                                    </FeatureFlagsProvider>
                                                     {
                                                         isEndTrialSubscriptionReminderPopupVisible && (
                                                             <EndTrialSubscriptionReminderPopup/>

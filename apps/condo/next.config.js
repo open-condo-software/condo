@@ -23,6 +23,10 @@ const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
 const TinyMceApiKey = conf['TINY_MCE_API_KEY']
+const unleashProxyUrl = conf['UNLEASH_PROXY_URL']
+const unleashProxyClientKey = conf['UNLEASH_PROXY_CLIENT_KEY']
+const unleashAppName = conf['UNLEASH_APP_NAME']
+const env = conf['NODE_ENV']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -41,6 +45,10 @@ module.exports = withTM(withLess(withCSS({
         insuranceAppUrl,
         JivoSiteWidgetId,
         TinyMceApiKey,
+        unleashProxyUrl,
+        unleashProxyClientKey,
+        unleashAppName,
+        env,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
