@@ -10,27 +10,23 @@ const access = require('@address-service/domains/user/access/User')
 
 
 const User = new GQLListSchema('User', {
-    // TODO(codegen): write doc for the User domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Users authorized by oidc auth',
     fields: {
 
         name: {
-            // TODO(codegen): write doc for User.name field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The user\'s name',
             type: Text,
             isRequired: true,
         },
 
         isAdmin: {
-            // TODO(codegen): write doc for User.isAdmin field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Whether the user admin or not',
             type: Checkbox,
             isRequired: true,
         },
 
         email: {
-            // TODO(codegen): write doc for User.email field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The user\'s email',
             type: Text,
             isRequired: true,
         },
