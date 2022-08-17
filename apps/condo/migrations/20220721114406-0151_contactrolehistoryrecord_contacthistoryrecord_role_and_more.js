@@ -29,10 +29,10 @@ CREATE TABLE IF NOT EXISTS "ContactRole" ("name" text NOT NULL, "id" uuid NOT NU
 -- Add field role to contact
 --
 ALTER TABLE "Contact" ADD COLUMN IF NOT EXISTS "role" uuid NULL CONSTRAINT "Contact_role_26d902fc_fk_ContactRole_id" REFERENCES "ContactRole"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Contact_role_26d902fc_fk_ContactRole_id" IMMEDIATE;
-CREATE INDEX "ContactRoleHistoryRecord_history_id_329e5e3f" ON "ContactRoleHistoryRecord" ("history_id");
-ALTER TABLE "ContactRole" ADD CONSTRAINT IF NOT EXISTS "ContactRole_createdBy_e95de0c9_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "ContactRole" ADD CONSTRAINT IF NOT EXISTS "ContactRole_organization_3473e8d0_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "ContactRole" ADD CONSTRAINT IF NOT EXISTS "ContactRole_updatedBy_8770391c_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+CREATE INDEX IF NOT EXISTS "ContactRoleHistoryRecord_history_id_329e5e3f" ON "ContactRoleHistoryRecord" ("history_id");
+ALTER TABLE "ContactRole" ADD CONSTRAINT "ContactRole_createdBy_e95de0c9_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "ContactRole" ADD CONSTRAINT "ContactRole_organization_3473e8d0_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "ContactRole" ADD CONSTRAINT "ContactRole_updatedBy_8770391c_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
 CREATE INDEX IF NOT EXISTS "ContactRole_createdAt_6f12345d" ON "ContactRole" ("createdAt");
 CREATE INDEX IF NOT EXISTS "ContactRole_updatedAt_66fe3d65" ON "ContactRole" ("updatedAt");
 CREATE INDEX IF NOT EXISTS "ContactRole_deletedAt_1c5d64e7" ON "ContactRole" ("deletedAt");
