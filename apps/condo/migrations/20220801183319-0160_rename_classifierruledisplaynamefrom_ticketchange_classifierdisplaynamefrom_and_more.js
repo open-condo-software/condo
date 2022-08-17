@@ -33,7 +33,7 @@ ALTER TABLE "TicketHistoryRecord" RENAME COLUMN "classifierRule" TO "classifier"
 --
 -- Add field classifier to ticket
 --
---ALTER TABLE "Ticket" ADD COLUMN "classifier" uuid NULL CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" REFERENCES "TicketClassifierRule"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" IMMEDIATE;
+--ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "classifier" uuid NULL CONSTRAINT "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" REFERENCES "TicketClassifierRule"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_classifier_7a786997_fk_TicketClassifierRule_id" IMMEDIATE;
 
 ALTER TABLE "Ticket" RENAME COLUMN "classifierRule" TO "classifier";
 ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_TicketClassifierRule_id" TO "Ticket_classifier_7a786997_fk_TicketClassifierRule_id";
@@ -41,20 +41,20 @@ ALTER TABLE "Ticket" RENAME CONSTRAINT "Ticket_classifierRule_f7a8dbc1_fk_Ticket
 --
 -- Add field placeClassifier to ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN "placeClassifier" uuid NULL CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
+ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL CONSTRAINT "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" REFERENCES "TicketPlaceClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_placeClassifier_01e3ec3a_fk_TicketPlaceClassifier_id" IMMEDIATE;
 --
 -- Add field problemClassifier to ticket
 --
-ALTER TABLE "Ticket" ADD COLUMN "problemClassifier" uuid NULL CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" REFERENCES "TicketProblemClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE;
+ALTER TABLE "Ticket" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL CONSTRAINT "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" REFERENCES "TicketProblemClassifier"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "Ticket_problemClassifier_f1bfcd39_fk_TicketProblemClassifier_id" IMMEDIATE;
 --
 -- Add field placeClassifier to tickethistoryrecord
 --
-ALTER TABLE "TicketHistoryRecord" ADD COLUMN "placeClassifier" uuid NULL;
+ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "placeClassifier" uuid NULL;
 --
 -- Add field problemClassifier to tickethistoryrecord
 --
-ALTER TABLE "TicketHistoryRecord" ADD COLUMN "problemClassifier" uuid NULL;
-CREATE INDEX "Ticket_classifier_7a786997" ON "Ticket" ("classifier");
+ALTER TABLE "TicketHistoryRecord" ADD COLUMN IF NOT EXISTS "problemClassifier" uuid NULL;
+CREATE INDEX IF NOT EXISTS "Ticket_classifier_7a786997" ON "Ticket" ("classifier");
 -- NOTE: kmigrator do not delete indexes or recreate it after renaming of the column
 CREATE INDEX IF NOT EXISTS "Ticket_placeClassifier_01e3ec3a" ON "Ticket" ("placeClassifier");
 CREATE INDEX IF NOT EXISTS "Ticket_problemClassifier_f1bfcd39" ON "Ticket" ("problemClassifier");
