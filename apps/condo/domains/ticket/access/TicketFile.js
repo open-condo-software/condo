@@ -18,13 +18,17 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
     if (user.type === RESIDENT) return { createdBy: { id: user.id } }
 
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                { createdBy: { id: user.id } },
-            ],
-        },
+        OR: [
+            {
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
+                },
+            },
+            { createdBy: { id: user.id } },
+        ],
     }
 }
 
