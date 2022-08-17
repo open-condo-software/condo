@@ -1,5 +1,5 @@
 const { GQLCustomSchema } = require('@condo/keystone/schema')
-const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+
 const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
@@ -27,11 +27,9 @@ const ShareTicketService = new GQLCustomSchema('ShareTicketService', {
                 const { employees, ticketId, sender } = data
                 const [ticket] = await Ticket.getAll(context, { id: ticketId })
                 const employeeUsers = await OrganizationEmployee.getAll(context, { id_in: employees })
-                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
 
                 await Promise.all(employeeUsers.map(employee => {
                     return sendMessage(context, {
-                        lang,
                         to: {
                             email: employee.email,
                             ...employee.user ? { user: { id: employee.user.id } } : {},
