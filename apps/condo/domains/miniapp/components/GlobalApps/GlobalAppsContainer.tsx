@@ -124,7 +124,8 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [miniAppTaskUIInterface, addTask, updateTask])
 
     const handleGetTasks = useCallback((message, event) => {
-        const senderTasks = tasks.map(task => task.record).filter((task) => task.sender === event.origin)
+        const senderTasks = tasks.map(task => task.record)
+            .filter((task) => task.sender === event.origin && task.user && get(task, 'user.id') === user.id)
 
         event.source.postMessage({
             type: TASK_GET_PROCESSING_STATUS,
