@@ -32,9 +32,9 @@ FROM "TicketCommentsTime"
 WHERE "TicketCommentsTime".ticket = "Ticket".id;
 
 --
--- [CUSTOM] Revert Statement Timeout to default amount - 16 secs
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
-SET statement_timeout = '16s';
+SET statement_timeout = '10s';
 
 COMMIT;
 
