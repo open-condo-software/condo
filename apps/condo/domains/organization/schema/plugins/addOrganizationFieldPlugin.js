@@ -19,19 +19,19 @@ const addOrganizationFieldPlugin = ({ fromField, isRequired }) => plugin(({ fiel
             update: false,
         },
         hooks: {
-            resolveInput: async ({ resolvedData, existingItem }) => {
-                const objWithOrganizationId = get(resolvedData, fromField, null) || get(existingItem, fromField, null)
+            resolveInput: async ({ resolvedData }) => {
+                // If we explicitly passed null to fromField, then we will disconnect the organization
+                const objWithOrganizationId = get(resolvedData, fromField)
+                if (objWithOrganizationId === null && !isRequired) {
+                    resolvedData['organization'] = null
+                    return resolvedData['organization']
+                }
 
                 if (objWithOrganizationId) {
                     const schemaName = fields[fromField].ref
                     const objWithOrganization = await getById(schemaName, objWithOrganizationId)
 
                     resolvedData['organization'] = get(objWithOrganization, 'organization')
-                }
-
-                // If we cannot resolve organization from parent object -> set organization to null if it is possible
-                if (objWithOrganizationId === null && !isRequired) {
-                    resolvedData['organization'] = null
                 }
 
                 return resolvedData['organization']
