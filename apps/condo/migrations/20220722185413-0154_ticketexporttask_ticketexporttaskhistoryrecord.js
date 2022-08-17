@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS "TicketExportTaskHistoryRecord" ("status" text NULL, 
 --
 CREATE TABLE IF NOT EXISTS "TicketExportTask" ("status" varchar(50) NOT NULL, "format" varchar(50) NOT NULL, "exportedRecordsCount" integer NOT NULL, "totalRecordsCount" integer NOT NULL, "file" jsonb NULL, "meta" jsonb NULL, "where" jsonb NOT NULL, "sortBy" jsonb NOT NULL, "locale" text NOT NULL, "timeZone" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "user" uuid NOT NULL);
 CREATE INDEX IF NOT EXISTS "TicketExportTaskHistoryRecord_history_id_a334f5a3" ON "TicketExportTaskHistoryRecord" ("history_id");
-ALTER TABLE "TicketExportTask" ADD CONSTRAINT IF NOT EXISTS "TicketExportTask_createdBy_6c99ab1c_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "TicketExportTask" ADD CONSTRAINT IF NOT EXISTS "TicketExportTask_updatedBy_d43aaff2_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-ALTER TABLE "TicketExportTask" ADD CONSTRAINT IF NOT EXISTS "TicketExportTask_user_0b3acac6_fk_User_id" FOREIGN KEY ("user") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "TicketExportTask" ADD CONSTRAINT "TicketExportTask_createdBy_6c99ab1c_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "TicketExportTask" ADD CONSTRAINT "TicketExportTask_updatedBy_d43aaff2_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "TicketExportTask" ADD CONSTRAINT "TicketExportTask_user_0b3acac6_fk_User_id" FOREIGN KEY ("user") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
 CREATE INDEX IF NOT EXISTS "TicketExportTask_createdAt_46357933" ON "TicketExportTask" ("createdAt");
 CREATE INDEX IF NOT EXISTS "TicketExportTask_updatedAt_401f99ac" ON "TicketExportTask" ("updatedAt");
 CREATE INDEX IF NOT EXISTS "TicketExportTask_deletedAt_c58b007c" ON "TicketExportTask" ("deletedAt");
