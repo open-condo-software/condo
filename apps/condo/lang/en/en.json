@@ -949,6 +949,7 @@
   "notification.messages.STAFF_UPGRADE_APP.email.subject": "Critical update",
   "notification.messages.STAFF_UPGRADE_APP.push.title": "Critical update",
   "TicketDeadline": "Ticket deadline",
+  "TicketDeferredDeadline": "Ticket deferred deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
   "ticket.EmptyList.title": "Create the first one, it's simple",
   "ticket.status.OPEN.name": "Open",
