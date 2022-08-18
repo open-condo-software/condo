@@ -10,7 +10,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { EXPORT_STATUS_VALUES } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, PROCESSING, CANCELLED } = require('@condo/domains/common/constants/export')
 
 describe('TicketExportTask', () => {
     describe('validations', () => {
@@ -133,15 +133,36 @@ describe('TicketExportTask', () => {
             expect(updatedObj.status).toEqual(newAttrs.status)
         })
 
-        it('cannot be updated by user', async () => {
+        it('can be updated by user with specifying "cancelled" value for "status" field', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [obj, attrs] = await createTestTicketExportTask(adminClient, adminClient.user)
-            const newAttrs = {
-                status: difference(EXPORT_STATUS_VALUES, [attrs.status])[0],
-            }
+            const [obj] = await createTestTicketExportTask(adminClient, adminClient.user, {
+                status: PROCESSING,
+            })
+            const [objUpdated] = await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED })
+            expect(objUpdated.status).toEqual(CANCELLED)
+        })
+
+        const forbiddenFieldsToUpdateByUser = {
+            exportedRecordsCount: 99,
+            format: 'excel',
+            totalRecordsCount: 99,
+            meta: {},
+            where: {},
+            sortBy: ['order_ASC', 'createdAt_DESC'],
+            locale: 'en',
+            timeZone: 'Europe/Moscow',
+            user: { connect: { id: '123' } },
+        }
+
+        test.each(Object.keys(forbiddenFieldsToUpdateByUser))('cannot be updated by user with specifying value for %p field', async (field) => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [obj] = await createTestTicketExportTask(adminClient, adminClient.user, {
+                status: PROCESSING,
+            })
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestTicketExportTask(userClient, obj.id, newAttrs)
+                await updateTestTicketExportTask(userClient, obj.id, { [field]: forbiddenFieldsToUpdateByUser[field] })
             })
         })
 

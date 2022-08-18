@@ -47792,7 +47792,8 @@ export type TicketExportTaskHistoryRecordsUpdateInput = {
 export enum TicketExportTaskStatusType {
   Processing = 'processing',
   Completed = 'completed',
-  Error = 'error'
+  Error = 'error',
+  Cancelled = 'cancelled'
 }
 
 export type TicketExportTaskUpdateInput = {

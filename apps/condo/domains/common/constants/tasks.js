@@ -3,6 +3,7 @@ const TASK_WORKER_FINGERPRINT = 'worker'
 const TASK_PROCESSING_STATUS = 'processing'
 const TASK_COMPLETED_STATUS = 'completed'
 const TASK_ERROR_STATUS = 'error'
+const TASK_CANCELLED_STATUS = 'cancelled'
 
 const TASK_POLL_INTERVAL = 5000
 
@@ -11,5 +12,6 @@ module.exports = {
     TASK_PROCESSING_STATUS,
     TASK_COMPLETED_STATUS,
     TASK_ERROR_STATUS,
+    TASK_CANCELLED_STATUS,
     TASK_POLL_INTERVAL,
 }
