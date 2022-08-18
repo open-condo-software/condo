@@ -5,37 +5,66 @@
  */
 const faker = require('faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@address-service/domains/common/utils/codegeneration/generate.server.utils')
+const {
+    generateServerUtils,
+    execGqlWithoutAccess,
+} = require('@address-service/domains/common/utils/codegeneration/generate.server.utils')
 
-const { generateGQLTestUtils, throwIfError } = require('@address-service/domains/common/utils/codegeneration/generate.test.utils')
+const {
+    generateGQLTestUtils,
+    throwIfError,
+} = require('@address-service/domains/common/utils/codegeneration/generate.test.utils')
 
 const { User: UserGQL } = require('@address-service/domains/user/gql')
+const { getRandomString, makeLoggedInAdminClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { STAFF_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestUser (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+async function makeClientWithNewRegisteredAndLoggedInUser (extraAttrs = {}) {
+    const admin = await makeLoggedInAdminClient()
+    const [user, userAttrs] = await createTestUser(admin, extraAttrs)
+    const client = await makeLoggedInClient(userAttrs)
+    client.user = user
+    client.userAttrs = userAttrs
+    return client
+}
 
-    // TODO(codegen): write createTestUser logic for generate fields
+async function makeClientWithSupportUser(extraAttrs = {}) {
+    return await makeClientWithNewRegisteredAndLoggedInUser({ isSupport: true, ...extraAttrs })
+}
+
+function createTestEmail () {
+    return ('test.' + getRandomString() + '@example.com').toLowerCase()
+}
+
+async function createTestUser (client, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
+    const name = faker.name.firstName()
+    const email = createTestEmail()
+    const password = getRandomString()
 
     const attrs = {
         dv: 1,
         sender,
+        name,
+        email,
+        password,
         ...extraAttrs,
     }
-    const obj = await User.create(client, attrs)
-    return [obj, attrs]
+    const result = await User.create(client, attrs, { raw })
+    if (raw) return result
+    return [result, attrs]
 }
 
 async function updateTestUser (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestUser logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -49,6 +78,8 @@ async function updateTestUser (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
     User, createTestUser, updateTestUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
