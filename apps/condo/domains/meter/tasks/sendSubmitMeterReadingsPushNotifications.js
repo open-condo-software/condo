@@ -1,7 +1,5 @@
-const pino = require('pino')
 const dayjs = require('dayjs')
 const { get, uniq, isNull } = require('lodash')
-const falsey = require('falsey')
 
 const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
@@ -20,11 +18,9 @@ const {
 
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { getLocalized } = require('@condo/locales/loader')
+const { getLogger } = require('@condo/keystone/logging')
 
-const logger = pino({
-    name: 'submit_meter_readings_notifications',
-    enabled: falsey(process.env.DISABLE_LOGGING),
-})
+const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
     return await Meter.getAll(
@@ -88,7 +84,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     // * Send message with specific unique key for expired verification (key is: {meterId}_{residentId}_{now().minusMonth().format(YYYY_MM)})
     // * Print some stat
 
-    logger.info({ message: 'Start sending submit meter notifications' })
+    logger.info('Start sending submit meter notifications')
     // initialize context stuff
     const { keystone: context } = await getSchemaCtx('Meter')
 
@@ -104,12 +100,12 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         metersWithExpiredVerificationDate: 0,
         startTime: dayjs(),
     }
-    logger.info({ message: 'Start proceeding meters page by page', startTime: state.startTime })
+    logger.info({ msg: 'Start proceeding', state })
 
     do {
         // log each 10 pages
         if (state.processedPages % 10 === 0) {
-            logger.info({ message: 'Processing page', processedPages: state.processedPages + 1 })
+            logger.info({ msg: 'Processing', state })
         }
 
         // read all required data
@@ -183,10 +179,10 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
     // some stat
     const endTime = dayjs()
     logger.info({
-        message: 'End proceeding meters',
+        msg: 'End proceeding',
         endTime,
         processingTime: endTime.unix() - state.startTime.unix(),
-        ...state,
+        state,
     })
 }
 
