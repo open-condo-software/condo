@@ -154,35 +154,18 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     const completedAt = new Date().toISOString()
                     await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
                 }
-                const sendChannels = [{
-                    to: { phone: userData.phone },
-                }]
-                if (!isEmpty(userData.email)) {
-                    sendChannels.push({
-                        to: { email: userData.email },
-                    })
-                }
-                // TODO(Dimitreee): use locale from .env
-                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-                await Promise.all(sendChannels.map(async channel => {
-                    await sendMessage(context, {
-                        lang,
-                        to: {
-                            user: {
-                                id: user.id,
-                            },
-                            ...channel.to,
-                        },
-                        type: REGISTER_NEW_USER_MESSAGE_TYPE,
-                        meta: {
-                            userPassword: userData.password,
-                            userPhone: userData.phone,
-                            dv: 1,
-                        },
-                        sender,
+
+                await sendMessage(context, {
+                    type: REGISTER_NEW_USER_MESSAGE_TYPE,
+                    to: { user: { id: user.id } },
+                    meta: {
+                        userPassword: userData.password,
+                        userPhone: userData.phone,
                         dv: 1,
-                    })
-                }))
+                    },
+                    sender,
+                    dv: 1,
+                })
                 return await getById('User', user.id)
             },
         },
