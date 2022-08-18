@@ -14,28 +14,16 @@
  */
 class AbstractSuggestionProvider {
     /**
-     * Calls to particular external service using particular client
-     * @param {string} query
-     * @param {boolean} isServerSide sometimes we need different query params for queries from front-end and backend (for dadata)
-     * @param {number} count
-     * @returns {Promise<*>}
-     * @abstract
-     * @private
-     */
-    async call ({ query, isServerSide = false, count = 20 }) {
-        throw new Error('Method still not implemented.')
-    }
-
-    /**
      * Sends search string to external suggestions service
      * @param {string} query
      * @param {boolean} isServerSide {@see call}
      * @param {number} count
-     * @returns {Promise<Array>}
+     * @returns {Promise<Array>} the array of denormalized suggestions
+     * @abstract
      * @public
      */
     async get ({ query, isServerSide = false, count = 20 }) {
-        return await this.call({ query, isServerSide, count })
+        throw new Error('Method still not implemented.')
     }
 
     /**
