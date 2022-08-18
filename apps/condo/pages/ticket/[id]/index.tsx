@@ -56,7 +56,6 @@ import { TicketExecutorField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketFileListField } from '@condo/domains/ticket/components/TicketId/TicketFileListField'
 import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/TicketPropertyField'
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
-import { TicketDeferredDateField } from '@condo/domains/ticket/components/TicketId/TicketDeferredDateField'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 
@@ -69,7 +68,6 @@ const TicketContent = ({ ticket }) => {
                 <Col span={24}>
                     <Row gutter={[0, 24]}>
                         <TicketReviewField ticket={ticket} />
-                        <TicketDeferredDateField ticket={ticket} />
                         <TicketDeadlineField ticket={ticket} />
                         <TicketPropertyField ticket={ticket} />
                         <TicketClientField ticket={ticket} />
@@ -270,7 +268,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
-                                        <Col lg={18} xs={24}>
+                                        <Col xl={13} md={11} xs={24}>
                                             <Row gutter={[0, 20]}>
                                                 <Col span={24}>
                                                     <Typography.Title style={{ margin: 0 }} level={1}>{TicketTitleMessage}</Typography.Title>
@@ -317,17 +315,21 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                 </Col>
                                             </Row>
                                         </Col>
-                                        <Col lg={6} xs={24}>
+                                        <Col xl={11} md={13} xs={24}>
                                             <Row justify={isSmall ? 'center' : 'end'} gutter={[0, 20]}>
                                                 <Col span={24}>
-                                                    <TicketStatusSelect
-                                                        organization={organization}
-                                                        employee={employee}
-                                                        ticket={ticket}
-                                                        onUpdate={handleTicketStatusChanged}
-                                                        loading={loading}
-                                                        data-cy='ticket__status-select'
-                                                    />
+                                                    <Row justify='end'>
+                                                        <Col>
+                                                            <TicketStatusSelect
+                                                                organization={organization}
+                                                                employee={employee}
+                                                                ticket={ticket}
+                                                                onUpdate={handleTicketStatusChanged}
+                                                                loading={loading}
+                                                                data-cy='ticket__status-select'
+                                                            />
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                                 {
                                                     statusUpdatedAt && (
