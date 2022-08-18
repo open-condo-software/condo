@@ -31,6 +31,7 @@ const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ti
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
+const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
@@ -56,6 +57,7 @@ const TicketCommentsTime = generateGQLTestUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateGQLTestUtils(UserTicketCommentReadTimeGQL)
 const TicketPropertyHint = generateGQLTestUtils(TicketPropertyHintGQL)
 const TicketPropertyHintProperty = generateGQLTestUtils(TicketPropertyHintPropertyGQL)
+const TicketOrganizationSetting = generateGQLTestUtils(TicketOrganizationSettingGQL)
 const TicketExportTask = generateGQLTestUtils(TicketExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -606,6 +608,35 @@ async function updateTestTicketPropertyHintProperty (client, id, extraAttrs = {}
     return [obj, attrs]
 }
 
+async function createTestTicketOrganizationSetting (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization) throw new Error('no organization')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await TicketOrganizationSetting.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTicketOrganizationSetting (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TicketOrganizationSetting.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createTestTicketExportTask (client, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -698,6 +729,7 @@ module.exports = {
     getTicketAnalyticsReport, getTicketAnalyticsExport,
     TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint,
     TicketPropertyHintProperty, createTestTicketPropertyHintProperty, updateTestTicketPropertyHintProperty,
+    TicketOrganizationSetting, createTestTicketOrganizationSetting, updateTestTicketOrganizationSetting,
     TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask,
     exportTestTicketsToExcel,
 /* AUTOGENERATE MARKER <EXPORTS> */
