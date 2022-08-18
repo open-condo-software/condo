@@ -8,7 +8,6 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/
 const { dvAndSender } = require('@address-service/domains/common/schema/plugins/dvAndSender')
 const access = require('@address-service/domains/user/access/User')
 
-
 const User = new GQLListSchema('User', {
     schemaDoc: 'Users authorized by oidc auth',
     fields: {
@@ -22,7 +21,13 @@ const User = new GQLListSchema('User', {
         isAdmin: {
             schemaDoc: 'Whether the user admin or not',
             type: Checkbox,
-            isRequired: true,
+            defaultValue: false,
+        },
+
+        isSupport: {
+            schemaDoc: 'Whether the user support or not',
+            type: Checkbox,
+            defaultValue: false,
         },
 
         email: {
@@ -32,8 +37,7 @@ const User = new GQLListSchema('User', {
         },
 
         password: {
-            // TODO(codegen): write doc for User.password field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The user\'s password',
             type: Password,
             isRequired: true,
         },

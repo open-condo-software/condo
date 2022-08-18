@@ -207,11 +207,24 @@ export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
 
+export type SenderField = {
+  __typename?: 'SenderField';
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
+export type SenderFieldInput = {
+  dv: Scalars['Int'];
+  fingerprint: Scalars['String'];
+};
+
 export enum SortUserHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
+  IsSupportAsc = 'isSupport_ASC',
+  IsSupportDesc = 'isSupport_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
   PasswordAsc = 'password_ASC',
@@ -239,6 +252,8 @@ export enum SortUsersBy {
   NameDesc = 'name_DESC',
   IsAdminAsc = 'isAdmin_ASC',
   IsAdminDesc = 'isAdmin_DESC',
+  IsSupportAsc = 'isSupport_ASC',
+  IsSupportDesc = 'isSupport_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
   IdAsc = 'id_ASC',
@@ -260,7 +275,7 @@ export enum SortUsersBy {
 }
 
 
-/**  TODO DOC!  */
+/**  Users authorized by oidc auth  */
 export type User = {
   __typename?: 'User';
   /**
@@ -271,13 +286,15 @@ export type User = {
    *  4. As an alias to the 'id' field on the User List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  The user's name  */
   name?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Whether the user admin or not  */
   isAdmin?: Maybe<Scalars['Boolean']>;
-  /**  TODO DOC!  */
+  /**  Whether the user support or not  */
+  isSupport?: Maybe<Scalars['Boolean']>;
+  /**  The user's email  */
   email?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  The user's password  */
   password_is_set?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -291,13 +308,14 @@ export type User = {
   newId?: Maybe<Scalars['String']>;
   /**  Data structure Version  */
   dv?: Maybe<Scalars['Int']>;
-  /**  Client-side devise identification used for the anti-fraud detection. Example `{ dv: '1', fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<Scalars['JSON']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
 };
 
 export type UserCreateInput = {
   name?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -308,7 +326,7 @@ export type UserCreateInput = {
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 /**  A keystone list  */
@@ -324,6 +342,7 @@ export type UserHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -344,6 +363,7 @@ export type UserHistoryRecord = {
 export type UserHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -369,6 +389,7 @@ export enum UserHistoryRecordHistoryActionType {
 export type UserHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -408,6 +429,8 @@ export type UserHistoryRecordWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
+  isSupport_not?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
@@ -545,6 +568,7 @@ export type UserRelateToOneInput = {
 export type UserUpdateInput = {
   name?: Maybe<Scalars['String']>;
   isAdmin?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -555,7 +579,7 @@ export type UserUpdateInput = {
   deletedAt?: Maybe<Scalars['String']>;
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
+  sender?: Maybe<SenderFieldInput>;
 };
 
 export type UserWhereInput = {
@@ -581,6 +605,8 @@ export type UserWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isAdmin?: Maybe<Scalars['Boolean']>;
   isAdmin_not?: Maybe<Scalars['Boolean']>;
+  isSupport?: Maybe<Scalars['Boolean']>;
+  isSupport_not?: Maybe<Scalars['Boolean']>;
   email?: Maybe<Scalars['String']>;
   email_not?: Maybe<Scalars['String']>;
   email_contains?: Maybe<Scalars['String']>;
@@ -652,10 +678,10 @@ export type UserWhereInput = {
   dv_gte?: Maybe<Scalars['Int']>;
   dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
 };
 
 export type UserWhereUniqueInput = {
