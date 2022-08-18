@@ -10,24 +10,14 @@ async function canReadUsers ({ authentication: { item: user } }) {
 
     if (user.isAdmin) return {}
 
-    // TODO(codegen): write canReadUsers logic for user!
     return false
 }
 
 async function canManageUsers ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
 
-    if (operation === 'create') {
-        // TODO(codegen): write canManageUsers create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageUsers update logic!
-        return false
-    }
-
-    return false
+    return !!user.isAdmin
 }
 
 /*
