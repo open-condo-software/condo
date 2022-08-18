@@ -29,8 +29,9 @@ const {
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
-const { createTestOrganizationEmployeeRole } = require('../utils/testSchema')
-const { createTestOrganizationEmployee } = require('../utils/testSchema')
+const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
 
 
 describe('Organization', () => {
@@ -352,5 +353,18 @@ describe('organization TIN: various cases',  () => {
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
+    })
+})
+
+describe('after creating organization', () => {
+    test('auto create TicketOrganizationSetting', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+
+        const [setting] = await TicketOrganizationSetting.getAll(admin,  {
+            organization: { id: organization.id },
+        })
+
+        expect(setting.organization.id).toEqual(organization.id)
     })
 })
