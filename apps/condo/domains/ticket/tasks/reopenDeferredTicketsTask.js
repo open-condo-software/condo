@@ -9,12 +9,13 @@ const CHUNK_SIZE = 50
 
 /**
  * Opens tickets that are in the "deferred" status and the date they are deferring has expired.
- * And resets the executor and assignee of this ticket
+ * And resets the executor and assignee of this ticket.
+ * The check happens every hour.
  */
-const reopenDeferredTicketsTask = createCronTask('reopenDeferredTickets', '0 0 * * *', async () => {
+const reopenDeferredTicketsTask = createCronTask('reopenDeferredTickets', '0 0/1 * * *', async () => {
     const { keystone } = await getSchemaCtx('Ticket')
     const adminContext = await keystone.createContext({ skipAccessControl: true })
-    const currentDate = dayjs().endOf('day').toISOString()
+    const currentDate = dayjs().toISOString()
     const ticketWhere = {
         status: { id: STATUS_IDS.DEFERRED },
         deferredUntil_lte: currentDate,
