@@ -1,7 +1,8 @@
-const pino = require('pino')
-const falsey = require('falsey')
-const appLogger = pino({ name: process.env.LOGGER_NAME || 'condo', enabled: falsey(process.env.DISABLE_LOGGING)  })
+const { getLogger } = require('@condo/keystone/logging')
 
+const appLogger = getLogger('common/deprecated/appLogger')
+
+/** @deprecated: use getLogger for your cases! */
 class Logger {
 
     constructor (name, level = 'debug') {
@@ -27,6 +28,5 @@ class Logger {
 }
 
 module.exports = {
-    appLogger,
     Logger,
 }
