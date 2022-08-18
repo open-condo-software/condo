@@ -185,6 +185,9 @@ const TicketPropertyHintProperty = generateGqlQueries('TicketPropertyHintPropert
 const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename ${COMMON_FIELDS} }`
 const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TASK_FIELDS)
 
+const TICKET_ORGANIZATION_SETTING_FIELDS = '{ id organization { id } defaultDeadline paidDeadline emergencyDeadline warrantyDeadline }'
+const TicketOrganizationSetting = generateGqlQueries('TicketOrganizationSettings', TICKET_ORGANIZATION_SETTING_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 const EXPORT_TICKETS_TO_EXCEL =  gql`
     query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
@@ -223,5 +226,6 @@ module.exports = {
     TicketPropertyHint,
     TicketPropertyHintProperty,
     TicketExportTask,
+    TicketOrganizationSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
