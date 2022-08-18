@@ -1,8 +1,9 @@
 import get from 'lodash/get'
-import { ITasksStorage } from '../index'
-import { IGenerateHooksResult } from '../../../utils/codegeneration/generate.hooks'
-import { TASK_POLL_INTERVAL } from '../../../constants/tasks'
 import dayjs from 'dayjs'
+import { IGenerateHooksResult } from '@condo/keystone/codegeneration/generate.hooks'
+import { ITasksStorage } from '../index'
+
+import { TASK_POLL_INTERVAL } from '../../../constants/tasks'
 
 /**
  * Used to store tasks known by Condo API
