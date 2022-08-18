@@ -23,29 +23,11 @@ describe('RegisterNewUserService', () => {
         const password = faker.internet.password()
         const email = createTestEmail()
         const phone = userAttrs.phone
-        const dv = 1
-        const sender = { dv: 1, fingerprint: 'tests' }
-        const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
-            data: {
-                dv,
-                sender,
-                name,
-                phone,
-                password,
-                email,
-            },
-        })
-        expect(errors).toMatchObject([{
-            message: 'User with specified phone already exists',
-            name: 'GQLError',
-            path: ['user'],
-            extensions: {
-                mutation: 'registerNewUser',
-                variable: ['data', 'phone'],
-                code: 'BAD_USER_INPUT',
-                type: 'NOT_UNIQUE',
-            },
-        }])
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, phone, password, email }),
+            errors.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
+            'user',
+        )
     })
 
     test('register user with landline phone number', async () => {
