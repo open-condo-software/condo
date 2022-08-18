@@ -38,17 +38,17 @@ class SuggestionKeystoneApp {
             const bypass = Boolean(get(req, ['query', 'bypass'], false))
 
             /**
-             * We need different query parameters for server side and for client side
-             * At least for dadata
-             * @type {boolean}
+             * Sometimes we need to use different query parameters to providers
+             * depending on different clients (mobile app, backend job, user runtime)
+             * @type {string}
              */
-            const serverSide = Boolean(get(req, ['query', 'serverSide'], false))
+            const context = String(get(req, ['query', 'context'], ''))
 
             /**
              * Number of results to return
-             * @type {number}
+             * @type {number|NaN}
              */
-            const count = Number(get(req, ['query', 'count'], 20))
+            const count = Number(get(req, ['query', 'count'], undefined))
 
             if (!s) {
                 res.send(400)
@@ -59,7 +59,7 @@ class SuggestionKeystoneApp {
             const suggestionProvider = providerDetector.getProvider(geo)
 
             // 2. Get suggestions array
-            const denormalizedSuggestions = await suggestionProvider.get({ query: s, isServerSide: serverSide, count })
+            const denormalizedSuggestions = await suggestionProvider.get({ query: s, context, count })
             const suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
 
             // 3. Inject some data not presented in provider

@@ -2,6 +2,7 @@ const { AbstractSuggestionProvider } = require('@address-service/domains/common/
 const conf = require('@condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
+const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 /**
  * @typedef {Object} DadataObjectData
@@ -111,13 +112,6 @@ const CONFIG_KEY = 'DADATA_SUGGESTIONS'
 const CONFIG_KEY_URL = 'url'
 const CONFIG_KEY_TOKEN = 'token'
 
-const DEFAULT_SEARCH_PARAMS = {
-    from_bound: { value: 'country' },
-    to_bound: { value: 'house' },
-    restrict_value: true,
-    count: 20,
-}
-
 /**
  * The dadata suggestions provider
  * @link https://dadata.ru/api/suggest/address/
@@ -150,10 +144,14 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         this.token = token
     }
 
+    getProviderContextName () {
+        return DADATA_PROVIDER
+    }
+
     /**
      * @returns {Promise<DadataObject[]>}
      */
-    async get ({ query, isServerSide = false, count = 20 }) {
+    async get ({ query, context = null, count = 20 }) {
         const result = await fetch(
             this.url,
             {
@@ -166,13 +164,8 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                 body: JSON.stringify(
                     {
                         query,
-                        ...DEFAULT_SEARCH_PARAMS,
-                        from_bound: {
-                            // NOTE: Used search from house to house for preventing results for country only etc.
-                            // Since we don't need such suggestions on server side
-                            value: isServerSide ? 'house' : 'country',
-                        },
-                        count,
+                        ...this.getContext(context),
+                        ...(isNaN(count) ? {} : { count }),
                     },
                 ),
             },

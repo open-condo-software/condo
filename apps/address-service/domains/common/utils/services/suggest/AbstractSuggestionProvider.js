@@ -9,20 +9,50 @@
  * @property {?string} unitName "428", "42/8"
  */
 
+const { suggestionContexts } = require('@address-service/domains/common/constants/contexts')
+const get = require('lodash/get')
+
 /**
  * @abstract
  */
 class AbstractSuggestionProvider {
+
+    /**
+     * @abstract
+     * @private
+     * @returns {string} The provider name (constant)
+     */
+    getProviderContextName () {
+        throw new Error('Method still not implemented.')
+    }
+
+    /**
+     * Returns the context object
+     * @param {?string} context
+     * @returns {Object}
+     * @protected
+     */
+    getContext (context = null) {
+        return {
+            ...get(suggestionContexts, ['default', this.getProviderContextName()], {}),
+            ...(
+                context
+                    ? get(suggestionContexts, [context, this.getProviderContextName()], {})
+                    : {}
+            ),
+        }
+    }
+
     /**
      * Sends search string to external suggestions service
      * @param {string} query
-     * @param {boolean} isServerSide {@see call}
-     * @param {number} count
+     * @param {?string} context {@see suggestionContexts}
+     * @param {number|NaN} count
      * @returns {Promise<Array>} the array of denormalized suggestions
      * @abstract
      * @public
      */
-    async get ({ query, isServerSide = false, count = 20 }) {
+    async get ({ query, context = null, count = NaN }) {
         throw new Error('Method still not implemented.')
     }
 
