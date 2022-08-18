@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+    
 --
 -- Create model messageorganizationblacklisthistoryrecord
 --
@@ -81,6 +87,11 @@ CREATE INDEX "MessageOrganizationBlackList_updatedBy_9216d154" ON "MessageOrgani
 
 -- Manual insert TRACK_TICKET_IN_DOMA_APP to MessageOrganizationBlackList for all organizations
 INSERT INTO "MessageOrganizationBlackList" (dv, sender, organization, type, description, id, v, "createdAt", "updatedAt", "deletedAt", "newId", "createdBy", "updatedBy") VALUES (1, '{"dv": 1, "fingerprint": "initial"}', null, 'TRACK_TICKET_IN_DOMA_APP', 'initial black list rule','526266eb-8629-4d80-89b3-12b156d763ac', 1, '2022-08-11 00:00:00.000000', '2020-08-11 00:00:00.000000', null, null, null, null);
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
 
 COMMIT;
 
