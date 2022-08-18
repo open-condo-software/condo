@@ -4,7 +4,7 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     /**
      * @returns {Promise<Array>}
      */
-    async call ({ query, isServerSide = false, count = 20 }) {
+    async get ({ query, isServerSide = false, count = 20 }) {
         return Promise.resolve(['google suggestion 1', 'google suggestion 2'])
     }
 
