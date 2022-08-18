@@ -2,7 +2,7 @@ const faker = require('faker')
 const { print } = require('graphql')
 const { get, isEmpty } = require('lodash')
 
-const { normalizeQuery } = require('../GraphQLLoggerApp')
+const { normalizeQuery } = require('../../../apps/condo/domains/common/utils/GraphQLLoggerApp')
 
 class TestClientResponseError extends Error {
     constructor (data, errors, context = {}) {
