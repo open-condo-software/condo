@@ -1,8 +1,9 @@
 const PROCESSING = 'processing'
 const COMPLETED = 'completed'
 const ERROR = 'error'
+const CANCELLED = 'cancelled'
 
-const EXPORT_STATUS_VALUES = [PROCESSING, COMPLETED, ERROR]
+const EXPORT_STATUS_VALUES = [PROCESSING, COMPLETED, ERROR, CANCELLED]
 
 const EXCEL = 'excel'
 
@@ -14,6 +15,7 @@ module.exports = {
     PROCESSING,
     COMPLETED,
     ERROR,
+    CANCELLED,
     EXCEL,
     EXPORT_STATUS_VALUES,
     EXPORT_FORMAT_VALUES,

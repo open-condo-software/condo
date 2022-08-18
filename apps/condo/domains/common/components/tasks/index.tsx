@@ -13,6 +13,7 @@ export enum TASK_STATUS {
     PROCESSING = 'processing',
     COMPLETED = 'completed',
     ERROR = 'error',
+    CANCELLED = 'cancelled',
 }
 
 /**

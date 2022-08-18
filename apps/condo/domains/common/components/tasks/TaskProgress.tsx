@@ -12,6 +12,7 @@ import {
     ITaskTrackableItem,
     TASK_PROGRESS_UNKNOWN,
     TASK_REMOVE_STRATEGY,
+    TASK_STATUS,
     TaskProgressTranslations,
     TaskRecord,
     TaskRecordProgress,
@@ -59,32 +60,34 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     />
 )
 
-const TaskProgressDoneHolder = styled.div`
+const TaskIconsHoverSwitcher = styled.div`
      cursor: pointer;
+  
+    > * {
+      position: relative;
+      right: 7px;
+      
+      &.ant-progress-circle {
+        right: 2px;
+      }
+    }
    
-     .anticon:first-child {
+     > *:first-child {
        display: block;
      }
-     .anticon:last-child {
+     > *:last-child {
        display: none;
      }
    
      &:hover {
-       .anticon:first-child {
+       > *:first-child {
          display: none;
        }
-       .anticon:last-child {
+       > *:last-child {
          display: block;
        }
      }
 `
-
-const TaskProgressDoneIcon = ({ onClick }) => (
-    <TaskProgressDoneHolder onClick={onClick}>
-        <CheckIcon />
-        <CrossIcon />
-    </TaskProgressDoneHolder>
-)
 
 interface ITaskProgressProps {
     task: TaskRecord
@@ -107,11 +110,17 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
             description={translations.description(task)}
         />
         {task.status === TASK_COMPLETED_STATUS ? (
-            <TaskProgressDoneIcon onClick={removeTask}/>
+            <TaskIconsHoverSwitcher onClick={removeTask}>
+                <CheckIcon />
+                <CrossIcon />
+            </TaskIconsHoverSwitcher>
         ) : (task.status === TASK_ERROR_STATUS) ? (
             <CloseCircleIcon onClick={removeTask} />
         ) : (
-            <CircularProgress progress={progress}/>
+            <TaskIconsHoverSwitcher onClick={removeTask}>
+                <CircularProgress progress={progress}/>
+                <CrossIcon />
+            </TaskIconsHoverSwitcher>
         )}
     </List.Item>
 )
@@ -141,13 +150,24 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
         }
     })
 
-    const handleRemoveTask = useCallback(() => {
+    const removeTaskFromUI = () => {
         if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
             removeTaskFromStorage(record)
         } else if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
             deleteTaskFromContext(record)
         }
-    }, [record, storage, deleteTaskFromContext, removeTaskFromStorage])
+    }
+
+    const cancelTaskAndRemoveFromUI = storage.useUpdateTask({ status: TASK_STATUS.CANCELLED }, removeTaskFromUI)
+
+    const handleRemoveTask = useCallback(async () => {
+        // Tasks under processing should be cancelled before removing from UI
+        if (record.status === TASK_STATUS.PROCESSING) {
+            cancelTaskAndRemoveFromUI({}, record)
+        } else {
+            removeTaskFromUI()
+        }
+    }, [record, storage, removeTaskFromUI, deleteTaskFromContext])
 
     useEffect(() => {
         if (record?.status === TASK_COMPLETED_STATUS) {
@@ -175,7 +195,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
 
 const VisibilityControlButton = styled.div`
   position: absolute;
-  right: 20px;
+  right: 30px;
   top: 20px;
   z-index: 1;
   cursor: pointer;

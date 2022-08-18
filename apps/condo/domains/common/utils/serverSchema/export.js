@@ -1,11 +1,15 @@
+const falsey = require('falsey')
+const pino = require('pino')
 const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
-const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
+const { TASK_WORKER_FINGERPRINT, TASK_CANCELLED_STATUS } = require('@condo/domains/common/constants/tasks')
 const Upload = require('graphql-upload/public/Upload')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const conf = require('@condo/config')
+
+const logger = pino({ name: 'export', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 const errors = {
     NOTHING_TO_EXPORT: {
@@ -55,6 +59,12 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
     let task // a fresh record we are working with
 
     do {
+        // User can cancel the task at any time, in this all operations should be stopped
+        task = await taskServerUtils.getOne(context, { id: task.id })
+        if (task.status === TASK_CANCELLED_STATUS) {
+            return Promise.reject(TASK_CANCELLED_STATUS)
+        }
+
         const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
         if (batch.length === 0) {
             if (offset === 0) {
@@ -143,6 +153,11 @@ const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow
                 file,
             }
             return await taskServerUtils.update(context, task.id, data)
+        })
+        .catch(reason => {
+            if (reason === TASK_CANCELLED_STATUS) {
+                logger.info({ message: `${taskServerUtils.gql.SINGULAR_FORM} with id = "${task.id}" has been cancelled. All operations for this task are interrupted`, task })
+            }
         })
 )
 
