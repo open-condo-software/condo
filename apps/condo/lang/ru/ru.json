@@ -901,6 +901,8 @@
   "notification.messages.INVITE_NEW_EMPLOYEE.push.title": "Вас пригласили присоединиться к организации в качестве сотрудника",
   "notification.messages.REGISTER_NEW_USER.email.subject": "Ваши данные для доступа к сервису doma.ai",
   "notification.messages.REGISTER_NEW_USER.push.title": "Ваши данные для доступа к сервису doma.ai",
+  "notification.messages.WELCOME_NEW_USER.email.subject": "Добро пожаловать в Дома",
+  "notification.messages.WELCOME_NEW_USER.push.title": "Добро пожаловать в Дома",
   "notification.messages.SHARE_TICKET.email.subject": "Заявка №{ticketNumber}",
   "notification.messages.RESET_PASSWORD.email.subject": "Восстановление пароля",
   "notification.messages.RESET_PASSWORD.push.title": "Восстановление пароля",
