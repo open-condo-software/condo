@@ -11,6 +11,23 @@ const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
 
 const keystone = new Keystone({
+    onConnect: async () => {
+        // Initialise some data
+        if (conf.NODE_ENV !== 'development') return // Just for dev env purposes!
+        // This function can be called before tables are created! (we just ignore this)
+        const users = await keystone.lists.User.adapter.findAll()
+        if (!users.length) {
+            const initialData = require('./initialData')
+            for (let { listKey, items } of initialData) {
+                console.log(`🗿 createItems(${listKey}) -> ${items.length}`)
+                await createItems({
+                    keystone,
+                    listKey,
+                    items,
+                })
+            }
+        }
+    },
     ...prepareDefaultKeystoneConfig(conf),
 })
 
