@@ -553,7 +553,7 @@
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.title": "Отложить заявку до…",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.DeferDateInput.placeholder": "Выбрать дату",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.title": "Что произойдёт?",
-  "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.content": "По истечении даты автоматически сбросятся исполнитель и ответственный. Статус заявки станет «Открытая» и она появится вверху списка — так вы о ней не забудете.",
+  "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.content": "По истечении даты автоматически сбросятся исполнитель и ответственный. Статус заявки станет «Открыта» и она появится вверху списка — так вы о ней не забудете.",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.SaveButton.label": "Сохранить",
   "pages.condo.ticket.id.TicketDefer.CancelModal.title": "Оставить заявку в текущем статусе?",
   "pages.condo.ticket.id.TicketDefer.CancelModal.content": "Если вы хотите отложить заявку, обязательно выберите дату, до которой заявка будет отложена",
