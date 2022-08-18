@@ -5,7 +5,7 @@
  */
 const gql = require('graphql-tag')
 
-const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateGqlQueries } = require('@condo/keystone/codegeneration/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 

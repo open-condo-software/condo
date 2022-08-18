@@ -9,7 +9,7 @@ const {
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
-const { throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { throwIfError } = require('@condo/keystone/codegeneration/generate.test.utils')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')

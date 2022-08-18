@@ -7,7 +7,7 @@ const faker = require('faker')
 const path = require('path')
 const conf = require('@condo/config')
 const { UploadingFile } = require('@condo/keystone/test.utils')
-const { throwIfError, generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { throwIfError, generateGQLTestUtils } = require('@condo/keystone/codegeneration/generate.test.utils')
 
 const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')

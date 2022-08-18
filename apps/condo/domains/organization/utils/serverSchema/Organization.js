@@ -3,7 +3,7 @@ const { get } = require('lodash')
 
 const conf = require('@condo/config')
 const { getById } = require('@condo/keystone/schema')
-const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { execGqlWithoutAccess } = require('@condo/keystone/codegeneration/generate.server.utils')
 
 const { OrganizationEmployeeRole } = require('./index')
 const { Organization, OrganizationEmployee } = require('../../gql')

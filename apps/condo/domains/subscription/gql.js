@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateGqlQueries } = require('@condo/keystone/codegeneration/generate.gql')
 
 const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require('./schema/fields/SbbolOfferAcceptField')
 

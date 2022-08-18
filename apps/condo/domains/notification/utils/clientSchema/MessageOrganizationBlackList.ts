@@ -8,7 +8,7 @@ import {
     MessageOrganizationBlackListUpdateInput,
     QueryAllMessageOrganizationBlackListsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/keystone/codegeneration/generate.hooks'
 import { MessageOrganizationBlackList as MessageOrganizationBlackListGQL } from '@condo/domains/notification/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO

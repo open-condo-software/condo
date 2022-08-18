@@ -8,7 +8,7 @@ import {
     RemoteClientUpdateInput,
     QueryAllRemoteClientsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/keystone/codegeneration/generate.hooks'
 import { RemoteClient as RemoteClientGQL } from '@condo/domains/notification/gql'
 
 const {

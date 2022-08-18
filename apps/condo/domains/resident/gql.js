@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateGqlQueries } = require('@condo/keystone/codegeneration/generate.gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const gql = require('graphql-tag')

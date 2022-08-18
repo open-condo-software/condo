@@ -3,7 +3,7 @@
  */
 
 import { get, isUndefined } from 'lodash'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/keystone/codegeneration/generate.hooks'
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import {

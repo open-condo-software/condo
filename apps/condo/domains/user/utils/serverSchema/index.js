@@ -11,8 +11,8 @@ const faker = require('faker')
 const {
     SMS_CODE_LENGTH, STAFF,
 } = require('@condo/domains/user/constants/common')
-const { execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { execGqlWithoutAccess } = require('@condo/keystone/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/keystone/codegeneration/generate.server.utils')
 
 const { User: UserGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')

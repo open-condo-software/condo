@@ -10,7 +10,7 @@ import {
     OrganizationEmployeeUpdateInput,
     QueryAllOrganizationEmployeesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/keystone/codegeneration/generate.hooks'
 import { OrganizationEmployee as OrganizationEmployeeGQL } from '@condo/domains/organization/gql'
 
 function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: string, label: string } | undefined {

@@ -15,8 +15,8 @@ const {
     BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICES_FIELD,
 } = require('../constants/constants')
-const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateQuerySortBy } = require('@condo/keystone/codegeneration/generate.gql')
+const { generateQueryWhereInput } = require('@condo/keystone/codegeneration/generate.gql')
 const { GQLCustomSchema, find } = require('@condo/keystone/schema')
 
 
