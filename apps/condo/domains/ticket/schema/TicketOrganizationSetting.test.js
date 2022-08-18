@@ -1,19 +1,17 @@
-const { makeClientWithProperty } = require('../../property/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('../../user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
-    updateTestOrganizationEmployee,
-} = require('../../organization/utils/testSchema')
-const { createTestTicketOrganizationSetting } = require('../utils/testSchema')
+} = require('@condo/domains/organization/utils/testSchema')
+const { createTestTicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
 const { updateTestTicketOrganizationSetting, TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
+const { TICKET_DEFAULT_DEADLINE_FIELDS } = require('@condo/domains/ticket/constants/common')
 
 const EXPECTED_MIN_DEADLINE = 0
 const EXPECTED_MAX_DEADLINE = 45
@@ -237,7 +235,7 @@ describe('TicketOrganizationSetting', () => {
         })
     })
     describe('Validations', () => {
-        const cases = ['defaultDeadline', 'paidDeadline', 'emergencyDeadline', 'warrantyDeadline']
+        const cases = [...TICKET_DEFAULT_DEADLINE_FIELDS]
         test.each(cases)(`value of the %p field must be between values from ${EXPECTED_MIN_DEADLINE} to ${EXPECTED_MAX_DEADLINE} inclusive`, async (fieldPath) => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
