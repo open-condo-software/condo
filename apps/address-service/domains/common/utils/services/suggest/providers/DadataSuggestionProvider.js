@@ -153,7 +153,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
     /**
      * @returns {Promise<DadataObject[]>}
      */
-    async call ({ query, isServerSide = false, count = 20 }) {
+    async get ({ query, isServerSide = false, count = 20 }) {
         const result = await fetch(
             this.url,
             {
@@ -183,6 +183,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             const response = await result.json()
             return get(response, 'suggestions', [])
         } else {
+            //TODO(nas) need to log erroneous status
             return []
         }
     }
