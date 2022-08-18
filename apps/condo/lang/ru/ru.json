@@ -956,6 +956,7 @@
   "ticket.status.DECLINED.name": "Отменена",
   "ticket.status.COMPLETED.name": "Выполнена",
   "ticket.status.DEFERRED.name": "Отложена",
+  "ticket.status.DEFERRED.until.name": "Отложена до {deferredUntil}",
   "ticket.status.CLOSED.name": "Закрыта",
   "ticket.source.EMAIL.name": "Эл. почта (e-mail)",
   "ticket.source.MOBILE_APP.name": "ЛК приложение",
