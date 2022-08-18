@@ -19,7 +19,7 @@ import {
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 
 import {
     AnalyticsDataType,
@@ -63,6 +63,13 @@ export const getTicketPdfName = (intl, ticket) => {
 export const getTicketLabel = (intl, ticket) => {
     if (!ticket) {
         return
+    }
+
+    const ticketStatus = get(ticket, ['status', 'type'])
+
+    if (ticketStatus === DEFERRED_STATUS_TYPE) {
+        const deferredUntil = dayjs(get(ticket, ['deferredUntil'])).format('DD.MM.YYYY')
+        return `${intl.formatMessage({ id: 'ticket.status.DEFERRED.until.name' }, { deferredUntil })}`
     }
 
     return get(ticket, ['status', 'name'])

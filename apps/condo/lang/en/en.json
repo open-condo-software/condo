@@ -956,6 +956,7 @@
   "ticket.status.DECLINED.name": "Declined",
   "ticket.status.COMPLETED.name": "Completed",
   "ticket.status.DEFERRED.name": "Deferred",
+  "ticket.status.DEFERRED.until.name": "Deferred until {deferredUntil}",
   "ticket.status.CLOSED.name": "Closed",
   "ticket.source.EMAIL.name": "E-mail",
   "ticket.source.MOBILE_APP.name": "Mobile app",

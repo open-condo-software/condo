@@ -23,7 +23,8 @@ interface IStyledSelect {
 }
 
 const StyledSelect = styled(Select)<IStyledSelect>`
-  width: 100%;
+  min-width: 175px;
+  width: fit-content;
   font-weight: 700;
   border-radius: 8px;
   color: ${({ color }) => color};
