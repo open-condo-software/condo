@@ -4,13 +4,14 @@ import { colors } from '../constants/style'
 import get from 'lodash/get'
 
 type TooltipProps = DefaultTooltipProps & { textColor?: string }
+const MOUSE_ENTER_DELAY_IN_SECONDS = 0.15
 
 export const Tooltip: React.FC<TooltipProps> = (props) => {
     const overlayInnerStyle: React.CSSProperties = get(props, 'overlayInnerStyle', {})
     overlayInnerStyle.color = get(props, 'textColor', colors.black)
     const tooltipProps = {
         arrowPointAtCenter: true,
-        mouseEnterDelay: 0.15,
+        mouseEnterDelay: MOUSE_ENTER_DELAY_IN_SECONDS,
         color: colors.white,
         ...props,
         overlayInnerStyle,
