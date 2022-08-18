@@ -121,7 +121,7 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const handleRedirect = useCallback((message) => {
         if (!message.url) return null
         if (!message.url.startsWith(serverOrigin) && !message.url.startsWith('/')) return null
-        if (message.url.match(JAVASCRIPT_URL_XSS)) return null
+        if (decodeURI(message.url).match(JAVASCRIPT_URL_XSS)) return null
         return Router.push(message.url)
     }, [])
 

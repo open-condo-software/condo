@@ -45,7 +45,7 @@ export const SignInForm = (): React.ReactElement => {
     const [form] = Form.useForm()
     const router = useRouter()
     const { query: { next }  } = router
-    const redirectUrl = (next && !Array.isArray(next) && !next.match(JAVASCRIPT_URL_XSS)) ? next : '/'
+    const redirectUrl = (next && !Array.isArray(next) && !decodeURI(next).match(JAVASCRIPT_URL_XSS)) ? next : '/'
     const { refetch } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
