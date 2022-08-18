@@ -2,6 +2,7 @@ const {
     DadataSuggestionProvider,
     GoogleSuggestionProvider,
 } = require('@address-service/domains/common/utils/services/suggest/providers')
+const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 class SuggestionProviderDetector {
 
@@ -13,11 +14,13 @@ class SuggestionProviderDetector {
         /** @type {AbstractSuggestionProvider} */
         let suggestionProvider
         switch (geo) {
-            case 'dadata':
+            // In some cases, we need to force choose one of the providers.
+            // To achieve this, we give an ability to pass a particular provider name
+            case DADATA_PROVIDER:
             case 'ru':
                 suggestionProvider = new DadataSuggestionProvider()
                 break
-            case 'google':
+            case GOOGLE_PROVIDER:
             default:
                 suggestionProvider = new GoogleSuggestionProvider()
         }
