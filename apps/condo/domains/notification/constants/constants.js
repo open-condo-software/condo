@@ -74,16 +74,6 @@ const MESSAGE_TYPES = [
     STAFF_UPGRADE_APP_TYPE,
 ]
 
-/**
- * If some messages types has limited variety of transports, please set it here.
- * The rest of types must have templates for all transports or at least default template.
- */
-const MESSAGE_TYPES_TRANSPORTS = {
-    [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
-    [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: [EMAIL_TRANSPORT],
-    [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
-}
-
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
 //TODO: maybe we should gather all data about messages types in the single object
@@ -340,6 +330,37 @@ const MESSAGE_META = {
     },
 }
 
+const MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT = 'atLeastOneTransport'
+const MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS = 'allTransports'
+
+const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
+    strategy: MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    transports: [PUSH_TRANSPORT],
+}
+
+/**
+ * If some messages types has limited variety of transports, please set it here.
+ * The rest of types must have templates for all transports or at least default template.
+ */
+const MESSAGE_DELIVERY_OPTIONS = {
+    [REGISTER_NEW_USER_MESSAGE_TYPE]: {
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        transports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
+    },
+    [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        transports: [EMAIL_TRANSPORT],
+    },
+    [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: {
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        transports: [EMAIL_TRANSPORT],
+    },
+    [SHARE_TICKET_MESSAGE_TYPE]: {
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        transports: [EMAIL_TRANSPORT],
+    },
+}
+
 const MESSAGE_SENDING_STATUS = 'sending'
 const MESSAGE_RESENDING_STATUS = 'resending'
 const MESSAGE_PROCESSING_STATUS = 'processing'
@@ -393,6 +414,10 @@ module.exports = {
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     MESSAGE_TYPES,
     MESSAGE_META,
+    MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+    MESSAGE_DELIVERY_OPTIONS,
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
@@ -425,7 +450,6 @@ module.exports = {
     FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
-    MESSAGE_TYPES_TRANSPORTS,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
     METER_SUBMIT_READINGS_REMINDER_TYPE,
