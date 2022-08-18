@@ -23,6 +23,7 @@ const { TicketCommentsTime: TicketCommentsTimeGQL } = require('@condo/domains/ti
 const { UserTicketCommentReadTime: UserTicketCommentReadTimeGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ticket/gql')
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
+const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -61,6 +62,7 @@ const TicketCommentsTime = generateServerUtils(TicketCommentsTimeGQL)
 const UserTicketCommentReadTime = generateServerUtils(UserTicketCommentReadTimeGQL)
 const TicketPropertyHint = generateServerUtils(TicketPropertyHintGQL)
 const TicketPropertyHintProperty = generateServerUtils(TicketPropertyHintPropertyGQL)
+const TicketOrganizationSetting = generateServerUtils(TicketOrganizationSettingGQL)
 const TicketExportTask = generateServerUtils(TicketExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -182,6 +184,7 @@ module.exports = {
     UserTicketCommentReadTime,
     TicketPropertyHint,
     TicketPropertyHintProperty,
+    TicketOrganizationSetting,
     TicketExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

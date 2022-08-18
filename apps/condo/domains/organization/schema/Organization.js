@@ -18,6 +18,7 @@ const access = require('@condo/domains/organization/access/Organization')
 const userAccess = require('@condo/domains/user/access/User')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/serverSchema')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
@@ -146,6 +147,20 @@ const Organization = new GQLListSchema('Organization', {
         update: access.canManageOrganizations,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        afterChange: async ({ operation, updatedItem, context }) => {
+            if (operation === 'create') {
+                const newContext = await context.createContext({ skipAccessControl: true })
+                const { sender } = updatedItem
+
+                await TicketOrganizationSetting.create(newContext, {
+                    dv: 1,
+                    sender,
+                    organization: { connect: { id: updatedItem.id } },
+                })
+            }
+        },
     },
 })
 
