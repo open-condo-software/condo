@@ -4,8 +4,8 @@
 const { Ticket } = require('../utils/serverSchema')
 const { GQLCustomSchema } = require('@condo/keystone/schema')
 const access = require('@condo/domains/ticket/access/GetAllResidentTicketsService')
-const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateQuerySortBy } = require('@condo/keystone/codegeneration/generate.gql')
+const { generateQueryWhereInput } = require('@condo/keystone/codegeneration/generate.gql')
 const { get } = require('lodash')
 
 const fieldsObj = {

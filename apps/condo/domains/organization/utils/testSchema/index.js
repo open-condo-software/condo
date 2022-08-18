@@ -10,7 +10,7 @@ const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/comm
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/keystone/codegeneration/generate.test.utils')
 const {
     Organization: OrganizationGQL,
     OrganizationEmployee: OrganizationEmployeeGQL,

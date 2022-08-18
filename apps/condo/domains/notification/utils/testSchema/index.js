@@ -10,7 +10,7 @@ const get = require('lodash/get')
 
 const { getRandomString } = require('@condo/keystone/test.utils')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@condo/keystone/codegeneration/generate.test.utils')
 
 const {
     PUSH_TRANSPORT_TYPES,

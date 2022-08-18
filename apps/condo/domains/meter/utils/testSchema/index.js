@@ -5,7 +5,7 @@
  */
 
 const faker = require('faker')
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@condo/keystone/codegeneration/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')

@@ -8,7 +8,7 @@ import {
     BillingAccountUpdateInput,
     QueryAllBillingAccountsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/keystone/codegeneration/generate.hooks'
 import { BillingAccount as BillingAccountGQL } from '@condo/domains/billing/gql'
 
 const {
