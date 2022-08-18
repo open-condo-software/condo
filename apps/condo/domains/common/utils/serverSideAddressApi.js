@@ -32,6 +32,7 @@ async function getFakeAddressSuggestions (query, amount) {
     return suggestions
 }
 
+// TODO(nas)
 // TODO(DOMA-3250) Move to common solution after migrating to new suggestion service
 async function getRealAddressSuggestions (query, amount) {
     const result = await fetch(API_URL, {
