@@ -66,7 +66,7 @@ const B2CAppProperty = new GQLListSchema('B2CAppProperty', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadB2CAppProperties,
         create: access.canManageB2CAppProperties,

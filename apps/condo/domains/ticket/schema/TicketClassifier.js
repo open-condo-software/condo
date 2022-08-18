@@ -33,7 +33,7 @@ const TicketClassifier = new GQLListSchema('TicketClassifier', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketClassifiers,
         create: access.canManageTicketClassifiers,

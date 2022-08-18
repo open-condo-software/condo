@@ -28,7 +28,7 @@ const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
             template: 'meterReadingSource.*.name',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMeterReadingSources,
         create: access.canManageMeterReadingSources,

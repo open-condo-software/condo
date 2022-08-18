@@ -28,7 +28,6 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { manageResidentToTicketClientConnections } = require('../tasks')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const { RESIDENT_ORGANIZATION_FIELDS, RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
 
 const Resident = new GQLListSchema('Resident', {
@@ -191,7 +190,6 @@ const Resident = new GQLListSchema('Resident', {
         versioned(),
         tracked(),
         softDeleted(),
-        dvAndSender(),
         historical(),
     ],
     hooks: {

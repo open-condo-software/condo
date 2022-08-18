@@ -106,7 +106,7 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadRemoteClients,
         create: access.canManageRemoteClients,

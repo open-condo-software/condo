@@ -129,7 +129,7 @@ const Division = new GQLListSchema('Division', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadDivisions,
         create: access.canManageDivisions,

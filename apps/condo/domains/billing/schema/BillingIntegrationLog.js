@@ -46,7 +46,7 @@ const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted()],
     access: {
         read: access.canReadBillingIntegrationLogs,
         create: access.canManageBillingIntegrationLogs,

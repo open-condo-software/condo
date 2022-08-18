@@ -79,7 +79,7 @@ const OidcClient = new GQLListSchema('OidcClient', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadOidcClients,
         create: access.canManageOidcClients,

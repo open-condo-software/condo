@@ -24,7 +24,7 @@ const BillingIntegrationAccessRight = new GQLListSchema('BillingIntegrationAcces
 
         user: SERVICE_USER_FIELD,
     },
-    plugins: [uuided(), tracked(), dvAndSender(), historical(), versioned(), softDeleted()],
+    plugins: [uuided(), tracked(), historical(), versioned(), softDeleted()],
     access: {
         read: access.canReadBillingIntegrationAccessRights,
         create: access.canManageBillingIntegrationAccessRights,

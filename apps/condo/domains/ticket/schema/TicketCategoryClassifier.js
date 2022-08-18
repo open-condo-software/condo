@@ -19,7 +19,7 @@ const TicketCategoryClassifier = new GQLListSchema('TicketCategoryClassifier', {
             isRequired: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketCategoryClassifiers,
         create: access.canManageTicketCategoryClassifiers,

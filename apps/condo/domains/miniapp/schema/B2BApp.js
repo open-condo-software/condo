@@ -92,7 +92,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         },
         afterChange: logoMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadB2BApps,
         create: access.canManageB2BApps,

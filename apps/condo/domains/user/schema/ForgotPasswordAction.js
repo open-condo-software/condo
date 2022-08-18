@@ -41,7 +41,7 @@ const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
             isRequired: false,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadForgotPasswordAction,
         create: access.canManageForgotPasswordAction,

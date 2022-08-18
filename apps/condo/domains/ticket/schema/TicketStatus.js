@@ -71,7 +71,7 @@ const TicketStatus = new GQLListSchema('TicketStatus', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketStatuses,
         create: access.canManageTicketStatuses,

@@ -207,7 +207,7 @@ const Payment = new GQLListSchema('Payment', {
 
         importId: IMPORT_ID_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadPayments,
         create: access.canManagePayments,

@@ -94,7 +94,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadAcquiringIntegrations,
         create: access.canManageAcquiringIntegrations,

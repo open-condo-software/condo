@@ -350,7 +350,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMultiPayments,
         create: access.canManageMultiPayments,

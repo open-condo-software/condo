@@ -98,7 +98,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             await sendTicketCommentNotifications(requestData)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketComments,
         create: access.canManageTicketComments,

@@ -75,7 +75,7 @@ const MessageUserBlackList = new GQLListSchema('MessageUserBlackList', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMessageUserBlackLists,
         create: access.canManageMessageUserBlackLists,

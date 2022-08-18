@@ -101,7 +101,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), dvAndSender()],
+    plugins: [uuided(), versioned(), tracked()],
     access: {
         read: access.canReadTicketChanges,
         create: access.canManageTicketChanges,

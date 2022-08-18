@@ -46,7 +46,7 @@ const MessageOrganizationWhiteList = new GQLListSchema('MessageOrganizationWhite
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMessageOrganizationWhiteLists,
         create: access.canManageMessageOrganizationWhiteLists,

@@ -83,7 +83,7 @@ const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadServiceSubscriptionPayments,
         create: access.canManageServiceSubscriptionPayments,

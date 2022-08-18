@@ -19,7 +19,7 @@ const TicketProblemClassifier = new GQLListSchema('TicketProblemClassifier', {
             isRequired: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketProblemClassifiers,
         create: access.canManageTicketProblemClassifiers,

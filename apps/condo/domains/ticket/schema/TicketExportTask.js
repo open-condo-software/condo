@@ -123,7 +123,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             await setFileMetaAfterChange(args)
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketExportTasks,
         create: access.canManageTicketExportTasks,

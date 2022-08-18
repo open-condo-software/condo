@@ -32,7 +32,7 @@ const TicketFilterTemplate = new GQLListSchema('TicketFilterTemplate', {
 
         fields: TICKET_FILTER_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadTicketFilterTemplates,
         create: access.canManageTicketFilterTemplates,

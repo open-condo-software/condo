@@ -129,7 +129,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadOrganizationEmployees,
         create: access.canManageOrganizationEmployees,

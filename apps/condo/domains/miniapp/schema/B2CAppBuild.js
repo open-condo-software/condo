@@ -76,7 +76,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadB2CAppBuilds,
         create: access.canManageB2CAppBuilds,

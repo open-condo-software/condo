@@ -97,7 +97,7 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadAcquiringIntegrationContexts,
         create: access.canManageAcquiringIntegrationContexts,

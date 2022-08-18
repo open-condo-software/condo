@@ -18,7 +18,7 @@ const BillingMeterResource = new GQLListSchema('BillingMeterResource', {
             isRequired: true,
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadBillingMeterResources,
         create: access.canManageBillingMeterResources,

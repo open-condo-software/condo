@@ -24,7 +24,7 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
         },
 
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadB2CAppAccessRights,
         create: access.canManageB2CAppAccessRights,

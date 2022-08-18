@@ -30,7 +30,7 @@ const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate
 
         fields: METER_READING_FILTER_FIELD,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadMeterReadingFilterTemplates,
         create: access.canManageMeterReadingFilterTemplates,

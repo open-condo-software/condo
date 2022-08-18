@@ -31,7 +31,7 @@ const ContactRole = new GQLListSchema('ContactRole', {
             template: 'contact.role.*.name',
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadContactRoles,
         create: access.canManageContactRoles,

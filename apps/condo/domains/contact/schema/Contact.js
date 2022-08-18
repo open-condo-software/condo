@@ -135,7 +135,7 @@ const Contact = new GQLListSchema('Contact', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadContacts,
         create: access.canManageContacts,

@@ -68,7 +68,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
     hooks: {
         afterChange: logoMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), historical()],
     access: {
         read: access.canReadB2CApps,
         create: access.canManageB2CApps,

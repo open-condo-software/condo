@@ -76,7 +76,7 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
         },
 
     },
-    plugins: [uuided(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), softDeleted(), historical()],
     access: {
         read: access.canReadConfirmPhoneActions,
         create: access.canManageConfirmPhoneActions,
