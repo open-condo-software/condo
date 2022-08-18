@@ -16,7 +16,7 @@ const { getTranslations } = require('@condo/locales/loader')
 const {
     MESSAGE_TYPES,
     MESSAGE_TRANSPORTS,
-    MESSAGE_TYPES_TRANSPORTS,
+    MESSAGE_DELIVERY_OPTIONS,
     EMAIL_TRANSPORT,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
@@ -57,7 +57,7 @@ function templateFolder (locale, messageType) {
  * @returns {string[]}
  */
 function getPossibleTransports (messageType) {
-    return get(MESSAGE_TYPES_TRANSPORTS, messageType, MESSAGE_TRANSPORTS)
+    return get(MESSAGE_DELIVERY_OPTIONS, messageType, MESSAGE_TRANSPORTS)
 }
 
 /**
