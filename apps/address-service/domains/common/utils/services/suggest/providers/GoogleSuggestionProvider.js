@@ -1,10 +1,16 @@
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/AbstractSuggestionProvider')
+const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {
+
+    getProviderContextName () {
+        return GOOGLE_PROVIDER
+    }
+
     /**
      * @returns {Promise<Array>}
      */
-    async get ({ query, isServerSide = false, count = 20 }) {
+    async get ({ query, context = null, count = 20 }) {
         return Promise.resolve(['google suggestion 1', 'google suggestion 2'])
     }
 
