@@ -1,5 +1,5 @@
 const { GQLCustomSchema, getById } = require('@condo/keystone/schema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { REGISTER_NEW_USER_MESSAGE_TYPE, WELCOME_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -156,10 +156,16 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                 }
                 const sendChannels = [{
                     to: { phone: userData.phone },
+                    type: REGISTER_NEW_USER_MESSAGE_TYPE,
                 }]
                 if (!isEmpty(userData.email)) {
                     sendChannels.push({
                         to: { email: userData.email },
+                        type: REGISTER_NEW_USER_MESSAGE_TYPE,
+                    })
+                    sendChannels.push({
+                        to: { email: userData.email },
+                        type: WELCOME_NEW_USER_MESSAGE_TYPE,
                     })
                 }
                 // TODO(Dimitreee): use locale from .env
@@ -173,7 +179,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                             },
                             ...channel.to,
                         },
-                        type: REGISTER_NEW_USER_MESSAGE_TYPE,
+                        type: channel.type,
                         meta: {
                             userPassword: userData.password,
                             userPhone: userData.phone,
