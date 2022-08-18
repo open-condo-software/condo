@@ -23,7 +23,7 @@ const AboutMiniAppPage = () => {
 
     const pageContent = useMemo(() => {
         if (Array.isArray(id) || Array.isArray(type) || !APP_TYPES.includes(type)) return <Error statusCode={404}/>
-        if (!id || id.match(JAVASCRIPT_URL_XSS)) return <Error statusCode={404}/>
+        if (!id || decodeURI(id).match(JAVASCRIPT_URL_XSS)) return <Error statusCode={404}/>
         if (type === BILLING_APP_TYPE) return <AboutBillingAppPage id={id}/>
         if (type === B2B_APP_TYPE) return <AboutB2BAppPage id={id}/>
         return <AboutAcquiringAppPage id={id}/>

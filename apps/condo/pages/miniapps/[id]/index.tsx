@@ -24,7 +24,7 @@ const MiniAppIndexPage = () => {
 
     const pageContent = useMemo(() => {
         if (Array.isArray(id) || Array.isArray(type) || !APP_TYPES.includes(type)) return <Error statusCode={404}/>
-        if (!id || id.match(JAVASCRIPT_URL_XSS)) return <Error statusCode={404}/>
+        if (!id || decodeURI(id).match(JAVASCRIPT_URL_XSS)) return <Error statusCode={404}/>
         if (type === BILLING_APP_TYPE) return <IndexBillingAppPage id={id}/>
         if (type === B2B_APP_TYPE) return <IndexB2BAppPage id={id}/>
         return <IndexAcquiringAppPage id={id}/>
