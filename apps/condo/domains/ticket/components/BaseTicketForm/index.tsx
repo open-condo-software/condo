@@ -102,6 +102,7 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
     const TicketDeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
+    const TicketDeferredDeadlineLabel = intl.formatMessage({ id: 'TicketDeferredDeadline' })
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const WarrantyLabel = intl.formatMessage({ id: 'Warranty' })
@@ -202,14 +203,23 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            {
-                                initialValues.statusType === TicketStatusTypeType.Deferred
-                                    ? <TicketDeferredDateField />
-                                    : <TicketDeadlineField initialValues={initialValues} />
-                            }
+                            <TicketDeadlineField initialValues={initialValues} />
                         </Col>
                     </Row>
                 </Col>
+                {
+                    initialValues.statusType === TicketStatusTypeType.Deferred &&
+                    <Col span={deadlineColSpan}>
+                        <Row gutter={SMALL_VERTICAL_GUTTER}>
+                            <Col span={24}>
+                                <Typography.Title level={3}>{TicketDeferredDeadlineLabel}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <TicketDeferredDateField />
+                            </Col>
+                        </Row>
+                    </Col>
+                }
             </Row>
         </Col>
     )
