@@ -86,13 +86,14 @@ async function getOrCreateContactByClientData (context, resolvedData, existingIt
 async function setSectionAndFloorFieldsByDataFromPropertyMap (context, resolvedData) {
     const unitName = get(resolvedData, 'unitName', null)
     const propertyId = get(resolvedData, 'property', null)
-
+    const unitType = get(resolvedData, 'unitType', null)
     const property = await Property.getOne(context, {
         id: propertyId,
     })
 
-    const { sectionName, floorName } = getSectionAndFloorByUnitName(property, unitName)
+    const { sectionName, floorName, sectionType } = getSectionAndFloorByUnitName(property, unitName, unitType)
     resolvedData.sectionName = sectionName
+    resolvedData.sectionType = sectionType
     resolvedData.floorName = floorName
 }
 
