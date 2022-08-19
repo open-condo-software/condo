@@ -154,9 +154,11 @@ const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow
             }
             return await taskServerUtils.update(context, task.id, data)
         })
-        .catch(reason => {
-            if (reason === TASK_CANCELLED_STATUS) {
+        .catch(error => {
+            if (error === TASK_CANCELLED_STATUS) {
                 logger.info({ message: `${taskServerUtils.gql.SINGULAR_FORM} with id = "${task.id}" has been cancelled. All operations for this task are interrupted`, task })
+            } else {
+                throw error
             }
         })
 )
