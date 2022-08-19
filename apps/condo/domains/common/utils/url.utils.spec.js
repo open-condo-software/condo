@@ -1,4 +1,10 @@
-import { getQueryParams, extractHostname, extractRootDomain, extractOrigin } from './url.utils'
+import {
+    getQueryParams,
+    extractHostname,
+    extractRootDomain,
+    extractOrigin,
+    isSafeUrl,
+} from './url.utils'
 
 describe('getQueryParams()', () => {
     test('with ? case', () => {
@@ -57,4 +63,30 @@ describe('extractOrigin', () => {
     expect(extractOrigin('http://localhost:3002/import')).toEqual('http://localhost:3002')
     expect(extractOrigin('https://mysite.com?param=1')).toEqual('https://mysite.com')
     expect(extractOrigin('asdhjjaks')).toEqual(null)
+})
+
+describe('isSafeUrl', () => {
+    describe('safe url cases', () => {
+        const safeCases = [
+            'https://github.com',
+            'https://v1.doma.ai/ticket',
+            '%2Fticket',
+            '/ticket',
+        ]
+        test.each(safeCases)('%p must be safe', (url) => {
+            expect(isSafeUrl(url)).toEqual(true)
+        })
+    })
+    describe('unsafe url cases', () => {
+        const unsafeCases = [
+            'javascript:alert(document.cookie)',
+            'Jav%09ascript:alert(document.cookie)',
+            '%09Jav%09ascript:alert(document.cookie)',
+            'Jav%20ascRipt:alert(document.cookie)',
+            '',
+        ]
+        test.each(unsafeCases)('%p must be unsafe', (url) => {
+            expect(isSafeUrl(url)).toEqual(false)
+        })
+    })
 })
