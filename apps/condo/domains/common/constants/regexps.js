@@ -3,7 +3,7 @@ const UPPER_CASE_ALPHANUMERIC_REGEXP = /^[A-Z0-9_]+$/
 const LETTERS_AND_NUMBERS = /[\p{L}\p{N}]/gu
 const PHONE = /^\+?\d*(\.\d*)?$/
 const PHONE_CLEAR_REGEXP = /[^+0-9]/g
-const JAVASCRIPT_URL_XSS = /^[u00-u1F]*j[\s]*a[\s]*v[\s]*a[\s]*s[\s]*c[\s]*r[\s]*i[\s]*p[\s]*t[\s]*:/i
+const JAVASCRIPT_URL_XSS = /[u00-u1F]*j[\s]*a[\s]*v[\s]*a[\s]*s[\s]*c[\s]*r[\s]*i[\s]*p[\s]*t[\s]*:/i
 const QUERY_SPLIT_REGEX = /[\s.,]+/gm
 
 module.exports = {
