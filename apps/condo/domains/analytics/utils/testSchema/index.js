@@ -24,6 +24,8 @@ async function createTestExternalReport (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        type: 'metabase',
+        title: faker.datatype.string(),
         ...extraAttrs,
     }
     const obj = await ExternalReport.create(client, attrs)

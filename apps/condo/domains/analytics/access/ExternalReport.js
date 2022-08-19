@@ -9,7 +9,7 @@ async function canReadExternalReports ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin) return {}
 
-    return false
+    return true
 }
 
 async function canManageExternalReports ({ authentication: { item: user }, originalInput, operation, itemId }) {

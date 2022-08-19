@@ -12,18 +12,16 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { ExternalReport, createTestExternalReport, updateTestExternalReport } = require('@condo/domains/analytics/utils/testSchema')
+const faker = require('faker')
 
 describe('ExternalReport', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 1) prepare data
                 const admin = await makeLoggedInAdminClient()
 
-                // 2) action
                 const [obj, attrs] = await createTestExternalReport(admin)
 
-                // 3) check
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -34,37 +32,23 @@ describe('ExternalReport', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
-                // TODO(codegen): write others fields here! provide as match fields as you can here!
+                expect(obj.title).toBeDefined()
+                expect(obj.description).toBeDefined()
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
-                const client = await makeClientWithSupportUser()  // TODO(codegen): create SUPPORT client!
+            test('user can\'t', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [obj, attrs] = await createTestExternalReport(client)  // TODO(codegen): write 'support: create ExternalReport' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('user can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-
-                const [obj, attrs] = await createTestExternalReport(client)  // TODO(codegen): write 'user: create ExternalReport' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestExternalReport(client)
+                })
             })
 
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestExternalReport(client)  // TODO(codegen): write 'anonymous: create ExternalReport' test
+                    await createTestExternalReport(client)
                 })
             })
         })
@@ -74,38 +58,28 @@ describe('ExternalReport', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestExternalReport(admin)
 
-                const [obj, attrs] = await updateTestExternalReport(admin, objCreated.id)
+                const updatedTitle = faker.datatype.string()
+
+                const [obj, attrs] = await updateTestExternalReport(admin, objCreated.id, {
+                    title: updatedTitle,
+                })
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(2)
+                expect(obj.title).toEqual(updatedTitle)
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
+            test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestExternalReport(admin)
 
-                const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
-                const [obj, attrs] = await updateTestExternalReport(client, objCreated.id)  // TODO(codegen): write 'support: update ExternalReport' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestExternalReport(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const [obj, attrs] = await updateTestExternalReport(client, objCreated.id)  // TODO(codegen): write 'user: update ExternalReport' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestExternalReport(client, objCreated.id, {
+                        title: faker.datatype.string(),
+                    })
+                })
             })
 
             test('anonymous can\'t', async () => {
@@ -114,7 +88,9 @@ describe('ExternalReport', () => {
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestExternalReport(client, objCreated.id)  // TODO(codegen): write 'anonymous: update ExternalReport' test
+                    await updateTestExternalReport(client, objCreated.id, {
+                        title: faker.datatype.string(),
+                    })
                 })
             })
         })
@@ -125,7 +101,7 @@ describe('ExternalReport', () => {
                 const [objCreated] = await createTestExternalReport(admin)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await ExternalReport.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete ExternalReport' test
+                    await ExternalReport.delete(admin, objCreated.id)
                 })
             })
 
@@ -133,19 +109,9 @@ describe('ExternalReport', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestExternalReport(admin)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await ExternalReport.delete(client, objCreated.id)  // TODO(codegen): write 'user: delete ExternalReport' test
-                })
-            })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestExternalReport(admin)
-
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await ExternalReport.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete ExternalReport' test
+                    await ExternalReport.delete(client, objCreated.id)
                 })
             })
         })
@@ -161,7 +127,12 @@ describe('ExternalReport', () => {
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: obj.id,
-                        // TODO(codegen): write fields which important to ADMIN access check
+                        iframeUrl: obj.iframeUrl,
+                        type: obj.type,
+                        title: obj.title,
+                        description: obj.description,
+                        meta: obj.meta,
+                        organization: obj.organization,
                     }),
                 ]))
             })
@@ -170,17 +141,20 @@ describe('ExternalReport', () => {
                 const admin = await makeLoggedInAdminClient()
                 const [obj, attrs] = await createTestExternalReport(admin)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const objs = await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
-                expect(objs).toHaveLength(1)
+                expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs[0]).toMatchObject({
                     id: obj.id,
-                    // TODO(codegen): write fields which important to USER access check
+                    iframeUrl: obj.iframeUrl,
+                    type: obj.type,
+                    title: obj.title,
+                    description: obj.description,
+                    meta: obj.meta,
+                    organization: obj.organization,
                 })
             })
-
-            // TODO(codegen): write test for user1 doesn't have access to user2 data if it's applicable
 
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -188,19 +162,9 @@ describe('ExternalReport', () => {
 
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read ExternalReport' test
+                    await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })
-    })
-
-    describe('Validation tests', () => {
-        test('Should have correct dv field (=== 1)', async () => {
-            // TODO(codegen): check it!
-        })
-    })
-
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
     })
 })
