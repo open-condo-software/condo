@@ -9,6 +9,7 @@ const access = require('@condo/keystone/access')
 const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
 const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
+const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
 
 const keystone = new Keystone({
     onConnect: async () => {
@@ -43,6 +44,7 @@ const authStrategy = keystone.createAuthStrategy({
 module.exports = {
     keystone,
     apps: [
+        new OIDCKeystoneApp(),
         new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
         new AdminUIApp({
             adminPath: '/admin',
