@@ -1,7 +1,7 @@
 const conf = require('@condo/config')
 const express = require('express')
 const { generators, Issuer } = require('openid-client')
-const { isObject } = require('lodash')
+const { get, isObject } = require('lodash')
 const { createOrUpdateUser } = require('@address-service/domains/common/utils/serverSchema/createOrUpdateUser')
 
 const CONDO_ACCESS_TOKEN_KEY = 'condoAccessToken'
@@ -85,6 +85,10 @@ class OIDCKeystoneApp {
 
                 const { accessToken, userInfo } = await helper.completeAuth(req, checks)
                 console.log(userInfo)
+
+                if (!userInfo.isAdmin && !userInfo.isSupport) {
+                    return res.status(404).send(`ERROR: "${get(userInfo, 'name', 'unknown name')}" is neither admin nor support user`)
+                }
 
                 const user = await createOrUpdateUser(keystone, userInfo)
                 await keystone._sessionManager.startAuthedSession(req, {
