@@ -23,7 +23,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { Loader } from '@condo/domains/common/components/Loader'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import getConfig from 'next/config'
-import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 type HandlerType = (message: Record<string, unknown>) => void
 
@@ -121,7 +121,8 @@ export const IFrame: React.FC<IFrameProps> = (props) => {
     const handleRedirect = useCallback((message) => {
         if (!message.url) return null
         if (!message.url.startsWith(serverOrigin) && !message.url.startsWith('/')) return null
-        if (decodeURI(message.url).match(JAVASCRIPT_URL_XSS)) return null
+        if (!isSafeUrl(message.url)) return null
+
         return Router.push(message.url)
     }, [])
 

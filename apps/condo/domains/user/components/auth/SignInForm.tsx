@@ -12,7 +12,7 @@ import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
 import { useMutation } from '@condo/next/apollo'
 import { useAuth } from '@condo/next/auth'
 import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { JAVASCRIPT_URL_XSS } from '@condo/domains/common/constants/regexps'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { colors } from '@condo/domains/common/constants/style'
 import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
@@ -45,7 +45,7 @@ export const SignInForm = (): React.ReactElement => {
     const [form] = Form.useForm()
     const router = useRouter()
     const { query: { next }  } = router
-    const redirectUrl = (next && !Array.isArray(next) && !decodeURI(next).match(JAVASCRIPT_URL_XSS)) ? next : '/'
+    const redirectUrl = (next && !Array.isArray(next) && isSafeUrl(next)) ? next : '/'
     const { refetch } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
     const [signinByPhoneAndPassword] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
