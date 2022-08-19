@@ -28,14 +28,14 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeNull()
+            expect(message).not.toBeUndefined()
             expect(lastDt).toEqual(receipt.createdAt)
             expect(message.organization.id).toEqual(resident.organization.id)
         })
@@ -48,14 +48,14 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeNull()
+            expect(message).not.toBeUndefined()
             expect(lastDt).toEqual(receipt.createdAt)
             expect(message.organization.id).toEqual(resident.organization.id)
         })
@@ -66,14 +66,14 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
                 uniqKey: notificationKey,
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeNull()
+            expect(message).not.toBeUndefined()
         })
 
         it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay < 0', async () => {
@@ -82,14 +82,14 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
                 uniqKey: notificationKey,
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeNull()
+            expect(message).not.toBeUndefined()
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
@@ -100,7 +100,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
@@ -117,7 +117,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] })
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
@@ -130,15 +130,16 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
         it('sends nothing to deleted resident', async () => {
             const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            const resident1 = await Resident.softDelete(admin, resident.id)
 
-            await Resident.softDelete(admin, resident.id)
+            expect(resident1.deletedAt).not.toBeNull()
 
             let lastDt
             const setLastDt = (dt) => lastDt = dt
 
             await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
 
-            const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
             const messageWhere = {
                 type: BILLING_RECEIPT_ADDED_TYPE,
                 uniqKey: notificationKey,
