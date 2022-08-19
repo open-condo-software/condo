@@ -3,7 +3,6 @@ const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
-
 const conf = require('@condo/config')
 const access = require('@condo/keystone/access')
 const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
@@ -50,6 +49,7 @@ module.exports = {
             adminPath: '/admin',
             isAccessAllowed: access.userIsAdmin,
             authStrategy,
+            hooks: require.resolve('@app/address-service/admin-ui'),
         }),
         new SuggestionKeystoneApp(),
     ],
