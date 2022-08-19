@@ -610,7 +610,7 @@ async function updateTestTicketPropertyHintProperty (client, id, extraAttrs = {}
 
 async function createTestTicketOrganizationSetting (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization) throw new Error('no organization')
+    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
