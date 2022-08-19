@@ -25,14 +25,14 @@ const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema'
 const { getLocalized } = require('@condo/locales/loader')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
-const CHUNK_SIZE = 50
+const CHUNK_SIZE = 20
 
 const logger = pino({
     name: 'send_billing_receipt_added_notifications',
     enabled: falsey(process.env.DISABLE_LOGGING),
 })
 
-const makeMessageKey = (period, accountId, categoryId, residentId) => `${period}:${accountId}:${categoryId}:${residentId}`
+const makeMessageKey = (period, accountNumber, categoryId, residentId) => `${period}:${accountNumber}:${categoryId}:${residentId}`
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
     // TODO (DOMA-3581) debt value population is disabled until user will be able to manage push notifications
@@ -52,13 +52,15 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country')
     const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
-    const notificationKey = makeMessageKey(receipt.period, receipt.account.id, receipt.category.id, resident.id)
-    const toPay = parseFloat(receipt.toPay) || null
-    const toPayCharge = parseFloat(get(receipt, 'toPayDetails.charge')) || null
+    const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+    const toPayValue = parseFloat(receipt.toPay)
+    const toPay = isNaN(toPayValue) ? null : toPayValue
+    const toPayChargeValue = parseFloat(get(receipt, 'toPayDetails.charge'))
+    const toPayCharge = isNaN(toPayChargeValue) ? null : toPayChargeValue
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
     const currencyCode = get(receipt, 'context.integration.currencyCode') || DEFAULT_CURRENCY_CODE
 
-    if (isNull(toPay)) return 0
+    if (isNull(toPay) || isNull(toPayCharge)) return 0
 
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
     const data = {
@@ -66,7 +68,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
         userId: resident.user.id,
         url: `${conf.SERVER_URL}/billing/receipts/${receipt.id}`,
         billingReceiptId: receipt.id,
-        billingAccountId: receipt.account.id,
+        billingAccountNumber: receipt.account.number,
         billingPropertyId: receipt.property.id,
         period: receipt.period,
         category,
@@ -121,18 +123,29 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
         skip += receipts.length
 
         const contextIds = uniq(receipts.map(receipt => get(receipt, 'context.id')))
-        const accountIds = uniq(receipts.map(receipt => get(receipt, 'account.id')))
+        const accountsData = receipts.map(receipt => ({
+            accountNumber: get(receipt, 'account.number'),
+            resident: {
+                unitType: get(receipt, 'account.unitType'),
+                unitName: get(receipt, 'account.unitName'),
+                deletedAt: null,
+            },
+        }))
         const serviceConsumerWhere = {
-            billingAccount: { id_in: accountIds, deletedAt: null },
-            billingIntegrationContext: { id_in: contextIds, deletedAt: null },
-            deletedAt: null,
-            resident: { deletedAt: null },
+            AND: [
+                {
+                    billingIntegrationContext: { id_in: contextIds, deletedAt: null },
+                    deletedAt: null,
+                },
+                { OR: accountsData },
+            ],
         }
         const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumerWhere })
-        const consumersByAccountId = groupBy(serviceConsumers, (item) => get(item, 'billingAccount.id'))
+        const consumersByAccountKey = groupBy(serviceConsumers, (item) => `${get(item, 'accountNumber')}:${get(item, 'resident.unitType')}:${get(item, 'resident.unitName')}`)
 
         for (const receipt of receipts) {
-            const consumers = consumersByAccountId[receipt.account.id]
+            const receiptAccountKey = `${get(receipt, 'account.number')}:${get(receipt, 'account.unitType')}:${get(receipt, 'account.unitName')}`
+            const consumers = consumersByAccountKey[receiptAccountKey]
 
             // We have no ServiceConsumer records for this receipt
             if (isEmpty(consumers)) continue
@@ -143,7 +156,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 const resident = get(consumer, 'resident')
 
                 // ServiceConsumer has no connection to Resident
-                if (!resident) continue
+                if (!resident || resident.deletedAt) continue
 
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
@@ -157,6 +170,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
         // Store receipt.createdAt as lastDt in order to continue from this point on next execution
         if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
+
+        logger.info({ message: `Processed ${skip} receipts of ${receiptsCount}.` })
     }
     logger.info({ message: 'Notifications sent:', successCnt, attempts: receiptsCount })
 }
