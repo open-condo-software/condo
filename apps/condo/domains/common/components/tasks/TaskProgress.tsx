@@ -167,7 +167,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
         } else {
             removeTaskFromUI()
         }
-    }, [record, storage, removeTaskFromUI, deleteTaskFromContext])
+    }, [record, removeTaskFromUI])
 
     useEffect(() => {
         if (record?.status === TASK_COMPLETED_STATUS) {
