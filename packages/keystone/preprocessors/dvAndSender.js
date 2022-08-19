@@ -3,6 +3,7 @@ const { Integer } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { composeNonResolveInputHook, composeResolveInputHook } = require('@condo/keystone/preprocessors/utils/dvAndSender.helper')
 const { newResolveInput, newValidateInput } = require('@condo/keystone/preprocessors/utils/dvAndSender.helper')
+const get = require('lodash/get')
 
 const dvField = {
     dv: {
@@ -35,15 +36,18 @@ const dvAndSenderPreprocessor = (schemaType, name, schema) => {
     if (schemaType !== GQL_LIST_SCHEMA_TYPE) {
         return schema
     } else {
-        if (schema.hasOwnProperty('hooks')) {
-            const originalResolveInput = schema.hooks.resolveInput
+        if (schema.hasOwnProperty('fields')) {
+            const originalResolveInput = get(schema, 'hooks.resolveInput')
             const transformedResolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
-            const originalValidateInput = schema.hooks.validateInput
+            const originalValidateInput = get(schema, 'hooks.validateInput')
             const transformedValidateInput = composeNonResolveInputHook(originalValidateInput, newValidateInput)
             return {
                 ...schema,
-                ...dvField,
-                ...senderField,
+                fields: {
+                    ...schema.fields,
+                    ...dvField,
+                    ...senderField,
+                },
                 ...transformedResolveInput,
                 ...transformedValidateInput,
             }
