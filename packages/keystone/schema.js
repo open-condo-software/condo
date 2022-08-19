@@ -44,12 +44,14 @@ class GQLListSchema {
     }
 
     _register (globalPreprocessors = [], { addSchema }) {
-        if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
+        if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered #1`)
         SCHEMAS.set(this.name, this)
-        const plugins = this.schema.plugins || []
-        if (plugins.length) this.schema = applyPlugins(this.schema, plugins, { schemaName: this.name, addSchema })
-        this.schema.plugins = undefined
-        this.registeredSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        if (this.registeredSchema) throw new Error(`Schema ${this.name} is already registered #2`)
+        let transformed = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        const plugins = transformed.plugins || []
+        if (plugins.length) transformed = applyPlugins(transformed, plugins, { schemaName: this.name, addSchema })
+        transformed.plugins = undefined
+        this.registeredSchema = transformed
     }
 
     _on (eventName, listener) {
@@ -90,12 +92,14 @@ class GQLCustomSchema {
     }
 
     _register (globalPreprocessors = [], { addSchema }) {
-        if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered`)
+        if (SCHEMAS.has(this.name)) throw new Error(`Schema ${this.name} is already registered #1`)
         SCHEMAS.set(this.name, this)
-        const plugins = this.schema.plugins || []
-        if (plugins.length) this.schema = applyPlugins(this.schema, plugins, { schemaName: this.name, addSchema })
-        this.schema.plugins = undefined
-        this.registeredSchema = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        if (this.registeredSchema) throw new Error(`Schema ${this.name} is already registered #2`)
+        let transformed = transformByPreprocessors(globalPreprocessors, this._type, this.name, this.schema)
+        const plugins = transformed.plugins || []
+        if (plugins.length) transformed = applyPlugins(transformed, plugins, { schemaName: this.name, addSchema })
+        transformed.plugins = undefined
+        this.registeredSchema = transformed
     }
 
     _on (eventName, listener) {
