@@ -1,5 +1,6 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import { useFeature, useGrowthBook } from '@growthbook/growthbook-react'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Col, Row, Typography } from 'antd'
@@ -129,6 +130,22 @@ export const TicketsPageContent = ({
         },
     }), [tooltipData, filters, tickets, total])
 
+    const myFeature = useFeature('test-feature').on
+    const growthbook = useGrowthBook()
+
+    const { organization } = useOrganization()
+    useEffect(() => {
+        if (organization) {
+            growthbook.setAttributes({
+                organization: organization.id,
+            })
+        }
+    }, [growthbook, organization])
+
+    if (myFeature) {
+        console.log('enabled')
+    }
+
     return (
         <>
             <Head>
@@ -148,101 +165,105 @@ export const TicketsPageContent = ({
                                 createLabel={CreateTicket}/>
                             : (
                                 <Row gutter={ROW_GUTTER} align='middle' justify='center'>
-                                    <Col span={24}>
-                                        <TableFiltersContainer>
-                                            <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col flex='auto'>
-                                                    <Row
-                                                        gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
-                                                        align='middle'
-                                                        justify='start'
-                                                    >
-                                                        <Col xs={24} md={8}>
-                                                            <Input
-                                                                placeholder={SearchPlaceholder}
-                                                                onChange={(e) => {
-                                                                    handleSearchChange(e.target.value)
-                                                                }}
-                                                                value={search}
-                                                                allowClear={true}
-                                                            />
+                                    {
+                                        myFeature && (
+                                            <Col span={24}>
+                                                <TableFiltersContainer>
+                                                    <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
+                                                        <Col flex='auto'>
+                                                            <Row
+                                                                gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
+                                                                align='middle'
+                                                                justify='start'
+                                                            >
+                                                                <Col xs={24} md={8}>
+                                                                    <Input
+                                                                        placeholder={SearchPlaceholder}
+                                                                        onChange={(e) => {
+                                                                            handleSearchChange(e.target.value)
+                                                                        }}
+                                                                        value={search}
+                                                                        allowClear={true}
+                                                                    />
+                                                                </Col>
+                                                                <Col xs={24} md={16}>
+                                                                    <Row gutter={[8, 16]}>
+                                                                        <Col>
+                                                                            <Checkbox
+                                                                                onChange={handleEmergencyChange}
+                                                                                checked={emergency}
+                                                                                style={CHECKBOX_STYLE}
+                                                                                eventName='TicketFilterCheckboxEmergency'
+                                                                                data-cy='ticket__filter-isEmergency'
+                                                                            >
+                                                                                {EmergenciesLabel}
+                                                                            </Checkbox>
+                                                                        </Col>
+                                                                        <Col>
+                                                                            <Checkbox
+                                                                                onChange={handlePaidChange}
+                                                                                checked={paid}
+                                                                                style={CHECKBOX_STYLE}
+                                                                                eventName='TicketFilterCheckboxPaid'
+                                                                                data-cy='ticket__filter-isPaid'
+                                                                            >
+                                                                                {PaidLabel}
+                                                                            </Checkbox>
+                                                                        </Col>
+                                                                        <Col>
+                                                                            <Checkbox
+                                                                                onChange={handleWarrantyChange}
+                                                                                checked={warranty}
+                                                                                style={CHECKBOX_STYLE}
+                                                                                eventName='TicketFilterCheckboxWarranty'
+                                                                                data-cy='ticket__filter-isWarranty'
+                                                                            >
+                                                                                {WarrantiesLabel}
+                                                                            </Checkbox>
+                                                                        </Col>
+                                                                        <Col>
+                                                                            <Checkbox
+                                                                                onChange={handleReturnedChange}
+                                                                                checked={returned}
+                                                                                style={CHECKBOX_STYLE}
+                                                                                eventName='TicketFilterCheckboxReturned'
+                                                                                data-cy='ticket__filter-isReturned'
+                                                                            >
+                                                                                {ReturnedLabel}
+                                                                            </Checkbox>
+                                                                        </Col>
+                                                                    </Row>
+                                                                </Col>
+                                                            </Row>
                                                         </Col>
-                                                        <Col xs={24} md={16}>
-                                                            <Row gutter={[8, 16]}>
+                                                        <Col>
+                                                            <Row justify='end' align='middle'>
+                                                                {
+                                                                    appliedFiltersCount > 0 ? (
+                                                                        <Col>
+                                                                            <ResetFiltersModalButton/>
+                                                                        </Col>
+                                                                    ) : null
+                                                                }
                                                                 <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleEmergencyChange}
-                                                                        checked={emergency}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxEmergency'
-                                                                        data-cy='ticket__filter-isEmergency'
+                                                                    <Button
+                                                                        secondary
+                                                                        type='sberPrimary'
+                                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                                        data-cy='ticket__filters-button'
                                                                     >
-                                                                        {EmergenciesLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handlePaidChange}
-                                                                        checked={paid}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxPaid'
-                                                                        data-cy='ticket__filter-isPaid'
-                                                                    >
-                                                                        {PaidLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleWarrantyChange}
-                                                                        checked={warranty}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxWarranty'
-                                                                        data-cy='ticket__filter-isWarranty'
-                                                                    >
-                                                                        {WarrantiesLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleReturnedChange}
-                                                                        checked={returned}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxReturned'
-                                                                        data-cy='ticket__filter-isReturned'
-                                                                    >
-                                                                        {ReturnedLabel}
-                                                                    </Checkbox>
+                                                                        <FilterFilled/>
+                                                                        {FiltersButtonLabel}
+                                                                        {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
+                                                                    </Button>
                                                                 </Col>
                                                             </Row>
                                                         </Col>
                                                     </Row>
-                                                </Col>
-                                                <Col>
-                                                    <Row justify='end' align='middle'>
-                                                        {
-                                                            appliedFiltersCount > 0 ? (
-                                                                <Col>
-                                                                    <ResetFiltersModalButton/>
-                                                                </Col>
-                                                            ) : null
-                                                        }
-                                                        <Col>
-                                                            <Button
-                                                                secondary
-                                                                type='sberPrimary'
-                                                                onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                                                data-cy='ticket__filters-button'
-                                                            >
-                                                                <FilterFilled/>
-                                                                {FiltersButtonLabel}
-                                                                {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
-                                                            </Button>
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                            </Row>
-                                        </TableFiltersContainer>
-                                    </Col>
+                                                </TableFiltersContainer>
+                                            </Col>
+                                        )
+                                    }
                                     <Col span={24}>
                                         <Table
                                             totalRows={total}
