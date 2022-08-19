@@ -20,7 +20,8 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
-import { Col, Row, Modal, Space, Typography } from 'antd'
+import { Col, Row, Space, Typography } from 'antd'
+
 import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -28,6 +29,7 @@ import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
+import { Modal } from '@condo/domains/common/components/Modal'
 
 const SORTABLE_PROPERTIES = ['advancedAt', 'amount']
 const PAYMENTS_DEFAULT_SORT_BY = ['advancedAt_DESC']

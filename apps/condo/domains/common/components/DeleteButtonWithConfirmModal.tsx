@@ -1,6 +1,6 @@
 import { Typography } from 'antd'
 import { Button, CustomButtonProps } from './Button'
-import Modal from 'antd/lib/modal/Modal'
+import { Modal } from '@condo/domains/common/components/Modal'
 import React, { useState } from 'react'
 import { DeleteFilled } from '@ant-design/icons'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'

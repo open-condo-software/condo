@@ -6,13 +6,13 @@ import {
     FormInstance,
     List,
     Menu,
-    Modal,
     ModalProps,
     Popconfirm,
     Skeleton,
     Typography,
     Space,
 } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
 import { DownOutlined, PlusOutlined } from '@ant-design/icons'
