@@ -12455,6 +12455,443 @@ export type ExportTicketAnalyticsToExcelTranslates = {
   categoryClassifier?: Maybe<Scalars['String']>;
 };
 
+/**  External report for analytics section that could be displayed with iframe  */
+export type ExternalReport = {
+  __typename?: 'ExternalReport';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ExternalReport List config, or
+   *  2. As an alias to the field set on 'labelField' in the ExternalReport List config, or
+   *  3. As an alias to a 'name' field on the ExternalReport List (if one exists), or
+   *  4. As an alias to the 'id' field on the ExternalReport List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Type of external report. Way to determine logic of url building process  */
+  type?: Maybe<ExternalReportTypeType>;
+  /**  Report card title text  */
+  title?: Maybe<Scalars['String']>;
+  /**  Report card description  */
+  description?: Maybe<Scalars['String']>;
+  /**  Meta data for building iframe link. For example, external id or custom options that required at specified type of report  */
+  meta?: Maybe<Scalars['JSON']>;
+  /**  Organization related report  */
+  organization?: Maybe<Organization>;
+  /**  Url for iframe   */
+  iframeUrl?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type ExternalReportCreateInput = {
+  type?: Maybe<ExternalReportTypeType>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type ExternalReportHistoryRecord = {
+  __typename?: 'ExternalReportHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the ExternalReportHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the ExternalReportHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the ExternalReportHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the ExternalReportHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  iframeUrl?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ExternalReportHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type ExternalReportHistoryRecordCreateInput = {
+  type?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  iframeUrl?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ExternalReportHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum ExternalReportHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type ExternalReportHistoryRecordUpdateInput = {
+  type?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<Scalars['String']>;
+  iframeUrl?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<ExternalReportHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type ExternalReportHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<ExternalReportHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ExternalReportHistoryRecordWhereInput>>>;
+  type?: Maybe<Scalars['String']>;
+  type_not?: Maybe<Scalars['String']>;
+  type_contains?: Maybe<Scalars['String']>;
+  type_not_contains?: Maybe<Scalars['String']>;
+  type_starts_with?: Maybe<Scalars['String']>;
+  type_not_starts_with?: Maybe<Scalars['String']>;
+  type_ends_with?: Maybe<Scalars['String']>;
+  type_not_ends_with?: Maybe<Scalars['String']>;
+  type_i?: Maybe<Scalars['String']>;
+  type_not_i?: Maybe<Scalars['String']>;
+  type_contains_i?: Maybe<Scalars['String']>;
+  type_not_contains_i?: Maybe<Scalars['String']>;
+  type_starts_with_i?: Maybe<Scalars['String']>;
+  type_not_starts_with_i?: Maybe<Scalars['String']>;
+  type_ends_with_i?: Maybe<Scalars['String']>;
+  type_not_ends_with_i?: Maybe<Scalars['String']>;
+  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  iframeUrl?: Maybe<Scalars['JSON']>;
+  iframeUrl_not?: Maybe<Scalars['JSON']>;
+  iframeUrl_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  iframeUrl_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<ExternalReportHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<ExternalReportHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<ExternalReportHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<ExternalReportHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type ExternalReportHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type ExternalReportHistoryRecordsCreateInput = {
+  data?: Maybe<ExternalReportHistoryRecordCreateInput>;
+};
+
+export type ExternalReportHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<ExternalReportHistoryRecordUpdateInput>;
+};
+
+export enum ExternalReportTypeType {
+  Metabase = 'metabase'
+}
+
+export type ExternalReportUpdateInput = {
+  type?: Maybe<ExternalReportTypeType>;
+  title?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type ExternalReportWhereInput = {
+  AND?: Maybe<Array<Maybe<ExternalReportWhereInput>>>;
+  OR?: Maybe<Array<Maybe<ExternalReportWhereInput>>>;
+  type?: Maybe<ExternalReportTypeType>;
+  type_not?: Maybe<ExternalReportTypeType>;
+  type_in?: Maybe<Array<Maybe<ExternalReportTypeType>>>;
+  type_not_in?: Maybe<Array<Maybe<ExternalReportTypeType>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type ExternalReportWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type ExternalReportsCreateInput = {
+  data?: Maybe<ExternalReportCreateInput>;
+};
+
+export type ExternalReportsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<ExternalReportUpdateInput>;
+};
+
 export type FeeDistributionField = {
   __typename?: 'FeeDistributionField';
   recipient: Scalars['String'];
@@ -19716,6 +20153,30 @@ export type Mutation = {
   deleteB2CAppProperty?: Maybe<B2CAppProperty>;
   /**  Delete multiple B2CAppProperty items by ID.  */
   deleteB2CAppProperties?: Maybe<Array<Maybe<B2CAppProperty>>>;
+  /**  Create a single ExternalReportHistoryRecord item.  */
+  createExternalReportHistoryRecord?: Maybe<ExternalReportHistoryRecord>;
+  /**  Create multiple ExternalReportHistoryRecord items.  */
+  createExternalReportHistoryRecords?: Maybe<Array<Maybe<ExternalReportHistoryRecord>>>;
+  /**  Update a single ExternalReportHistoryRecord item by ID.  */
+  updateExternalReportHistoryRecord?: Maybe<ExternalReportHistoryRecord>;
+  /**  Update multiple ExternalReportHistoryRecord items by ID.  */
+  updateExternalReportHistoryRecords?: Maybe<Array<Maybe<ExternalReportHistoryRecord>>>;
+  /**  Delete a single ExternalReportHistoryRecord item by ID.  */
+  deleteExternalReportHistoryRecord?: Maybe<ExternalReportHistoryRecord>;
+  /**  Delete multiple ExternalReportHistoryRecord items by ID.  */
+  deleteExternalReportHistoryRecords?: Maybe<Array<Maybe<ExternalReportHistoryRecord>>>;
+  /**  Create a single ExternalReport item.  */
+  createExternalReport?: Maybe<ExternalReport>;
+  /**  Create multiple ExternalReport items.  */
+  createExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
+  /**  Update a single ExternalReport item by ID.  */
+  updateExternalReport?: Maybe<ExternalReport>;
+  /**  Update multiple ExternalReport items by ID.  */
+  updateExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
+  /**  Delete a single ExternalReport item by ID.  */
+  deleteExternalReport?: Maybe<ExternalReport>;
+  /**  Delete multiple ExternalReport items by ID.  */
+  deleteExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
   /**
    * Registers new user and sends notification
    *
@@ -25587,6 +26048,68 @@ export type MutationDeleteB2CAppPropertyArgs = {
 
 
 export type MutationDeleteB2CAppPropertiesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateExternalReportHistoryRecordArgs = {
+  data?: Maybe<ExternalReportHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateExternalReportHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ExternalReportHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateExternalReportHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ExternalReportHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateExternalReportHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<ExternalReportHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteExternalReportHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteExternalReportHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateExternalReportArgs = {
+  data?: Maybe<ExternalReportCreateInput>;
+};
+
+
+export type MutationCreateExternalReportsArgs = {
+  data?: Maybe<Array<Maybe<ExternalReportsCreateInput>>>;
+};
+
+
+export type MutationUpdateExternalReportArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<ExternalReportUpdateInput>;
+};
+
+
+export type MutationUpdateExternalReportsArgs = {
+  data?: Maybe<Array<Maybe<ExternalReportsUpdateInput>>>;
+};
+
+
+export type MutationDeleteExternalReportArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteExternalReportsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -32106,6 +32629,22 @@ export type Query = {
   _allB2CAppPropertiesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2CAppProperty list.  */
   _B2CAppPropertiesMeta?: Maybe<_ListMeta>;
+  /**  Search for all ExternalReportHistoryRecord items which match the where clause.  */
+  allExternalReportHistoryRecords?: Maybe<Array<Maybe<ExternalReportHistoryRecord>>>;
+  /**  Search for the ExternalReportHistoryRecord item with the matching ID.  */
+  ExternalReportHistoryRecord?: Maybe<ExternalReportHistoryRecord>;
+  /**  Perform a meta-query on all ExternalReportHistoryRecord items which match the where clause.  */
+  _allExternalReportHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ExternalReportHistoryRecord list.  */
+  _ExternalReportHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all ExternalReport items which match the where clause.  */
+  allExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
+  /**  Search for the ExternalReport item with the matching ID.  */
+  ExternalReport?: Maybe<ExternalReport>;
+  /**  Perform a meta-query on all ExternalReport items which match the where clause.  */
+  _allExternalReportsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the ExternalReport list.  */
+  _ExternalReportsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
@@ -35707,6 +36246,56 @@ export type Query_AllB2CAppPropertiesMetaArgs = {
   where?: Maybe<B2CAppPropertyWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortB2CAppPropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllExternalReportHistoryRecordsArgs = {
+  where?: Maybe<ExternalReportHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortExternalReportHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryExternalReportHistoryRecordArgs = {
+  where: ExternalReportHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllExternalReportHistoryRecordsMetaArgs = {
+  where?: Maybe<ExternalReportHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortExternalReportHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllExternalReportsArgs = {
+  where?: Maybe<ExternalReportWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortExternalReportsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryExternalReportArgs = {
+  where: ExternalReportWhereUniqueInput;
+};
+
+
+export type Query_AllExternalReportsMetaArgs = {
+  where?: Maybe<ExternalReportWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortExternalReportsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -40262,6 +40851,58 @@ export enum SortDivisionsBy {
   PropertiesDesc = 'properties_DESC',
   ExecutorsAsc = 'executors_ASC',
   ExecutorsDesc = 'executors_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortExternalReportHistoryRecordsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortExternalReportsBy {
+  TypeAsc = 'type_ASC',
+  TypeDesc = 'type_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
