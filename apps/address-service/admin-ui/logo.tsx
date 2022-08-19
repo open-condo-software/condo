@@ -2,7 +2,7 @@ import React from 'react'
 
 function Logo (): JSX.Element {
     return (
-        <a href='/oidc/auth'>Login using Condo user</a>
+        <a href='/oidc/auth'>Sign-in using Condo user</a>
     )
 }
 
