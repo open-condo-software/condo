@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
-import { Menu, Avatar, Modal } from 'antd'
+import { Menu, Avatar } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { colors } from '@condo/domains/common/constants/style'
 import React, { ComponentProps, useCallback, useState } from 'react'
 import Router, { useRouter } from 'next/router'

@@ -1,5 +1,6 @@
 import React, { useState, Dispatch, SetStateAction } from 'react'
-import { Col, Modal, Row, Typography } from 'antd'
+import { Col, Row, Typography } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { useRouter } from 'next/router'
 import styled from '@emotion/styled'
 import { useIntl } from '@condo/next/intl'

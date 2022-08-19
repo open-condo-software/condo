@@ -15,7 +15,8 @@
  */
 
 import React, { ReactNode, useState } from 'react'
-import { Modal, Switch, Alert } from 'antd'
+import { Switch, Alert } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 
 import getConfig from 'next/config'
 import { useIntl } from '@condo/next/intl'
