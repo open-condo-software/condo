@@ -103,6 +103,7 @@ registerSchemas(keystone, [
     require('@condo/domains/subscription/schema'),
     require('@condo/domains/acquiring/schema'),
     require('@condo/domains/miniapp/schema'),
+    require('@condo/domains/analytics/schema'),
 ], [schemaDocPreprocessor, escapeSearchPreprocessor])
 
 if (!IS_BUILD_PHASE) {
