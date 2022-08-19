@@ -4,7 +4,7 @@ module.exports = [
         items: [
             {
                 data: {
-                    name: 'Admin',
+                    name: 'Local admin',
                     email: 'admin@example.com',
                     isAdmin: true,
                     isSupport: true,
@@ -18,7 +18,7 @@ module.exports = [
             },
             {
                 data: {
-                    name: 'JustUser',
+                    name: 'Local User',
                     email: 'user@example.com',
                     isAdmin: false,
                     isSupport: false,

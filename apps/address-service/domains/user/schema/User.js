@@ -30,16 +30,16 @@ const User = new GQLListSchema('User', {
             defaultValue: false,
         },
 
+        // `email` and `password` fields are not required because we allow to login only using condo users via oidc
+        // At the same time, we keep the ability to log in using default initial data for developers' purposes
         email: {
             schemaDoc: 'The user\'s email',
             type: Text,
-            isRequired: true,
         },
 
         password: {
             schemaDoc: 'The user\'s password',
             type: Password,
-            isRequired: true,
         },
 
     },
