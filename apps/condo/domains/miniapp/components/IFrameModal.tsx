@@ -1,5 +1,5 @@
 import React, { CSSProperties, useCallback, useMemo } from 'react'
-import { Modal } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { IFrame } from '@condo/domains/common/components/IFrame'
 import { CrossIcon }  from '@condo/domains/common/components/icons/CrossIcon'
 

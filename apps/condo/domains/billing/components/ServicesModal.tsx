@@ -1,5 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react'
-import { Modal, Typography, Space, Table, ConfigProvider } from 'antd'
+import { Typography, Space, Table, ConfigProvider } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
 import { BillingReceipt } from '@app/condo/schema'

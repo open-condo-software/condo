@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
 import { EN_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Collapse, Modal, notification, Row, Typography } from 'antd'
+import { Col, Collapse, notification, Row, Typography } from 'antd'
+import { Modal } from '@condo/domains/common/components/Modal'
 import React, { useState } from 'react'
 import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
