@@ -2,11 +2,12 @@ const express = require('express')
 const Provider = require('oidc-provider')
 
 const conf = require('@condo/config')
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
+const { getLogger } = require('@condo/keystone/logging')
 
 const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')
-const { logger } = require('./logger')
+
+const logger = getLogger('OIDCMiddleware')
 
 class OIDCMiddleware {
     prepareMiddleware ({ keystone }) {
@@ -101,14 +102,14 @@ class OIDCMiddleware {
                 const { prompt: { details } } = interactionDetails
                 if (details.missingOIDCScope) {
                     logger.warn({
-                        message: 'OIDCInteraction->addOIDCScope()',
+                        msg: 'OIDCInteraction addOIDCScope',
                         missingOIDCScope: details.missingOIDCScope,
                     })
                     grant.addOIDCScope(details.missingOIDCScope.join(' '))
                 }
                 if (details.missingOIDCClaims) {
                     logger.warn({
-                        message: 'OIDCInteraction->addOIDCClaims()',
+                        msg: 'OIDCInteraction addOIDCClaims',
                         missingOIDCClaims: details.missingOIDCClaims,
                     })
                     grant.addOIDCClaims(details.missingOIDCClaims)
@@ -117,7 +118,7 @@ class OIDCMiddleware {
                     // eslint-disable-next-line no-restricted-syntax
                     for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
                         logger.warn({
-                            message: 'OIDCInteraction->addResourceScope()',
+                            msg: 'OIDCInteraction addResourceScope ',
                             indicator, scopes,
                         })
 
@@ -125,16 +126,13 @@ class OIDCMiddleware {
                     }
                 }
 
-                logger.info({ interactionDetails, result })
+                logger.info({ msg: 'OIDCInteraction interactionFinished', data: interactionDetails, result })
                 await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false })
-            } catch (err) {
-                logger.error({
-                    message: 'ERROR<-OIDCInteraction',
-                    error: safeFormatError(err),
-                })
+            } catch (error) {
+                logger.error({ msg: 'OIDCInteraction error', error })
                 return res.status(400).json({
                     error: 'invalid_request',
-                    error_description: err.toString(),
+                    error_description: error.toString(),
                 })
             }
         })
