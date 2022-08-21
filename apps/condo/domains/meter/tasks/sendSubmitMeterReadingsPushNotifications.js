@@ -189,8 +189,8 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 const sendMessageSafely = async ({ context, message }) => {
     try {
         await sendMessage(context, message)
-    } catch (e) {
-        // do nothing to handle duplicates error
+    } catch (error) {
+        logger.error({ msg: 'sendMessage error', error })
     }
 }
 

@@ -1,5 +1,3 @@
-const pino = require('pino')
-const falsey = require('falsey')
 const { get, isEmpty, uniq } = require('lodash')
 const dayjs = require('dayjs')
 
@@ -7,7 +5,6 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { getStartDates, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -20,13 +17,11 @@ const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/no
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { getLogger } = require('@condo/keystone/logging')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
 
-const logger = pino({
-    name: 'send_residents_no_account_billing_receipt_added_notifications',
-    enabled: falsey(process.env.DISABLE_LOGGING),
-})
+const logger = getLogger('sendResidentsNoAccountNotifications')
 
 const makeMessageKey = (period, propertyId, residentId) => `${period}:${propertyId}:${residentId}`
 
@@ -35,7 +30,7 @@ const makeMessageKey = (period, propertyId, residentId) => `${period}:${property
  * @param context
  * @param resident
  * @param period
- * @returns {Promise<boolean>}
+ * @returns {Promise<number>}
  */
 const prepareAndSendNotification = async (context, resident, period) => {
     if (isEmpty(resident)) throw new Error('resident is required to send message')
@@ -66,15 +61,12 @@ const prepareAndSendNotification = async (context, resident, period) => {
     }
 
     try {
-        await sendMessage(context, messageData)
-    } catch (e) {
-        // TODO(DOMA-3343): handle error type
-        logger.info({ message: 'sendMessage attempt:', error: safeFormatError(e), messageData })
-
+        const { isDuplicateMessage } = await sendMessage(context, messageData)
+        return (isDuplicateMessage) ? 0 : 1
+    } catch (error) {
+        logger.info({ msg: 'sendMessage error', error, data: messageData })
         return 0
     }
-
-    return 1
 }
 
 const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${unitName}`
@@ -95,7 +87,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 
     if (isEmpty(billingProperties)) return
 
-    let successCnt = 0, attempts = 0, processedCount = 0
+    let successCount = 0, attemptsCount = 0, processedCount = 0
 
     for (const billingProperty of billingProperties) {
 
@@ -138,13 +130,13 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         const residentsCount = await Resident.count(context, residentsWhere )
 
         logger.info({
-            message: 'Found data for property:',
-            receiptsCount,
+            msg: 'Found data for property',
             address: billingProperty.address,
+            receiptsCount,
             propertyId: billingProperty.id,
-            accounts: accounts.length,
-            serviceConsumers: serviceConsumers.length,
-            residentsWithSC: scResidentIds.length,
+            accountsCount: accounts.length,
+            serviceConsumersCount: serviceConsumers.length,
+            residentsWithServiceConsumerCount: scResidentIds.length,
             residentsCount,
         })
 
@@ -166,13 +158,13 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
 
                 const success = await prepareAndSendNotification(context, resident, receiptsWhere.period_in[0])
 
-                successCnt += success
-                attempts += 1
+                successCount += success
+                attemptsCount += 1
             }
         }
     }
 
-    logger.info({ message: 'Notifications sent:', successCnt, attempts, processedCount })
+    logger.info({ msg: 'Notifications sent', successCount, attemptsCount, processedCount })
 }
 
 /**
@@ -198,7 +190,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         throw new Error('Provided context is not in finished status or invalid.')
     }
 
-    logger.info({ message: 'Billing context to proceed:', count: billingContexts.length, requestPeriod })
+    logger.info({ msg: 'Billing context proceed', billingContextsCount: billingContexts.length, requestPeriod, billingContextId })
 
     for (const billingContext of billingContexts) {
         const redisVarName = `${REDIS_LAST_DATE_KEY}-${period}-${billingContext.id}`
@@ -218,7 +210,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
             deletedAt: null,
         }
 
-        logger.info({ message: 'Processing data for:', organization: billingContext.organization.name, organizationId: billingContext.organization.id })
+        logger.info({ msg: 'processing', organizationId: billingContext.organization.id, billingContextId })
 
         await sendResidentsNoAccountNotificationsForContext(billingContext, receiptsWhere)
         /**

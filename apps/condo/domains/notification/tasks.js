@@ -1,13 +1,11 @@
 const isEmpty = require('lodash/isEmpty')
-const get = require('lodash/get')
 
 const conf = require('@condo/config')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
-const { Message, MessageUserBlackList, MessageOrganizationBlackList, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
-const { logger } = require('@condo/domains/notification/utils')
+const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 
 const sms = require('./transports/sms')
 const email = require('./transports/email')
@@ -22,10 +20,11 @@ const {
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('./constants/constants')
-const { MESSAGE_TYPE_IN_USER_BLACK_LIST, MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const { getLogger } = require('@condo/keystone/logging')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
+const logger = getLogger('notifications/tasks')
 
 const TRANSPORTS = {
     [SMS_TRANSPORT]: sms,
@@ -39,7 +38,7 @@ const MESSAGE_SENDING_STATUSES = {
 
 async function _sendMessageByAdapter (transport, adapter, messageContext) {
     if (SEND_TO_CONSOLE) {
-        if (!DISABLE_LOGGING) console.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
+        if (!DISABLE_LOGGING) logger.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
 
         return [true, { fakeAdapter: true }]
     }
@@ -152,10 +151,10 @@ async function deliverMessage (messageId) {
                 transportMeta.status = MESSAGE_ERROR_STATUS
                 processingMeta.step = MESSAGE_ERROR_STATUS
             }
-        } catch (e) {
+        } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
-            transportMeta.exception = safeFormatError(e, false)
-            logger.error({ step: 'deliverMessage()', messageId, transportMeta, transportsMeta, processingMeta })
+            transportMeta.exception = safeFormatError(error, false)
+            logger.error({ msg: 'deliverMessage error', error, messageId, transportMeta, transportsMeta, processingMeta })
         }
     }
 
