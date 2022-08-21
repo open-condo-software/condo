@@ -1,12 +1,13 @@
-const { SbbolRequestApi } = require('./SbbolRequestApi')
-const { logger: baseLogger } = require('./common')
-const { getOrganizationAccessToken } = require('./utils')
 const conf = require('@condo/config')
+const { getLogger } = require('@condo/keystone/logging')
+
+const { SbbolRequestApi } = require('./SbbolRequestApi')
+const { getOrganizationAccessToken } = require('./utils')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-const logger = baseLogger.child({ module: 'SbbolFintechApi' })
+const logger = getLogger('sbbol/SbbolFintechApi')
 
 /**
  * Error reponse from SBBOL Fintech API
@@ -243,10 +244,10 @@ const initSbbolFintechApi = async (context) => {
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
         const result = await getOrganizationAccessToken(context, SBBOL_FINTECH_CONFIG.service_organization_hashOrgId)
         accessToken = result.accessToken
-    } catch (e) {
+    } catch (error) {
         logger.error({
-            message: 'Failed to obtain organization access token from SBBOL',
-            error: e.message,
+            msg: 'Failed to obtain organization access token from SBBOL',
+            error,
             hashOrgId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId,
         })
         return null

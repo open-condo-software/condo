@@ -1,11 +1,12 @@
+const Ajv = require('ajv')
+
+const { getLogger } = require('@condo/keystone/logging')
+
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { buildBicryptId } = require('./utils/buildBicryptId')
-const { logger: baseLogger } = require('./common')
-const Ajv = require('ajv')
-const ajv = new Ajv()
-const fs = require('fs')
 
-const logger = baseLogger.child({ module: 'SbbolCryptoApi' })
+const ajv = new Ajv()
+const logger = getLogger('sbbol/SbbolCryptoApi')
 
 /**
  * Schema for Certificate Signing Request (SCR)
@@ -105,12 +106,11 @@ class SbbolCryptoApi extends SbbolRequestApi {
                 instancePath,
                 message,
             }))
-            // TODO: why pino does not outputs attached object to stdout log?
-            logger.error('Wrong data for Certificate Signing Request (CSR)', { errors })
+            logger.error({ msg: 'Wrong Certificate Signing Request (CSR)', data: errors })
             throw new Error('Wrong data for Certificate Signing Request (CSR)')
         }
 
-        const result = await this.request({
+        return await this.request({
             method: 'POST',
             path: this.certificateSigningRequestPath,
             body: csrRequestParams,
@@ -118,7 +118,6 @@ class SbbolCryptoApi extends SbbolRequestApi {
                 'Content-Type': 'application/json',
             },
         })
-        return result
     }
 
     /**

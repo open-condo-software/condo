@@ -1,7 +1,8 @@
 const { padStart } = require('lodash')
-const { logger: baseLogger } = require('../common')
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
+
+const { getLogger } = require('@condo/keystone/logging')
 
 const ajv = new Ajv()
 addFormats(ajv)
@@ -21,7 +22,7 @@ const BUILD_BICRYPT_ID_CRYPTO_INFO_SCHEMA = {
 
 const formatValidator = ajv.compile(BUILD_BICRYPT_ID_CRYPTO_INFO_SCHEMA)
 
-const logger = baseLogger.child({ func: 'buildBicryptId' })
+const logger = getLogger('buildBicryptId')
 
 /**
  * Builds bicryptId string in format, required by SBBOL API
@@ -40,10 +41,7 @@ function buildBicryptId (cryptoInfo) {
             instancePath,
             message,
         }))
-        logger.error('Wrong format of arguments', {
-            cryptoInfo,
-            errors,
-        })
+        logger.error({ msg: 'Wrong format of arguments', data: { cryptoInfo, errors } })
         throw new Error('Wrong format of arguments, passed to `buildBicryptId` function')
     }
     const paddedCertCenterNum = certCenterCode.length === 4

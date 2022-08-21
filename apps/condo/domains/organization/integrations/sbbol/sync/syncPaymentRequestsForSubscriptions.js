@@ -7,22 +7,21 @@ const { SBBOL_YEARLY_SUBSCRIPTION_PRICE, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT
 const conf = process.env
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
-const { logger: baseLogger } = require('../common')
 const { dvSenderFields, BANK_OPERATION_CODE } = require('../constants')
 const { SBBOL_OFFER_ACCEPT_IS_NULL_ERROR, SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR } = require('@condo/domains/subscription/constants/errors')
+const { getLogger } = require('@condo/keystone/logging')
 
-const logger = baseLogger.child({ module: 'syncPaymentRequestsForSubscriptions' })
+const logger = getLogger('sbbol/syncPaymentRequestsForSubscriptions')
 
 // TODO(antonal): Add 3 days for trial subscription when payment is emitted to compensate payment processing lag and subsequent in service unavailability
 
 const postPaymentRequestFor = async (subscription, fintechApi) => {
     const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
-    logger.info({ message: 'Start postPaymentRequestsFor', subscription })
+    logger.info({ msg: 'Start postPaymentRequestsFor', subscription })
 
     if (!subscription.sbbolOfferAccept) {
         logger.error({
-            message: 'Latest ServiceSubscription does not have information about offer accept',
-            error: SBBOL_OFFER_ACCEPT_IS_NULL_ERROR,
+            msg: `Latest ServiceSubscription does not have information about offer accept: ${SBBOL_OFFER_ACCEPT_IS_NULL_ERROR}`,
             subscription,
         })
         return
@@ -32,8 +31,7 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
 
     if (!payerAccount || !payerBankBic || !payerBankCorrAccount || !payerInn || !payerName) {
         logger.error({
-            message: 'Latest ServiceSubscription has insufficient data in offer accept',
-            error: SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR,
+            msg: `Latest ServiceSubscription has insufficient data in offer accept ${SBBOL_OFFER_ACCEPT_HAS_INCORRECT_PAYER_REQUISITES_ERROR}`,
             subscription,
         })
         return
@@ -52,15 +50,15 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
     const newPayment = await ServiceSubscriptionPayment.create(context, data)
     if (!newPayment) {
         logger.error({
-            message: 'Error by creating ServiceSubscriptionPayment',
+            msg: 'Error by creating ServiceSubscriptionPayment',
             data,
         })
         return
     }
 
     logger.info({
-        message: 'Created ServiceSubscriptionPayment',
-        record: newPayment,
+        msg: 'Created ServiceSubscriptionPayment',
+        subscriptionPaymentId: newPayment.id,
     })
 
     const today = dayjs()
@@ -118,7 +116,7 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
  * For each expired SBBOL-subscription post payment request to SBBOL
  */
 const syncPaymentRequestsForSubscriptions = async () => {
-    logger.info({ message: 'Start', function: 'syncPaymentRequestsForSubscriptions' })
+    logger.info({ msg: 'start syncPaymentRequestsForSubscriptions' })
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
 
     const fintechApi = await initSbbolFintechApi(context)
@@ -135,14 +133,14 @@ const syncPaymentRequestsForSubscriptions = async () => {
 
     if (expiredSubscriptions.length === 0) {
         logger.info({
-            message: 'No expired subscriptions found for today',
-            where,
+            msg: 'No expired subscriptions found for today',
+            data: where,
         })
     } else {
         logger.info({
-            message: 'Found expired ServiceSubscription records',
-            count: expiredSubscriptions.length,
-            where,
+            msg: 'Found expired ServiceSubscription records',
+            expiredSubscriptionsCount: expiredSubscriptions.length,
+            data: where,
         })
         expiredSubscriptions.map(async (expiredSubscription) => {
             // Payments without external id are not created at SBBOL side
@@ -155,7 +153,7 @@ const syncPaymentRequestsForSubscriptions = async () => {
                 await postPaymentRequestFor(expiredSubscription, fintechApi)
             } else {
                 logger.info({
-                    message: 'Subscription already has payments',
+                    msg: 'Subscription already has payments',
                     subscription: expiredSubscription,
                     paymentsCount: paymentsForSubscription.length,
                 })
