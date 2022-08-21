@@ -2,6 +2,28 @@ const { get, isObject, isString } = require('lodash')
 
 const { GQL_SCHEMA_TYPES, GQL_CUSTOM_SCHEMA_TYPE, GQL_LIST_SCHEMA_TYPE } = require('../../schema')
 
+function _defaultAdminUiColumns (fields) {
+    const res = []
+    if (fields.createdBy) res.push('createdBy')
+    if (fields.createdAt) res.push('createdAt')
+    return res.join(',')
+}
+
+function applyKeystoneV5AdminFixes (schema) {
+    // https://v5.keystonejs.com/api/create-list#labelresolver
+    if (!schema.labelResolver) {
+        schema.labelResolver = (item) => (item.name) ? `${item.name} -- <${item.id}>` : item.id
+    }
+    schema.adminConfig = {
+        defaultPageSize: 50,
+        maximumPageSize: 100,
+        defaultSort: '-createdAt',
+        defaultColumns: _defaultAdminUiColumns(schema.fields),
+        ...get(schema, 'adminConfig', {}),
+    }
+    return schema
+}
+
 function convertStringToTypes (schema) {
     const { Text, Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File } = require('@keystonejs/fields')
     const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
@@ -52,7 +74,7 @@ function registerKeystone5Schema (gqlSchemaObject, keystone, globalPreprocessors
     if (gqlSchemaObject._type === GQL_LIST_SCHEMA_TYPE) {
         gqlSchemaObject._register(globalPreprocessors, { addSchema })
         gqlSchemaObject._keystone = keystone
-        keystone.createList(gqlSchemaObject.name, convertStringToTypes(gqlSchemaObject.registeredSchema))  // create gqlSchemaObject._keystone.lists[gqlSchemaObject.name] as List type
+        keystone.createList(gqlSchemaObject.name, applyKeystoneV5AdminFixes(convertStringToTypes(gqlSchemaObject.registeredSchema)))  // create gqlSchemaObject._keystone.lists[gqlSchemaObject.name] as List type
         const keystoneList = get(keystone, ['lists', gqlSchemaObject.name])
         if (keystoneList) {
             // We need to save a shallow copy of createList config argument because
