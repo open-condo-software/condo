@@ -1,14 +1,15 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
-const { logger: baseLogger } = require('./common')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+
+const { getLogger } = require('@condo/keystone/logging')
 
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
 
-const logger = baseLogger.child({ module: 'SbbolRequestApi' })
+const logger = getLogger('sbbol/SbbolRequestApi')
 
 dayjs.extend(utc)
 
@@ -56,7 +57,7 @@ class SbbolRequestApi {
     async request ({ method, path: basePath, body = null, headers = {} }){
         return new Promise((resolve, reject) => {
             const path = method === 'GET' && body ? `${basePath}?${querystring.stringify(body)}` : basePath
-            logger.info({ message: 'Request to SBBOL API', method, path, body })
+            logger.info({ msg: 'request', method, path, data: body })
             const requestOptions = {
                 ...this.options,
                 method,
@@ -71,17 +72,17 @@ class SbbolRequestApi {
                     data += chunk
                 })
                 response.on('end', () => {
-                    logger.info({ message: 'Response from SBBOL API', method, path, statusCode, headers, body: data })
+                    logger.info({ msg: 'response', method, path, statusCode, data: { headers, body: data } })
                     return resolve({ data, statusCode })
                 })
             })
             request.on('timeout', () => {
                 request.destroy()
-                logger.warn({ message: 'Failed request to SBBOL API', reason: 'timeout', method, path })
+                logger.warn({ msg: 'timeout', method, path })
                 return reject(`${REQUEST_TIMEOUT_ERROR}] sbbol request failed`)
             })
             request.on('error', error => {
-                logger.error({ message: 'Failed request to SBBOL API', reason: 'error', method, path, error })
+                logger.error({ msg: 'error', method, path, error })
                 return reject(error)
             })
             if (body && method === 'POST') {

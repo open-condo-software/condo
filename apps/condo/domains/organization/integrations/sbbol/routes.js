@@ -2,31 +2,14 @@ const { isObject } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
 const { getSchemaCtx } = require('@condo/keystone/schema')
-const conf = require('@condo/config')
-
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const { getSbbolUserInfoErrors, SBBOL_SESSION_KEY } = require('./common')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
-const { dvSenderFields } = require('./constants')
 const { initializeSbbolAuthApi } = require('./utils')
+const { getLogger } = require('@condo/keystone/logging')
 
-const DEVELOPER_EMAIL = conf.DEVELOPER_EMAIL
-
-async function sendToDeveloper (type, data) {
-    if (DEVELOPER_EMAIL) {
-        const { keystone } = await getSchemaCtx('Message')
-        await sendMessage(keystone, {
-            ...dvSenderFields,
-            to: { email: DEVELOPER_EMAIL },
-            lang: 'en',
-            type: DEVELOPER_IMPORTANT_NOTE_TYPE,
-            meta: { dv: 1, type, data },
-        })
-    }
-}
+const logger = getLogger('sbbol/routes')
 
 
 class SbbolRoutes {
@@ -48,9 +31,11 @@ class SbbolRoutes {
     }
 
     async completeAuth (req, res, next) {
+        const reqId = req.id
         const sbbolAuthApi = await initializeSbbolAuthApi()
         try {
             if (!isObject(req.session[SBBOL_SESSION_KEY])) {
+                logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
 
@@ -61,13 +46,13 @@ class SbbolRoutes {
             const userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
-                await sendToDeveloper('SBBOL_INVALID_USERINFO', { userInfo, errors })
+                logger.info({ msg: 'SBBOL invalid userinfo', data: { userInfo, errors }, reqId })
                 return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
             const {
                 user,
                 organizationEmployeeId,
-            } = await sync({ keystone, userInfo, tokenSet })
+            } = await sync({ keystone, userInfo, tokenSet, reqId })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
             if (organizationEmployeeId) {

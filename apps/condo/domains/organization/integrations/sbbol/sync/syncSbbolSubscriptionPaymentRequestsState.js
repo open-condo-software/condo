@@ -1,4 +1,3 @@
-const { logger: baseLogger } = require('../common')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { initSbbolFintechApi } = require('../SbbolFintechApi')
 const { ServiceSubscriptionPayment, ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
@@ -7,29 +6,30 @@ const { executeInSequence } = require('@condo/domains/common/utils/parallel')
 const { SBBOL_PAYMENT_STATUS_MAP, dvSenderFields } = require('../constants')
 const { get } = require('lodash')
 const dayjs = require('dayjs')
+const { getLogger } = require('@condo/keystone/logging')
 
-const logger = baseLogger.child({ module: 'syncSbbolSubscriptionPaymentRequestsState' })
+const logger = getLogger('sbbol/syncSbbolSubscriptionPaymentRequestsState')
 
-const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) => {
-    const { data, error } = await fintechApi.getPaymentRequestState(payment.id)
+const syncSbbolSubscriptionPaymentRequestStateFor = async (subscriptionPayment, fintechApi) => {
+    const { data, error } = await fintechApi.getPaymentRequestState(subscriptionPayment.id)
     if (error) {
-        logger.error({ message: 'Error fetching status for payment', error, payment })
+        logger.error({ msg: 'Error fetching status for payment', data: error, subscriptionPayment })
     } else {
         const { keystone: context } = await getSchemaCtx('ServiceSubscriptionPayment')
         if (!data.bankStatus) {
             logger.error({
-                message: 'Status response does not contains "bankStatus" field. Maybe, something was changed in setup of SBBOL Fintech API or in API itself.',
+                msg: 'Status response does not contains "bankStatus" field. Maybe, something was changed in setup of SBBOL Fintech API or in API itself.',
             })
         } else {
-            if (get(payment.statusMeta, 'bankStatus') !== data.bankStatus) {
+            if (get(subscriptionPayment.statusMeta, 'bankStatus') !== data.bankStatus) {
                 const status = SBBOL_PAYMENT_STATUS_MAP[data.bankStatus]
                 if (!status) {
                     logger.error({
-                        message: 'Value of bankStatus from SBBOL Fintech API cannot be mapped to status values of ServiceSubscriptionPayment, because it does not belongs to the list of known statuses. Consider to add it.',
+                        msg: 'Value of bankStatus from SBBOL Fintech API cannot be mapped to status values of ServiceSubscriptionPayment, because it does not belongs to the list of known statuses. Consider to add it.',
                         bankStatus: data.bankStatus,
                     })
                 } else {
-                    await ServiceSubscriptionPayment.update(context, payment.id, {
+                    await ServiceSubscriptionPayment.update(context, subscriptionPayment.id, {
                         status,
                         statusMeta: data,
                     })
@@ -40,7 +40,7 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (payment, fintechApi) 
                         ...dvSenderFields,
                         type: SUBSCRIPTION_TYPE.SBBOL,
                         isTrial: false,
-                        organization: { connect: { id: payment.organization.id } },
+                        organization: { connect: { id: subscriptionPayment.organization.id } },
                         startAt: now.toISOString(),
                         finishAt: now.add(1, 'year').toISOString(),
                     })
@@ -64,9 +64,7 @@ const syncSbbolSubscriptionPaymentRequestsState = async () => {
     }, { sortBy: ['updatedAt_DESC'] })
 
     if (paymentsToSync.length === 0) {
-        logger.info({
-            message: 'No ServiceSubscriptionPayment found with state CREATED, PROCESSING or STOPPED. Do nothing',
-        })
+        logger.info('No ServiceSubscriptionPayment found with state CREATED, PROCESSING or STOPPED. Do nothing')
     } else {
         const syncTasks = paymentsToSync.map(payment => () => syncSbbolSubscriptionPaymentRequestStateFor(payment, fintechApi))
         await executeInSequence(syncTasks)

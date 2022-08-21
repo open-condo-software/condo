@@ -1,21 +1,22 @@
-const { initSbbolFintechApi } = require('../SbbolFintechApi')
-const { logger: baseLogger } = require('../common')
 const dayjs = require('dayjs')
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
-const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
-const { dvSenderFields } = require('../constants')
-const { processArrayOf } = require('@condo/domains/common/utils/parallel')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-
 
 const conf = require('@condo/config')
+const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLogger } = require('@condo/keystone/logging')
+
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
+const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
+const { processArrayOf } = require('@condo/domains/common/utils/parallel')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+
+const { initSbbolFintechApi } = require('../SbbolFintechApi')
+const { dvSenderFields } = require('../constants')
+
+const logger = getLogger('sbbol/syncSubscriptions')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 
-const logger = baseLogger.child({ module: 'syncSubscriptions' })
-
 async function stop (subscription, context) {
-    logger.info({ message: 'Stopping subscription', subscription })
+    logger.info({ msg: 'Stopping subscription', subscription })
     return await ServiceSubscription.update(context, subscription.id, {
         ...dvSenderFields,
         finishAt: dayjs().toISOString(),
@@ -39,7 +40,7 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     )
 
     if (!organization) {
-        logger.warn({ message: 'Not found organization to sync SBBOL subscriptions for', payerInn })
+        logger.warn({ msg: 'Not found organization to sync SBBOL subscriptions', payerInn })
         return
     }
 
@@ -58,14 +59,14 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
     const existingSubscription = existingSubscriptions[0]
 
     if (existingSubscriptions.length > 1) {
-        logger.error({ message: 'More than one subscription found for Organization', id: organization.id })
+        logger.error({ msg: 'More than one subscription found for Organization', organizationId: organization.id })
     }
 
     // Client has accepted our offer
     if (active) {
         // TODO: add trial for additional day when client accepts previously revoked (after accepting) offer
 
-        logger.info({ message: 'User from organization has accepted our offer in SBBOL', payerInn })
+        logger.info({ msg: 'User from organization has accepted our offer in SBBOL', payerInn, organizationId: organization.id })
 
         // In case of accepted SBBOL offer new subscription should be started and all current subscriptions will make no sense.
         // If active one is present, stop it by cutting it's period until now.
@@ -89,9 +90,9 @@ const syncSubscriptionsFor = async (advanceAcceptance) => {
                 ...advanceAcceptance, // TODO: Figure out, why it crashes here on `payerInn` field
             },
         })
-        logger.info({ message: 'Created trial subscription for SBBOL', serviceSubscription: trialServiceSubscription })
+        logger.info({ msg: 'Created trial subscription for SBBOL', serviceSubscriptionId: trialServiceSubscription.id })
     } else {
-        logger.info({ message: 'User from organization has declined our offer in SBBOL', payerInn })
+        logger.info({ msg: 'User from organization has declined our offer in SBBOL', payerInn, organizationId: organization.id })
         if (existingSubscription.type === SUBSCRIPTION_TYPE.SBBOL) {
             await stop(existingSubscription, context)
         }
@@ -112,12 +113,12 @@ const syncSubscriptions = async (date = null) => {
     const fintechApi = await initSbbolFintechApi(context)
     if (!fintechApi) return
 
-    logger.info({ message: 'Checking, whether the user have ServiceSubscription items' })
+    logger.info('Checking, whether the user have ServiceSubscription items')
 
     const advanceAcceptances = await fintechApi.fetchAdvanceAcceptances({ date, clientId: SBBOL_FINTECH_CONFIG.client_id })
 
     if (advanceAcceptances.length === 0) {
-        logger.info({ message: 'SBBOL returned no changes in offers, do nothing' })
+        logger.info('SBBOL returned no changes in offers, do nothing')
     } else {
         await processArrayOf(advanceAcceptances).inSequenceWith(syncSubscriptionsFor)
     }

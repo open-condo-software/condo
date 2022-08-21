@@ -2,16 +2,16 @@
 
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
-const { logger: baseLogger } = require('./common')
 const util = require('util')
 const conf = require('@condo/config')
+const { getLogger } = require('@condo/keystone/logging')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 const SERVER_URL = conf.SERVER_URL
 const JWT_ALG = 'gost34.10-2012'
 
-const logger = baseLogger.child({ module: 'oauth2' })
+const logger = getLogger('sbbol/oauth2')
 
 class SbbolOauth2Api {
     constructor ({ clientSecret }) {
@@ -53,7 +53,7 @@ class SbbolOauth2Api {
                 await _validateJWT.call(client, jwt, expectedAlg, required)
             } catch (error) {
                 //TODO(zuch): find a way to force jose validate gost algorithm
-                logger.error({ message: error.message, jwt, error })
+                logger.error({ msg: 'JWT validation error', jwt, error })
             }
             return { protected: jwtDecode(jwt, { header: true }), payload: jwtDecode(jwt) }
         }
@@ -142,8 +142,7 @@ class SbbolOauth2Api {
                             logData.body = util.format('%s', options.body)
                         }
                         logger.info({
-                            message: 'Request',
-                            ...logData,
+                            msg: 'request', data: logData,
                         })
                     },
                 ],
@@ -159,8 +158,7 @@ class SbbolOauth2Api {
                             logData.body = util.format('%s', response.body)
                         }
                         logger.info({
-                            message: 'Response',
-                            ...logData,
+                            msg: 'response', data: logData,
                         })
                         return response
                     },

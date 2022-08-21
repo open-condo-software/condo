@@ -5,13 +5,11 @@ const mockLoggerError = jest.fn()
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { buildBicryptId } = require('./buildBicryptId')
 
-jest.mock('../common', () => ({
-    logger: {
-        child: () => ({
-            error: mockLoggerError,
-        }),
-    },
-}))
+jest.mock('@condo/keystone/logging', () => {
+    return {
+        getLogger: () => { return { error: mockLoggerError }},
+    }
+})
 
 // NOTE: Despite of We should still use `async` function,
 const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFields) => {
@@ -29,9 +27,12 @@ const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFi
     }, e => {
         expect(e.message).toBe('Wrong format of arguments, passed to `buildBicryptId` function')
         expect(mockLoggerError).toBeCalledTimes(1)
-        expect(mockLoggerError).toHaveBeenCalledWith('Wrong format of arguments', {
-            cryptoInfo,
-            errors: [errorFields],
+        expect(mockLoggerError).toHaveBeenCalledWith({
+            msg: 'Wrong format of arguments',
+            data: {
+                cryptoInfo,
+                errors: [errorFields],
+            },
         })
     })
 }

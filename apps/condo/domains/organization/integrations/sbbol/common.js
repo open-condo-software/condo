@@ -1,8 +1,4 @@
 const Ajv = require('ajv')
-const pino = require('pino')
-const falsey = require('falsey')
-// NOTE: same as keystone logger
-const logger = pino({ name: 'sbbol', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 const SBBOL_IMPORT_NAME = 'sbbol'
 const SBBOL_FINGERPRINT_NAME = 'import-sbbol'
@@ -42,5 +38,4 @@ module.exports = {
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
     SBBOL_FINGERPRINT_NAME,
-    logger,
 }
