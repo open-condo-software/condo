@@ -1,6 +1,4 @@
 const axios = require('axios').default
-const pino = require('pino')
-const falsey = require('falsey')
 const { get } = require('lodash')
 
 const conf = require('@condo/config')
@@ -11,8 +9,9 @@ const { OrganizationEmployeeRole } = require('./index')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { DEFAULT_ROLES } = require('../../constants/common')
 const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/common')
+const { getLogger } = require('@condo/keystone/logging')
 
-const logger = pino({ name: 'sales_crm', enabled: falsey(process.env.DISABLE_LOGGING) })
+const logger = getLogger('sales_crm')
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
 if (SALES_CRM_WEBHOOKS_URL && !SALES_CRM_WEBHOOKS_URL.subscriptions && !SALES_CRM_WEBHOOKS_URL.organizations) {
     throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
@@ -84,7 +83,7 @@ async function findOrganizationEmployee (context, query) {
 
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
-        logger.error({ message: 'Unable to pushOrganizationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
+        logger.error({ msg: 'SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', data: SALES_CRM_WEBHOOKS_URL })
         return
     }
     const { tin, name: orgName, createdBy } = organization
@@ -100,15 +99,15 @@ async function pushOrganizationToSalesCRM (organization) {
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
         }
         await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
-        logger.info({ message: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
+        logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
     } catch (error) {
-        logger.warn({ message: 'Request to sales crm failed', error })
+        logger.warn({ msg: 'Request to sales crm failed', error })
     }
 }
 
 async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
     if (!SALES_CRM_WEBHOOKS_URL) {
-        logger.error({ message: 'Unable to pushSubscriptionActivationToSalesCRM, because variable SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', SALES_CRM_WEBHOOKS_URL })
+        logger.error({ msg: 'SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', data: SALES_CRM_WEBHOOKS_URL })
         return
     }
     try {
@@ -119,7 +118,7 @@ async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt
             isTrial,
         })
     } catch (error) {
-        logger.warn({ message: 'Request to sales crm failed', error })
+        logger.warn({ msg: 'Request to sales crm failed', error })
     }
 }
 
