@@ -1,10 +1,11 @@
 const { get } = require('lodash')
 
+const { getLogger } = require('@condo/keystone/logging')
 const { getSchemaCtx } = require('@condo/keystone/schema')
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 
 const { createAdapterClass } = require('./adapter')
-const { logger } = require('./logger')
+
+const logger = getLogger('OIDCBearerTokenKeystonePatch')
 
 function getOidcToken (req) {
     try {
@@ -23,11 +24,8 @@ function getOidcToken (req) {
         if (type !== 'Bearer' || token.length !== 43 || token.includes('.')) return
 
         return token
-    } catch (e) {
-        logger.error({
-            message: 'ERROR<-getOidcToken()',
-            error: safeFormatError(e),
-        })
+    } catch (error) {
+        logger.error({ msg: 'getOidcToken error', error })
     }
 }
 
@@ -87,10 +85,7 @@ function OIDCBearerTokenKeystonePatch (app, context) {
                         return _end.call(res, chunk, encoding)
                     }
                 } catch (error) {
-                    logger.error({
-                        message: 'ERROR<-oidcBearerTokenPatchMiddleware()',
-                        error: safeFormatError(error),
-                    })
+                    logger.error({ msg: 'oidcBearerTokenPatchMiddleware error', error })
                     throw error
                 }
             }
