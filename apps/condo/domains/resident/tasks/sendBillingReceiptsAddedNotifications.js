@@ -1,12 +1,9 @@
-const pino = require('pino')
-const falsey = require('falsey')
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
 const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
@@ -23,14 +20,12 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const { getLocalized } = require('@condo/locales/loader')
+const { getLogger } = require('@condo/keystone/logging')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const CHUNK_SIZE = 20
 
-const logger = pino({
-    name: 'send_billing_receipt_added_notifications',
-    enabled: falsey(process.env.DISABLE_LOGGING),
-})
+const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
 const makeMessageKey = (period, accountNumber, categoryId, residentId) => `${period}:${accountNumber}:${categoryId}:${residentId}`
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
@@ -46,7 +41,7 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  * @param keystone
  * @param receipt
  * @param resident
- * @returns {Promise<void>}
+ * @returns {Promise<number>}
  */
 const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
@@ -86,15 +81,12 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     }
 
     try {
-        await sendMessage(context, messageData)
-    } catch (e) {
-        // TODO(DOMA-3343): handle error type
-        logger.info({ message: 'sendMessage attempt:', error: safeFormatError(e), messageData })
-
+        const { isDuplicateMessage } = await sendMessage(context, messageData)
+        return (isDuplicateMessage) ? 0 : 1
+    } catch (error) {
+        logger.info({ msg: 'sendMessage error', error, data: messageData })
         return 0
     }
-
-    return 1
 }
 
 /**
@@ -106,9 +98,9 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
 const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange ) => {
     const { keystone: context } = await getSchemaCtx('Resident')
     const receiptsCount = await BillingReceipt.count(context, receiptsWhere)
-    let skip = 0, successCnt = 0
+    let skip = 0, successCount = 0
 
-    logger.info({ message: 'Available Billing receipts:', receiptsCount, receiptsWhere })
+    logger.info({ msg: 'sending billing receipts', receiptsCount, data: receiptsWhere })
 
     // Exit if no receipts found to proceed
     if (!receiptsCount) return
@@ -150,7 +142,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             // We have no ServiceConsumer records for this receipt
             if (isEmpty(consumers)) continue
 
-            let successConsumerCnt = 0
+            let successConsumerCount = 0
 
             for (const consumer of consumers) {
                 const resident = get(consumer, 'resident')
@@ -160,10 +152,10 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
-                successConsumerCnt += success
+                successConsumerCount += success
             }
 
-            if (successConsumerCnt > 0) successCnt += 1
+            if (successConsumerCount > 0) successCount += 1
 
             lastReceipt = receipt
         }
@@ -173,7 +165,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
         logger.info({ message: `Processed ${skip} receipts of ${receiptsCount}.` })
     }
-    logger.info({ message: 'Notifications sent:', successCnt, attempts: receiptsCount })
+    logger.info({ msg: 'sent billing receipts', successCount, receiptsCount })
 }
 
 

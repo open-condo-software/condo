@@ -2,26 +2,20 @@
  * Sends notifications to devices that have old style (before release 1.55) app, that is incompatible with current API
  */
 
-const pino = require('pino')
-const falsey = require('falsey')
-
 const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
 const conf = require('@condo/config')
 const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { isEmpty } = require('lodash')
 const dayjs = require('dayjs')
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
+const { getLogger } = require('@condo/keystone/logging')
 
 const TODAY = dayjs().format(DATE_FORMAT)
 const CHUNK_SIZE = 50
 
-const logger = pino({
-    name: 'send_remote_clients_upgrade_app_notifications',
-    enabled: falsey(process.env.DISABLE_LOGGING),
-})
+const logger = getLogger('sendRemoteClientsUpgradeAppNotifications')
 
 const makeMessageKey = (entityId, date) => `${date}:${entityId}`
 
@@ -30,7 +24,7 @@ const makeMessageKey = (entityId, date) => `${date}:${entityId}`
  * @param keystone
  * @param receipt
  * @param resident
- * @returns {Promise<void>}
+ * @returns {Promise<number>}
  */
 const prepareAndSendNotification = async (context, remoteClient) => {
     const notificationKey = makeMessageKey(remoteClient.owner.id, TODAY)
@@ -50,14 +44,12 @@ const prepareAndSendNotification = async (context, remoteClient) => {
     }
 
     try {
-        await sendMessage(context, messageData)
-    } catch (e) {
-        logger.info({ message: 'sendMessage attempt:', error: safeFormatError(e), messageData })
-
+        const { isDuplicateMessage } = await sendMessage(context, messageData)
+        return (isDuplicateMessage) ? 0 : 1
+    } catch (error) {
+        logger.info({ msg: 'sendMessage error', error, data: messageData })
         return 0
     }
-
-    return 1
 }
 
 const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
@@ -66,7 +58,7 @@ const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
     const remoteClientsCount = await RemoteClient.count(context, remoteClientWhere)
     let skip = 0, successCnt = 0
 
-    logger.info({ message: 'Available obsolete remote clients:', remoteClientsCount, remoteClientWhere })
+    logger.info({ msg: 'Available obsolete remote clients:', remoteClientsCount, data: remoteClientWhere })
 
     if (!remoteClientsCount) return
 
@@ -83,7 +75,7 @@ const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {
         }
     }
 
-    logger.info({ message: 'Notifications sent:', successCnt, attempts: remoteClientsCount })
+    logger.info({ msg: 'Notifications sent', successCnt, attempts: remoteClientsCount })
 }
 
 module.exports = {
