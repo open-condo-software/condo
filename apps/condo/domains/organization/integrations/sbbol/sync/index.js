@@ -55,9 +55,10 @@ const { syncTokens } = require('./syncTokens')
  * @param keystone
  * @param {UserInfo} userInfo data from OAuth client about user
  * @param {TokenSet} tokenSet
+ * @param {string} reqId
  * @return {Promise<void>}
  */
-const sync = async ({ keystone, userInfo, tokenSet }) => {
+const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const context = {
         keystone,

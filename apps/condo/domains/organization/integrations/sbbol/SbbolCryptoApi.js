@@ -1,4 +1,5 @@
 const Ajv = require('ajv')
+const fs = require('fs')
 
 const { getLogger } = require('@condo/keystone/logging')
 
