@@ -9,6 +9,7 @@ import {
     Typography,
     ModalProps,
 } from 'antd'
+
 import { Modal as DefaultModal } from '@condo/domains/common/components/Modal'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import Input from '@condo/domains/common/components/antd/Input'
