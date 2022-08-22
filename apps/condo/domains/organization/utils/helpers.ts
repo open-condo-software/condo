@@ -80,12 +80,12 @@ export const emailToQuery = (email?: string) => {
     }
 }
 
-export const searchToQuery = (search?: string, translates = null): OrganizationEmployeeWhereInput[] => {
+export const searchToQuery = (search?: string, translations = null): OrganizationEmployeeWhereInput[] => {
     if (!search) {
         return
     }
 
-    const roleQuery = roleToSearchQuery(search, translates)
+    const roleQuery = roleToSearchQuery(search, translations)
 
     return [
         { name_contains_i: search },
@@ -96,7 +96,7 @@ export const searchToQuery = (search?: string, translates = null): OrganizationE
     ].filter(Boolean)
 }
 
-export const filtersToQuery = (filters: IFilters, translates = null): OrganizationEmployeeWhereInput => {
+export const filtersToQuery = (filters: IFilters, translations = null): OrganizationEmployeeWhereInput => {
     const name = get(filters, 'name')
     const phone = get(filters, 'phone')
     const email = get(filters, 'email')
@@ -105,7 +105,7 @@ export const filtersToQuery = (filters: IFilters, translates = null): Organizati
     const search = get(filters, 'search')
 
     const roleQuery = roleToQuery(roles)
-    const searchQuery = searchToQuery(search, translates)
+    const searchQuery = searchToQuery(search, translations)
 
     const filtersCollection = [
         name && { name_contains_i: name },

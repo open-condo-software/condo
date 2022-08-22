@@ -202,7 +202,7 @@ const EmployeesPage = () => {
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const sortBy = sortFromQuery.length > 0 ? sortFromQuery : 'createdAt_DESC'
     const intl = useIntl()
-    const translates = intl.messages
+    const translations = intl.messages
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -210,7 +210,7 @@ const EmployeesPage = () => {
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
 
-    const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery, translates), organization: { id: userOrganizationId } }
+    const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery, translations), organization: { id: userOrganizationId } }
 
     return (
         <EmployeesPageContent
