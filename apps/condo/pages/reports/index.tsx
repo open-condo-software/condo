@@ -25,6 +25,7 @@ const IndexPage = () => {
         objs: externalReports, loading,
     } = ExternalReport.useObjects({
         where: {
+            isHidden: false,
             OR: [
                 { organization_is_null: true },
                 { organization: { id: get(organization, 'id') } },

@@ -10,7 +10,7 @@ const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const EXTERNAL_REPORT_FIELDS = `{ type title description iframeUrl organization { id } meta ${COMMON_FIELDS} }`
+const EXTERNAL_REPORT_FIELDS = `{ type title description isHidden iframeUrl organization { id } meta ${COMMON_FIELDS} }`
 const ExternalReport = generateGqlQueries('ExternalReport', EXTERNAL_REPORT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

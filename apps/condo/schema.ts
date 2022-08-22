@@ -12476,6 +12476,8 @@ export type ExternalReport = {
   meta?: Maybe<Scalars['JSON']>;
   /**  Organization related report  */
   organization?: Maybe<Organization>;
+  /**  Indicates visibility of concrete external report at ui  */
+  isHidden?: Maybe<Scalars['Boolean']>;
   /**  Url for iframe   */
   iframeUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -12500,6 +12502,7 @@ export type ExternalReportCreateInput = {
   description?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12527,6 +12530,7 @@ export type ExternalReportHistoryRecord = {
   description?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   iframeUrl?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -12549,6 +12553,7 @@ export type ExternalReportHistoryRecordCreateInput = {
   description?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   iframeUrl?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12576,6 +12581,7 @@ export type ExternalReportHistoryRecordUpdateInput = {
   description?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   iframeUrl?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12656,6 +12662,8 @@ export type ExternalReportHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isHidden?: Maybe<Scalars['Boolean']>;
+  isHidden_not?: Maybe<Scalars['Boolean']>;
   iframeUrl?: Maybe<Scalars['JSON']>;
   iframeUrl_not?: Maybe<Scalars['JSON']>;
   iframeUrl_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -12761,6 +12769,7 @@ export type ExternalReportUpdateInput = {
   description?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12821,6 +12830,8 @@ export type ExternalReportWhereInput = {
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  isHidden?: Maybe<Scalars['Boolean']>;
+  isHidden_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -40876,6 +40887,8 @@ export enum SortExternalReportHistoryRecordsBy {
   TitleDesc = 'title_DESC',
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  IsHiddenAsc = 'isHidden_ASC',
+  IsHiddenDesc = 'isHidden_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -40903,6 +40916,8 @@ export enum SortExternalReportsBy {
   DescriptionDesc = 'description_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  IsHiddenAsc = 'isHidden_ASC',
+  IsHiddenDesc = 'isHidden_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
