@@ -154,23 +154,34 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     const completedAt = new Date().toISOString()
                     await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
                 }
-                const sendChannels = [{
-                    to: { phone: userData.phone },
+                const messages = [{
+                    to: { phone: userData.phone, email: userData.email },
                     type: REGISTER_NEW_USER_MESSAGE_TYPE,
+                    meta: {
+                        userId: user.id,
+                        userName: user.name,
+                        userPhone: userData.phone,
+                        userEmail: userData.email,
+                        userPassword: userData.password,
+                        dv: 1,
+                    },
                 }]
                 if (!isEmpty(userData.email)) {
-                    sendChannels.push({
-                        to: { email: userData.email },
-                        type: REGISTER_NEW_USER_MESSAGE_TYPE,
-                    })
-                    sendChannels.push({
+                    messages.push({
                         to: { email: userData.email },
                         type: WELCOME_NEW_USER_MESSAGE_TYPE,
+                        meta: {
+                            userId: user.id,
+                            userName: user.name,
+                            userPhone: userData.phone,
+                            userEmail: userData.email,
+                            dv: 1,
+                        },
                     })
                 }
                 // TODO(Dimitreee): use locale from .env
                 const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-                await Promise.all(sendChannels.map(async channel => {
+                messages.map(async channel => {
                     await sendMessage(context, {
                         lang,
                         to: {
@@ -180,15 +191,11 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                             ...channel.to,
                         },
                         type: channel.type,
-                        meta: {
-                            userPassword: userData.password,
-                            userPhone: userData.phone,
-                            dv: 1,
-                        },
+                        meta: channel.meta,
                         sender,
                         dv: 1,
                     })
-                }))
+                })
                 return await getById('User', user.id)
             },
         },
