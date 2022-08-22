@@ -247,7 +247,7 @@
   "component.TicketWarningModal.Entity.executor": "исполнителей",
   "component.TicketWarningModal.Entity.assignee": "ответственных",
   "Name": "Имя",
-  "NoData": "Нет данных",
+  "NoData": "Здесь еще нет данных",
   "NotImplementedYet": "Пока что не умеем, но обязательно научимся",
   "OperationCompleted": "Операция выполнена",
   "Owner": "Владелец",

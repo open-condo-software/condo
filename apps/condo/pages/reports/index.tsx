@@ -41,9 +41,16 @@ const IndexPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader style={{ background: 'transparent' }} title={<Typography.Title>{PageTitleMsg}</Typography.Title>}/>
+                <PageHeader
+                    style={{ background: 'transparent' }}
+                    title={<Typography.Title>{PageTitleMsg}</Typography.Title>}
+                />
                 <PageContent>
-                    <Row gutter={EXTERNAL_REPORT_ROW_GUTTER}>
+                    <Row
+                        gutter={EXTERNAL_REPORT_ROW_GUTTER}
+                        align={isEmptyReports ? 'middle' : 'top'}
+                        style={{ height: isEmptyReports ? '100%' : 'initial' }}
+                    >
                         {loading
                             ? <Loader size='large' fill />
                             : (externalReports.map((externalReport, key) => (
@@ -53,8 +60,8 @@ const IndexPage = () => {
                             )))
                         }
                         {isEmptyReports && (
-                            <BasicEmptyListView>
-                                <Typography.Text>{NoDatTitle}</Typography.Text>
+                            <BasicEmptyListView image='/dino/searching@2x.png' spaceSize={16}>
+                                <Typography.Title level={4}>{NoDatTitle}</Typography.Title>
                             </BasicEmptyListView>
                         )}
                     </Row>
