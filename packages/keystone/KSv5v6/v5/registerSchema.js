@@ -9,16 +9,24 @@ function _defaultAdminUiColumns (fields) {
     return res.join(',')
 }
 
+const getDefaultAdminConfig = (fields) => ({
+    defaultPageSize: 50,
+    defaultSort: '-createdAt',
+    maximumPageSize: 100,
+    defaultColumns: _defaultAdminUiColumns(fields),
+})
+
+function labelResolver (item) {
+    return item.name ? `${item.name} -- <${item.id}>` : item.id
+}
+
 function applyKeystoneV5AdminFixes (schema) {
     // https://v5.keystonejs.com/api/create-list#labelresolver
     if (!schema.labelResolver) {
-        schema.labelResolver = (item) => (item.name) ? `${item.name} -- <${item.id}>` : item.id
+        schema.labelResolver = labelResolver
     }
     schema.adminConfig = {
-        defaultPageSize: 50,
-        maximumPageSize: 100,
-        defaultSort: '-createdAt',
-        defaultColumns: _defaultAdminUiColumns(schema.fields),
+        ...getDefaultAdminConfig(schema.fields),
         ...get(schema, 'adminConfig', {}),
     }
     return schema
@@ -113,4 +121,6 @@ function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
 module.exports = {
     convertStringToTypes,
     registerSchemas,
+    labelResolver,
+    getDefaultAdminConfig,
 }

@@ -1,4 +1,6 @@
 const { GQLListSchema, GQLCustomSchema, registerSchemas, unregisterAllSchemas } = require('./schema')
+const { Text } = require('@keystonejs/fields')
+const { labelResolver, getDefaultAdminConfig } = require('./KSv5v6/v5/registerSchema')
 
 const validateInput = async (ctx) => { await EVENT_LIST._emit('validate', ctx) }
 const EVENT_LIST = new GQLListSchema('Event', {
@@ -73,6 +75,20 @@ test('execute mutation func', async () => {
     expect(res).toEqual(4)
 })
 
+const USER_FIELDS = {
+    name: {
+        type: Text,
+        defaultValue: 'username',
+    },
+}
+
+const ORGANIZATION_FIELDS = {
+    name: {
+        type: Text,
+        defaultValue: 'orgname',
+    },
+}
+
 test('registerSchema without preprocessors', () => {
     const keystone = { createList: jest.fn(), extendGraphQLSchema: jest.fn() }
     const modules = [
@@ -110,26 +126,22 @@ test('registerSchema without preprocessors', () => {
     expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
     expect(keystone.createList.mock.calls).toEqual([
         ['User', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'username',
-                },
-            },
+            fields: USER_FIELDS,
             access: {
                 read: false,
             },
+            adminConfig: getDefaultAdminConfig(USER_FIELDS),
+            labelResolver,
+            plugins: undefined,
         }],
         ['Organization', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'orgname',
-                },
-            },
+            fields: ORGANIZATION_FIELDS,
             access: {
                 read: false,
             },
+            adminConfig: getDefaultAdminConfig(ORGANIZATION_FIELDS),
+            labelResolver,
+            plugins: undefined,
         }],
     ])
 })
@@ -139,24 +151,14 @@ test('registerSchema with preprocessors', () => {
     const modules = [
         {
             User: new GQLListSchema('User', {
-                fields: {
-                    name: {
-                        type: Text,
-                        defaultValue: 'username',
-                    },
-                },
+                fields: USER_FIELDS,
                 access: {
                     read: false,
                 },
             }),
         }, {
             Organization: new GQLListSchema('Organization', {
-                fields: {
-                    name: {
-                        type: Text,
-                        defaultValue: 'orgname',
-                    },
-                },
+                fields: ORGANIZATION_FIELDS,
                 access: {
                     read: false,
                 },
@@ -190,29 +192,25 @@ test('registerSchema with preprocessors', () => {
     expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
     expect(keystone.createList.mock.calls).toEqual([
         ['User', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'username',
-                },
-            },
+            fields: USER_FIELDS,
             access: {
                 read: false,
             },
+            adminConfig: getDefaultAdminConfig(USER_FIELDS),
+            labelResolver,
+            plugins: undefined,
             foo: 'bar',
             bar: 'buz',
         }],
         ['Organization', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'orgname',
-                },
-            },
+            fields: ORGANIZATION_FIELDS,
             access: {
                 read: false,
                 update: false,
             },
+            adminConfig: getDefaultAdminConfig(ORGANIZATION_FIELDS),
+            labelResolver,
+            plugins: undefined,
             foo: 'bar',
             bar: 'buz',
         }],
