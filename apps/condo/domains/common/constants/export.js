@@ -8,7 +8,7 @@ const EXCEL = 'excel'
 
 const EXPORT_FORMAT_VALUES = [EXCEL]
 
-const EXPORT_PROCESSING_BATCH_SIZE = 1000
+const EXPORT_PROCESSING_BATCH_SIZE = 100
 
 module.exports = {
     PROCESSING,
