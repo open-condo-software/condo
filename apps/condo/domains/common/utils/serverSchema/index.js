@@ -78,12 +78,6 @@ class GqlWithKnexLoadList {
             knexQuery.leftJoin(...join(idx))
         })
         knexQuery.whereIn('mainModel.id', ids)
-        if (offset) {
-            knexQuery.offset(offset)
-        }
-        if (limit) {
-            knexQuery.limit(limit)
-        }
         const joinTablesObjects = await knexQuery
         const main = Object.fromEntries(mainTableObjects.map(object => ([object.id, object])))
         const joins = Object.fromEntries(joinTablesObjects.map(object => ([object.id, object])))
@@ -124,7 +118,19 @@ const loadListByChunks = async ({
     return all
 }
 
+/**
+ * When no records of related model is found for `singleRelations` of `GqlWithKnexLoadList`, then knex returns `{}`.
+ * Sometimes, when we are building array of ids of that related objects, we will get ids values with `{}`.
+ * This utility filters these `{}` from array.
+ */
+function filterBlankRelatedObjectsFrom (records) {
+    return records.filter(record => (
+        !(record instanceof Object && Object.keys(record).length === 0)
+    ))
+}
+
 module.exports = {
     GqlWithKnexLoadList,
     loadListByChunks,
+    filterBlankRelatedObjectsFrom,
 }
