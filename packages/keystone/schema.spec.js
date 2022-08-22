@@ -108,30 +108,29 @@ test('registerSchema without preprocessors', () => {
     unregisterAllSchemas()
 
     expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
-    expect(keystone.createList.mock.calls).toEqual([
-        ['User', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'username',
-                },
+    expect(keystone.createList.mock.calls[0][1]).toMatchObject({
+        fields: {
+            name: {
+                type: Text,
+                defaultValue: 'username',
             },
-            access: {
-                read: false,
+        },
+        access: {
+            read: false,
+        },
+    })
+
+    expect(keystone.createList.mock.calls[1][1]).toMatchObject({
+        fields: {
+            name: {
+                type: Text,
+                defaultValue: 'orgname',
             },
-        }],
-        ['Organization', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'orgname',
-                },
-            },
-            access: {
-                read: false,
-            },
-        }],
-    ])
+        },
+        access: {
+            read: false,
+        },
+    })
 })
 
 test('registerSchema with preprocessors', () => {
@@ -188,33 +187,31 @@ test('registerSchema with preprocessors', () => {
     unregisterAllSchemas()
 
     expect(keystone.extendGraphQLSchema.mock.calls).toEqual([])
-    expect(keystone.createList.mock.calls).toEqual([
-        ['User', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'username',
-                },
+    expect(keystone.createList.mock.calls[0][1]).toMatchObject({
+        fields: {
+            name: {
+                type: Text,
+                defaultValue: 'username',
             },
-            access: {
-                read: false,
+        },
+        access: {
+            read: false,
+        },
+        foo: 'bar',
+        bar: 'buz',
+    })
+    expect(keystone.createList.mock.calls[1][1]).toMatchObject({
+        fields: {
+            name: {
+                type: Text,
+                defaultValue: 'orgname',
             },
-            foo: 'bar',
-            bar: 'buz',
-        }],
-        ['Organization', {
-            fields: {
-                name: {
-                    type: Text,
-                    defaultValue: 'orgname',
-                },
-            },
-            access: {
-                read: false,
-                update: false,
-            },
-            foo: 'bar',
-            bar: 'buz',
-        }],
-    ])
+        },
+        access: {
+            read: false,
+            update: false,
+        },
+        foo: 'bar',
+        bar: 'buz',
+    })
 })
