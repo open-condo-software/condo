@@ -16,7 +16,12 @@ jobs:
         node-version: [14.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout code with submodules
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Check lint with eslint
         uses: actions/setup-node@v1
@@ -24,7 +29,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install packages
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Lint code
         run: yarn lint

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "mkdirp dist/admin && node --unhandled-rejections=strict ./node_modules/.bin/jest",
+    "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build": "cross-env PHASE=build keystone build",
@@ -149,6 +149,7 @@
     "xss": "^1.0.13"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "1.21.8",
     "@testing-library/react": "^11.2.5",
     "@types/echarts": "4.9.15",
     "@types/jest": "26.0.24",

@@ -20,16 +20,16 @@ jobs:
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
-      - name: Checkout code
+      - name: Checkout code with submodules
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           submodules: recursive
-          token: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: install packages
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
 

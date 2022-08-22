@@ -3,23 +3,7 @@
   "version": "1.0.0",
   "main": "./index.js",
   "exports": {
-    "./access": "./access.js",
-    "./apolloErrorFormatter": "./apolloErrorFormatter.js",
-    "./cache": "./cache.js",
-    "./errors": "./errors.js",
-    "./fields": "./fields/index.js",
-    "./fields/Json/utils/cleaner": "./fields/Json/utils/cleaner.js",
-    "./fields/*": "./fields/*/index.js",
-    "./KSv5v6/v5/registerSchema": "./KSv5v6/v5/registerSchema.js",
-    "./plugins": "./plugins/index.js",
-    "./plugins/utils": "./plugins/utils/index.js",
-    "./plugins/utils/*": "./plugins/utils/*.js",
-    "./preprocessors/*": "./preprocessors/*.js",
-    "./redis": "./redis.js",
-    "./schema": "./schema.js",
-    "./setup.utils": "./setup.utils.js",
-    "./tasks": "./tasks.js",
-    "./test.utils": "./test.utils.js"
+    "./": "./"
   },
   "dependencies": {
     "@apollo/client": "3.3.20",
