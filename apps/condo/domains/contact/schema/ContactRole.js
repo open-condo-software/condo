@@ -7,22 +7,12 @@ const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/contact/access/ContactRole')
-const { Relationship } = require('@keystonejs/fields')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const ContactRole = new GQLListSchema('ContactRole', {
     schemaDoc: 'Role for contact',
     fields: {
-        organization: {
-            schemaDoc: 'The organization that created this role. Null means role for all organizations.',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: false,
-            knexOptions: { isNotNullable: false }, // Relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-            access: {
-                update: false,
-            },
-        },
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         name: {
             schemaDoc: 'The role\'s name',

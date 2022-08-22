@@ -25,7 +25,7 @@ const COMMON_AND_ORGANIZATION_OWNED_FIELD = {
     access: {
         read: true,
         create: true,
-        update: true,
+        update: false,
     },
 }
 
