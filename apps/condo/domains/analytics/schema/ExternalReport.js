@@ -70,6 +70,13 @@ const ExternalReport = new GQLListSchema('ExternalReport', {
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
+        isHidden: {
+            schemaDoc: 'Indicates visibility of concrete external report at ui',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
+
         iframeUrl: {
             schemaDoc: 'Url for iframe ',
             type: Virtual,
