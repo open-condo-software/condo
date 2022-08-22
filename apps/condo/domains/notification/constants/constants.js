@@ -113,11 +113,18 @@ const MESSAGE_META = {
     },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
-        userPhone: { defaultValue: '', required: false },
-        userPassword: { defaultValue: '', required: false },
+        userId: { defaultValue: '', required: false },
+        userName: { defaultValue: '', required: false },
+        userPhone: { defaultValue: '', required: true },
+        userEmail: { defaultValue: '', required: false },
+        userPassword: { defaultValue: '', required: true },
     },
     [WELCOME_NEW_USER_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
+        userId: { defaultValue: '', required: true },
+        userName: { defaultValue: '', required: true },
+        userPhone: { defaultValue: '', required: true },
+        userEmail: { defaultValue: '', required: true },
     },
     [RESET_PASSWORD_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
