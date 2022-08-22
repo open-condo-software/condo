@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const map = require('lodash/map')
+const compact = require('lodash/compact')
 const { TicketExportTask, TicketStatus } = require('../utils/serverSchema')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@condo/keystone/tasks')
@@ -201,8 +202,8 @@ const exportTickets = async (taskId) => {
         loadRecordsBatch: async (offset, limit) => {
             const { where, sortBy } = task
             const tickets = await loadTicketsBatchForExcelExport({ where, sortBy, offset, limit })
-            classifier = await loadClassifiersForExcelExport({ rulesIds: map(tickets, 'classifier') })
-
+            const classifierRuleIds = compact(map(tickets, 'classifier'))
+            classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
             if (!idOfFirstTicketForAccessRights) {
                 idOfFirstTicketForAccessRights = get(tickets, [0, 'id'])
             }

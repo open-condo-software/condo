@@ -81,7 +81,7 @@ const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
     const ticketsLoader = new GqlWithKnexLoadList({
         listKey: 'Ticket',
-        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt classifier updatedAt deadline deferredUntil reviewValue reviewComment statusReopenedCounter propertyAddress ',
+        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt updatedAt deadline deferredUntil reviewValue reviewComment statusReopenedCounter propertyAddress ',
         singleRelations: [
             ['User', 'createdBy', 'name'],
             ['User', 'operator', 'name'],
@@ -147,7 +147,7 @@ const loadTicketCommentsForExcelExport = async ({ ticketIds = [], sortBy = ['cre
     return await ticketCommentsLoader.load()
 }
 
-const loadClassifiersForExcelExport = async ({ rulesIds = [] }) => {
+const loadClassifiersForExcelExport = async ({ classifierRuleIds = [] }) => {
     const ticketClassifiersLoader = new GqlWithKnexLoadList({
         listKey: 'TicketClassifier',
         fields: 'id category place problem',
@@ -157,7 +157,7 @@ const loadClassifiersForExcelExport = async ({ rulesIds = [] }) => {
             ['TicketPlaceClassifier', 'place', 'name'],
         ],
         where: {
-            id_in: rulesIds,
+            id_in: classifierRuleIds,
         },
     })
 
