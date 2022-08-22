@@ -901,6 +901,7 @@
   "notification.messages.INVITE_NEW_EMPLOYEE.push.title": "You are invited to join organization as employee",
   "notification.messages.REGISTER_NEW_USER.email.subject": "Your access data to doma.ai service",
   "notification.messages.REGISTER_NEW_USER.push.title": "Your access data to doma.ai service",
+  "notification.messages.WELCOME_NEW_USER.email.subject": "Welcome to Doma, {userName}! Let’s get started.",
   "notification.messages.SHARE_TICKET.email.subject": "Ticket №{ticketNumber}",
   "notification.messages.RESET_PASSWORD.email.subject": "You are trying to reset password",
   "notification.messages.RESET_PASSWORD.push.title": "You are trying to reset password",
