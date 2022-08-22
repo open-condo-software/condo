@@ -3,15 +3,19 @@ import React from 'react'
 import { css, jsx } from '@emotion/react'
 import { useRouter } from 'next/router'
 import { Card, Typography } from 'antd'
-import { fontSizes } from '@condo/domains/common/constants/style'
+import { fontSizes, transitions } from '@condo/domains/common/constants/style'
 import { ExternalReport } from '@app/condo/schema'
 
 const cardCss = css`
-  box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05),
-  0 6px 16px rgba(0, 0, 0, 0.08),
-  0 3px 6px rgba(0, 0, 0, 0.12);
   border-radius: 8px;
   cursor: pointer;
+  transition: ${transitions.elevateTransition};
+  
+  &:hover {
+    box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05),
+    0 6px 16px rgba(0, 0, 0, 0.08),
+    0 3px 6px rgba(0, 0, 0, 0.12);
+  }
 `
 
 const CARD_HEAD_STYLE: React.CSSProperties = { fontSize: fontSizes.content, fontWeight: 700, borderBottom: 'none' }
