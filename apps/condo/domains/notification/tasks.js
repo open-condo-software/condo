@@ -41,7 +41,7 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
     if (SEND_TO_CONSOLE) {
         if (!DISABLE_LOGGING) console.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
 
-        return [true, { fakeAdapter: true }]
+        return [true, { fakeAdapter: true, transport, messageContext }]
     }
 
     return await adapter.send(messageContext)
