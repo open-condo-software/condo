@@ -15,7 +15,27 @@ const ExternalReport = generateGqlQueries('ExternalReport', EXTERNAL_REPORT_FIEL
 
 /* AUTOGENERATE MARKER <CONST> */
 
+const GET_TICKET_WIDGET_REPORT_DATA = gql`
+    query getWidgetData ($data: TicketReportWidgetInput!) {
+        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
+    }
+`
+
+const TICKET_ANALYTICS_REPORT_QUERY = gql`
+    query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
+        result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup categoryClassifier executor assignee } ticketLabels { color label } }
+    }
+`
+const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
+    query exportTicketAnalyticsToExcel ($data: ExportTicketAnalyticsToExcelInput!) {
+        result: exportTicketAnalyticsToExcel(data: $data) { link }
+    }
+`
+
 module.exports = {
     ExternalReport,
+    GET_TICKET_WIDGET_REPORT_DATA,
+    TICKET_ANALYTICS_REPORT_QUERY,
+    EXPORT_TICKET_ANALYTICS_TO_EXCEL,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

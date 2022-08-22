@@ -4,9 +4,13 @@
  */
 
 const { ExternalReport } = require('./ExternalReport')
+const { TicketReportService } = require('./TicketReportService')
+const { TicketAnalyticsReportService } = require('./TicketAnalyticsReportService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     ExternalReport,
+    TicketReportService,
+    TicketAnalyticsReportService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

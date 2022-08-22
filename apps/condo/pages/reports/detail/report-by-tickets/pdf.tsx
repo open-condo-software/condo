@@ -3,17 +3,17 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { Col, notification, Row, TableColumnsType, Typography } from 'antd'
 import dynamic from 'next/dynamic'
 import { useIntl } from '@condo/next/intl'
-import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
-import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
+import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
+import TicketListView from '@condo/domains/analytics/components/TicketListView'
 import { useLazyQuery } from '@condo/next/apollo'
-import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
+import { TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import { useOrganization } from '@condo/next/organization'
 import get from 'lodash/get'
 import sum from 'lodash/sum'
 import { createPdfWithPageBreaks } from '@condo/domains/common/utils/pdf'
 import dayjs from 'dayjs'
-import { filterToQuery, getAggregatedData } from '@condo/domains/ticket/utils/helpers'
+import { filterToQuery, getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 import { Loader } from '@condo/domains/common/components/Loader'
 import {
     DATE_DISPLAY_FORMAT,
@@ -22,7 +22,7 @@ import {
 } from '@condo/domains/ticket/constants/common'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { colors } from '@condo/domains/common/constants/style'
-import TicketChart from '@condo/domains/ticket/components/TicketChart'
+import TicketChart from '@condo/domains/analytics/components/TicketChart'
 import { TicketAnalyticsGroupBy, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 
 const PdfView = () => {

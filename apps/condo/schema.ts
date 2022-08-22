@@ -32737,15 +32737,15 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
-  ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
-  ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
-  exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
+  ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
+  ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
+  exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -36335,21 +36335,6 @@ export type QueryAllResidentBillingReceiptsArgs = {
 };
 
 
-export type QueryTicketReportWidgetDataArgs = {
-  data: TicketReportWidgetInput;
-};
-
-
-export type QueryTicketAnalyticsReportArgs = {
-  data?: Maybe<TicketAnalyticsReportInput>;
-};
-
-
-export type QueryExportTicketAnalyticsToExcelArgs = {
-  data?: Maybe<ExportTicketAnalyticsToExcelInput>;
-};
-
-
 export type QueryAllResidentTicketsArgs = {
   where?: Maybe<ResidentTicketWhereInput>;
   first?: Maybe<Scalars['Int']>;
@@ -36380,6 +36365,21 @@ export type QueryExportPaymentsToExcelArgs = {
 
 export type QueryAllMiniAppsArgs = {
   data: AllMiniAppsInput;
+};
+
+
+export type QueryTicketReportWidgetDataArgs = {
+  data: TicketReportWidgetInput;
+};
+
+
+export type QueryTicketAnalyticsReportArgs = {
+  data?: Maybe<TicketAnalyticsReportInput>;
+};
+
+
+export type QueryExportTicketAnalyticsToExcelArgs = {
+  data?: Maybe<ExportTicketAnalyticsToExcelInput>;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

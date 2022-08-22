@@ -4,13 +4,11 @@
  */
 
 const { Ticket } = require('./Ticket')
-const { TicketReportService } = require('./TicketReportService')
 const { TicketSource } = require('./TicketSource')
 const { TicketStatus } = require('./TicketStatus')
 const { TicketFile } = require('./TicketFile')
 const { TicketChange } = require('./TicketChange')
 const { TicketComment } = require('./TicketComment')
-const { TicketAnalyticsReportService } = require('./TicketAnalyticsReportService')
 const { ShareTicketService } = require('./ShareTicketService')
 const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
 const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
@@ -32,13 +30,11 @@ const { TicketExportTask } = require('./TicketExportTask')
 
 module.exports = {
     Ticket,
-    TicketReportService,
     TicketSource,
     TicketStatus,
     TicketFile,
     TicketChange,
     TicketComment,
-    TicketAnalyticsReportService,
     ShareTicketService,
     CreateResidentTicketService,
     GetAllResidentTicketsService,
