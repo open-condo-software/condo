@@ -17,6 +17,7 @@ const EXTERNAL_REPORT_ROW_GUTTER: RowProps['gutter'] = [32, 40]
 const IndexPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.analytics.index.PageTitle' })
+    const NoDatTitle = intl.formatMessage({ id: 'NoData' })
 
     const { organization } = useOrganization()
 
@@ -30,6 +31,8 @@ const IndexPage = () => {
             ],
         },
     }, { fetchPolicy: 'network-only' })
+
+    const isEmptyReports = !loading && isEmpty(externalReports)
 
     return (
         <>
@@ -48,8 +51,10 @@ const IndexPage = () => {
                                 </Col>
                             )))
                         }
-                        {(!loading && isEmpty(externalReports)) && (
-                            <BasicEmptyListView />
+                        {isEmptyReports && (
+                            <BasicEmptyListView>
+                                <Typography.Text>{NoDatTitle}</Typography.Text>
+                            </BasicEmptyListView>
                         )}
                     </Row>
                 </PageContent>
