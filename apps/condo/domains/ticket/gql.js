@@ -126,16 +126,6 @@ const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype }
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name type } type content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
-const TICKET_ANALYTICS_REPORT_QUERY = gql`
-    query ticketAnalyticsReport ($data: TicketAnalyticsReportInput!) {
-        result: ticketAnalyticsReport(data: $data) { groups { count status property dayGroup categoryClassifier executor assignee } ticketLabels { color label } }
-    }
-`
-const EXPORT_TICKET_ANALYTICS_TO_EXCEL = gql`
-    query exportTicketAnalyticsToExcel ($data: ExportTicketAnalyticsToExcelInput!) {
-        result: exportTicketAnalyticsToExcel(data: $data) { link }
-    }
-`
 
 const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} }`
 
@@ -186,16 +176,6 @@ const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRec
 const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TASK_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
-const EXPORT_TICKETS_TO_EXCEL =  gql`
-    query exportTicketsToExcel ($data: ExportTicketsToExcelInput!) {
-        result: exportTicketsToExcel(data: $data) { task ${TICKET_EXPORT_TASK_FIELDS} }
-    }
-`
-const GET_TICKET_WIDGET_REPORT_DATA = gql`
-    query getWidgetData ($data: TicketReportWidgetInput!) {
-        result: ticketReportWidgetData(data: $data) { data { statusName, currentValue, growth, statusType } }
-    }
-`
 module.exports = {
     Ticket,
     TicketStatus,
@@ -204,17 +184,13 @@ module.exports = {
     ResidentTicket,
     TicketFile,
     TICKET_CHANGE_DATA_FIELDS,
-    EXPORT_TICKETS_TO_EXCEL,
-    GET_TICKET_WIDGET_REPORT_DATA,
     TicketComment,
-    TICKET_ANALYTICS_REPORT_QUERY,
     SHARE_TICKET_MUTATION,
     TicketPlaceClassifier,
     TicketCategoryClassifier,
     TicketProblemClassifier,
     TicketClassifier,
     RESIDENT_TICKET_FIELDS,
-    EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     TicketFilterTemplate,
     PREDICT_TICKET_CLASSIFICATION_QUERY,
     TicketCommentFile,

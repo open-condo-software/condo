@@ -17,7 +17,7 @@ import { useOrganization } from '@condo/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import sum from 'lodash/sum'
-import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/ticket/gql'
+import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import { useApolloClient, useLazyQuery } from '@condo/next/apollo'
 
 import dayjs, { Dayjs } from 'dayjs'
@@ -32,7 +32,7 @@ import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithI
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/ticket/components/TicketChart'
+import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
 import {
     filterToQuery,
     getAggregatedData,
@@ -40,14 +40,14 @@ import {
     specificationTypes,
     ticketAnalyticsPageFilters,
     isEmptyAnalyticsData,
-} from '@condo/domains/ticket/utils/helpers'
+} from '@condo/domains/analytics/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     searchEmployeeUser,
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
-import TicketChartView from '@condo/domains/ticket/components/analytics/TicketChartView'
-import TicketListView from '@condo/domains/ticket/components/analytics/TicketListView'
+import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
+import TicketListView from '@condo/domains/analytics/components/TicketListView'
 import {
     DATE_DISPLAY_FORMAT,
     TICKET_REPORT_DAY_GROUP_STEPS,
@@ -56,7 +56,7 @@ import {
 import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
-import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/ticket/constants/restrictions'
+import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/constants/restrictions'
 
 dayjs.extend(quarterOfYear)
 
@@ -873,7 +873,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
             if (prevState !== key) {
                 setAnalyticsData(null)
                 return key
-            } else { 
+            } else {
                 return prevState
             }
         })
@@ -1013,19 +1013,19 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         </Row>
                     </Col>
                     <ActionBar hidden={isSmall}>
-                        <Button 
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf} 
-                            icon={<FilePdfFilled />} 
-                            type='sberPrimary' 
+                        <Button
+                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
+                            icon={<FilePdfFilled />}
+                            type='sberPrimary'
                             secondary>
                             {PrintTitle}
                         </Button>
-                        <Button 
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} 
-                            onClick={downloadExcel} 
-                            loading={isXSLXLoading} 
-                            icon={<EditFilled />} 
-                            type='sberPrimary' 
+                        <Button
+                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}
+                            onClick={downloadExcel}
+                            loading={isXSLXLoading}
+                            icon={<EditFilled />}
+                            type='sberPrimary'
                             secondary>
                             {ExcelTitle}
                         </Button>

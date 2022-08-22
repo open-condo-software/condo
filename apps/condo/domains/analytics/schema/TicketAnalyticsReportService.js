@@ -3,7 +3,7 @@
  */
 
 const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
-const access = require('@condo/domains/ticket/access/TicketAnalyticsReportService')
+const access = require('@condo/domains/analytics/access/TicketAnalyticsReportService')
 
 const dayjs = require('dayjs')
 
@@ -13,33 +13,33 @@ const {
     TicketGqlToKnexAdapter,
     getCombinations,
     enumerateDaysBetweenDates,
-} = require('@condo/domains/ticket/utils/serverSchema/analytics.helper')
+} = require('@condo/domains/analytics/utils/serverSchema/analytics.helper')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
 const { TicketStatus: TicketStatusServerUtils, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
 const sum = require('lodash/sum')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
-const propertySummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryDataMapper')
-const propertySingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySingleDataMapper')
-const dayGroupDataMapper = require('@condo/domains/ticket/utils/serverSchema/dayGroupDataMapper')
+const propertySummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/propertySummaryDataMapper')
+const propertySingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/propertySingleDataMapper')
+const dayGroupDataMapper = require('@condo/domains/analytics/utils/serverSchema/dayGroupDataMapper')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
-const propertyPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertyPercentDataMapper')
-const propertySummaryPercentDataMapper = require('@condo/domains/ticket/utils/serverSchema/propertySummaryPercentDataMapper')
-const categoryClassifierSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierSingleDataMapper')
-const categoryClassifierSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierSummaryDataMapper')
-const categoryClassifierPercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierPercentSingleDataMapper')
-const categoryClassifierPercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/categoryClassifierPercentSummaryDataMapper')
-const executorSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorSingleDataMapper')
-const executorSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorSummaryDataMapper')
-const executorPercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorPercentSingleDataMapper')
-const executorPercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/executorPercentSummaryDataMapper')
-const assigneeSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneeSingleDataMapper')
-const assigneeSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneeSummaryDataMapper')
-const assigneePercentSingleDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSingleDataMapper')
-const assigneePercentSummaryDataMapper = require('@condo/domains/ticket/utils/serverSchema/assigneePercentSummaryDataMapper')
+const propertyPercentDataMapper = require('@condo/domains/analytics/utils/serverSchema/propertyPercentDataMapper')
+const propertySummaryPercentDataMapper = require('@condo/domains/analytics/utils/serverSchema/propertySummaryPercentDataMapper')
+const categoryClassifierSingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/categoryClassifierSingleDataMapper')
+const categoryClassifierSummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/categoryClassifierSummaryDataMapper')
+const categoryClassifierPercentSingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/categoryClassifierPercentSingleDataMapper')
+const categoryClassifierPercentSummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/categoryClassifierPercentSummaryDataMapper')
+const executorSingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/executorSingleDataMapper')
+const executorSummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/executorSummaryDataMapper')
+const executorPercentSingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/executorPercentSingleDataMapper')
+const executorPercentSummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/executorPercentSummaryDataMapper')
+const assigneeSingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/assigneeSingleDataMapper')
+const assigneeSummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/assigneeSummaryDataMapper')
+const assigneePercentSingleDataMapper = require('@condo/domains/analytics/utils/serverSchema/assigneePercentSingleDataMapper')
+const assigneePercentSummaryDataMapper = require('@condo/domains/analytics/utils/serverSchema/assigneePercentSummaryDataMapper')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { UNKNOWN_GROUP_BY_FILTER } = require('../constants/errors')
+const { UNKNOWN_GROUP_BY_FILTER } = require('@condo/domains/analytics/constants/errors')
 const { getHeadersTranslations, TICKETS_REPORTS_PREFIX } = require('@condo/domains/common/utils/exportToExcel')
 const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const conf = require('@condo/config')
@@ -485,7 +485,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
 
                 const { url: link } = await createExportFile({
                     fileName: `ticket_analytics_${dayjs().format('DD_MM')}.xlsx`,
-                    templatePath: `./domains/ticket/templates/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
+                    templatePath: `./domains/analytics/templates/TicketAnalyticsExportTemplate[${groupBy1}_${groupBy2}].xlsx`,
                     replaces: { tickets, i18n },
                     meta: {
                         listkey: 'Ticket',

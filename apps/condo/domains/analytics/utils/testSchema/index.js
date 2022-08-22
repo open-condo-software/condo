@@ -9,7 +9,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/co
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
-const { ExternalReport: ExternalReportGQL } = require('@condo/domains/analytics/gql')
+const { ExternalReport: ExternalReportGQL, GET_TICKET_WIDGET_REPORT_DATA, TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ExternalReport = generateGQLTestUtils(ExternalReportGQL)
@@ -18,8 +18,6 @@ const ExternalReport = generateGQLTestUtils(ExternalReportGQL)
 async function createTestExternalReport (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestExternalReport logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -48,9 +46,50 @@ async function updateTestExternalReport (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function getTicketReport(client, periodType = 'calendarWeek', extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const attrs = {
+        periodType,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.query(GET_TICKET_WIDGET_REPORT_DATA, { data: attrs })
+    throwIfError(data, errors)
+
+    return [data.result.data, attrs]
+}
+
+async function getTicketAnalyticsReport(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const { data, errors } = await client.query(TICKET_ANALYTICS_REPORT_QUERY, {
+        dv: 1,
+        sender,
+        data: extraAttrs,
+    })
+    throwIfError(data, errors)
+
+    return [data.result, extraAttrs]
+}
+
+async function getTicketAnalyticsExport(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const { data, errors } = await client.query(EXPORT_TICKET_ANALYTICS_TO_EXCEL, {
+        dv: 1,
+        sender,
+        data: extraAttrs
+    })
+    throwIfError(data, errors)
+
+    return [data.result, extraAttrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     ExternalReport, createTestExternalReport, updateTestExternalReport,
+    getTicketReport, getTicketAnalyticsReport, getTicketAnalyticsExport
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
