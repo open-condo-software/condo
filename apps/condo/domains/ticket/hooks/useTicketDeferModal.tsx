@@ -1,10 +1,11 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { useIntl } from '@condo/next/intl'
 import { Alert, Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import dayjs, { Dayjs } from 'dayjs'
+
+import { useIntl } from '@condo/next/intl'
 import { Button } from '@app/condo/domains/common/components/Button'
 import DatePicker from '@app/condo/domains/common/components/Pickers/DatePicker'
-import dayjs, { Dayjs } from 'dayjs'
-import { Gutter } from 'antd/es/grid/row'
 import { Modal } from '@condo/domains/common/components/Modal'
 
 type useTicketDeferModalType = (updateTicket: (statusDeferredId: string, deferredDate: Dayjs) => void) => { openModal: (statusDeferredId: string) => void, closeModal: () => void, deferTicketModal: JSX.Element }

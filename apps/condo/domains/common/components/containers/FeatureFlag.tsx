@@ -15,12 +15,12 @@
  */
 
 import React, { ReactNode, useState } from 'react'
-import { Switch, Alert } from 'antd'
-import { Modal } from '@condo/domains/common/components/Modal'
-
 import getConfig from 'next/config'
-import { useIntl } from '@condo/next/intl'
 import { useHotkeys } from 'react-hotkeys-hook'
+import { Switch, Alert } from 'antd'
+
+import { Modal } from '@condo/domains/common/components/Modal'
+import { useIntl } from '@condo/next/intl'
 
 
 const getEnabledFeatures = (): Array<string> => {

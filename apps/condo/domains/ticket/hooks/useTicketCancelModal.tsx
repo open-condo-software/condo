@@ -1,5 +1,6 @@
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Typography } from 'antd'
+
 import { Modal } from '@condo/domains/common/components/Modal'
 import { Button } from '@app/condo/domains/common/components/Button'
 import { useIntl } from '@condo/next/intl'
