@@ -45,7 +45,7 @@ RUN echo "# Build time .env config!" >> /home/app/.env && \
 # If you don't have this directory, you can create it by command `bash ./bin/warm-docker-cache` or just create empty ./.docker-cache-warming dir (no cache mode)
 ADD --chown=app:app ./.docker-cache-warming /home/app
 # Cache packages!
-RUN set -ex && yarn install --frozen-lockfile
+RUN set -ex && yarn install --immutable
 ADD --chown=app:app . /home/app
 RUN set -ex && yarn && bash -c "${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set (check READEME.md)!}" && \
     yarn cache clean && rm -rf /home/app/.env && rm -rf /home/app/.config && rm -rf /home/app/.yarn && rm -rf /home/app/.cache && \
