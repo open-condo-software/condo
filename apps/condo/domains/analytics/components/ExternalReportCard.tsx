@@ -3,7 +3,7 @@ import React from 'react'
 import { css, jsx } from '@emotion/react'
 import { useRouter } from 'next/router'
 import { Card, Typography } from 'antd'
-import { fontSizes, transitions } from '@condo/domains/common/constants/style'
+import { fontSizes, transitions, colors } from '@condo/domains/common/constants/style'
 import { ExternalReport } from '@app/condo/schema'
 
 const cardCss = css`
@@ -19,6 +19,7 @@ const cardCss = css`
 `
 
 const CARD_HEAD_STYLE: React.CSSProperties = { fontSize: fontSizes.content, fontWeight: 700, borderBottom: 'none' }
+const CARD_DESCRIPTION_STYLE: React.CSSProperties = { color: colors.textSecondary }
 
 interface IExternalReportCardProps {
     externalReport: ExternalReport
@@ -39,7 +40,7 @@ const ExternalReportCard = ({ externalReport }: IExternalReportCardProps): React
             css={cardCss}
             onClick={onCardClick}
         >
-            <Typography.Text>{description}</Typography.Text>
+            <Typography.Text style={CARD_DESCRIPTION_STYLE}>{description}</Typography.Text>
         </Card>
     )
 }
