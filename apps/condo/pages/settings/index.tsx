@@ -8,7 +8,7 @@ import {
     SETTINGS_TAB_PROPERTY_DETAILS,
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
-    SETTINGS_TAB_TICKET_ORGANIZATION,
+    SETTINGS_TAB_CALL_CENTER,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -23,9 +23,7 @@ import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
-import {
-    TicketOrganizationSettingsContent,
-} from '@condo/domains/ticket/components/TicketOrganizationSetting/SettingsContent'
+import { CallCenterSettingsContent } from '@condo/domains/common/components/settings/CallCenterSettingsContent'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
@@ -75,9 +73,9 @@ const SettingsPage: React.FC = () => {
                 content: <ContactRolesSettingsContent/>,
             },
             {
-                key: SETTINGS_TAB_TICKET_ORGANIZATION,
+                key: SETTINGS_TAB_CALL_CENTER,
                 title: CallCenterTitle,
-                content: <TicketOrganizationSettingsContent />,
+                content: <CallCenterSettingsContent />,
             },
         ].filter(Boolean),
         [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, CallCenterTitle],
