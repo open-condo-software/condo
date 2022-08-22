@@ -1,17 +1,18 @@
 import React, { useContext, useMemo, useState } from 'react'
+import get from 'lodash/get'
+import styled from '@emotion/styled'
+import { SizeType } from 'antd/es/config-provider/SizeContext'
+import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
+import { css, Global } from '@emotion/react'
 import { Typography, Space, Table, ConfigProvider } from 'antd'
+
 import { Modal } from '@condo/domains/common/components/Modal'
 import { useIntl } from '@condo/next/intl'
-import get from 'lodash/get'
 import { BillingReceipt } from '@app/condo/schema'
 import { useServicesTableColumns } from '@condo/domains/billing/hooks/useServicesTableColumns'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { SubText } from '@condo/domains/common/components/Text'
-import { SizeType } from 'antd/es/config-provider/SizeContext'
-import { PlusSquareOutlined, MinusSquareOutlined } from '@ant-design/icons'
-import { css, Global } from '@emotion/react'
-import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 
 interface IServicesModalProps {
