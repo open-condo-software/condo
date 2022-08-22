@@ -43,6 +43,7 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "apps/_realtime*",
     "apps/condo/*",
     "apps/miniapp/*",
+    "apps/address-service/*",
     "packages/*",
     "bin/*",
     "docs/*",
