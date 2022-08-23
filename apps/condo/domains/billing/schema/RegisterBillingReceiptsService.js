@@ -337,23 +337,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 // Step 1:
                 // Parse properties, accounts and receipts from input
                 const { propertyIndex, accountIndex, receiptIndex } = receiptsInput.reduce((index, receiptInput) => {
-                    const {
-                        importId,
-                        address,
-                        accountNumber,
-                        unitName,
-                        unitType,
-                        category,
-                        period,
-                        services,
-                        toPay,
-                        toPayDetails,
-                        tin,
-                        iec,
-                        bic,
-                        bankAccount,
-                        raw,
-                    } = receiptInput
+                    const { importId, address, accountNumber, unitName, unitType, category, period, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
 
                     const propertyFromInput = { address }
                     const propertyKey = getBillingPropertyKey( propertyFromInput )
