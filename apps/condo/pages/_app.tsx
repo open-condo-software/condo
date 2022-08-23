@@ -1,5 +1,4 @@
 import '@condo/domains/common/components/wdyr'
-import { useRouter } from 'next/router'
 
 import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
@@ -52,16 +51,8 @@ import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniap
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
-import { GlobalAppsContainer } from '../domains/miniapp/components/GlobalApps/GlobalAppsContainer'
-import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react'
-import { useEffect } from 'react'
-import { useFeature, IfFeatureEnabled } from '@growthbook/growthbook-react'
-
-const growthbook = new GrowthBook({
-    trackingCallback: (experiment, result) => {
-        console.log('Viewed Experiment', experiment, result)
-    },
-})
+import { FeatureFlagsProvider } from '@condo/domains/common/components/FeatureFlagsContext'
+import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -187,21 +178,10 @@ const TasksProvider = ({ children }) => {
     )
 }
 
-const FEATURES_ENDPOINT = 'http://localhost:3100/api/features/key_prod_8efebe44760130ae'
-
 const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
     useHotCodeReload()
     dayjs.locale(intl.locale)
-    const router = useRouter()
-
-    useEffect(() => {
-        fetch(FEATURES_ENDPOINT)
-            .then((res) => res.json())
-            .then((json) => {
-                growthbook.setFeatures(json.features)
-            })
-    }, [router.pathname])
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -233,9 +213,9 @@ const MyApp = ({ Component, pageProps }) => {
                                         <LayoutContextProvider>
                                             <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                 <RequiredAccess>
-                                                    <GrowthBookProvider growthbook={growthbook}>
+                                                    <FeatureFlagsProvider>
                                                         <Component {...pageProps} />
-                                                    </GrowthBookProvider>
+                                                    </FeatureFlagsProvider>
                                                     {
                                                         isEndTrialSubscriptionReminderPopupVisible && (
                                                             <EndTrialSubscriptionReminderPopup/>
