@@ -11427,7 +11427,7 @@ export type ContactRole = {
    *  4. As an alias to the 'id' field on the ContactRole List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  The organization that created this role. Null means role for all organizations.  */
+  /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  The role's name  */
   name?: Maybe<Scalars['String']>;
