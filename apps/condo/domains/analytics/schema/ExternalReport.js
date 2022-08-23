@@ -6,21 +6,25 @@ const { Text, Select, Checkbox, Virtual, Relationship } = require('@keystonejs/f
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const conf = require('@condo/config')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/analytics/access/ExternalReport')
 const get = require('lodash/get')
 const jwt = require('jsonwebtoken')
+const { EXTERNAL_REPORT_TYPES } = require('@condo/domains/analytics/constants/constants')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/index')
 
 
 const getMetabaseUrl = (externalReport, organizationId) => {
-    const METABASE_SITE_URL = conf['METABASE_SITE_URL']
-    const METABASE_SECRET_KEY = conf['METABASE_SECRET_KEY']
+    const METABASE_CONFIG = conf['METABASE_CONFIG'] && JSON.parse(conf['METABASE_CONFIG'])
+
+    const metabaseServerUrl = get(METABASE_CONFIG, 'url')
+    const metabaseSecret = get(METABASE_CONFIG, 'secret')
     const dashboardId = get(externalReport, ['meta', 'dashboard'])
 
-    if (!METABASE_SECRET_KEY || !METABASE_SECRET_KEY || !dashboardId) {
-        return ''
+    if (!metabaseServerUrl || !metabaseSecret || !dashboardId) {
+        return null
     }
 
     const payload = {
@@ -30,9 +34,9 @@ const getMetabaseUrl = (externalReport, organizationId) => {
         },
         exp: Math.round(Date.now() / 1000) + (10 * 60), // 10 minute expiration
     }
-    const token = jwt.sign(payload, METABASE_SECRET_KEY, {}, null)
+    const token = jwt.sign(payload, metabaseSecret, {}, null)
 
-    return METABASE_SITE_URL + '/embed/dashboard/' + token + '#bordered=false&titled=false'
+    return metabaseServerUrl + '/embed/dashboard/' + token + '#bordered=false&titled=false'
 }
 
 const ExternalReport = new GQLListSchema('ExternalReport', {
@@ -41,7 +45,7 @@ const ExternalReport = new GQLListSchema('ExternalReport', {
         type: {
             schemaDoc: 'Type of external report. Way to determine logic of url building process',
             type: Select,
-            options: 'metabase',
+            options: EXTERNAL_REPORT_TYPES,
             isRequired: true,
         },
 
@@ -61,14 +65,7 @@ const ExternalReport = new GQLListSchema('ExternalReport', {
             type: Json,
         },
 
-        organization: {
-            schemaDoc: 'Organization related report',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: false,
-            knexOptions: { isNotNullable: false },
-            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
-        },
+        organization: COMMON_AND_ORGANIZATION_OWNED_FIELD,
 
         isHidden: {
             schemaDoc: 'Indicates visibility of concrete external report at ui',

@@ -3,19 +3,29 @@
  */
 
 const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadExternalReports ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
-    return true
+    return {
+        OR: [
+            { organization_is_null: true },
+            { organization: queryOrganizationEmployeeFor(user.id) },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+        ],
+    }
 }
 
 async function canManageExternalReports ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
     return false
 }
