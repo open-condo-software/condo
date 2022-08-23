@@ -40,11 +40,9 @@ export class TasksLocalStorage implements ITasksStorage {
         if (!status) {
             return tasks
         }
-        const records = tasks.filter(task => (
-            task.status === status &&
-            task.user && get(task, 'user.id') === user.id &&
-            today ? dayjs(task.createdAt).isToday() : true
-        ))
+        const records = tasks
+            .filter(task => task.status === status && task.user && get(task, 'user.id') === user.id)
+            .filter(task => today ? dayjs(task.createdAt).isToday() : true)
         return { records }
     }
 
