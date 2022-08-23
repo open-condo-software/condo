@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import { IRecordWithId } from '../types'
 import { FilterValue } from 'antd/es/table/interface'
 import { Property } from '@app/condo/schema'
+import dayjs from 'dayjs'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -91,3 +92,16 @@ export const getId = (record: IRecordWithId): string | null => get(record, 'id',
  * @param key
  */
 export const getFilteredValue = <T>(filters: T, key: string | Array<string>): FilterValue => get(filters, key, null)
+
+type humanizeDaysType = (days: number) => string
+/**
+ * Formats days into a human readable string
+ * @param days
+ */
+export const humanizeDays: humanizeDaysType = (days) => {
+    // NOTE function humanize() returns the correct result only for numbers from 1 to 25.
+    // It is necessary to work with numbers from 0 to 45 (and more)
+    const _days = (days % 20 === 0) ? 20 : days
+    const ending = dayjs.duration(_days, 'days').humanize().replace(_days.toString(), '')
+    return `${days} ${ending}`
+}
