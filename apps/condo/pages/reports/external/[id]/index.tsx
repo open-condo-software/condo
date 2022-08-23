@@ -27,10 +27,7 @@ const ExternalReportDetailPage = () => {
                     ? <Loader size='large' fill />
                     : (
                         <>
-                            <PageHeader
-                                style={{ background: 'transparent' }}
-                                title={<Typography.Title>{externalReport.title}</Typography.Title>}
-                            />
+                            <PageHeader title={<Typography.Title>{externalReport.title}</Typography.Title>} />
                             <PageContent>
                                 <Row style={LAYOUT_STYLE}>
                                     <Col span={24} style={LAYOUT_STYLE}>

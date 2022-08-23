@@ -17,7 +17,7 @@ const EXTERNAL_REPORT_ROW_GUTTER: RowProps['gutter'] = [32, 40]
 const IndexPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.analytics.index.PageTitle' })
-    const NoDatTitle = intl.formatMessage({ id: 'NoData' })
+    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { organization } = useOrganization()
 
@@ -41,10 +41,7 @@ const IndexPage = () => {
                 <title>{PageTitleMsg}</title>
             </Head>
             <PageWrapper>
-                <PageHeader
-                    style={{ background: 'transparent' }}
-                    title={<Typography.Title>{PageTitleMsg}</Typography.Title>}
-                />
+                <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} />
                 <PageContent>
                     <Row
                         gutter={EXTERNAL_REPORT_ROW_GUTTER}
@@ -61,7 +58,7 @@ const IndexPage = () => {
                         }
                         {isEmptyReports && (
                             <BasicEmptyListView image='/dino/searching@2x.png' spaceSize={16}>
-                                <Typography.Title level={4}>{NoDatTitle}</Typography.Title>
+                                <Typography.Title level={4}>{NoDataTitle}</Typography.Title>
                             </BasicEmptyListView>
                         )}
                     </Row>

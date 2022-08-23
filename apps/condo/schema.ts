@@ -12474,7 +12474,7 @@ export type ExternalReport = {
   description?: Maybe<Scalars['String']>;
   /**  Meta data for building iframe link. For example, external id or custom options that required at specified type of report  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  Organization related report  */
+  /**  Ref to the organization. If this ref is null the object is common for all organizations  */
   organization?: Maybe<Organization>;
   /**  Indicates visibility of concrete external report at ui  */
   isHidden?: Maybe<Scalars['Boolean']>;
