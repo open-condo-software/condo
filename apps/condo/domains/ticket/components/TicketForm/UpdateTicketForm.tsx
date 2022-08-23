@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router'
 import { get, isEmpty } from 'lodash'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { Form, Typography, Space } from 'antd'
 
 import { useOrganization } from '@condo/next/organization'
@@ -11,7 +11,6 @@ import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 
 import { BaseTicketForm } from '../BaseTicketForm'
 import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
@@ -19,20 +18,30 @@ import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
+
+    const { push, query: { id } } = useRouter()
+    const onCancel = useCallback((resetFields) => {
+        resetFields()
+        push(`/ticket/${id}`)
+    }, [id, push])
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue }) => {
+                ({ getFieldsValue, resetFields }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
-
                     return (
                         <ActionBar isFormActionBar>
-                            <FormResetButton
+                            <Button
+                                key='cancel'
+                                onClick={() => onCancel(resetFields)}
                                 type='sberDefaultGradient'
                                 secondary
-                            />
+                            >
+                                {CancelLabel}
+                            </Button>
                             <Space size={12}>
                                 <Button
                                     key='submit'
