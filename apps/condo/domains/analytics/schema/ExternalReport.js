@@ -87,7 +87,9 @@ const ExternalReport = new GQLListSchema('ExternalReport', {
                 const userOrganizationLinkId = get(cookies, 'organizationLinkId')
 
                 if (userOrganizationLinkId) {
-                    const { organization: { id: userOrganizationId } } = await OrganizationEmployee.getOne(context, { id: userOrganizationLinkId })
+                    const { organization: { id: userOrganizationId } } = await OrganizationEmployee.getOne(context, {
+                        id: userOrganizationLinkId, user: { id: context.authedItem.id },
+                    })
 
                     const { type } = item
 
