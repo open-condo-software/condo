@@ -5,7 +5,7 @@ import { SettingsPageContent } from '@condo/domains/common/components/settings/S
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
-    SETTINGS_TAB_DETAILS,
+    SETTINGS_TAB_PAYMENT_DETAILS,
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
 } from '@condo/domains/common/constants/settingsTabs'
@@ -25,7 +25,7 @@ import React, { CSSProperties, useMemo } from 'react'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_DETAILS]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PAYMENT_DETAILS]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
@@ -60,7 +60,7 @@ const SettingsPage: React.FC = () => {
                 content: <TicketPropertyHintSettings/>,
             },
             {
-                key: SETTINGS_TAB_DETAILS,
+                key: SETTINGS_TAB_PAYMENT_DETAILS,
                 title: DetailsTitle,
                 content: <RecipientSettingsContent/>,
             },
