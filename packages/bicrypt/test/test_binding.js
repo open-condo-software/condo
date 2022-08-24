@@ -21,7 +21,7 @@ const demoKeys = [
     ['A004DT04', 'bWDu3V'],
 ]
 
-async function testSign() {
+async function testSign () {
     console.time('signatureCreate')
     const [keyName, passPhrase] = demoKeys[2]
     const instance = new CondoBicryptSign({ keyName, passPhrase })
