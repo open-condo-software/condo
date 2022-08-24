@@ -20,6 +20,7 @@ const errors = {
  * @typedef ExportTask
  * @property {Number} id
  * @property {Number} exportedRecordsCount
+ * @property {Number} totalRecordsCount
  */
 
 /**
@@ -42,16 +43,17 @@ const errors = {
  * @param args.taskServerUtils - utils from serverSchema
  * @return {Promise<*[]>} - JSON representation of file rows, that will be saved to file
  */
-const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, convertRecordToFileRow, task, taskServerUtils }) => {
+const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, convertRecordToFileRow, task: { id: taskId }, taskServerUtils }) => {
     let hasMore
     let offset = 0
     let rows = []
+    let task // a fresh record we are working with
 
     do {
         const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
         if (batch.length === 0) {
             if (offset === 0) {
-                await taskServerUtils.update(context, task.id, {
+                await taskServerUtils.update(context, taskId, {
                     dv: 1,
                     sender: {
                         dv: 1,
@@ -63,7 +65,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
                     ...errors.NOTHING_TO_EXPORT,
                     messageInterpolation: {
                         schema: taskServerUtils.gql.SINGULAR_FORM,
-                        id: task.id,
+                        id: taskId,
                     },
                 })
             }
@@ -74,18 +76,25 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
                 ...convertedRecords,
             ]
 
-            await taskServerUtils.update(context, task.id, {
+            task = await taskServerUtils.getOne(context, { id: taskId })
+            // NOTE: Ideally, we need a kind of `increment` method in utils for server schema.
+            // Suppose, that in future `loadRecordsAndConvertToFileRows` function will
+            // be called to process chunks in parallel, so, theoretically, between fetching of fresh
+            // task record above and next update below, another process can try to update the record,
+            // and both processes will add `batch.length` to the same value
+            task = await taskServerUtils.update(context, taskId, {
                 dv: 1,
                 sender: {
                     dv: 1,
                     fingerprint: TASK_WORKER_FINGERPRINT,
                 },
-                exportedRecordsCount: task.exportedRecordsCount + batch.length,
+                exportedRecordsCount: (task && task.exportedRecordsCount || 0) + batch.length,
             })
         }
 
-        hasMore = batch.length > 0
         offset += EXPORT_PROCESSING_BATCH_SIZE
+        // Handle case when we know total records to export and when we don't know and relying on presence of fetched records by fact
+        hasMore = (task.totalRecordsCount && offset < task.totalRecordsCount) || (!task.totalRecordsCount && batch.length > 0)
     } while (hasMore)
 
     return rows
