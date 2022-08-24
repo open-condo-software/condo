@@ -138,16 +138,15 @@ export const getTableCellRenderer: TTableCellRendererFN = (
 
         const ellipsisConfig = isBoolean(ellipsis) ? ELLIPSIS_SETTINGS : ellipsis
 
-        const tableCellContent = useMemo(() => {
-            const cellContent = text && (!ellipsis ?
-                highlightedContent :
-                (<Typography.Paragraph ellipsis={ellipsisConfig} style={ELLIPSIS_STYLES}>
-                    {highlightedContent}
-                </Typography.Paragraph>)
-            )
-
-            return <EmptyTableCell>{href ? renderLink(cellContent, href) : cellContent}</EmptyTableCell>
-        }, [ellipsis, text, ellipsisConfig, highlightedContent, href])
+        const cellContent = text && (
+            !ellipsis
+                ? highlightedContent
+                : (
+                    <Typography.Paragraph ellipsis={ellipsisConfig} style={ELLIPSIS_STYLES}>
+                        {highlightedContent}
+                    </Typography.Paragraph>
+                )
+        )
 
         // NOTE Tooltip -> span -> content
         // This hack (span) is needed for tooltip to appear
@@ -155,7 +154,11 @@ export const getTableCellRenderer: TTableCellRendererFN = (
         return (
             <Tooltip title={title}>
                 <span>
-                    {tableCellContent}
+                    {
+                        href
+                            ? renderLink(cellContent, href)
+                            : cellContent
+                    }
                 </span>
             </Tooltip>
         )
