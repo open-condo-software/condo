@@ -1,6 +1,7 @@
-import { useIntl } from '@condo/next/intl'
-import isEmpty from 'lodash/isEmpty'
 import React from 'react'
+import isEmpty from 'lodash/isEmpty'
+import { useIntl } from '@condo/next/intl'
+
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 
 interface IErrorsContainerProps {
@@ -11,9 +12,10 @@ interface IErrorsContainerProps {
     categoryClassifier: string
     deadline: string
     propertyMismatchError: string
+    isRequiredDeadline?: boolean
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline, propertyMismatchError }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline, propertyMismatchError, isRequiredDeadline }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -27,10 +29,10 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, pr
         !details && DetailsLabel,
         !placeClassifier && PlaceLabel,
         !categoryClassifier && CategoryLabel,
-        !deadline && DeadlineLabel,
+        (isRequiredDeadline && !deadline && DeadlineLabel),
     ].filter(Boolean)
         .join(', ')
-    
+
     const requiredErrorMessage = !isEmpty(emptyFieldMessages) && ErrorsContainerTitle.concat(` ${emptyFieldMessages.toLowerCase()}`)
 
 
