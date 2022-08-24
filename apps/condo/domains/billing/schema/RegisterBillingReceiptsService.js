@@ -33,12 +33,19 @@ const errors = {
         type: NOT_FOUND,
         message: 'Provided BillingCategory is not found for some receipts',
     },
-    PERIOD_WRONG_FORMAT: {
+    WRONG_YEAR: {
         mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'period'],
+        variable: ['data', 'receipts', '[]', 'year'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'field Period is in wrong format for some receipts. Period should be in format: {YEAR}-{MONTH}-01. Example: "2022-03-01" (March of 2022)',
+        message: 'Field Year is wrong for some receipts. Year should be greater then 0. Example: 2022',
+    },
+    WRONG_MONTH: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'month'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Field Month is wrong for some receipts. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
     },
     ADDRESS_WRONG_VALUE: {
         mutation: 'registerBillingReceipts',
@@ -297,7 +304,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'toPay: String! ' +
                     'toPayDetails: BillingReceiptServiceToPayDetailsFieldInput ' +
                     'services: BillingReceiptServiceFieldInput ' +
-                    'period: String! ' +
+
+                    'month: Int! ' +
+                    'year: Int! ' +
 
                     'category: BillingCategoryWhereUniqueInput! ' +
 
@@ -337,7 +346,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 // Step 1:
                 // Parse properties, accounts and receipts from input
                 const { propertyIndex, accountIndex, receiptIndex } = receiptsInput.reduce((index, receiptInput) => {
-                    const { importId, address, accountNumber, unitName, unitType, category, period, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
+                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
+
+                    // Validate period
+                    if (!(0 <= month && month <= 12 )) {throw new GQLError(errors.WRONG_MONTH, context)}
+                    if (year < 0) {throw new GQLError(errors.WRONG_YEAR, context)}
+                    const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
+                    console.log(period)
 
                     const propertyFromInput = { address }
                     const propertyKey = getBillingPropertyKey( propertyFromInput )

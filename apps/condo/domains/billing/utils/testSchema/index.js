@@ -693,7 +693,9 @@ function createRegisterBillingReceiptsPayload(extraAttrs) {
         unitName: faker.random.alphaNumeric(14),
 
         toPay: '100.00',
-        period: '2022-03-01',
+
+        year: 2022,
+        month: 3,
 
         category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
 
