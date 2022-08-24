@@ -11,11 +11,13 @@ import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { useTicketSettingContext } from '@condo/domains/ticket/components/TicketSettingContext'
 
 import { BaseTicketForm } from '../BaseTicketForm'
 import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 
-export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
+export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
@@ -26,14 +28,28 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
         push(`/ticket/${id}`)
     }, [id, push])
 
+    const { ticketSetting } = useTicketSettingContext()
+
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue, getFieldError }) => {
+                ({ getFieldsValue, resetFields, getFieldError }) => {
+                    const isPaid = form.getFieldValue('isPaid')
+                    const isEmergency = form.getFieldValue('isEmergency')
+                    const isWarranty = form.getFieldValue('isWarranty')
+
+                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty) !== null
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
 
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline || !!propertyMismatchError
+                    const disabledCondition = !property
+                        || !details
+                        || !placeClassifier
+                        || !categoryClassifier
+                        || !!propertyMismatchError
+                        || (isRequiredDeadline && !deadline)
+                        || !ticketSetting
+
                     return (
                         <ActionBar isFormActionBar>
                             <Button
@@ -50,7 +66,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     onClick={handleSave}
                                     type='sberDefaultGradient'
                                     loading={isLoading}
-                                    disabled={!property}
+                                    disabled={disabledCondition}
                                     data-cy='ticket__apply-changes-button'
                                 >
                                     {ApplyChangesMessage}
@@ -63,6 +79,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     categoryClassifier={categoryClassifier}
                                     deadline={deadline}
                                     propertyMismatchError={propertyMismatchError}
+                                    isRequiredDeadline={isRequiredDeadline}
                                 />
                             </Space>
                         </ActionBar>
@@ -119,7 +136,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                 replace(`/ticket/${ticket.id}`)
             }}
         >
-            {({ handleSave, isLoading }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading}/>}
+            {({ handleSave, isLoading, form }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
     )
 }

@@ -18,15 +18,19 @@ import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { useTicketSettingContext } from '@condo/domains/ticket/components/TicketSettingContext'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 dayjs.extend(isToday)
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
-export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
+export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+
+    const { ticketSetting } = useTicketSettingContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
@@ -34,7 +38,16 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                 ({ getFieldsValue, getFieldError }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
+                    const isPaid = form.getFieldValue('isPaid')
+                    const isEmergency = form.getFieldValue('isEmergency')
+                    const isWarranty = form.getFieldValue('isWarranty')
+                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty) !== null
+                    const disabledCondition = !property
+                        || !details
+                        || !placeClassifier
+                        || !categoryClassifier
+                        || (isRequiredDeadline && !deadline)
+                        || !ticketSetting
 
                     return (
                         <ActionBar isFormActionBar>
@@ -59,6 +72,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                         categoryClassifier={categoryClassifier}
                                         deadline={deadline}
                                         propertyMismatchError={propertyMismatchError}
+                                        isRequiredDeadline={isRequiredDeadline}
                                     />
                                 </Row>
                             </Col>
@@ -93,7 +107,7 @@ export const CreateTicketForm: React.FC = () => {
 
     const createAction = useCallback((variables) => {
         let deadline = get(variables, 'deadline')
-        if (deadline.isToday()) {
+        if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
         return action({
@@ -120,7 +134,7 @@ export const CreateTicketForm: React.FC = () => {
         ),
     }), [SuccessNotificationDescription, intl])
 
-    const MemoizedBaseTicketForm = useCallback(() => (
+    return useMemo(() => (
         <BaseTicketForm
             action={createAction}
             initialValues={initialValues}
@@ -129,9 +143,7 @@ export const CreateTicketForm: React.FC = () => {
             autoAssign
             OnCompletedMsg={getCompletedNotification}
         >
-            {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
+            {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
     ), [createAction, getCompletedNotification, initialValues, link.role, organization])
-
-    return <MemoizedBaseTicketForm />
 }

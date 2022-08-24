@@ -1,12 +1,13 @@
-import get from 'lodash/get'
-import dayjs from 'dayjs'
-import { ParsedUrlQuery } from 'querystring'
-import { SortOrder } from 'antd/es/table/interface'
+import { get } from 'lodash'
+import dayjs  from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
+import { ParsedUrlQuery } from 'querystring'
+import { SortOrder } from 'antd/es/table/interface'
 
 import {
     Ticket,
+    TicketOrganizationSetting,
     TicketStatus,
     TicketStatusWhereInput,
     TicketWhereInput,
@@ -433,4 +434,17 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
     }
 
     return false
+}
+
+type getTicketDefaultDeadlineType = (ticketSetting: TicketOrganizationSetting, isPaid: boolean, isEmergency: boolean, isWarranty: boolean) => number | null
+
+export const getTicketDefaultDeadline: getTicketDefaultDeadlineType = (ticketSetting, isPaid, isEmergency, isWarranty) => {
+    if (!ticketSetting) return null
+
+    let addDays: number | null = get(ticketSetting, 'defaultDeadline', null)
+    if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadline', null)
+    if (isPaid) addDays = get(ticketSetting, 'paidDeadline', null)
+    if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadline', null)
+
+    return addDays
 }
