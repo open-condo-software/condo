@@ -343,71 +343,97 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     throw new GQLError(errors.BILLING_CONTEXT_NOT_FOUND, context)
                 }
 
+                const partialErrors = []
+
                 // Step 1:
                 // Parse properties, accounts and receipts from input
                 const { propertyIndex, accountIndex, receiptIndex } = receiptsInput.reduce((index, receiptInput) => {
                     const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
 
+                    let hasValidationError = false
+
                     // Validate period
-                    if (!(0 <= month && month <= 12 )) {throw new GQLError(errors.WRONG_MONTH, context)}
-                    if (year < 0) {throw new GQLError(errors.WRONG_YEAR, context)}
-                    const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
-                    console.log(period)
-
-                    const propertyFromInput = { address }
-                    const propertyKey = getBillingPropertyKey( propertyFromInput )
-
-                    const accountFromInput = { unitName, unitType, number: accountNumber, property: propertyFromInput }
-                    const accountKey = getBillingAccountKey( accountFromInput )
-
-                    const receiptFromInput = { category, period, property: propertyFromInput, account: accountFromInput, services, recipient: { tin, iec, bic, bankAccount } }
-                    const receiptKey = getBillingReceiptKey(receiptFromInput)
-
-                    if (!index.propertyIndex[propertyKey]) {
-                        index.propertyIndex[propertyKey] = {
-                            dv: dv,
-                            sender: sender,
-                            globalId: propertyKey,
-                            address: address,
-                            raw: { dv: 1 },
-                            importId: propertyKey,
-                            context: { id: billingContext.id },
-                            meta: { dv: 1 },
-                        }
+                    if (!(0 <= month && month <= 12 )) {
+                        partialErrors.push(new GQLError(errors.WRONG_MONTH, context))
+                        hasValidationError = true
                     }
-                    if (!index.accountIndex[accountKey]) {
-                        index.accountIndex[accountKey] = {
-                            dv: dv,
-                            sender: sender,
-                            context: { id: billingContext.id },
-                            number: accountNumber,
-                            importId: accountKey,
-                            globalId: accountKey,
+                    if (year < 0) {
+                        partialErrors.push(new GQLError(errors.WRONG_YEAR, context))
+                        hasValidationError = true
+                    }
+                    const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
+
+                    if ( !hasValidationError ) {
+                        const propertyFromInput = { address }
+                        const propertyKey = getBillingPropertyKey(
+                            propertyFromInput)
+
+                        const accountFromInput = {
                             unitName,
                             unitType,
-                            property: index.propertyIndex[propertyKey],
-                            raw: { dv: 1 },
-                            meta: { dv: 1 },
+                            number: accountNumber,
+                            property: propertyFromInput,
                         }
-                    }
-                    if (!index.receiptIndex[receiptKey]) {
-                        index.receiptIndex[receiptKey] = {
-                            dv: dv,
-                            sender: sender,
-                            context: { id: billingContextId },
-                            account: index.accountIndex[accountKey],
-                            property: index.propertyIndex[propertyKey],
-                            period: period,
-                            importId: importId,
-                            category: { id: category.id },
-                            toPay: toPay,
-                            services: services,
-                            toPayDetails: toPayDetails,
-                            tin,
-                            iec,
-                            bic,
-                            bankAccount,
-                            raw: { ...{ dv: 1 }, ...raw },
+                        const accountKey = getBillingAccountKey(
+                            accountFromInput)
+
+                        const receiptFromInput = {
+                            category,
+                            period,
+                            property: propertyFromInput,
+                            account: accountFromInput,
+                            services,
+                            recipient: { tin, iec, bic, bankAccount },
+                        }
+                        const receiptKey = getBillingReceiptKey(
+                            receiptFromInput)
+
+                        if (!index.propertyIndex[propertyKey]) {
+                            index.propertyIndex[propertyKey] = {
+                                dv: dv,
+                                sender: sender,
+                                globalId: propertyKey,
+                                address: address,
+                                raw: { dv: 1 },
+                                importId: propertyKey,
+                                context: { id: billingContext.id },
+                                meta: { dv: 1 },
+                            }
+                        }
+                        if (!index.accountIndex[accountKey]) {
+                            index.accountIndex[accountKey] = {
+                                dv: dv,
+                                sender: sender,
+                                context: { id: billingContext.id },
+                                number: accountNumber,
+                                importId: accountKey,
+                                globalId: accountKey,
+                                unitName,
+                                unitType,
+                                property: index.propertyIndex[propertyKey],
+                                raw: { dv: 1 },
+                                meta: { dv: 1 },
+                            }
+                        }
+                        if (!index.receiptIndex[receiptKey]) {
+                            index.receiptIndex[receiptKey] = {
+                                dv: dv,
+                                sender: sender,
+                                context: { id: billingContextId },
+                                account: index.accountIndex[accountKey],
+                                property: index.propertyIndex[propertyKey],
+                                period: period,
+                                importId: importId,
+                                category: { id: category.id },
+                                toPay: toPay,
+                                services: services,
+                                toPayDetails: toPayDetails,
+                                tin,
+                                iec,
+                                bic,
+                                bankAccount,
+                                raw: { ...{ dv: 1 }, ...raw },
+                            }
                         }
                     }
                     return index
@@ -425,7 +451,12 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 // Sync billing receipts
                 const { createdReceipts, updatedReceipts, notChangedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
-                return [ ...createdReceipts, ...updatedReceipts ]
+                const resultData = [...createdReceipts, ...updatedReceipts].map(item => Promise.resolve(item))
+                const resultErrors = partialErrors.map(err => (new Promise(() => { throw err })))
+
+                const result = [...resultData, ...resultErrors]
+
+                return result
             },
         },
     ],
