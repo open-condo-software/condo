@@ -14,6 +14,7 @@ const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION } = require('@condo/domains/acquiring/gql')
+const { SUM_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -49,6 +50,20 @@ async function registerMultiPaymentForOneReceipt (context, data) {
     })
 }
 
+async function sumPayments (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write sumPayments serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: SUM_PAYMENTS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sumPayments',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -60,5 +75,6 @@ module.exports = {
     registerMultiPayment,
     PaymentsFilterTemplate,
     registerMultiPaymentForOneReceipt,
+    sumPayments,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
