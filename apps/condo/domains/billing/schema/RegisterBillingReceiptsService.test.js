@@ -293,7 +293,7 @@ describe('RegisterBillingReceiptsService', () => {
                             accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
                             unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
 
-                            period: '2022-04-01',
+                            month: 4,
                         }),
                         createRegisterBillingReceiptsPayload({
                             address: TEST_ADDRESS_P1,
@@ -302,7 +302,7 @@ describe('RegisterBillingReceiptsService', () => {
                             accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
                             unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
 
-                            period: '2022-04-01',
+                            month: 4,
                         }),
                         createRegisterBillingReceiptsPayload({
                             address: TEST_ADDRESS_P1,
@@ -311,7 +311,7 @@ describe('RegisterBillingReceiptsService', () => {
                             accountNumber: TEST_BILLING_ACCOUNT_1_NUMBER,
                             unitName: TEST_BILLING_ACCOUNT_1_UNITNAME,
 
-                            period: '2022-05-01',
+                            month: 5,
                         }),
                     ],
                 }
@@ -475,12 +475,12 @@ describe('RegisterBillingReceiptsService', () => {
                     receipts: [
                         {
                             ...receiptInput,
-                            period: '2022-03-01',
+                            month: 3,
                             importId: faker.random.alphaNumeric(24),
                         },
                         {
                             ...receiptInput,
-                            period: '2022-04-01',
+                            month: 4,
                             importId: faker.random.alphaNumeric(24),
                         },
                     ],
@@ -737,7 +737,8 @@ describe('RegisterBillingReceiptsService', () => {
                         unitName: faker.random.alphaNumeric(8),
 
                         toPay: '200.20',
-                        period: '2022-05-01',
+                        year: 2022,
+                        month: 3,
 
                         category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
 
@@ -817,7 +818,7 @@ describe('RegisterBillingReceiptsService', () => {
             })
         })
 
-        test.skip('Mutation checks wrong period format', async () => {
+        test('Mutation checks wrong period format', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
@@ -835,7 +836,8 @@ describe('RegisterBillingReceiptsService', () => {
                         unitName: faker.random.alphaNumeric(8),
 
                         toPay: '200.20',
-                        period: '2022',
+                        year : 2000,
+                        month: 13,
 
                         category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }, // Wrong category id
 
@@ -850,7 +852,7 @@ describe('RegisterBillingReceiptsService', () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(admin, payload)
             }, (e) => {
-                expect(e.errors[0].message).toContain('???')
+                expect(e.errors[0].message).toContain('Field Month is wrong for some receipts.')
             })
         })
 
