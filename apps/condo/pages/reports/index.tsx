@@ -50,11 +50,13 @@ const IndexPage = () => {
                     >
                         {loading
                             ? <Loader size='large' fill />
-                            : (externalReports.map((externalReport, key) => (
-                                <Col key={key} span={12}>
-                                    <ExternalReportCard externalReport={externalReport} />
-                                </Col>
-                            )))
+                            : (externalReports
+                                .filter(externalReport => externalReport.iframeUrl)
+                                .map((externalReport, key) => (
+                                    <Col key={key} span={12}>
+                                        <ExternalReportCard externalReport={externalReport} />
+                                    </Col>
+                                )))
                         }
                         {isEmptyReports && (
                             <BasicEmptyListView image='/dino/searching@2x.png' spaceSize={16}>
