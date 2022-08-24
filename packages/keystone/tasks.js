@@ -60,8 +60,9 @@ function removeCronTask (name, cron, opts = {}) {
 }
 
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
+    logger.info(`Scheduling task "${name}" with args "${JSON.stringify(preparedOpts)}"`)
     const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
-
+    logger.info(`Task "${name}" with args "${JSON.stringify(preparedOpts)}" was scheduled and assigned to Bull job with id "${job.id}"`)
     return {
         getState: async () => {
             return await job.getState()
