@@ -2,7 +2,7 @@ const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const map = require('lodash/map')
 const compact = require('lodash/compact')
-const { TicketExportTask, TicketStatus } = require('../utils/serverSchema')
+const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchema')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
@@ -167,11 +167,21 @@ const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) =
     }
 }
 
-const exportTickets = async (taskId) => {
+/**
+ * Processor for exporting tickets job
+ *
+ * NOTE: Task progress should be reported to Bull via `Job` interface, which is assigned to `this` variable.
+ * If this operation takes more than a timeout in Bull (30 seconds), a 'stalled' event
+ * will be emitted and the job will be translated to 'failed' state
+ *
+ * @param taskId - id of `TicketExportTask` record, obtained from job `data` arguments
+ * @returns {Promise<void>}
+ */
+async function exportTicketsWorker (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
-    const task = await TicketExportTask.getOne(context, { id: taskId })
+    let task = await TicketExportTask.getOne(context, { id: taskId })
 
     if (!task.locale) {
         await TicketExportTask.update(context, task.id, {
@@ -199,6 +209,18 @@ const exportTickets = async (taskId) => {
 
     const { where, sortBy } = task
     const ticketsLoader = await buildTicketsLoader({ where, sortBy })
+
+    const totalRecordsCount = await Ticket.count(context, where)
+
+    task = await TicketExportTask.update(context, task.id, {
+        dv: 1,
+        sender: {
+            dv: 1,
+            fingerprint: TASK_WORKER_FINGERPRINT,
+        },
+        totalRecordsCount,
+    })
+
     await exportRecords({
         context,
         loadRecordsBatch: async (offset, limit) => {
@@ -208,6 +230,7 @@ const exportTickets = async (taskId) => {
             if (!idOfFirstTicketForAccessRights) {
                 idOfFirstTicketForAccessRights = get(tickets, [0, 'id'])
             }
+            this.progress(Math.floor(offset / totalRecordsCount * 100))
             return tickets
         },
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifier }),
@@ -217,14 +240,12 @@ const exportTickets = async (taskId) => {
     })
 }
 
-const exportTicketsTask = createTask('exportTickets', async (taskId) => {
-    await exportTickets(taskId)
-}, {
+const exportTicketsTask = createTask('exportTickets', exportTicketsWorker, {
     priority: 2,
 })
 
 
 module.exports = {
-    exportTickets,
+    exportTicketsWorker,
     exportTicketsTask,
 }
