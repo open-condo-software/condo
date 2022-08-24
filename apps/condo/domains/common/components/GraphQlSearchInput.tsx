@@ -158,6 +158,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 logEvent({ eventName, eventProperties: componentProperties })
             }
         }
+        handleSearch('')
     }, [onSelect, props.mode])
 
     useEffect(() => {
