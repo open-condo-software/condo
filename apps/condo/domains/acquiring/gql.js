@@ -40,6 +40,14 @@ const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
     }
 `
 
+// TODO(codegen): write return type result!
+
+const SUM_PAYMENTS_MUTATION = gql`
+    mutation sumPayments ($data: SumPaymentsInput!) {
+        result: sumPayments(data: $data) { id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -58,5 +66,6 @@ module.exports = {
     EXPORT_PAYMENTS_TO_EXCEL,
     PaymentsFilterTemplate,
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+    SUM_PAYMENTS_MUTATION,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
