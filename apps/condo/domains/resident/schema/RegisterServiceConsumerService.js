@@ -47,23 +47,6 @@ const errors = {
     },
 }
 
-async function getResidentBillingAccount (context, billingIntegrationContext, accountNumber, unitName) {
-    const billingAccountsInUnit = await BillingAccount.getAll(context, {
-        context: { id: billingIntegrationContext.id },
-        unitName: unitName,
-    })
-    if (!Array.isArray(billingAccountsInUnit)) {
-        return [] // No accounts are found for this user
-    }
-    return billingAccountsInUnit.filter(
-        (billingAccount) => {
-            return (accountNumber === billingAccount.number) ||
-                (accountNumber.trim() === billingAccount.number) ||
-                (accountNumber === billingAccount.globalId)
-        }
-    )
-}
-
 const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsumerService', {
     types: [
         {
@@ -116,7 +99,14 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                 if (billingIntegrationContext) {
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
-                    const [billingAccount] = await getResidentBillingAccount(context, billingIntegrationContext, accountNumber, unitName)
+                    const [billingAccount] = await BillingAccount.getAll(context,
+                        {
+                            context: { id: billingIntegrationContext.id },
+                            unitName: unitName,
+                            number_i: accountNumber,
+                        }
+                    )
+                    // This is deprecated. These fields are not going to be set in future releases!
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
