@@ -1,5 +1,5 @@
-const addon = require('../build/Release/condo-bicrypt-sign-native')
-const { resolve } = require('path')
+const path = require('path')
+const addon = require(path.join(__dirname, '../build/Release/condo-bicrypt-sign-native'))
 const { existsSync: checkPath } = require('fs')
 const { DOMParser } = require('xmldom')
 const c14n = require('xml-c14n')()
@@ -23,8 +23,8 @@ const formatXml = (xmlData) => new Promise((resolve, reject) => {
 class CondoBicryptSign {
 
     constructor ({ keyName = '', passPhrase, keyPath = '' }) {
-        const pathToKey = keyName ? resolve(`${__dirname}/keys/${keyName}.key`) : keyPath
-        const pathToPRDN = resolve(`${__dirname}/random/prnd.db3`)
+        const pathToKey = keyName ? path.resolve(`${__dirname}/keys/${keyName}.key`) : keyPath
+        const pathToPRDN = path.resolve(`${__dirname}/random/prnd.db3`)
         if (!pathToKey || !checkPath(pathToKey)) {
             return this.error('No key specified', { keyName, keyPath })
         }
