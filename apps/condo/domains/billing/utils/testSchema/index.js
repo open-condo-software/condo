@@ -666,7 +666,7 @@ async function makeClientWithIntegrationAccess () {
     return client
 }
 
-async function registerBillingReceiptsByTestClient(client, args) {
+async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!args) throw new Error('no data')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -678,8 +678,11 @@ async function registerBillingReceiptsByTestClient(client, args) {
     }
     const { data, errors } = await client.mutate(REGISTER_BILLING_RECEIPTS_MUTATION, { data: attrs })
 
-    throwIfError(data, errors)
-    return [data.result, attrs]
+    if (!extraAttrs.raw) {
+        throwIfError(data, errors)
+    }
+
+    return [data.result, errors, attrs]
 }
 
 function createRegisterBillingReceiptsPayload(extraAttrs) {
