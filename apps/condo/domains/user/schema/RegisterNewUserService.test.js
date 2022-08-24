@@ -153,7 +153,7 @@ describe('Notifications', () => {
             const messages = await Message.getAll(client, { user: { id: user.id } })
             expect(messages).toHaveLength(2)
             expect(messages[0].processingMeta).not.toBeNull()
-            console.log(JSON.stringify(messages[0].processingMeta, null, 2))
+            expect(messages[1].processingMeta).not.toBeNull()
             // TODO(pahaz): it looks like we need to arise password
             expect(messages[0]).toMatchObject({
                 type: REGISTER_NEW_USER_MESSAGE_TYPE,
