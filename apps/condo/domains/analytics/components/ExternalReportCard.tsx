@@ -7,9 +7,18 @@ import { fontSizes, transitions, colors, shadows } from '@condo/domains/common/c
 import { ExternalReport } from '@app/condo/schema'
 
 const cardCss = css`
-  border-radius: 8px;
+  border-radius: 16px;
   cursor: pointer;
   transition: ${transitions.elevateTransition};
+  min-height: 124px;
+  
+  & .ant-card-head {
+    padding: 0 28px;
+  }
+  
+  & .ant-card-body {
+    padding: 12px 28px 28px; 
+  }
   
   &:hover {
     box-shadow: ${shadows.elevated};
