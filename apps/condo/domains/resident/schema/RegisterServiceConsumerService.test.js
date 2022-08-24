@@ -104,13 +104,13 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
+        expect(out.accountNumber).toEqual(payload.accountNumber)
+        expect(out.resident.id).toEqual(payload.residentId)
+        expect(out.organization.id).toEqual(payload.organizationId)
         expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
         expect(out.residentAcquiringIntegrationContext.integration).toBeDefined()
         expect(out.residentAcquiringIntegrationContext.integration.id).toEqual(acquiringIntegration.id)
         expect(out.residentAcquiringIntegrationContext.integration.hostUrl).toEqual(acquiringIntegration.hostUrl)
-        // TODO(zuch): Fix test check
-        // expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
-        // expect(out.residentOrganization.id).toEqual(organization.id)
     })
 
     it('creates serviceConsumer with billingAccount and Meters', async () => {
@@ -152,6 +152,9 @@ describe('RegisterServiceConsumerService', () => {
         const [ meter ] = await Meter.getAll(userClient)
 
         expect(out).toBeDefined()
+        expect(out.accountNumber).toEqual(payload.accountNumber)
+        expect(out.resident.id).toEqual(payload.residentId)
+        expect(out.organization.id).toEqual(payload.organizationId)
         expect(out.paymentCategory).toEqual('Housing')
         // TODO(zuch): Fix test
         //expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
@@ -186,8 +189,9 @@ describe('RegisterServiceConsumerService', () => {
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
 
         expect(out).toBeDefined()
-        // TODO(zuch): Fix test
-        //expect(out.residentBillingAccount.id).toEqual(billingAccountAttrs.id)
+        expect(out.accountNumber).toEqual(payload.accountNumber)
+        expect(out.resident.id).toEqual(payload.residentId)
+        expect(out.organization.id).toEqual(payload.organizationId)
     })
 
     it('creates serviceConsumer without billingAccount when Meters are found', async () => {
@@ -220,6 +224,9 @@ describe('RegisterServiceConsumerService', () => {
 
         const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
         expect(out).toBeDefined()
+        expect(out.accountNumber).toEqual(payload.accountNumber)
+        expect(out.resident.id).toEqual(payload.residentId)
+        expect(out.organization.id).toEqual(payload.organizationId)
         expect(out.billingAccount).toBeNull()
         expect(out.residentBillingAccount).toBeNull()
     })
