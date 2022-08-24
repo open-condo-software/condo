@@ -36,12 +36,12 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
 
     const search = getFilteredValue(filters, 'search')
 
-    const renderAddress = useCallback(
-        (_, property) => getAddressRender(property, null, search),
-        [search])
+    const renderAddress = useCallback((_, property) => {
+        return getAddressRender(property, null, search)
+    }, [search])
 
     return useMemo(() => {
-        const columns = [
+        return [
             {
                 title: AddressMessage,
                 ellipsis: true,
@@ -74,6 +74,8 @@ export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) 
                 width: '15%',
             },
         ]
-        return columns
-    }, [filters, sorters])
+    }, [
+        filters,
+        sorters,
+    ])
 }
