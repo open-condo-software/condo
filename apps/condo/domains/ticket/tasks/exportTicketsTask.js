@@ -6,7 +6,7 @@ const { TicketExportTask, TicketStatus } = require('../utils/serverSchema')
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
-const { loadTicketsBatchForExcelExport, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('../utils/serverSchema')
+const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('../utils/serverSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const dayjs = require('dayjs')
@@ -197,11 +197,12 @@ const exportTickets = async (taskId) => {
 
     let classifier
 
+    const { where, sortBy } = task
+    const ticketsLoader = await buildTicketsLoader({ where, sortBy })
     await exportRecords({
         context,
         loadRecordsBatch: async (offset, limit) => {
-            const { where, sortBy } = task
-            const tickets = await loadTicketsBatchForExcelExport({ where, sortBy, offset, limit })
+            const tickets = ticketsLoader.loadChunk(offset, limit)
             const classifierRuleIds = compact(map(tickets, 'classifier'))
             classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
             if (!idOfFirstTicketForAccessRights) {
