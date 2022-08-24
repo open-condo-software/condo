@@ -9,9 +9,10 @@ interface IErrorsContainerProps {
     placeClassifier: string,
     categoryClassifier: string
     deadline: string
+    isRequiredDeadline?: boolean
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline  }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline, isRequiredDeadline  }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -25,14 +26,14 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, pr
         !details && DetailsLabel,
         !placeClassifier && PlaceLabel,
         !categoryClassifier && CategoryLabel,
-        !deadline && DeadlineLabel,
+        (isRequiredDeadline && !deadline && DeadlineLabel),
     ].filter(Boolean)
 
     const errorMessage = emptyFieldMessages && emptyFieldMessages.length > 0 &&
         emptyFieldMessages
             .reduce((firstError, secondError) => `${firstError}, ${secondError}`)
             .toLocaleLowerCase()
-    
+
     return (
         isVisible && (
             <ErrorsWrapper>

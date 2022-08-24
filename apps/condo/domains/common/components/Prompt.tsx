@@ -44,12 +44,16 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         // Todo(zuch): find a better way to turn off Prompt on form submit
         const oldFormSubmit = form.submit
         form.submit = () => {
+            debugger
             isIgnoringPrompt.current = true
             oldFormSubmit.call(form)
         }
         const onRouteChange = url => {
+            debugger
             if (!isIgnoringPrompt.current) {
+                debugger
                 if (isFormChanged()) {
+                    debugger
                     setNext(url)
                     showModal()
                     // Todo(zuch): wait for next.js implement router abort method and remove custom error

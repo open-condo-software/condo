@@ -13,19 +13,36 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 
-import { BaseTicketForm } from '../BaseTicketForm'
+import { BaseTicketForm, useTicketSettingContext } from '../BaseTicketForm'
 import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 
-export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
+const getRequiredDeadline = (ticketSetting, isPaid, isEmergency, isWarranty) => {
+    let addDays: number | null = get(ticketSetting, 'defaultDeadline')
+    if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadline')
+    if (isPaid) addDays = get(ticketSetting, 'paidDeadline')
+    if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadline')
+
+    console.log({ addDays, ticketSetting })
+    return addDays !== null
+}
+
+export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
+
+    const { ticketSetting } = useTicketSettingContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
+                    const isPaid = form.getFieldValue('isPaid')
+                    const isEmergency = form.getFieldValue('isEmergency')
+                    const isWarranty = form.getFieldValue('isWarranty')
+
+                    const isRequiredDeadline = getRequiredDeadline(ticketSetting, isPaid, isEmergency, isWarranty)
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || (isRequiredDeadline && !deadline)
 
                     return (
                         <ActionBar isFormActionBar>
@@ -51,6 +68,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     placeClassifier={placeClassifier}
                                     categoryClassifier={categoryClassifier}
                                     deadline={deadline}
+                                    isRequiredDeadline={isRequiredDeadline}
                                 />
                             </Space>
                         </ActionBar>
@@ -107,7 +125,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
                 replace(`/ticket/${ticket.id}`)
             }}
         >
-            {({ handleSave, isLoading }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading}/>}
+            {({ handleSave, isLoading, form }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
     )
 }

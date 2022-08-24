@@ -13,7 +13,7 @@ import { useOrganization } from '@condo/next/organization'
 import { colors } from '@condo/domains/common/constants/style'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
+import { BaseTicketForm, useTicketSettingContext } from '@condo/domains/ticket/components/BaseTicketForm'
 import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
@@ -24,16 +24,31 @@ dayjs.extend(isToday)
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
-export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
+const getRequiredDeadline = (ticketSetting, isPaid, isEmergency, isWarranty) => {
+    let addDays: number | null = get(ticketSetting, 'defaultDeadline')
+    if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadline')
+    if (isPaid) addDays = get(ticketSetting, 'paidDeadline')
+    if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadline')
+
+    return addDays !== null
+}
+
+export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+
+    const { ticketSetting } = useTicketSettingContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
                 ({ getFieldsValue }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
+                    const isPaid = form.getFieldValue('isPaid')
+                    const isEmergency = form.getFieldValue('isEmergency')
+                    const isWarranty = form.getFieldValue('isWarranty')
+                    const isRequiredDeadline = getRequiredDeadline(ticketSetting, isPaid, isEmergency, isWarranty)
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || (isRequiredDeadline && !deadline)
 
                     return (
                         <ActionBar isFormActionBar>
@@ -57,6 +72,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                         placeClassifier={placeClassifier}
                                         categoryClassifier={categoryClassifier}
                                         deadline={deadline}
+                                        isRequiredDeadline={isRequiredDeadline}
                                     />
                                 </Row>
                             </Col>
@@ -92,7 +108,7 @@ export const CreateTicketForm: React.FC = () => {
 
     const createAction = useCallback((variables) => {
         let deadline = get(variables, 'deadline')
-        if (deadline.isToday()) {
+        if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
         return action({
@@ -128,9 +144,9 @@ export const CreateTicketForm: React.FC = () => {
             autoAssign
             OnCompletedMsg={getCompletedNotification}
         >
-            {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
+            {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
-    ), [createAction, initialValues, link.role, organization])
+    ), [createAction, getCompletedNotification, initialValues, link.role, organization])
 
     return <MemoizedBaseTicketForm />
 }
