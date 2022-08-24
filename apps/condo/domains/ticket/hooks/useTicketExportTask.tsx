@@ -1,15 +1,17 @@
 import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
-import { ITask, TASK_PROGRESS_UNKNOWN, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
+import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
-import { TicketExportTask } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
+import { TicketExportTask } from '@app/condo/schema'
 
 export const useTicketExportTaskUIInterface = () => {
     const intl = useIntl()
     const TicketExportTaskProgressTitle = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.title' })
+    const TicketExportTaskProgressDescriptionPreparing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.preparing' })
     const TicketExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.processing' })
     const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
     const router = useRouter()
@@ -19,26 +21,26 @@ export const useTicketExportTaskUIInterface = () => {
      * to use for initial loaded tasks by `__typename` field value
      */
     const TaskUIInterface: ITask = {
-        storage: new TasksCondoStorage({ clientSchema: TicketExportTask }),
+        storage: new TasksCondoStorage({ clientSchema: TicketExportTaskApi }),
         removeStrategy: [TASK_REMOVE_STRATEGY.PANEL],
         translations: {
             title: () => {
                 return TicketExportTaskProgressTitle
             },
             description: (taskRecord) => {
-                // Extra field `exportedTicketsCount` over `TaskRecord` type
                 // @ts-ignore
-                const { status, exportedTicketsCount } = taskRecord
+                const { status, exportedRecordsCount, totalRecordsCount } = taskRecord // this record is of type TicketExportTask
                 return status === TASK_COMPLETED_STATUS
                     ? TicketExportTaskProgressDescriptionCompleted
-                    : TicketExportTaskProgressDescriptionProcessing.replace('{n}', exportedTicketsCount || 0)
+                    : !totalRecordsCount || !exportedRecordsCount
+                        ? TicketExportTaskProgressDescriptionPreparing
+                        : TicketExportTaskProgressDescriptionProcessing
+                            .replace('{exported}', exportedRecordsCount || 0)
+                            .replace('{total}', totalRecordsCount || 0)
             },
         },
-        calculateProgress: () => {
-            // There is no technical way to tell exact progress of the exporting tickets task
-            // because `GqlWithKnexLoadList` that is used on server-side of in `exportTicketsTask` module
-            // can't execute `count` SQL-requests
-            return TASK_PROGRESS_UNKNOWN
+        calculateProgress: (totalRecordsCount: TicketExportTask) => {
+            return Math.floor(totalRecordsCount.exportedRecordsCount / totalRecordsCount.totalRecordsCount * 100)
         },
         onComplete: ({ file }) => {
             if (window) {
