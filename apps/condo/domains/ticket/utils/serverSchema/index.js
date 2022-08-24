@@ -65,21 +65,19 @@ const TicketExportTask = generateServerUtils(TicketExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
- * Loads specified chunk of tickets, determined by `offset` and `limit` params in terms of database
+ * Creates instance of loader that fetches all necessary relations of ticket
  * @param where
  * @param sortBy
- * @param offset
- * @param limit
- * @return {Promise<[]|*>}
+ * @return GqlWithKnexLoadList
  */
-const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'], offset, limit }) => {
+const buildTicketsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const ticketStatusLoader = new GqlWithKnexLoadList({
         listKey: 'TicketStatus',
         fields: 'id type',
     })
     const statuses = await ticketStatusLoader.load()
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
-    const ticketsLoader = new GqlWithKnexLoadList({
+    return new GqlWithKnexLoadList({
         listKey: 'Ticket',
         fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt updatedAt deadline deferredUntil reviewValue reviewComment statusReopenedCounter propertyAddress ',
         singleRelations: [
@@ -117,8 +115,6 @@ const loadTicketsBatchForExcelExport = async ({ where = {}, sortBy = ['createdAt
         sortBy,
         where,
     })
-    const tickets = await ticketsLoader.loadChunk(offset, limit)
-    return tickets
 }
 
 const loadTicketCommentsForExcelExport = async ({ ticketIds = [], sortBy = ['createdAt_DESC'] }) => {
@@ -176,7 +172,7 @@ module.exports = {
     TicketClassifier,
     ResidentTicket,
     TicketSource,
-    loadTicketsBatchForExcelExport,
+    buildTicketsLoader,
     loadTicketCommentsForExcelExport,
     loadClassifiersForExcelExport,
     TicketFilterTemplate,
