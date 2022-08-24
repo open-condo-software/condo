@@ -3,7 +3,7 @@ import React from 'react'
 import { css, jsx } from '@emotion/react'
 import { useRouter } from 'next/router'
 import { Card, Typography } from 'antd'
-import { fontSizes, transitions, colors } from '@condo/domains/common/constants/style'
+import { fontSizes, transitions, colors, shadows } from '@condo/domains/common/constants/style'
 import { ExternalReport } from '@app/condo/schema'
 
 const cardCss = css`
@@ -12,9 +12,7 @@ const cardCss = css`
   transition: ${transitions.elevateTransition};
   
   &:hover {
-    box-shadow: 0 9px 28px rgba(0, 0, 0, 0.05),
-    0 6px 16px rgba(0, 0, 0, 0.08),
-    0 3px 6px rgba(0, 0, 0, 0.12);
+    box-shadow: ${shadows.elevated};
   }
 `
 
