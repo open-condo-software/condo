@@ -150,11 +150,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
     }, [record, storage, deleteTaskFromContext, removeTaskFromStorage])
 
     useEffect(() => {
-        if (!record) {
-            console.error('Could not fetch status of task', task)
-            return
-        }
-        if (record.status === TASK_COMPLETED_STATUS) {
+        if (record?.status === TASK_COMPLETED_STATUS) {
             stopPolling()
             if (isFunction(onComplete) && !handledCompletedStatesOfTasksIds.includes(record.id)) {
                 handledCompletedStatesOfTasksIds.push(record.id)
