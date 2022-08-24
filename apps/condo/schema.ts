@@ -20478,13 +20478,47 @@ export type Mutation = {
    * 			"defaultValue": "",
    * 			"required": true
    * 		},
+   * 		"userId": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
+   * 		"userName": {
+   * 			"defaultValue": "",
+   * 			"required": false
+   * 		},
    * 		"userPhone": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userEmail": {
    * 			"defaultValue": "",
    * 			"required": false
    * 		},
    * 		"userPassword": {
    * 			"defaultValue": "",
-   * 			"required": false
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"WELCOME_NEW_USER": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userId": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userName": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userPhone": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"userEmail": {
+   * 			"defaultValue": "",
+   * 			"required": true
    * 		}
    * 	},
    * 	"RESET_PASSWORD": {
@@ -37285,6 +37319,7 @@ export enum SendMessageType {
   InviteNewEmployee = 'INVITE_NEW_EMPLOYEE',
   DirtyInviteNewEmployee = 'DIRTY_INVITE_NEW_EMPLOYEE',
   RegisterNewUser = 'REGISTER_NEW_USER',
+  WelcomeNewUser = 'WELCOME_NEW_USER',
   ResetPassword = 'RESET_PASSWORD',
   SmsVerify = 'SMS_VERIFY',
   ShareTicket = 'SHARE_TICKET',
