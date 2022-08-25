@@ -620,6 +620,8 @@
   "pages.condo.ticket.TicketFileList.downloadFileError": "Не удалось скачать файл",
   "pages.condo.ticket.MobileAppInstalled": "Моб. приложение жителя установлено",
   "pages.condo.ticket.MobileAppNotInstalled": "Моб. приложение жителя не установлено",
+  "pages.condo.ticket.PaymentsAvailable": "Оплаты доступны в моб. приложении жителя",
+  "pages.condo.ticket.PaymentsNotAvailable": "Оплаты не доступны в моб. приложении жителя",
   "pages.condo.meter.warning.modal.HelpMessage": "Новые счетчики и показания не сохранятся, если вы уйдете со страницы.",
   "pages.condo.meter.form.ConfirmDeleteTitle": "Удалить счётчик?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "Восстановить счетчик будет невозможно",
