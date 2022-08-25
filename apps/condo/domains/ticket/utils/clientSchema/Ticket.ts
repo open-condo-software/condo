@@ -72,8 +72,8 @@ function formValuesProcessor (formValues: ITicketFormState): TicketMutationType 
                 result[key] = { connect: { id: formValues[key] } }
             }
         } else if (!isUndefined(formValues[key])) {
-            if (key === 'deadline') {
-                result[key] = isNull(formValues[key]) ? null : formValues[key].toISOString()
+            if (key === 'deadline' && !isNull(formValues[key])) {
+                result[key] = formValues[key].toISOString()
             }
             result[key] = formValues[key]
         }

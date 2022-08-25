@@ -1,4 +1,4 @@
-import React from 'react'
+import React  from 'react'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 
@@ -18,7 +18,7 @@ export const TicketDeadlineSettingsAbout: React.FC = () => {
     return (
         <Row gutter={MIDDLE_ROW_GUTTERS}>
             <Col span={24}>
-                <TicketDeadlinePreview />
+                <TicketDeadlinePreview/>
             </Col>
             <Col span={24}>
                 <Row gutter={SMALL_ROW_GUTTERS}>

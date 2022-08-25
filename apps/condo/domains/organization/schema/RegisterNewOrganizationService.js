@@ -2,6 +2,7 @@ const { createConfirmedEmployee, createOrganization, createDefaultRoles, pushOrg
 const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
 const access = require('@condo/domains/organization/access/RegisterNewOrganizationService')
 const { createTrialSubscription } = require('@condo/domains/subscription/utils/serverSchema/ServiceSubscription')
+const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/serverSchema')
 
 const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizationService', {
     types: [
@@ -26,6 +27,10 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
                 const adminRole = defaultRoles.Administrator
                 await createConfirmedEmployee(context, organization, context.authedItem, adminRole, extraData)
                 await createTrialSubscription(context, organization, extraData)
+                await TicketOrganizationSetting.create(context, {
+                    ...extraData,
+                    organization: { connect: { id: organization.id } },
+                })
                 pushOrganizationToSalesCRM(organization)
                 return await getById('Organization', organization.id)
             },

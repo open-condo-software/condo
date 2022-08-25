@@ -18,7 +18,7 @@ import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useTicketSettingContext } from '@condo/domains/ticket/components/TicketSettingContext'
+import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 dayjs.extend(isToday)
@@ -30,7 +30,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
-    const { ticketSetting } = useTicketSettingContext()
+    const { ticketSetting, ticketSettingLoading } = useTicketFormContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
@@ -47,7 +47,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                         || !placeClassifier
                         || !categoryClassifier
                         || (isRequiredDeadline && !deadline)
-                        || !ticketSetting
+                        || ticketSettingLoading
 
                     return (
                         <ActionBar isFormActionBar>
@@ -142,6 +142,7 @@ export const CreateTicketForm: React.FC = () => {
             role={link.role}
             autoAssign
             OnCompletedMsg={getCompletedNotification}
+            isExisted={false}
         >
             {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>

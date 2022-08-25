@@ -15,6 +15,7 @@ import {
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { DEFAULT_TICKET_DEADLINE } from '@condo/domains/ticket/constants/common'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -439,7 +440,7 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
 type getTicketDefaultDeadlineType = (ticketSetting: TicketOrganizationSetting, isPaid: boolean, isEmergency: boolean, isWarranty: boolean) => number | null
 
 export const getTicketDefaultDeadline: getTicketDefaultDeadlineType = (ticketSetting, isPaid, isEmergency, isWarranty) => {
-    if (!ticketSetting) return null
+    if (!ticketSetting) return DEFAULT_TICKET_DEADLINE
 
     let addDays: number | null = get(ticketSetting, 'defaultDeadline', null)
     if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadline', null)

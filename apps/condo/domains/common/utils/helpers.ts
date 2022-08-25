@@ -4,11 +4,6 @@ import get from 'lodash/get'
 import { IRecordWithId } from '../types'
 import { FilterValue } from 'antd/es/table/interface'
 import { Property } from '@app/condo/schema'
-import dayjs from 'dayjs'
-import duration from 'dayjs/plugin/duration'
-import relativeTime from 'dayjs/plugin/relativeTime'
-dayjs.extend(duration)
-dayjs.extend(relativeTime)
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
@@ -96,30 +91,3 @@ export const getId = (record: IRecordWithId): string | null => get(record, 'id',
  * @param key
  */
 export const getFilteredValue = <T>(filters: T, key: string | Array<string>): FilterValue => get(filters, key, null)
-
-type humanizeDaysType = (days: number) => string
-/**
- * Formats days into a human readable string
- * @param days
- */
-export const humanizeDays: humanizeDaysType = (days) => {
-    // NOTE function humanize() returns the correct result only for numbers from 1 to 25.
-    // It is necessary to work with numbers from 0 to 45 (and more)
-    if (days < 0) throw new Error('days cannot be negative')
-
-    const locale = dayjs.locale()
-    if (locale !== 'ru' && locale !== 'en') throw new Error('only "en" or "ru" locales')
-
-    let _days = days
-    if (locale === 'ru') {
-        _days = days % 100
-        if (_days > 19) _days = (days - 20) % 10
-        if (_days === 0) _days = 10
-    } else if (locale === 'en') {
-        if (days === 0) _days = 10
-        if (days === 1) return '1 day'
-        if (days > 1) _days = 2
-    }
-    const ending = dayjs.duration(_days, 'days').humanize().replace(_days.toString(), '').trim()
-    return `${days} ${ending}`
-}

@@ -35,15 +35,15 @@ import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitI
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
-import { TicketFile, TicketSource, TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-import {
-    TicketSettingContext,
-    useTicketSettingContext,
-} from '@condo/domains/ticket/components/TicketSettingContext'
 import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
 import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
+import {
+    TicketFormContextProvider,
+    useTicketFormContext,
+} from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -134,9 +134,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const classifierColSpan = isSmall ? 24 : 18
     const deadlineColSpan = isSmall ? 24 : 18
 
-    const { ticketSetting } = useTicketSettingContext()
-    const isExistedTicket = get(initialValues, 'property')
-    const [isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue] = useState<boolean>(!isExistedTicket)
+    const { setIsAutoDetectedDeadlineValue, ticketSetting } = useTicketFormContext()
 
     const handleChangeType = useCallback(() => {
         const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
@@ -144,7 +142,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
         const autoDeadlineValue = isNull(autoAddDays) ? autoAddDays : dayjs().add(autoAddDays, 'day')
         form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
         setIsAutoDetectedDeadlineValue(true)
-    }, [form, ticketSetting])
+    }, [form, setIsAutoDetectedDeadlineValue, ticketSetting])
 
     return (
         <Col span={24}>
@@ -240,8 +238,6 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                             <TicketDeadlineField
                                 initialValues={initialValues}
                                 form={form}
-                                isAutoDetectedValue={isAutoDetectedDeadlineValue}
-                                setIsAutoDetectedValue={setIsAutoDetectedDeadlineValue}
                             />
                         </Col>
                     </Row>
@@ -306,6 +302,7 @@ export interface ITicketFormProps {
     afterActionCompleted?: (ticket: Ticket) => void,
     OnCompletedMsg?: OnCompletedMsgType<Ticket>,
     autoAssign?: boolean,
+    isExisted?: boolean
 }
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
@@ -333,6 +330,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         files,
         autoAssign,
         OnCompletedMsg,
+        isExisted,
     } = props
     const validations = useTicketValidations()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(get(initialValues, 'property', null))
@@ -393,6 +391,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         role,
         allowLandLine: true,
     })
+
+    const organizationId = get(property, ['organization', 'id'], null)
 
     const canCreateContactRef = useRef(canCreateContact)
 
@@ -492,167 +492,167 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const propertyInfoColSpan = isSmall ? 24 : 17
 
-    const { obj: ticketSetting } = TicketSetting.useObject({
-        where: { organization: { id: get(property, ['organization', 'id'], null) } },
-    })
-
-    return (
+    const formWithAction =  (
         <>
-            <TicketSettingContext.Provider value={{ ticketSetting }}>
-                <FormWithAction
-                    action={action}
-                    initialValues={initialValues}
-                    validateTrigger={FORM_VALIDATE_TRIGGER}
-                    formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
-                    ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
-                    OnCompletedMsg={OnCompletedMsg}
-                >
-                    {({ handleSave, isLoading, form }) => (
-                        <>
-                            <Prompt
-                                title={PromptTitle}
-                                form={form}
-                                handleSave={handleSave}
-                            >
-                                <Typography.Paragraph>
-                                    {PromptHelpMessage}
-                                </Typography.Paragraph>
-                            </Prompt>
-                            <Col span={24}>
-                                <Row gutter={BIG_VERTICAL_GUTTER}>
-                                    <Col span={24} lg={7}>
-                                        <TicketSourceSelect />
-                                    </Col>
-                                    <Col span={24}>
-                                        <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
-                                            <Col span={propertyInfoColSpan}>
-                                                <Row gutter={BIG_VERTICAL_GUTTER}>
-                                                    <Col span={24}>
-                                                        <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                                            {NoPropertiesAlert}
-                                                            <Col span={24} data-cy='ticket__property-address-search-input'>
-                                                                <TicketFormItem
-                                                                    name='property'
-                                                                    label={AddressLabel}
-                                                                    rules={PROPERTY_VALIDATION_RULES}
-                                                                >
-                                                                    <PropertyAddressSearchInput
-                                                                        organization={organization}
-                                                                        autoFocus
-                                                                        onSelect={handlePropertySelectChange(form)}
-                                                                        onClear={handlePropertiesSelectClear}
-                                                                        placeholder={AddressPlaceholder}
-                                                                        notFoundContent={AddressNotFoundContent}
-                                                                        setIsMatchSelectedProperty={setIsMatchSelectedProperty}
-                                                                    />
-                                                                </TicketFormItem>
-                                                            </Col>
-                                                            {selectedPropertyId && (
-                                                                <UnitInfo
-                                                                    property={property}
-                                                                    loading={organizationPropertiesLoading}
-                                                                    setSelectedUnitName={setSelectedUnitName}
-                                                                    setSelectedUnitType={setSelectedUnitType}
-                                                                    selectedUnitName={selectedUnitName}
-                                                                    setSelectedSectionType={setSelectedSectionType}
-                                                                    selectedSectionType={selectedSectionType}
-                                                                    mode={UnitInfoMode.All}
-                                                                    initialValues={initialValues}
-                                                                    form={form}
+            <FormWithAction
+                action={action}
+                initialValues={initialValues}
+                validateTrigger={FORM_VALIDATE_TRIGGER}
+                formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
+                ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
+                OnCompletedMsg={OnCompletedMsg}
+            >
+                {({ handleSave, isLoading, form }) => (
+                    <>
+                        <Prompt
+                            title={PromptTitle}
+                            form={form}
+                            handleSave={handleSave}
+                        >
+                            <Typography.Paragraph>
+                                {PromptHelpMessage}
+                            </Typography.Paragraph>
+                        </Prompt>
+                        <Col span={24}>
+                            <Row gutter={BIG_VERTICAL_GUTTER}>
+                                <Col span={24} lg={7}>
+                                    <TicketSourceSelect />
+                                </Col>
+                                <Col span={24}>
+                                    <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
+                                        <Col span={propertyInfoColSpan}>
+                                            <Row gutter={BIG_VERTICAL_GUTTER}>
+                                                <Col span={24}>
+                                                    <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                                        {NoPropertiesAlert}
+                                                        <Col span={24} data-cy='ticket__property-address-search-input'>
+                                                            <TicketFormItem
+                                                                name='property'
+                                                                label={AddressLabel}
+                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                            >
+                                                                <PropertyAddressSearchInput
+                                                                    organization={organization}
+                                                                    autoFocus
+                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                    onClear={handlePropertiesSelectClear}
+                                                                    placeholder={AddressPlaceholder}
+                                                                    notFoundContent={AddressNotFoundContent}
+                                                                    setIsMatchSelectedProperty={setIsMatchSelectedProperty}
                                                                 />
-                                                            )}
-                                                        </Row>
-                                                    </Col>
-                                                    {
-                                                        selectedPropertyId && !breakpoints.xl && (
-                                                            <Col span={24}>
-                                                                <TicketPropertyHintCard
-                                                                    propertyId={selectedPropertyId}
-                                                                    hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
-                                                                />
-                                                            </Col>
-                                                        )
-                                                    }
-                                                    <ContactsInfo
-                                                        ContactsEditorComponent={ContactsEditorComponent}
-                                                        form={form}
-                                                        initialValues={initialValues}
-                                                        selectedPropertyId={selectedPropertyId}
-                                                    />
-                                                </Row>
-                                            </Col>
-                                            {
-                                                selectedPropertyId && breakpoints.xl && (
-                                                    <Col span={6}>
-                                                        <TicketPropertyHintCard
-                                                            propertyId={selectedPropertyId}
-                                                            hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
-                                                        />
-                                                    </Col>
-                                                )
-                                            }
-                                        </Row>
-                                    </Col>
-                                    <Col lg={16} md={24}>
-                                        <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
-                                            {
-                                                ({ getFieldsValue }) => {
-                                                    const {
-                                                        property,
-                                                        categoryClassifier,
-                                                    } = getFieldsValue(['property', 'categoryClassifier'])
-
-                                                    const disableUserInteraction = !property
-
-                                                    return (
-                                                        <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                            <Row gutter={BIG_VERTICAL_GUTTER}>
-                                                                <TicketInfo
-                                                                    form={form}
-                                                                    UploadComponent={UploadComponent}
-                                                                    validations={validations}
-                                                                    initialValues={initialValues}
-                                                                    disableUserInteraction={disableUserInteraction}
-                                                                />
-                                                                <TicketAssignments
-                                                                    disableUserInteraction={disableUserInteraction}
-                                                                    validations={validations}
-                                                                    organizationId={get(organization, 'id')}
-                                                                    propertyId={selectedPropertyId}
-                                                                    autoAssign={autoAssign}
-                                                                    categoryClassifier={categoryClassifier}
-                                                                    form={form}
-                                                                />
-                                                                {
-                                                                    !isResidentTicket && (
-                                                                        <Col span={24}>
-                                                                            <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                                <Checkbox
-                                                                                    disabled={disableUserInteraction}
-                                                                                    eventName='TicketCreateCheckboxCanReadByResident'
-                                                                                >
-                                                                                    {CanReadByResidentMessage}
-                                                                                </Checkbox>
-                                                                            </Form.Item>
-                                                                        </Col>
-                                                                    )
-                                                                }
-                                                            </Row>
-                                                        </FrontLayerContainer>
+                                                            </TicketFormItem>
+                                                        </Col>
+                                                        {selectedPropertyId && (
+                                                            <UnitInfo
+                                                                property={property}
+                                                                loading={organizationPropertiesLoading}
+                                                                setSelectedUnitName={setSelectedUnitName}
+                                                                setSelectedUnitType={setSelectedUnitType}
+                                                                selectedUnitName={selectedUnitName}
+                                                                setSelectedSectionType={setSelectedSectionType}
+                                                                selectedSectionType={selectedSectionType}
+                                                                mode={UnitInfoMode.All}
+                                                                initialValues={initialValues}
+                                                                form={form}
+                                                            />
+                                                        )}
+                                                    </Row>
+                                                </Col>
+                                                {
+                                                    selectedPropertyId && !breakpoints.xl && (
+                                                        <Col span={24}>
+                                                            <TicketPropertyHintCard
+                                                                propertyId={selectedPropertyId}
+                                                                hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                                                            />
+                                                        </Col>
                                                     )
                                                 }
+                                                <ContactsInfo
+                                                    ContactsEditorComponent={ContactsEditorComponent}
+                                                    form={form}
+                                                    initialValues={initialValues}
+                                                    selectedPropertyId={selectedPropertyId}
+                                                />
+                                            </Row>
+                                        </Col>
+                                        {
+                                            selectedPropertyId && breakpoints.xl && (
+                                                <Col span={6}>
+                                                    <TicketPropertyHintCard
+                                                        propertyId={selectedPropertyId}
+                                                        hintContentStyle={TICKET_PROPERTY_HINT_STYLES}
+                                                    />
+                                                </Col>
+                                            )
+                                        }
+                                    </Row>
+                                </Col>
+                                <Col lg={16} md={24}>
+                                    <Form.Item noStyle dependencies={['property', 'categoryClassifier']} shouldUpdate>
+                                        {
+                                            ({ getFieldsValue }) => {
+                                                const {
+                                                    property,
+                                                    categoryClassifier,
+                                                } = getFieldsValue(['property', 'categoryClassifier'])
+
+                                                const disableUserInteraction = !property
+
+                                                return (
+                                                    <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
+                                                        <Row gutter={BIG_VERTICAL_GUTTER}>
+                                                            <TicketInfo
+                                                                form={form}
+                                                                UploadComponent={UploadComponent}
+                                                                validations={validations}
+                                                                initialValues={initialValues}
+                                                                disableUserInteraction={disableUserInteraction}
+                                                            />
+                                                            <TicketAssignments
+                                                                disableUserInteraction={disableUserInteraction}
+                                                                validations={validations}
+                                                                organizationId={get(organization, 'id')}
+                                                                propertyId={selectedPropertyId}
+                                                                autoAssign={autoAssign}
+                                                                categoryClassifier={categoryClassifier}
+                                                                form={form}
+                                                            />
+                                                            {
+                                                                !isResidentTicket && (
+                                                                    <Col span={24}>
+                                                                        <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                            <Checkbox
+                                                                                disabled={disableUserInteraction}
+                                                                                eventName='TicketCreateCheckboxCanReadByResident'
+                                                                            >
+                                                                                {CanReadByResidentMessage}
+                                                                            </Checkbox>
+                                                                        </Form.Item>
+                                                                    </Col>
+                                                                )
+                                                            }
+                                                        </Row>
+                                                    </FrontLayerContainer>
+                                                )
                                             }
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            {isFunction(props.children) && (
-                                props.children({ handleSave, isLoading, form })
-                            )}
-                        </>
-                    )}
-                </FormWithAction>
-            </TicketSettingContext.Provider>
+                                        }
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+                        </Col>
+                        {isFunction(props.children) && (
+                            props.children({ handleSave, isLoading, form })
+                        )}
+                    </>
+                )}
+            </FormWithAction>
         </>
+    )
+
+    return (
+        <TicketFormContextProvider organizationId={organizationId} isExistedTicket={isExisted}>
+            {formWithAction}
+        </TicketFormContextProvider>
     )
 }

@@ -1,15 +1,16 @@
-import { Card as DefaultCard, CardProps as DefaultCardProps } from 'antd'
-import { CardWrapper, CardWrapperProps } from './CardWrapper'
 import React from 'react'
+import { Card as AntdCard, CardProps as DefaultCardProps } from 'antd'
+
+import { CardWrapper, CardWrapperProps } from './CardWrapper'
 
 type CardProps = CardWrapperProps & DefaultCardProps
 
 export const Card: React.FC<CardProps> = ({ disabled, children, ...otherCardProps }) => {
     return (
         <CardWrapper disabled={disabled}>
-            <DefaultCard {...otherCardProps}>
+            <AntdCard {...otherCardProps}>
                 {children}
-            </DefaultCard>
+            </AntdCard>
         </CardWrapper>
     )
 }
