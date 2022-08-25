@@ -21,8 +21,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { push, query: { id } } = useRouter()
-    const onCancel = useCallback((resetFields) => {
-        resetFields()
+    const onCancel = useCallback(() => {
         push(`/ticket/${id}`)
     }, [id, push])
 
@@ -36,7 +35,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                         <ActionBar isFormActionBar>
                             <Button
                                 key='cancel'
-                                onClick={() => onCancel(resetFields)}
+                                onClick={onCancel}
                                 type='sberDefaultGradient'
                                 secondary
                             >
