@@ -323,7 +323,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             type: 'input RegisterBillingReceiptsInput { dv: Int!, sender: SenderFieldInput!, context: BillingIntegrationOrganizationContextWhereUniqueInput, receipts: [RegisterBillingReceiptInput!]! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canRegisterBillingReceipts,
@@ -343,10 +343,95 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     throw new GQLError(errors.BILLING_CONTEXT_NOT_FOUND, context)
                 }
 
-                const partialErrors = []
-
                 // Step 1:
                 // Parse properties, accounts and receipts from input
+
+                const index = {}
+                const propertyIndex = {}
+                const accountIndex = {}
+                const receiptIndex = {}
+                const partialErrors = []
+
+                for (const receiptInput of receiptsInput ) {
+
+                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
+
+                    // Validate period field
+                    if (!(0 <= month && month <= 12 )) {
+                        partialErrors.push(new GQLError(errors.WRONG_MONTH, context))
+                        continue
+                    }
+                    if (year < 0) {
+                        partialErrors.push(new GQLError(errors.WRONG_YEAR, context))
+                        continue
+                    }
+                    const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
+
+                    // Todo: (DOMA-3445) Validate address field
+
+                    // Todo: (DOMA-3445) Validate category field
+
+                    const property = { address }
+                    const propertyKey = getBillingPropertyKey(property)
+
+                    const account = { unitName, unitType, number: accountNumber, property }
+                    const accountKey = getBillingAccountKey(account)
+
+                    const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
+                    const receiptKey = getBillingReceiptKey(receipt)
+
+                    if (!index.propertyIndex[propertyKey]) {
+                        index.propertyIndex[propertyKey] = {
+                            dv: dv,
+                            sender: sender,
+                            globalId: propertyKey,
+                            address: address,
+                            raw: { dv: 1 },
+                            importId: propertyKey,
+                            context: { id: billingContext.id },
+                            meta: { dv: 1 },
+                        }
+                    }
+
+                    if (!index.accountIndex[accountKey]) {
+                        index.accountIndex[accountKey] = {
+                            dv: dv,
+                            sender: sender,
+                            context: { id: billingContext.id },
+                            number: accountNumber,
+                            importId: accountKey,
+                            globalId: accountKey,
+                            unitName,
+                            unitType,
+                            property: index.propertyIndex[propertyKey],
+                            raw: { dv: 1 },
+                            meta: { dv: 1 },
+                        }
+                    }
+
+                    if (!index.receiptIndex[receiptKey]) {
+                        index.receiptIndex[receiptKey] = {
+                            dv: dv,
+                            sender: sender,
+                            context: { id: billingContextId },
+                            account: index.accountIndex[accountKey],
+                            property: index.propertyIndex[propertyKey],
+                            period: period,
+                            importId: importId,
+                            category: { id: category.id },
+                            toPay: toPay,
+                            services: services,
+                            toPayDetails: toPayDetails,
+                            tin,
+                            iec,
+                            bic,
+                            bankAccount,
+                            raw: { ...{ dv: 1 }, ...raw },
+                        }
+                    }
+                }
+
+
                 const { propertyIndex, accountIndex, receiptIndex } = receiptsInput.reduce((index, receiptInput) => {
                     const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
 
