@@ -32,7 +32,9 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
   "commitTransformer": "./${SOURCE_FOLDER}.transformer.js",
   "sourceRepoPath": "${SOURCE_FOLDER}",
   "allowedPaths": [
-    ".github/*",
+    ".yarn/plugins/*",
+    ".yarn/releases/*",
+    ".yarnrc.yml",
     "apps/__demo/*",
     "apps/_demo/*",
     "apps/_back*",
@@ -63,7 +65,6 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "package.json",
     "prettierrc.json",
     "renovate.json",
-    "yarn.lock",
     "README.md"
   ],
   "ignoredPaths": [
@@ -90,9 +91,11 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     "werf-giterminism.yaml",
     "werf.yaml",
     ".helm",
+    ".github/workflows/*",
     ".github/workflows/cleanup.yaml",
     ".github/workflows/nodejs.apps.build.yml",
     ".github/workflows/gitexporter*"
+     "yarn.lock",
   ]
 }
 EOF
