@@ -1,14 +1,11 @@
-name: Lint code
+name: Lint commit messages
 
 on:
-  push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
 jobs:
-  build:
-
+  lint:
     runs-on: ubuntu-latest
 
     strategy:
@@ -23,19 +20,13 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
-      - name: Check lint with eslint
+      - name: Setup Node.js ${{ matrix.node-version }} environment
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install packages
+      - name: Install dependencies
         run: yarn install --immutable
 
-      - name: Lint code
-        run: yarn lint
-
-      - name: Lint I18n translation keys
-        run: yarn workspace @app/condo lint-i18n-translations
-
-      - name: Lint common patterns
-        run: bash ./bin/lint-common-patterns.sh
+      - name: Lint commit messages
+        run: yarn commitlint --from=$GITHUB_BASE_REF --to=$GITHUB_HEAD_REF
