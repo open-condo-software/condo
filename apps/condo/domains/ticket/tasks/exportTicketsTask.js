@@ -6,7 +6,7 @@ const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchem
 const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
-const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('../utils/serverSchema')
+const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
 const dayjs = require('dayjs')
@@ -224,13 +224,14 @@ async function exportTicketsWorker (taskId) {
     await exportRecords({
         context,
         loadRecordsBatch: async (offset, limit) => {
-            const tickets = ticketsLoader.loadChunk(offset, limit)
+            const tickets = await ticketsLoader.loadChunk(offset, limit)
             const classifierRuleIds = compact(map(tickets, 'classifier'))
             classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
             if (!idOfFirstTicketForAccessRights) {
                 idOfFirstTicketForAccessRights = get(tickets, [0, 'id'])
             }
-            this.progress(Math.floor(offset / totalRecordsCount * 100))
+            // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
+            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
             return tickets
         },
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifier }),

@@ -60,9 +60,8 @@ function removeCronTask (name, cron, opts = {}) {
 }
 
 async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
-    logger.info(`Scheduling task "${name}" with args "${JSON.stringify(preparedOpts)}"`)
+    logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
     const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
-    logger.info(`Task "${name}" with args "${JSON.stringify(preparedOpts)}" was scheduled and assigned to Bull job with id "${job.id}"`)
     return {
         getState: async () => {
             return await job.getState()
@@ -73,22 +72,40 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
     }
 }
 
+/**
+ * Because Bull does not participates in case of execution tasks with `FAKE_WORKER_MODE`,
+ * an instance of a job, that is passed to worker function should have the same
+ * methods as in Bull.
+ * This helps to avoid handling `FAKE_WORKER_MODE` in every custom worker function.
+ * Ideally the interface should be exactly the same as in "Bull", but currently only `.progress`
+ * method is used in worker functions. So, make it simple.
+ */
+class InProcessFakeJob {
+    constructor (name) {
+        this.name = name
+        this.id = getRandomString()
+    }
+    progress (percent) {
+        logger.info({ msg: 'Progress for task', id: this.id, name: this.name, progress: percent })
+    }
+}
+
 async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     // NOTE: it's just for test purposes
     // similar to https://docs.celeryproject.org/en/3.1/configuration.html#celery-always-eager
-    logger.warn(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}, ${JSON.stringify(preparedOpts)}); // (task options ignored)`)
+    logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
 
-    const jobId = getRandomString()
+    const job = new InProcessFakeJob(name)
     let error = undefined
     let result = undefined
     let status = 'processing'
     let executor = async function inProcessExecutor () {
         try {
-            logger.info(`ScheduleInProcessTask('${name}', ${JSON.stringify(preparedArgs)}) EXECUTION`)
-            result = await executeTask(name, preparedArgs, { id: jobId })
+            logger.info({ msg: 'Executing task', name, data: { preparedArgs, preparedOpts } })
+            result = await executeTask(name, preparedArgs, job)
             status = 'completed'
         } catch (e) {
-            logger.error({ msg: 'ScheduleInProcessTask() EXCEPTION:', error })
+            logger.error({ msg: 'Error executing task', name, error, data: { preparedArgs, preparedOpts } })
             status = 'error'
             error = e
         }
