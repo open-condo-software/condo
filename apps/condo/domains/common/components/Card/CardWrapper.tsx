@@ -1,4 +1,5 @@
 import styled from '@emotion/styled'
+
 import { colors, shadows, transitions } from '@condo/domains/common/constants/style'
 
 export interface CardWrapperProps {

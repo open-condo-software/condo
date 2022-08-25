@@ -12,7 +12,7 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-import { useTicketSettingContext } from '@condo/domains/ticket/components/TicketSettingContext'
+import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 
 import { BaseTicketForm } from '../BaseTicketForm'
 import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
@@ -28,7 +28,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
         push(`/ticket/${id}`)
     }, [id, push])
 
-    const { ticketSetting } = useTicketSettingContext()
+    const { ticketSetting, ticketSettingLoading } = useTicketFormContext()
 
     return (
         <Form.Item noStyle shouldUpdate>
@@ -48,7 +48,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
                         || !categoryClassifier
                         || !!propertyMismatchError
                         || (isRequiredDeadline && !deadline)
-                        || !ticketSetting
+                        || ticketSettingLoading
 
                     return (
                         <ActionBar isFormActionBar>
@@ -135,6 +135,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             afterActionCompleted={(ticket) => {
                 replace(`/ticket/${ticket.id}`)
             }}
+            isExisted={Boolean(obj)}
         >
             {({ handleSave, isLoading, form }) => <ApplyChangesActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>

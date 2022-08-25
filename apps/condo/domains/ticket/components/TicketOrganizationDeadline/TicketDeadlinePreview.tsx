@@ -1,27 +1,38 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import styled from '@emotion/styled'
+import { ConfigProvider } from 'antd'
 
-const MAIN_WRAPPER_STYLE: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 16,
-    border: '1px solid #FFEDE3',
-    backgroundColor: '#FFEDE3',
-    padding: '0 40px',
-}
-const IMAGE_WRAPPER_STYLE: React.CSSProperties = { overflow: 'hidden' }
-const IMAGE_STYLE: React.CSSProperties = { height: 314 }
+const PreviewWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  border: 1px solid #FFEDE3;
+  background-color: #FFEDE3;
+  padding: 0 40px;
+`
+
+const ImageWrapper = styled.div`
+  overflow: hidden;
+`
+
+const Image = styled.img`
+  height: 314px;
+`
 
 export const TicketDeadlinePreview: React.FC = () => {
+    const { locale: { locale } } = useContext(ConfigProvider.ConfigContext)
+
+    if (locale !== 'ru' ) return null
+
     return (
-        <div style={MAIN_WRAPPER_STYLE}>
-            <div style={IMAGE_WRAPPER_STYLE}>
-                <img
+        <PreviewWrapper>
+            <ImageWrapper>
+                <Image
                     src='/ticketDeadlinePreview.png'
-                    style={IMAGE_STYLE}
                     alt='ticketDeadlinePreview'
                 />
-            </div>
-        </div>
+            </ImageWrapper>
+        </PreviewWrapper>
     )
 }

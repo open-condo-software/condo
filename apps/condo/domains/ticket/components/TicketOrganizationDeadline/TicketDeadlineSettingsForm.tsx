@@ -10,7 +10,6 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Button } from '@condo/domains/common/components/Button'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
-import { humanizeDays } from '@condo/domains/common/utils/helpers'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -50,18 +49,18 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
     const updateAction = useCallback((value) => action(value, ticketSetting), [action, ticketSetting])
 
     const options = useMemo(() => {
-        const range = new Array(MAX_TICKET_DEADLINE - MIN_TICKET_DEADLINE + 1 + 1).fill(1)
+        const range = new Array(MAX_TICKET_DEADLINE - MIN_TICKET_DEADLINE + 2).fill(1)
         return range.map((item, index) => {
             const value = index === range.length - 1 ? null : index
 
             let label
-            if (index === 0) label = `+${humanizeDays(index)} (${OptionCurrentDateLabel})`
+            if (index === 0) label = `+${intl.formatMessage({ id: 'DaysShort' }, { days: index })} (${OptionCurrentDateLabel})`
             else if (index === range.length - 1) label = OptionWithoutDeadlineLabel
-            else label = `+${humanizeDays(index)}`
+            else label = `+${intl.formatMessage({ id: 'DaysShort' }, { days: index })}`
 
             return <Select.Option value={value} key={value}>{label}</Select.Option>
         })
-    }, [OptionCurrentDateLabel, OptionWithoutDeadlineLabel])
+    }, [OptionCurrentDateLabel, OptionWithoutDeadlineLabel, intl])
 
     const settingsForm = useMemo(() => (
         <FormWithAction
@@ -177,5 +176,5 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
 
     if (loading || !ticketSetting) return null
 
-    return <>{settingsForm}</>
+    return settingsForm
 }

@@ -14,7 +14,7 @@ const {
     updateTestTicketOrganizationSetting,
 } = require('@condo/domains/ticket/utils/testSchema')
 const {
-    createTestOrganization,
+    registerNewOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
@@ -31,7 +31,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not create TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                     await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
@@ -42,7 +42,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not delete TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                     await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
@@ -57,7 +57,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can update TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                     await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
@@ -76,7 +76,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can read TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                     await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
@@ -95,7 +95,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not create TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestTicketOrganizationSetting(userClient, organization)
@@ -104,7 +104,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not delete TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
 
                     const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                         organization: { id: organization.id },
@@ -117,7 +117,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not update TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
 
                     const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                         organization: { id: organization.id },
@@ -130,7 +130,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not read TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await createTestOrganization(admin)
+                    const [organization] = await registerNewOrganization(admin)
 
                     const settings = await TicketOrganizationSetting.getAll(userClient,  {
                         organization: { id: organization.id },
@@ -143,7 +143,7 @@ describe('TicketOrganizationSetting', () => {
         describe('Admin', () => {
             test('can not  create TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestTicketOrganizationSetting(admin, organization)
@@ -151,7 +151,7 @@ describe('TicketOrganizationSetting', () => {
             })
             test('can not  delete TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                     organization: { id: organization.id },
@@ -163,7 +163,7 @@ describe('TicketOrganizationSetting', () => {
             })
             test('can update TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                     organization: { id: organization.id },
@@ -179,7 +179,7 @@ describe('TicketOrganizationSetting', () => {
             })
             test('can read TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                     organization: { id: organization.id },
@@ -196,16 +196,16 @@ describe('TicketOrganizationSetting', () => {
             test('can not create TicketOrganizationSetting', async () => {
                 const anonymousClient = await makeClient()
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
+                await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestTicketOrganizationSetting(anonymousClient, organization)
                 })
             })
             test('can not delete TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymousClient = await makeClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                     organization: { id: organization.id },
@@ -218,7 +218,7 @@ describe('TicketOrganizationSetting', () => {
             test('can not update TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymousClient = await makeClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                     organization: { id: organization.id },
@@ -231,7 +231,7 @@ describe('TicketOrganizationSetting', () => {
             test('can not read TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymousClient = await makeClient()
-                const [organization] = await createTestOrganization(admin)
+                const [organization] = await registerNewOrganization(admin)
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await TicketOrganizationSetting.getAll(anonymousClient,  {
@@ -245,7 +245,7 @@ describe('TicketOrganizationSetting', () => {
         const cases = [...TICKET_DEFAULT_DEADLINE_FIELDS]
         test.each(cases)(`value of the %p field must be between values from ${EXPECTED_MIN_DEADLINE} to ${EXPECTED_MAX_DEADLINE} inclusive`, async (fieldPath) => {
             const admin = await makeLoggedInAdminClient()
-            const [organization] = await createTestOrganization(admin)
+            const [organization] = await registerNewOrganization(admin)
             const [setting] = await TicketOrganizationSetting.getAll(admin,  {
                 organization: { id: organization.id },
             })

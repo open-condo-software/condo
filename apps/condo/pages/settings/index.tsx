@@ -8,7 +8,7 @@ import {
     SETTINGS_TAB_PAYMENT_DETAILS,
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
-    SETTINGS_TAB_CALL_CENTER,
+    SETTINGS_TAB_CONTROL_ROOM,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -23,7 +23,7 @@ import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import React, { CSSProperties, useMemo } from 'react'
-import { CallCenterSettingsContent } from '@condo/domains/common/components/settings/CallCenterSettingsContent'
+import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
@@ -36,7 +36,7 @@ const SettingsPage: React.FC = () => {
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
-    const CallCenterTitle = intl.formatMessage({ id: 'CallCenter' })
+    const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -73,12 +73,12 @@ const SettingsPage: React.FC = () => {
                 content: <ContactRolesSettingsContent/>,
             },
             {
-                key: SETTINGS_TAB_CALL_CENTER,
-                title: CallCenterTitle,
-                content: <CallCenterSettingsContent />,
+                key: SETTINGS_TAB_CONTROL_ROOM,
+                title: ControlRoomTitle,
+                content: <ControlRoomSettingsContent />,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, CallCenterTitle],
+        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle],
     )
 
     const titleContent = useMemo(() => (
