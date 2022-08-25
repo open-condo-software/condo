@@ -94,8 +94,8 @@ cat > ${SOURCE_FOLDER}.config.json <<EOF
     ".github/workflows/*",
     ".github/workflows/cleanup.yaml",
     ".github/workflows/nodejs.apps.build.yml",
-    ".github/workflows/gitexporter*"
-     "yarn.lock",
+    ".github/workflows/gitexporter*",
+     "yarn.lock"
   ]
 }
 EOF
