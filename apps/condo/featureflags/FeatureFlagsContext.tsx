@@ -6,15 +6,7 @@ import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect } from 'react'
 
-const {
-    publicRuntimeConfig: {
-        featureToggleConfig,
-    },
-} = getConfig()
-
 const growthbook = new GrowthBook()
-
-const FEATURES_ENDPOINT = `${get(featureToggleConfig, 'url')}/${get(featureToggleConfig, 'apiKey')}`
 
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
@@ -29,6 +21,15 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     const router = useRouter()
     const growthbook = useGrowthBook()
 
+    const {
+        publicRuntimeConfig: {
+            featureToggleConfig,
+        },
+    } = getConfig()
+
+    const featureToggleApiUrl = get(featureToggleConfig, 'url')
+    const featureToggleApiKey = get(featureToggleConfig, 'apiKey')
+
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
 
@@ -36,28 +37,15 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     }, [growthbook])
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
 
-    const { user } = useAuth()
-    const { organization } = useOrganization()
-
     useEffect(() => {
-        if (user) {
-            updateContext({ userId: user.id })
+        if (featureToggleApiUrl && featureToggleApiKey) {
+            fetch(`${featureToggleApiUrl}/${featureToggleApiKey}`)
+                .then((res) => res.json())
+                .then((json) => {
+                    growthbook.setFeatures(json.features)
+                })
         }
-    }, [updateContext, user])
-
-    useEffect(() => {
-        if (organization) {
-            updateContext({ organization: organization.id })
-        }
-    }, [organization, updateContext])
-
-    useEffect(() => {
-        fetch(FEATURES_ENDPOINT)
-            .then((res) => res.json())
-            .then((json) => {
-                growthbook.setFeatures(json.features)
-            })
-    }, [growthbook, router.pathname])
+    }, [featureToggleApiKey, featureToggleApiUrl, growthbook, router.pathname])
 
     return (
         <FeatureFlagsContext.Provider value={{
