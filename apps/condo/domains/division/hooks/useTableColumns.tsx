@@ -1,3 +1,4 @@
+import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 import isEmpty from 'lodash/isEmpty'
 import { ColumnType, FilterValue } from 'antd/es/table/interface'
@@ -96,14 +97,14 @@ export const useTableColumns = (filterMetas: FiltersMeta<DivisionWhereInput>[]) 
                 ellipsis: true,
                 dataIndex: 'responsible',
                 key: 'responsible',
-                render: (responsible) => render(responsible.name),
+                render: (responsible) => render(get(responsible, 'name')),
                 width: '20%',
             },
             {
                 title: TechniciansTitleMessage,
                 ellipsis: true,
                 dataIndex: 'executors',
-                render: (executors) => executors.map((executor) => render(executor.name, true)),
+                render: (executors) => executors.map((executor) => render(get(executor, 'name'), true)),
                 key: 'executors',
                 width: '20%',
             },
