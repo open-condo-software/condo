@@ -578,7 +578,7 @@
   "pages.condo.ticket.title.TicketInfo": "Информация о заявке",
   "pages.condo.ticket.title.UserInfo": "Информация о жителе",
   "pages.condo.ticket.warning.modal.Title": "Не сохранять заявку?",
-  "pages.condo.ticket.warning.modal.HelpMessage": "Заявка не сохранится, если вы уйдете со страницы. Сожалеем",
+  "pages.condo.ticket.warning.modal.HelpMessage": "Заявка не сохранится, если вы уйдете со страницы.",
   "pages.condo.ticket.title.TicketChanges": "История изменений заявки",
   "pages.condo.ticket.title.TicketFromResident": "Заявка от жителя",
   "pages.condo.ticket.title.TicketNotFromResident": "Заявка не от жителя",
