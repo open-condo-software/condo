@@ -1,8 +1,8 @@
 const { GrowthBook } = require('@growthbook/growthbook')
 const conf = require('@condo/config')
+const get = require('lodash/get')
 
-const FEATURE_TOGGLE_API_URL = conf['FEATURE_TOGGLE_API_URL']
-const FEATURE_TOGGLE_API_KEY = conf['FEATURE_TOGGLE_API_KEY']
+const FEATURE_TOGGLE_CONFIG = conf['FEATURE_TOGGLE_CONFIG']
 
 class FeatureToggleManager {
     constructor () {
@@ -11,7 +11,7 @@ class FeatureToggleManager {
     }
 
     async fetchFeatures () {
-        await fetch(`${FEATURE_TOGGLE_API_URL}/${FEATURE_TOGGLE_API_KEY}`)
+        await fetch(`${get(FEATURE_TOGGLE_CONFIG, 'url')}/${get(FEATURE_TOGGLE_CONFIG, 'apiKey')}`)
             .then((res) => res.json())
             .then((parsed) => {
                 this.growthbook.setFeatures(parsed.features)

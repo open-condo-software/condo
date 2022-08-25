@@ -1,20 +1,20 @@
 import { useAuth } from '@condo/next/auth'
 import { useOrganization } from '@condo/next/organization'
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
+import { get } from 'lodash'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect } from 'react'
 
 const {
     publicRuntimeConfig: {
-        featureToggleApiUrl,
-        featureToggleApiKey,
+        featureToggleConfig,
     },
 } = getConfig()
 
 const growthbook = new GrowthBook()
 
-const FEATURES_ENDPOINT = `${featureToggleApiUrl}/${featureToggleApiKey}`
+const FEATURES_ENDPOINT = `${get(featureToggleConfig, 'url')}/${get(featureToggleConfig, 'apiKey')}`
 
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
