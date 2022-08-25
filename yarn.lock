@@ -2107,7 +2107,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.1.0, @babel/core@npm:^7.12.3, @babel/core@npm:^7.12.9, @babel/core@npm:^7.14.0, @babel/core@npm:^7.14.3, @babel/core@npm:^7.16.0, @babel/core@npm:^7.7.5":
+"@babel/core@npm:^7.1.0, @babel/core@npm:^7.12.3, @babel/core@npm:^7.14.0, @babel/core@npm:^7.14.3, @babel/core@npm:^7.16.0, @babel/core@npm:^7.7.5":
   version: 7.18.10
   resolution: "@babel/core@npm:7.18.10"
   dependencies:
@@ -2130,6 +2130,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/core@npm:^7.12.9":
+  version: 7.18.13
+  resolution: "@babel/core@npm:7.18.13"
+  dependencies:
+    "@ampproject/remapping": ^2.1.0
+    "@babel/code-frame": ^7.18.6
+    "@babel/generator": ^7.18.13
+    "@babel/helper-compilation-targets": ^7.18.9
+    "@babel/helper-module-transforms": ^7.18.9
+    "@babel/helpers": ^7.18.9
+    "@babel/parser": ^7.18.13
+    "@babel/template": ^7.18.10
+    "@babel/traverse": ^7.18.13
+    "@babel/types": ^7.18.13
+    convert-source-map: ^1.7.0
+    debug: ^4.1.0
+    gensync: ^1.0.0-beta.2
+    json5: ^2.2.1
+    semver: ^6.3.0
+  checksum: c7ee5b2c10bc5b0325e31fb5da4cb4bc03f9d5f5c00ec3481a018917bcc6b7b040de0690c606a424f57e5fc26d218d64e7718d0e5d7d8614d39c8cd898fab9b3
+  languageName: node
+  linkType: hard
+
 "@babel/generator@npm:^7.12.13, @babel/generator@npm:^7.14.0, @babel/generator@npm:^7.18.10, @babel/generator@npm:^7.7.7":
   version: 7.18.12
   resolution: "@babel/generator@npm:7.18.12"
@@ -2138,6 +2161,17 @@ __metadata:
     "@jridgewell/gen-mapping": ^0.3.2
     jsesc: ^2.5.1
   checksum: 07dd71d255144bb703a80ab0156c35d64172ce81ddfb70ff24e2be687b052080233840c9a28d92fa2c33f7ecb8a8b30aef03b807518afc53b74c7908bf8859b1
+  languageName: node
+  linkType: hard
+
+"@babel/generator@npm:^7.18.13":
+  version: 7.18.13
+  resolution: "@babel/generator@npm:7.18.13"
+  dependencies:
+    "@babel/types": ^7.18.13
+    "@jridgewell/gen-mapping": ^0.3.2
+    jsesc: ^2.5.1
+  checksum: 27f5e7eb774e4d76ee75dc96e3e1bd26cc0ee7cea13a8f7342b716319c0a4d4e26fc49aa8f19316f7c99383da55eeb2a866c6e034e9deacad58a9de9ed6004fb
   languageName: node
   linkType: hard
 
@@ -2428,6 +2462,15 @@ __metadata:
   bin:
     parser: ./bin/babel-parser.js
   checksum: 5ecc75b83e62ec53a947b1635a6ca75d6210d4a4f962f9f16f4239a6783f98e57f9662b598fa2fb1b8e12c0ad5c2bd86846ed0b97b85eb73dd7498b3a6d71a4b
+  languageName: node
+  linkType: hard
+
+"@babel/parser@npm:^7.18.13":
+  version: 7.18.13
+  resolution: "@babel/parser@npm:7.18.13"
+  bin:
+    parser: ./bin/babel-parser.js
+  checksum: 8b41c35607668495d67d9a7c5f61768aaab26acf887efdadc2781aed54046981480ef40aeda0b84d61aed02cf0c4ff4b028d5f83ab85e17e2ddff318f9243b8b
   languageName: node
   linkType: hard
 
@@ -3795,6 +3838,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/traverse@npm:^7.18.13":
+  version: 7.18.13
+  resolution: "@babel/traverse@npm:7.18.13"
+  dependencies:
+    "@babel/code-frame": ^7.18.6
+    "@babel/generator": ^7.18.13
+    "@babel/helper-environment-visitor": ^7.18.9
+    "@babel/helper-function-name": ^7.18.9
+    "@babel/helper-hoist-variables": ^7.18.6
+    "@babel/helper-split-export-declaration": ^7.18.6
+    "@babel/parser": ^7.18.13
+    "@babel/types": ^7.18.13
+    debug: ^4.1.0
+    globals: ^11.1.0
+  checksum: 1a2ef738fac4968feba6385787a3f8f7357d08e7739ecc5b37d8ff5668935253a03290f700f02a85ccfd369d5898625f0722d7733bff2ef91504f6cd8b836f19
+  languageName: node
+  linkType: hard
+
 "@babel/types@npm:7.11.5":
   version: 7.11.5
   resolution: "@babel/types@npm:7.11.5"
@@ -3836,6 +3897,17 @@ __metadata:
     "@babel/helper-validator-identifier": ^7.18.6
     to-fast-properties: ^2.0.0
   checksum: 11632c9b106e54021937a6498138014ebc9ad6c327a07b2af3ba8700773945aba4055fd136431cbe3a500d0f363cbf9c68eb4d6d38229897c5de9d06e14c85e8
+  languageName: node
+  linkType: hard
+
+"@babel/types@npm:^7.18.13":
+  version: 7.18.13
+  resolution: "@babel/types@npm:7.18.13"
+  dependencies:
+    "@babel/helper-string-parser": ^7.18.10
+    "@babel/helper-validator-identifier": ^7.18.6
+    to-fast-properties: ^2.0.0
+  checksum: abc3ad1f3b6864df0ea0e778bcdf7d2c5ee2293811192962d50e8a8c05c1aeec90a48275f53b2a45aad882ed8bef9477ae1f8e70ac1d44d039e14930d1388dcc
   languageName: node
   linkType: hard
 
@@ -6069,6 +6141,24 @@ __metadata:
   peerDependencies:
     graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0
   checksum: 87ff4cee308f1075f4472b80f9f9409667979940f8f701e87f0aa35ce5cf104d94b41258ea8192d05a0893475cd0f086a3929a07663b4fe8d0e805a277f07ed5
+  languageName: node
+  linkType: hard
+
+"@growthbook/growthbook-react@npm:^0.9.1":
+  version: 0.9.1
+  resolution: "@growthbook/growthbook-react@npm:0.9.1"
+  dependencies:
+    "@growthbook/growthbook": ^0.18.1
+  peerDependencies:
+    react: ^16.8.0-0 || ^17.0.0-0 || ^18.0.0-0
+  checksum: 587b0536d9f0f9180798ff7221a4fed61696e77a3d3e5a782afd46cf0ac01f5519145985fe7bf62ab602eea9f899c1165af885ddabb0f7a8a3e48ac3d4abd6b3
+  languageName: node
+  linkType: hard
+
+"@growthbook/growthbook@npm:^0.18.1":
+  version: 0.18.1
+  resolution: "@growthbook/growthbook@npm:0.18.1"
+  checksum: 202347550562487b47044f406415f26976ec1fabd0504658f84c6520d834ec8addf57be1ba5e73e4715d02da4c11f41649edbb6ad49b5d2b24ec46a497c5617f
   languageName: node
   linkType: hard
 
@@ -12707,6 +12797,7 @@ __metadata:
     "@commitlint/cli": 13.2.1
     "@graphql-codegen/cli": 1.21.8
     "@graphql-codegen/typescript": 1.23.0
+    "@growthbook/growthbook-react": ^0.9.1
     "@typescript-eslint/eslint-plugin": ^4.15.1
     "@typescript-eslint/parser": ^4.15.1
     babel-eslint: ^10.1.0
@@ -22838,7 +22929,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mongoose@npm:^5.11.13, mongoose@npm:^5.12.11":
+"mongoose@npm:^5.11.13":
+  version: 5.13.15
+  resolution: "mongoose@npm:5.13.15"
+  dependencies:
+    "@types/bson": 1.x || 4.0.x
+    "@types/mongodb": ^3.5.27
+    bson: ^1.1.4
+    kareem: 2.3.2
+    mongodb: 3.7.3
+    mongoose-legacy-pluralize: 1.0.2
+    mpath: 0.8.4
+    mquery: 3.2.5
+    ms: 2.1.2
+    optional-require: 1.0.x
+    regexp-clone: 1.0.0
+    safe-buffer: 5.2.1
+    sift: 13.5.2
+    sliced: 1.0.1
+  checksum: 74edc47c7819b82220e44402b3607faee622dfe6ac52947e812a7a179feebc295d1f7e7802da9353f8fc1f095b1b4eed775ed2c3914ee4baa332a36cb4679e18
+  languageName: node
+  linkType: hard
+
+"mongoose@npm:^5.12.11":
   version: 5.13.14
   resolution: "mongoose@npm:5.13.14"
   dependencies:
@@ -26473,12 +26586,12 @@ __metadata:
   linkType: hard
 
 "react-day-picker@npm:^8.0.0-alpha.45":
-  version: 8.1.1
-  resolution: "react-day-picker@npm:8.1.1"
+  version: 8.1.3
+  resolution: "react-day-picker@npm:8.1.3"
   peerDependencies:
     date-fns: ^2.28.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: dc3d53e28bfae605efde50f510a6306c661536472371351e6cacf8a5923dfc9dc498df1c97f90a4ff4301f33e1feacc7f2267c1fad118599a4c3af237bd2db2a
+  checksum: a2c8a857ad68117b17e4b125fab3d34752b5ee3077a9db8568278dc9c8b24eb81924a220a8dc6257d7761eee557155108e1eb0bb7eba63ccee20c22ebb4b12dd
   languageName: node
   linkType: hard
 
