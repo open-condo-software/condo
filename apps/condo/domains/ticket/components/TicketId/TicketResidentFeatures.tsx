@@ -31,6 +31,12 @@ interface PaymentsAvailableIndicatorProps {
     ticketOrganizationId: string
 }
 
+/**
+ Availability is determined by:
+ 1. at least 1 receipt for the current or previous period has been uploaded to the organization.
+ 2. If the number of receipts for the previous period is not equal to 0,
+ then the number of receipts for the current period must be greater than or equal to the number for the previous one.
+ */
 const getIsPaymentsInMobileAppAvailable = (receiptsInCurrentPeriod, receiptsInPreviousPeriod) => {
     if (receiptsInCurrentPeriod > 0 || receiptsInPreviousPeriod > 0) {
         if (receiptsInPreviousPeriod === 0) return true
