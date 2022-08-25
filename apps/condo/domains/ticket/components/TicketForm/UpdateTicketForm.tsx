@@ -28,7 +28,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue, resetFields }) => {
+                ({ getFieldsValue }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
                     return (
