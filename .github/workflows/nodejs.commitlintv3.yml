@@ -1,0 +1,29 @@
+name: Lint commit messages
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Setup Node.js ${{ matrix.node-version }} environment
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Lint commit messages from temp env
+        run: yarn dlx -p @commitlint/config-conventional -p @commitlint/cli commitlint --from=origin/$GITHUB_BASE_REF --to=origin/$GITHUB_HEAD_REF
