@@ -51,8 +51,8 @@ import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniap
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
-import { FeatureFlagsProvider } from '@condo/domains/common/components/FeatureFlagsContext'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
+import { FeatureFlagsProvider } from '../featureflags/FeatureFlagsContext'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -203,34 +203,34 @@ const MyApp = ({ Component, pageProps }) => {
             </Head>
             <ConfigProvider locale={ANT_LOCALES[intl.locale] || ANT_DEFAULT_LOCALE} componentSize='large'>
                 <CacheProvider value={cache}>
-                    <GlobalStyle/>
-                    <FocusContextProvider>
-                        <TrackingProvider>
-                            <OnBoardingProvider>
-                                <SubscriptionProvider>
-                                    <TasksProvider>
-                                        <GlobalAppsContainer/>
-                                        <LayoutContextProvider>
-                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                <RequiredAccess>
-                                                    <FeatureFlagsProvider>
+                    <FeatureFlagsProvider>
+                        <GlobalStyle/>
+                        <FocusContextProvider>
+                            <TrackingProvider>
+                                <OnBoardingProvider>
+                                    <SubscriptionProvider>
+                                        <TasksProvider>
+                                            <GlobalAppsContainer/>
+                                            <LayoutContextProvider>
+                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                    <RequiredAccess>
                                                         <Component {...pageProps} />
-                                                    </FeatureFlagsProvider>
-                                                    {
-                                                        isEndTrialSubscriptionReminderPopupVisible && (
-                                                            <EndTrialSubscriptionReminderPopup/>
-                                                        )
-                                                    }
-                                                </RequiredAccess>
-                                            </LayoutComponent>
-                                        </LayoutContextProvider>
-                                    </TasksProvider>
-                                </SubscriptionProvider>
-                            </OnBoardingProvider>
-                        </TrackingProvider>
-                    </FocusContextProvider>
-                    <GoogleAnalytics/>
-                    <YandexMetrika/>
+                                                        {
+                                                            isEndTrialSubscriptionReminderPopupVisible && (
+                                                                <EndTrialSubscriptionReminderPopup/>
+                                                            )
+                                                        }
+                                                    </RequiredAccess>
+                                                </LayoutComponent>
+                                            </LayoutContextProvider>
+                                        </TasksProvider>
+                                    </SubscriptionProvider>
+                                </OnBoardingProvider>
+                            </TrackingProvider>
+                        </FocusContextProvider>
+                        <GoogleAnalytics/>
+                        <YandexMetrika/>
+                    </FeatureFlagsProvider>
                 </CacheProvider>
             </ConfigProvider>
             <JivoSiteWidget/>
