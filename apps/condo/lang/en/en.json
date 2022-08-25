@@ -620,6 +620,8 @@
   "pages.condo.ticket.TicketFileList.downloadFileError": "Failed to download file",
   "pages.condo.ticket.MobileAppInstalled": "Mob. resident app installed",
   "pages.condo.ticket.MobileAppNotInstalled": "Mob. resident app not installed",
+  "pages.condo.ticket.PaymentsAvailable": "Payments are available in the resident's mobile app",
+  "pages.condo.ticket.PaymentsNotAvailable": "Payments are not available in the resident's mobile app",
   "pages.condo.meter.warning.modal.HelpMessage": "New counters and readings will not be saved if you leave the page.",
   "pages.condo.meter.form.ConfirmDeleteTitle": "Remove meter?",
   "pages.condo.meter.form.ConfirmDeleteMessage": "All data, related to this property, will be lost",
