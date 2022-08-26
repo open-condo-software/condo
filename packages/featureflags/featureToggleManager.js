@@ -2,18 +2,26 @@ const { GrowthBook } = require('@growthbook/growthbook')
 const conf = require('@condo/config')
 
 const FEATURE_TOGGLE_CONFIG = conf['FEATURE_TOGGLE_CONFIG']
-const FEATURE_TOGGLE_API_URL = FEATURE_TOGGLE_CONFIG && FEATURE_TOGGLE_CONFIG.url
-const FEATURE_TOGGLE_API_KEY = FEATURE_TOGGLE_CONFIG && FEATURE_TOGGLE_CONFIG.apiKey
+let featureToggleApiUrl
+let featureToggleApiKey
 
 class FeatureToggleManager {
     constructor () {
-        this.growthbook = new GrowthBook()
-        this.fetchFeatures()
+        try {
+            const config = JSON.parse(FEATURE_TOGGLE_CONFIG)
+            featureToggleApiUrl = config.url
+            featureToggleApiKey = config.apiKey
+
+            this.growthbook = new GrowthBook()
+            this.fetchFeatures()
+        } catch (e) {
+            console.error(e)
+        }
     }
 
     async fetchFeatures () {
-        if (FEATURE_TOGGLE_API_URL && FEATURE_TOGGLE_API_KEY) {
-            await fetch(`${FEATURE_TOGGLE_API_URL}/${FEATURE_TOGGLE_API_KEY}`)
+        if (featureToggleApiUrl && featureToggleApiKey) {
+            await fetch(`${featureToggleApiUrl}/${featureToggleApiKey}`)
                 .then((res) => res.json())
                 .then((parsed) => {
                     this.growthbook.setFeatures(parsed.features)
