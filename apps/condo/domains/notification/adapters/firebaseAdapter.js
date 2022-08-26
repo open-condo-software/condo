@@ -14,7 +14,7 @@ const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../
 const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 
 const FIREBASE_CONFIG = conf[FIREBASE_CONFIG_ENV] ? JSON.parse(conf[FIREBASE_CONFIG_ENV]) : null
-const DEFAULT_PUSH_SETTINGS = { apns: { payload: { aps: { 'mutable-content': 1 } } } }
+const DEFAULT_PUSH_SETTINGS = { apns: { payload: { aps: { 'mutable-content': 1, sound: 'default' } } } }
 
 const logger = getLogger('firebaseAdapter')
 
