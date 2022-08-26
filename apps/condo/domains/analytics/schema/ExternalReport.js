@@ -15,6 +15,15 @@ const jwt = require('jsonwebtoken')
 const { EXTERNAL_REPORT_TYPES } = require('@condo/domains/analytics/constants/constants')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/index')
 
+const getUserOrganizationLinkId = (context) => {
+    const cookies = Object.fromEntries(
+        get(context, ['req', 'headers', 'cookie'], '')
+            .split('; ')
+            .map(cookieString => cookieString.split('='))
+    )
+
+    return get(cookies, 'organizationLinkId')
+}
 
 const getMetabaseUrl = (externalReport, organizationId) => {
     const METABASE_CONFIG = conf['METABASE_CONFIG'] && JSON.parse(conf['METABASE_CONFIG'])
@@ -75,16 +84,11 @@ const ExternalReport = new GQLListSchema('ExternalReport', {
         },
 
         iframeUrl: {
-            schemaDoc: 'Url for iframe ',
+            schemaDoc: 'Url for iframe',
             type: Virtual,
             resolver: async (item, _, context) => {
                 let link = ''
-                const cookies = Object.fromEntries(
-                    get(context, ['req', 'headers', 'cookie'], '')
-                        .split('; ')
-                        .map(cookieString => cookieString.split('='))
-                )
-                const userOrganizationLinkId = get(cookies, 'organizationLinkId')
+                const userOrganizationLinkId = getUserOrganizationLinkId(context)
 
                 if (userOrganizationLinkId) {
                     const { organization: { id: userOrganizationId } } = await OrganizationEmployee.getOne(context, {

@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-
+const { EXTERNAL_REPORT_TYPES } = require('@condo/domains/analytics/constants/constants')
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
@@ -22,7 +22,7 @@ async function createTestExternalReport (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        type: 'metabase',
+        type: EXTERNAL_REPORT_TYPES[0],
         title: faker.datatype.string(),
         ...extraAttrs,
     }

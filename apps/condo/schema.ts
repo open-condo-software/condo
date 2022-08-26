@@ -12478,7 +12478,7 @@ export type ExternalReport = {
   organization?: Maybe<Organization>;
   /**  Indicates visibility of concrete external report at ui  */
   isHidden?: Maybe<Scalars['Boolean']>;
-  /**  Url for iframe   */
+  /**  Url for iframe  */
   iframeUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

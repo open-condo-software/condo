@@ -17,11 +17,16 @@ import {
     TicketSelectTypes,
     ViewModeTypes,
 } from '../components/TicketChart'
-import { MAX_CHART_LEGEND_ELEMENTS, MAX_CHART_NAME_LENGTH } from '../constants/restrictions'
 import { isEmpty } from 'lodash'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
+
+export const MAX_CHART_LEGEND_ELEMENTS = 2
+export const MAX_CHART_NAME_LENGTH = 35
+export const MAX_FILTERED_ELEMENTS = 20
+export const MAX_TAG_TEXT_LENGTH = 30
+export const TICKET_CHART_PAGE_SIZE = 6
 
 export type specificationTypes = 'day' | 'week' | 'month'
 export type addressPickerType = { id: string; value: string; }
