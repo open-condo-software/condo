@@ -8,6 +8,7 @@ const { antGlobalVariables } = require('@condo/domains/common/constants/style')
 // NOTE: FormTable require rc-table module
 const withTM = require('next-transpile-modules')([
     '@condo/next',
+    '@condo/featureflags',
     '@condo/keystone',
     'rc-table',
     '@condo/domains',
