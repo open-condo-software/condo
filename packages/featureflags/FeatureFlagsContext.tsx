@@ -24,8 +24,20 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
         },
     } = getConfig()
 
-    const featureToggleApiUrl = featureToggleConfig && featureToggleConfig.url
-    const featureToggleApiKey = featureToggleConfig && featureToggleConfig.apiKey
+
+    let featureToggleApiUrl
+    let featureToggleApiKey
+
+    try {
+        const config = featureToggleConfig && JSON.parse(featureToggleConfig)
+
+        if (config) {
+            featureToggleApiUrl = config.url
+            featureToggleApiKey = config.apiKey
+        }
+    } catch (e) {
+        console.error(e)
+    }
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -41,6 +53,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
                 .then((json) => {
                     growthbook.setFeatures(json.features)
                 })
+                .catch(e => console.error(e))
         }
     }, [featureToggleApiKey, featureToggleApiUrl, growthbook, router.pathname])
 
