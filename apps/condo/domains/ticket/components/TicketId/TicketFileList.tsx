@@ -51,7 +51,9 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     })), [files])
 
     const downloadFile = useCallback(async (file: UploadFile) => {
-        const response = await fetch(file.url)
+        const response = await fetch(file.url, {
+            credentials: 'include',
+        })
         if (!response.ok) throw new Error(ERROR_DOWNLOAD_FILE)
 
         const blob = await response.blob()
@@ -74,7 +76,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         } else {
             window.open(file.url, '_blank')
         }
-    }, [])
+    }, [DownloadFileErrorMessage, downloadFile])
 
     return (
         <div className='upload-control-wrapper' css={UploadListWrapperStyles}>
