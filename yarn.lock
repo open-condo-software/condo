@@ -4186,10 +4186,11 @@ __metadata:
   resolution: "@condo/featureflags@workspace:packages/featureflags"
   dependencies:
     "@condo/config": "workspace:^"
+    "@growthbook/growthbook": ^0.18.1
     "@growthbook/growthbook-react": ^0.9.1
   peerDependencies:
-    next: ^9.5.5
-    react: ^16.13.1
+    next: ">=9.5.5"
+    react: ">=16.13.1"
   languageName: unknown
   linkType: soft
 

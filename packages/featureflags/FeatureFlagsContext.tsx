@@ -1,5 +1,4 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
-import { get } from 'lodash'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect } from 'react'
@@ -8,10 +7,10 @@ const growthbook = new GrowthBook()
 
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
-    updateContext: (context) => Promise<void>
+    updateContext: (context) => void
 }
 
-const FeatureFlagsContext = createContext(null)
+const FeatureFlagsContext = createContext<IFeatureFlagsContext>(null)
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
@@ -25,8 +24,8 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
         },
     } = getConfig()
 
-    const featureToggleApiUrl = get(featureToggleConfig, 'url')
-    const featureToggleApiKey = get(featureToggleConfig, 'apiKey')
+    const featureToggleApiUrl = featureToggleConfig && featureToggleConfig.url
+    const featureToggleApiKey = featureToggleConfig && featureToggleConfig.apiKey
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()

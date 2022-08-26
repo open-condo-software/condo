@@ -30,6 +30,7 @@ To manage features on the client, use `useFlag` hook and `updateContext` functio
 
 **Example:** The case is the same as above.
 ```
+const { useFlag, updateContext } = useFeatureFlags()
 const enabled = useFlag('test-feature')
 
 ...
