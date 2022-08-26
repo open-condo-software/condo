@@ -1,5 +1,3 @@
-import { useAuth } from '@condo/next/auth'
-import { useOrganization } from '@condo/next/organization'
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
 import { get } from 'lodash'
 import getConfig from 'next/config'

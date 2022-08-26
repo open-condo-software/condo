@@ -52,7 +52,7 @@ import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useT
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
-import { FeatureFlagsProvider } from '../featureflags/FeatureFlagsContext'
+import { FeatureFlagsProvider } from '@condo/featureflags/FeatureFlagsContext'
 
 const ANT_LOCALES = {
     ru: ruRU,

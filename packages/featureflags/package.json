@@ -1,0 +1,19 @@
+{
+  "name": "@condo/featureflags",
+  "version": "1.0.0",
+  "dependencies": {
+    "@condo/config": "workspace:^",
+    "@growthbook/growthbook-react": "^0.9.1"
+  },
+  "peerDependencies": {
+    "next": "^9.5.5",
+    "react": "^16.13.1"
+  },
+  "exports": {
+    "./*": [
+      "./*.js",
+      "./*.tsx"
+    ]
+  },
+  "repository": "https://github.com/open-condo-software/condo/tree/master/packages/featureflags"
+}

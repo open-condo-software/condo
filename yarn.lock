@@ -518,6 +518,7 @@ __metadata:
     "@apollo/client": 3.3.20
     "@condo/config": "workspace:^"
     "@condo/domains": "link:./domains"
+    "@condo/featureflags": "workspace:^"
     "@condo/keystone": "workspace:^"
     "@condo/locales": "workspace:^"
     "@condo/next": "workspace:^"
@@ -4178,6 +4179,18 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:./domains::locator=%40app%2Fcondo%40workspace%3Aapps%2Fcondo"
   languageName: node
+  linkType: soft
+
+"@condo/featureflags@workspace:^, @condo/featureflags@workspace:packages/featureflags":
+  version: 0.0.0-use.local
+  resolution: "@condo/featureflags@workspace:packages/featureflags"
+  dependencies:
+    "@condo/config": "workspace:^"
+    "@growthbook/growthbook-react": ^0.9.1
+  peerDependencies:
+    next: ^9.5.5
+    react: ^16.13.1
+  languageName: unknown
   linkType: soft
 
 "@condo/keystone@workspace:^, @condo/keystone@workspace:packages/keystone":
@@ -12797,7 +12810,6 @@ __metadata:
     "@commitlint/cli": 13.2.1
     "@graphql-codegen/cli": 1.21.8
     "@graphql-codegen/typescript": 1.23.0
-    "@growthbook/growthbook-react": ^0.9.1
     "@typescript-eslint/eslint-plugin": ^4.15.1
     "@typescript-eslint/parser": ^4.15.1
     babel-eslint: ^10.1.0
