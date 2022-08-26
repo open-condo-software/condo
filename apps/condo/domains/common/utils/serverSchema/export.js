@@ -4,6 +4,8 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const Upload = require('graphql-upload/public/Upload')
+const { sleep } = require('@condo/domains/common/utils/sleep')
+const conf = require('@condo/config')
 
 const errors = {
     NOTHING_TO_EXPORT: {
@@ -13,6 +15,9 @@ const errors = {
         messageForUser: 'tasks.export.error.NOTHING_TO_EXPORT',
     },
 }
+
+// Rough solution to offload server in case of exporting many thousands of records
+const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
 
 /**
  * Common fields of export task record
@@ -95,6 +100,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
         offset += EXPORT_PROCESSING_BATCH_SIZE
         // Handle case when we know total records to export and when we don't know and relying on presence of fetched records by fact
         hasMore = (task.totalRecordsCount && offset < task.totalRecordsCount) || (!task.totalRecordsCount && batch.length > 0)
+        sleep(SLEEP_TIMEOUT)
     } while (hasMore)
 
     return rows
