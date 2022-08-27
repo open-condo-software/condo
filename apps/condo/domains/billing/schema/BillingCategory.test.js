@@ -14,7 +14,6 @@ const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/u
 const TEST_CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 
 describe('BillingCategory', () => {
-
     describe('Create', () => {
         test('cannot be created by Admin', async () => {
             const admin = await makeLoggedInAdminClient()
