@@ -3,14 +3,16 @@
  */
 
 const _ = require('lodash')
-
-const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-
-const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
-const { find, getById, GQLCustomSchema } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
-const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const Big = require('big.js')
+
+const { find, getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+
+const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+
+const { BILLING_CATEGORIES } = require('@condo/domains/billing/utils/constants')
+const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
 
 const RECEIPTS_LIMIT = 100
 
@@ -38,21 +40,21 @@ const errors = {
         variable: ['data', 'receipts', '[]', 'year'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Field Year is wrong for some receipts. Year should be greater then 0. Example: 2022',
+        message: 'Year is wrong for some receipts. Year should be greater then 0. Example: 2022',
     },
     WRONG_MONTH: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'month'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Field Month is wrong for some receipts. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
+        message: 'Month is wrong for some receipts. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
     },
     ADDRESS_WRONG_VALUE: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'address'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'field Address has wrong value for some receipts',
+        message: 'Address is wrong for some receipts',
     },
     RECEIPTS_LIMIT_HIT: {
         mutation: 'registerBillingReceipts',
@@ -367,8 +369,16 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
 
                     // Todo: (DOMA-3445) Validate address field
+                    if (address === '') {
+                        partialErrors.push(new GQLError(errors.ADDRESS_WRONG_VALUE, context))
+                        continue
+                    }
 
-                    // Todo: (DOMA-3445) Validate category field
+                    // Validate category field
+                    if (!BILLING_CATEGORIES.includes(_.get(category, 'id'))) {
+                        partialErrors.push(new GQLError(errors.BILLING_CATEGORY_NOT_FOUND, context))
+                        continue
+                    }
 
                     const property = { address }
                     const propertyKey = getBillingPropertyKey(property)
