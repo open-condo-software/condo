@@ -23,6 +23,8 @@ const BillingCategory = new GQLListSchema('BillingCategory', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingCategories,
+        // NOTE: These categories are explicitly created in 0121 migration.
+        // NOTE: These categories are explicitly referenced in constants.js. If this to be changed, the changes in constants.js file needs to be made
         create: false,
         update: false,
         delete: false,

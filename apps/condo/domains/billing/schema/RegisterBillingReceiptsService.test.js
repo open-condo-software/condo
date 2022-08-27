@@ -745,7 +745,7 @@ describe('RegisterBillingReceiptsService', () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(admin, payload)
             }, (e) => {
-                expect(e.errors[0].message).toContain('Category with this id is not found')
+                expect(e.errors[0].message).toContain('BillingCategory is not found')
             })
         })
 
