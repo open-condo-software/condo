@@ -1673,14 +1673,15 @@ describe('Ticket', () => {
         })
 
         describe('deferredUntil and status', () => {
-            test('deferredUntil is null should not be with status "deferred"', async () => {
+            test('if deferredUntil is null and status is "deferred", should be deferred for 30 days', async () => {
                 const client = await makeClientWithProperty()
 
-                await expectToThrowValidationFailureError(async () => {
-                    await createTestTicket(client, client.organization, client.property, {
-                        status: { connect: { id: STATUS_IDS.DEFERRED } },
-                    })
-                }, `${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    status: { connect: { id: STATUS_IDS.DEFERRED } },
+                })
+                const expectedDeferredUntil = dayjs().add(30, 'days')
+                const differenceDate = expectedDeferredUntil.diff(dayjs(ticket.deferredUntil), 'days')
+                expect(differenceDate).toEqual(0)
             })
             test(`should not create ticket with "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE}`, async () => {
                 const deferredUntil = dayjs().add(2, 'days').toISOString()
