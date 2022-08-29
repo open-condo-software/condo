@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -20,6 +20,8 @@ const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: stri
         return []
     }
 }
+
+const MULTIPLE_SELECT_STYLE: CSSProperties = { width: '100%' }
 
 function FilterModalBaseClassifierSelect ({ form, type }) {
     const intl = useIntl()
@@ -97,6 +99,7 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
             getPopupContainer={getFiltersModalPopupContainer}
             loading={loading}
             placeholder={SelectMessage}
+            style={MULTIPLE_SELECT_STYLE}
         />
     )
 }

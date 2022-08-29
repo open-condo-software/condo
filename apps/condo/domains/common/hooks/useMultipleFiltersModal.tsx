@@ -146,6 +146,8 @@ const DATE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const DATE_RANGE_PICKER_STYLE: CSSProperties = { width: '100%' }
 const DATE_PICKER_DATE_FORMAT = 'DD.MM.YYYY'
 const TAGS_SELECT_STYLE: CSSProperties = { width: '100%' }
+const SELECT_STYLE: CSSProperties = { width: '100%' }
+const GQL_SELECT_STYLE: CSSProperties = { width: '100%' }
 const TAGS_SELECT_DROPDOWN_STYLE = { display: 'none' }
 
 export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string, component: FilterComponentType, form: FormInstance): React.ReactElement => {
@@ -203,6 +205,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             return (
                 <Select
                     defaultValue={get(filters, keyword)}
+                    style={SELECT_STYLE}
                     optionFilterProp='title'
                     {...props}
                 >
@@ -225,6 +228,7 @@ export const getModalFilterComponentByMeta = (filters: IFilters, keyword: string
             return (
                 <GraphQlSearchInput
                     initialValue={initialData}
+                    style={GQL_SELECT_STYLE}
                     allowClear={false}
                     {...props}
                 />
