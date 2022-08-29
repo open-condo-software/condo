@@ -45,7 +45,7 @@ const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
-const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('../constants')
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('../constants')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const dayjs = require('dayjs')
 const { calculateDeferredUntil } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
@@ -469,7 +469,7 @@ const Ticket = new GQLListSchema('Ticket', {
             }
             const resolvedStatus = await getById('TicketStatus', newItem.status)
             if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
-                resolvedData.deferredUntil = dayjs().add(30, 'days').toISOString()
+                resolvedData.deferredUntil = dayjs().add(DEFAULT_DEFERRED_DAYS, 'days').toISOString()
             }
 
             return resolvedData
