@@ -791,7 +791,7 @@ describe('RegisterBillingReceiptsService', () => {
             })
         })
 
-        test('Mutation checks wrong address', async () => {
+        test('Mutation checks empty address', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
@@ -808,7 +808,7 @@ describe('RegisterBillingReceiptsService', () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(admin, payload)
             }, (e) => {
-                expect(e.errors[0].message).toContain('Address is wrong')
+                expect(e.errors[0].message).toContain('Address is empty')
             })
         })
 

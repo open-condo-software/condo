@@ -13,6 +13,8 @@ const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/
 const { BILLING_CATEGORIES } = require('@condo/domains/billing/utils/constants')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
+const { getAddressSuggestions } = require(
+    '@condo/domains/common/utils/serverSideAddressApi')
 
 const RECEIPTS_LIMIT = 100
 
@@ -49,12 +51,19 @@ const errors = {
         type: WRONG_FORMAT,
         message: 'Month is wrong for some receipts. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
     },
-    ADDRESS_WRONG_VALUE: {
+    ADDRESS_EMPTY_VALUE: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'receipts', '[]', 'address'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Address is wrong for some receipts',
+        message: 'Address is empty for some receipts',
+    },
+    ADDRESS_NOT_RECOGNIZED_VALUE: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'address'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Address is not recognized for some receipts',
     },
     RECEIPTS_LIMIT_HIT: {
         mutation: 'registerBillingReceipts',
@@ -368,9 +377,15 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     }
                     const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
 
-                    // Todo: (DOMA-3445) Validate address field
+                    // Validate address field
                     if (address === '') {
-                        partialErrors.push(new GQLError(errors.ADDRESS_WRONG_VALUE, context))
+                        partialErrors.push(new GQLError(errors.ADDRESS_EMPTY_VALUE, context))
+                        continue
+                    }
+                    const normalizedAddressSuggestions = await getAddressSuggestions(address, 1)
+                    const normalizedAddress = _.get(normalizedAddressSuggestions, ['0', 'value'])
+                    if (!normalizedAddress) {
+                        partialErrors.push(new GQLError(errors.ADDRESS_NOT_RECOGNIZED_VALUE, context))
                         continue
                     }
 
@@ -380,7 +395,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         continue
                     }
 
-                    const property = { address }
+                    const property = { address: normalizedAddress }
                     const propertyKey = getBillingPropertyKey(property)
 
                     const account = { unitName, unitType, number: accountNumber, property }
@@ -394,7 +409,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             dv: dv,
                             sender: sender,
                             globalId: propertyKey,
-                            address: address,
+                            address,
+                            normalizedAddress,
                             raw: { dv: 1 },
                             importId: propertyKey,
                             context: { id: billingContext.id },
