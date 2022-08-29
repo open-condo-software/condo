@@ -22,13 +22,13 @@ const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
         },
 
         lastCommentAt: {
-            schemaDoc: 'Time of last comment in this ticket',
+            schemaDoc: 'Time of last comment with resident type in this ticket',
             type: DateTimeUtc,
             isRequired: true,
         },
 
         lastResidentCommentAt: {
-            schemaDoc: 'Time of last resident\'s comment in this ticket',
+            schemaDoc: 'Time of last comment with resident user in this ticket',
             type: DateTimeUtc,
         },
     },

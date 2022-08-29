@@ -374,14 +374,18 @@ const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) 
     }
 }
 
-const updateTicketLastCommentTime = async (context, updatedItem) => {
+const updateTicketLastCommentTime = async (context, updatedItem, userType) => {
     const ticketId = get(updatedItem, 'ticket')
     const dv = get(updatedItem, 'dv')
     const sender = get(updatedItem, 'sender')
     const lastCommentAt = get(updatedItem, 'createdAt', new Date()).toISOString()
+    const lastResidentCommentAt = userType === RESIDENT ? lastCommentAt : undefined
 
     await Ticket.update(context, ticketId, {
-        dv, sender, lastCommentAt,
+        dv,
+        sender,
+        lastCommentAt,
+        lastResidentCommentAt,
     })
 }
 

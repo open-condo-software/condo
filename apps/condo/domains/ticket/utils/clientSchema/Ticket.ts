@@ -27,7 +27,6 @@ export interface ITicketFormState {
     classifier?: string
     canReadByResident?: boolean
     lastResidentCommentAt?: string
-    lastAnsweredToResidentAt?: string
     assignee?: string
     operator?: string
     client?: string

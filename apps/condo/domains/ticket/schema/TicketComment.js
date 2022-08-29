@@ -88,7 +88,7 @@ const TicketComment = new GQLListSchema('TicketComment', {
             const commentType = get(updatedItem, 'type')
 
             if (operation === 'create') {
-                await updateTicketLastCommentTime(context, updatedItem)
+                await updateTicketLastCommentTime(context, updatedItem, userType)
 
                 if (commentType === RESIDENT_COMMENT_TYPE) {
                     await createOrUpdateTicketCommentsTime(context, updatedItem, userType)
