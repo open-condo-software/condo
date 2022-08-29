@@ -100,7 +100,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
         offset += EXPORT_PROCESSING_BATCH_SIZE
         // Handle case when we know total records to export and when we don't know and relying on presence of fetched records by fact
         hasMore = (task.totalRecordsCount && offset < task.totalRecordsCount) || (!task.totalRecordsCount && batch.length > 0)
-        sleep(SLEEP_TIMEOUT)
+        await sleep(SLEEP_TIMEOUT)
     } while (hasMore)
 
     return rows
