@@ -463,6 +463,10 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.problemClassifier = get(classifier, 'problem', null)
                 resolvedData.categoryClassifier = get(classifier, 'category', null)
             }
+            const resolvedStatus = await getById('TicketStatus', newItem.status)
+            if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
+                resolvedData.deferredUntil = dayjs().add(30, 'days').toISOString()
+            }
 
             return resolvedData
         },
@@ -498,10 +502,6 @@ const Ticket = new GQLListSchema('Ticket', {
                         return addValidationError(`${WRONG_VALUE} should not change "deferredUntil" field if status type is not ${DEFERRED_STATUS_TYPE} before or after changes`)
                     }
                 }
-            }
-
-            if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
-                return addValidationError(`${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
             }
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
