@@ -10,7 +10,9 @@ import { useIntl } from '@condo/next/intl'
 
 import { colors, fontSizes } from '@app/condo/domains/common/constants/style'
 
-const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|html|txt)$/i
+// NOTE step 1 - only .svg or .html
+// NOTE TODO step 2 - if step 1 is successful, will need add .txt and other file types
+const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|html)$/i
 
 interface ITicketFileListProps {
     files?: TicketFileType[]
