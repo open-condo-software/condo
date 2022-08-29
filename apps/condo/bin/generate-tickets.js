@@ -15,6 +15,7 @@ const { Client } = require('pg')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 dayjs.extend(utc)
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
@@ -73,6 +74,10 @@ class TicketGenerator {
     async generateTicket (timeStamp) {
         const unit = this.unit
         const problem = this.problem
+        const status = this.status
+        const twoWeeksAgo = dayjs().subtract(2, 'week').toISOString()
+        const twoWeekAhead = dayjs().add(2, 'week').toISOString()
+
         const data = {
             dv: 1,
             sender: { dv: 1, fingerprint: 'import' },
@@ -84,7 +89,7 @@ class TicketGenerator {
             floorName: unit.floor,
             unitName: unit.unit,
             source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-            classifierRule: { connect: { id: problem.id } },
+            classifier: { connect: { id: problem.id } },
             operator: { connect: { id: this.user.id } },
             assignee: { connect: { id: this.user.id } },
             executor: { connect: { id: this.user.id } },
@@ -93,8 +98,9 @@ class TicketGenerator {
             isPaid: faker.datatype.boolean(),
             organization: { connect: { id: this.organization.id } },
             property:  { connect: { id: this.property.id } },
-            status: { connect: { id: this.status.id } },
-            deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().subtract(2, 'week').toISOString()).toISOString(),
+            status: { connect: { id: status.id } },
+            deadline: faker.date.between(twoWeeksAgo, twoWeekAhead).toISOString(),
+            deferredUntil: status.type === DEFERRED_STATUS_TYPE ? twoWeekAhead : undefined,
         }
         const result = await Ticket.create(this.context, data)
         await this.setCreatedAt(result.id, timeStamp)
