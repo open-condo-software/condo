@@ -51,12 +51,19 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     })), [files])
 
     const downloadFile = useCallback(async (file: UploadFile) => {
-        const response = await fetch(file.url, {
+        const redirectResponse = await fetch(file.url, {
             credentials: 'include',
+            headers: {
+                '-no-redirect': 'true',
+            },
         })
-        if (!response.ok) throw new Error(ERROR_DOWNLOAD_FILE)
+        if (!redirectResponse.ok) throw new Error(ERROR_DOWNLOAD_FILE)
+        const json = await redirectResponse.json()
+        const redirectUrl = json.redirectUrl
+        const fileResponse = await fetch(redirectUrl)
+        if (!fileResponse.ok) throw new Error(ERROR_DOWNLOAD_FILE)
 
-        const blob = await response.blob()
+        const blob = await fileResponse.blob()
         const blobUrl = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = blobUrl
