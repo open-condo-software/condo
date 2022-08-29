@@ -187,7 +187,7 @@ const obsRouterHandler = ({ keystone }) => {
         const url = Acl.generateUrl(req.params.file)
         if (req.get('-no-redirect')) {
             res.status(200)
-            res.json({ redirectUrl: url })
+            return res.json({ redirectUrl: url })
         }
 
         return res.redirect(url)
