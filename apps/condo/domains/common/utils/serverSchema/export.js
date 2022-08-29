@@ -60,7 +60,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
 
     do {
         // User can cancel the task at any time, in this all operations should be stopped
-        task = await taskServerUtils.getOne(context, { id: task.id })
+        task = await taskServerUtils.getOne(context, { id: taskId })
         if (task.status === TASK_CANCELLED_STATUS) {
             return Promise.reject(TASK_CANCELLED_STATUS)
         }
@@ -91,7 +91,6 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
                 ...convertedRecords,
             ]
 
-            task = await taskServerUtils.getOne(context, { id: taskId })
             // NOTE: Ideally, we need a kind of `increment` method in utils for server schema.
             // Suppose, that in future `loadRecordsAndConvertToFileRows` function will
             // be called to process chunks in parallel, so, theoretically, between fetching of fresh
