@@ -31,9 +31,8 @@ class TicketGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0, organizationId ) {
+    constructor ({ ticketsByDay = { min: 20, max: 50 } }, organizationId) {
         this.ticketsByDay = ticketsByDay
-        this.propertyIndex = propertyIndex
         this.organizationId = organizationId
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
@@ -122,7 +121,7 @@ class TicketGenerator {
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
         this.classifiers = await TicketClassifier.getAll(this.context, { })
-        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: this.organizationId })
+        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: { id: this.organizationId } })
         if (property) {
             this.property = property
         }
@@ -184,10 +183,10 @@ class TicketGenerator {
 const createTickets = async () => {
     const [organizationId] = process.argv.slice(2)
 
-    const TicketManager = new TicketGenerator({
-        ticketsByDay: { min: 20, max: 50 },
-        organizationId,
-    })
+    const TicketManager = new TicketGenerator(
+        { ticketsByDay: { min: 20, max: 50 } },
+        organizationId
+    )
     console.time('keystone')
     await TicketManager.connect()
     console.timeEnd('keystone')
