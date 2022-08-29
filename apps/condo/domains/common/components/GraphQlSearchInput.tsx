@@ -159,7 +159,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             }
         }
         handleSearch('')
-    }, [onSelect, props.mode])
+    }, [onSelect, props.mode])//comment for run tests on release branch
 
     useEffect(() => {
         handleSearch('')
