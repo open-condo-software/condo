@@ -306,6 +306,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'importId: String! ' +
 
                     'address: String! ' +
+                    'normalizedAddress: String ' +
 
                     'accountNumber: String! ' +
                     'unitName: String! ' + // Should delete this!
@@ -365,6 +366,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 for (const receiptInput of receiptsInput ) {
 
                     const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
+                    let { normalizedAddress } = receiptInput
 
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
@@ -382,11 +384,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         partialErrors.push(new GQLError(errors.ADDRESS_EMPTY_VALUE, context))
                         continue
                     }
-                    const normalizedAddressSuggestions = await getAddressSuggestions(address, 1)
-                    const normalizedAddress = _.get(normalizedAddressSuggestions, ['0', 'value'])
                     if (!normalizedAddress) {
-                        partialErrors.push(new GQLError(errors.ADDRESS_NOT_RECOGNIZED_VALUE, context))
-                        continue
+                        const normalizedAddressFromSuggestions = _.get(await getAddressSuggestions(address, 1), ['0', 'value'])
+                        if (!normalizedAddressFromSuggestions) {
+                            partialErrors.push(new GQLError(errors.ADDRESS_NOT_RECOGNIZED_VALUE, context))
+                            continue
+                        }
+                        normalizedAddress = normalizedAddressFromSuggestions
                     }
 
                     // Validate category field
