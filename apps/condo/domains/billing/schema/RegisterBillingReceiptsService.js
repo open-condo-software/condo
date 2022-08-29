@@ -63,7 +63,7 @@ const errors = {
         variable: ['data', 'receipts', '[]', 'address'],
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
-        message: 'Address is not recognized for some receipts',
+        message: 'Address is not recognized for some receipts. We tried to recognize address, but failed. You can either double check address field or manually provide a normalizedAddress',
     },
     RECEIPTS_LIMIT_HIT: {
         mutation: 'registerBillingReceipts',
