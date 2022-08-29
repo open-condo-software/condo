@@ -206,7 +206,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/client@npm:^3.2.5, @apollo/client@npm:^3.2.9, @apollo/client@npm:^3.3.19":
+"@apollo/client@npm:^3.2.5, @apollo/client@npm:^3.3.19":
   version: 3.6.9
   resolution: "@apollo/client@npm:3.6.9"
   dependencies:
@@ -886,27 +886,17 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/insurance@workspace:apps/insurance"
   dependencies:
-    "@ant-design/icons": ^4.7.0
-    "@apollo/client": 3.3.20
-    "@app/condo": "workspace:^"
-    "@condo/config": "workspace:^"
-    "@condo/domains": "link:../condo/domains"
-    "@condo/keystone": "workspace:^"
-    "@condo/next": "workspace:^"
-    "@emotion/babel-plugin": ^11.10.0
     "@emotion/core": ^10.1.1
-    "@emotion/react": ^11.9.3
-    "@emotion/styled": ^11.10.0
+    "@emotion/styled": ^10.0.27
     "@insurance/domains": "link:./domains"
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
     "@keystonejs/adapter-prisma": ^3.2.0
-    "@keystonejs/app-admin-ui": 7.3.12
+    "@keystonejs/app-admin-ui": ^7.5.0
     "@keystonejs/app-graphql": ^6.3.0
     "@keystonejs/app-next": ^5.2.3
     "@keystonejs/app-static": ^5.2.0
     "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
     "@keystonejs/fields-color": ^1.1.0
     "@keystonejs/fields-content": ^9.1.0
     "@keystonejs/fields-location-google": ^3.4.0
@@ -919,62 +909,41 @@ __metadata:
     "@testing-library/react": ^11.2.5
     "@types/jest": ^26.0.20
     "@types/node": ^14.14.25
-    "@types/react": 16.9.17
+    "@types/react": ^17.0.1
     "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
     antd: ^4.8.2
-    antd-dayjs-webpack-plugin: ^1.0.6
-    apollo-server-errors: ^3.1.0
     babel-jest: ^26.6.3
     classnames: 2.2.6
-    css-loader: 1.0.0
     dayjs: ^1.10.6
     emotion: ^10.0.27
     emotion-server: ^10.0.27
     express: ^4.17.1
-    extracted-loader: ^1.0.7
     facepaint: ^1.2.1
-    falsey: ^1.0.0
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
     graphql-request: ^4.2.0
-    graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
-    ignore-loader: 0.1.2
     immer: ^8.0.1
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
-    js-cookie: ^2.2.1
     less: ^3.12.2
-    less-loader: ^4.0.0
     lodash: ^4.17.21
-    moment: 2.29.4
     next: ^9.5.2
     next-transpile-modules: ^4.1.0
-    node-fetch: ^2.6.7
     numeral: 2.0.6
-    openid-client: 4.7.4
-    phone: 3.1.17
-    pino: ^6.13.3
-    pluralize: ^8.0.0
     qs: ^6.9.4
-    raw-loader: ^4.0.2
-    rc-field-form: ~1.27.0
     rc-queue-anim: ^1.8.5
-    rc-table: ~7.25.3
     react: ^16.13.1
     react-dom: ^16.13.1
     react-fittext: ^1.0.0
     react-markdown: ^4.3.1
-    react-phone-input-2: ^2.14.0
     react-responsive: ^8.1.0
     react-test-renderer: ^16.13.1
     typescript: ^4.1.5
     use-immer: ^0.4.1
     uuid: ^8.3.0
     validator: ^13.1.1
-    webpack: ^4.46.0
   languageName: unknown
   linkType: soft
 
@@ -1068,16 +1037,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/property_importer@workspace:apps/property_importer"
   dependencies:
-    "@ant-design/icons": ^4.7.0
-    "@apollo/client": 3.3.20
-    "@condo/config": "workspace:^"
-    "@condo/domains": "link:../condo/domains"
-    "@condo/keystone": "workspace:^"
-    "@condo/next": "workspace:^"
-    "@emotion/babel-plugin": ^11.10.0
     "@emotion/core": ^10.1.1
-    "@emotion/react": ^11.9.3
-    "@emotion/styled": ^11.10.0
+    "@emotion/styled": ^10.0.27
     "@keystonejs/adapter-knex": ^13.2.0
     "@keystonejs/adapter-mongoose": ^11.2.0
     "@keystonejs/adapter-prisma": ^3.2.0
@@ -1086,7 +1047,6 @@ __metadata:
     "@keystonejs/app-next": ^5.2.3
     "@keystonejs/app-static": ^5.2.0
     "@keystonejs/auth-password": ^6.1.0
-    "@keystonejs/fields": ^22.1.3
     "@keystonejs/fields-color": ^1.1.0
     "@keystonejs/fields-content": ^9.1.0
     "@keystonejs/fields-location-google": ^3.4.0
@@ -1100,48 +1060,36 @@ __metadata:
     "@testing-library/react": ^11.2.5
     "@types/jest": ^26.0.20
     "@types/node": ^14.14.25
-    "@types/react": 16..9.17
+    "@types/react": ^17.0.1
     "@welldone-software/why-did-you-render": ^5.0.0-alpha.1
     "@zeit/next-css": ^1.0.1
     "@zeit/next-less": ^1.0.1
-    ajv: 8.11.0
     antd: ^4.8.2
-    antd-dayjs-webpack-plugin: ^1.0.6
     apollo-boost: ^0.4.9
     apollo-link-error: ^1.1.13
     babel-jest: ^26.6.3
     classnames: 2.2.6
     cross-env: ^7.0.3
     cross-fetch: ^3.1.5
-    css-loader: 1.0.0
     dayjs: ^1.10.6
     emotion: ^10.0.27
     emotion-server: ^10.0.27
     express: ^4.17.1
-    extracted-loader: ^1.0.7
     facepaint: ^1.2.1
     get-contrast: ^2.0.0
-    graphql: ^15.6.1
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
-    ignore-loader: 0.1.2
     immer: ^9.0.0
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
-    js-cookie: ^2.2.1
     less: ^3.12.2
-    less-loader: ^4.0.0
     lodash: ^4.17.21
     next: ^9.5.5
     next-cookies: ^2.0.3
     next-transpile-modules: ^4.1.0
     numeral: 2.0.6
-    openid-client: 4.7.4
-    pluralize: ^8.0.0
     qs: ^6.9.4
-    raw-loader: ^4.0.2
     rc-queue-anim: ^1.8.5
-    rc-table: ~7.25.3
     react: ^16.13.1
     react-dom: ^16.13.1
     react-fittext: ^1.0.0
@@ -1152,7 +1100,6 @@ __metadata:
     use-immer: ^0.4.1
     uuid: ^8.3.0
     validator: ^13.1.1
-    webpack: ^4.46.0
   languageName: unknown
   linkType: soft
 
@@ -1212,6 +1159,7 @@ __metadata:
     big.js: ^6.1.1
     body-parser: ^1.19.1
     classnames: 2.2.6
+    cross-env: ^7.0.3
     cross-fetch: ^3.1.5
     css-loader: 1.0.0
     csv-parse: ^5.2.0
@@ -1264,19 +1212,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@arch-ui/alert@npm:^0.0.18":
-  version: 0.0.18
-  resolution: "@arch-ui/alert@npm:0.0.18"
-  dependencies:
-    "@arch-ui/theme": ^0.0.11
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 877822b53239d9a9fb8a69a6e24594a99c8da80c7feaa5ca840fda3863c8f0fa559dc555ae9b482460cb56eacbc7056086b2757463af3789b10e6d0e5ca3f3cc
-  languageName: node
-  linkType: hard
-
 "@arch-ui/alert@npm:^0.0.21":
   version: 0.0.21
   resolution: "@arch-ui/alert@npm:0.0.21"
@@ -1287,20 +1222,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 99d74e80f190765899a7de8f14b54ec05af5f7d762b641f4ce9178c96e191b7c5456dd1afb5ff9f06da52f537706705956523e9b186837ccc003e86b95bc54b3
-  languageName: node
-  linkType: hard
-
-"@arch-ui/badge@npm:^0.0.17":
-  version: 0.0.17
-  resolution: "@arch-ui/badge@npm:0.0.17"
-  dependencies:
-    "@arch-ui/theme": 0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 11dfc8259fb5554469421711be90e1145b330b826b683c9017385ff8761c416c3e4d2355a80981eae0b4dfd0df76b1acb1d65a9e71765b4afc1c897f2dd22b28
   languageName: node
   linkType: hard
 
@@ -1315,25 +1236,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 4ff0582e8158070b8ddd1f687e70e441eb42657b87934edabd74abaaa247f9625c0682b0146830235455b7d143cc53c19b4edb1b302bb61f122b7c95ac8c7011
-  languageName: node
-  linkType: hard
-
-"@arch-ui/button@npm:^0.0.22":
-  version: 0.0.22
-  resolution: "@arch-ui/button@npm:0.0.22"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.2
-    "@arch-ui/common": ^0.0.12
-    "@arch-ui/loading": ^0.0.18
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-    react-pseudo-state: ^2.2.2
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^16.13.1
-  checksum: d2b9b812638dcb7cc2792b8df8b2e37f3b74288a2cec5a38fe087da751b45073c9042f2acbd610c16d3020a6ee8052bd72b89fa6861b39582caa8be55f3a0977
   languageName: node
   linkType: hard
 
@@ -1356,19 +1258,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/card@npm:^0.0.15":
-  version: 0.0.15
-  resolution: "@arch-ui/card@npm:0.0.15"
-  dependencies:
-    "@arch-ui/theme": 0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 21ad2d52c6a5fe7342706e379cd7b4607d75b74def6f2d5778aad28e0cee93ab6d047ee57a06a4112001454fe22644bf803ce546390654d1aff9668b39064876
-  languageName: node
-  linkType: hard
-
 "@arch-ui/card@npm:^0.0.18":
   version: 0.0.18
   resolution: "@arch-ui/card@npm:0.0.18"
@@ -1379,13 +1268,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 3b2c08d81470b4d19e85a448f11c367e63e771f8f155c7f3ca3b70948d610d2984e5d5d843ee805ec448b75ad856a62c2c3cdb6b47ff9942d22126b8385e0699
-  languageName: node
-  linkType: hard
-
-"@arch-ui/color-utils@npm:0.0.2, @arch-ui/color-utils@npm:^0.0.2":
-  version: 0.0.2
-  resolution: "@arch-ui/color-utils@npm:0.0.2"
-  checksum: 5a70feb3977e94a5c83851267663b9298d376784325bc842f8318b50b1a5b7c8c64c2a8350cc567084def021804fed373029a898e71a683e3872da41f9fc5bc9
   languageName: node
   linkType: hard
 
@@ -1402,33 +1284,6 @@ __metadata:
   dependencies:
     "@arch-ui/theme": ^0.0.14
   checksum: 123c79e28c48ec55ea6e5ff1942cfab32251e54c14e220d8533ea96cbb06c91e0035aab6c3317be6715fd2a5d7116d5389b58ef9fab4d6ab1794be26d55de3f5
-  languageName: node
-  linkType: hard
-
-"@arch-ui/common@npm:^0.0.12":
-  version: 0.0.12
-  resolution: "@arch-ui/common@npm:0.0.12"
-  dependencies:
-    "@arch-ui/theme": ^0.0.11
-  checksum: e6f8fbeda3bf82e98b8ffa7ef32e02d897cdc696b6c13f6aac913d16c1d4ec86684ce93d7da84165989e56dc1a7b440a40b2941ea0e954d75d26aa94c56ef5cd
-  languageName: node
-  linkType: hard
-
-"@arch-ui/confirm@npm:^0.0.23":
-  version: 0.0.23
-  resolution: "@arch-ui/confirm@npm:0.0.23"
-  dependencies:
-    "@arch-ui/modal-utils": ^1.0.13
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.3.0
-    react-scrolllock: ^5.0.1
-  peerDependencies:
-    react: ^16.14.0
-    react-dom: ^16.14.0
-  checksum: 91ad45460fd4a7741c8426d3d0d8d340cf9ff47c4873e0ae96be57d18e2893e3a6e9f5cef87f2c2fe7a80e9259d5a0d4b9ab71250d6851b4708f53d5b2fe42ad
   languageName: node
   linkType: hard
 
@@ -1450,7 +1305,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/controls@npm:^0.1.12, @arch-ui/controls@npm:^0.1.9":
+"@arch-ui/controls@npm:^0.1.12":
   version: 0.1.12
   resolution: "@arch-ui/controls@npm:0.1.12"
   dependencies:
@@ -1467,7 +1322,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/day-picker@npm:^1.0.5, @arch-ui/day-picker@npm:^1.0.8":
+"@arch-ui/day-picker@npm:^1.0.8":
   version: 1.0.8
   resolution: "@arch-ui/day-picker@npm:1.0.8"
   dependencies:
@@ -1487,26 +1342,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 12526f24898bfda6afcceb43945289f7d995e60ee6df0b12777023d7c8784026bd060ae6989f31b20f0203fffa3f9eb2faf83a6dc7dffb4e07af83dd1100a9c6
-  languageName: node
-  linkType: hard
-
-"@arch-ui/dialog@npm:^0.0.25":
-  version: 0.0.25
-  resolution: "@arch-ui/dialog@npm:0.0.25"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.2
-    "@arch-ui/modal-utils": ^1.0.13
-    "@arch-ui/theme": ^0.0.11
-    "@arch-ui/typography": ^0.0.18
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.3.0
-    react-scrolllock: ^5.0.1
-  peerDependencies:
-    react: ^16.14.0
-    react-dom: ^16.14.0
-  checksum: 118c6c69c9129bbb0d9d06beda61830189e81127f84127f316bb8fc6af610c0482980972ae357ed5e90fb6c1e23dbc2b59453d4b9c554ac28d22fd3e1cb27583
   languageName: node
   linkType: hard
 
@@ -1530,26 +1365,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/drawer@npm:^0.0.25":
-  version: 0.0.25
-  resolution: "@arch-ui/drawer@npm:0.0.25"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.2
-    "@arch-ui/modal-utils": ^1.0.13
-    "@arch-ui/theme": ^0.0.11
-    "@arch-ui/typography": ^0.0.18
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.3.0
-    react-scrolllock: ^5.0.1
-  peerDependencies:
-    react: ^16.14.0
-    react-dom: ^16.14.0
-  checksum: 8a2f7fa3291298c0d25950dd4cc4561e451f560b20d157ad4d3a05fc430f362bb47eb10af779b2a8d0003337b5d96047d24a85c05bc67689192c19496451a601
-  languageName: node
-  linkType: hard
-
 "@arch-ui/drawer@npm:^0.0.28":
   version: 0.0.28
   resolution: "@arch-ui/drawer@npm:0.0.28"
@@ -1567,24 +1382,6 @@ __metadata:
     react: ^17.0.2
     react-dom: ^17.0.2
   checksum: 05ddcf4d3c04022eb31d53a89a8e56056e8ab1cc8764847cdf837d25fbab1953c9472f9844b902019d2fde2ddb53d89b4882e6952be152ea898b3ec1344ad938
-  languageName: node
-  linkType: hard
-
-"@arch-ui/dropdown@npm:^0.0.22":
-  version: 0.0.22
-  resolution: "@arch-ui/dropdown@npm:0.0.22"
-  dependencies:
-    "@arch-ui/modal-utils": ^1.0.13
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    focus-trap-react: ^8.3.0
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^16.14.0
-    react-dom: ^16.14.0
-  checksum: 1b94234699a39b869f50a651ee4f0d03892f41b6439dd87ceb854eb328cf81e218a025d89939ba08eb03ea2eff4b5d016c6910b10ad6992a8081883c45630884
   languageName: node
   linkType: hard
 
@@ -1606,7 +1403,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/fields@npm:^3.0.5, @arch-ui/fields@npm:^3.0.8":
+"@arch-ui/fields@npm:^3.0.8":
   version: 3.0.8
   resolution: "@arch-ui/fields@npm:3.0.8"
   dependencies:
@@ -1619,22 +1416,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 571c528ad961b1fbbb7a43aa85760168245f13c385cea258a0bd9e9624f5dbd77da1449dc48ea053813cf13f3e105f9cd0ff6bef2c90d417912e5f336f6c2133
-  languageName: node
-  linkType: hard
-
-"@arch-ui/filters@npm:^0.0.20":
-  version: 0.0.20
-  resolution: "@arch-ui/filters@npm:0.0.20"
-  dependencies:
-    "@arch-ui/controls": ^0.1.9
-    "@arch-ui/layout": ^0.2.14
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    react-radios: ^1.1.0
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 2abc7d2d76d83b326ad1baecfe91dd3c7cda4b411d813f6e83e1a95e414bca265d9926e9c40e5952949e496c38b5b00aa426463a6f3d754af29d1d09394c252a
   languageName: node
   linkType: hard
 
@@ -1654,18 +1435,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/hooks@npm:^0.0.11":
-  version: 0.0.11
-  resolution: "@arch-ui/hooks@npm:0.0.11"
-  dependencies:
-    "@babel/runtime": ^7.11.2
-    resize-observer-polyfill: ^1.5.1
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 8b5ac2daf47baf3f6fb1beff1321877a2860d14ea9f1b2810776d05a5aaa7c20e12e7594d7de376156b44788b6d88fb0a6743c3f368b999d9df1b1682dd9278d
-  languageName: node
-  linkType: hard
-
 "@arch-ui/hooks@npm:^0.0.14":
   version: 0.0.14
   resolution: "@arch-ui/hooks@npm:0.0.14"
@@ -1678,7 +1447,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/input@npm:^0.1.11, @arch-ui/input@npm:^0.1.14":
+"@arch-ui/input@npm:^0.1.14":
   version: 0.1.14
   resolution: "@arch-ui/input@npm:0.1.14"
   dependencies:
@@ -1693,7 +1462,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/layout@npm:^0.2.14, @arch-ui/layout@npm:^0.2.17":
+"@arch-ui/layout@npm:^0.2.17":
   version: 0.2.17
   resolution: "@arch-ui/layout@npm:0.2.17"
   dependencies:
@@ -1705,21 +1474,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: e0a5598ea0c7017a169150b6148669c7819ace966c4a16818c05c9cf9eab7975b30b51aac88b023d75592e73db4429e7dabf1f507846f0b9353ee05704b8c610
-  languageName: node
-  linkType: hard
-
-"@arch-ui/loading@npm:^0.0.18":
-  version: 0.0.18
-  resolution: "@arch-ui/loading@npm:0.0.18"
-  dependencies:
-    "@arch-ui/theme": 0.0.11
-    "@arch-ui/typography": 0.0.18
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 405318c2f8830d47e64a64ca8c5d9bf5c296d291d45a64b5d087a25ea475fa0bdff7fc16a647507fc96f6a1772c58a3dff082b860c4ee5b48496536acae8a100
   languageName: node
   linkType: hard
 
@@ -1738,20 +1492,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/lozenge@npm:^0.0.17":
-  version: 0.0.17
-  resolution: "@arch-ui/lozenge@npm:0.0.17"
-  dependencies:
-    "@arch-ui/theme": 0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 9d2948b8b4b2dc1b7296096fd828cfbd956734474f2ea0bf375d0f64937fe8b92b382e1a99829e77d1a38e19fb22ea153d265e27e636c6449512fe2d31487c0d
-  languageName: node
-  linkType: hard
-
 "@arch-ui/lozenge@npm:^0.0.20":
   version: 0.0.20
   resolution: "@arch-ui/lozenge@npm:0.0.20"
@@ -1766,7 +1506,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/modal-utils@npm:^1.0.13, @arch-ui/modal-utils@npm:^1.0.16":
+"@arch-ui/modal-utils@npm:^1.0.16":
   version: 1.0.16
   resolution: "@arch-ui/modal-utils@npm:1.0.16"
   dependencies:
@@ -1783,7 +1523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/navbar@npm:^0.1.12, @arch-ui/navbar@npm:^0.1.15":
+"@arch-ui/navbar@npm:^0.1.15":
   version: 0.1.15
   resolution: "@arch-ui/navbar@npm:0.1.15"
   dependencies:
@@ -1796,22 +1536,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 93b2dfecfc946f77a0cc71019f2879d6ac95634056ed4c2765bb769e68817e8557d8cdd285e08e9b385285caa00af5834115f3e24e344c836fde8b44da70d4a5
-  languageName: node
-  linkType: hard
-
-"@arch-ui/options@npm:^0.0.24":
-  version: 0.0.24
-  resolution: "@arch-ui/options@npm:0.0.24"
-  dependencies:
-    "@arch-ui/common": ^0.0.12
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@primer/octicons-react": ^11.0.0
-    react-select: ^3.1.0
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 8284402290a443cafe0add32a8fecbdefea3f61c9e7f5eece9f9d0e38b4d7f08c88958c7fa1c58f51af4f79fba1199ae41cc35f3a22d0f5f990fd22b9d8fca41
   languageName: node
   linkType: hard
 
@@ -1828,25 +1552,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: fdbb2e75ffc98403ae7669d1d6d04ec68233f1aded3e44f9695c551ec97959af834058fff73be060a6c14bfc38cae540701ca2d04bf2f4a28b688547dfdbdf07
-  languageName: node
-  linkType: hard
-
-"@arch-ui/pagination@npm:^0.0.26":
-  version: 0.0.26
-  resolution: "@arch-ui/pagination@npm:0.0.26"
-  dependencies:
-    "@arch-ui/button": ^0.0.22
-    "@arch-ui/layout": ^0.2.14
-    "@arch-ui/loading": ^0.0.18
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-    "@primer/octicons-react": ^11.0.0
-    react-router-dom: 5.2.0
-  peerDependencies:
-    react: ^16.13.1
-  checksum: a9982fdaf01a28e0c5b058cc1603e73a27d2554263c8c7c7fb3bf3bbb22062ed7f2a822b6e1f2d05d409db958cd4746de15907e799d46fa5de8e3b7a8ff940d7
   languageName: node
   linkType: hard
 
@@ -1869,7 +1574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/pill@npm:^0.1.18, @arch-ui/pill@npm:^0.1.21":
+"@arch-ui/pill@npm:^0.1.21":
   version: 0.1.21
   resolution: "@arch-ui/pill@npm:0.1.21"
   dependencies:
@@ -1882,26 +1587,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 8cfd77d8f019b1bf2e4c70e8ade6adf456dd94241c987b0aca4bbf8b241ab4e86f521f192e8462fd60786ca37b3180f27c929b238aa3dd7058d06e939b267cb4
-  languageName: node
-  linkType: hard
-
-"@arch-ui/popout@npm:^0.0.23":
-  version: 0.0.23
-  resolution: "@arch-ui/popout@npm:0.0.23"
-  dependencies:
-    "@arch-ui/color-utils": ^0.0.2
-    "@arch-ui/modal-utils": ^1.0.13
-    "@arch-ui/theme": ^0.0.11
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@emotion/styled": ^10.0.27
-    "@popperjs/core": ^2.5.4
-    focus-trap-react: ^8.3.0
-    react-popper: ^2.2.4
-  peerDependencies:
-    react: ^16.14.0
-    react-dom: ^16.14.0
-  checksum: e556784343ad78e6d2e1427b5a56b52b846b01433761ca8bf215e72ce949e59f1f9e02145f924c61f65359065f5ff969ecd228efcab30ef9e7033949058031ea
   languageName: node
   linkType: hard
 
@@ -1925,7 +1610,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/select@npm:^0.1.12, @arch-ui/select@npm:^0.1.9":
+"@arch-ui/select@npm:^0.1.12":
   version: 0.1.12
   resolution: "@arch-ui/select@npm:0.1.12"
   dependencies:
@@ -1935,16 +1620,6 @@ __metadata:
   peerDependencies:
     react: ^17.0.2
   checksum: 8b37839e4197dc3abc4651530b84487ef9c55ef77b2678153f8a5ebd3a11765b349da0d800a729ae693fa67644d01364f4bec06db482c3774eed2f40548c6e14
-  languageName: node
-  linkType: hard
-
-"@arch-ui/theme@npm:0.0.11, @arch-ui/theme@npm:^0.0.11":
-  version: 0.0.11
-  resolution: "@arch-ui/theme@npm:0.0.11"
-  dependencies:
-    "@arch-ui/color-utils": 0.0.2
-    "@babel/runtime": ^7.11.2
-  checksum: 733ef1c5d86ce73ee9b3370725cecf9379770aef20f1e603e42347c995875a5752df9358b20add871826f43795b15300bc8efd9c8b3a2d4aa293d012427c11ac
   languageName: node
   linkType: hard
 
@@ -1958,7 +1633,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@arch-ui/tooltip@npm:^0.1.14, @arch-ui/tooltip@npm:^0.1.17":
+"@arch-ui/tooltip@npm:^0.1.17":
   version: 0.1.17
   resolution: "@arch-ui/tooltip@npm:0.1.17"
   dependencies:
@@ -1974,20 +1649,6 @@ __metadata:
     react: ^17.0.2
     react-dom: ^17.0.2
   checksum: 125389825288b73b2259cdc2200ee035db57baf5a6706afb2b086a85a060d1b5f8990e751e10b49a901dcfdf2c9886f9f0a3e0ba810251d67e0cde976e63a89f
-  languageName: node
-  linkType: hard
-
-"@arch-ui/typography@npm:0.0.18, @arch-ui/typography@npm:^0.0.18":
-  version: 0.0.18
-  resolution: "@arch-ui/typography@npm:0.0.18"
-  dependencies:
-    "@arch-ui/theme": 0.0.11
-    "@babel/runtime": ^7.11.2
-    "@emotion/core": ^10.0.35
-    "@emotion/styled": ^10.0.27
-  peerDependencies:
-    react: ^16.13.1
-  checksum: 87f6b2d43741236ece4e9b0ec6f98f9ab583b9572deca7167829f07ab0eaa4331197cb5cb9973685932ddf17ea4e27776884bb2f6575be6a974897ce0035a863
   languageName: node
   linkType: hard
 
@@ -2131,29 +1792,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:^7.12.9":
-  version: 7.18.13
-  resolution: "@babel/core@npm:7.18.13"
-  dependencies:
-    "@ampproject/remapping": ^2.1.0
-    "@babel/code-frame": ^7.18.6
-    "@babel/generator": ^7.18.13
-    "@babel/helper-compilation-targets": ^7.18.9
-    "@babel/helper-module-transforms": ^7.18.9
-    "@babel/helpers": ^7.18.9
-    "@babel/parser": ^7.18.13
-    "@babel/template": ^7.18.10
-    "@babel/traverse": ^7.18.13
-    "@babel/types": ^7.18.13
-    convert-source-map: ^1.7.0
-    debug: ^4.1.0
-    gensync: ^1.0.0-beta.2
-    json5: ^2.2.1
-    semver: ^6.3.0
-  checksum: c7ee5b2c10bc5b0325e31fb5da4cb4bc03f9d5f5c00ec3481a018917bcc6b7b040de0690c606a424f57e5fc26d218d64e7718d0e5d7d8614d39c8cd898fab9b3
-  languageName: node
-  linkType: hard
-
 "@babel/generator@npm:^7.12.13, @babel/generator@npm:^7.14.0, @babel/generator@npm:^7.18.10, @babel/generator@npm:^7.7.7":
   version: 7.18.12
   resolution: "@babel/generator@npm:7.18.12"
@@ -2162,17 +1800,6 @@ __metadata:
     "@jridgewell/gen-mapping": ^0.3.2
     jsesc: ^2.5.1
   checksum: 07dd71d255144bb703a80ab0156c35d64172ce81ddfb70ff24e2be687b052080233840c9a28d92fa2c33f7ecb8a8b30aef03b807518afc53b74c7908bf8859b1
-  languageName: node
-  linkType: hard
-
-"@babel/generator@npm:^7.18.13":
-  version: 7.18.13
-  resolution: "@babel/generator@npm:7.18.13"
-  dependencies:
-    "@babel/types": ^7.18.13
-    "@jridgewell/gen-mapping": ^0.3.2
-    jsesc: ^2.5.1
-  checksum: 27f5e7eb774e4d76ee75dc96e3e1bd26cc0ee7cea13a8f7342b716319c0a4d4e26fc49aa8f19316f7c99383da55eeb2a866c6e034e9deacad58a9de9ed6004fb
   languageName: node
   linkType: hard
 
@@ -2463,15 +2090,6 @@ __metadata:
   bin:
     parser: ./bin/babel-parser.js
   checksum: 5ecc75b83e62ec53a947b1635a6ca75d6210d4a4f962f9f16f4239a6783f98e57f9662b598fa2fb1b8e12c0ad5c2bd86846ed0b97b85eb73dd7498b3a6d71a4b
-  languageName: node
-  linkType: hard
-
-"@babel/parser@npm:^7.18.13":
-  version: 7.18.13
-  resolution: "@babel/parser@npm:7.18.13"
-  bin:
-    parser: ./bin/babel-parser.js
-  checksum: 8b41c35607668495d67d9a7c5f61768aaab26acf887efdadc2781aed54046981480ef40aeda0b84d61aed02cf0c4ff4b028d5f83ab85e17e2ddff318f9243b8b
   languageName: node
   linkType: hard
 
@@ -3839,24 +3457,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.18.13":
-  version: 7.18.13
-  resolution: "@babel/traverse@npm:7.18.13"
-  dependencies:
-    "@babel/code-frame": ^7.18.6
-    "@babel/generator": ^7.18.13
-    "@babel/helper-environment-visitor": ^7.18.9
-    "@babel/helper-function-name": ^7.18.9
-    "@babel/helper-hoist-variables": ^7.18.6
-    "@babel/helper-split-export-declaration": ^7.18.6
-    "@babel/parser": ^7.18.13
-    "@babel/types": ^7.18.13
-    debug: ^4.1.0
-    globals: ^11.1.0
-  checksum: 1a2ef738fac4968feba6385787a3f8f7357d08e7739ecc5b37d8ff5668935253a03290f700f02a85ccfd369d5898625f0722d7733bff2ef91504f6cd8b836f19
-  languageName: node
-  linkType: hard
-
 "@babel/types@npm:7.11.5":
   version: 7.11.5
   resolution: "@babel/types@npm:7.11.5"
@@ -3898,17 +3498,6 @@ __metadata:
     "@babel/helper-validator-identifier": ^7.18.6
     to-fast-properties: ^2.0.0
   checksum: 11632c9b106e54021937a6498138014ebc9ad6c327a07b2af3ba8700773945aba4055fd136431cbe3a500d0f363cbf9c68eb4d6d38229897c5de9d06e14c85e8
-  languageName: node
-  linkType: hard
-
-"@babel/types@npm:^7.18.13":
-  version: 7.18.13
-  resolution: "@babel/types@npm:7.18.13"
-  dependencies:
-    "@babel/helper-string-parser": ^7.18.10
-    "@babel/helper-validator-identifier": ^7.18.6
-    to-fast-properties: ^2.0.0
-  checksum: abc3ad1f3b6864df0ea0e778bcdf7d2c5ee2293811192962d50e8a8c05c1aeec90a48275f53b2a45aad882ed8bef9477ae1f8e70ac1d44d039e14930d1388dcc
   languageName: node
   linkType: hard
 
@@ -4151,21 +3740,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Finsurance%40workspace%3Aapps%2Finsurance":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Finsurance%40workspace%3Aapps%2Finsurance"
-  languageName: node
-  linkType: soft
-
 "@condo/domains@link:../condo/domains::locator=%40app%2Fminiapp%40workspace%3Aapps%2Fminiapp":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fminiapp%40workspace%3Aapps%2Fminiapp"
-  languageName: node
-  linkType: soft
-
-"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer"
   languageName: node
   linkType: soft
 
@@ -4443,7 +4020,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emotion/core@npm:^10.0.14, @emotion/core@npm:^10.0.35, @emotion/core@npm:^10.0.9, @emotion/core@npm:^10.1.1":
+"@emotion/core@npm:^10.0.14, @emotion/core@npm:^10.0.9, @emotion/core@npm:^10.1.1":
   version: 10.3.1
   resolution: "@emotion/core@npm:10.3.1"
   dependencies:
@@ -6624,15 +6201,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/access-control@npm:^6.3.2":
-  version: 6.3.2
-  resolution: "@keystonejs/access-control@npm:6.3.2"
-  dependencies:
-    "@keystonejs/utils": ^6.0.1
-  checksum: 566af6e3fd0bb4e0b25e739403d24fc3de976ff4cd6fb3922a5880186d8341ae54406c07cb62675e1b58c9a2ea1d8e00fe352d8f87dee7b2c4b1fc67b8d25928
-  languageName: node
-  linkType: hard
-
 "@keystonejs/access-control@npm:^7.1.2":
   version: 7.1.2
   resolution: "@keystonejs/access-control@npm:7.1.2"
@@ -6642,7 +6210,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/adapter-knex@npm:^13.0.0, @keystonejs/adapter-knex@npm:^13.2.0, @keystonejs/adapter-knex@npm:^13.3.2":
+"@keystonejs/adapter-knex@npm:^13.2.0, @keystonejs/adapter-knex@npm:^13.3.2":
   version: 13.3.2
   resolution: "@keystonejs/adapter-knex@npm:13.3.2"
   dependencies:
@@ -6656,7 +6224,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/adapter-mongoose@npm:^11.0.0, @keystonejs/adapter-mongoose@npm:^11.2.0, @keystonejs/adapter-mongoose@npm:^11.2.2":
+"@keystonejs/adapter-mongoose@npm:^11.2.0, @keystonejs/adapter-mongoose@npm:^11.2.2":
   version: 11.2.2
   resolution: "@keystonejs/adapter-mongoose@npm:11.2.2"
   dependencies:
@@ -6670,7 +6238,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/adapter-prisma@npm:^3.0.0, @keystonejs/adapter-prisma@npm:^3.2.0, @keystonejs/adapter-prisma@npm:^3.2.2":
+"@keystonejs/adapter-prisma@npm:^3.2.0, @keystonejs/adapter-prisma@npm:^3.2.2":
   version: 3.2.2
   resolution: "@keystonejs/adapter-prisma@npm:3.2.2"
   dependencies:
@@ -6685,87 +6253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/app-admin-ui@npm:7.3.12":
-  version: 7.3.12
-  resolution: "@keystonejs/app-admin-ui@npm:7.3.12"
-  dependencies:
-    "@apollo/client": ^3.2.9
-    "@arch-ui/alert": ^0.0.18
-    "@arch-ui/badge": ^0.0.17
-    "@arch-ui/button": ^0.0.22
-    "@arch-ui/card": ^0.0.15
-    "@arch-ui/color-utils": ^0.0.2
-    "@arch-ui/common": ^0.0.12
-    "@arch-ui/confirm": ^0.0.23
-    "@arch-ui/controls": ^0.1.9
-    "@arch-ui/dialog": ^0.0.25
-    "@arch-ui/drawer": ^0.0.25
-    "@arch-ui/dropdown": ^0.0.22
-    "@arch-ui/fields": ^3.0.5
-    "@arch-ui/hooks": ^0.0.11
-    "@arch-ui/input": ^0.1.11
-    "@arch-ui/layout": ^0.2.14
-    "@arch-ui/loading": ^0.0.18
-    "@arch-ui/lozenge": ^0.0.17
-    "@arch-ui/navbar": ^0.1.12
-    "@arch-ui/options": ^0.0.24
-    "@arch-ui/pagination": ^0.0.26
-    "@arch-ui/pill": ^0.1.18
-    "@arch-ui/popout": ^0.0.23
-    "@arch-ui/select": ^0.1.9
-    "@arch-ui/theme": ^0.0.11
-    "@arch-ui/tooltip": ^0.1.14
-    "@arch-ui/typography": ^0.0.18
-    "@babel/core": ^7.12.9
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@keystonejs/field-views-loader": ^6.0.1
-    "@keystonejs/fields": ^21.0.0
-    "@keystonejs/session": ^8.1.1
-    "@keystonejs/utils": ^5.4.3
-    "@primer/octicons-react": ^11.1.0
-    "@types/react": ^16.14.2
-    apollo-upload-client: ^14.1.3
-    apply-ref: ^1.0.0
-    babel-loader: ^8.2.2
-    babel-plugin-emotion: ^10.0.33
-    babel-preset-react-app: ^10.0.0
-    clipboard-copy: ^4.0.1
-    compression: ^1.7.4
-    cross-fetch: ^3.0.6
-    css-loader: ^5.0.1
-    express: ^4.17.1
-    express-history-api-fallback: ^2.2.1
-    falsey: ^1.0.0
-    file-loader: ^6.2.0
-    graphql: ^15.4.0
-    html-webpack-plugin: ^4.5.0
-    lodash.debounce: ^4.0.8
-    lodash.set: ^4.3.2
-    lodash.throttle: ^4.1.1
-    memoize-one: ^5.1.1
-    prop-types: ^15.7.2
-    raf-schd: ^4.0.2
-    react: ^16.14.0
-    react-dom: ^16.14.0
-    react-prop-toggle: ^1.0.2
-    react-pseudo-state: ^2.2.2
-    react-router-dom: 5.2.0
-    react-select: ^3.1.1
-    react-toast-notifications: ^2.4.0
-    react-transition-group: ^4.4.1
-    react-uid: ^2.3.1
-    resize-observer-polyfill: ^1.5.1
-    style-loader: ^1.3.0
-    use-resize-observer: ^6.1.0
-    webpack: 4.44.2
-    webpack-dev-middleware: ^3.7.2
-    webpack-hot-middleware: ^2.25.0
-  checksum: e6a8f1d47a78c43930a28c48523dd1298fde48f233860c9855cf5e37af5afb9c5c1888e563714991791e7ad460261be7182d7564cca36d255f9845502a73ba2e
-  languageName: node
-  linkType: hard
-
-"@keystonejs/app-admin-ui@npm:^7.3.13, @keystonejs/app-admin-ui@npm:^7.5.0, @keystonejs/app-admin-ui@npm:^7.5.2":
+"@keystonejs/app-admin-ui@npm:^7.5.0, @keystonejs/app-admin-ui@npm:^7.5.2":
   version: 7.5.2
   resolution: "@keystonejs/app-admin-ui@npm:7.5.2"
   dependencies:
@@ -6923,7 +6411,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/field-views-loader@npm:^6.0.1, @keystonejs/field-views-loader@npm:^6.1.2":
+"@keystonejs/field-views-loader@npm:^6.1.2":
   version: 6.1.2
   resolution: "@keystonejs/field-views-loader@npm:6.1.2"
   dependencies:
@@ -7087,65 +6575,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/fields@npm:^21.0.0":
-  version: 21.1.0
-  resolution: "@keystonejs/fields@npm:21.1.0"
-  dependencies:
-    "@apollo/client": ^3.2.9
-    "@arch-ui/alert": ^0.0.18
-    "@arch-ui/button": ^0.0.22
-    "@arch-ui/controls": ^0.1.9
-    "@arch-ui/day-picker": ^1.0.5
-    "@arch-ui/drawer": ^0.0.25
-    "@arch-ui/fields": ^3.0.5
-    "@arch-ui/filters": ^0.0.20
-    "@arch-ui/input": ^0.1.11
-    "@arch-ui/layout": ^0.2.14
-    "@arch-ui/loading": ^0.0.18
-    "@arch-ui/lozenge": ^0.0.17
-    "@arch-ui/options": ^0.0.24
-    "@arch-ui/popout": ^0.0.23
-    "@arch-ui/select": ^0.1.9
-    "@arch-ui/theme": ^0.0.11
-    "@arch-ui/tooltip": ^0.1.14
-    "@arch-ui/typography": ^0.0.18
-    "@babel/runtime": ^7.12.5
-    "@emotion/core": ^10.1.1
-    "@keystonejs/access-control": ^6.3.2
-    "@keystonejs/adapter-knex": ^13.0.0
-    "@keystonejs/adapter-mongoose": ^11.0.0
-    "@keystonejs/adapter-prisma": ^3.0.0
-    "@keystonejs/app-admin-ui": ^7.3.13
-    "@keystonejs/server-side-graphql-client": ^1.1.2
-    "@keystonejs/utils": ^6.0.1
-    "@primer/octicons-react": ^11.2.0
-    "@sindresorhus/slugify": ^1.1.0
-    apollo-errors: ^1.9.0
-    bcryptjs: ^2.4.3
-    cuid: ^2.1.8
-    date-fns: ^2.16.1
-    decimal.js: ^10.2.1
-    dumb-passwords: ^0.2.1
-    graphql: ^15.4.0
-    image-extensions: ^1.1.0
-    inflection: ^1.12.0
-    intersection-observer: ^0.12.0
-    lodash.groupby: ^4.6.0
-    lodash.isequal: ^4.5.0
-    luxon: ^1.25.0
-    mongoose: ^5.11.13
-    p-settle: ^4.1.1
-    prop-types: ^15.7.2
-    react: ^16.14.0
-    react-day-picker: ^8.0.0-alpha.45
-    react-dom: ^16.14.0
-    react-image: ^4.0.3
-    react-select: ^3.2.0
-    react-toast-notifications: ^2.4.0
-  checksum: 0a2043ec52454d67555125777eef1d022b214ad5e81d530e0a277d406117facd580b83dd1f7bfa57936821cf7c0b02a2b05d90f5ce094daa96702d4a8325ed50
-  languageName: node
-  linkType: hard
-
 "@keystonejs/fields@npm:^22.1.3":
   version: 22.1.3
   resolution: "@keystonejs/fields@npm:22.1.3"
@@ -7267,13 +6696,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/server-side-graphql-client@npm:^1.1.2":
-  version: 1.1.2
-  resolution: "@keystonejs/server-side-graphql-client@npm:1.1.2"
-  checksum: 8835674db389b2fd8f46880d193adb77266f3e63d7366316b4c6dfa93bff295143d22e3be7a12ef6b830a85eacb72ab78ca2dbe82d85fbaf3268d24b73941b0f
-  languageName: node
-  linkType: hard
-
 "@keystonejs/server-side-graphql-client@npm:^2.1.0, @keystonejs/server-side-graphql-client@npm:^2.1.2":
   version: 2.1.2
   resolution: "@keystonejs/server-side-graphql-client@npm:2.1.2"
@@ -7281,7 +6703,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/session@npm:^8.1.1, @keystonejs/session@npm:^8.3.2":
+"@keystonejs/session@npm:^8.3.2":
   version: 8.3.2
   resolution: "@keystonejs/session@npm:8.3.2"
   dependencies:
@@ -7296,20 +6718,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/utils@npm:^5.4.3":
-  version: 5.4.3
-  resolution: "@keystonejs/utils@npm:5.4.3"
-  dependencies:
-    "@babel/runtime": ^7.11.2
-    p-is-promise: ^3.0.0
-    p-lazy: ^3.0.0
-    p-reflect: ^2.1.0
-    semver: ^7.3.2
-  checksum: 2eaebbba93da4ceb1159ac49fa2a77ed3b1494e86fbe110a4dee4b42f451e5a154c02465d1f49528a651a8299edaac440930de608e0acd0cfa4656d4cdc07cb7
-  languageName: node
-  linkType: hard
-
-"@keystonejs/utils@npm:^6.0.1, @keystonejs/utils@npm:^6.1.0, @keystonejs/utils@npm:^6.1.2":
+"@keystonejs/utils@npm:^6.1.0, @keystonejs/utils@npm:^6.1.2":
   version: 6.1.2
   resolution: "@keystonejs/utils@npm:6.1.2"
   dependencies:
@@ -7624,14 +7033,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@popperjs/core@npm:^2.5.4, @popperjs/core@npm:^2.9.2":
+"@popperjs/core@npm:^2.9.2":
   version: 2.11.6
   resolution: "@popperjs/core@npm:2.11.6"
   checksum: 47fb328cec1924559d759b48235c78574f2d71a8a6c4c03edb6de5d7074078371633b91e39bbf3f901b32aa8af9b9d8f82834856d2f5737a23475036b16817f0
   languageName: node
   linkType: hard
 
-"@primer/octicons-react@npm:^11.0.0, @primer/octicons-react@npm:^11.1.0, @primer/octicons-react@npm:^11.2.0, @primer/octicons-react@npm:^11.3.0":
+"@primer/octicons-react@npm:^11.3.0":
   version: 11.3.0
   resolution: "@primer/octicons-react@npm:11.3.0"
   peerDependencies:
@@ -7930,7 +7339,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sindresorhus/slugify@npm:^1.1.0, @sindresorhus/slugify@npm:^1.1.2":
+"@sindresorhus/slugify@npm:^1.1.2":
   version: 1.1.2
   resolution: "@sindresorhus/slugify@npm:1.1.2"
   dependencies:
@@ -10706,7 +10115,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-emotion@npm:^10.0.27, babel-plugin-emotion@npm:^10.0.33, babel-plugin-emotion@npm:^10.2.2":
+"babel-plugin-emotion@npm:^10.0.27, babel-plugin-emotion@npm:^10.2.2":
   version: 10.2.2
   resolution: "babel-plugin-emotion@npm:10.2.2"
   dependencies:
@@ -13523,7 +12932,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"css-loader@npm:^5.0.1, css-loader@npm:^5.2.6":
+"css-loader@npm:^5.2.6":
   version: 5.2.7
   resolution: "css-loader@npm:5.2.7"
   dependencies:
@@ -13880,7 +13289,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:2.x, date-fns@npm:^2.16.1, date-fns@npm:^2.21.3":
+"date-fns@npm:2.x, date-fns@npm:^2.21.3":
   version: 2.29.2
   resolution: "date-fns@npm:2.29.2"
   checksum: 08bebcceb0a5dbadae4c55e6592b9d5c07dbd7833433c7e9a1d4a424300db32589b8b48e5979b32863c9b00a48d9bab6663e580c2a4f9f203d46cbf9113b5664
@@ -16508,7 +15917,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"focus-trap-react@npm:^8.3.0, focus-trap-react@npm:^8.5.0":
+"focus-trap-react@npm:^8.5.0":
   version: 8.11.3
   resolution: "focus-trap-react@npm:8.11.3"
   dependencies:
@@ -17645,7 +17054,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^15.4.0, graphql@npm:^15.5.0, graphql@npm:^15.6.1":
+"graphql@npm:^15.5.0, graphql@npm:^15.6.1":
   version: 15.8.0
   resolution: "graphql@npm:15.8.0"
   checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
@@ -18164,7 +17573,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"html-webpack-plugin@npm:^4.5.0, html-webpack-plugin@npm:^4.5.2":
+"html-webpack-plugin@npm:^4.5.2":
   version: 4.5.2
   resolution: "html-webpack-plugin@npm:4.5.2"
   dependencies:
@@ -18749,7 +18158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"inflection@npm:^1.12.0, inflection@npm:^1.13.1":
+"inflection@npm:^1.13.1":
   version: 1.13.2
   resolution: "inflection@npm:1.13.2"
   checksum: e7ad0559384ed7c526813404bde843f8f17941d47625ad60fc3b09e46efde873dd9840818007c6bd4dbe388e6248fa033d5a8c405c5fc62738c51b118a0e940f
@@ -22002,7 +21411,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"luxon@npm:^1.25.0, luxon@npm:^1.27.0":
+"luxon@npm:^1.27.0":
   version: 1.28.0
   resolution: "luxon@npm:1.28.0"
   checksum: 5250cb9f138b6048eeb0b3a9044a4ac994d0058f680c72a0da4b6aeaec8612460385639cba2b1052ef6d5564879e9ed144d686f26d9d97b38ab920d82e18281c
@@ -22341,7 +21750,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"memoize-one@npm:>=3.1.1 <6, memoize-one@npm:^5.0.0, memoize-one@npm:^5.1.1, memoize-one@npm:^5.2.1":
+"memoize-one@npm:>=3.1.1 <6, memoize-one@npm:^5.0.0, memoize-one@npm:^5.2.1":
   version: 5.2.1
   resolution: "memoize-one@npm:5.2.1"
   checksum: a3cba7b824ebcf24cdfcd234aa7f86f3ad6394b8d9be4c96ff756dafb8b51c7f71320785fbc2304f1af48a0467cbbd2a409efc9333025700ed523f254cb52e3d
@@ -22896,7 +22305,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:2.29.4, moment@npm:^2.20.1, moment@npm:^2.24.0, moment@npm:^2.29.1, moment@npm:^2.29.2":
+"moment@npm:^2.20.1, moment@npm:^2.24.0, moment@npm:^2.29.1, moment@npm:^2.29.2":
   version: 2.29.4
   resolution: "moment@npm:2.29.4"
   checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
@@ -22939,28 +22348,6 @@ __metadata:
   peerDependencies:
     mongoose: "*"
   checksum: 8312c208824b8c2d9cd60562cbc06d0da54118ca5799dfacabc1aa0f41d9ee061b2e7877019bc9cf7204bd509de88e20158b08d98d98a459d8784af69b4d9f77
-  languageName: node
-  linkType: hard
-
-"mongoose@npm:^5.11.13":
-  version: 5.13.15
-  resolution: "mongoose@npm:5.13.15"
-  dependencies:
-    "@types/bson": 1.x || 4.0.x
-    "@types/mongodb": ^3.5.27
-    bson: ^1.1.4
-    kareem: 2.3.2
-    mongodb: 3.7.3
-    mongoose-legacy-pluralize: 1.0.2
-    mpath: 0.8.4
-    mquery: 3.2.5
-    ms: 2.1.2
-    optional-require: 1.0.x
-    regexp-clone: 1.0.0
-    safe-buffer: 5.2.1
-    sift: 13.5.2
-    sliced: 1.0.1
-  checksum: 74edc47c7819b82220e44402b3607faee622dfe6ac52947e812a7a179feebc295d1f7e7802da9353f8fc1f095b1b4eed775ed2c3914ee4baa332a36cb4679e18
   languageName: node
   linkType: hard
 
@@ -24254,7 +23641,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-lazy@npm:^3.0.0, p-lazy@npm:^3.1.0":
+"p-lazy@npm:^3.1.0":
   version: 3.1.0
   resolution: "p-lazy@npm:3.1.0"
   checksum: 289dbfd9de7d241498fd2d1ac9ec4e36de78672a92175f4b3c5fa9527b62f7549b06f549570b47f218d90b946f3a75611f9b8407934fe01512bc4fb56fdbf47d
@@ -24851,13 +24238,6 @@ __metadata:
   dependencies:
     split2: ^4.1.0
   checksum: 947ac096c031eebdf08d989de2e9f6f156b8133d6858c7c2c06c041e1e71dda6f5f3bad3c0ec1e96a09497bbc6ef89e762eefe703b5ef9cb2804392ec52ec400
-  languageName: node
-  linkType: hard
-
-"phone@npm:3.1.17":
-  version: 3.1.17
-  resolution: "phone@npm:3.1.17"
-  checksum: de54ffefbe2392adb18d08bf57f2dabecd82a446622ff5cf14719a7e1990630e77c3969ae982d4223b53faedf034e9ae85a642344bf1329d5444b28742867656
   languageName: node
   linkType: hard
 
@@ -25862,7 +25242,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raf-schd@npm:^4.0.2, raf-schd@npm:^4.0.3":
+"raf-schd@npm:^4.0.3":
   version: 4.0.3
   resolution: "raf-schd@npm:4.0.3"
   checksum: 45514041c5ad31fa96aef3bb3c572a843b92da2f2cd1cb4a47c9ad58e48761d3a4126e18daa32b2bfa0bc2551a42d8f324a0e40e536cb656969929602b4e8b58
@@ -26598,16 +25978,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:^8.0.0-alpha.45":
-  version: 8.1.3
-  resolution: "react-day-picker@npm:8.1.3"
-  peerDependencies:
-    date-fns: ^2.28.0
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0
-  checksum: a2c8a857ad68117b17e4b125fab3d34752b5ee3077a9db8568278dc9c8b24eb81924a220a8dc6257d7761eee557155108e1eb0bb7eba63ccee20c22ebb4b12dd
-  languageName: node
-  linkType: hard
-
 "react-display-name@npm:^0.2.3":
   version: 0.2.5
   resolution: "react-display-name@npm:0.2.5"
@@ -26615,7 +25985,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.13.1, react-dom@npm:^16.14.0":
+"react-dom@npm:^16.13.1":
   version: 16.14.0
   resolution: "react-dom@npm:16.14.0"
   dependencies:
@@ -26941,7 +26311,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-popper@npm:^2.2.4, react-popper@npm:^2.2.5":
+"react-popper@npm:^2.2.5":
   version: 2.3.0
   resolution: "react-popper@npm:2.3.0"
   dependencies:
@@ -27117,7 +26487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-select@npm:^3.1.0, react-select@npm:^3.1.1, react-select@npm:^3.2.0":
+"react-select@npm:^3.2.0":
   version: 3.2.0
   resolution: "react-select@npm:3.2.0"
   dependencies:
@@ -27175,7 +26545,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-toast-notifications@npm:^2.4.0, react-toast-notifications@npm:^2.4.4":
+"react-toast-notifications@npm:^2.4.4":
   version: 2.5.1
   resolution: "react-toast-notifications@npm:2.5.1"
   dependencies:
@@ -27284,7 +26654,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^16.13.1, react@npm:^16.14.0":
+"react@npm:^16.13.1":
   version: 16.14.0
   resolution: "react@npm:16.14.0"
   dependencies:
@@ -32122,7 +31492,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack-dev-middleware@npm:^3.7.2, webpack-dev-middleware@npm:^3.7.3":
+"webpack-dev-middleware@npm:^3.7.3":
   version: 3.7.3
   resolution: "webpack-dev-middleware@npm:3.7.3"
   dependencies:
@@ -32203,44 +31573,6 @@ __metadata:
   bin:
     webpack: bin/webpack.js
   checksum: 486b66f03b6fc51e4ceb254cbce2d326e02de206562c2f31f70b41c078df096dfbab68e84e2f22b2b0f4b0819fdbecbf02a7c842c48105d123a361d1704b07ae
-  languageName: node
-  linkType: hard
-
-"webpack@npm:4.44.2":
-  version: 4.44.2
-  resolution: "webpack@npm:4.44.2"
-  dependencies:
-    "@webassemblyjs/ast": 1.9.0
-    "@webassemblyjs/helper-module-context": 1.9.0
-    "@webassemblyjs/wasm-edit": 1.9.0
-    "@webassemblyjs/wasm-parser": 1.9.0
-    acorn: ^6.4.1
-    ajv: ^6.10.2
-    ajv-keywords: ^3.4.1
-    chrome-trace-event: ^1.0.2
-    enhanced-resolve: ^4.3.0
-    eslint-scope: ^4.0.3
-    json-parse-better-errors: ^1.0.2
-    loader-runner: ^2.4.0
-    loader-utils: ^1.2.3
-    memory-fs: ^0.4.1
-    micromatch: ^3.1.10
-    mkdirp: ^0.5.3
-    neo-async: ^2.6.1
-    node-libs-browser: ^2.2.1
-    schema-utils: ^1.0.0
-    tapable: ^1.1.3
-    terser-webpack-plugin: ^1.4.3
-    watchpack: ^1.7.4
-    webpack-sources: ^1.4.1
-  peerDependenciesMeta:
-    webpack-cli:
-      optional: true
-    webpack-command:
-      optional: true
-  bin:
-    webpack: bin/webpack.js
-  checksum: 3d42ee6af7a0ff14fc00136d02f4a36381fd5b6ad0636b95a8b83e6d99bc7e02f888f4994c095ae986e567033fe7bb1d445e27afe49d2872b8fe5c3a57d20de6
   languageName: node
   linkType: hard
 
