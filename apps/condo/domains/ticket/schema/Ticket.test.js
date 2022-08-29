@@ -60,6 +60,7 @@ const {
     DEFERRED_STATUS_TYPE,
     CANCELED_STATUS_TYPE,
     NEW_OR_REOPENED_STATUS_TYPE,
+    DEFAULT_DEFERRED_DAYS,
 } = require('../constants')
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
 
@@ -1679,7 +1680,7 @@ describe('Ticket', () => {
                 const [ticket] = await createTestTicket(client, client.organization, client.property, {
                     status: { connect: { id: STATUS_IDS.DEFERRED } },
                 })
-                const expectedDeferredUntil = dayjs().add(30, 'days')
+                const expectedDeferredUntil = dayjs().add(DEFAULT_DEFERRED_DAYS, 'days')
                 const differenceDate = expectedDeferredUntil.diff(dayjs(ticket.deferredUntil), 'days')
                 expect(differenceDate).toEqual(0)
             })
