@@ -39,6 +39,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constants')
 const { updateTestTicket } = require('../utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 describe('TicketComment', () => {
     describe('employee', () => {
@@ -201,7 +202,7 @@ describe('TicketComment', () => {
                 expect(ticketComment.type).toMatch(ORGANIZATION_COMMENT_TYPE)
             })
 
-            it('update lastCommentAt of related ticket after create TicketComment', async () => {
+            it('update only lastCommentAt of related ticket after create TicketComment with staff user', async () => {
                 const adminClient = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(adminClient)
@@ -214,13 +215,63 @@ describe('TicketComment', () => {
 
                 const [ticket] = await createTestTicket(userClient, organization, property)
 
-                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                })
 
                 const readTicket = await Ticket.getOne(userClient, {
                     id: ticket.id,
                 })
 
                 expect(readTicket.lastCommentAt).toEqual(ticketComment.createdAt)
+                expect(readTicket.lastResidentCommentAt).toBeNull()
+            })
+
+            it('update lastResidentCommentAt and lastCommentAt of related ticket after create TicketComment with resident user', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+
+                const residentClient = await makeClientWithResidentUser()
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                await createTestResident(adminClient, residentClient.user, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canManageTickets: true,
+                    canManageTicketComments: true,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName,
+                    unitType,
+                })
+
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, {
+                    type: RESIDENT_COMMENT_TYPE,
+                })
+
+                const readTicket = await Ticket.getOne(residentClient, {
+                    id: ticket.id,
+                })
+
+                expect(readTicket.lastResidentCommentAt).toEqual(ticketComment.createdAt)
+                expect(readTicket.lastCommentAt).toEqual(ticketComment.createdAt)
+
+                const [ticketComment1] = await createTestTicketComment(userClient, ticket, userClient.user)
+
+                const readTicket1 = await Ticket.getOne(residentClient, {
+                    id: ticket.id,
+                })
+
+                expect(readTicket1.lastResidentCommentAt).toEqual(ticketComment.createdAt)
+                expect(readTicket1.lastCommentAt).toEqual(ticketComment1.createdAt)
             })
         })
 

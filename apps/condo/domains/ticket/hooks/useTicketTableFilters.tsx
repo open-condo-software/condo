@@ -43,7 +43,7 @@ const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
 const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
-const filterLastCommentAtRange = getDayRangeFilter('lastCommentAt')
+const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
@@ -433,7 +433,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
             },
             {
                 keyword: 'lastCommentAt',
-                filters: [filterLastCommentAtRange],
+                filters: [filterLastResidentCommentAtRange],
                 component: {
                     type: ComponentType.DateRange,
                     props: {
