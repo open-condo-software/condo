@@ -116,17 +116,7 @@ describe('MarketingMessage', () => {
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-            })
-
-            test('admin can update status', async () => {
-                const [objCreated] = await createTestMarketingMessage(admin)
-                const [obj, attrs] = await updateTestMarketingMessage(admin, objCreated.id, { status: MARKETING_MESSAGE_PROCESSING_STATUS })
-
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.status).toEqual(MARKETING_MESSAGE_PROCESSING_STATUS)
+                expect(obj.v).toEqual(3) // There is update operation within task under the hood
             })
 
             test('support can', async () => {
@@ -197,7 +187,6 @@ describe('MarketingMessage', () => {
                         message: attrs.message,
                         deepLink: attrs.deepLink,
                         idList: attrs.idList,
-                        status: MARKETING_MESSAGE_CREATED_STATUS,
                     }),
                 )
             })
