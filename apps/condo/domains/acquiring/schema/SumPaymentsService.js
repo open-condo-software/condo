@@ -3,8 +3,7 @@
  */
 
 const { GQLCustomSchema } = require('@condo/keystone/schema')
-const access = require('@condo/domains/acquiring/access/Payment')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
+const access = require('@condo/domains/acquiring/access/SumPaymentsService')
 const { GqlWithKnexLoadList } = require('../../common/utils/serverSchema')
 const Big = require('big.js')
 
