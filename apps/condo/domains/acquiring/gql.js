@@ -40,11 +40,10 @@ const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
     }
 `
 
-// TODO(codegen): write return type result!
 
 const SUM_PAYMENTS_MUTATION = gql`
-    mutation sumPayments ($data: SumPaymentsInput!) {
-        result: sumPayments(data: $data) { id }
+    mutation sumPayments ($where: PaymentWhereInput!) {
+        result: sumPayments(where: $where) { sum }
     }
 `
 
