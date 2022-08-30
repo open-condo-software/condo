@@ -40,6 +40,7 @@ const canAccessToEmailField = {
     // TODO(pahaz): !!! change it to access.userIsAdmin
     update: access.userIsAdminOrIsThisItem,
 }
+
 const canAccessToPhoneField = {
     read: access.userIsAdminOrIsThisItem,
     create: access.userIsAdmin,
@@ -50,6 +51,7 @@ const canAccessToPhoneField = {
         return Boolean(user && user.isAdmin) || updateByResidentToTheSamePhone
     },
 }
+
 const canAccessToPasswordField = {
     // 3. Only admins can see if a password is set. No-one can read their own or other user's passwords.
     read: access.userIsAdmin,
@@ -68,12 +70,12 @@ const canAccessToIsAdminField = {
     create: access.userIsAdmin,
     update: access.userIsAdmin,
 }
+
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
 const canAccessToEmployeeField = readBySupportUpdateByAdminField
 const canAccessToRelatedOrganizationField = readBySupportUpdateByAdminField
-
 
 const canAccessToStaffUserField = {
     read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,

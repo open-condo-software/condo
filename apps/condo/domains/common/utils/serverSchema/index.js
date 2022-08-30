@@ -29,15 +29,6 @@ class GqlWithKnexLoadList {
         this.multipleRelations = multipleRelations
     }
 
-
-    async loadAggregate (rawAggregate, ids) {
-        const knexQuery = this.knex(`${this.listKey}`)
-        knexQuery.select(this.knex.raw(rawAggregate))
-        knexQuery.whereIn('id', ids)
-        const [aggregate] = await knexQuery
-        return aggregate
-    }
-
     async load () {
         await this.initContext()
         let skip = 0
