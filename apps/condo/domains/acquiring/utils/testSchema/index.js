@@ -45,7 +45,6 @@ const {
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
 } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
-const { SUM_PAYMENTS_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -399,19 +398,6 @@ async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, ac
     return [data.result, attrs]
 }
 
-async function sumPaymentsByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(SUM_PAYMENTS_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
