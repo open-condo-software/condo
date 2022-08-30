@@ -1,17 +1,20 @@
-import { useIntl } from '@condo/next/intl'
-import { Col, DatePicker, Row } from 'antd'
-import { TicketFormItem } from './index'
 import React, { useCallback } from 'react'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import dayjs from 'dayjs'
+import { useIntl } from '@condo/next/intl'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
+import dayjs from 'dayjs'
+
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
+import { TicketFormItem } from './index'
 
 const minDate = dayjs().endOf('day')
 const maxDate = dayjs().add(365, 'days').endOf('day')
 const DATE_PICKER_STYLE = { width: '100%' }
 const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 
-export const TicketDeferredDateField = () => {
+export const TicketDeferredDateField: React.FC = () => {
     const intl = useIntl()
     const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.TicketDefer.DeferredDate.field' })
 
