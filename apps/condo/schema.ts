@@ -32932,6 +32932,7 @@ export type Query = {
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
+  sumPayments?: Maybe<SumPaymentsOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
@@ -36551,6 +36552,11 @@ export type QueryExportMeterReadingsArgs = {
 
 export type QueryExportPaymentsToExcelArgs = {
   data: ExportPaymentsToExcelInput;
+};
+
+
+export type QuerySumPaymentsArgs = {
+  where: PaymentWhereInput;
 };
 
 
@@ -44163,6 +44169,11 @@ export type StartPasswordRecoveryInput = {
 export type StartPasswordRecoveryOutput = {
   __typename?: 'StartPasswordRecoveryOutput';
   status: Scalars['String'];
+};
+
+export type SumPaymentsOutput = {
+  __typename?: 'SumPaymentsOutput';
+  sum: Scalars['String'];
 };
 
 export type SyncRemoteClientInput = {
