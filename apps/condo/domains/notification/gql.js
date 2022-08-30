@@ -55,6 +55,9 @@ const MessageOrganizationBlackList = generateGqlQueries('MessageOrganizationBlac
 const MESSAGE_ORGANIZATION_WHITE_LIST_FIELDS = `{ organization { id } description ${COMMON_FIELDS} }`
 const MessageOrganizationWhiteList = generateGqlQueries('MessageOrganizationWhiteList', MESSAGE_ORGANIZATION_WHITE_LIST_FIELDS)
 
+const MARKETING_MESSAGE_FIELDS = `{ transportType title message deepLink idList status processingMeta ${COMMON_FIELDS} }`
+const MarketingMessage = generateGqlQueries('MarketingMessage', MARKETING_MESSAGE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -68,5 +71,6 @@ module.exports = {
     MessageUserBlackList,
     MessageOrganizationBlackList,
     MessageOrganizationWhiteList,
+    MarketingMessage,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

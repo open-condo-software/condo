@@ -103,7 +103,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         const accountNumbers = uniq(accounts.map(accounts => get(accounts, 'number')))
         const accountsByAddresses = accounts.reduce(
             (result, account) => {
-                const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.name)
+                const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.unitName)
 
                 result[fullAddress] = account
 

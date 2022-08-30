@@ -116,10 +116,10 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
         const contextIds = uniq(receipts.map(receipt => get(receipt, 'context.id')))
         const accountsData = receipts.map(receipt => ({
-            accountNumber: get(receipt, 'account.number'),
+            accountNumber_i: get(receipt, 'account.number'),
             resident: {
-                unitType: get(receipt, 'account.unitType'),
-                unitName: get(receipt, 'account.unitName'),
+                unitType_i: get(receipt, 'account.unitType'),
+                unitName_i: get(receipt, 'account.unitName'),
                 deletedAt: null,
             },
         }))

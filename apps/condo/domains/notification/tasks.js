@@ -3,9 +3,11 @@ const isEmpty = require('lodash/isEmpty')
 const conf = require('@condo/config')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLogger } = require('@condo/keystone/logging')
 
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
 const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
+
 
 const sms = require('./transports/sms')
 const email = require('./transports/email')
@@ -20,7 +22,6 @@ const {
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('./constants/constants')
-const { getLogger } = require('@condo/keystone/logging')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false

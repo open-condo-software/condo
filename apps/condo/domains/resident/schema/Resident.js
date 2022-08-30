@@ -26,10 +26,9 @@ const { DEFAULT_ACQUIRING_INTEGRATION_NAME } = require('@condo/domains/acquiring
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 const { manageResidentToTicketClientConnections } = require('../tasks')
-const { addOrganizationFieldPlugin } = require(
-    '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-const { RESIDENT_ORGANIZATION_FIELDS, RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
+const { RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',

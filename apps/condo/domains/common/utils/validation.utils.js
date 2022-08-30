@@ -67,8 +67,11 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 
     const value = resolvedData[fieldPath]
 
-    if (!isObject(value) || isNull(value))
-        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
+    if (!isObject(value) || isNull(value)) {
+        addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] Expect JSON Object`)
+
+        return false
+    }
 
     const { dv, ...data } = value
 
@@ -85,7 +88,9 @@ function hasValidJsonStructure (args, isRequired, dataVersion, fieldsConstraints
 
         return !errors
     } else {
-        return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+        addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
+
+        return false
     }
 }
 

@@ -13355,6 +13355,517 @@ export type InviteNewOrganizationEmployeeInput = {
 };
 
 
+/**  Marketing message batch. Adding record here will cause sending message to all users listed in idList via transport, selected in transportType.  */
+export type MarketingMessage = {
+  __typename?: 'MarketingMessage';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MarketingMessage List config, or
+   *  2. As an alias to the field set on 'labelField' in the MarketingMessage List config, or
+   *  3. As an alias to a 'name' field on the MarketingMessage List (if one exists), or
+   *  4. As an alias to the 'id' field on the MarketingMessage List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Transport type to send notifications by.  */
+  transportType?: Maybe<MarketingMessageTransportTypeType>;
+  /**  Title for message to send.  */
+  title?: Maybe<Scalars['String']>;
+  /**  Message to send.  */
+  message?: Maybe<Scalars['String']>;
+  /**  Used for push notifications only. Useful for moving user to proper position within mobile apps.  */
+  deepLink?: Maybe<Scalars['String']>;
+  /**  List of IDs (User.id for ex.) which will be used to query contacts to send notifications to.  */
+  idList?: Maybe<Scalars['JSON']>;
+  /**  Batch processing status.  */
+  status?: Maybe<MarketingMessageStatusType>;
+  /**  Batch processing results will be stored here.  */
+  processingMeta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MarketingMessageCreateInput = {
+  transportType?: Maybe<MarketingMessageTransportTypeType>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  deepLink?: Maybe<Scalars['String']>;
+  idList?: Maybe<Scalars['JSON']>;
+  status?: Maybe<MarketingMessageStatusType>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MarketingMessageHistoryRecord = {
+  __typename?: 'MarketingMessageHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MarketingMessageHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MarketingMessageHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MarketingMessageHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MarketingMessageHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  transportType?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  deepLink?: Maybe<Scalars['String']>;
+  idList?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MarketingMessageHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MarketingMessageHistoryRecordCreateInput = {
+  transportType?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  deepLink?: Maybe<Scalars['String']>;
+  idList?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MarketingMessageHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MarketingMessageHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MarketingMessageHistoryRecordUpdateInput = {
+  transportType?: Maybe<Scalars['String']>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  deepLink?: Maybe<Scalars['String']>;
+  idList?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MarketingMessageHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MarketingMessageHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MarketingMessageHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MarketingMessageHistoryRecordWhereInput>>>;
+  transportType?: Maybe<Scalars['String']>;
+  transportType_not?: Maybe<Scalars['String']>;
+  transportType_contains?: Maybe<Scalars['String']>;
+  transportType_not_contains?: Maybe<Scalars['String']>;
+  transportType_starts_with?: Maybe<Scalars['String']>;
+  transportType_not_starts_with?: Maybe<Scalars['String']>;
+  transportType_ends_with?: Maybe<Scalars['String']>;
+  transportType_not_ends_with?: Maybe<Scalars['String']>;
+  transportType_i?: Maybe<Scalars['String']>;
+  transportType_not_i?: Maybe<Scalars['String']>;
+  transportType_contains_i?: Maybe<Scalars['String']>;
+  transportType_not_contains_i?: Maybe<Scalars['String']>;
+  transportType_starts_with_i?: Maybe<Scalars['String']>;
+  transportType_not_starts_with_i?: Maybe<Scalars['String']>;
+  transportType_ends_with_i?: Maybe<Scalars['String']>;
+  transportType_not_ends_with_i?: Maybe<Scalars['String']>;
+  transportType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  transportType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  message?: Maybe<Scalars['String']>;
+  message_not?: Maybe<Scalars['String']>;
+  message_contains?: Maybe<Scalars['String']>;
+  message_not_contains?: Maybe<Scalars['String']>;
+  message_starts_with?: Maybe<Scalars['String']>;
+  message_not_starts_with?: Maybe<Scalars['String']>;
+  message_ends_with?: Maybe<Scalars['String']>;
+  message_not_ends_with?: Maybe<Scalars['String']>;
+  message_i?: Maybe<Scalars['String']>;
+  message_not_i?: Maybe<Scalars['String']>;
+  message_contains_i?: Maybe<Scalars['String']>;
+  message_not_contains_i?: Maybe<Scalars['String']>;
+  message_starts_with_i?: Maybe<Scalars['String']>;
+  message_not_starts_with_i?: Maybe<Scalars['String']>;
+  message_ends_with_i?: Maybe<Scalars['String']>;
+  message_not_ends_with_i?: Maybe<Scalars['String']>;
+  message_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  message_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deepLink?: Maybe<Scalars['String']>;
+  deepLink_not?: Maybe<Scalars['String']>;
+  deepLink_contains?: Maybe<Scalars['String']>;
+  deepLink_not_contains?: Maybe<Scalars['String']>;
+  deepLink_starts_with?: Maybe<Scalars['String']>;
+  deepLink_not_starts_with?: Maybe<Scalars['String']>;
+  deepLink_ends_with?: Maybe<Scalars['String']>;
+  deepLink_not_ends_with?: Maybe<Scalars['String']>;
+  deepLink_i?: Maybe<Scalars['String']>;
+  deepLink_not_i?: Maybe<Scalars['String']>;
+  deepLink_contains_i?: Maybe<Scalars['String']>;
+  deepLink_not_contains_i?: Maybe<Scalars['String']>;
+  deepLink_starts_with_i?: Maybe<Scalars['String']>;
+  deepLink_not_starts_with_i?: Maybe<Scalars['String']>;
+  deepLink_ends_with_i?: Maybe<Scalars['String']>;
+  deepLink_not_ends_with_i?: Maybe<Scalars['String']>;
+  deepLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deepLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  idList?: Maybe<Scalars['JSON']>;
+  idList_not?: Maybe<Scalars['JSON']>;
+  idList_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  idList_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  processingMeta_not?: Maybe<Scalars['JSON']>;
+  processingMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  processingMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MarketingMessageHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MarketingMessageHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MarketingMessageHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MarketingMessageHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MarketingMessageHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MarketingMessageHistoryRecordsCreateInput = {
+  data?: Maybe<MarketingMessageHistoryRecordCreateInput>;
+};
+
+export type MarketingMessageHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketingMessageHistoryRecordUpdateInput>;
+};
+
+export enum MarketingMessageStatusType {
+  Created = 'created',
+  Processing = 'processing',
+  Failed = 'failed',
+  Done = 'done'
+}
+
+export enum MarketingMessageTransportTypeType {
+  Sms = 'sms',
+  Email = 'email',
+  Push = 'push'
+}
+
+export type MarketingMessageUpdateInput = {
+  transportType?: Maybe<MarketingMessageTransportTypeType>;
+  title?: Maybe<Scalars['String']>;
+  message?: Maybe<Scalars['String']>;
+  deepLink?: Maybe<Scalars['String']>;
+  idList?: Maybe<Scalars['JSON']>;
+  status?: Maybe<MarketingMessageStatusType>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MarketingMessageWhereInput = {
+  AND?: Maybe<Array<Maybe<MarketingMessageWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MarketingMessageWhereInput>>>;
+  transportType?: Maybe<MarketingMessageTransportTypeType>;
+  transportType_not?: Maybe<MarketingMessageTransportTypeType>;
+  transportType_in?: Maybe<Array<Maybe<MarketingMessageTransportTypeType>>>;
+  transportType_not_in?: Maybe<Array<Maybe<MarketingMessageTransportTypeType>>>;
+  title?: Maybe<Scalars['String']>;
+  title_not?: Maybe<Scalars['String']>;
+  title_contains?: Maybe<Scalars['String']>;
+  title_not_contains?: Maybe<Scalars['String']>;
+  title_starts_with?: Maybe<Scalars['String']>;
+  title_not_starts_with?: Maybe<Scalars['String']>;
+  title_ends_with?: Maybe<Scalars['String']>;
+  title_not_ends_with?: Maybe<Scalars['String']>;
+  title_i?: Maybe<Scalars['String']>;
+  title_not_i?: Maybe<Scalars['String']>;
+  title_contains_i?: Maybe<Scalars['String']>;
+  title_not_contains_i?: Maybe<Scalars['String']>;
+  title_starts_with_i?: Maybe<Scalars['String']>;
+  title_not_starts_with_i?: Maybe<Scalars['String']>;
+  title_ends_with_i?: Maybe<Scalars['String']>;
+  title_not_ends_with_i?: Maybe<Scalars['String']>;
+  title_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  title_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  message?: Maybe<Scalars['String']>;
+  message_not?: Maybe<Scalars['String']>;
+  message_contains?: Maybe<Scalars['String']>;
+  message_not_contains?: Maybe<Scalars['String']>;
+  message_starts_with?: Maybe<Scalars['String']>;
+  message_not_starts_with?: Maybe<Scalars['String']>;
+  message_ends_with?: Maybe<Scalars['String']>;
+  message_not_ends_with?: Maybe<Scalars['String']>;
+  message_i?: Maybe<Scalars['String']>;
+  message_not_i?: Maybe<Scalars['String']>;
+  message_contains_i?: Maybe<Scalars['String']>;
+  message_not_contains_i?: Maybe<Scalars['String']>;
+  message_starts_with_i?: Maybe<Scalars['String']>;
+  message_not_starts_with_i?: Maybe<Scalars['String']>;
+  message_ends_with_i?: Maybe<Scalars['String']>;
+  message_not_ends_with_i?: Maybe<Scalars['String']>;
+  message_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  message_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deepLink?: Maybe<Scalars['String']>;
+  deepLink_not?: Maybe<Scalars['String']>;
+  deepLink_contains?: Maybe<Scalars['String']>;
+  deepLink_not_contains?: Maybe<Scalars['String']>;
+  deepLink_starts_with?: Maybe<Scalars['String']>;
+  deepLink_not_starts_with?: Maybe<Scalars['String']>;
+  deepLink_ends_with?: Maybe<Scalars['String']>;
+  deepLink_not_ends_with?: Maybe<Scalars['String']>;
+  deepLink_i?: Maybe<Scalars['String']>;
+  deepLink_not_i?: Maybe<Scalars['String']>;
+  deepLink_contains_i?: Maybe<Scalars['String']>;
+  deepLink_not_contains_i?: Maybe<Scalars['String']>;
+  deepLink_starts_with_i?: Maybe<Scalars['String']>;
+  deepLink_not_starts_with_i?: Maybe<Scalars['String']>;
+  deepLink_ends_with_i?: Maybe<Scalars['String']>;
+  deepLink_not_ends_with_i?: Maybe<Scalars['String']>;
+  deepLink_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deepLink_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  idList?: Maybe<Scalars['JSON']>;
+  idList_not?: Maybe<Scalars['JSON']>;
+  idList_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  idList_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<MarketingMessageStatusType>;
+  status_not?: Maybe<MarketingMessageStatusType>;
+  status_in?: Maybe<Array<Maybe<MarketingMessageStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<MarketingMessageStatusType>>>;
+  processingMeta?: Maybe<Scalars['JSON']>;
+  processingMeta_not?: Maybe<Scalars['JSON']>;
+  processingMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  processingMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MarketingMessageWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MarketingMessagesCreateInput = {
+  data?: Maybe<MarketingMessageCreateInput>;
+};
+
+export type MarketingMessagesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketingMessageUpdateInput>;
+};
+
 /**  Notification message  */
 export type Message = {
   __typename?: 'Message';
@@ -19516,6 +20027,30 @@ export type Mutation = {
   deleteMessageOrganizationWhiteList?: Maybe<MessageOrganizationWhiteList>;
   /**  Delete multiple MessageOrganizationWhiteList items by ID.  */
   deleteMessageOrganizationWhiteLists?: Maybe<Array<Maybe<MessageOrganizationWhiteList>>>;
+  /**  Create a single MarketingMessageHistoryRecord item.  */
+  createMarketingMessageHistoryRecord?: Maybe<MarketingMessageHistoryRecord>;
+  /**  Create multiple MarketingMessageHistoryRecord items.  */
+  createMarketingMessageHistoryRecords?: Maybe<Array<Maybe<MarketingMessageHistoryRecord>>>;
+  /**  Update a single MarketingMessageHistoryRecord item by ID.  */
+  updateMarketingMessageHistoryRecord?: Maybe<MarketingMessageHistoryRecord>;
+  /**  Update multiple MarketingMessageHistoryRecord items by ID.  */
+  updateMarketingMessageHistoryRecords?: Maybe<Array<Maybe<MarketingMessageHistoryRecord>>>;
+  /**  Delete a single MarketingMessageHistoryRecord item by ID.  */
+  deleteMarketingMessageHistoryRecord?: Maybe<MarketingMessageHistoryRecord>;
+  /**  Delete multiple MarketingMessageHistoryRecord items by ID.  */
+  deleteMarketingMessageHistoryRecords?: Maybe<Array<Maybe<MarketingMessageHistoryRecord>>>;
+  /**  Create a single MarketingMessage item.  */
+  createMarketingMessage?: Maybe<MarketingMessage>;
+  /**  Create multiple MarketingMessage items.  */
+  createMarketingMessages?: Maybe<Array<Maybe<MarketingMessage>>>;
+  /**  Update a single MarketingMessage item by ID.  */
+  updateMarketingMessage?: Maybe<MarketingMessage>;
+  /**  Update multiple MarketingMessage items by ID.  */
+  updateMarketingMessages?: Maybe<Array<Maybe<MarketingMessage>>>;
+  /**  Delete a single MarketingMessage item by ID.  */
+  deleteMarketingMessage?: Maybe<MarketingMessage>;
+  /**  Delete multiple MarketingMessage items by ID.  */
+  deleteMarketingMessages?: Maybe<Array<Maybe<MarketingMessage>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -24385,6 +24920,68 @@ export type MutationDeleteMessageOrganizationWhiteListArgs = {
 
 
 export type MutationDeleteMessageOrganizationWhiteListsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMarketingMessageHistoryRecordArgs = {
+  data?: Maybe<MarketingMessageHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMarketingMessageHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MarketingMessageHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMarketingMessageHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketingMessageHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMarketingMessageHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MarketingMessageHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMarketingMessageHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMarketingMessageHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMarketingMessageArgs = {
+  data?: Maybe<MarketingMessageCreateInput>;
+};
+
+
+export type MutationCreateMarketingMessagesArgs = {
+  data?: Maybe<Array<Maybe<MarketingMessagesCreateInput>>>;
+};
+
+
+export type MutationUpdateMarketingMessageArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketingMessageUpdateInput>;
+};
+
+
+export type MutationUpdateMarketingMessagesArgs = {
+  data?: Maybe<Array<Maybe<MarketingMessagesUpdateInput>>>;
+};
+
+
+export type MutationDeleteMarketingMessageArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMarketingMessagesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -32208,6 +32805,22 @@ export type Query = {
   _allMessageOrganizationWhiteListsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MessageOrganizationWhiteList list.  */
   _MessageOrganizationWhiteListsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MarketingMessageHistoryRecord items which match the where clause.  */
+  allMarketingMessageHistoryRecords?: Maybe<Array<Maybe<MarketingMessageHistoryRecord>>>;
+  /**  Search for the MarketingMessageHistoryRecord item with the matching ID.  */
+  MarketingMessageHistoryRecord?: Maybe<MarketingMessageHistoryRecord>;
+  /**  Perform a meta-query on all MarketingMessageHistoryRecord items which match the where clause.  */
+  _allMarketingMessageHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MarketingMessageHistoryRecord list.  */
+  _MarketingMessageHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MarketingMessage items which match the where clause.  */
+  allMarketingMessages?: Maybe<Array<Maybe<MarketingMessage>>>;
+  /**  Search for the MarketingMessage item with the matching ID.  */
+  MarketingMessage?: Maybe<MarketingMessage>;
+  /**  Perform a meta-query on all MarketingMessage items which match the where clause.  */
+  _allMarketingMessagesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MarketingMessage list.  */
+  _MarketingMessagesMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -34907,6 +35520,56 @@ export type Query_AllMessageOrganizationWhiteListsMetaArgs = {
   where?: Maybe<MessageOrganizationWhiteListWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMessageOrganizationWhiteListsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMarketingMessageHistoryRecordsArgs = {
+  where?: Maybe<MarketingMessageHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketingMessageHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMarketingMessageHistoryRecordArgs = {
+  where: MarketingMessageHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMarketingMessageHistoryRecordsMetaArgs = {
+  where?: Maybe<MarketingMessageHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketingMessageHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMarketingMessagesArgs = {
+  where?: Maybe<MarketingMessageWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketingMessagesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMarketingMessageArgs = {
+  where: MarketingMessageWhereUniqueInput;
+};
+
+
+export type Query_AllMarketingMessagesMetaArgs = {
+  where?: Maybe<MarketingMessageWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketingMessagesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -40974,6 +41637,64 @@ export enum SortForgotPasswordActionsBy {
   ExpiresAtDesc = 'expiresAt_DESC',
   UsedAtAsc = 'usedAt_ASC',
   UsedAtDesc = 'usedAt_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortMarketingMessageHistoryRecordsBy {
+  TransportTypeAsc = 'transportType_ASC',
+  TransportTypeDesc = 'transportType_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  MessageAsc = 'message_ASC',
+  MessageDesc = 'message_DESC',
+  DeepLinkAsc = 'deepLink_ASC',
+  DeepLinkDesc = 'deepLink_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMarketingMessagesBy {
+  TransportTypeAsc = 'transportType_ASC',
+  TransportTypeDesc = 'transportType_DESC',
+  TitleAsc = 'title_ASC',
+  TitleDesc = 'title_DESC',
+  MessageAsc = 'message_ASC',
+  MessageDesc = 'message_DESC',
+  DeepLinkAsc = 'deepLink_ASC',
+  DeepLinkDesc = 'deepLink_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

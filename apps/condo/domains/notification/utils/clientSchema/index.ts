@@ -8,4 +8,5 @@ export * as RemoteClient from './RemoteClient'
 export * as MessageUserBlackList from './MessageUserBlackList'
 export * as MessageOrganizationBlackList from './MessageOrganizationBlackList'
 export * as MessageOrganizationWhiteList from './MessageOrganizationWhiteList'
+export * as MarketingMessage from './MarketingMessage'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

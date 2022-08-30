@@ -25,6 +25,7 @@ const isEmpty = require('lodash/isEmpty')
 const get = require('lodash/get')
 const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const { find } = require('@condo/keystone/schema')
+const { MarketingMessage: MarketingMessageGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -176,6 +177,8 @@ async function checkMessageTypeInBlackList (context, message) {
 const MessageUserBlackList = generateServerUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlackListGQL)
 const MessageOrganizationWhiteList = generateServerUtils(MessageOrganizationWhiteListGQL)
+const MarketingMessage = generateServerUtils(MarketingMessageGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -190,5 +193,6 @@ module.exports = {
     MessageOrganizationBlackList,
     MessageOrganizationWhiteList,
     checkMessageTypeInBlackList,
+    MarketingMessage,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -12,6 +12,7 @@ const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { MessageUserBlackList } = require('./MessageUserBlackList')
 const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
 const { MessageOrganizationWhiteList } = require('./MessageOrganizationWhiteList')
+const { MarketingMessage } = require('./MarketingMessage')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -24,5 +25,6 @@ module.exports = {
     MessageUserBlackList,
     MessageOrganizationBlackList,
     MessageOrganizationWhiteList,
+    MarketingMessage,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
