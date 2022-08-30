@@ -28,6 +28,12 @@ const readByAnyUpdateByAdminField = {
     update: access.userIsAdmin,
 }
 
+const readBySupportUpdateByAdminField = {
+    read: access.userIsAdminOrIsSupport,
+    create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
+
 const canAccessToEmailField = {
     read: access.userIsAdminOrIsThisItem,
     create: access.userIsAdmin,
@@ -56,6 +62,7 @@ const canManageToIsAdminField = {
     create: access.userIsAdmin,
     update: access.userIsAdmin,
 }
+
 const canAccessToIsAdminField = {
     read: access.userIsAdmin,
     create: access.userIsAdmin,
@@ -64,6 +71,9 @@ const canAccessToIsAdminField = {
 const canAccessToIsEmailVerifiedField = readByAnyUpdateByAdminField
 const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
+const canAccessToEmployeeField = readBySupportUpdateByAdminField
+const canAccessToRelatedOrganizationField = readBySupportUpdateByAdminField
+
 
 const canAccessToStaffUserField = {
     read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,
@@ -86,4 +96,6 @@ module.exports = {
     canAccessToImportField,
     canAccessToStaffUserField,
     canManageToIsAdminField,
+    canAccessToRelatedOrganizationField,
+    canAccessToEmployeeField,
 }
