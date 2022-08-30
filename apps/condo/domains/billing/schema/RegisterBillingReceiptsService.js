@@ -78,47 +78,6 @@ const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
 const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, iec, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, iec, bic].join('_')
 
-// const DELETE = 'delete'
-// const UPDATE = 'update'
-// const CREATE = 'create'
-//
-// const syncObjects = async (context, list, existingObjs, objs, getKey, getOperation, convertToGQLInput = x => x) => {
-//     const existingObjsIndex = Object.fromEntries(existingObjs.map((obj) => ([getKey(obj), obj])))
-//
-//     const toCreate = []
-//     const toUpdate = []
-//     const toDelete = []
-//
-//     objs.forEach(obj => {
-//         const key = getKey(obj)
-//         const existingObj = _.get(existingObjsIndex, key)
-//         const operation = getOperation(existingObj, obj)
-//
-//         switch (operation) {
-//             case CREATE:
-//                 toCreate.push(convertToGQLInput({ obj, operation }))
-//                 break
-//             case UPDATE:
-//                 toUpdate.push(convertToGQLInput ({ obj, operation }))
-//                 break
-//             case DELETE:
-//                 toDelete.push(convertToGQLInput({ obj, operation }))
-//                 break
-//             default:
-//                 break
-//         }
-//     })
-//
-//     const created = await toCreate.map(async input => await list.create(context, input))
-//     const updated = await toUpdate.map(async input => await list.update(context, input.id, input.data))
-//
-//     return {
-//         created,
-//         updated,
-//
-//     }
-// }
-
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
     const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId } }
 
@@ -185,6 +144,23 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
     return [ ...newAccountsWithData, ...existingAccountsWithData ]
 }
 
+const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) => {
+    item.category = { connect: { id: _.get(item, ['category', 'id']) } }
+    item.context = { connect: { id: _.get(item, ['context', 'id']) } }
+
+    item.property = { connect: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
+    item.account = { connect: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
+
+    item.recipient = {
+        tin: item.tin,
+        iec: item.iec,
+        bankAccount: item.bankAccount,
+        bic: item.bic,
+    }
+
+    return _.omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+}
+
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
 
     const propertiesIndex = Object.fromEntries(properties.map((item) => ([getBillingPropertyKey(item), item])))
@@ -233,9 +209,19 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         } else {
             const existingReceiptByKey = receiptsIndex[receiptKey]
 
-            const b1 = new Big(existingReceiptByKey.toPay)
-            const b2 = new Big(item.toPay)
-            const shouldUpdateReceipt = !b1.eq(b2)
+            const existingToPay = new Big(existingReceiptByKey.toPay)
+            const newToPay = new Big(item.toPay)
+            const toPayNotEqual = !existingToPay.eq(newToPay)
+
+            const existingServices = JSON.stringify(existingReceiptByKey.services)
+            const newServices = JSON.stringify(item.services)
+            const servicesNotEqual = existingServices !== newServices
+
+            const existingToPayDetails = JSON.stringify(existingReceiptByKey.toPayDetails)
+            const newToPayDetails = JSON.stringify(item.toPayDetails)
+            const toPayDetailsNotEqual = existingToPayDetails !== newToPayDetails
+
+            const shouldUpdateReceipt = toPayNotEqual || servicesNotEqual || toPayDetailsNotEqual
 
             if (shouldUpdateReceipt) {
                 item.id = existingReceiptByKey.id
@@ -248,48 +234,16 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
-        
-        item.category = { connect: { id: _.get(item, ['category', 'id']) } }
-        item.context = { connect: { id: _.get(item, ['context', 'id']) } }
-
-        item.property = { connect: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
-        item.account = { connect: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
-
-        item.recipient = {
-            tin: item.tin,
-            iec: item.iec,
-            bankAccount: item.bankAccount,
-            bic: item.bic,
-        }
-
-        const cleanItem = _.omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
-
-        const newReceipt = await BillingReceipt.create(context, cleanItem)
+        const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
+        const newReceipt = await BillingReceipt.create(context, billingReceiptGQLInput)
         newReceipts.push(newReceipt)
     }
 
     const updatedReceipts = []
     for (const item of receiptsToUpdate) {
-
         const itemId = item.id
-
-        item.category = { connect: { id: _.get(item, ['category', 'id']) } }
-        item.context = { connect: { id: _.get(item, ['context', 'id']) } }
-
-        item.property = { connect: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
-        item.account = { connect: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
-
-        item.recipient = {
-            tin: item.tin,
-            iec: item.iec,
-            bankAccount: item.bankAccount,
-            bic: item.bic,
-        }
-
-        const cleanItem = _.omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
-
-        const updatableItem = _.omit(cleanItem, ['context', 'id'])
-
+        const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
+        const updatableItem = _.omit(billingReceiptGQLInput, ['context', 'id'])
         const updatedReceipt = await BillingReceipt.update(context, itemId, updatableItem)
         updatedReceipts.push(updatedReceipt)
     }
@@ -309,8 +263,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'normalizedAddress: String ' +
 
                     'accountNumber: String! ' +
-                    'unitName: String! ' + // Should delete this!
-                    'unitType: String! ' + // Should delete this!
+                    'unitName: String! ' + // Is going to be made optional in future
+                    'unitType: String! ' + // Is going to be made optional in future
                     'fullName: String ' +
 
                     'toPay: String! ' +
@@ -323,7 +277,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'category: BillingCategoryWhereUniqueInput! ' +
 
                     'tin: String! ' +
-                    'iec: String! ' + // Should delete this!
+                    'iec: String! ' + // Is going to be made optional in future
                     'bic: String! ' +
                     'bankAccount: String! ' +
 
@@ -402,12 +356,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const property = { address: normalizedAddress }
                     const propertyKey = getBillingPropertyKey(property)
 
-                    const account = { unitName, unitType, number: accountNumber, property }
-                    const accountKey = getBillingAccountKey(account)
-
-                    const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
-                    const receiptKey = getBillingReceiptKey(receipt)
-
                     if (!propertyIndex[propertyKey]) {
                         propertyIndex[propertyKey] = {
                             dv: dv,
@@ -421,6 +369,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             meta: { dv: 1 },
                         }
                     }
+
+                    const account = { unitName, unitType, number: accountNumber, property }
+                    const accountKey = getBillingAccountKey(account)
 
                     if (!accountIndex[accountKey]) {
                         accountIndex[accountKey] = {
@@ -437,6 +388,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             meta: { dv: 1 },
                         }
                     }
+
+                    const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
+                    const receiptKey = getBillingReceiptKey(receipt)
 
                     if (!receiptIndex[receiptKey]) {
                         receiptIndex[receiptKey] = {
@@ -472,6 +426,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 // Sync billing receipts
                 const { createdReceipts, updatedReceipts, notChangedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
+                // To form a result with partial success a list of promises needs to be returned from function
                 const resultData = [...createdReceipts, ...updatedReceipts].map(item => Promise.resolve(item))
                 const resultErrors = partialErrors.map(err => (new Promise(() => { throw err })))
 

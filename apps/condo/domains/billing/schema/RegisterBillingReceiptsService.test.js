@@ -605,7 +605,7 @@ describe('RegisterBillingReceiptsService', () => {
         })
 
         describe('Corner cases', () => {
-            test.skip('Simple case is handled correctly', async () => {
+            test('Simple case is handled correctly', async () => {
                 const EXISTING_TEST_ADDRESS = 'TEST'
                 const EXISTING_TEST_UNIT_NAME = '0'
                 const EXISTING_TEST_ACCOUNT_NUMBER = '0'
