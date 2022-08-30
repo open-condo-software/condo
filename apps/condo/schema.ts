@@ -20441,6 +20441,7 @@ export type Mutation = {
   reInviteOrganizationEmployee?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
+  registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
    * Creates a new ticket for resident
@@ -25792,6 +25793,11 @@ export type MutationAcceptOrRejectOrganizationInviteByIdArgs = {
 export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
   inviteCode: Scalars['String'];
   data: AcceptOrRejectOrganizationInviteInput;
+};
+
+
+export type MutationRegisterBillingReceiptsArgs = {
+  data: RegisterBillingReceiptsInput;
 };
 
 
@@ -35940,6 +35946,34 @@ export type RecipientFieldInput = {
   iec: Scalars['String'];
   bic: Scalars['String'];
   bankAccount: Scalars['String'];
+};
+
+export type RegisterBillingReceiptInput = {
+  importId: Scalars['String'];
+  address: Scalars['String'];
+  normalizedAddress?: Maybe<Scalars['String']>;
+  accountNumber: Scalars['String'];
+  unitName: Scalars['String'];
+  unitType: Scalars['String'];
+  fullName?: Maybe<Scalars['String']>;
+  toPay: Scalars['String'];
+  toPayDetails?: Maybe<BillingReceiptServiceToPayDetailsFieldInput>;
+  services?: Maybe<Array<Maybe<BillingReceiptServiceFieldInput>>>;
+  month: Scalars['Int'];
+  year: Scalars['Int'];
+  category: BillingCategoryWhereUniqueInput;
+  tin: Scalars['String'];
+  iec: Scalars['String'];
+  bic: Scalars['String'];
+  bankAccount: Scalars['String'];
+  raw?: Maybe<Scalars['JSON']>;
+};
+
+export type RegisterBillingReceiptsInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  context?: Maybe<BillingIntegrationOrganizationContextWhereUniqueInput>;
+  receipts: Array<RegisterBillingReceiptInput>;
 };
 
 export type RegisterMultiPaymentForOneReceiptInput = {
