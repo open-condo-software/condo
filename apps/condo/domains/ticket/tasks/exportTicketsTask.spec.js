@@ -13,7 +13,8 @@ const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestTicketExportTask, TicketExportTask } = require('../utils/testSchema')
 const { PROCESSING, EXCEL, EXPORT_PROCESSING_BATCH_SIZE } = require('@condo/domains/common/constants/export')
 
-const index = require('../../../index')
+const index = require('@app/condo/index')
+const { sleep } = require('@condo/domains/common/utils/sleep')
 
 describe('exportTicketsTask', () => {
     describe('exportTickets', () => {
@@ -32,11 +33,10 @@ describe('exportTicketsTask', () => {
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-            let ticketsCountFor2Chunks = Math.floor(EXPORT_PROCESSING_BATCH_SIZE * 1.5)
-            let i = ticketsCountFor2Chunks
-            do {
+            const ticketsCountFor2Chunks = Math.floor(EXPORT_PROCESSING_BATCH_SIZE * 1.5)
+            for (let i = ticketsCountFor2Chunks; i > 0; i--) {
                 await createTestTicket(userClient, organization, property)
-            } while (--i > 0)
+            }
 
             const [task] = await createTestTicketExportTask(adminClient, userClient.user, {
                 format: EXCEL,
@@ -49,6 +49,7 @@ describe('exportTicketsTask', () => {
                 status: PROCESSING,
             })
 
+            await sleep(2000)
             // NOTE: This function is launched in `TicketExportTask.afterChange` hook on "create" operation
             // Don't need to call it explicitly
             // await exportTicketsWorker.apply(jobMock, [task.id])
@@ -59,6 +60,7 @@ describe('exportTicketsTask', () => {
                 expect(updatedTask.file).not.toBeNull()
                 expect(updatedTask.exportedRecordsCount).toEqual(ticketsCountFor2Chunks)
                 expect(updatedTask.totalRecordsCount).toEqual(ticketsCountFor2Chunks)
+                expect(updatedTask.status).toEqual('')
                 // TODO(antonal): automatically examine created export file
             })
         })
