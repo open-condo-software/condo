@@ -185,11 +185,9 @@ describe('TicketExportTask', () => {
             const adminClient = await makeLoggedInAdminClient()
             const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
 
-            const [objUpdated, attrs] = await TicketExportTask.softDelete(adminClient, obj.id)
+            const [objUpdated] = await TicketExportTask.softDelete(adminClient, obj.id)
 
             expect(objUpdated.id).toEqual(obj.id)
-            expect(objUpdated.dv).toEqual(1)
-            expect(objUpdated.sender).toEqual(attrs.sender)
             expect(objUpdated.deletedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).toMatch(DATETIME_RE)
             expect(objUpdated.updatedAt).not.toEqual(objUpdated.createdAt)
