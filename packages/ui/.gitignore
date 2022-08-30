@@ -1,0 +1,2 @@
+src/tokens/*
+!src/tokens/tokens.json
