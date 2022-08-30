@@ -93,6 +93,13 @@ class GqlWithKnexLoadList {
         this.keystone = modelAdapter
         this.knex = modelAdapter.adapter.knex
     }
+    async loadAggregate (rawAggregate, ids) {
+        const knexQuery = this.knex(`${this.listKey}`)
+        knexQuery.select(this.knex.raw(rawAggregate))
+        knexQuery.whereIn('id', ids)
+        const [aggregate] = await knexQuery
+        return aggregate
+    }
 }
 
 // Simple way to load all models
