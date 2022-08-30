@@ -10,6 +10,8 @@ const Upload = require('graphql-upload/public/Upload')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const conf = require('@condo/config')
 
+const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
+
 const logger = pino({ name: 'export', enabled: falsey(process.env.DISABLE_LOGGING) })
 
 const errors = {
@@ -58,6 +60,7 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
     let rows = []
     let task // a fresh record we are working with
     const taskSchemaName = taskServerUtils.gql.SINGULAR_FORM
+    let lastProgress = Date.now()
 
     do {
         // User can cancel the task at any time, in this all operations should be stopped
@@ -88,11 +91,14 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
 
         offset += batch.length
 
-        task = await taskServerUtils.update(context, taskId, {
-            ...baseAttrs,
-            totalRecordsCount,
-            exportedRecordsCount: offset,
-        })
+        if (Date.now() - lastProgress > TASK_PROGRESS_UPDATE_INTERVAL || offset >= totalRecordsCount) {
+            lastProgress = Date.now()
+            task = await taskServerUtils.update(context, taskId, {
+                ...baseAttrs,
+                totalRecordsCount,
+                exportedRecordsCount: offset,
+            })
+        }
 
         await sleep(SLEEP_TIMEOUT)
     } while (offset < totalRecordsCount)

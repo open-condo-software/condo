@@ -122,8 +122,8 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
     }
 }
 
-const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) => {
-    const { where, timeZone, locale } = task
+const buildExportFile = async ({ rows, task }) => {
+    const { where, timeZone, locale, id } = task
     const createdAtGte = get(findAllByKey(where, 'createdAt_gte'), 0)
     const createdAtLte = get(findAllByKey(where, 'createdAt_lte'), 0)
 
@@ -162,7 +162,7 @@ const buildExportFile = async ({ rows, task, idOfFirstTicketForAccessRights }) =
             listkey: 'TicketExportTask',
             // Id of first record will be used by `OBSFilesMiddleware` to determine permission to access exported file
             // NOTE: Permissions check on access to exported file will be replaced to checking access on `ExportTicketsTask`
-            id: idOfFirstTicketForAccessRights,
+            id,
         },
     }
 }
@@ -206,15 +206,12 @@ async function exportTicketsWorker (taskId) {
     const statuses = await TicketStatus.getAll(context, {})
     const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
-    let idOfFirstTicketForAccessRights
-
     let classifier
 
     const { where, sortBy } = task
     const ticketsLoader = await buildTicketsLoader({ where, sortBy })
 
     const totalRecordsCount = await Ticket.count(context, where)
-    console.log('totalRecordsCount!!', totalRecordsCount)
 
     await exportRecords({
         context,
@@ -222,15 +219,12 @@ async function exportTicketsWorker (taskId) {
             const tickets = await ticketsLoader.loadChunk(offset, limit)
             const classifierRuleIds = compact(map(tickets, 'classifier'))
             classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
-            if (!idOfFirstTicketForAccessRights) {
-                idOfFirstTicketForAccessRights = get(tickets, [0, 'id'])
-            }
             // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
             this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
             return tickets
         },
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifier }),
-        buildExportFile: (rows) => buildExportFile({ rows, task, idOfFirstTicketForAccessRights }),
+        buildExportFile: (rows) => buildExportFile({ rows, task }),
         baseAttrs,
         taskServerUtils: TicketExportTask,
         totalRecordsCount,
