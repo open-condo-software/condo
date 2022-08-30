@@ -3,6 +3,11 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const { isEmpty, get } = require('lodash')
+
+const conf = require('@condo/config')
+const { extractReqLocale } = require('@condo/locales/extractReqLocale')
+const { find } = require('@condo/keystone/schema')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
@@ -21,10 +26,7 @@ const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constan
 const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
 const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
 const { MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL } = require('@condo/domains/notification/gql')
-const isEmpty = require('lodash/isEmpty')
-const get = require('lodash/get')
 const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
-const { find } = require('@condo/keystone/schema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -37,7 +39,9 @@ async function sendMessage (context, data) {
     if (!data.to.email && !data.to.phone && !data.to.user) throw new Error('wrong data.to')
     if (!data.type) throw new Error('no data.type')
     if (!MESSAGE_TYPES.includes(data.type)) throw new Error('unknown data.type')
-    if (!LOCALES[data.lang]) throw new Error('unknown data.lang')
+    if (!LOCALES[data.lang]) {
+        data.lang = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
+    }
 
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,
