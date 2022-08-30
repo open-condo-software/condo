@@ -4,6 +4,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import get from 'lodash/get'
 import isObject from 'lodash/isObject'
 import isFunction from 'lodash/isFunction'
+import isNull from 'lodash/isNull'
 import omit from 'lodash/omit'
 import { v4 as uuidV4 } from 'uuid'
 import { MutationEmitter, MUTATION_RESULT_EVENT } from '@condo/next/apollo'
@@ -39,7 +40,7 @@ const TASK_GET_PROCESSING_STATUS = 'CondoWebGetProcessingTasks'
 
 export const GlobalAppsContainer: React.FC = () => {
     const { user } = useAuth()
-    const { objs } = B2BApp.useObjects({
+    const { objs, refetch, loading } = B2BApp.useObjects({
         where: {
             isGlobal: true,
             isHidden: false,
@@ -65,13 +66,15 @@ export const GlobalAppsContainer: React.FC = () => {
 
     const handleMutationResult = useCallback((payload) => {
         for (const iframe of iframeRefs.current) {
-            const origin = extractOrigin(iframe.src)
-            const targetWindow = get(iframe, 'contentWindow', null)
-            if (origin && targetWindow) {
-                sendMessage({
-                    type: MUTATION_RESULT_MESSAGE_NAME,
-                    data: payload,
-                }, targetWindow, origin)
+            if (iframe) {
+                const origin = extractOrigin(iframe.src)
+                const targetWindow = get(iframe, 'contentWindow', null)
+                if (origin && targetWindow) {
+                    sendMessage({
+                        type: MUTATION_RESULT_MESSAGE_NAME,
+                        data: payload,
+                    }, targetWindow, origin)
+                }
             }
         }
     }, [])
@@ -237,11 +240,22 @@ export const GlobalAppsContainer: React.FC = () => {
         }
     }, [handleMessage])
 
+    useEffect(() => {
+        if (!loading && !objs.length && !isNull(user)) {
+            refetch()
+        }
+    }, [user, loading, objs])
+
+    // Global miniapps allowed only for authenticated users
+    if (!user) {
+        return null
+    }
+
     return (
         <>
             {appUrls.map((url, index) => (
                 <GlobalIframe
-                    key={url}
+                    key={`${get(user, 'id', null)}-${url}`}
                     pageUrl={url}
                     ref={el => iframeRefs.current[index] = el}
                     hidden={!isDebug}
