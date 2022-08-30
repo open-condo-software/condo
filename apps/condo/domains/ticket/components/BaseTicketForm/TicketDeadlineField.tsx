@@ -1,11 +1,14 @@
+import React, { CSSProperties, useCallback, useState } from 'react'
 import dayjs from 'dayjs'
 import { useIntl } from '@condo/next/intl'
-import React, { CSSProperties, useCallback, useState } from 'react'
-import { Col, DatePicker, Row, Typography } from 'antd'
-import { Gutter } from 'antd/lib/grid/row'
-import { TicketFormItem } from './index'
 import get from 'lodash/get'
+import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/lib/grid/row'
+
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
+import { TicketFormItem } from './index'
 
 const INITIAL_DEADLINE_VALUE = dayjs().add(8, 'day')
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
