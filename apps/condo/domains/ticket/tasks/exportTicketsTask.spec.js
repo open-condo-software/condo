@@ -14,7 +14,6 @@ const { createTestTicketExportTask, TicketExportTask } = require('../utils/testS
 const { PROCESSING, EXCEL, EXPORT_PROCESSING_BATCH_SIZE } = require('@condo/domains/common/constants/export')
 
 const index = require('@app/condo/index')
-const { sleep } = require('@condo/domains/common/utils/sleep')
 
 describe('exportTicketsTask', () => {
     describe('exportTickets', () => {

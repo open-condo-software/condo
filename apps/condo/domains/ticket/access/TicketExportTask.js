@@ -49,6 +49,7 @@ async function canManageTicketExportTasks ({ authentication: { item: user }, ori
             return true
         }
     } else if (operation === 'update') {
+        // TODO(pahaz): security issue! we can update not only own export task!
         if (originalInputToCancelTask(originalInput)) {
             return true
         }
