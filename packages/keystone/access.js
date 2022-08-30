@@ -21,6 +21,12 @@ const userIsAdmin = (args) => {
     return Boolean(userIsAuthenticated(args) && user.isAdmin)
 }
 
+const userIsSupport = (args) => {
+    const { authentication: { item: user } } = args
+
+    return Boolean(userIsAuthenticated(args) && user.isSupport)
+}
+
 const userIsThisItem = (args) => {
     const { existingItem, authentication: { item: user } } = args
 
@@ -46,6 +52,13 @@ const userIsAdminOrOwner = auth => {
     const isOwner = userIsOwner(auth)
 
     return Boolean(isAdmin || isOwner)
+}
+
+const userIsAdminOrIsSupport = auth => {
+    const isAdmin = userIsAdmin(auth)
+    const isSupport = userIsSupport(auth)
+
+    return Boolean(isAdmin || isSupport)
 }
 
 const userIsAdminOrIsThisItem = auth => {
@@ -120,6 +133,8 @@ const isSoftDelete = (originalInput) => {
 module.exports = {
     userIsAuthenticated,
     userIsAdmin,
+    userIsSupport,
+    userIsAdminOrIsSupport,
     userIsOwner,
     userIsAdminOrOwner,
     userIsThisItem,
