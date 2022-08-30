@@ -38,7 +38,7 @@ describe('exportTicketsTask', () => {
                 await createTestTicket(userClient, organization, property)
             }
 
-            const [task] = await createTestTicketExportTask(adminClient, userClient.user, {
+            const [task] = await createTestTicketExportTask(userClient, userClient.user, {
                 format: EXCEL,
                 where: {
                     organization: { id: organization.id },
@@ -49,7 +49,6 @@ describe('exportTicketsTask', () => {
                 status: PROCESSING,
             })
 
-            await sleep(2000)
             // NOTE: This function is launched in `TicketExportTask.afterChange` hook on "create" operation
             // Don't need to call it explicitly
             // await exportTicketsWorker.apply(jobMock, [task.id])
@@ -60,8 +59,7 @@ describe('exportTicketsTask', () => {
                 expect(updatedTask.file).not.toBeNull()
                 expect(updatedTask.exportedRecordsCount).toEqual(ticketsCountFor2Chunks)
                 expect(updatedTask.totalRecordsCount).toEqual(ticketsCountFor2Chunks)
-                expect(updatedTask.status).toEqual('')
-                // TODO(antonal): automatically examine created export file
+                expect(updatedTask.status).toEqual('completed')
             })
         })
     })
