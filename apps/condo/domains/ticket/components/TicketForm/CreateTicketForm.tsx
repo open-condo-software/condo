@@ -27,12 +27,16 @@ const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue }) => {
+                ({ getFieldsValue, getFieldError }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const propertyMismatchError = getFieldError('property').map(error => {
+                        if (error.includes(AddressNotSelected)) return error
+                    })[0]
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
@@ -57,6 +61,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                         placeClassifier={placeClassifier}
                                         categoryClassifier={categoryClassifier}
                                         deadline={deadline}
+                                        propertyMismatchError={propertyMismatchError}
                                     />
                                 </Row>
                             </Col>

@@ -19,6 +19,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
     const { push, query: { id } } = useRouter()
     const onCancel = useCallback(() => {
@@ -28,9 +29,12 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue }) => {
+                ({ getFieldsValue, getFieldError }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
+                    const propertyMismatchError = getFieldError('property').map(error => {
+                        if (error.includes(AddressNotSelected)) return error
+                    })[0]
+                    const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline || !!propertyMismatchError
                     return (
                         <ActionBar isFormActionBar>
                             <Button
@@ -59,6 +63,7 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
                                     placeClassifier={placeClassifier}
                                     categoryClassifier={categoryClassifier}
                                     deadline={deadline}
+                                    propertyMismatchError={propertyMismatchError}
                                 />
                             </Space>
                         </ActionBar>
