@@ -112,7 +112,6 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
 const expectToThrowAuthenticationError = async (testFunc, path) => {
     if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
     await catchErrorFrom(testFunc, (caught) => {
-        console.log('caught:', caught)
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
             data: { [path]: null },
