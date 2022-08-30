@@ -19,7 +19,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
 
     queries: [
         {
-            access: access.canReadPayments,
+            access: access.canSumPayments,
             schema: 'sumPayments(where: PaymentWhereInput!): SumPaymentsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write SumPaymentsService logic!
