@@ -22,7 +22,6 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 dayjs.extend(isToday)
 
 const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
-const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
 export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
@@ -83,7 +82,6 @@ export const CreateTicketForm: React.FC = () => {
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
-            source: { connect: { id: DEFAULT_TICKET_SOURCE_CALL_ID } },
         },
         (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
@@ -130,7 +128,7 @@ export const CreateTicketForm: React.FC = () => {
         >
             {({ handleSave, isLoading }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading}/>}
         </BaseTicketForm>
-    ), [createAction, initialValues, link.role, organization])
+    ), [createAction, getCompletedNotification, initialValues, link.role, organization])
 
     return <MemoizedBaseTicketForm />
 }

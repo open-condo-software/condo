@@ -12,11 +12,13 @@ import {
     Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
+    TicketSource as TicketSourceType,
 } from '@app/condo/schema'
 import { useIntl } from '@condo/next/intl'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
@@ -33,9 +35,11 @@ import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitI
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useTicketThreeLevelsClassifierHook } from '@condo/domains/ticket/components/TicketClassifierSelect'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
-import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSchema'
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+import { VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM } from '@condo/domains/ticket/constants/common'
+import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -221,6 +225,38 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                     </Col>
                 }
             </Row>
+        </Col>
+    )
+}
+
+const TICKET_SOURCE_SELECT_STYLE: React.CSSProperties = { width: '100%' }
+const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
+
+export const TicketSourceSelect: React.FC = () => {
+    const intl = useIntl()
+    const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
+
+    const { objs: sources, loading } = TicketSource.useObjects({
+        where: { type_in: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM },
+    })
+    const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
+
+    return (
+        <Col span={24} lg={10}>
+            <Form.Item
+                label={TicketSourceLabel}
+                required
+                name='source'
+                data-cy='ticket__source-item'
+                initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+            >
+                <Select
+                    style={TICKET_SOURCE_SELECT_STYLE}
+                    options={sourceOptions}
+                    defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+                    disabled={loading}
+                />
+            </Form.Item>
         </Col>
     )
 }
@@ -446,6 +482,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         </Prompt>
                         <Col span={24}>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
+                                <TicketSourceSelect />
                                 <Col span={24}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
                                         <Col span={propertyInfoColSpan}>
