@@ -182,14 +182,17 @@ async function exportTicketsWorker (taskId) {
     const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
     let task = await TicketExportTask.getOne(context, { id: taskId })
+    const baseAttrs = {
+        dv: 1,
+        sender: {
+            dv: 1,
+            fingerprint: TASK_WORKER_FINGERPRINT,
+        },
+    }
 
     if (!task.locale) {
         await TicketExportTask.update(context, task.id, {
-            dv: 1,
-            sender: {
-                dv: 1,
-                fingerprint: TASK_WORKER_FINGERPRINT,
-            },
+            ...baseAttrs,
             status: ERROR,
         })
         throw new Error(`TicketExportTask with id "${task.id}" does not have value for "locale" field!`)
@@ -211,15 +214,7 @@ async function exportTicketsWorker (taskId) {
     const ticketsLoader = await buildTicketsLoader({ where, sortBy })
 
     const totalRecordsCount = await Ticket.count(context, where)
-
-    task = await TicketExportTask.update(context, task.id, {
-        dv: 1,
-        sender: {
-            dv: 1,
-            fingerprint: TASK_WORKER_FINGERPRINT,
-        },
-        totalRecordsCount,
-    })
+    console.log('totalRecordsCount!!', totalRecordsCount)
 
     await exportRecords({
         context,
@@ -236,8 +231,10 @@ async function exportTicketsWorker (taskId) {
         },
         convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifier }),
         buildExportFile: (rows) => buildExportFile({ rows, task, idOfFirstTicketForAccessRights }),
-        task,
+        baseAttrs,
         taskServerUtils: TicketExportTask,
+        totalRecordsCount,
+        taskId,
     })
 }
 

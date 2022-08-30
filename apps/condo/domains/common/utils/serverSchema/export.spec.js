@@ -1,7 +1,6 @@
 const fill = require('lodash/fill')
 const faker = require('faker')
 const { loadRecordsAndConvertToFileRows } = require('./export')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 const mockContext = () => ({})
 
@@ -27,6 +26,7 @@ const mockConvertRecordToFileRow = () => (
 
 describe('export', async () => {
     const numberOfIterationsVsTotalRecords = [
+        [1, 0],
         [1, 1],
         [1, 99],
         [1, 100],
@@ -39,6 +39,7 @@ describe('export', async () => {
     test.each(numberOfIterationsVsTotalRecords)('takes %i iteration(s) when total records is %i', async (numberOfIterations, totalRecordsCount) => {
         const task = {
             id: faker.datatype.uuid(),
+            status: 'processing',
             totalRecordsCount,
         }
         const context = mockContext()
@@ -50,43 +51,12 @@ describe('export', async () => {
             context,
             loadRecordsBatch,
             convertRecordToFileRow,
-            task,
+            taskId: task.id,
+            totalRecordsCount,
             taskServerUtils,
         })
 
         expect(loadRecordsBatch.mock.calls.length).toBe(numberOfIterations)
         expect(convertRecordToFileRow.mock.calls.length).toBe(totalRecordsCount)
-    })
-
-    it('throws error when no records are to export', async () => {
-        const totalRecordsCount = 0
-        const task = {
-            id: faker.datatype.uuid(),
-            totalRecordsCount,
-        }
-        const context = mockContext()
-        const taskServerUtils = mockServerUtilsFor(task)
-        const loadRecordsBatch = mockLoadRecordsBatchFor(totalRecordsCount)
-        const convertRecordToFileRow = mockConvertRecordToFileRow()
-
-        await catchErrorFrom(async () => {
-            await loadRecordsAndConvertToFileRows({
-                context,
-                loadRecordsBatch,
-                convertRecordToFileRow,
-                task,
-                taskServerUtils,
-            })
-        }, (error) => {
-            expect(error).toMatchObject({
-                message: `No records to export for TestExportTask with id "${task.id}"`,
-                extensions: {
-                    code: 'BAD_USER_INPUT',
-                    type: 'NOTHING_TO_EXPORT',
-                    message: 'No records to export for {schema} with id "{id}"',
-                    messageForUser: 'tasks.export.error.NOTHING_TO_EXPORT',
-                },
-            })
-        })
     })
 })

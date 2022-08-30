@@ -117,10 +117,10 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
         // `updatedItem` means "The new/currently stored item" in Keystone
         afterChange: async (args) => {
             const { updatedItem, operation } = args
+            await setFileMetaAfterChange(args)
             if (operation === 'create') {
                 await exportTicketsTask.delay(updatedItem.id)
             }
-            await setFileMetaAfterChange(args)
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
