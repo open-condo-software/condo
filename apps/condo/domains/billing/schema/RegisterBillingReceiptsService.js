@@ -16,7 +16,7 @@ const access = require('@condo/domains/billing/access/RegisterBillingReceiptsSer
 const { getAddressSuggestions } = require(
     '@condo/domains/common/utils/serverSideAddressApi')
 
-const RECEIPTS_LIMIT = 100
+const RECEIPTS_LIMIT = 50
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -211,17 +211,19 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
             const existingToPay = new Big(existingReceiptByKey.toPay)
             const newToPay = new Big(item.toPay)
-            const toPayNotEqual = !existingToPay.eq(newToPay)
+            const toPayIsEqual = existingToPay.eq(newToPay)
 
-            const existingServices = JSON.stringify(existingReceiptByKey.services)
-            const newServices = JSON.stringify(item.services)
-            const servicesNotEqual = existingServices !== newServices
+            const existingServices = existingReceiptByKey.services
+            // if not specified, then it is null
+            const newServices = item.services ? item.services : null
+            const servicesIsEqual = _.isEqual(existingServices, newServices)
 
-            const existingToPayDetails = JSON.stringify(existingReceiptByKey.toPayDetails)
-            const newToPayDetails = JSON.stringify(item.toPayDetails)
-            const toPayDetailsNotEqual = existingToPayDetails !== newToPayDetails
+            const existingToPayDetails = existingReceiptByKey.toPayDetails
+            // if not specified, then it is null
+            const newToPayDetails = item.toPayDetails ? item.toPayDetails : null
+            const toPayDetailsIsEqual = _.isEqual(existingToPayDetails, newToPayDetails)
 
-            const shouldUpdateReceipt = toPayNotEqual || servicesNotEqual || toPayDetailsNotEqual
+            const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual
 
             if (shouldUpdateReceipt) {
                 item.id = existingReceiptByKey.id
@@ -269,7 +271,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                     'toPay: String! ' +
                     'toPayDetails: BillingReceiptServiceToPayDetailsFieldInput ' +
-                    'services: BillingReceiptServiceFieldInput ' +
+                    'services: [BillingReceiptServiceFieldInput] ' +
 
                     'month: Int! ' +
                     'year: Int! ' +
@@ -353,7 +355,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         continue
                     }
 
-                    const property = { address: normalizedAddress }
+                    // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
+                    const property = { address }
                     const propertyKey = getBillingPropertyKey(property)
 
                     if (!propertyIndex[propertyKey]) {

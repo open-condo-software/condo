@@ -495,7 +495,7 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(data).toHaveLength(2)
             })
 
-            test('BillingReceipts are not updated and not created if they refer to the same receipt', async () => {
+            test('BillingReceipts are not changed if they refer to the same receipt', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [integration] = await createTestBillingIntegration(admin)
                 const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
@@ -505,9 +505,7 @@ describe('RegisterBillingReceiptsService', () => {
                 const payload = {
                     context: { id: billingContext.id },
                     receipts: [
-                        {
-                            ...receiptInput,
-                        },
+                        receiptInput,
                     ],
                 }
                 await registerBillingReceiptsByTestClient(admin, payload)
@@ -516,15 +514,7 @@ describe('RegisterBillingReceiptsService', () => {
                 const existingBillingReceiptId = existingBillingReceipts[0].id
                 const existingBillingReceiptUpdatedAt = existingBillingReceipts[0].updatedAt
 
-                const payload2 = {
-                    context: { id: billingContext.id },
-                    receipts: [
-                        {
-                            ...receiptInput,
-                        },
-                    ],
-                }
-                const [data] = await registerBillingReceiptsByTestClient(admin, payload2)
+                const [data] = await registerBillingReceiptsByTestClient(admin, payload)
 
                 const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
                 const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
@@ -578,12 +568,84 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(billingReceipts[0].toPay).toEqual('200.00000000')
             })
 
-            test.skip('BillingReceipts are updated if only services are different', async () => {
+            test('BillingReceipts are updated if only toPayDetails are different', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
+                const receiptInput = createRegisterBillingReceiptsPayload()
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        {
+                            ...receiptInput,
+                            toPayDetails: { 'formula':'balance + charge + recalculation + privilege + penalty', 'charge':'100.00', 'balance':'0.00', 'recalculation':null, 'privilege':null, 'penalty':null },
+                        },
+                    ],
+                }
+                const [ existingBillingReceipts ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const existingBillingReceiptId = existingBillingReceipts[0].id
+
+                const payload2 = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        {
+                            ...receiptInput,
+                            toPayDetails: { 'formula':'balance + charge + recalculation + privilege + penalty', 'charge':'150.00', 'balance':'0.00', 'recalculation':null, 'privilege':null, 'penalty':null },
+                        },
+                    ],
+                }
+                const [data] = await registerBillingReceiptsByTestClient(admin, payload2)
+
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(1)
+                expect(billingReceipts).toHaveLength(1)
+                expect(data).toHaveLength(1)
+                expect(billingReceipts[0].id).toEqual(existingBillingReceiptId)
+                expect(billingReceipts[0].toPayDetails.charge).toEqual('150.00')
             })
 
-            test.skip('BillingReceipts are updated if only toPayDetails are different', async () => {
+            test('BillingReceipts are updated if only services are different', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
+                const receiptInput = createRegisterBillingReceiptsPayload()
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        {
+                            ...receiptInput,
+                            services: undefined,
+                        },
+                    ],
+                }
+                const [ existingBillingReceipts ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const existingBillingReceiptId = existingBillingReceipts[0].id
+
+                const payload2 = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        {
+                            ...receiptInput,
+                            services: [{ 'id':'928c97ef-5289-4daa-b80e-4b9fed50c629', 'name':'Квартплата', 'toPay':'100.00' }],
+                        },
+                    ],
+                }
+                const [data] = await registerBillingReceiptsByTestClient(admin, payload2)
+
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(1)
+                expect(billingReceipts).toHaveLength(1)
+                expect(data).toHaveLength(1)
+                expect(billingReceipts[0].id).toEqual(existingBillingReceiptId)
+                expect(billingReceipts[0].services[0].id).toEqual('928c97ef-5289-4daa-b80e-4b9fed50c629')
             })
         })
     })
@@ -591,16 +653,57 @@ describe('RegisterBillingReceiptsService', () => {
     describe('Real life cases', () => {
 
         describe('Positive cases', () => {
-            test.skip('Management company loads receipts for first time', async () => {
+            test('Management company loads 50 receipts for first time', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [],
+                }
+                for (let i = 0; i < 50; ++i) { payload.receipts.push(createRegisterBillingReceiptsPayload()) }
+
+                const [data] = await registerBillingReceiptsByTestClient(admin, payload)
+
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingReceipts).toHaveLength(50)
+                expect(data).toHaveLength(50)
             })
 
+            // Something is wrong with GQL Here.. TODO (DOMA-3445) unskip this test!
             test.skip('Management company signs up for management of new property', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-            })
+                const EXISTING_ADDRESS = 'Washington st, 4'
+                const NEW_ADDRESS = 'Washington st, 5'
 
-            test.skip('Management company republish receipts only for one property', async () => {
+                const payload1 = {
+                    context: { id: billingContext.id },
+                    receipts: [],
+                }
+                for (let i = 0; i < 1; ++i) { payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
 
+                const payload2 = {
+                    context: { id: billingContext.id },
+                    receipts: [],
+                }
+                for (let i = 0; i < 1; ++i) { payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
+
+                const [data1] = await registerBillingReceiptsByTestClient(admin, payload1)
+
+                const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
+
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(data1).toHaveLength(30)
+                expect(data2).toHaveLength(30)
+                expect(billingReceipts).toHaveLength(60)
+                expect(billingProperties).toHaveLength(2)
             })
         })
 
