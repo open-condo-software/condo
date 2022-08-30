@@ -22,10 +22,7 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
             access: access.canSumPayments,
             schema: 'sumPayments(where: PaymentWhereInput!): SumPaymentsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write SumPaymentsService logic!
                 const { where } = args
-                // TODO: throw errors in a following way
-                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
                 const paymentLoader = new GqlWithKnexLoadList({
                     listKey: 'Payment',
                     fields: 'id',
