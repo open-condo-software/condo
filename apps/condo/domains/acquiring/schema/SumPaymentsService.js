@@ -3,54 +3,45 @@
  */
 
 const { GQLCustomSchema } = require('@condo/keystone/schema')
-const access = require('@condo/domains/acquiring/access/SumPaymentsService')
+const access = require('@condo/domains/acquiring/access/Payment')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { GqlWithKnexLoadList } = require('../../common/utils/serverSchema')
+const Big = require('big.js')
 
-/**
- * List of possible errors, that this custom schema can throw
- * They will be rendered in documentation section in GraphiQL for this custom schema
- */
-const errors = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: {mutation: 'sumPayments',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@condo/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.sumPayments.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
-    },
-}
+
 
 const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
     types: [
         {
             access: true,
-            // TODO(codegen): write SumPaymentsService input !
-            type: 'input SumPaymentsInput { dv: Int!, sender: JSON! }',
-        },
-        {
-            access: true,
-            // TODO(codegen): write SumPaymentsService output !
-            type: 'type SumPaymentsOutput { id: String! }',
+            type: 'type SumPaymentsOutput { sum: String! }',
         },
     ],
-    
-    mutations: [
+
+    queries: [
         {
-            access: access.canSumPayments,
-            schema: 'sumPayments(data: SumPaymentsInput!): SumPaymentsOutput',
+            access: access.canReadPayments,
+            schema: 'sumPayments(where: PaymentWhereInput!): SumPaymentsOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(codegen): write SumPaymentsService logic!
-                const { data } = args
+                const { where } = args
                 // TODO: throw errors in a following way
                 // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
+                const paymentLoader = new GqlWithKnexLoadList({
+                    listKey: 'Payment',
+                    fields: 'id',
+                    where: where,
+                })
+                const idObjects = await paymentLoader.load()
+                const aggregate = await paymentLoader.loadAggregate('SUM(amount) as "amountSum"', idObjects.map(({ id }) => id))
+                const sum = Big(aggregate.amountSum || 0).toFixed(8)
                 return {
-                    id: null,
+                    sum: sum,
                 }
             },
         },
     ],
-    
+
 })
 
 module.exports = {
