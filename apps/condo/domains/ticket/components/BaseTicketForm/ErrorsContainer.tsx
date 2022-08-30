@@ -9,9 +9,10 @@ interface IErrorsContainerProps {
     placeClassifier: string,
     categoryClassifier: string
     deadline: string
+    propertyMismatchError: string
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline  }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, property, details, placeClassifier, categoryClassifier, deadline, propertyMismatchError }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -28,16 +29,18 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, pr
         !deadline && DeadlineLabel,
     ].filter(Boolean)
 
-    const errorMessage = emptyFieldMessages && emptyFieldMessages.length > 0 &&
-        emptyFieldMessages
-            .reduce((firstError, secondError) => `${firstError}, ${secondError}`)
-            .toLocaleLowerCase()
-    
+    const requiredFields = emptyFieldMessages && emptyFieldMessages.length > 0 &&
+    emptyFieldMessages
+        .reduce((firstError, secondError) => `${firstError}, ${secondError}`)
+        .toLocaleLowerCase()
+    const requiredErrorMessage = requiredFields && ErrorsContainerTitle.concat(` ${requiredFields}`)
+
+
     return (
         isVisible && (
             <ErrorsWrapper>
-                {ErrorsContainerTitle}&nbsp;
-                {errorMessage}
+                <div>{propertyMismatchError}</div>
+                <div>{requiredErrorMessage}</div>
             </ErrorsWrapper>
         )
     )
