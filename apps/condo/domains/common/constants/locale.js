@@ -3,6 +3,7 @@ const EN = require('dayjs/locale/en')
 
 const RU_LOCALE = 'ru'
 const EN_LOCALE = 'en'
+/** @deprecated don't use this hardcode const! use conf.DEFAULT_LOCALE */
 const DEFAULT_LOCALE = RU_LOCALE
 const LOCALES = {
     [RU_LOCALE]: RU,
