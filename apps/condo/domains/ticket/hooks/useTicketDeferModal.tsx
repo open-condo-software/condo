@@ -90,6 +90,7 @@ export const useTicketDeferModal: useTicketDeferModalType = (updateTicket) => {
             <Row gutter={DEFER_DATE_MODAL_CONTENT_ROW_GUTTER}>
                 <Col span={24}>
                     <DatePicker
+                        format='DD MMMM YYYY'
                         value={deferredDate}
                         placeholder={DeferDateInputPlaceholderMessage}
                         onChange={setDeferredDate}
