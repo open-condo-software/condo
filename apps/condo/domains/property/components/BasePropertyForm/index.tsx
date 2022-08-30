@@ -161,6 +161,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                     >
                                         <AddressSuggestionsSearchInput
                                             placeholder={AddressTitle}
+                                            setAddressValidatorError={setAddressValidatorError}
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key as string) as AddressMetaField
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
