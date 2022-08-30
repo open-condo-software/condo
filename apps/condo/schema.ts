@@ -13698,8 +13698,6 @@ export enum MarketingMessageStatusType {
 }
 
 export enum MarketingMessageTransportTypeType {
-  Sms = 'sms',
-  Email = 'email',
   Push = 'push'
 }
 
@@ -22080,6 +22078,29 @@ export type Mutation = {
    * 			},
    * 			"url": {
    * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"CUSTOM_CONTENT_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": false
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": false
+   * 			},
+   * 			"marketingMessageId": {
    * 				"required": true
    * 			}
    * 		}
@@ -38573,7 +38594,8 @@ export enum SendMessageType {
   BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
-  StaffUpgradeApp = 'STAFF_UPGRADE_APP'
+  StaffUpgradeApp = 'STAFF_UPGRADE_APP',
+  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE'
 }
 
 export type SenderField = {
