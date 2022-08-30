@@ -60,4 +60,3 @@ jobs:
           echo "callcenter: https://review-${{ env.REVIEW_URL_PREFIX }}-callcenter.r.doma.ai"
           echo "eps: https://review-${{ env.REVIEW_URL_PREFIX }}-eps.r.doma.ai"
           echo "rb: https://review-${{ env.REVIEW_URL_PREFIX }}-rb.r.doma.ai"
-          echo "classifiers-api: https://review-${{ env.REVIEW_URL_PREFIX }}-ml.r.doma.ai"
