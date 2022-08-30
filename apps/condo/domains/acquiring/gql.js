@@ -42,7 +42,7 @@ const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
 
 
 const SUM_PAYMENTS_MUTATION = gql`
-    mutation sumPayments ($where: PaymentWhereInput!) {
+    query sumPayments ($where: PaymentWhereInput!) {
         result: sumPayments(where: $where) { sum }
     }
 `
