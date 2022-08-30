@@ -89,11 +89,11 @@ describe('TicketExportTask', () => {
 
             const records1 = await TicketExportTask.getAll(userClient1)
             expect(records1).toHaveLength(1)
-            expect(records1).toMatchObject([obj1])
+            expect(records1[0].id).toEqual(obj1.id)
 
             const records2 = await TicketExportTask.getAll(userClient2)
             expect(records2).toHaveLength(1)
-            expect(records2).toMatchObject([obj2])
+            expect(records2[0].id).toEqual(obj2.id)
 
             const records3 = await TicketExportTask.getAll(userClient3)
             expect(records3).toHaveLength(0)
