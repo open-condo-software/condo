@@ -26,12 +26,16 @@ const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
     const intl = useIntl()
     const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue }) => {
+                ({ getFieldsValue, getFieldError }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
+                    const propertyMismatchError = getFieldError('property').map(error => {
+                        if (error.includes(AddressNotSelected)) return error
+                    })[0]
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline
 
                     return (
@@ -56,6 +60,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading }) => {
                                         placeClassifier={placeClassifier}
                                         categoryClassifier={categoryClassifier}
                                         deadline={deadline}
+                                        propertyMismatchError={propertyMismatchError}
                                     />
                                 </Row>
                             </Col>

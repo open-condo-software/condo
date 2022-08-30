@@ -325,6 +325,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType'))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialValues, 'sectionType'))
+    const [isMatchSelectedPropertyAndInputPropertyName, setIsMatchSelectedPropertyAndInputPropertyName] = useState(true)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
     const selectedSectionTypeRef = useRef(selectedSectionType)
@@ -369,11 +370,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         if (searchValueLength === 0) {
             return Promise.resolve()
         }
-
-        return selectedPropertyId !== undefined
+        return selectedPropertyId !== undefined && isMatchSelectedPropertyAndInputPropertyName
             ? Promise.resolve()
             : Promise.reject(AddressNotSelected)
-    }, [selectedPropertyId])
+    }, [selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName])
 
     const PROPERTY_VALIDATION_RULES = useMemo(() => [...validations.property, { validator: addressValidation }], [addressValidation, validations.property])
 
@@ -503,6 +503,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     onClear={handlePropertiesSelectClear}
                                                                     placeholder={AddressPlaceholder}
                                                                     notFoundContent={AddressNotFoundContent}
+                                                                    setIsMatchSelectedPropertyAndInputPropertyName={
+                                                                        setIsMatchSelectedPropertyAndInputPropertyName
+                                                                    }
                                                                 />
                                                             </TicketFormItem>
                                                         </Col>
