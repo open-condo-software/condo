@@ -87,13 +87,13 @@ const Organization = new GQLListSchema('Organization', {
             type: Relationship,
             ref: 'OrganizationEmployee.organization',
             many: true,
-            access: userAccess.canAccessToEmployeeField,
+            access: userAccess.canAccessToEmployeesField,
         },
         relatedOrganizations: {
             type: Relationship,
             ref: 'OrganizationLink.to',
             many: true,
-            access: userAccess.readBySupportUpdateByAdminField,
+            access: userAccess.canAccessToRelatedOrganizationsField,
         },
         statusTransitions: {
             schemaDoc: 'Graph of possible transitions for statuses. If there is no transition in this graph, ' +
