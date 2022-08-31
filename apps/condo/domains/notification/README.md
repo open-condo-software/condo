@@ -37,9 +37,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     const employee = ..
 
     ...
-    const lang = (COUNTRIES[organization.country] || COUNTRIES[DEFAULT_ENGLISH_COUNTRY]).locale
     await sendMessage(context, {
-       lang,
        to: { user },
        type: INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
        meta: {

@@ -5,7 +5,7 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -138,7 +138,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
                  * Use DEFAULT_LOCALE if organization.country is unknown
                  * (not defined within @condo/domains/common/constants/countries)
                  */
-                const lang = get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
+                const lang = get(COUNTRIES, [get(organization, 'country', conf.DEFAULT_LOCALE), 'locale'], conf.DEFAULT_LOCALE)
                 const period = null // TODO calculate this prop after implementation submit period in organisation
                 return { ...meter, period, lang }
             }

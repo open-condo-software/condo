@@ -5,7 +5,7 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { getStartDates, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
@@ -37,8 +37,8 @@ const prepareAndSendNotification = async (context, resident, period) => {
     if (isEmpty(period)) throw new Error('period is required to send message')
 
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
-    const country = get(resident, 'residentOrganization.country')
-    const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
+    const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
+    const locale = get(COUNTRIES, country).locale
     const notificationKey = makeMessageKey(period, resident.property.id, resident.id)
     const organizationId = get(resident, 'residentOrganization.id')
 

@@ -16,7 +16,6 @@ async function sendToCustomer (data) {
         await sendMessage(keystone, {
             ...dvSenderFields,
             to: { email: CUSTOMER_EMAIL },
-            lang: 'en',
             type: CUSTOMER_IMPORTANT_NOTE_TYPE,
             meta: { dv: 1, data },
         })

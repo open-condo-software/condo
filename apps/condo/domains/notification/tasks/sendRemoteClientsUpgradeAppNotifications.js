@@ -4,7 +4,6 @@
 
 const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
 const conf = require('@condo/config')
-const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { isEmpty } = require('lodash')
@@ -35,7 +34,6 @@ const prepareAndSendNotification = async (context, remoteClient) => {
         url: `${conf.SERVER_URL}/upgrateApp`,
     }
     const messageData = {
-        lang: DEFAULT_LOCALE,
         to: { user: { id: remoteClient.owner.id } },
         type: messageType,
         meta: { dv: 1, data },
