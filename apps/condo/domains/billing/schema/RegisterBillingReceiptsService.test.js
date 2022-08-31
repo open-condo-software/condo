@@ -672,8 +672,7 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(data).toHaveLength(50)
             })
 
-            // Something is wrong with GQL Here.. TODO (DOMA-3445) unskip this test!
-            test.skip('Management company signs up for management of new property', async () => {
+            test('Management company signs up for management of new property', async () => {
                 const [organization] = await createTestOrganization(admin)
                 const [integration] = await createTestBillingIntegration(admin)
                 const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
@@ -685,24 +684,34 @@ describe('RegisterBillingReceiptsService', () => {
                     context: { id: billingContext.id },
                     receipts: [],
                 }
-                for (let i = 0; i < 1; ++i) { payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
+                for (let i = 0; i < 20; ++i) { payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
+
+                const [data1] = await registerBillingReceiptsByTestClient(admin, payload1)
 
                 const payload2 = {
                     context: { id: billingContext.id },
                     receipts: [],
                 }
-                for (let i = 0; i < 1; ++i) { payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
-
-                const [data1] = await registerBillingReceiptsByTestClient(admin, payload1)
+                for (let i = 0; i < 20; ++i) { payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
 
                 const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
+
+                const payload3 = {
+                    context: { id: billingContext.id },
+                    receipts: [],
+                }
+                for (let i = 0; i < 5; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
+                for (let i = 5; i < 10; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
+
+                const [data3] = await registerBillingReceiptsByTestClient(admin, payload3)
 
                 const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
                 const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
-                expect(data1).toHaveLength(30)
-                expect(data2).toHaveLength(30)
-                expect(billingReceipts).toHaveLength(60)
+                expect(data1).toHaveLength(20)
+                expect(data2).toHaveLength(20)
+                expect(data3).toHaveLength(10)
+                expect(billingReceipts).toHaveLength(50)
                 expect(billingProperties).toHaveLength(2)
             })
         })
