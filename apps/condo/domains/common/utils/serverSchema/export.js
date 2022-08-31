@@ -9,6 +9,8 @@ const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/task
 const Upload = require('graphql-upload/public/Upload')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const conf = require('@condo/config')
+const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
+const fs = require('fs')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 
@@ -85,7 +87,6 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
         }
 
         await sleep(SLEEP_TIMEOUT)
-        console.log(offset)
     } while (offset < totalRecordsCount)
 }
 /**
@@ -132,28 +133,65 @@ const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) =>
 
 // TODO(antonal): write tests with mocks of `taskServerUtils`. Currently this util is tested for domain-specific usage
 
-const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => (
-    loadRecordsAndConvertToFileRows({
+const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
+    let rows = []
+
+    await processRecords({
         context,
         loadRecordsBatch,
-        convertRecordToFileRow,
-        taskServerUtils,
-        totalRecordsCount,
-        baseAttrs,
-        taskId,
+        processRecordsBatch: async (batch) => {
+            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+            rows.push(...convertedRecords)
+        },
+        taskServerUtils, taskId, totalRecordsCount, baseAttrs,
     })
-        .then(buildExportFile)
-        .then(async ({ stream, filename, mimetype, encoding, meta }) => {
-            const file = buildUploadInputFrom({ stream, filename, mimetype, encoding, meta })
-            return await taskServerUtils.update(context, taskId, {
-                ...baseAttrs,
-                status: COMPLETED,
-                file,
-            })
-        })
-)
+
+    const file = buildUploadInputFrom(await buildExportFile(rows))
+
+    await taskServerUtils.update(context, taskId, {
+        ...baseAttrs,
+        status: COMPLETED,
+        file,
+    })
+}
+
+const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
+    const filename = getTmpFile('csv')
+    const writeStream = fs.createWriteStream(filename, { encoding: 'utf8' })
+    let isFirstLine = true
+    const listkey = taskServerUtils.gql.SINGULAR_FORM
+
+    await processRecords({
+        context, loadRecordsBatch,
+        processRecordsBatch: async (batch) => {
+            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+            if (isFirstLine) {
+                // NOTE(pahaz): need to write headers
+                writeStream.write(Object.keys(convertedRecords[0]).join(',') + '\n')
+                isFirstLine = false
+            }
+            writeStream.write(convertedRecords.map(row => Object.values(row).map(JSON.stringify).join(',')).join('\n') + '\n')
+        },
+        baseAttrs, taskServerUtils, totalRecordsCount, taskId,
+    })
+
+    writeStream.close()
+
+    const stream = fs.createReadStream(filename, { encoding: 'utf8' })
+    const file = buildUploadInputFrom({
+        stream, filename: 'export.csv', mimetype: 'text/csv', encoding: 'utf8',
+        meta: { listkey, id: taskId },
+    })
+
+    return await taskServerUtils.update(context, taskId, {
+        ...baseAttrs,
+        status: COMPLETED,
+        file,
+    })
+}
 
 module.exports = {
     loadRecordsAndConvertToFileRows,
     exportRecords,
+    exportRecordsAsCsvFile,
 }
