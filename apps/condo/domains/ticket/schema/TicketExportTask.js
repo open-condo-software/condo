@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketExportTask')
+const { canOnlyServerSideWithoutUserRequest } = require('@condo/keystone/access')
 const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING } = require('@condo/domains/common/constants/export')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
@@ -33,6 +34,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             options: EXPORT_STATUS_VALUES,
             isRequired: true,
             defaultValue: PROCESSING,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: true,
+            },
         },
 
         format: {
@@ -40,6 +46,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             type: Select,
             options: EXPORT_FORMAT_VALUES,
             isRequired: true,
+            access: {
+                read: true,
+                create: true,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         exportedRecordsCount: {
@@ -47,24 +58,44 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             type: Integer,
             isRequired: true,
             defaultValue: 0,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         totalRecordsCount: {
-            schemaDoc: 'Total records to export. Can be unknown due to implementation specifics',
+            schemaDoc: 'Total records to export that will be determined at server side in export operation',
             type: Integer,
             isRequired: false,
             defaultValue: 0,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         file: {
             schemaDoc: 'Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.',
             type: File,
             adapter: TicketExportTaskFileAdapter,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         meta: {
             schemaDoc: 'Stores information about query and ids of exported and failed records',
             type: Json,
+            access: {
+                read: true,
+                create: canOnlyServerSideWithoutUserRequest,
+                update: canOnlyServerSideWithoutUserRequest,
+            },
         },
 
         where: {
@@ -72,6 +103,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             type: Json,
             isRequired: true,
             // TODO(antonal): add validation by reusing `TicketWhereInput` as a GraphQL type
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         sortBy: {
@@ -79,6 +115,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             type: Json,
             isRequired: true,
             // TODO(antonal): add validation by reusing `SortTicketsBy` as a GraphQL type
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         locale: {
@@ -89,6 +130,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
                 resolveInput: async ({ context }) => {
                     return extractReqLocale(context.req) || conf.DEFAULT_LOCALE
                 },
+            },
+            access: {
+                read: true,
+                create: true,
+                update: false,
             },
         },
 
@@ -102,6 +148,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
                     return normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 },
             },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
         user: {
@@ -111,6 +162,11 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             isRequired: true,
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             knexOptions: { isNotNullable: true },
+            access: {
+                read: true,
+                create: true,
+                update: false,
+            },
         },
 
     },
