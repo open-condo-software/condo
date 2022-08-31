@@ -107,12 +107,16 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
     const propertiesIndexById = Object.fromEntries(properties.map((item) => ([item.id, item])))
 
     const existingAccountQuery = {
-        OR: accounts.map(item => ({
-            number: item.number,
-            unitName: item.unitName,
-            unitType: item.unitType,
-            property: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') },
-        })),
+        OR: accounts.map(item => (
+            {
+                AND: [
+                    { number: item.number },
+                    { unitName: item.unitName },
+                    { unitType: item.unitType },
+                    { property: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } },
+                ],
+            }
+        )),
     }
     const existingAccounts = await find('BillingAccount', {
         ...existingAccountQuery,
@@ -170,12 +174,16 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     const accountsIndexById = Object.fromEntries(accounts.map((item) => ([item.id, item])))
 
     const existingReceiptsQuery = {
-        OR: receipts.map(item => ({
-            period: item.period,
-            category: { id: _.get(item, ['category', 'id']) },
-            property: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') },
-            account: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') },
-        })),
+        OR: receipts.map(item => (
+            {
+                AND: [
+                    { period: item.period },
+                    { category: { id: _.get(item, ['category', 'id']) } },
+                    { property: { id: _.get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } },
+                    { account: { id: _.get(accountsIndex[getBillingAccountKey(item.account)], 'id') } },
+                ],
+            }
+        )),
     }
     const existingReceipts = await find('BillingReceipt', {
         ...existingReceiptsQuery,
