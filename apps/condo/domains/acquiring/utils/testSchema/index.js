@@ -611,6 +611,5 @@ module.exports = {
     createTestPaymentsFilterTemplate,
     updateTestPaymentsFilterTemplate,
     registerMultiPaymentForOneReceiptByTestClient,
-    sumPaymentsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
