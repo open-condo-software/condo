@@ -44,20 +44,8 @@ const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
  * Loads records batch with specified offset and limit
  * @typedef LoadRecordsBatchFunction
  */
-
-/**
- * Queries records in batches to avoid database overload, converts them to file rows representation
- * @param {Object} args
- * @param args.context - Keystone context
- * @param {LoadRecordsBatchFunction} args.loadRecordsBatch - function to load a batch of records
- * @param {ConvertRecordToFileRowFunction} args.convertRecordToFileRow - function to convert record to file row JSON representation
- * @param {ExportTask} args.task - task schema record that needs to be updated during operation progress
- * @param args.taskServerUtils - utils from serverSchema
- * @return {Promise<*[]>} - JSON representation of file rows, that will be saved to file
- */
-const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, convertRecordToFileRow, taskServerUtils, taskId, totalRecordsCount, baseAttrs }) => {
+const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, taskServerUtils, taskId, totalRecordsCount, baseAttrs }) => {
     let offset = 0
-    let rows = []
     let task // a fresh record we are working with
     const taskSchemaName = taskServerUtils.gql.SINGULAR_FORM
     let lastProgress = Date.now()
@@ -68,26 +56,22 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
         const taskStatus = get(task, 'status')
         if (!task || taskStatus !== TASK_PROCESSING_STATUS) {
             logger.info({ msg: 'status != processing', taskStatus, taskSchemaName, taskId })
-            return []
+            return
         }
 
         const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
-        // TODO(pahaz): comment progress for future!
-        logger.info({ msg: 'progress', offset, batchLength: batch.length, totalLength: rows.length, taskSchemaName, taskId })
         if (batch.length === 0) {
             // NOTE(pahaz): someone delete some records during the export
-            logger.info({ msg: 'empty batch', batchLength: batch.length, totalLength: rows.length, taskSchemaName, taskId })
+            logger.info({ msg: 'empty batch', offset, batchLength: batch.length, taskSchemaName, taskId })
             task = await taskServerUtils.update(context, taskId, {
                 ...baseAttrs,
-                totalRecordsCount: rows.length,
-                exportedRecordsCount: rows.length,
+                totalRecordsCount: offset,
+                exportedRecordsCount: offset,
             })
-
-            return rows
+            return
         }
 
-        const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-        rows.push(...convertedRecords)
+        await processRecordsBatch(batch)
 
         offset += batch.length
 
@@ -101,8 +85,31 @@ const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, conv
         }
 
         await sleep(SLEEP_TIMEOUT)
+        console.log(offset)
     } while (offset < totalRecordsCount)
-
+}
+/**
+ * Queries records in batches to avoid database overload, converts them to file rows representation
+ * @param {Object} args
+ * @param args.context - Keystone context
+ * @param {LoadRecordsBatchFunction} args.loadRecordsBatch - function to load a batch of records
+ * @param {ConvertRecordToFileRowFunction} args.convertRecordToFileRow - function to convert record to file row JSON representation
+ * @param {ExportTask} args.task - task schema record that needs to be updated during operation progress
+ * @param args.taskServerUtils - utils from serverSchema
+ * @return {Promise<*[]>} - JSON representation of file rows, that will be saved to file
+ */
+const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, convertRecordToFileRow, taskServerUtils, taskId, totalRecordsCount, baseAttrs }) => {
+    let rows = []
+    await processRecords({
+        context,
+        loadRecordsBatch,
+        processRecordsBatch: async (batch) => {
+            console.log(batch)
+            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
+            rows.push(...convertedRecords)
+        },
+        taskServerUtils, taskId, totalRecordsCount, baseAttrs,
+    })
     return rows
 }
 
