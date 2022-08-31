@@ -7,7 +7,7 @@ const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 /**
  * Closes tickets that are in the "completed" status for 7 days
  */
-const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '0 1 * * *', async () => {
+const closeCompletedTickets = async () => {
     const { keystone } = await getSchemaCtx('Ticket')
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const weekAgo = dayjs().startOf('day').subtract('7', 'day').toISOString()
@@ -25,6 +25,8 @@ const closeCompletedTicketsTask = createCronTask('closeCompletedTickets', '0 1 *
             sender: { fingerprint: 'auto-close', dv: 1 },
         })
     }
-})
+}
 
-module.exports = closeCompletedTicketsTask
+module.exports = {
+    closeCompletedTickets: createCronTask('closeCompletedTickets', '0 1 * * *', closeCompletedTickets),
+}

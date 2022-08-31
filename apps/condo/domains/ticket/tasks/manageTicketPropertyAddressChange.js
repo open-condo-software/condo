@@ -25,4 +25,6 @@ async function manageTicketPropertyAddressChange (propertyId, userInfo) {
     }
 }
 
-module.exports = createTask('manageTicketPropertyAddressChange', manageTicketPropertyAddressChange)
+module.exports = {
+    manageTicketPropertyAddressChange: createTask('manageTicketPropertyAddressChange', manageTicketPropertyAddressChange),
+}
