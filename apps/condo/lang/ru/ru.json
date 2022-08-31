@@ -971,7 +971,7 @@
   "ticket.status.CLOSED.name": "Закрыта",
   "ticket.source.EMAIL.name": "Эл. почта (e-mail)",
   "ticket.source.MOBILE_APP.name": "ЛК приложение",
-  "ticket.source.REMOTE_SYSTEM.name": "Портал",
+  "ticket.source.REMOTE_SYSTEM.name": "Государственный портал",
   "ticket.source.CALL.name": "Звонок",
   "ticket.source.OTHER.name": "Другое",
   "ticket.source.VISIT.name": "Визит в офис",

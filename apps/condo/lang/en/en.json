@@ -971,7 +971,7 @@
   "ticket.status.CLOSED.name": "Closed",
   "ticket.source.EMAIL.name": "E-mail",
   "ticket.source.MOBILE_APP.name": "Mobile app",
-  "ticket.source.REMOTE_SYSTEM.name": "State portal",
+  "ticket.source.REMOTE_SYSTEM.name": "Government portal",
   "ticket.source.CALL.name": "Phone call",
   "ticket.source.OTHER.name": "Other",
   "ticket.source.VISIT.name": "Office visit",
