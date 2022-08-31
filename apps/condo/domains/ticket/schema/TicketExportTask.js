@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/ticket/access/TicketExportTask')
 const { canOnlyServerSideWithoutUserRequest } = require('@condo/keystone/access')
-const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING, COMPLETED, ERROR } = require('@condo/domains/common/constants/export')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
@@ -171,7 +171,16 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
 
     },
     hooks: {
-        // `updatedItem` means "The new/currently stored item" in Keystone
+        validateInput: async ({ resolvedData, existingItem, addValidationError }) => {
+            if (existingItem) {
+                if (resolvedData['status'] && existingItem['status'] === COMPLETED) {
+                    addValidationError('status is already completed')
+                }
+                if (resolvedData['status'] && existingItem['status'] === ERROR) {
+                    addValidationError('status is already error')
+                }
+            }
+        },
         afterChange: async (args) => {
             const { updatedItem, operation } = args
             await setFileMetaAfterChange(args)
