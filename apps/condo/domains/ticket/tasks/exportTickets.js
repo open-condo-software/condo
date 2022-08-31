@@ -21,6 +21,7 @@ const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const { ERROR } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
+const { exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -30,6 +31,7 @@ const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 const HEADER_DATE_FORMAT = 'DD.MM.YYYY'
 
 const EMPTY_VALUE = '—'
+const MAX_XLSX_FILE_ROWS = 10000
 
 const buildReviewValuesTranslationsFrom = (locale) => ({
     [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
@@ -53,7 +55,7 @@ const renderComment = (comment, locale) => {
  * @param ticket - record of Ticket with related objects converted by `GqlWithKnexLoadList` to its display names (for example `Ticket.source` -> `Ticket.source.name`)
  * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
  */
-const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifier }) => {
+const ticketsToRows = async ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
@@ -210,26 +212,41 @@ async function exportTickets (taskId) {
 
     const { where, sortBy } = task
     const ticketsLoader = await buildTicketsLoader({ where, sortBy })
-
     const totalRecordsCount = await Ticket.count(context, where)
 
-    await exportRecords({
-        context,
-        loadRecordsBatch: async (offset, limit) => {
-            const tickets = await ticketsLoader.loadChunk(offset, limit)
-            const classifierRuleIds = compact(map(tickets, 'classifier'))
-            classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
-            // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
-            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
-            return tickets
-        },
-        convertRecordToFileRow: (ticket) => convertRecordToFileRow({ task, ticket, indexedStatuses, classifier }),
-        buildExportFile: (rows) => buildExportFile({ rows, task }),
-        baseAttrs,
-        taskServerUtils: TicketExportTask,
-        totalRecordsCount,
-        taskId,
-    })
+    const convertRecordToFileRow = (ticket) => ticketsToRows({ task, ticket, indexedStatuses, classifier })
+    const loadRecordsBatch = async (offset, limit) => {
+        const tickets = await ticketsLoader.loadChunk(offset, limit)
+        const classifierRuleIds = compact(map(tickets, 'classifier'))
+        classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
+        // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
+        this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
+        return tickets
+    }
+
+    if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
+        await exportRecordsAsCsvFile({
+            context,
+            loadRecordsBatch,
+            convertRecordToFileRow,
+            baseAttrs,
+            taskServerUtils: TicketExportTask,
+            totalRecordsCount,
+            taskId,
+        })
+    } else {
+        await exportRecords({
+            context,
+            loadRecordsBatch,
+            convertRecordToFileRow,
+            buildExportFile: (rows) => buildExportFile({ rows, task }),
+            baseAttrs,
+            taskServerUtils: TicketExportTask,
+            totalRecordsCount,
+            taskId,
+        })
+    }
+
 }
 
 module.exports = {
