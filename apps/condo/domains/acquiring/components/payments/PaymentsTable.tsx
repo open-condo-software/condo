@@ -1,10 +1,9 @@
 import { FilterFilled } from '@ant-design/icons'
-import { useQuery } from "@apollo/client";
+import { useQuery } from '@apollo/client'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
-import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
-import { SUM_PAYMENTS_MUTATION } from '@condo/domains/acquiring/gql'
+import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_MUTATION } from '@condo/domains/acquiring/gql'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
@@ -83,14 +82,14 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
-function getSum(whereQuery, paymentStatus) {
+function GetSum (whereQuery, paymentStatus) {
     const { data, loading } = useQuery(SUM_PAYMENTS_MUTATION, {
         fetchPolicy: 'network-only',
         variables: {
             where: {
                 ...whereQuery,
-                status: paymentStatus
-            }
+                status: paymentStatus,
+            },
         },
     })
     return loading ? 0 : Number(data.result.sum)
@@ -175,8 +174,8 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         fetchPolicy: 'network-only',
     })
 
-    const sumDonePayments = getSum(searchPaymentsQuery, PAYMENT_DONE_STATUS)
-    const sumWithdrawnPayments = getSum(searchPaymentsQuery, PAYMENT_WITHDRAWN_STATUS)
+    const sumDonePayments = GetSum(searchPaymentsQuery, PAYMENT_DONE_STATUS)
+    const sumWithdrawnPayments = GetSum(searchPaymentsQuery, PAYMENT_WITHDRAWN_STATUS)
     const sumAllPayments = sumDonePayments + sumWithdrawnPayments
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
