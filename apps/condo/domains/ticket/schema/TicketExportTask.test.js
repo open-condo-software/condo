@@ -24,11 +24,34 @@ const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask
 
 describe('TicketExportTask', () => {
     describe('validations', () => {
-        test.todo('cannot have PROCESSING status on create')
-
         it('throw error if you trying to change status of already completed export', async () => {
+            const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-            const [obj] = await createTestTicketExportTask(userClient, userClient.user, { status: COMPLETED })
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageTickets: true,
+                canManageTicketComments: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+            const [obj] = await createTestTicketExportTask(userClient, userClient.user, {
+                where: {
+                    organization: {
+                        id: organization.id,
+                    },
+                },
+                // We need actual data here to get `exportTickets` worker succesfully be executed
+                // Without `sortBy`, a `GqlWithKnexLoadList.loadChunk` util will be executed with error
+                sortBy: 'createdAt_ASC',
+                locale: 'ru',
+                timeZone: 'Europe/Moscow',
+            })
+            // Worker `exportTickets`, that is launched in `afterChange` hook of `TicketExportTask`, will update this task to `COMPLETED` status
+            await waitFor(async () => {
+                const updatedTaskByWorker = await TicketExportTask.getOne(userClient, { id: obj.id })
+                expect(updatedTaskByWorker.status).toEqual('completed')
+            })
+
             await expectToThrowValidationFailureError(
                 async () => await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED }),
                 'status is already completed',
