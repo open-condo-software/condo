@@ -4,7 +4,7 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -45,8 +45,8 @@ const getMessageTypeAndDebt = (toPay, toPayCharge) => {
  */
 const prepareAndSendNotification = async (context, receipt, resident) => {
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
-    const country = get(resident, 'residentOrganization.country')
-    const locale = get(COUNTRIES, country || DEFAULT_LOCALE).locale
+    const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
+    const locale = get(COUNTRIES, country).locale
     const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
     const toPayValue = parseFloat(receipt.toPay)
     const toPay = isNaN(toPayValue) ? null : toPayValue

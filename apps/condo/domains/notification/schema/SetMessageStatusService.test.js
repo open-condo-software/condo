@@ -7,7 +7,6 @@ const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const { makeLoggedInAdminClient, UUID_RE } = require('@condo/keystone/test.utils')
 
-const { DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 
 const { setMessageStatusByTestClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
@@ -41,7 +40,6 @@ describe('SetMessageStatusService', () => {
 
         const ticketId = faker.datatype.uuid()
         const extraAttrs = {
-            lang: DEFAULT_LOCALE,
             to: { user: { id: assignee.user.id } },
             type: TICKET_ASSIGNEE_CONNECTED_TYPE,
             meta: {

@@ -5,7 +5,7 @@ const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
@@ -178,7 +178,7 @@ const getOrganizationLang = async (context, id) => {
      * Use DEFAULT_LOCALE if organization.country is unknown
      * (not defined within @condo/domains/common/constants/countries)
      */
-    return get(COUNTRIES, get(organization, 'country.locale'), DEFAULT_LOCALE)
+    return get(COUNTRIES, [get(organization, 'country', conf.DEFAULT_LOCALE), 'locale'], conf.DEFAULT_LOCALE)
 }
 
 // TODO(ekabardinsky): not tested. :(

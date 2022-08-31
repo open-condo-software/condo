@@ -4,7 +4,7 @@ const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const { getByCondition, find, getById } = require('@condo/keystone/schema')
 
-const { COUNTRIES, DEFAULT_LOCALE } = require('@condo/domains/common/constants/countries')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 const {
@@ -128,8 +128,8 @@ const sendTicketNotifications = async (requestData) => {
      * Use DEFAULT_LOCALE if organization.country is unknown
      * (not defined within @condo/domains/common/constants/countries)
      */
-    const organizationCountry = get(organization, 'country')
-    const lang = get(COUNTRIES, [organizationCountry, 'locale'], DEFAULT_LOCALE)
+    const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
+    const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         const userId = nextAssigneeId || prevAssigneeId
@@ -279,7 +279,7 @@ const sendTicketCommentNotifications = async (requestData) => {
          * Use DEFAULT_LOCALE if organization.country is unknown
          * (not defined within @condo/domains/common/constants/countries)
          */
-        const lang = get(COUNTRIES, [organization.country, 'locale'], DEFAULT_LOCALE)
+        const lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
 
         const where = {
             user: { id: clientId },

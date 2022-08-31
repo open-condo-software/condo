@@ -162,11 +162,8 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         to: { email: userData.email },
                     })
                 }
-                // TODO(Dimitreee): use locale from .env
-                const lang = COUNTRIES[RUSSIA_COUNTRY].locale
                 await Promise.all(sendChannels.map(async channel => {
                     await sendMessage(context, {
-                        lang,
                         to: {
                             user: {
                                 id: user.id,
@@ -180,7 +177,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                             dv: 1,
                         },
                         sender,
-                        dv: 1,
                     })
                 }))
                 return await getById('User', user.id)
