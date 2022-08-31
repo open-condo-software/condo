@@ -1,3 +1,4 @@
+import { get } from 'lodash'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@condo/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
@@ -15,6 +16,7 @@ type ValidatorTypes = {
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
     tinValidator: (country: string) => Rule
+    addressValidator: (selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName) => Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -37,6 +39,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
     const { allowLandLine } = settings
 
@@ -134,6 +137,22 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
+    const addressValidator: (selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName) => Rule =
+        (selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName) => {
+            return {
+                validator: (_, value) => {
+                    const searchValueLength = get(value, 'length', 0)
+                    if (searchValueLength === 0
+                    ) {
+                        return Promise.resolve()
+                    }
+                    if (selectedPropertyId !== undefined && isMatchSelectedPropertyAndInputPropertyName) {
+                        return Promise.resolve()
+                    } else return Promise.reject(AddressNotSelected)
+                },
+            }
+        }
+
     return {
         changeMessage,
         requiredValidator,
@@ -146,5 +165,6 @@ export const useValidations: UseValidations = (settings = {}) => {
         maxLengthValidator,
         numberValidator,
         tinValidator,
+        addressValidator,
     }
 }
