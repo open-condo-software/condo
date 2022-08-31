@@ -51,6 +51,7 @@ export const GlobalAppsContainer: React.FC = () => {
     const appUrls = objs.map(app => app.appUrl)
     const appOrigins = appUrls.map(extractOrigin)
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
+    const isGlobalAppsFetched = useRef(false)
     const [modals, setModals] = useState<{ [id: string]: ModalInfo }>({})
     const [isDebug, setIsDebug] = useState(false)
 
@@ -241,8 +242,9 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [handleMessage])
 
     useEffect(() => {
-        if (!loading && !objs.length && !isNull(user)) {
+        if (!isGlobalAppsFetched.current && !loading && !objs.length && !isNull(user)) {
             refetch()
+            isGlobalAppsFetched.current = true
         }
     }, [user, loading, objs])
 
