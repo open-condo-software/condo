@@ -1,0 +1,42 @@
+# Opens PR (if not opened yet) on force-push caused by packages.ui.rebase.tokens.yml workflow
+name: Open PR from "figma/promotion" branch
+
+on:
+  push:
+    branches:
+      - 'figma/promotion'
+
+jobs:
+  openPR:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          ref: master
+
+      - name: Reset promotion branch
+        run: |
+          git fetch origin figma/promotion:figma/promotion
+          git reset --hard figma/promotion
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4
+        id: cpr
+        with:
+          token: ${{ secrets.DESIGN_BOT_PAT }}
+          branch: figma/promotion
+          labels: 🤖 Automatic PR, 🎨 UI-kit, 👨🏻‍🎨 Request UI-kit review, ✋🙂 Review please
+          title: '[UI-kit] Update figma tokens'
+          assignees: SavelevMatthew
+          reviewers: SavelevMatthew
+
+      - name: Print PR outputs
+        if: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
