@@ -8,8 +8,7 @@ const get = require('lodash/get')
  * @returns {string}
  */
 const extractReqLocale = (req) => {
-    const conf = require('@condo/config')
-    if (!req) return conf.DEFAULT_LOCALE
+    if (!req) return null
     try {
         const cookieLocale = nextCookie({ req }).locale
         // NOTE: Necessary for the correct work of the locale on the share page in Telegram
@@ -17,9 +16,10 @@ const extractReqLocale = (req) => {
         const headersLocale = get(req, 'headers.accept-language', '').slice(0, 2)
         const reqLocale = get(req, 'locale')
 
-        return (cookieLocale || queryLocale || headersLocale || reqLocale || conf.DEFAULT_LOCALE).toLowerCase()
+        const result = (cookieLocale || queryLocale || headersLocale || reqLocale)
+        return (result) ? result.toLowerCase() : null
     } catch {
-        return conf.DEFAULT_LOCALE
+        return null
     }
 }
 
