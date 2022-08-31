@@ -47440,7 +47440,7 @@ export type TicketExportTask = {
   format?: Maybe<TicketExportTaskFormatType>;
   /**  How many records at the moment are exported  */
   exportedRecordsCount?: Maybe<Scalars['Int']>;
-  /**  Total records to export. Can be unknown due to implementation specifics  */
+  /**  Total records to export that will be determined at server side in export operation  */
   totalRecordsCount?: Maybe<Scalars['Int']>;
   /**  Meta information about file, saved outside of database somewhere. Shape of meta information JSON object is specific to file adapter, used by saving a file.  */
   file?: Maybe<File>;

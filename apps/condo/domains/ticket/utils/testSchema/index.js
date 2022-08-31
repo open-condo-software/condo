@@ -574,7 +574,6 @@ async function createTestTicketExportTask (client, user, extraAttrs = {}) {
         dv: 1,
         sender,
         format: EXCEL,
-        status: PROCESSING,
         where: {},
         sortBy: {},
         locale: 'ru',
