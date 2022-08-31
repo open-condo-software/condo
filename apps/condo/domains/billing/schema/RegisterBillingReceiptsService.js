@@ -430,14 +430,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const { createdReceipts, updatedReceipts, notChangedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
                 // To form a result with partial success a list of promises needs to be returned from function
+                // NOTE: getById is a hack that help to resolve complex fields
                 const resultData = [...createdReceipts, ...updatedReceipts].map(item => getById('BillingReceipt', item.id))
                 const resultErrors = partialErrors.map(err => (new Promise(() => { throw err })))
 
                 const result = [...resultData, ...resultErrors]
 
                 return result
-
-                // return createdReceipts.map(async x => await getById('BillingReceipt', x.id))
             },
         },
     ],
