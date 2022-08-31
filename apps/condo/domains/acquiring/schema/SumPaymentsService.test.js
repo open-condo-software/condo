@@ -4,7 +4,7 @@
 
 const { makeClient } = require('@condo/keystone/test.utils')
 
-const { makePayer, createTestPayment,} = require('../utils/testSchema')
+const { makePayer, createTestPayment } = require('../utils/testSchema')
 const { SUM_PAYMENTS_MUTATION } = require('../gql')
 const Big = require('big.js')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('../../user/utils/testSchema')
@@ -18,10 +18,10 @@ describe('SumPaymentsService', () => {
         const {
             data: {
                 result: {
-                    sum
+                    sum,
                 },
             },
-        } = await admin.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await admin.query(SUM_PAYMENTS_MUTATION, { where: where })
 
         expect(Big(sum).eq(payment.amount)).toBeTruthy()
     })
@@ -37,10 +37,10 @@ describe('SumPaymentsService', () => {
         const {
             data: {
                 result: {
-                    sum
+                    sum,
                 },
             },
-        } = await admin.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await admin.query(SUM_PAYMENTS_MUTATION, { where: where })
         expect(Big(sum).eq(totalSum)).toBeTruthy()
     })
     test('admin: sum zero payments', async () => {
@@ -49,10 +49,10 @@ describe('SumPaymentsService', () => {
         const {
             data: {
                 result: {
-                    sum
+                    sum,
                 },
             },
-        } = await admin.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await admin.query(SUM_PAYMENTS_MUTATION, { where: where })
 
         expect(Big(sum).eq(Big(0))).toBeTruthy()
     })
@@ -69,10 +69,10 @@ describe('SumPaymentsService', () => {
         const {
             data: {
                 result: {
-                    sum
+                    sum,
                 },
             },
-        } = await support.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await support.query(SUM_PAYMENTS_MUTATION, { where: where })
         expect(Big(sum).eq(totalSum)).toBeTruthy()
     })
     test('employee with canReadPayments can sum payments', async () => {
@@ -92,10 +92,10 @@ describe('SumPaymentsService', () => {
         const {
             data: {
                 result: {
-                    sum
+                    sum,
                 },
             },
-        } = await employeeClient.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await employeeClient.query(SUM_PAYMENTS_MUTATION, { where: where })
 
 
         expect(Big(sum).eq(totalSum)).toBeTruthy()
@@ -114,7 +114,7 @@ describe('SumPaymentsService', () => {
         const {
             data: { result },
             errors,
-        } = await employeeClient.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await employeeClient.query(SUM_PAYMENTS_MUTATION, { where: where })
 
         expect(result).toBeNull()
         expect(errors).toHaveLength(1)
@@ -128,7 +128,7 @@ describe('SumPaymentsService', () => {
         const {
             data: { result },
             errors,
-        } = await anonymous.query(SUM_PAYMENTS_MUTATION, {where: where})
+        } = await anonymous.query(SUM_PAYMENTS_MUTATION, { where: where })
 
         expect(result).toBeNull()
         expect(errors).toHaveLength(1)
