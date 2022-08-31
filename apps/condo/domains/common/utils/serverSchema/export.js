@@ -1,32 +1,39 @@
-const falsey = require('falsey')
-const pino = require('pino')
-const { get } = require('lodash')
-const { EXPORT_PROCESSING_BATCH_SIZE } = require('../../constants/export')
-const { COMPLETED } = require('@condo/domains/common/constants/export')
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
-const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')
-const Upload = require('graphql-upload/public/Upload')
-const { sleep } = require('@condo/domains/common/utils/sleep')
-const conf = require('@condo/config')
-const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const fs = require('fs')
+const dayjs = require('dayjs')
+const { get } = require('lodash')
+const Upload = require('graphql-upload/public/Upload')
+
+const conf = require('@condo/config')
+const { getLogger } = require('@condo/keystone/logging')
+
+const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
+const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')
+const { sleep } = require('@condo/domains/common/utils/sleep')
+const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 
-const logger = pino({ name: 'export', enabled: falsey(process.env.DISABLE_LOGGING) })
-
-const errors = {
-    NOTHING_TO_EXPORT: {
-        code: BAD_USER_INPUT,
-        type: NOTHING_TO_EXPORT,
-        message: 'No records to export for {schema} with id "{id}"',
-        messageForUser: 'tasks.export.error.NOTHING_TO_EXPORT',
-    },
-}
+const logger = getLogger('export')
 
 // Rough solution to offload server in case of exporting many thousands of records
 const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
+
+const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) => {
+    const uploadData = {
+        createReadStream: () => {
+            return stream
+        },
+        filename,
+        mimetype,
+        encoding,
+        meta,
+    }
+    const uploadInput = new Upload()
+    uploadInput.promise = new Promise(resolve => {
+        resolve(uploadData)
+    })
+    return uploadInput
+}
 
 /**
  * Common fields of export task record
@@ -46,6 +53,24 @@ const SLEEP_TIMEOUT = conf.WORKER_BATCH_OPERATIONS_SLEEP_TIMEOUT || 200
  * Loads records batch with specified offset and limit
  * @typedef LoadRecordsBatchFunction
  */
+
+/**
+ * Process records loaded by LoadRecordsBatchFunction
+ * @typedef ProcessRecordBatchFunction
+ */
+
+/**
+ * Queries records in batches to avoid database overload, converts them to file rows representation
+ * @param {Object} args
+ * @param args.context - Keystone context
+ * @param {LoadRecordsBatchFunction} args.loadRecordsBatch - function to load a batch of records
+ * @param {ProcessRecordBatchFunction} args.processRecordsBatch - function to convert record to file row JSON representation
+ * @param args.taskServerUtils - utils from serverSchema
+ * @param {string} args.taskId - task id
+ * @param {number} args.totalRecordsCount - number of rows
+ * @param args.baseAttrs - some extra attrs for taskServerUtils
+ * @return {Promise<*[]>} - JSON representation of file rows, that will be saved to file
+ */
 const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, taskServerUtils, taskId, totalRecordsCount, baseAttrs }) => {
     let offset = 0
     let task // a fresh record we are working with
@@ -62,6 +87,7 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
         }
 
         const batch = await loadRecordsBatch(offset, EXPORT_PROCESSING_BATCH_SIZE)
+
         if (batch.length === 0) {
             // NOTE(pahaz): someone delete some records during the export
             logger.info({ msg: 'empty batch', offset, batchLength: batch.length, taskSchemaName, taskId })
@@ -89,51 +115,8 @@ const processRecords = async ({ context, loadRecordsBatch, processRecordsBatch, 
         await sleep(SLEEP_TIMEOUT)
     } while (offset < totalRecordsCount)
 }
-/**
- * Queries records in batches to avoid database overload, converts them to file rows representation
- * @param {Object} args
- * @param args.context - Keystone context
- * @param {LoadRecordsBatchFunction} args.loadRecordsBatch - function to load a batch of records
- * @param {ConvertRecordToFileRowFunction} args.convertRecordToFileRow - function to convert record to file row JSON representation
- * @param {ExportTask} args.task - task schema record that needs to be updated during operation progress
- * @param args.taskServerUtils - utils from serverSchema
- * @return {Promise<*[]>} - JSON representation of file rows, that will be saved to file
- */
-const loadRecordsAndConvertToFileRows = async ({ context, loadRecordsBatch, convertRecordToFileRow, taskServerUtils, taskId, totalRecordsCount, baseAttrs }) => {
-    let rows = []
-    await processRecords({
-        context,
-        loadRecordsBatch,
-        processRecordsBatch: async (batch) => {
-            console.log(batch)
-            const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-            rows.push(...convertedRecords)
-        },
-        taskServerUtils, taskId, totalRecordsCount, baseAttrs,
-    })
-    return rows
-}
 
-const buildUploadInputFrom = ({ stream, filename, mimetype, encoding, meta }) => {
-    const uploadData = {
-        createReadStream: () => {
-            return stream
-        },
-        filename,
-        mimetype,
-        encoding,
-        meta,
-    }
-    const uploadInput = new Upload()
-    uploadInput.promise = new Promise(resolve => {
-        resolve(uploadData)
-    })
-    return uploadInput
-}
-
-// TODO(antonal): write tests with mocks of `taskServerUtils`. Currently this util is tested for domain-specific usage
-
-const exportRecords = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
+const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, buildExportFile, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
     let rows = []
 
     await processRecords({
@@ -179,7 +162,7 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
     const file = buildUploadInputFrom({
-        stream, filename: 'export.csv', mimetype: 'text/csv', encoding: 'utf8',
+        stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
         meta: { listkey, id: taskId },
     })
 
@@ -191,7 +174,6 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 }
 
 module.exports = {
-    loadRecordsAndConvertToFileRows,
-    exportRecords,
+    exportRecordsAsXlsxFile,
     exportRecordsAsCsvFile,
 }

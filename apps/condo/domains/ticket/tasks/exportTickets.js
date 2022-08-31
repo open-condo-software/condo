@@ -3,7 +3,7 @@ const isNull = require('lodash/isNull')
 const map = require('lodash/map')
 const compact = require('lodash/compact')
 const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchema')
-const { exportRecords } = require('@condo/domains/common/utils/serverSchema/export')
+const { exportRecordsAsXlsxFile, exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
@@ -21,7 +21,6 @@ const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const { ERROR } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
-const { exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -235,7 +234,7 @@ async function exportTickets (taskId) {
             taskId,
         })
     } else {
-        await exportRecords({
+        await exportRecordsAsXlsxFile({
             context,
             loadRecordsBatch,
             convertRecordToFileRow,
