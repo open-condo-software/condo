@@ -1,6 +1,6 @@
 const fill = require('lodash/fill')
 const faker = require('faker')
-const { loadRecordsAndConvertToFileRows } = require('./export')
+const { exportRecordsAsCsvFile, exportRecordsAsXlsxFile } = require('./export')
 
 const mockContext = () => ({})
 
@@ -21,6 +21,7 @@ const mockLoadRecordsBatchFor = (totalRecordsCount) => (
 const mockConvertRecordToFileRow = () => (
     jest.fn((item) => {
         expect(item.name).toEqual('A record to convert')
+        return item
     })
 )
 
@@ -47,7 +48,7 @@ describe('export', async () => {
         const loadRecordsBatch = mockLoadRecordsBatchFor(totalRecordsCount)
         const convertRecordToFileRow = mockConvertRecordToFileRow()
 
-        await loadRecordsAndConvertToFileRows({
+        await exportRecordsAsCsvFile({
             context,
             loadRecordsBatch,
             convertRecordToFileRow,
