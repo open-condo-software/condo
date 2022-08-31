@@ -1,8 +1,6 @@
 // TODO (DOMA-3868) Move this package to app/condo, remove this package and redeclare functions used in other packages locally
 const nextCookie = require('next-cookies')
-const { get } = require('lodash')
-
-const conf = require('@condo/config')
+const get = require('lodash/get')
 
 /**
  * Get locale from Express request object or return conf.DEFAULT_LOCALE
@@ -10,6 +8,7 @@ const conf = require('@condo/config')
  * @returns {string}
  */
 const extractReqLocale = (req) => {
+    const conf = require('@condo/config')
     if (!req) return conf.DEFAULT_LOCALE
     try {
         const cookieLocale = nextCookie({ req }).locale
