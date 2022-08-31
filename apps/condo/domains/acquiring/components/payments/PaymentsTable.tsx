@@ -1,8 +1,10 @@
 import { FilterFilled } from '@ant-design/icons'
+import { useQuery } from "@apollo/client";
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
 import { EXPORT_PAYMENTS_TO_EXCEL } from '@condo/domains/acquiring/gql'
+import { SUM_PAYMENTS_MUTATION } from '@condo/domains/acquiring/gql'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
@@ -81,20 +83,17 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
-function getSumPerPeriod (objs) {
-    let sumAllPayments = 0,
-        sumDonePayments = 0,
-        sumWithdrawnPayments = 0
-
-    for (const key in objs) {
-        sumAllPayments += Number(objs[key].amount)
-        if (objs[key].status === PAYMENT_DONE_STATUS)
-            sumDonePayments += Number(objs[key].amount)
-        else
-            sumWithdrawnPayments += Number(objs[key].amount)
-    }
-
-    return { sumAllPayments, sumDonePayments, sumWithdrawnPayments }
+function getSum(whereQuery, paymentStatus) {
+    const { data, loading } = useQuery(SUM_PAYMENTS_MUTATION, {
+        fetchPolicy: 'network-only',
+        variables: {
+            where: {
+                ...whereQuery,
+                status: paymentStatus
+            }
+        },
+    })
+    return loading ? 0 : Number(data.result.sum)
 }
 
 const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
@@ -176,7 +175,9 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         fetchPolicy: 'network-only',
     })
 
-    const { sumAllPayments, sumDonePayments, sumWithdrawnPayments } = getSumPerPeriod(objs)
+    const sumDonePayments = getSum(searchPaymentsQuery, PAYMENT_DONE_STATUS)
+    const sumWithdrawnPayments = getSum(searchPaymentsQuery, PAYMENT_WITHDRAWN_STATUS)
+    const sumAllPayments = sumDonePayments + sumWithdrawnPayments
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
