@@ -39,13 +39,18 @@ async function sendMessage (context, data) {
     if (!data.to.email && !data.to.phone && !data.to.user) throw new Error('wrong data.to')
     if (!data.type) throw new Error('no data.type')
     if (!MESSAGE_TYPES.includes(data.type)) throw new Error('unknown data.type')
-    if (!LOCALES[data.lang]) {
+    if (!data.lang) {
         data.lang = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
     }
+    if (!data.dv) {
+        data.dv = 1
+    }
+
+    if (!LOCALES[data.lang]) throw new Error('unknown data.lang')
 
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,
-        variables: { data: { dv: 1, ...data } },
+        variables: { data },
         errorMessage: '[error] Unable to sendMessage',
         dataPath: 'result',
     })
