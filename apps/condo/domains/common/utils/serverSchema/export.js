@@ -12,6 +12,7 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
+const CSV_DELIMITER = ','
 
 const logger = getLogger('export')
 
@@ -145,15 +146,16 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     const listkey = taskServerUtils.gql.SINGULAR_FORM
 
     await processRecords({
-        context, loadRecordsBatch,
+        context,
+        loadRecordsBatch,
         processRecordsBatch: async (batch) => {
             const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
             if (isFirstLine) {
                 // NOTE(pahaz): need to write headers
-                writeStream.write(Object.keys(convertedRecords[0]).join(',') + '\n')
+                writeStream.write(Object.keys(convertedRecords[0]).join(CSV_DELIMITER) + '\n')
                 isFirstLine = false
             }
-            writeStream.write(convertedRecords.map(row => Object.values(row).map(JSON.stringify).join(',')).join('\n') + '\n')
+            writeStream.write(convertedRecords.map(row => Object.values(row).map(JSON.stringify).join(CSV_DELIMITER)).join('\n') + '\n')
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })

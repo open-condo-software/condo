@@ -54,7 +54,7 @@ const renderComment = (comment, locale) => {
  * @param ticket - record of Ticket with related objects converted by `GqlWithKnexLoadList` to its display names (for example `Ticket.source` -> `Ticket.source.name`)
  * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
  */
-const ticketsToRows = async ({ task, ticket, indexedStatuses, classifier }) => {
+const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
 
     const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
@@ -213,7 +213,7 @@ async function exportTickets (taskId) {
     const ticketsLoader = await buildTicketsLoader({ where, sortBy })
     const totalRecordsCount = await Ticket.count(context, where)
 
-    const convertRecordToFileRow = (ticket) => ticketsToRows({ task, ticket, indexedStatuses, classifier })
+    const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
     const loadRecordsBatch = async (offset, limit) => {
         const tickets = await ticketsLoader.loadChunk(offset, limit)
         const classifierRuleIds = compact(map(tickets, 'classifier'))
