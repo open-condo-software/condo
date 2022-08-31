@@ -6,8 +6,8 @@ import { InfoCircleOutlined, MinusOutlined } from '@ant-design/icons'
 import { useIntl } from '@condo/next/intl'
 import { Col, List, notification, Progress, Row, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
-import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } from '../../constants/tasks'
-import { colors } from '../../constants/style'
+import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
+import { colors } from '@condo/domains/common/constants/style'
 import {
     ITaskTrackableItem,
     TASK_PROGRESS_UNKNOWN,
@@ -133,13 +133,13 @@ interface ITaskProgressTrackerProps {
 // Prevents calling handle function multiple times when tracking component will be remounted.
 // Component will be remounted because recommended technique of updating existing notification by Ant is used,
 // that replaces the current instance to new one.
-const handledCompletedStatesOfTasksIds = []
+const handledTerminalStatesOfTasksIds = []
 
 /**
  * Polls tasks record for updates and handles its transition to completed status.
  */
 export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task }) => {
-    const { storage, removeStrategy, calculateProgress, onComplete, translations } = task
+    const { storage, removeStrategy, calculateProgress, onComplete, onCancel, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
     const { deleteTask: deleteTaskFromContext } = useContext(TasksContext)
@@ -170,11 +170,17 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
     }, [record, removeTaskFromUI])
 
     useEffect(() => {
-        if (record?.status === TASK_COMPLETED_STATUS) {
+        if (record && record.status !== TASK_PROCESSING_STATUS) {
             stopPolling()
-            if (isFunction(onComplete) && !handledCompletedStatesOfTasksIds.includes(record.id)) {
-                handledCompletedStatesOfTasksIds.push(record.id)
-                onComplete(record)
+            if (!handledTerminalStatesOfTasksIds.includes(record.id)) {
+                if (record?.status === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
+                    handledTerminalStatesOfTasksIds.push(record.id)
+                    onComplete(record)
+                }
+                if (record?.status === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
+                    handledTerminalStatesOfTasksIds.push(record.id)
+                    onCancel(record)
+                }
             }
         }
     }, [record])
