@@ -1,13 +1,13 @@
 const { isEmpty, get } = require('lodash')
+const { existsSync, mkdirSync } = require('fs')
+const express = require('express')
 
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const { StaticApp } = require('@keystonejs/app-static')
 const conf = require('@condo/config')
 
 const { SberCloudFileAdapter, OBSFilesMiddleware } = require('./sberCloudFileAdapter')
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')
 
-const { existsSync, mkdirSync } = require('fs')
 
 class NoFileAdapter {
 
@@ -16,7 +16,7 @@ class NoFileAdapter {
     }
 
     save () {
-        return Promise.reject(this.error) 
+        return Promise.reject(this.error)
     }
 
     getFilename () {
@@ -27,6 +27,21 @@ class NoFileAdapter {
         throw this.error
     }
 
+}
+
+class LocalFilesMiddleware {
+    constructor ({ path, src }) {
+        if (typeof path !== 'string') throw new Error('LocalFilesMiddleware requires a "path" option, which must be a string.')
+        if (typeof src !== 'string') throw new Error('LocalFilesMiddleware requires a "src" option, which must be a string.')
+        this._path = path
+        this._src = src
+    }
+
+    prepareMiddleware () {
+        const app = express()
+        app.use(this._path, express.static(this._src))
+        return app
+    }
 }
 
 class FileAdapter {
@@ -58,7 +73,7 @@ class FileAdapter {
     }
 
     createLocalFileApapter () {
-        if (!this.isConfigValid(conf, [ 'MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL' ])) {
+        if (!this.isConfigValid(conf, ['MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL'])) {
             return null
         }
         return new LocalFileAdapter({
@@ -85,7 +100,7 @@ class FileAdapter {
     }
 
     createSbercloudFileApapter () {
-        const config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG',  [
+        const config = this.getEnvConfig('SBERCLOUD_OBS_CONFIG', [
             'bucket',
             's3Options.server',
             's3Options.access_key_id',
@@ -104,7 +119,7 @@ class FileAdapter {
             if (!existsSync(conf.MEDIA_ROOT)) {
                 mkdirSync(conf.MEDIA_ROOT)
             }
-            return new StaticApp({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT })
+            return new LocalFilesMiddleware({ path: conf.MEDIA_URL, src: conf.MEDIA_ROOT })
         } else if (type === 'sbercloud') {
             return new OBSFilesMiddleware()
         } else {
