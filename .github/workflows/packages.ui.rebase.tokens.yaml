@@ -1,0 +1,32 @@
+# Protected branch figma/tokens serves as storage for figma-tokens plugin and aggregate tokens updates
+# This action rebases it on top of origin/master branch and pushes result in figma/promotion branch
+# So PR opening / updating can be triggered and after that merged without any conflicts
+# NOTE 1: Squash policy is not allowed here, since it generates rebasing conflicts
+# NOTE 2: Using PAT instead of GITHUB_TOKEN, since actions with GITHUB_TOKEN cannot start other actions in CI chain
+
+name: Rebase figma tokens
+
+on:
+  push:
+    branches:
+      - figma/tokens
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout without submodules
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.DESIGN_BOT_PAT }}
+          fetch-depth: 0
+
+      - name: Rebase Promotion Branch
+        run: |
+          git config --global user.email "service.design.bot@doma.ai"
+          git config --global user.name "condo-design-bot"
+          git rebase origin/main
+          git push origin figma/tokens:figma/promotion --force
+          
+
