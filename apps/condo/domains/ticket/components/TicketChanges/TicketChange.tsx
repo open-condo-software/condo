@@ -16,6 +16,7 @@ import dayjs from 'dayjs'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
+import Link from 'next/link'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -316,10 +317,87 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
     }
+
+    const formatAutoReopenDiffMessage = (field, ticketChange) => {
+        if (field === 'deferredUntil') {
+            const valueDeferredUntilFrom = formatField(field, ticketChange['deferredUntilFrom'], TicketChangeFieldMessageType.From)
+
+            return (
+                <FormattedMessage
+                    id='pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil'
+                    values={{
+                        deferredUntil: valueDeferredUntilFrom,
+                    }}
+                />
+            )
+        } else if (field === 'statusDisplayName') {
+            const valueStatusTo = formatField(field, ticketChange['statusDisplayNameTo'], TicketChangeFieldMessageType.To)
+
+            return (
+                <FormattedMessage
+                    id='pages.condo.ticket.TicketChanges.autoReopenTicket.status'
+                    values={{
+                        status: valueStatusTo,
+                    }}
+                />
+            )
+        } else if (field === 'assigneeDisplayName') {
+            const valueAssigneeFrom = { name: ticketChange['assigneeDisplayNameFrom'], id: ticketChange['assigneeIdFrom'] }
+
+            return (
+                <>
+                    <FormattedMessage
+                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee'
+                        values={{
+                            assignee: <Link href={`/employee/${valueAssigneeFrom.id}`}>{valueAssigneeFrom.name}</Link>,
+                        }}
+                    />
+                </>
+            )
+        } else if (field === 'executorDisplayName') {
+            const valueExecutorFrom = { name: ticketChange['executorDisplayNameFrom'], id: ticketChange['executorIdFrom'] }
+
+            return (
+                <>
+                    <FormattedMessage
+                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor'
+                        values={{
+                            executor: <Link href={`/employee/${valueExecutorFrom.id}`}>{valueExecutorFrom.name}</Link>,
+                        }}
+                    />
+                </>
+            )
+        }
+    }
+
+    const getAutoReopenTicketChanges = (ticketChange) => {
+        // need a specific order of fields for auto reopen tickets
+        const fields = [
+            ['deferredUntil'],
+            ['assigneeDisplayName'],
+            ['executorDisplayName'],
+            ['statusDisplayName'],
+        ]
+
+        const changedFields = fields.filter(([field]) => (
+            ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
+        ))
+
+        return changedFields
+            .map(([field]) => ({
+                field,
+                message: formatAutoReopenDiffMessage(field, ticketChange),
+            }))
+    }
+
     // Omit what was not changed
     let changedFields = fields.filter(([field]) => (
         ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
     ))
+
+    if (ticketChange.sender.fingerprint === 'auto-reopen') {
+        return getAutoReopenTicketChanges(ticketChange)
+    }
 
     // If we have several changed fields in one changedField object and should display one message.
     // For example, when returning an ticket by a resident, only the message 'statusReopenedCounter' should be displayed,
