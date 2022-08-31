@@ -242,22 +242,20 @@ export const TicketSourceSelect: React.FC = () => {
     const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
 
     return (
-        <Col span={24} lg={10}>
-            <Form.Item
-                label={TicketSourceLabel}
-                required
-                name='source'
-                data-cy='ticket__source-item'
-                initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
-            >
-                <Select
-                    style={TICKET_SOURCE_SELECT_STYLE}
-                    options={sourceOptions}
-                    defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
-                    disabled={loading}
-                />
-            </Form.Item>
-        </Col>
+        <Form.Item
+            label={TicketSourceLabel}
+            required
+            name='source'
+            data-cy='ticket__source-item'
+            initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+        >
+            <Select
+                style={TICKET_SOURCE_SELECT_STYLE}
+                options={sourceOptions}
+                defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
+                disabled={loading}
+            />
+        </Form.Item>
     )
 }
 
@@ -482,7 +480,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         </Prompt>
                         <Col span={24}>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
-                                <TicketSourceSelect />
+                                <Col span={24} lg={10}>
+                                    <TicketSourceSelect />
+                                </Col>
                                 <Col span={24}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER} justify='space-between'>
                                         <Col span={propertyInfoColSpan}>
