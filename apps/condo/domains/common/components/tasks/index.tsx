@@ -64,6 +64,7 @@ export type TaskProgressTranslations = {
 export type CalculateProgressFunc = (taskRecord: unknown) => TaskRecordProgress
 
 export type OnCompleteFunc = (taskRecord: unknown) => void
+export type OnCancelFunc = (taskRecord: unknown) => void
 
 type StopPollingFunction = () => void
 
@@ -102,10 +103,11 @@ export enum TASK_REMOVE_STRATEGY {
  */
 export interface ITask {
     storage: ITasksStorage
-    removeStrategy: Array<TASK_REMOVE_STRATEGY>,
+    removeStrategy: Array<TASK_REMOVE_STRATEGY>
     translations: TaskProgressTranslations
     calculateProgress: CalculateProgressFunc
-    onComplete: OnCompleteFunc,
+    onComplete: OnCompleteFunc
+    onCancel: OnCancelFunc
 }
 
 /**

@@ -16,6 +16,15 @@ export const useTicketExportTaskUIInterface = () => {
     const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
     const router = useRouter()
 
+    const tryToDownloadFile = (taskRecord: TicketExportTask) => {
+        if (taskRecord.file) {
+            console.log('Downloading exported file TicketExportTask', taskRecord)
+            router.push(taskRecord.file.publicUrl)
+        } else {
+            console.error('File is not presented in TicketExportTask', taskRecord)
+        }
+    }
+
     /**
      * We need this separation of behavior from data to determine which behaviour
      * to use for initial loaded tasks by `__typename` field value
@@ -42,12 +51,8 @@ export const useTicketExportTaskUIInterface = () => {
         calculateProgress: (totalRecordsCount: TicketExportTask) => {
             return Math.floor(totalRecordsCount.exportedRecordsCount / totalRecordsCount.totalRecordsCount * 100)
         },
-        onComplete: ({ file }) => {
-            if (window) {
-                console.log('Downloading exported file')
-                router.push(file.publicUrl)
-            }
-        },
+        onComplete: tryToDownloadFile,
+        onCancel: tryToDownloadFile,
     }
 
     return {

@@ -16,6 +16,9 @@ export const useMiniappTaskUIInterface = () => {
         onComplete: (taskRecord) => {
             console.debug('Completed third-party taskRecord', taskRecord)
         },
+        onCancel: (taskRecord) => {
+            console.debug('Cancelled third-party taskRecord', taskRecord)
+        },
     }
 
     return {
