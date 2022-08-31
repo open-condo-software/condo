@@ -12,7 +12,7 @@ const CHUNK_SIZE = 50
  * And resets the executor and assignee of this ticket.
  * The check happens every hour.
  */
-const reopenDeferredTicketsTask = createCronTask('reopenDeferredTickets', '0 0/1 * * *', async () => {
+const reopenDeferredTickets = async () => {
     const { keystone } = await getSchemaCtx('Ticket')
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const currentDate = dayjs().toISOString()
@@ -43,6 +43,8 @@ const reopenDeferredTicketsTask = createCronTask('reopenDeferredTickets', '0 0/1
             })
         }
     }
-})
+}
 
-module.exports = reopenDeferredTicketsTask
+module.exports = {
+    reopenDeferredTickets: createCronTask('reopenDeferredTickets', '0 0/1 * * *', reopenDeferredTickets),
+}

@@ -75,7 +75,7 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
     })
 
     // Assume, that ticket execution was started immediately if ticket has a responsible person (assignee)
-    if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened'){
+    if (ticket.assignee && !ticket.startedAt && ticket.status !== 'new_or_reopened') {
         ticket.startedAt = ticket.createdAt
     }
 
@@ -98,27 +98,27 @@ const convertRecordToFileRow = async ({ task, ticket, indexedStatuses, classifie
         clientPhone: ticket.clientPhone,
         details: ticket.details,
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
-        isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         isPaid: ticket.isPaid ? YesMessage : NoMessage,
+        isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         place: get(ticketClassifier, [0, 'place']) || EMPTY_VALUE,
         category: get(ticketClassifier, [0, 'category']) || EMPTY_VALUE,
         description: get(ticketClassifier, [0, 'problem']) || EMPTY_VALUE,
         createdAt: formatDate(ticket.createdAt),
-        updatedAt: formatDate(ticket.updatedAt),
         inworkAt: ticket.startedAt ? formatDate(ticket.startedAt) : EMPTY_VALUE,
         completedAt: ticket.completedAt ? formatDate(ticket.completedAt) : EMPTY_VALUE,
         closedAt: ticket.closedAt ? formatDate(ticket.closedAt) : EMPTY_VALUE,
+        updatedAt: formatDate(ticket.updatedAt),
         status: indexedStatuses[ticket.status],
+        deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
         operator: ticket.operator || ticket.createdBy || EMPTY_VALUE,
         executor: ticket.executor || EMPTY_VALUE,
         assignee: ticket.assignee || EMPTY_VALUE,
+        organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
+        residentComments: renderedResidentComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
         deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
-        deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
         reviewValue: ticket.reviewValue ? reviewValuesTranslations[ticket.reviewValue] : EMPTY_VALUE,
         reviewComment: ticket.reviewComment || EMPTY_VALUE,
         statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
-        organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR),
-        residentComments: renderedResidentComments.join(TICKET_COMMENTS_SEPARATOR),
     }
 }
 
@@ -177,7 +177,7 @@ const buildExportFile = async ({ rows, task }) => {
  * @param taskId - id of `TicketExportTask` record, obtained from job `data` arguments
  * @returns {Promise<void>}
  */
-async function exportTicketsWorker (taskId) {
+async function exportTickets (taskId) {
     if (!taskId) throw new Error('taskId is undefined')
     const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
@@ -232,12 +232,6 @@ async function exportTicketsWorker (taskId) {
     })
 }
 
-const exportTicketsTask = createTask('exportTickets', exportTicketsWorker, {
-    priority: 2,
-})
-
-
 module.exports = {
-    exportTicketsWorker,
-    exportTicketsTask,
+    exportTickets: createTask('exportTickets', exportTickets, { priority: 2 }),
 }
