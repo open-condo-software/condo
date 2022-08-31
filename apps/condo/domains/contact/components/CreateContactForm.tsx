@@ -57,18 +57,9 @@ export const CreateContactForm: React.FC = () => {
     const PropertyErrorMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
     const UnitErrorMessage = intl.formatMessage({ id: 'field.Unit.requiredError' })
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
-
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const { organization } = useOrganization()
     const router = useRouter()
-
-    const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations({ allowLandLine: true })
-    const validations: { [key: string]: Rule[] } = {
-        phone: [requiredValidator, phoneValidator],
-        email: [changeMessage(emailValidator, EmailErrorMessage)],
-        property: [changeMessage(requiredValidator, PropertyErrorMessage)],
-        unit: [changeMessage(requiredValidator, UnitErrorMessage)],
-        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
-    }
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
     const selectedPropertyIdRef = useRef(selectedPropertyId)
@@ -76,6 +67,17 @@ export const CreateContactForm: React.FC = () => {
     const selectedUnitNameRef = useRef(selectedUnitName)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
+    const [isMatchSelectedPropertyAndInputPropertyName, setIsMatchSelectedPropertyAndInputPropertyName] = useState(true)
+
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator, addressValidator } = useValidations({ allowLandLine: true })
+    const validations: { [key: string]: Rule[] } = {
+        phone: [requiredValidator, phoneValidator],
+        email: [changeMessage(emailValidator, EmailErrorMessage)],
+        property: [changeMessage(requiredValidator, PropertyErrorMessage),
+            addressValidator(selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName)],
+        unit: [changeMessage(requiredValidator, UnitErrorMessage)],
+        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
+    }
 
     const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
 
@@ -146,6 +148,9 @@ export const CreateContactForm: React.FC = () => {
                                             wrapperCol={{ span: 14 }}>
                                             <PropertyAddressSearchInput
                                                 organization={organization}
+                                                setIsMatchSelectedPropertyAndInputPropertyName={
+                                                    setIsMatchSelectedPropertyAndInputPropertyName
+                                                }
                                                 onSelect={(_, option) => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(option.key)
@@ -244,11 +249,13 @@ export const CreateContactForm: React.FC = () => {
                                 </Row>
                             </Col>
                             <Col span={24}>
-                                <Form.Item noStyle dependencies={['phone', 'property', 'unitName', 'name']}>
+                                <Form.Item noStyle dependencies={['phone', 'property', 'unitName', 'name']} shouldUpdate>
                                     {
-                                        ({ getFieldsValue }) => {
+                                        ({ getFieldsValue, getFieldError }) => {
                                             const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
-
+                                            const propertyMismatchError = getFieldError('property').map(error => {
+                                                if (error.includes(AddressNotSelected)) return error
+                                            })[0]
                                             return (
                                                 <Row gutter={[0, 24]}>
                                                     <Col span={24}>
@@ -258,7 +265,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={!property || !unitName || !phone || !name}
+                                                                disabled={!property || !unitName || !phone || !name || !!propertyMismatchError}
                                                                 style={{ marginRight: 24 }}
                                                             >
                                                                 {SubmitButtonLabel}
@@ -267,7 +274,9 @@ export const CreateContactForm: React.FC = () => {
                                                                 phone={phone}
                                                                 address={property}
                                                                 unit={unitName}
-                                                                name={name}/>
+                                                                name={name}
+                                                                propertyMismatchError={propertyMismatchError}
+                                                            />
                                                         </BottomLineWrapper>
                                                     </Col>
                                                 </Row>
