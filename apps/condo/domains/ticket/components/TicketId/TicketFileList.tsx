@@ -53,6 +53,17 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
     })), [files])
 
     const downloadFile = useCallback(async (file: UploadFile) => {
+        /*
+        * NOTE
+        * Problem:
+        *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
+        *   it is impossible to read the response to the request.
+        *
+        * Solution:
+        *   When adding the "shallow-redirect" header,
+        *   the redirect link to the file comes in json format and a second request is made to get the file.
+        *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
+        * */
         const redirectResponse = await fetch(file.url, {
             credentials: 'include',
             headers: {
