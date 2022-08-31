@@ -4,11 +4,13 @@
   "main": "lib/binding.js",
   "dependencies": {
     "node-addon-api": "^1.1.0",
+    "node-gyp": "^9.1.0",
     "xml-c14n": "^0.0.6",
     "xmldom": "^0.6.0"
   },
   "scripts": {
-    "test": "node ./test/test_binding.js"
+    "test": "node ./test/test_binding.js",
+    "build": "node-gyp rebuild"
   },
   "gypfile": true,
   "description": "Sign requests with Bicrypt library",
