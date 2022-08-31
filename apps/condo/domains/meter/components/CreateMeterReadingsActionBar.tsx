@@ -24,6 +24,7 @@ export const CreateMeterReadingsActionBar = ({
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
 
     return (
         <Form.Item
@@ -32,11 +33,13 @@ export const CreateMeterReadingsActionBar = ({
             shouldUpdate={handleShouldUpdate}
         >
             {
-                ({ getFieldsValue }) => {
+                ({ getFieldsValue, getFieldError }) => {
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
                     const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
                     const isCreateMeterButtonDisabled = !property || !unitName
-
+                    const propertyMismatchError = getFieldError('property').map(error => {
+                        if (error.includes(AddressNotSelected)) return error
+                    })[0]
                     return (
                         <ActionBar>
                             <Col>
@@ -64,6 +67,7 @@ export const CreateMeterReadingsActionBar = ({
                                     <ErrorsContainer
                                         property={property}
                                         unitName={unitName}
+                                        propertyMismatchError={propertyMismatchError}
                                     />
                                 </Row>
                             </Col>
