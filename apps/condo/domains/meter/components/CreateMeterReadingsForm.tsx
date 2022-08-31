@@ -181,15 +181,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
 
-    const { requiredValidator } = useValidations()
-    const validations = {
-        property: [requiredValidator],
-    }
-
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns()
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
+    const [isMatchSelectedPropertyAndInputPropertyName, setIsMatchSelectedPropertyAndInputPropertyName] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
@@ -205,6 +201,11 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     useEffect(() => {
         selectedUnitTypeRef.current = selectedUnitType
     }, [selectedUnitType])
+
+    const { requiredValidator, addressValidator } = useValidations()
+    const validations = {
+        property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName)],
+    }
 
     const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
@@ -305,9 +306,13 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                             label={AddressLabel}
                                                             rules={validations.property}
                                                             wrapperCol={FORM_ITEM_WRAPPER_COLUMN_STYLE}
+                                                            shouldUpdate
                                                         >
                                                             <PropertyAddressSearchInput
                                                                 organization={organization}
+                                                                setIsMatchSelectedPropertyAndInputPropertyName={
+                                                                    setIsMatchSelectedPropertyAndInputPropertyName
+                                                                }
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}

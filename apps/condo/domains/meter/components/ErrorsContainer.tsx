@@ -5,9 +5,10 @@ import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 interface IErrorsContainerProps {
     property: string
     unitName: string
+    propertyMismatchError: string
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName  }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, unitName, propertyMismatchError  }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -20,12 +21,13 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ property, uni
         .filter(Boolean)
         .map(errorField => errorField.toLowerCase())
         .join(', ')
+    const requiredErrorMessage = fieldsErrorMessages && ErrorsContainerTitle.concat(' ', fieldsErrorMessages)
 
     return (
         disableUserInteraction && fieldsErrorMessages && (
             <ErrorsWrapper>
-                {ErrorsContainerTitle}&nbsp;
-                {fieldsErrorMessages}
+                <div>{propertyMismatchError}</div>
+                <div>{requiredErrorMessage}</div>
             </ErrorsWrapper>
         )
     )
