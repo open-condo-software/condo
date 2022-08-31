@@ -9,9 +9,9 @@ const { i18n } = require('@condo/locales/loader')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
+    expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, CANCELLED, COMPLETED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {
     createTestOrganization,
@@ -22,8 +22,20 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
-
 describe('TicketExportTask', () => {
+    describe('validations', () => {
+        test.todo('cannot have PROCESSING status on create')
+
+        it('throw error if you trying to change status of already completed export', async () => {
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [obj] = await createTestTicketExportTask(userClient, userClient.user, { status: COMPLETED })
+            await expectToThrowValidationFailureError(
+                async () => await updateTestTicketExportTask(userClient, obj.id, { status: CANCELLED }),
+                'status is already completed',
+            )
+        })
+    })
+
     describe('Create', () => {
         it('cannot be created by anonymous', async () => {
             const anonymousClient = await makeClient()
