@@ -56,7 +56,7 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         const redirectResponse = await fetch(file.url, {
             credentials: 'include',
             headers: {
-                '-no-redirect': 'true',
+                'shallow-redirect': 'true',
             },
         })
         if (!redirectResponse.ok) throw new Error(ERROR_DOWNLOAD_FILE)
