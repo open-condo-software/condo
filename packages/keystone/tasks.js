@@ -105,7 +105,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
         } catch (e) {
-            logger.error({ msg: 'Error executing task', name, error, data: { preparedArgs, preparedOpts } })
+            logger.error({ msg: 'Error executing task', name, error: e, data: { preparedArgs, preparedOpts } })
             status = 'error'
             error = e
         }
