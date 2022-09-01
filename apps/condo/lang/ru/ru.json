@@ -616,7 +616,7 @@
   "pages.condo.ticket.TicketChanges.isWarranty.false": "не гарантийной",
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title": "Неизвестный пользователь",
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Упс, кажется пользователь, который внёс эти изменения, был удалён из системы",
-  "pages.condo.ticket.TicketChanges.autoCloseTicket": "Заявка автоматически переведена в статус «Закрыта», так как от жителя не было обратной связи в течение 7 дней.",
+  "pages.condo.ticket.TicketChanges.autoCloseTicket": "Заявка автоматически переведена в статус «{status}», так как от жителя не было обратной связи в течение 7 дней.",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil": "Истекла дата, до которой отложили заявку — {deferredUntil}",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee": "Автоматически сбросился ответственный ({assignee})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor": "Автоматически сбросился исполнитель ({executor})",
