@@ -7,14 +7,28 @@
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { ExternalReport: ExternalReportGQL } = require('@condo/domains/analytics/gql')
+const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ExternalReport = generateServerUtils(ExternalReportGQL)
 
+async function getExternalReportIframeUrl (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getExternalReportIframeUrl',
+        dataPath: 'obj',
+    })
+}
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ExternalReport,
+    getExternalReportIframeUrl,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

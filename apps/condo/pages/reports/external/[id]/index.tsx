@@ -1,12 +1,17 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import { Row, Col, Typography } from 'antd'
 import { useIntl } from '@condo/next/intl'
+import get from 'lodash/get'
+import { GetExternalReportIframeUrlOutput } from '@app/condo/schema'
+import { useLazyQuery } from '@apollo/client'
+import { useOrganization } from '@condo/next/organization'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ExternalReport } from '@condo/domains/analytics/utils/clientSchema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } from '@condo/domains/analytics/gql'
 
 const LAYOUT_STYLE: React.CSSProperties = { height: '100%' }
 const IFRAME_STYLE: React.CSSProperties = { border: 'none', width: '100%', height: '100%' }
@@ -14,16 +19,33 @@ const IFRAME_STYLE: React.CSSProperties = { border: 'none', width: '100%', heigh
 const ExternalReportDetailPage = () => {
     const intl = useIntl()
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const DefaultPageTitle = intl.formatMessage({ id: 'pages.condo.analytics.index.PageTitle' })
+
+    const [externalReport, setExternalReport] = useState<GetExternalReportIframeUrlOutput>(null)
 
     const { query: { id } } = useRouter()
 
-    const {
-        obj: externalReport, loading,
-    } = ExternalReport.useObject({
-        where: {
-            id: id as string,
+    const { organization: { id: organizationId } } = useOrganization()
+
+    const [loadExternalReport, { loading }] = useLazyQuery(GET_EXTERNAL_REPORT_IFRAME_URL_QUERY, {
+        fetchPolicy: 'network-only',
+        onCompleted: (data) => {
+            setExternalReport(data.result)
         },
-    }, { fetchPolicy: 'network-only' })
+    })
+
+    useEffect(() => {
+        if (id && organizationId) {
+            loadExternalReport({ variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    id,
+                    organizationId,
+                },
+            } })
+        }
+    }, [id, organizationId])
 
     return (
         <>
@@ -32,11 +54,11 @@ const ExternalReportDetailPage = () => {
                     ? <Loader size='large' fill />
                     : (
                         <>
-                            <PageHeader title={<Typography.Title>{externalReport.title}</Typography.Title>} />
+                            <PageHeader title={<Typography.Title>{get(externalReport, 'title', DefaultPageTitle)}</Typography.Title>} />
                             <PageContent>
                                 <Row style={LAYOUT_STYLE}>
                                     <Col span={24} style={LAYOUT_STYLE}>
-                                        {!externalReport.iframeUrl
+                                        {!get(externalReport, 'iframeUrl')
                                             ? (
                                                 <BasicEmptyListView image='/dino/searching@2x.png'>
                                                     <Typography.Title level={4}>

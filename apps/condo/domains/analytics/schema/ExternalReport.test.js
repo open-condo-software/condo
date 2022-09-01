@@ -168,7 +168,6 @@ describe('ExternalReport', () => {
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: obj.id,
-                        iframeUrl: obj.iframeUrl,
                         type: obj.type,
                         title: obj.title,
                         description: obj.description,
@@ -188,7 +187,6 @@ describe('ExternalReport', () => {
                 expect(objs).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: obj.id,
-                        iframeUrl: obj.iframeUrl,
                         type: obj.type,
                         title: obj.title,
                         description: obj.description,
@@ -208,7 +206,6 @@ describe('ExternalReport', () => {
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs[0]).toMatchObject({
                     id: obj.id,
-                    iframeUrl: obj.iframeUrl,
                     type: obj.type,
                     title: obj.title,
                     description: obj.description,
@@ -229,7 +226,6 @@ describe('ExternalReport', () => {
                 expect(objs).not.toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: obj.id,
-                        iframeUrl: obj.iframeUrl,
                         type: obj.type,
                         title: obj.title,
                         description: obj.description,
