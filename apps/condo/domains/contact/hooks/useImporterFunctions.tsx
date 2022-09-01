@@ -48,6 +48,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const PhoneTitle = intl.formatMessage({ id: 'Phone' })
     const NameTitle = intl.formatMessage({ id: 'field.FullName.short' })
     const EmailTitle = intl.formatMessage({ id: 'field.EMail' })
+    const RoleTitle = intl.formatMessage({ id: 'field.Role' })
     const UnitTypeTitle = intl.formatMessage({ id: 'field.UnitType' })
     const FlatUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.flat' })
     const ParkingUnitTypeValue = intl.formatMessage({ id: 'pages.condo.ticket.field.unitType.parking' })
@@ -89,6 +90,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: 'Phones', type: 'string', required: true, label: PhoneTitle },
         { name: 'Full Name', type: 'string', required: true, label: NameTitle },
         { name: 'Email', type: 'string', required: false, label: EmailTitle },
+        { name: 'Role', type: 'string', required: false, label: RoleTitle },
     ]
 
     const contactNormalizer: RowNormalizer = (row) => {
