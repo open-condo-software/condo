@@ -93,10 +93,18 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: 'Role', type: 'string', required: false, label: RoleTitle },
     ]
 
-    const contactNormalizer: RowNormalizer = (row) => {
-        const addons = { address: null, property: null, phones: null, fullName: null, email: null, unitType: null }
+    const contactNormalizer: RowNormalizer = async (row) => {
+        const addons = {
+            address: null,
+            property: null,
+            phones: null,
+            fullName: null,
+            email: null,
+            unitType: null,
+            role: null,
+        }
         if (row.length !== columns.length) return Promise.resolve({ row })
-        const [address, , unitType, phones, fullName, email] = row
+        const [address, , unitType, phones, fullName, email, role] = row
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
 
         const unitTypeValue = String(get(unitType, 'value', '')).trim().toLowerCase()
@@ -109,6 +117,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[unitTypeValue]
+        addons.role = rolesNameToIsMapping[String(get(role, 'value', '')).trim().toLowerCase()]
 
         return addressApi.getSuggestions(String(address.value)).then(result => {
             const suggestion = get(result, ['suggestions', 0])
