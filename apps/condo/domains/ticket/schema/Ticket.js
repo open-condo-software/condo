@@ -38,6 +38,7 @@ const {
     setSectionAndFloorFieldsByDataFromPropertyMap, setClientNamePhoneEmailFieldsByDataFromUser,
     overrideTicketFieldsForResidentUserType, setClientIfContactPhoneAndTicketAddressMatchesResidentFields, connectContactToTicket,
     calculateCompletedAt,
+    calculateDefaultDeferredUntil,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
@@ -45,7 +46,7 @@ const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
-const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('../constants')
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('../constants')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const dayjs = require('dayjs')
 const { calculateDeferredUntil } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
@@ -395,8 +396,9 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
-            const resolvedStatusId = get(resolvedData, 'status', null)
-            const resolvedClient = get(resolvedData, 'client', null)
+            const newItem = { ...existingItem, ...resolvedData }
+            const resolvedStatusId = get(newItem, 'status', null)
+            const resolvedClient = get(newItem, 'client', null)
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
@@ -410,6 +412,9 @@ const Ticket = new GQLListSchema('Ticket', {
                     calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
                     calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus, originalInput)
                 }
+
+                // todo (DOMA-4092) delete this code when in mob. app will add feature deferred ticket with selecting date
+                calculateDefaultDeferredUntil(newItem, resolvedData, resolvedStatusId)
             }
 
             if (userType === RESIDENT && operation === 'create') {
@@ -434,7 +439,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 }
             }
 
-            const newItem = { ...existingItem, ...resolvedData }
             const propertyId = get(newItem, 'property', null)
             if (!propertyId) {
                 throw new Error(`${PROPERTY_REQUIRED_ERROR}] empty property for ticket`)
@@ -462,10 +466,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 resolvedData.placeClassifier = get(classifier, 'place', null)
                 resolvedData.problemClassifier = get(classifier, 'problem', null)
                 resolvedData.categoryClassifier = get(classifier, 'category', null)
-            }
-            const resolvedStatus = await getById('TicketStatus', newItem.status)
-            if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
-                resolvedData.deferredUntil = dayjs().add(DEFAULT_DEFERRED_DAYS, 'days').toISOString()
             }
 
             return resolvedData
@@ -503,6 +503,11 @@ const Ticket = new GQLListSchema('Ticket', {
                     }
                 }
             }
+
+            // todo (DOMA-4092) uncomment this code when in mob. app will add this feature
+            // if (!newItem.deferredUntil && resolvedStatus.type === DEFERRED_STATUS_TYPE) {
+            //     return addValidationError(`${WRONG_VALUE} deferredUntil is null, but status type is ${DEFERRED_STATUS_TYPE}`)
+            // }
         },
         // `beforeChange` cannot be used, because data can be manipulated during updating process somewhere inside a ticket
         // We need a final result after update
