@@ -51,7 +51,6 @@ const IndexPage = () => {
                         {loading
                             ? <Loader size='large' fill />
                             : (externalReports
-                                .filter(externalReport => externalReport.iframeUrl)
                                 .map((externalReport, key) => (
                                     <Col key={key} span={12}>
                                         <ExternalReportCard externalReport={externalReport} />

@@ -10,8 +10,14 @@ const { gql } = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const EXTERNAL_REPORT_FIELDS = `{ type title description isHidden iframeUrl organization { id } meta ${COMMON_FIELDS} }`
+const EXTERNAL_REPORT_FIELDS = `{ type title description isHidden organization { id } meta ${COMMON_FIELDS} }`
 const ExternalReport = generateGqlQueries('ExternalReport', EXTERNAL_REPORT_FIELDS)
+
+const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
+    query getExternalReportIframeUrl ($data: GetExternalReportIframeUrlInput!) {
+        result: getExternalReportIframeUrl(data: $data) { title iframeUrl }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -37,5 +43,6 @@ module.exports = {
     GET_TICKET_WIDGET_REPORT_DATA,
     TICKET_ANALYTICS_REPORT_QUERY,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
+    GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

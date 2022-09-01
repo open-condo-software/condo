@@ -12478,8 +12478,6 @@ export type ExternalReport = {
   organization?: Maybe<Organization>;
   /**  Indicates visibility of concrete external report at ui  */
   isHidden?: Maybe<Scalars['Boolean']>;
-  /**  Url for iframe  */
-  iframeUrl?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12531,7 +12529,6 @@ export type ExternalReportHistoryRecord = {
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
-  iframeUrl?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12554,7 +12551,6 @@ export type ExternalReportHistoryRecordCreateInput = {
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
-  iframeUrl?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12582,7 +12578,6 @@ export type ExternalReportHistoryRecordUpdateInput = {
   meta?: Maybe<Scalars['JSON']>;
   organization?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
-  iframeUrl?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -12664,10 +12659,6 @@ export type ExternalReportHistoryRecordWhereInput = {
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
-  iframeUrl?: Maybe<Scalars['JSON']>;
-  iframeUrl_not?: Maybe<Scalars['JSON']>;
-  iframeUrl_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  iframeUrl_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -13329,6 +13320,19 @@ export type ForgotPasswordActionsCreateInput = {
 export type ForgotPasswordActionsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ForgotPasswordActionUpdateInput>;
+};
+
+export type GetExternalReportIframeUrlInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  id: Scalars['ID'];
+  organizationId: Scalars['ID'];
+};
+
+export type GetExternalReportIframeUrlOutput = {
+  __typename?: 'GetExternalReportIframeUrlOutput';
+  title: Scalars['String'];
+  iframeUrl?: Maybe<Scalars['String']>;
 };
 
 export type GetPhoneByConfirmPhoneActionTokenInput = {
@@ -32315,6 +32319,7 @@ export type Query = {
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
+  getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -35899,6 +35904,11 @@ export type QueryTicketAnalyticsReportArgs = {
 
 export type QueryExportTicketAnalyticsToExcelArgs = {
   data?: Maybe<ExportTicketAnalyticsToExcelInput>;
+};
+
+
+export type QueryGetExternalReportIframeUrlArgs = {
+  data: GetExternalReportIframeUrlInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {
