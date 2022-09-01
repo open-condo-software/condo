@@ -176,15 +176,20 @@ const sendTicketNotifications = async (requestData) => {
     if (eventTypes[STATUS_CHANGED_EVENT_TYPE] && canReadByResident) {
         let ticketStatusType
 
+        console.log('sendTicketNotifications:', { nextStatusId, open: STATUS_IDS.OPEN })
+
         switch (nextStatusId) {
             case STATUS_IDS.OPEN:
-                if (prevStatusId !== STATUS_IDS.COMPLETED && !isCreateOperation)
+                if (prevStatusId !== STATUS_IDS.COMPLETED && prevStatusId !== STATUS_IDS.DEFERRED && !isCreateOperation)
                     break
 
                 if (statusReopenedCounter > 0)
                     ticketStatusType = updatedBy !== clientId && TICKET_STATUS_RETURNED_TYPE
                 else
                     ticketStatusType = createdBy !== clientId && TICKET_STATUS_OPENED_TYPE
+
+                console.log('sendTicketNotifications open:', { statusReopenedCounter, ticketStatusType })
+
                 break
 
             case STATUS_IDS.IN_PROGRESS:

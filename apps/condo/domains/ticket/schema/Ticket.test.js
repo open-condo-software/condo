@@ -22,6 +22,7 @@ const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
+    TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
@@ -2110,6 +2111,38 @@ describe('Ticket', () => {
                     const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
                     const messageCount = await Message.count(admin, messageWhere)
                     expect(messageCount).toEqual(0)
+                })
+            })
+        })
+
+        describe('Ticket status changed FROM TICKET_STATUS_DEFERRED to TICKET_STATUS_OPEN', () => {
+            it('sends push to resident', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const deferredUntil = dayjs().toISOString()
+
+                const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property,
+                    { unitName, status: { connect: { id: STATUS_IDS.DEFERRED } }, deferredUntil }
+                )
+
+                expect(ticket.client.id).toEqual(userClient.user.id)
+
+                await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
+
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_OPENED_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message.meta.data.userId).toEqual(userClient.user.id)
+                    expect(message.meta.data.residentId).toEqual(resident.id)
+                    expect(message.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message.meta.data.ticketNumber).toEqual(ticket.number)
+                    expect(message.processingMeta.transport).toEqual('push')
+                    expect(message.processingMeta.transports).toEqual(['push'])
+                    expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
         })
