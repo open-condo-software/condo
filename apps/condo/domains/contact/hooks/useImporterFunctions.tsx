@@ -204,7 +204,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     phone: phone,
                     name: row.addons.fullName,
                     email: row.addons.email,
-                })
+                    role: { connect: { id: String(row.addons.role) } },
+                }),
             )
         }
         return Promise.all(contactPool).then(() => {
