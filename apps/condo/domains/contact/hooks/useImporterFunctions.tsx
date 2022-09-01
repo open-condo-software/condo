@@ -66,7 +66,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const {
         loading: isRolesLoading,
-        objs: roles,
+        objs: contactRoles,
     } = ContactRole.useObjects({
         where: {
             OR: [
@@ -77,7 +77,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     })
 
     if (!isRolesLoading) {
-        rolesNameToIsMapping = roles.reduce((result, current) => ({
+        rolesNameToIsMapping = contactRoles.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase()]: current.id,
         }), {})
