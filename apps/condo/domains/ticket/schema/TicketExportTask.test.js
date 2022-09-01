@@ -11,7 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
-const { EXPORT_STATUS_VALUES, CANCELLED, COMPLETED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
+const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {
     createTestOrganization,
@@ -21,6 +21,7 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('TicketExportTask', () => {
     describe('validations', () => {
@@ -126,7 +127,7 @@ describe('TicketExportTask', () => {
             })
         })
 
-        it('can be created if user belongs to requested organization in `where` field', async () => {
+        it('can be created if user belongs as employee to requested organization in `where` field', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
@@ -150,6 +151,46 @@ describe('TicketExportTask', () => {
             expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
+        })
+
+        it('can be created if user belongs as employee to all many requested organizations in `where` field', async () => {
+            const {
+                clientFrom: userClient,
+                organizationTo,
+                organizationFrom,
+            } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const [obj, attrs] = await createTestTicketExportTask(userClient, userClient.user, {
+                where: {
+                    organization: { id_in: [organizationTo.id, organizationFrom.id] },
+                },
+            })
+            expect(obj.id).toMatch(UUID_RE)
+            expect(obj.dv).toEqual(1)
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.v).toEqual(1)
+            expect(obj.newId).toEqual(null)
+            expect(obj.deletedAt).toEqual(null)
+            expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            expect(obj.createdAt).toMatch(DATETIME_RE)
+            expect(obj.updatedAt).toMatch(DATETIME_RE)
+        })
+
+        it('cannot be created if user belongs as employee to some of many requested organizations in `where` field', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const {
+                clientFrom: userClient,
+                organizationTo,
+                organizationFrom,
+            } = await createTestOrganizationWithAccessToAnotherOrganization()
+            const [forbiddenOrganization] = await createTestOrganization(adminClient)
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicketExportTask(userClient, userClient.user, {
+                    where: {
+                        organization: { id_in: [organizationTo.id, organizationFrom.id, forbiddenOrganization.id] },
+                    },
+                })
+            })
         })
 
         it('cannot be created if `where.organization.id` value is not specified', async () => {
