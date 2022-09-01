@@ -28763,7 +28763,7 @@ export type OrganizationHistoryRecordsUpdateInput = {
   data?: Maybe<OrganizationHistoryRecordUpdateInput>;
 };
 
-/**  A relationship between organizations that allows employees of one organization to interact as employees of another.  */
+/**  Relationship between Organization that allows an employee of a "parent" (or "holding", you name it) Organization to interact as an employee of another "child" Organizations. If the relationship is created via OrganizationLink between "parent" and "child" Organization, a user does not need to be employee in all "child" Organization to have the abilities, required to perform some actions there. It is enough to be an employee in just one "parent" Organization. "Child" and "parent" means logical connection, not a structural from real world. Example use case of OrganizationLink is to be able to read Ticket from many organization when current user is an employee of Organization that act as a supervisor, like call center, that servers many "client" Organizations. Similar use cases are implemented for abilities to read MeterReading, ExternalReport, Contact, Division, Property, Ticket, TicketComment and other entities.  */
 export type OrganizationLink = {
   __typename?: 'OrganizationLink';
   /**
@@ -28774,9 +28774,9 @@ export type OrganizationLink = {
    *  4. As an alias to the 'id' field on the OrganizationLink List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  /**  "Parent" Organization that gains its employee an access to all its "child" Organizations  */
   from?: Maybe<Organization>;
-  /**  Organization that gives access  */
+  /**  "Child" Organization that is getting accessible by employee of "parent" Organization, also, some entities of "Child" Organization are becoming accessible for CRUD operations.  */
   to?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
