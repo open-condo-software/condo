@@ -161,7 +161,8 @@ describe('TicketExportTask', () => {
             } = await createTestOrganizationWithAccessToAnotherOrganization()
             const [obj, attrs] = await createTestTicketExportTask(userClient, userClient.user, {
                 where: {
-                    organization: { id_in: [organizationTo.id, organizationFrom.id] },
+                    // Check case when duplicated ids are specified in array, so, access checks should be resistant to it
+                    organization: { id_in: [organizationTo.id, organizationFrom.id, organizationFrom.id] },
                 },
             })
             expect(obj.id).toMatch(UUID_RE)
