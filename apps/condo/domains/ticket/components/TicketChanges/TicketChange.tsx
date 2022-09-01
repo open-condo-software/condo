@@ -1,7 +1,7 @@
 import React  from 'react'
 import { Row, Col, Typography } from 'antd'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { get, has, isEmpty, isNil } from 'lodash'
+import { get, has, isEmpty, isNil, isNull } from 'lodash'
 import styled from '@emotion/styled'
 import { TicketChange as TicketChangeType } from '@app/condo/schema'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -17,6 +17,7 @@ import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchem
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
 import Link from 'next/link'
+import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -79,6 +80,12 @@ const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, 
 
     return addressChangePostfix
 }
+
+const isAutoReopenTicketChanges = (ticketChange) =>
+    isNull(ticketChange.createdBy)
+    && isNull(ticketChange['deferredUntilTo'])
+    && ticketChange['statusDisplayNameTo'] === STATUS_IDS.OPEN
+    && ticketChange['statusDisplayNameFrom'] === STATUS_IDS.DEFERRED
 
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
@@ -395,7 +402,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         ticketChange[`${field}From`] !== null || ticketChange[`${field}To`] !== null
     ))
 
-    if (ticketChange.sender.fingerprint === 'auto-reopen') {
+    if (isAutoReopenTicketChanges(ticketChange)) {
         return getAutoReopenTicketChanges(ticketChange)
     }
 
