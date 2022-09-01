@@ -615,7 +615,7 @@
   "pages.condo.ticket.TicketChanges.isWarranty.false": "It's not warranty anymore",
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.title": "Unknown user",
   "pages.condo.ticket.TicketChanges.notice.DeletedCreatedAt.description": "Oops! It seems, like a user, who's made this changes, was removed from the system",
-  "pages.condo.ticket.TicketChanges.autoCloseTicket": "Ticket is automatically changed to \"Closed\" status, as there was no review from the resident for 7 days.",
+  "pages.condo.ticket.TicketChanges.autoCloseTicket": "Ticket is automatically changed to «{status}» status, as there was no review from the resident for 7 days.",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil": "The date until which the ticket was postponed has expired — {deferredUntil}",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee": "Was reset automatically assignee ({assignee})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor": "Was reset automatically executor ({executor})",

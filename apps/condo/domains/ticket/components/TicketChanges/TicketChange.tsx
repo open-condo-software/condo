@@ -83,9 +83,12 @@ const getAddressChangePostfix = (sectionName, sectionType, floorName, unitName, 
 
 const isAutoReopenTicketChanges = (ticketChange) =>
     isNull(ticketChange.createdBy)
-    && isNull(ticketChange['deferredUntilTo'])
-    && ticketChange['statusDisplayNameTo'] === STATUS_IDS.OPEN
-    && ticketChange['statusDisplayNameFrom'] === STATUS_IDS.DEFERRED
+    && ticketChange['statusIdTo'] === STATUS_IDS.OPEN
+    && ticketChange['statusIdFrom'] === STATUS_IDS.DEFERRED
+
+const isAutoCloseTicketChanges = (ticketChange) =>
+    isNull(ticketChange.createdBy)
+    && ticketChange['statusIdTo'] === STATUS_IDS.CLOSED
 
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
@@ -108,7 +111,6 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const FilledReviewCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.filled' })
     const BadReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.badReview' })
     const GoodReviewEmptyCommentMessage = intl.formatMessage({ id: 'ticket.reviewComment.empty.goodReview' })
-    const AutoClosedMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' })
     const AndMessage = intl.formatMessage(( { id: 'And' }))
 
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
@@ -268,16 +270,23 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             )
         }
 
-        if (ticketChange.sender.fingerprint === 'auto-close') {
-            return field === 'statusDisplayName' && AutoClosedMessage
-        }
-
         const valueFrom = ticketChange[`${field}From`]
         const valueTo = ticketChange[`${field}To`]
         const isValueFromNotEmpty = !isNil(valueFrom)
         const isValueToNotEmpty = !isNil(valueTo)
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
+
+        if (isAutoCloseTicketChanges(ticketChange)) {
+            return (
+                <FormattedMessage
+                    id='pages.condo.ticket.TicketChanges.autoCloseTicket'
+                    values={{
+                        status: formattedValueTo,
+                    }}
+                />
+            )
+        }
 
         if (isValueFromNotEmpty && isValueToNotEmpty) {
             return (
