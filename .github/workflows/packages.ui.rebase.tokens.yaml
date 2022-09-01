@@ -26,7 +26,7 @@ jobs:
         run: |
           git config --global user.email "service.design.bot@doma.ai"
           git config --global user.name "condo-design-bot"
-          git rebase origin/main
+          git rebase origin/master
           git push origin figma/tokens:figma/promotion --force
           
 
