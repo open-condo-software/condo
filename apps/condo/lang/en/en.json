@@ -85,6 +85,7 @@
   "field.ClientName.minLengthError": "Enter your full name",
   "field.Description.lengthError": "Please describe the problem in more detail",
   "field.EMail": "E-mail",
+  "field.Role": "Role",
   "field.Executor": "Executor",
   "field.Executor.description": "The executor is an employee who will fix the problem described in the task",
   "field.FlatNumber": "Unit",

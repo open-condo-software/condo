@@ -85,6 +85,7 @@
   "field.ClientName.minLengthError": "Укажите ФИО",
   "field.Description.lengthError": "Пожалуйста, опишите проблему подробнее",
   "field.EMail": "Эл. почта",
+  "field.Role": "Роль",
   "field.Executor": "Исполнитель",
   "field.Executor.description": "Исполнитель — это сотрудник, который будет устранять проблему, описанную в заявке",
   "field.FlatNumber": "Помещение",
