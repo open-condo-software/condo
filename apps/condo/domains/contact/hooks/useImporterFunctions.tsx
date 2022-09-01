@@ -1,12 +1,18 @@
-import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
-import { useOrganization } from '@condo/next/organization'
-import { useApolloClient } from '@condo/next/apollo'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import get from 'lodash/get'
-import { Contact } from '../utils/clientSchema'
-import { searchProperty, searchContacts } from '@condo/domains/ticket/utils/clientSchema/search'
+import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
+import {
+    APARTMENT_UNIT_TYPE,
+    COMMERCIAL_UNIT_TYPE,
+    FLAT_UNIT_TYPE,
+    PARKING_UNIT_TYPE,
+    WAREHOUSE_UNIT_TYPE,
+} from '@condo/domains/property/constants/common'
+import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import { useApolloClient } from '@condo/next/apollo'
 import { useIntl } from '@condo/next/intl'
-import { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, PARKING_UNIT_TYPE, COMMERCIAL_UNIT_TYPE } from '@condo/domains/property/constants/common'
+import { useOrganization } from '@condo/next/organization'
+import get from 'lodash/get'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -23,6 +29,8 @@ const parsePhones = (phones: string) => {
         return normalizePhone(phone, true)
     })
 }
+
+let rolesNameToIsMapping = {}
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
@@ -54,6 +62,25 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
     const contactCreateAction = Contact.useCreate({})
+
+    const {
+        loading: isRolesLoading,
+        objs: roles,
+    } = ContactRole.useObjects({
+        where: {
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: userOrganizationId } },
+            ],
+        },
+    })
+
+    if (!isRolesLoading) {
+        rolesNameToIsMapping = roles.reduce((result, current) => ({
+            ...result,
+            [String(current.name).toLowerCase()]: current.id,
+        }), {})
+    }
 
     const columns: Columns = [
         { name: 'Address', type: 'string', required: true, label: AddressTitle },
