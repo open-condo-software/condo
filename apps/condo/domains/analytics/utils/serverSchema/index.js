@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/keystone/codegeneration/generate.server.utils')
 
 const { ExternalReport: ExternalReportGQL } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
