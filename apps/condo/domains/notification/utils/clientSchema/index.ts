@@ -7,5 +7,4 @@ export * as Message from './Message'
 export * as RemoteClient from './RemoteClient'
 export * as MessageUserBlackList from './MessageUserBlackList'
 export * as MessageOrganizationBlackList from './MessageOrganizationBlackList'
-export * as MessageOrganizationWhiteList from './MessageOrganizationWhiteList'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

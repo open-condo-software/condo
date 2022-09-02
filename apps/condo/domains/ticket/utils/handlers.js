@@ -26,6 +26,7 @@ const { Ticket, TicketCommentsTime } = require('./serverSchema')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
+const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -232,20 +233,24 @@ const sendTicketNotifications = async (requestData) => {
     }
 
     if (eventTypes[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] && clientPhone) {
-        const today = dayjs().format('YYYY-MM-DD')
-        const uniqKey = `${today}_${clientPhone}`
+        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled('sms-after-ticket-creation', { organization: organization.id })
 
-        await sendMessage(context, {
-            lang,
-            to: { phone: clientPhone },
-            type: TRACK_TICKET_IN_DOMA_APP_TYPE,
-            uniqKey,
-            meta: {
-                dv: 1,
-            },
-            sender: updatedItem.sender,
-            organization: { id: organization.id },
-        })
+        if (isFeatureEnabled) {
+            const today = dayjs().format('YYYY-MM-DD')
+            const uniqKey = `${today}_${clientPhone}`
+
+            await sendMessage(context, {
+                lang,
+                to: { phone: clientPhone },
+                type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+                uniqKey,
+                meta: {
+                    dv: 1,
+                },
+                sender: updatedItem.sender,
+                organization: { id: organization.id },
+            })
+        }
     }
 }
 
