@@ -190,7 +190,7 @@ const obsRouterHandler = ({ keystone }) => {
         * NOTE
         * Problem:
         *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
-        *   it is impossible to read the response to the request.
+        *   it is impossible to read the response of the request.
         *
         * Solution:
         *   When adding the "shallow-redirect" header,
