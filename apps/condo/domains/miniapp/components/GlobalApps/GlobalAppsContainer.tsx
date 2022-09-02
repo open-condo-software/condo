@@ -15,8 +15,9 @@ import {
     IFRAME_MODAL_ACTION_MESSAGE_TYPE,
     NOTIFICATION_MESSAGE_TYPE,
     TASK_MESSAGE_TYPE,
-    parseMessage,
+    COMMAND_MESSAGE_TYPE,
     sendMessage,
+    parseMessage,
 } from '@condo/domains/common/utils/iframe.utils'
 import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import GlobalIframe from './GlobalIframe'
@@ -137,6 +138,14 @@ export const GlobalAppsContainer: React.FC = () => {
         }, event.origin)
     }, [tasks])
 
+    const handleCommand = useCallback((message, event) => {
+        switch (message.command) {
+            case 'getUser':
+                event.source.postMessage({ id: message.id, data: user }, event.origin)
+                break
+        }
+    }, [user])
+
     // TODO(DOMA-3435, @savelevMatthew) Refactor message structure after moving to lib
     const handleNotification = useCallback((message) => {
         const notificationFunction = get(notification, message.notificationType)
@@ -198,6 +207,8 @@ export const GlobalAppsContainer: React.FC = () => {
         const { type, message } = parsedMessage
         if (type === 'system') {
             switch (message.type) {
+                case COMMAND_MESSAGE_TYPE:
+                    return handleCommand(message, event)
                 case TASK_MESSAGE_TYPE:
                     if (message.taskOperation === 'create' || message.taskOperation === 'update') {
                         return handleTask(message, event)
@@ -224,6 +235,7 @@ export const GlobalAppsContainer: React.FC = () => {
         registerModal,
         deleteModalFromApp,
         handleTask,
+        handleCommand,
     ])
 
     useEffect(() => {
@@ -242,11 +254,11 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [handleMessage])
 
     useEffect(() => {
-        if (!isGlobalAppsFetched.current && !loading && !objs.length && !isNull(user)) {
+        if (!isGlobalAppsFetched.current && !loading && !isNull(user)) {
             refetch()
             isGlobalAppsFetched.current = true
         }
-    }, [user, loading, objs])
+    }, [user, loading])
 
     // Global miniapps allowed only for authenticated users
     if (!user) {
