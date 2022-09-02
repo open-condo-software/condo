@@ -4,6 +4,7 @@ const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
+const { dvSenderFields } = require('../constants')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -49,6 +50,7 @@ async function changeClientSecret (context, { clientId, currentClientSecret, new
                 throw new Error('clientSecretExpiration is missing in response, so, It\'s unknown, when new client secret will be expired')
             }
             await TokenSet.update(context, tokenSet.id, {
+                ...dvSenderFields,
                 clientSecret: newClientSecret,
                 clientSecretExpiresAt: dayjs().add(clientSecretExpiration, 'days').toISOString(),
             })

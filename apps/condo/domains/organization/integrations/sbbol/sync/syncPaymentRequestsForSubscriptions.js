@@ -100,12 +100,14 @@ const postPaymentRequestFor = async (subscription, fintechApi) => {
     if (response.data) {
         const { data } = response
         await ServiceSubscriptionPayment.update(context, newPayment.id, {
+            ...dvSenderFields,
             meta: data,
             externalId: data.number,
         })
     } else {
         const { error } = response
         await ServiceSubscriptionPayment.update(context, newPayment.id, {
+            ...dvSenderFields,
             status: SUBSCRIPTION_PAYMENT_STATUS.ERROR,
             meta: error,
         })
