@@ -10,7 +10,6 @@ import { useIntl } from '@condo/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
 import { green } from '@ant-design/colors'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
-import { FormattedMessage } from '@condo/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
 import { getReviewMessageByValue } from '@condo/domains/ticket/utils/clientSchema/Ticket'
@@ -254,18 +253,16 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
+            const values = {
+                field: message,
+                to: valueTo,
+            }
 
             return (
                 <>
                     <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
-                    <FormattedMessage
-                        id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.boolean.change' }
-                        values={{
-                            field: message,
-                            to: valueTo,
-                        }}
-                    />
+                    {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.boolean.change' }, values)}
                 </>
             )
         }
@@ -276,16 +273,14 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         const isValueToNotEmpty = !isNil(valueTo)
         const formattedValueFrom = formatField(field, valueFrom, TicketChangeFieldMessageType.From)
         const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
+        const values = {
+            field: message,
+            from: formattedValueFrom,
+            to: formattedValueTo,
+        }
 
         if (isAutoCloseTicketChanges(ticketChange)) {
-            return (
-                <FormattedMessage
-                    id='pages.condo.ticket.TicketChanges.autoCloseTicket'
-                    values={{
-                        status: formattedValueTo,
-                    }}
-                />
-            )
+            return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' }, { status: formattedValueTo })
         }
 
         if (isValueFromNotEmpty && isValueToNotEmpty) {
@@ -293,14 +288,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 <>
                     <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
-                    <FormattedMessage
-                        id={ customMessages.change ? customMessages.change : 'pages.condo.ticket.TicketChanges.change' }
-                        values={{
-                            field: message,
-                            from: formattedValueFrom,
-                            to: formattedValueTo,
-                        }}
-                    />
+                    {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.change' }, values)}
                 </>
             )
         } else if (isValueToNotEmpty) { // only "to" part
@@ -308,13 +296,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 <>
                     <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
-                    <FormattedMessage
-                        id={ customMessages.add ? customMessages.add : 'pages.condo.ticket.TicketChanges.add' }
-                        values={{
-                            field: message,
-                            to: formattedValueTo,
-                        }}
-                    />
+                    {intl.formatMessage({ id: customMessages.add || 'pages.condo.ticket.TicketChanges.add' }, values)}
                 </>
             )
         } else if (isValueFromNotEmpty) {
@@ -322,13 +304,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 <>
                     <SafeUserMention ticketChange={ticketChange}/>
                     &nbsp;
-                    <FormattedMessage
-                        id={ customMessages.remove ? customMessages.remove : 'pages.condo.ticket.TicketChanges.remove' }
-                        values={{
-                            field: message,
-                            from: formattedValueFrom,
-                        }}
-                    />
+                    {intl.formatMessage({ id: customMessages.remove || 'pages.condo.ticket.TicketChanges.remove' }, values)}
                 </>
             )
         }
@@ -338,55 +314,23 @@ const useChangedFieldMessagesOf = (ticketChange) => {
         const formatterFor = {
             deferredUntil: (field, ticketChange) => {
                 const valueDeferredUntilFrom = formatField(field, ticketChange['deferredUntilFrom'], TicketChangeFieldMessageType.From)
-
-                return (
-                    <FormattedMessage
-                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil'
-                        values={{
-                            deferredUntil: valueDeferredUntilFrom,
-                        }}
-                    />
-                )
+                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil' }, { deferredUntil: valueDeferredUntilFrom })
             },
             statusDisplayName: (field, ticketChange) => {
                 const valueStatusTo = formatField(field, ticketChange['statusDisplayNameTo'], TicketChangeFieldMessageType.To)
-
-                return (
-                    <FormattedMessage
-                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.status'
-                        values={{
-                            status: valueStatusTo,
-                        }}
-                    />
-                )
+                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.status' }, { status: valueStatusTo })
             },
             assigneeDisplayName: (field, ticketChange) => {
                 const valueAssigneeFrom = { name: ticketChange['assigneeDisplayNameFrom'], id: ticketChange['assigneeIdFrom'] }
-
-                return (
-                    <>
-                        <FormattedMessage
-                            id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee'
-                            values={{
-                                assignee: <Link href={`/employee/${valueAssigneeFrom.id}`}>{valueAssigneeFrom.name}</Link>,
-                            }}
-                        />
-                    </>
-                )
+                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee' }, {
+                    assignee: <Link href={`/employee/${valueAssigneeFrom.id}`}>{valueAssigneeFrom.name}</Link>,
+                })
             },
             executorDisplayName: (field, ticketChange) => {
                 const valueExecutorFrom = { name: ticketChange['executorDisplayNameFrom'], id: ticketChange['executorIdFrom'] }
-
-                return (
-                    <>
-                        <FormattedMessage
-                            id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor'
-                            values={{
-                                executor: <Link href={`/employee/${valueExecutorFrom.id}`}>{valueExecutorFrom.name}</Link>,
-                            }}
-                        />
-                    </>
-                )
+                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor' }, {
+                    executor: <Link href={`/employee/${valueExecutorFrom.id}`}>{valueExecutorFrom.name}</Link>,
+                })
             },
         }
 
