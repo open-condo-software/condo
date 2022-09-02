@@ -128,30 +128,12 @@ async function checkMessageTypeInBlackList (context, message) {
     if (message.organization) {
         const messageOrganizationBlackListWhere = {
             type: message.type,
-            OR: [
-                { organization_is_null: true },
-                { organization: { id: message.organization.id } },
-            ],
+            organization: { id: message.organization.id },
             deletedAt: null,
         }
         const messageOrganizationBlackListRules = await MessageOrganizationBlackList.getAll(context, messageOrganizationBlackListWhere)
 
         if (!isEmpty(messageOrganizationBlackListRules)) {
-            const messageOrganizationBlackListRule = messageOrganizationBlackListRules.find(rule => get(rule, ['organization', 'id']) === message.organization.id)
-            const allOrganizationsBlackListRule = messageOrganizationBlackListRules.find(rule => !rule.organization)
-
-            if (!messageOrganizationBlackListRule && allOrganizationsBlackListRule) {
-                const messageOrganizationWhiteListRule = await MessageOrganizationWhiteList.getOne(context, {
-                    type: message.type,
-                    organization: { id: message.organization.id },
-                    deletedAt: null,
-                })
-
-                if (messageOrganizationWhiteListRule) {
-                    return { error: null }
-                }
-            }
-
             return {
                 error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST,
             }

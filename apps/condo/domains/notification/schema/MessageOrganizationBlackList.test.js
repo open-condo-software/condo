@@ -152,30 +152,6 @@ describe('MessageOrganizationBlackList', () => {
                 expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST)
             })
         })
-
-        it('dont send notification if all organizaitons added in MessageOrganizationBlackList', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const userAttrs = {
-                name: faker.name.firstName(),
-                email: createTestEmail(),
-                phone: createTestPhone(),
-            }
-            const client = await makeClientWithRegisteredOrganization()
-
-            await createTestMessageOrganizationBlackList(admin, {
-                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-            })
-
-            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
-
-            await waitFor(async () => {
-                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
-                const messages = await Message.getAll(admin, messageWhere)
-
-                expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
-                expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST)
-            })
-        })
     })
 
     describe('constraints', () => {

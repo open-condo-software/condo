@@ -26,6 +26,7 @@ class FeatureToggleManager {
                 .then((parsed) => {
                     this.growthbook.setFeatures(parsed.features)
                 })
+                .catch(e => console.error(e))
         }
     }
 

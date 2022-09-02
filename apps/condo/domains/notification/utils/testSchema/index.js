@@ -233,39 +233,6 @@ async function updateTestMessageOrganizationBlackList (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
-async function createTestMessageOrganizationWhiteList (client, organization, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const description = faker.random.alphaNumeric(8)
-    const type = INVITE_NEW_EMPLOYEE_MESSAGE_TYPE
-
-    const attrs = {
-        description,
-        type,
-        dv: 1,
-        sender,
-        organization: { connect: { id: organization.id } },
-        ...extraAttrs,
-    }
-    const obj = await MessageOrganizationWhiteList.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestMessageOrganizationWhiteList (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await MessageOrganizationWhiteList.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -273,6 +240,5 @@ module.exports = {
     RemoteClient, createTestRemoteClient, updateTestRemoteClient, syncRemoteClientByTestClient, disconnectUserFromRemoteClientByTestClient,
     MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList,
     MessageOrganizationBlackList, createTestMessageOrganizationBlackList, updateTestMessageOrganizationBlackList,
-    MessageOrganizationWhiteList, createTestMessageOrganizationWhiteList, updateTestMessageOrganizationWhiteList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
