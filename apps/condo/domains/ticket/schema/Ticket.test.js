@@ -1702,7 +1702,6 @@ describe('Ticket', () => {
                 const [updatedTicket] = await updateTestTicket(client, ticket2.id, {
                     deferredUntil: null,
                 })
-                console.log()
                 const differenceDate2 = expectedDeferredUntil.diff(dayjs(updatedTicket.deferredUntil), 'days')
                 expect(differenceDate2).toEqual(0)
             })
