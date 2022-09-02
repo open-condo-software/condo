@@ -335,55 +335,62 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     }
 
     const formatAutoReopenDiffMessage = (field, ticketChange) => {
-        if (field === 'deferredUntil') {
-            const valueDeferredUntilFrom = formatField(field, ticketChange['deferredUntilFrom'], TicketChangeFieldMessageType.From)
+        const formatterFor = {
+            deferredUntil: (field, ticketChange) => {
+                const valueDeferredUntilFrom = formatField(field, ticketChange['deferredUntilFrom'], TicketChangeFieldMessageType.From)
 
-            return (
-                <FormattedMessage
-                    id='pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil'
-                    values={{
-                        deferredUntil: valueDeferredUntilFrom,
-                    }}
-                />
-            )
-        } else if (field === 'statusDisplayName') {
-            const valueStatusTo = formatField(field, ticketChange['statusDisplayNameTo'], TicketChangeFieldMessageType.To)
-
-            return (
-                <FormattedMessage
-                    id='pages.condo.ticket.TicketChanges.autoReopenTicket.status'
-                    values={{
-                        status: valueStatusTo,
-                    }}
-                />
-            )
-        } else if (field === 'assigneeDisplayName') {
-            const valueAssigneeFrom = { name: ticketChange['assigneeDisplayNameFrom'], id: ticketChange['assigneeIdFrom'] }
-
-            return (
-                <>
+                return (
                     <FormattedMessage
-                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee'
+                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil'
                         values={{
-                            assignee: <Link href={`/employee/${valueAssigneeFrom.id}`}>{valueAssigneeFrom.name}</Link>,
+                            deferredUntil: valueDeferredUntilFrom,
                         }}
                     />
-                </>
-            )
-        } else if (field === 'executorDisplayName') {
-            const valueExecutorFrom = { name: ticketChange['executorDisplayNameFrom'], id: ticketChange['executorIdFrom'] }
+                )
+            },
+            statusDisplayName: (field, ticketChange) => {
+                const valueStatusTo = formatField(field, ticketChange['statusDisplayNameTo'], TicketChangeFieldMessageType.To)
 
-            return (
-                <>
+                return (
                     <FormattedMessage
-                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor'
+                        id='pages.condo.ticket.TicketChanges.autoReopenTicket.status'
                         values={{
-                            executor: <Link href={`/employee/${valueExecutorFrom.id}`}>{valueExecutorFrom.name}</Link>,
+                            status: valueStatusTo,
                         }}
                     />
-                </>
-            )
+                )
+            },
+            assigneeDisplayName: (field, ticketChange) => {
+                const valueAssigneeFrom = { name: ticketChange['assigneeDisplayNameFrom'], id: ticketChange['assigneeIdFrom'] }
+
+                return (
+                    <>
+                        <FormattedMessage
+                            id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee'
+                            values={{
+                                assignee: <Link href={`/employee/${valueAssigneeFrom.id}`}>{valueAssigneeFrom.name}</Link>,
+                            }}
+                        />
+                    </>
+                )
+            },
+            executorDisplayName: (field, ticketChange) => {
+                const valueExecutorFrom = { name: ticketChange['executorDisplayNameFrom'], id: ticketChange['executorIdFrom'] }
+
+                return (
+                    <>
+                        <FormattedMessage
+                            id='pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor'
+                            values={{
+                                executor: <Link href={`/employee/${valueExecutorFrom.id}`}>{valueExecutorFrom.name}</Link>,
+                            }}
+                        />
+                    </>
+                )
+            },
         }
+
+        return formatterFor[field](field, ticketChange)
     }
 
     const getAutoReopenTicketChanges = (ticketChange) => {
