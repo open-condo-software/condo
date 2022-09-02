@@ -8,7 +8,7 @@ const { TokenSet } = require('@condo/domains/organization/utils/serverSchema')
 
 const { SBBOL_IMPORT_NAME } = require('../common')
 const { SbbolOauth2Api } = require('../oauth2')
-const { REFRESH_TOKEN_TTL } = require('../constants')
+const { REFRESH_TOKEN_TTL, dvSenderFields } = require('../constants')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
@@ -74,6 +74,7 @@ async function getOrganizationAccessToken (context, organizationImportId) {
         const oauth2 = new SbbolOauth2Api({ clientSecret })
         const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(tokenSet.refreshToken)
         tokenSet = await TokenSet.update(context, tokenSet.id, {
+            ...dvSenderFields,
             accessToken: access_token,
             refreshToken: refresh_token,
             accessTokenExpiresAt: new Date(Number(expires_at) * 1000).toISOString(),

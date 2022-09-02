@@ -30,6 +30,7 @@ const syncSbbolSubscriptionPaymentRequestStateFor = async (subscriptionPayment, 
                     })
                 } else {
                     await ServiceSubscriptionPayment.update(context, subscriptionPayment.id, {
+                        ...dvSenderFields,
                         status,
                         statusMeta: data,
                     })

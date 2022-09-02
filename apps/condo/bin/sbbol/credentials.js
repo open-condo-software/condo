@@ -15,7 +15,7 @@ const { getRandomString, prepareKeystoneExpressApp } = require('@condo/keystone/
 
 const { changeClientSecret, getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { SBBOL_IMPORT_NAME } = require('../common')
+const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
