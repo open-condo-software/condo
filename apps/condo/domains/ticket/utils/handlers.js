@@ -233,7 +233,11 @@ const sendTicketNotifications = async (requestData) => {
     }
 
     if (eventTypes[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] && clientPhone) {
-        const isFeatureEnabled = await featureToggleManager.isFeatureEnabled('sms-after-ticket-creation', { organization: organization.id })
+        const isFeatureEnabled = featureToggleManager.isFeatureEnabled(
+            get(requestData, ['context', 'req']),
+            'sms-after-ticket-creation',
+            { organization: organization.id }
+        )
 
         if (isFeatureEnabled) {
             const today = dayjs().format('YYYY-MM-DD')

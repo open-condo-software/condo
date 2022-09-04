@@ -11,9 +11,6 @@ class FeatureToggleManager {
             const config = JSON.parse(FEATURE_TOGGLE_CONFIG)
             featureToggleApiUrl = config.url
             featureToggleApiKey = config.apiKey
-
-            this.growthbook = new GrowthBook()
-            this.fetchFeatures()
         } catch (e) {
             console.error(e)
         }
@@ -21,23 +18,24 @@ class FeatureToggleManager {
 
     async fetchFeatures () {
         if (featureToggleApiUrl && featureToggleApiKey) {
-            await fetch(`${featureToggleApiUrl}/${featureToggleApiKey}`)
+            return await fetch(`${featureToggleApiUrl}/${featureToggleApiKey}`)
                 .then((res) => res.json())
                 .then((parsed) => {
-                    this.growthbook.setFeatures(parsed.features)
+                    return Promise.resolve(parsed.features)
                 })
                 .catch(e => console.error(e))
         }
     }
 
-    async isFeatureEnabled (featureName, context) {
-        await this.fetchFeatures()
+    isFeatureEnabled (request, featureName, context) {
+        const growthbook = new GrowthBook()
 
+        growthbook.setFeatures(request.features)
         if (context) {
-            this.growthbook.setAttributes(context)
+            growthbook.setAttributes(context)
         }
 
-        return this.growthbook.isOn(featureName)
+        return growthbook.isOn(featureName)
     }
 }
 
