@@ -29,6 +29,7 @@ const { GraphQLLoggerPlugin } = require('@condo/keystone/logging')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 const packageJson = require('@app/condo/package.json')
+const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -156,7 +157,6 @@ class VersioningMiddleware {
     }
 }
 
-
 module.exports = {
     keystone,
     apps: [
@@ -225,6 +225,12 @@ module.exports = {
                 res.cookie('dv', 1)
             }
             next()
+        })
+
+        app.use('/admin/api', async (req, res, next) => {
+            req.features = await featureToggleManager.fetchFeatures()
+
+            return next()
         })
     },
 }
