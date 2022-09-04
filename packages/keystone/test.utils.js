@@ -63,6 +63,11 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
+let __isFeatureFlagsEnabled = true
+
+function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
+    __isFeatureFlagsEnabled = isFeatureFlagsEnabled
+}
 
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (__expressApp !== null) return
@@ -207,6 +212,7 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             cache: 'no-cache',
             mode: 'cors',
             credentials: 'include',
+            'feature-flags': __isFeatureFlagsEnabled,
         },
         includeExtensions: true,
         isExtractableFile: (value) => {
@@ -397,4 +403,5 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
+    setIsFeatureFlagsEnabled,
 }

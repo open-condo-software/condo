@@ -4,7 +4,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@condo/keystone/test.utils')
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor, setIsFeatureFlagsEnabled } = require('@condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj,

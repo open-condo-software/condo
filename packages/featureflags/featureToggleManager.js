@@ -28,6 +28,10 @@ class FeatureToggleManager {
     }
 
     isFeatureEnabled (request, featureName, context) {
+        if (conf.NODE_ENV === 'test' && request && request.headers) {
+            return request.headers['feature-flags'] === 'true'
+        }
+
         const growthbook = new GrowthBook()
 
         growthbook.setFeatures(request.features)
