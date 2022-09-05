@@ -28,7 +28,7 @@ class FeatureToggleManager {
             const redisClient = getRedisClient()
             const cachedFeatureFlags = await redisClient.get(REDIS_FEATURES_KEY)
             if (cachedFeatureFlags) {
-                return cachedFeatureFlags
+                return JSON.parse(cachedFeatureFlags)
             }
 
             if (featureToggleApiUrl && featureToggleApiKey) {
@@ -47,15 +47,19 @@ class FeatureToggleManager {
         }
     }
 
-    isFeatureEnabled (request, featureName, context) {
-        if (conf.NODE_ENV === 'test' && request && request.headers) {
+    isFeatureEnabled (keystoneContext, featureName, featuresContext) {
+        if (!keystoneContext) return false
+
+        const request = keystoneContext.req
+
+        if (conf.NODE_ENV === 'test') {
             return request.headers['feature-flags'] === 'true'
         }
-        const growthbook = new GrowthBook()
 
+        const growthbook = new GrowthBook()
         growthbook.setFeatures(request.features)
-        if (context) {
-            growthbook.setAttributes(context)
+        if (featuresContext) {
+            growthbook.setAttributes(featuresContext)
         }
 
         return growthbook.isOn(featureName)

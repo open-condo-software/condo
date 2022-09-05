@@ -234,7 +234,7 @@ const sendTicketNotifications = async (requestData) => {
 
     if (eventTypes[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] && clientPhone) {
         const isFeatureEnabled = featureToggleManager.isFeatureEnabled(
-            get(requestData, ['context', 'req']),
+            get(requestData, 'context'),
             'sms-after-ticket-creation',
             { organization: organization.id }
         )
