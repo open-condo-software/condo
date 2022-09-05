@@ -29,6 +29,8 @@ interface ITicketDescriptionFieldProps {
     value?: React.ReactNode
 }
 
+const ticketLabelStyle = { marginTop: '0' }
+
 const TicketDescriptionField: React.FC<ITicketDescriptionFieldProps> = ({ title, value }) => {
     const intl = useIntl()
     const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
@@ -93,8 +95,9 @@ const PdfView = () => {
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const NotesMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.Notes' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
+    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
+    const PaidMessage = intl.formatMessage({ id: 'Paid' })
 
     const containerRef = useRef(null)
 
@@ -159,6 +162,7 @@ const PdfView = () => {
 
     const ticketAddress = `${get(ticket, ['property', 'address'], ticket.propertyAddress)} ${ticketUnitMessage} ${ticketSectionAndFloorMessage}`
 
+    const isReturned = get(ticket, 'statusReopenedCounter') > 0
     const isEmergency = get(ticket, 'isEmergency')
     const isWarranty = get(ticket, 'isWarranty')
     const isPaid = get(ticket, 'isPaid')
@@ -178,8 +182,9 @@ const PdfView = () => {
                     </Col>
                     <Col span={8}>
                         {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
-                        {isWarranty && (<Typography.Title style={{ marginTop: '0' }} level={2}>{WarrantyMessage.toLowerCase()}</Typography.Title>)}
-                        {isPaid && (<Typography.Title style={{ marginTop: '0' }} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
+                        {isWarranty && (<Typography.Title style={ticketLabelStyle} level={2}>{WarrantyMessage.toLowerCase()}</Typography.Title>)}
+                        {isPaid && (<Typography.Title style={ticketLabelStyle} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
+                        {isReturned && (<Typography.Title style={ticketLabelStyle} level={2}>{ReturnedMessage.toLowerCase()}</Typography.Title>)}
                     </Col>
                 </Row>
             </Col>
