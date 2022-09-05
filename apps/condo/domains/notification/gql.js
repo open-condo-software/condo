@@ -14,7 +14,7 @@ const Message = generateGqlQueries('Message', MESSAGE_FIELDS)
 
 const SEND_MESSAGE = gql`
     mutation sendMessage ($data: SendMessageInput!) {
-        result: sendMessage(data: $data) { status id }
+        result: sendMessage(data: $data) { status id isDuplicateMessage }
     }
 `
 

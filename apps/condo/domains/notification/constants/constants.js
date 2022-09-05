@@ -41,6 +41,7 @@ const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
 const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
 const RESIDENT_UPGRADE_APP_TYPE = 'RESIDENT_UPGRADE_APP'
 const STAFF_UPGRADE_APP_TYPE = 'STAFF_UPGRADE_APP'
+const CUSTOM_CONTENT_MESSAGE_TYPE = 'CUSTOM_CONTENT_MESSAGE'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -72,6 +73,7 @@ const MESSAGE_TYPES = [
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     RESIDENT_UPGRADE_APP_TYPE,
     STAFF_UPGRADE_APP_TYPE,
+    CUSTOM_CONTENT_MESSAGE_TYPE,
 ]
 
 /**
@@ -338,6 +340,16 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
+    [CUSTOM_CONTENT_MESSAGE_TYPE]: {
+        dv: { required: true },
+        title: { required: true },
+        body: { required: true },
+        data: {
+            userId: { required: false },
+            url: { defaultValue: '', required: false },
+            messageBatchId: { required: false },
+        },
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -442,4 +454,5 @@ module.exports = {
     DEVICE_PLATFORM_WEB,
     RESIDENT_UPGRADE_APP_TYPE,
     STAFF_UPGRADE_APP_TYPE,
+    CUSTOM_CONTENT_MESSAGE_TYPE,
 }
