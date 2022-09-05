@@ -1,4 +1,5 @@
 const { get } = require('lodash')
+const { SECTION_SECTION_TYPE, PARKING_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 function getSectionAndFloorByUnitName (property, unitName, unitType) {
     const res = {
@@ -7,13 +8,13 @@ function getSectionAndFloorByUnitName (property, unitName, unitType) {
         floorName: null,
     }
     if (unitName && unitType) {
-        const sections = get(property, ['map', `${unitType !== 'parking' ? 'sections' : 'parking'}`], [])
+        const sections = get(property, ['map', `${unitType !== PARKING_UNIT_TYPE ? SECTION_SECTION_TYPE : PARKING_UNIT_TYPE}`], [])
         for (const section of sections) {
             for (const floor of section.floors) {
                 for (const unit of floor.units) {
                     if (unit.label === unitName) {
                         res.sectionName = section.name
-                        res.sectionType = section.type
+                        res.sectionType = unitType !== PARKING_UNIT_TYPE ? 'sections' : 'parking'
                         res.floorName = floor.name
                         break
                     }
