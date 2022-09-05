@@ -10,7 +10,7 @@ let featureToggleApiUrl
 let featureToggleApiKey
 
 const REDIS_FEATURES_KEY = 'features'
-const FEATURES_EXPIRED_IN_SECONDS = 40
+const FEATURES_EXPIRED_IN_SECONDS = 60
 
 class FeatureToggleManager {
     constructor () {

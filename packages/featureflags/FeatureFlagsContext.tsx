@@ -1,7 +1,7 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
 import getConfig from 'next/config'
 import { useRouter } from 'next/router'
-import React, { createContext, useCallback, useContext, useEffect } from 'react'
+import { createContext, useCallback, useContext, useEffect } from 'react'
 
 const growthbook = new GrowthBook()
 
@@ -20,24 +20,9 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
 
     const {
         publicRuntimeConfig: {
-            featureToggleConfig,
+            serverUrl,
         },
     } = getConfig()
-
-
-    let featureToggleApiUrl
-    let featureToggleApiKey
-
-    try {
-        const config = featureToggleConfig && JSON.parse(featureToggleConfig)
-
-        if (config) {
-            featureToggleApiUrl = config.url
-            featureToggleApiKey = config.apiKey
-        }
-    } catch (e) {
-        console.error(e)
-    }
 
     const updateContext = useCallback((context) => {
         const previousContext = growthbook.getAttributes()
@@ -47,15 +32,15 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
 
     useEffect(() => {
-        if (featureToggleApiUrl && featureToggleApiKey) {
-            fetch(`${featureToggleApiUrl}/${featureToggleApiKey}`)
+        if (serverUrl) {
+            fetch(`${serverUrl}/api/features`)
                 .then((res) => res.json())
-                .then((json) => {
-                    growthbook.setFeatures(json.features)
+                .then((features) => {
+                    growthbook.setFeatures(JSON.parse(features))
                 })
                 .catch(e => console.error(e))
         }
-    }, [featureToggleApiKey, featureToggleApiUrl, growthbook, router.pathname])
+    }, [growthbook, router.pathname, serverUrl])
 
     return (
         <FeatureFlagsContext.Provider value={{

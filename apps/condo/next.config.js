@@ -30,7 +30,6 @@ const defaultLocale = conf.DEFAULT_LOCALE
 const insuranceAppUrl = conf['INSURANCE_APP_URL']
 const JivoSiteWidgetId = conf['JIVO_SITE_WIDGET_ID']
 const TinyMceApiKey = conf['TINY_MCE_API_KEY']
-const featureToggleConfig = conf['FEATURE_TOGGLE_CONFIG']
 
 module.exports = withTM(withLess(withCSS({
     publicRuntimeConfig: {
@@ -49,7 +48,6 @@ module.exports = withTM(withLess(withCSS({
         insuranceAppUrl,
         JivoSiteWidgetId,
         TinyMceApiKey,
-        featureToggleConfig,
     },
     lessLoaderOptions: {
         javascriptEnabled: true,
