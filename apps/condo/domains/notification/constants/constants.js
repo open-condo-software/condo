@@ -342,7 +342,8 @@ const MESSAGE_META = {
     },
     [CUSTOM_CONTENT_MESSAGE_TYPE]: {
         dv: { required: true },
-        title: { required: true },
+        title: { required: false },
+        subject: { required: false },
         body: { required: true },
         data: {
             userId: { required: false },
