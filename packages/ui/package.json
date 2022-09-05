@@ -10,7 +10,9 @@
   },
   "license": "MIT",
   "scripts": {
-    "build:tokens": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/build-vars.js"
+    "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/build-vars.js",
+    "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
+    "build:tokens": "yarn build:styles && yarn build:colors"
   },
   "files": [
     "dist"
@@ -19,6 +21,7 @@
     "@types/node": "^14.18.26",
     "lodash": "^4.17.21",
     "pluralize": "^8.0.0",
+    "quicktype-core": "^6.0.71",
     "style-dictionary": "^3.7.1",
     "token-transformer": "^0.0.25"
   }

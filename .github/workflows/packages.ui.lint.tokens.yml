@@ -20,8 +20,8 @@ jobs:
       - name: Install packages
         run: yarn install --immutable
 
-      - name: Lint tokens refs
-        run: yarn workspace @condo/ui build:tokens
+      - name: Build styles from tokens
+        run: yarn workspace @condo/ui build:styles
 
       - name: Lint CSS variables
         run: yarn stylelint "packages/ui/src/tokens/**/*.css"
