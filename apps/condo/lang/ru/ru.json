@@ -955,6 +955,8 @@
   "notification.messages.RESIDENT_UPGRADE_APP.push.title": "Пора обновиться",
   "notification.messages.STAFF_UPGRADE_APP.email.subject": "Важное обновление",
   "notification.messages.STAFF_UPGRADE_APP.push.title": "Важное обновление",
+  "notification.messages.CUSTOM_CONTENT_MESSAGE.email.title": "{title}",
+  "notification.messages.CUSTOM_CONTENT_MESSAGE.push.title": "{title}",
   "TicketDeadline": "Срок выполнения заявки",
   "TicketDeferredDeadline": "Срок отложенности заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",

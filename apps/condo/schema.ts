@@ -21548,6 +21548,29 @@ export type Mutation = {
    * 				"required": true
    * 			}
    * 		}
+   * 	},
+   * 	"CUSTOM_CONTENT_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"title": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"userId": {
+   * 				"required": false
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": false
+   * 			},
+   * 			"messageBatchId": {
+   * 				"required": false
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -37850,6 +37873,7 @@ export type SendMessageOutput = {
   __typename?: 'SendMessageOutput';
   status: Scalars['String'];
   id: Scalars['String'];
+  isDuplicateMessage?: Maybe<Scalars['Boolean']>;
 };
 
 export type SendMessageToInput = {
@@ -37910,7 +37934,8 @@ export enum SendMessageType {
   BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
-  StaffUpgradeApp = 'STAFF_UPGRADE_APP'
+  StaffUpgradeApp = 'STAFF_UPGRADE_APP',
+  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE'
 }
 
 export type SenderField = {
