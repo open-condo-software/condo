@@ -7,6 +7,7 @@
  *      yarn workspace @app/condo node ./bin/notification/send-receipt-added-notifications
  */
 const path = require('path')
+const { get } = require('lodash')
 const dayjs = require('dayjs')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
@@ -21,7 +22,7 @@ const { prompt } = require('../lib/prompt')
 const TODAY = dayjs().format(DATE_FORMAT)
 const LINE_ENDINGS_REGEXP = /[\r\n]+/giu
 const EXTRA_SPACES_REGEXP = /\s+/giu
-const IS_EMAIL_REGEXP = /^.+@.+\..+$/gi
+const IS_EMAIL_REGEXP = /^\S+@\S+\.\S+$/
 const IS_PHONE_REGEXP = /^\+7\d{10}$/
 const IS_UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 const REPORT_COUNT = 20
@@ -80,7 +81,8 @@ const selectTarget = (target) => {
 
 const prepareAndSendMessage = async (context, target, data) => {
     const notificationKey = makeMessageKey(TODAY, data.title, target)
-    const to = selectTarget(target)
+    const transportType = detectTransportType(target)
+    const to = selectTarget(target, data.title)
 
     if (!to) return 0
 
@@ -89,9 +91,9 @@ const prepareAndSendMessage = async (context, target, data) => {
         type: CUSTOM_CONTENT_MESSAGE_TYPE,
         meta: {
             dv: 1,
-            title: data.title,
             body: data.body,
             data: {
+                userId: get(to, 'to.user.id'),
                 target: target,
                 url: data.deepLink,
             },
@@ -99,6 +101,9 @@ const prepareAndSendMessage = async (context, target, data) => {
         sender: { dv: 1, fingerprint: 'send-custom-message-batch-notification' },
         uniqKey: notificationKey,
     }
+
+    if (transportType === PUSH_TRANSPORT) messageData.meta.title = data.title
+    if (transportType === EMAIL_TRANSPORT) messageData.meta.subject = data.title
 
     try {
         const result = await sendMessage(context, messageData)

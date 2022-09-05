@@ -21554,7 +21554,10 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"title": {
-   * 			"required": true
+   * 			"required": false
+   * 		},
+   * 		"subject": {
+   * 			"required": false
    * 		},
    * 		"body": {
    * 			"required": true
