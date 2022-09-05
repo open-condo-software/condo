@@ -97,7 +97,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'type SendMessageOutput { status: String!, id: String! }',
+            type: 'type SendMessageOutput { status: String!, id: String!, isDuplicateMessage: Boolean }',
         },
         {
             access: true,
