@@ -162,7 +162,7 @@ const PdfView = () => {
 
     const ticketAddress = `${get(ticket, ['property', 'address'], ticket.propertyAddress)} ${ticketUnitMessage} ${ticketSectionAndFloorMessage}`
 
-    const isReturned = get(ticket, 'statusReopenedCounter') > 0
+    const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
     const isEmergency = get(ticket, 'isEmergency')
     const isWarranty = get(ticket, 'isWarranty')
     const isPaid = get(ticket, 'isPaid')
@@ -170,7 +170,7 @@ const PdfView = () => {
         <Row gutter={[12, 40]} style={{ filter: 'grayscale(1)', maxWidth: '800px', padding: '40px' }} ref={containerRef}>
             <Col span={24}>
                 <Row align='top'>
-                    <Col span={16}>
+                    <Col span={14}>
                         <Typography.Title level={1} style={{ margin: '0 0 16px', whiteSpace: 'pre-line' }} >
                             {`${TicketTitleMessage}
                                 ${String(getTicketLabel(intl, ticket)).toLowerCase()}`}
@@ -180,11 +180,15 @@ const PdfView = () => {
                             <Typography.Text ellipsis>{get(ticket, ['createdBy', 'name'])}</Typography.Text>
                         </Typography.Text>
                     </Col>
-                    <Col span={8}>
+                    <Col span={10}>
                         {isEmergency && (<Typography.Title level={2}>{EmergencyMessage.toLowerCase()}</Typography.Title>)}
                         {isWarranty && (<Typography.Title style={ticketLabelStyle} level={2}>{WarrantyMessage.toLowerCase()}</Typography.Title>)}
                         {isPaid && (<Typography.Title style={ticketLabelStyle} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
-                        {isReturned && (<Typography.Title style={ticketLabelStyle} level={2}>{ReturnedMessage.toLowerCase()}</Typography.Title>)}
+                        {statusReopenedCounter > 0 && (
+                            <Typography.Title style={ticketLabelStyle} level={2}>
+                                {`${ReturnedMessage.toLowerCase()} ${statusReopenedCounter > 1 ? statusReopenedCounter : ''}`}
+                            </Typography.Title>
+                        )}
                     </Col>
                 </Row>
             </Col>
