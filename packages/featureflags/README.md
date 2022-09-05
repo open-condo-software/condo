@@ -8,8 +8,8 @@ then you need to use feature flags.
 
 ## How to use feature flags in backend:
 To manage features on the server, use `featureToggleManager` as follows:  
-`await featureToggleManager.isFeatureEnabled(request, featureName, context)`
-where `request` it's Node.js Request object
+`await featureToggleManager.isFeatureEnabled(keystoneContext, featureName, featuresContext)`
+where `keystoneContext` it's Keystone context object
 
 **Example:** We want to allow some functionality on the server for certain organizations. 
 Suppose we already have a created feature toggle called `test-feature`.
@@ -17,7 +17,7 @@ Suppose we already have a created feature toggle called `test-feature`.
 The logic for checking whether a feature is available for this organization will be as follows:  
 ```
 const enabled = await featureToggleManager.isFeatureEnabled(
-   request,
+   context,
    'test-feature', 
    { organization: organization.id }
 )
