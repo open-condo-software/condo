@@ -1205,6 +1205,7 @@
   "errors.import.IncorrectPhonesFormat": "None of the phones are in a valid format",
   "errors.import.InvalidColumnTypes": "Required columns were empty or column's data types did not match required",
   "errors.import.AlreadyCreatedContact": "Such a contact already exists in this unit",
+  "errors.import.IncorrectContactRole": "Incorrect contact role. Please use one of the following list: {rolesList}",
   "Accrued": "Accrued",
   "Fee": "Fee",
   "IncludingFee": "including fee",

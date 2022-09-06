@@ -1205,6 +1205,7 @@
   "errors.import.IncorrectPhonesFormat": "Ни один из телефонов не соответсвует правильному формату",
   "errors.import.InvalidColumnTypes": "Обязательные колонки не были заполнены, или типы данных не соответствует указанным",
   "errors.import.AlreadyCreatedContact": "Такой контакт уже существует в этой квартире",
+  "errors.import.IncorrectContactRole": "Неверная роль. Используйте роли из списка: {rolesList}",
   "Accrued": "Начислено",
   "Fee": "Комиссия",
   "IncludingFee": "в том числе комиссия",
