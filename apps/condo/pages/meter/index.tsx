@@ -137,7 +137,6 @@ export const MetersPageContent = ({
                                 <Button
                                     type='sberPrimary'
                                     icon={<DiffOutlined />}
-                                    block
                                     secondary
                                 />
                             </ImportWrapper>
@@ -187,7 +186,6 @@ export const MetersPageContent = ({
                                                             <Button
                                                                 type='sberPrimary'
                                                                 icon={<DiffOutlined />}
-                                                                block
                                                                 secondary
                                                             />
                                                         </ImportWrapper>

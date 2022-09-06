@@ -115,7 +115,6 @@ export const ContactsPageContent = ({
                                 <Button
                                     type='sberPrimary'
                                     icon={<DiffOutlined/>}
-                                    block
                                     secondary
                                 />
                             </ImportWrapper>
@@ -165,7 +164,6 @@ export const ContactsPageContent = ({
                                                             <Button
                                                                 type='sberPrimary'
                                                                 icon={<DiffOutlined/>}
-                                                                block
                                                                 secondary
                                                             />
                                                         </ImportWrapper>
