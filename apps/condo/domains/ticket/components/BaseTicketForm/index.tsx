@@ -480,7 +480,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                         </Prompt>
                         <Col span={24}>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
-                                <Col span={24} lg={10}>
+                                <Col span={24} lg={7}>
                                     <TicketSourceSelect />
                                 </Col>
                                 <Col span={24}>
