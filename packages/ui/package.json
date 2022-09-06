@@ -12,17 +12,38 @@
   "scripts": {
     "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/build-vars.js",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
-    "build:tokens": "yarn build:styles && yarn build:colors"
+    "build:tokens": "yarn build:styles && yarn build:colors",
+    "build:lib": "webpack && tsc --emitDeclarationOnly --declarationMap",
+    "build": "yarn build:tokens && yarn build:lib"
   },
   "files": [
     "dist"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    "./colors": "./dist/colors/index.js"
+  },
+  "typesVersions": {
+    "*": {
+      "colors": ["dist/colors/index.d.ts"]
+    }
+  },
   "devDependencies": {
+    "@babel/core": "^7.19.0",
+    "@babel/preset-env": "^7.19.0",
+    "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.18.6",
     "@types/node": "^14.18.26",
+    "babel": "^6.23.0",
+    "babel-loader": "^8.2.5",
     "lodash": "^4.17.21",
     "pluralize": "^8.0.0",
     "quicktype-core": "^6.0.71",
     "style-dictionary": "^3.7.1",
-    "token-transformer": "^0.0.25"
+    "token-transformer": "^0.0.25",
+    "typescript": "^4.1.5",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
   }
 }
