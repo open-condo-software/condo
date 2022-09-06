@@ -30,7 +30,7 @@ const parsePhones = (phones: string) => {
     })
 }
 
-let rolesNameToIsMapping = {}
+let rolesNameToIdMapping = {}
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
@@ -77,7 +77,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     })
 
     if (!isRolesLoading) {
-        rolesNameToIsMapping = contactRoles.reduce((result, current) => ({
+        rolesNameToIdMapping = contactRoles.reduce((result, current) => ({
             ...result,
             [String(current.name).toLowerCase()]: current.id,
         }), {})
@@ -117,7 +117,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[unitTypeValue]
-        addons.role = rolesNameToIsMapping[String(get(role, 'value', '')).trim().toLowerCase()]
+
+        const roleValue = get(role, 'value')
+        if (roleValue) {
+            addons.role = String(roleValue).trim().toLowerCase()
+        }
 
         return addressApi.getSuggestions(String(address.value)).then(result => {
             const suggestion = get(result, ['suggestions', 0])
@@ -164,6 +168,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const phones = get(row, ['addons', 'phones'], []).filter(Boolean)
         if (!phones || phones.length === 0) errors.push(IncorrectPhonesMessage)
 
+        const contactRoleName = get(row, ['addons', 'role'])
+        if (contactRoleName) {
+            const contactRoleId = get(rolesNameToIdMapping, String(contactRoleName).trim().toLowerCase())
+            if (!contactRoleId) {
+                // The roles list loading asynchronously, so this message should build dynamically
+                errors.push(intl.formatMessage({ id: 'errors.import.IncorrectContactRole' }, { rolesList: Object.keys(rolesNameToIdMapping).join(', ') }))
+            }
+        }
+
         const { data } = await searchContacts(client, {
             organizationId: userOrganizationId,
             propertyId: row.addons.property,
@@ -204,7 +217,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     phone: phone,
                     name: row.addons.fullName,
                     email: row.addons.email,
-                    role: { connect: { id: String(row.addons.role) } },
+                    role: row.addons.role ? { connect: { id: String(row.addons.role) } } : undefined,
                 }),
             )
         }
