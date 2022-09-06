@@ -58,14 +58,14 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     const currentPeriod = dayjs().startOf('month').subtract(1, 'month').format('YYYY-MM-DD')
     const previousPeriod = dayjs(currentPeriod).subtract(1, 'month').format('YYYY-MM-DD')
 
-    const { count: receiptsInCurrentPeriod, loading: currentPeriodLoading } = BillingReceipt.useObjects({
+    const { count: receiptsInCurrentPeriod, loading: currentPeriodLoading } = BillingReceipt.useCount({
         where: {
             context: { organization: { id: ticketOrganizationId } },
             period: currentPeriod,
         },
     })
 
-    const { count: receiptsInPreviousPeriod, loading: previousPeriodLoading } = BillingReceipt.useObjects({
+    const { count: receiptsInPreviousPeriod, loading: previousPeriodLoading } = BillingReceipt.useCount({
         where: {
             context: { organization: { id: ticketOrganizationId } },
             period: previousPeriod,

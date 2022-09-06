@@ -16,6 +16,9 @@ type IUseObjectsQueryReturnType<GQLObject> = {
     objs?: GQLObject[]
     meta?: { count?: number }
 }
+type IUseCountQueryReturnType = {
+    meta?: { count?: number }
+}
 type IRefetchType<GQLObject, QueryVariables> = (variables?: Partial<QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>
 type IFetchMoreType<GQLObject, QueryVariables> = (<K extends keyof QueryVariables>(fetchMoreOptions: FetchMoreQueryOptions<QueryVariables, K, IUseObjectsQueryReturnType<GQLObject>> & FetchMoreOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) => Promise<ApolloQueryResult<IUseObjectsQueryReturnType<GQLObject>>>) & (<TData2, TVariables2, K extends keyof TVariables2>(fetchMoreOptions: {
     query?: DocumentNode | TypedDocumentNode<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>;
@@ -35,6 +38,9 @@ type IUseObjectsReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQL
 type IUseObjectReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     obj: GQLObject | null
 }
+type IUseCountReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
+    count: number
+}
 type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
 type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => Promise<GQLObject>
 type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
@@ -51,12 +57,15 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
     => IUseObjectsReturnType<GQLObject, QueryVariables>
     useObject: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectReturnType<GQLObject, QueryVariables>
+    useCount: (variables: QueryVariables, options?: QueryHookOptions<IUseCountQueryReturnType, QueryVariables>)
+    => IUseCountReturnType<GQLObject, QueryVariables>
 }
 
 type IGQLType = {
     CREATE_OBJ_MUTATION: DocumentNode
     UPDATE_OBJ_MUTATION: DocumentNode
     GET_ALL_OBJS_WITH_COUNT_QUERY: DocumentNode
+    GET_COUNT_OBJS_QUERY: DocumentNode
 }
 
 export function generateReactHooks<
@@ -165,6 +174,39 @@ export function generateReactHooks<
         }, [rowAction, onComplete])
     }
 
+    function useCount (variables: QueryVariables, options?: QueryHookOptions<IUseCountQueryReturnType, QueryVariables>) {
+        const intl = useIntl()
+        const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
+        const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+
+        const { data, error, loading, refetch, fetchMore, stopPolling } = useQuery<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>(gql.GET_COUNT_OBJS_QUERY, {
+            variables,
+            notifyOnNetworkStatusChange: true,
+            ...options,
+        })
+
+        const count = (data && data.meta) ? data.meta.count : null
+        const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
+        const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
+        const typedStopPolling: IStopPollingType = stopPolling
+
+        let readableError
+
+        if (error) {
+            readableError = String(error).includes('not have access') ? AccessDeniedError : ServerError
+            console.warn(error)
+        }
+
+        return {
+            loading,
+            count,
+            error: readableError,
+            refetch: typedRefetch,
+            fetchMore: typedFetchMore,
+            stopPolling: typedStopPolling,
+        }
+    }
+
     function useObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const intl = useIntl()
         const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
@@ -221,5 +263,6 @@ export function generateReactHooks<
         useCreate,
         useUpdate,
         useSoftDelete,
+        useCount,
     }
 }
