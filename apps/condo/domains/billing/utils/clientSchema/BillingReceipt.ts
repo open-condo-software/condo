@@ -17,6 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<BillingReceipt, BillingReceiptCreateInput, BillingReceiptUpdateInput, QueryAllBillingReceiptsArgs>(BillingReceiptGQL)
 
 export {
@@ -25,4 +26,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }
