@@ -2,6 +2,7 @@ import { BillingReceipt } from '@app/condo/domains/billing/utils/clientSchema'
 import { BankCardIcon } from '@app/condo/domains/common/components/icons/BankCardIcon'
 import { Ticket } from '@app/condo/schema'
 import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { useIntl } from '@condo/next/intl'
@@ -54,17 +55,17 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     const PaymentsAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsAvailable' })
     const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsNotAvailable' })
 
-    const currentPeriod = dayjs().startOf('month').format('YYYY-MM-DD')
+    const currentPeriod = dayjs().startOf('month').subtract(1, 'month').format('YYYY-MM-DD')
     const previousPeriod = dayjs(currentPeriod).subtract(1, 'month').format('YYYY-MM-DD')
 
-    const { count: receiptsInCurrentPeriod } = BillingReceipt.useObjects({
+    const { count: receiptsInCurrentPeriod, loading: currentPeriodLoading } = BillingReceipt.useObjects({
         where: {
             context: { organization: { id: ticketOrganizationId } },
             period: currentPeriod,
         },
     })
 
-    const { count: receiptsInPreviousPeriod } = BillingReceipt.useObjects({
+    const { count: receiptsInPreviousPeriod, loading: previousPeriodLoading } = BillingReceipt.useObjects({
         where: {
             context: { organization: { id: ticketOrganizationId } },
             period: previousPeriod,
@@ -75,7 +76,7 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
 
     return (
         <Tooltip title={isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage}>
-            <BankCardIcon active={isPaymentsAvailable} />
+            <BankCardIcon active={isPaymentsAvailable} loading={currentPeriodLoading || previousPeriodLoading} />
         </Tooltip>
     )
 }
