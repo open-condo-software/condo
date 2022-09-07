@@ -27,6 +27,7 @@ const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -235,7 +236,7 @@ const sendTicketNotifications = async (requestData) => {
     if (eventTypes[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] && clientPhone) {
         const isFeatureEnabled = featureToggleManager.isFeatureEnabled(
             get(requestData, 'context'),
-            'sms-after-ticket-creation',
+            SMS_AFTER_TICKET_CREATION,
             { organization: organization.id }
         )
 

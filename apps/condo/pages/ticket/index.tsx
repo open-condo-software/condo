@@ -30,6 +30,7 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { EXCEL } from '@condo/domains/common/constants/export'
@@ -40,6 +41,7 @@ import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch
 import { useAuth } from '@condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
+import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -52,7 +54,7 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 
-const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
+const TICKETS_RE_FETCH_INTERVAL = 5 * 1000
 
 const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
     const router = useRouter()
@@ -74,17 +76,28 @@ const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
         fetchPolicy: 'network-only',
     })
 
+    const { useFlag, updateContext } = useFeatureFlags()
+    const { organization } = useOrganization()
+
+    useEffect(() => {
+        updateContext({ organization: organization.id })
+    }, [organization, updateContext])
+
+    const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
+
     const [isRefetching, setIsRefetching] = useState(false)
     useEffect(() => {
-        const handler = setInterval(async () => {
-            setIsRefetching(true)
-            await refetch()
-            setIsRefetching(false)
-        }, TICKETS_RE_FETCH_INTERVAL)
-        return () => {
-            clearInterval(handler)
+        if (isRefetchTicketsFeatureEnabled) {
+            const handler = setInterval(async () => {
+                setIsRefetching(true)
+                await refetch()
+                setIsRefetching(false)
+            }, TICKETS_RE_FETCH_INTERVAL)
+            return () => {
+                clearInterval(handler)
+            }
         }
-    }, [refetch])
+    }, [isRefetchTicketsFeatureEnabled, refetch])
 
     const tableColumns = useTableColumns(filterMetas, tickets)
     const loading = isTicketsFetching && !isRefetching
