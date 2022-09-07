@@ -51,7 +51,8 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
     types: [
         {
             access: true,
-            type: 'input RegisterServiceConsumerInputExtra { paymentCategory: String }',  
+            // TODO(pahaz): DOMA-4138 remove this legacy!
+            type: 'input RegisterServiceConsumerInputExtra { paymentCategory: String }',
         },
         {
             access: true,
