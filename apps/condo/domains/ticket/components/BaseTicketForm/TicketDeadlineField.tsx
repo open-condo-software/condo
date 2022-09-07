@@ -9,8 +9,8 @@ import { Gutter } from 'antd/lib/grid/row'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
-import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-import { DEFAULT_TICKET_DEADLINE } from '@condo/domains/ticket/constants/common'
+import { convertDurationToDays, getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 
 import { TicketFormItem } from './index'
 
@@ -21,7 +21,7 @@ const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const DATE_PICKER_STYLE = { width: '100%' }
 const AUTO_COMPLETE_MESSAGE_STYLE: CSSProperties = { whiteSpace:'nowrap' }
 
-const DEFAULT_DEADLINE_VALUE = dayjs().add(DEFAULT_TICKET_DEADLINE, 'days')
+const DEFAULT_DEADLINE_VALUE = dayjs().add(convertDurationToDays(DEFAULT_TICKET_DEADLINE_DURATION), 'days')
 
 export const TicketDeadlineField = ({ initialValues, form }) => {
     const intl = useIntl()
@@ -34,6 +34,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
 
     const { ticketSetting, isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue, isExistedTicket } = useTicketFormContext()
     const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
+    const isTouchedTicketType = form.isFieldsTouched(['isPaid', 'isEmergency', 'isWarranty'])
 
     const autoAddDays: null | number = useMemo(
         () => getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty),
@@ -43,6 +44,11 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const autoDeadlineValue = useMemo(() => {
         return isNull(autoAddDays) ? autoAddDays : dayjs().add(autoAddDays, 'day')
     }, [autoAddDays])
+
+    const initialDeadline = dayjs(get(initialValues, 'deadline'))
+    const isShowDeadline = isTouchedTicketType ? !isNull(autoDeadlineValue) : !isNull(initialDeadline)
+    const isShowAutoDeadlineLabel = !isNull(autoDeadlineValue) && isAutoDetectedDeadlineValue
+    const isShowHiddenLabel = initialDeadline ? isTouchedTicketType && isNull(autoDeadlineValue) : isNull(autoDeadlineValue)
 
     const handleTicketDeadlineChange = useCallback(() => {
         setIsAutoDetectedDeadlineValue(false)
@@ -84,7 +90,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                         name='deadline'
                         required
                         data-cy='ticket__deadline-item'
-                        hidden={isNull(autoDeadlineValue)}
+                        hidden={!isShowDeadline}
                         initialValue={DEFAULT_DEADLINE_VALUE}
                     >
                         <DatePicker
@@ -97,14 +103,14 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                     </TicketFormItem>
                 </Col>
                 {
-                    isNull(autoDeadlineValue) && (
+                    isShowHiddenLabel && (
                         <Col span={24}>
                             <Typography.Text type='secondary'>{TicketWithoutDeadlineMessage}</Typography.Text>
                         </Col>
                     )
                 }
                 {
-                    !isNull(autoDeadlineValue) && isAutoDetectedDeadlineValue && autoDetectedLabel
+                    isShowAutoDeadlineLabel && autoDetectedLabel
                 }
             </Row>
         </>

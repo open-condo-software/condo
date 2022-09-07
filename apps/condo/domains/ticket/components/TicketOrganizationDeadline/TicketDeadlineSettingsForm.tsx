@@ -5,11 +5,12 @@ import { Gutter } from 'antd/es/grid/row'
 
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
-import { MAX_TICKET_DEADLINE, MIN_TICKET_DEADLINE } from '@condo/domains/ticket/constants/common'
+import { MIN_TICKET_DEADLINE_DURATION, MAX_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Button } from '@condo/domains/common/components/Button'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
+import { convertDurationToDays, convertDaysToDuration } from '@condo/domains/ticket/utils/helpers'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -26,6 +27,8 @@ const INPUT_LAYOUT_PROPS = {
 const BIG_ROW_GUTTERS: [Gutter, Gutter] = [0, 60]
 const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
+const MAX_TICKET_DEADLINE_DURATION_AS_DAYS = convertDurationToDays(MAX_TICKET_DEADLINE_DURATION)
+const MIN_TICKET_DEADLINE_DURATION_AS_DAYS = convertDurationToDays(MIN_TICKET_DEADLINE_DURATION)
 
 export const TicketDeadlineSettingsForm: React.FC = () => {
     const intl = useIntl()
@@ -46,10 +49,12 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
     })
 
     const action = TicketSetting.useUpdate({})
-    const updateAction = useCallback((value) => action(value, ticketSetting), [action, ticketSetting])
+    const updateAction = useCallback((value) => action(TicketSetting.formValuesProcessor(value), ticketSetting), [action, ticketSetting])
+
+    const initialValues = useMemo(() => TicketSetting.convertToFormState(ticketSetting), [ticketSetting])
 
     const options = useMemo(() => {
-        const range = new Array(MAX_TICKET_DEADLINE - MIN_TICKET_DEADLINE + 2).fill(1)
+        const range = new Array(MAX_TICKET_DEADLINE_DURATION_AS_DAYS - MIN_TICKET_DEADLINE_DURATION_AS_DAYS + 2).fill(1)
         return range.map((item, index) => {
             const value = index === range.length - 1 ? null : index
 
@@ -64,7 +69,7 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
 
     const settingsForm = useMemo(() => (
         <FormWithAction
-            initialValues={ticketSetting}
+            initialValues={initialValues}
             action={updateAction}
             colon={false}
             layout='horizontal'
@@ -80,13 +85,13 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='defaultDeadline'
+                                            name='defaultDeadlineDuration'
                                             label={SelectLabel}
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Select
-                                                defaultValue={ticketSetting.defaultDeadline}
+                                                defaultValue={initialValues.defaultDeadlineDuration}
                                             >
                                                 {options}
                                             </Select>
@@ -101,13 +106,13 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='paidDeadline'
+                                            name='paidDeadlineDuration'
                                             label={SelectLabel}
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Select
-                                                defaultValue={ticketSetting.paidDeadline}
+                                                defaultValue={initialValues.paidDeadlineDuration}
                                             >
                                                 {options}
                                             </Select>
@@ -122,13 +127,13 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='emergencyDeadline'
+                                            name='emergencyDeadlineDuration'
                                             label={SelectLabel}
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Select
-                                                defaultValue={ticketSetting.emergencyDeadline}
+                                                defaultValue={initialValues.emergencyDeadlineDuration}
                                             >
                                                 {options}
                                             </Select>
@@ -143,13 +148,13 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                                     </Col>
                                     <Col span={24}>
                                         <Form.Item
-                                            name='warrantyDeadline'
+                                            name='warrantyDeadlineDuration'
                                             label={SelectLabel}
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                         >
                                             <Select
-                                                defaultValue={ticketSetting.warrantyDeadline}
+                                                defaultValue={initialValues.warrantyDeadlineDuration}
                                             >
                                                 {options}
                                             </Select>
@@ -172,7 +177,7 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                 </Row>
             )}
         </FormWithAction>
-    ), [DefaultDeadlineLabel, EmergencyDeadlineLabel, PaidDeadlineLabel, SelectLabel, WarrantyDeadlineLabel, options, ticketSetting, updateAction])
+    ), [DefaultDeadlineLabel, EmergencyDeadlineLabel, PaidDeadlineLabel, SelectLabel, WarrantyDeadlineLabel, initialValues, options, updateAction])
 
     if (loading || !ticketSetting) return null
 

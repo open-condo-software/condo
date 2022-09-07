@@ -3,7 +3,7 @@ module.exports = {
         {
             displayName: '@condo/keystone',
             testEnvironment: 'node',
-            testMatch: [`${__dirname}/*.spec.js`],
+            testMatch: [`${__dirname}/**/*.spec.js`],
         },
     ],
 }

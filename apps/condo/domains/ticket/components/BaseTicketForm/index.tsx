@@ -3,6 +3,7 @@ import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get, isEmpty, isFunction, isNull } from 'lodash'
 import { useRouter } from 'next/router'
+import dayjs from 'dayjs'
 
 import {
     BuildingUnitSubType,
@@ -44,13 +45,12 @@ import {
     TicketFormContextProvider,
     useTicketFormContext,
 } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
-import { getTicketDefaultDeadline } from '../../utils/helpers'
-import dayjs from 'dayjs'
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])

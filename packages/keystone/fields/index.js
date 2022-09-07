@@ -4,6 +4,7 @@ const Stars = require('./Stars')
 const AutoIncrementInteger = require('./AutoIncrementInteger')
 const LocalizedText = require('./LocalizedText')
 const SignedDecimal = require('./SignedDecimal')
+const DateInterval = require('./DateInterval')
 
 module.exports = {
     Json,
@@ -12,4 +13,5 @@ module.exports = {
     AutoIncrementInteger,
     LocalizedText,
     SignedDecimal,
+    DateInterval,
 }

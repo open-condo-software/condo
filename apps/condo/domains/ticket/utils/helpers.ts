@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import { get, isNull } from 'lodash'
 import dayjs  from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
@@ -15,7 +15,7 @@ import {
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE } from '@condo/domains/ticket/constants'
-import { DEFAULT_TICKET_DEADLINE } from '@condo/domains/ticket/constants/common'
+import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -437,15 +437,24 @@ export function hasUnreadResidentComments (lastResidentCommentAt, readResidentCo
     return false
 }
 
-type getTicketDefaultDeadlineType = (ticketSetting: TicketOrganizationSetting, isPaid: boolean, isEmergency: boolean, isWarranty: boolean) => number | null
+export function convertDurationToDays (duration: string): number {
+    return dayjs.duration(duration).asDays()
+}
 
-export const getTicketDefaultDeadline: getTicketDefaultDeadlineType = (ticketSetting, isPaid, isEmergency, isWarranty) => {
-    if (!ticketSetting) return DEFAULT_TICKET_DEADLINE
+export function convertDaysToDuration (days: number): string {
+    return dayjs.duration({ days }).toISOString()
+}
 
-    let addDays: number | null = get(ticketSetting, 'defaultDeadline', null)
-    if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadline', null)
-    if (isPaid) addDays = get(ticketSetting, 'paidDeadline', null)
-    if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadline', null)
+const DEFAULT_TICKET_DEADLINE_DURATION_AS_DAYS = dayjs.duration(DEFAULT_TICKET_DEADLINE_DURATION).asDays()
 
+export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetting, isPaid: boolean, isEmergency: boolean, isWarranty: boolean): number | null {
+    if (!ticketSetting) return DEFAULT_TICKET_DEADLINE_DURATION_AS_DAYS
+
+    let addDays: string | null = get(ticketSetting, 'defaultDeadlineDuration', null)
+    if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadlineDuration', null)
+    if (isPaid) addDays = get(ticketSetting, 'paidDeadlineDuration', null)
+    if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadlineDuration', null)
+
+    if (!isNull(addDays)) return convertDurationToDays(addDays)
     return addDays
 }
