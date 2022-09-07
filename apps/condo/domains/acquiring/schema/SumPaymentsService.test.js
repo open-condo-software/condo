@@ -5,7 +5,7 @@
 const Big = require('big.js')
 const { makeClient } = require('@condo/keystone/test.utils')
 
-const { makePayer, createTestPayment, sumPaymentsByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
+const { makePayer, createTestPayment, sumPaymentsByTestClient, createPaymentsAndGetSum } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { catchErrorFrom, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
@@ -13,25 +13,18 @@ const { catchErrorFrom, expectToThrowAuthenticationError } = require('@condo/dom
 describe('SumPaymentsService', () => {
     describe('logic and correct summing', () => {
         test('admin: sum one payment', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
-            const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+            const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum()
             const where = { organization: { id: organization.id } }
             const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(String(sum)).toEqual(payment.amount)
+            expect(String(sum)).toEqual(manualSum)
         })
         test('admin: sum 101 payments', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer(101)
-            let totalSum = Big(0)
-            for (let i = 0; i < 101; i++){
-                const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
-                totalSum = totalSum.plus(Big(payment.amount))
-            }
-
+            const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum(101)
             const where = { organization: { id: organization.id } }
             const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(String(sum)).toEqual(totalSum.toFixed(8))
+            expect(String(sum)).toEqual(manualSum)
         })
         test('admin: sum zero payments', async () => {
             const { admin, organization } = await makePayer()
@@ -43,36 +36,24 @@ describe('SumPaymentsService', () => {
     })
     describe('access checks', () => {
         test('support can sum payments', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer(10)
+            const { organization, sum: manualSum } = await createPaymentsAndGetSum(10)
             const support = await makeClientWithSupportUser()
-            let totalSum = Big(0)
-            for (let i = 0; i < 10; i++){
-                const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
-                totalSum = totalSum.plus(Big(payment.amount))
-            }
-
             const where = { organization: { id: organization.id } }
             const { sum } = await sumPaymentsByTestClient(support, where)
 
-            expect(String(sum)).toEqual(totalSum.toFixed(8))
+            expect(String(sum)).toEqual(manualSum)
         })
         test('employee with canReadPayments can sum payments', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer(10)
+            const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum(10)
             const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                 canReadPayments: true,
             })
             const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, employeeClient.user, role)
-
-            let totalSum = Big(0)
-            for (let i = 0; i < 10; i++){
-                const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
-                totalSum = totalSum.plus(Big(payment.amount))
-            }
             const where = { organization: { id: organization.id } }
             const { sum } = await sumPaymentsByTestClient(employeeClient, where)
 
-            expect(String(sum)).toEqual(totalSum.toFixed(8))
+            expect(String(sum)).toEqual(manualSum)
         })
         test('employee without canReadPayments cant sum payments', async () => {
             const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
@@ -107,7 +88,7 @@ describe('SumPaymentsService', () => {
             const where = { organization: { id: organization.id } }
             await expectToThrowAuthenticationError(async () => {
                 await sumPaymentsByTestClient(anonymous, where)
-            }, "result")
+            }, 'result')
         })
     })
 })
