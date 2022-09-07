@@ -49821,13 +49821,13 @@ export type TicketOrganizationSetting = {
   _label_?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**  Default deadline duration for any tickets  */
+  /**  Default deadline duration for default tickets (ISO 8601 format)  */
   defaultDeadlineDuration?: Maybe<Scalars['String']>;
-  /**  Default deadline duration for paid tickets  */
+  /**  Default deadline duration for paid tickets (ISO 8601 format)  */
   paidDeadlineDuration?: Maybe<Scalars['String']>;
-  /**  Default deadline duration for emergency tickets  */
+  /**  Default deadline duration for emergency tickets (ISO 8601 format)  */
   emergencyDeadlineDuration?: Maybe<Scalars['String']>;
-  /**  Default deadline duration for warranty tickets  */
+  /**  Default deadline duration for warranty tickets (ISO 8601 format)  */
   warrantyDeadlineDuration?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
