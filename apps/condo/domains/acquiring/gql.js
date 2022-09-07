@@ -41,7 +41,7 @@ const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
 `
 
 
-const SUM_PAYMENTS_MUTATION = gql`
+const SUM_PAYMENTS_QUERY = gql`
     query sumPayments ($where: PaymentWhereInput!) {
         result: sumPayments(where: $where) { sum }
     }
@@ -65,6 +65,6 @@ module.exports = {
     EXPORT_PAYMENTS_TO_EXCEL,
     PaymentsFilterTemplate,
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
-    SUM_PAYMENTS_MUTATION,
+    SUM_PAYMENTS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -3,7 +3,7 @@ import { useQuery } from '@apollo/client'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
-import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_MUTATION } from '@condo/domains/acquiring/gql'
+import { EXPORT_PAYMENTS_TO_EXCEL, SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { usePaymentsTableColumns } from '@condo/domains/acquiring/hooks/usePaymentsTableColumns'
 import { usePaymentsTableFilters } from '@condo/domains/acquiring/hooks/usePaymentsTableFilters'
 import { Payment, PaymentsFilterTemplate } from '@condo/domains/acquiring/utils/clientSchema'
@@ -85,7 +85,7 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 }
 
 function useSum (whereQuery) {
-    const { data, error, loading } = useQuery(SUM_PAYMENTS_MUTATION, {
+    const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
         fetchPolicy: 'network-only',
         variables: {
             where: {
@@ -158,7 +158,6 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         deletedAt: null,
         status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
     }
-    console.log(searchPaymentsQuery)
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
     const {
