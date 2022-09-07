@@ -115,9 +115,17 @@ describe('SumPaymentsService', () => {
             data: { result },
             errors,
         } = await employeeClient.query(SUM_PAYMENTS_MUTATION, { where: where })
-
         expect(result).toBeNull()
         expect(errors).toHaveLength(1)
+        expect(errors[0]).toMatchObject({
+            'message': 'You do not have access to this resource',
+            'name': 'AccessDeniedError',
+            'path': ['result'],
+            'data': {
+                'type': 'query',
+                'target': 'sumPayments',
+            },
+        })
     })
     test('anonymous cant sum payments', async () => {
         const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
