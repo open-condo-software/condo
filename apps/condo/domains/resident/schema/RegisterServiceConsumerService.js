@@ -56,6 +56,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
         },
         {
             access: true,
+            // TODO(pahaz): DOMA-4150 remove residentId and organizationId and migrate to ResidentWhereUniqueInput and OrganizationWhereUniqueInput
             type: 'input RegisterServiceConsumerInput { dv: Int!, sender: SenderFieldInput!, residentId: ID!, accountNumber: String!, organizationId: ID!, extra: RegisterServiceConsumerInputExtra }',
         },
     ],
