@@ -84,7 +84,7 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     )
 }
 
-function useSum (whereQuery) {
+function usePaymentsSum (whereQuery) {
     const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
         fetchPolicy: 'network-only',
         variables: {
@@ -174,9 +174,9 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         fetchPolicy: 'network-only',
     })
 
-    const { data: sumDonePayments, loading: donePaymentsLoading } = useSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
-    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = useSum({ ...searchPaymentsQuery, status: PAYMENT_WITHDRAWN_STATUS })
-    const { data: sumAllPayments, loading: allPaymentsLoading } = useSum({ ...searchPaymentsQuery })
+    const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
+    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_WITHDRAWN_STATUS })
+    const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery })
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
