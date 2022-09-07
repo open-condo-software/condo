@@ -72,8 +72,6 @@ const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
         where: searchTicketsQuery,
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
     })
 
     const { useFlag, updateContext } = useFeatureFlags()
