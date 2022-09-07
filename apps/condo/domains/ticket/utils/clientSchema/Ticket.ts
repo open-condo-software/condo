@@ -97,6 +97,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<Ticket, TicketCreateInput, TicketUpdateInput, QueryAllTicketsArgs>(TicketGQL)
 
 export {
@@ -105,6 +106,7 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
     convertToFormState,
     formValuesProcessor,
     getReviewMessageByValue,
