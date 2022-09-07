@@ -258,7 +258,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             <Col>
                                 <PaymentsSumInfo
                                     title={totalsSumTitle}
-                                    message={get(sumAllPayments, "result.sum")}
+                                    message={get(sumAllPayments, 'result.sum')}
                                     currencyCode={currencyCode}
                                     loading={allPaymentsLoading}
                                 />
@@ -266,7 +266,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             <Col>
                                 <PaymentsSumInfo
                                     title={doneSumTitle}
-                                    message={get(sumDonePayments, "result.sum")}
+                                    message={get(sumDonePayments, 'result.sum')}
                                     currencyCode={currencyCode}
                                     type='success'
                                     loading={donePaymentsLoading}
@@ -275,7 +275,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             <Col>
                                 <PaymentsSumInfo
                                     title={withdrawnSumTitle}
-                                    message={get(sumWithdrawnPayments, "result.sum")}
+                                    message={get(sumWithdrawnPayments, 'result.sum')}
                                     currencyCode={currencyCode}
                                     type='warning'
                                     loading={withdrawnPaymentsLoading}
