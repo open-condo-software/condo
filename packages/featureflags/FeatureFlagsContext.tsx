@@ -1,9 +1,9 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
 import getConfig from 'next/config'
-import { useRouter } from 'next/router'
 import { createContext, useCallback, useContext, useEffect } from 'react'
 
 const growthbook = new GrowthBook()
+const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
 
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
@@ -15,7 +15,6 @@ const FeatureFlagsContext = createContext<IFeatureFlagsContext>(null)
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
 const FeatureFlagsProviderWrapper = ({ children }) => {
-    const router = useRouter()
     const growthbook = useGrowthBook()
 
     const {
@@ -32,15 +31,21 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
 
     useEffect(() => {
-        if (serverUrl) {
-            fetch(`${serverUrl}/api/features`)
-                .then((res) => res.json())
-                .then((features) => {
-                    growthbook.setFeatures(JSON.parse(features))
-                })
-                .catch(e => console.error(e))
+        const handler = setInterval(async () => {
+            if (serverUrl) {
+                fetch(`${serverUrl}/api/features`)
+                    .then((res) => res.json())
+                    .then((features) => {
+                        growthbook.setFeatures(features)
+                    })
+                    .catch(e => console.error(e))
+            }
+        }, FEATURES_RE_FETCH_INTERVAL)
+
+        return () => {
+            clearInterval(handler)
         }
-    }, [growthbook, router.pathname, serverUrl])
+    }, [growthbook, serverUrl])
 
     return (
         <FeatureFlagsContext.Provider value={{
