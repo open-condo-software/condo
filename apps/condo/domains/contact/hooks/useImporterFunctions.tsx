@@ -197,7 +197,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
     const contactCreator: ObjectCreator = (row) => {
         if (!row) return Promise.resolve()
-        const unitName = String(get(row.row, ['1', 'value'])).trim().toLowerCase()
+        const unitName = String(get(row.row, ['1', 'value'])).trim()
         const contactPool = []
         const splitPhones = String(row.row[3].value).split(SPLIT_PATTERN)
         const inValidPhones = []
