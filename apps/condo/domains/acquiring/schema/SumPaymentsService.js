@@ -8,8 +8,6 @@ const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchem
 const access = require('@condo/domains/acquiring/access/SumPaymentsService')
 
 
-
-
 const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
     types: [
         {
