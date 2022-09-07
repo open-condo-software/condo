@@ -5,57 +5,40 @@
 const Big = require('big.js')
 const { makeClient } = require('@condo/keystone/test.utils')
 
-const { makePayer, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
-const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
+const { makePayer, createTestPayment, sumPaymentsByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
- 
+const { catchErrorFrom, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
+
 describe('SumPaymentsService', () => {
     describe('logic and correct summing', () => {
         test('admin: sum one payment', async () => {
             const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
             const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
             const where = { organization: { id: organization.id } }
-            const {
-                data: {
-                    result: {
-                        sum,
-                    },
-                },
-            } = await admin.query(SUM_PAYMENTS_QUERY, { where: where })
+            const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(Big(sum).eq(payment.amount)).toBeTruthy()
+            expect(String(sum)).toEqual(payment.amount)
         })
-        test('admin: sum 200 payments', async () => {
-            const { admin, billingReceipts, acquiringContext, organization } = await makePayer(200)
+        test('admin: sum 101 payments', async () => {
+            const { admin, billingReceipts, acquiringContext, organization } = await makePayer(101)
             let totalSum = Big(0)
-            for (let i = 0; i < 200; i++){
+            for (let i = 0; i < 101; i++){
                 const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
                 totalSum = totalSum.plus(Big(payment.amount))
             }
 
             const where = { organization: { id: organization.id } }
-            const {
-                data: {
-                    result: {
-                        sum,
-                    },
-                },
-            } = await admin.query(SUM_PAYMENTS_QUERY, { where: where })
-            expect(Big(sum).eq(totalSum)).toBeTruthy()
+            const { sum } = await sumPaymentsByTestClient(admin, where)
+
+            expect(String(sum)).toEqual(totalSum.toFixed(8))
         })
         test('admin: sum zero payments', async () => {
             const { admin, organization } = await makePayer()
             const where = { organization: { id: organization.id } }
-            const {
-                data: {
-                    result: {
-                        sum,
-                    },
-                },
-            } = await admin.query(SUM_PAYMENTS_QUERY, { where: where })
+            const { sum } = await sumPaymentsByTestClient(admin, where)
 
-            expect(Big(sum).eq(Big(0))).toBeTruthy()
+            expect(String(sum)).toEqual(Big(0).toFixed(8))
         })
     })
     describe('access checks', () => {
@@ -69,14 +52,9 @@ describe('SumPaymentsService', () => {
             }
 
             const where = { organization: { id: organization.id } }
-            const {
-                data: {
-                    result: {
-                        sum,
-                    },
-                },
-            } = await support.query(SUM_PAYMENTS_QUERY, { where: where })
-            expect(Big(sum).eq(totalSum)).toBeTruthy()
+            const { sum } = await sumPaymentsByTestClient(support, where)
+
+            expect(String(sum)).toEqual(totalSum.toFixed(8))
         })
         test('employee with canReadPayments can sum payments', async () => {
             const { admin, billingReceipts, acquiringContext, organization } = await makePayer(10)
@@ -92,16 +70,9 @@ describe('SumPaymentsService', () => {
                 totalSum = totalSum.plus(Big(payment.amount))
             }
             const where = { organization: { id: organization.id } }
-            const {
-                data: {
-                    result: {
-                        sum,
-                    },
-                },
-            } = await employeeClient.query(SUM_PAYMENTS_QUERY, { where: where })
+            const { sum } = await sumPaymentsByTestClient(employeeClient, where)
 
-
-            expect(Big(sum).eq(totalSum)).toBeTruthy()
+            expect(String(sum)).toEqual(totalSum.toFixed(8))
         })
         test('employee without canReadPayments cant sum payments', async () => {
             const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
@@ -114,20 +85,18 @@ describe('SumPaymentsService', () => {
             await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
             const where = { organization: { id: organization.id } }
-            const {
-                data: { result },
-                errors,
-            } = await employeeClient.query(SUM_PAYMENTS_QUERY, { where: where })
-            expect(result).toBeNull()
-            expect(errors).toHaveLength(1)
-            expect(errors[0]).toMatchObject({
-                'message': 'You do not have access to this resource',
-                'name': 'AccessDeniedError',
-                'path': ['result'],
-                'data': {
-                    'type': 'query',
-                    'target': 'sumPayments',
-                },
+            await catchErrorFrom(async () => {
+                await sumPaymentsByTestClient(employeeClient, where)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    'message': 'You do not have access to this resource',
+                    'name': 'AccessDeniedError',
+                    'path': ['result'],
+                    'data': {
+                        'type': 'query',
+                        'target': 'sumPayments',
+                    },
+                }])
             })
         })
         test('anonymous cant sum payments', async () => {
@@ -136,17 +105,9 @@ describe('SumPaymentsService', () => {
             await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
 
             const where = { organization: { id: organization.id } }
-            const {
-                data: { result },
-                errors,
-            } = await anonymous.query(SUM_PAYMENTS_QUERY, { where: where })
-
-            expect(result).toBeNull()
-            expect(errors).toHaveLength(1)
-            expect(errors[0]).toMatchObject({
-                'message': 'No or incorrect authentication credentials',
-                'name': 'AuthenticationError',
-            })
+            await expectToThrowAuthenticationError(async () => {
+                await sumPaymentsByTestClient(anonymous, where)
+            }, "result")
         })
     })
 })
