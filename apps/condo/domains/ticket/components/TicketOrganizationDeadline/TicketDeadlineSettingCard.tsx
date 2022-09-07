@@ -3,11 +3,12 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Typography } from 'antd'
 
-import { useIntl } from '@condo/next/intl'
-import { TICKET_DEFAULT_DEADLINE_FIELDS } from '@condo/domains/ticket/constants/common'
-import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
-
 import { TicketOrganizationSetting } from '@app/condo/schema'
+
+import { useIntl } from '@condo/next/intl'
+import { TICKET_DEFAULT_DEADLINE_DURATION_FIELDS } from '@condo/domains/ticket/constants/common'
+import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
+import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
 
 interface TicketDeadlineSettingCardProps {
     ticketSetting?: TicketOrganizationSetting
@@ -31,12 +32,13 @@ export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps>
     return useMemo(() => {
         if (!ticketSetting) return null
 
-        const humanizeDeadlines = TICKET_DEFAULT_DEADLINE_FIELDS.map((fieldName) => {
-            const deadline = get(ticketSetting, fieldName, null)
+        const humanizeDeadlines = TICKET_DEFAULT_DEADLINE_DURATION_FIELDS.map((fieldName) => {
+            const deadlineDuration = get(ticketSetting, fieldName, null)
             let deadlineText
-            if (deadline === null) {
+            if (deadlineDuration === null) {
                 deadlineText = TicketWithoutDefaultDeadlineLabel
             } else {
+                const deadline = convertDurationToDays(deadlineDuration)
                 deadlineText = `+${intl.formatMessage({ id: 'DaysShort' }, { days: deadline })}`
             }
             return {

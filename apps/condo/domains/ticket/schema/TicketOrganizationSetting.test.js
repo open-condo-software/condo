@@ -4,8 +4,10 @@
 
 const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
@@ -18,11 +20,12 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { TICKET_DEFAULT_DEADLINE_FIELDS } = require('@condo/domains/ticket/constants/common')
-
-const EXPECTED_MIN_DEADLINE = 0
-const EXPECTED_MAX_DEADLINE = 45
-const EXPECTED_DEFAULT_DEADLINE = 8
+const {
+    TICKET_DEFAULT_DEADLINE_DURATION_FIELDS,
+    MIN_TICKET_DEADLINE_DURATION,
+    MAX_TICKET_DEADLINE_DURATION,
+    DEFAULT_TICKET_DEADLINE_DURATION,
+} = require('@condo/domains/ticket/constants/common')
 
 describe('TicketOrganizationSetting', () => {
     describe('CRUD', () => {
@@ -68,10 +71,10 @@ describe('TicketOrganizationSetting', () => {
                     const [updatedSetting] = await updateTestTicketOrganizationSetting(userClient, setting.id, {})
 
                     expect(updatedSetting.id).toEqual(setting.id)
-                    expect(updatedSetting.defaultDeadline).toEqual(setting.defaultDeadline)
-                    expect(updatedSetting.paidDeadline).toEqual(setting.paidDeadline)
-                    expect(updatedSetting.emergencyDeadline).toEqual(setting.emergencyDeadline)
-                    expect(updatedSetting.warrantyDeadline).toEqual(setting.warrantyDeadline)
+                    expect(updatedSetting.defaultDeadlineDuration).toEqual(setting.defaultDeadlineDuration)
+                    expect(updatedSetting.paidDeadlineDuration).toEqual(setting.paidDeadlineDuration)
+                    expect(updatedSetting.emergencyDeadlineDuration).toEqual(setting.emergencyDeadlineDuration)
+                    expect(updatedSetting.warrantyDeadlineDuration).toEqual(setting.warrantyDeadlineDuration)
                 })
                 test('can read TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
@@ -85,10 +88,10 @@ describe('TicketOrganizationSetting', () => {
                     })
 
                     expect(setting.organization.id).toMatch(organization.id)
-                    expect(setting.defaultDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
-                    expect(setting.paidDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
-                    expect(setting.emergencyDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
-                    expect(setting.warrantyDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
+                    expect(setting.defaultDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                    expect(setting.paidDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                    expect(setting.emergencyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                    expect(setting.warrantyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
                 })
             })
             describe('No employee in organization', () => {
@@ -172,10 +175,10 @@ describe('TicketOrganizationSetting', () => {
                 const [updatedSetting] = await updateTestTicketOrganizationSetting(admin, setting.id, {})
 
                 expect(updatedSetting.id).toEqual(setting.id)
-                expect(updatedSetting.defaultDeadline).toEqual(setting.defaultDeadline)
-                expect(updatedSetting.paidDeadline).toEqual(setting.paidDeadline)
-                expect(updatedSetting.emergencyDeadline).toEqual(setting.emergencyDeadline)
-                expect(updatedSetting.warrantyDeadline).toEqual(setting.warrantyDeadline)
+                expect(updatedSetting.defaultDeadlineDuration).toEqual(setting.defaultDeadlineDuration)
+                expect(updatedSetting.paidDeadlineDuration).toEqual(setting.paidDeadlineDuration)
+                expect(updatedSetting.emergencyDeadlineDuration).toEqual(setting.emergencyDeadlineDuration)
+                expect(updatedSetting.warrantyDeadlineDuration).toEqual(setting.warrantyDeadlineDuration)
             })
             test('can read TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -186,10 +189,10 @@ describe('TicketOrganizationSetting', () => {
                 })
 
                 expect(setting.organization.id).toMatch(organization.id)
-                expect(setting.defaultDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
-                expect(setting.paidDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
-                expect(setting.emergencyDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
-                expect(setting.warrantyDeadline).toEqual(EXPECTED_DEFAULT_DEADLINE)
+                expect(setting.defaultDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                expect(setting.paidDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                expect(setting.emergencyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                expect(setting.warrantyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
             })
         })
         describe('Anonymous', () => {
@@ -242,8 +245,8 @@ describe('TicketOrganizationSetting', () => {
         })
     })
     describe('Validations', () => {
-        const cases = [...TICKET_DEFAULT_DEADLINE_FIELDS]
-        test.each(cases)(`value of the %p field must be between values from ${EXPECTED_MIN_DEADLINE} to ${EXPECTED_MAX_DEADLINE} inclusive`, async (fieldPath) => {
+        const cases = [...TICKET_DEFAULT_DEADLINE_DURATION_FIELDS]
+        test.each(cases)(`value of the %p field must be between values from ${MIN_TICKET_DEADLINE_DURATION} to ${MAX_TICKET_DEADLINE_DURATION} inclusive`, async (fieldPath) => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await registerNewOrganization(admin)
             const [setting] = await TicketOrganizationSetting.getAll(admin,  {
@@ -251,7 +254,7 @@ describe('TicketOrganizationSetting', () => {
             })
 
             let payload = {
-                [fieldPath]: EXPECTED_MIN_DEADLINE,
+                [fieldPath]: MIN_TICKET_DEADLINE_DURATION,
             }
             const [updatedSetting] = await updateTestTicketOrganizationSetting(admin, setting.id, payload)
 
@@ -259,12 +262,48 @@ describe('TicketOrganizationSetting', () => {
             expect(updatedSetting[fieldPath]).toEqual(payload[fieldPath])
 
             payload = {
-                [fieldPath]: EXPECTED_MAX_DEADLINE,
+                [fieldPath]: MAX_TICKET_DEADLINE_DURATION,
             }
             const [secondUpdatedSetting] = await updateTestTicketOrganizationSetting(admin, setting.id, payload)
 
             expect(secondUpdatedSetting.id).toEqual(setting.id)
             expect(secondUpdatedSetting[fieldPath]).toEqual(payload[fieldPath])
+        })
+        describe('validate values', () => {
+            test.each(cases)('should validate value "P1D"', async (fieldPath) => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await registerNewOrganization(admin)
+                const [setting] = await TicketOrganizationSetting.getAll(admin,  {
+                    organization: { id: organization.id },
+                })
+
+                let payload = {
+                    [fieldPath]: 'P1D',
+                }
+                const [updatedSetting] = await updateTestTicketOrganizationSetting(admin, setting.id, payload)
+
+                expect(updatedSetting.id).toEqual(setting.id)
+                expect(updatedSetting[fieldPath]).toEqual(payload[fieldPath])
+            })
+        })
+        describe('invalidate values', () => {
+            test.each(cases)('should invalidate value "P1Dinvalidate"', async (fieldPath) => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await registerNewOrganization(admin)
+                const [setting] = await TicketOrganizationSetting.getAll(admin,  {
+                    organization: { id: organization.id },
+                })
+
+                let payload = {
+                    [fieldPath]: 'P1Dinvalidate',
+                }
+                await expectToThrowValidationFailureError(
+                    async () => {
+                        await updateTestTicketOrganizationSetting(admin, setting.id, payload)
+                    },
+                    'Invalid DateInterval value.'
+                )
+            })
         })
     })
 })

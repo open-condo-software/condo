@@ -43730,14 +43730,6 @@ export enum SortTicketHistoryRecordsBy {
 }
 
 export enum SortTicketOrganizationSettingHistoryRecordsBy {
-  DefaultDeadlineAsc = 'defaultDeadline_ASC',
-  DefaultDeadlineDesc = 'defaultDeadline_DESC',
-  PaidDeadlineAsc = 'paidDeadline_ASC',
-  PaidDeadlineDesc = 'paidDeadline_DESC',
-  EmergencyDeadlineAsc = 'emergencyDeadline_ASC',
-  EmergencyDeadlineDesc = 'emergencyDeadline_DESC',
-  WarrantyDeadlineAsc = 'warrantyDeadline_ASC',
-  WarrantyDeadlineDesc = 'warrantyDeadline_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -43759,14 +43751,14 @@ export enum SortTicketOrganizationSettingHistoryRecordsBy {
 export enum SortTicketOrganizationSettingsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
-  DefaultDeadlineAsc = 'defaultDeadline_ASC',
-  DefaultDeadlineDesc = 'defaultDeadline_DESC',
-  PaidDeadlineAsc = 'paidDeadline_ASC',
-  PaidDeadlineDesc = 'paidDeadline_DESC',
-  EmergencyDeadlineAsc = 'emergencyDeadline_ASC',
-  EmergencyDeadlineDesc = 'emergencyDeadline_DESC',
-  WarrantyDeadlineAsc = 'warrantyDeadline_ASC',
-  WarrantyDeadlineDesc = 'warrantyDeadline_DESC',
+  DefaultDeadlineDurationAsc = 'defaultDeadlineDuration_ASC',
+  DefaultDeadlineDurationDesc = 'defaultDeadlineDuration_DESC',
+  PaidDeadlineDurationAsc = 'paidDeadlineDuration_ASC',
+  PaidDeadlineDurationDesc = 'paidDeadlineDuration_DESC',
+  EmergencyDeadlineDurationAsc = 'emergencyDeadlineDuration_ASC',
+  EmergencyDeadlineDurationDesc = 'emergencyDeadlineDuration_DESC',
+  WarrantyDeadlineDurationAsc = 'warrantyDeadlineDuration_ASC',
+  WarrantyDeadlineDurationDesc = 'warrantyDeadlineDuration_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -49816,7 +49808,7 @@ export type TicketLabel = {
   value: Scalars['String'];
 };
 
-/**  Ticket settings rules for each organization  */
+/**  Ticket settings rules for each organization. (Setting the "deadline" fields for each ticket type)  */
 export type TicketOrganizationSetting = {
   __typename?: 'TicketOrganizationSetting';
   /**
@@ -49829,14 +49821,14 @@ export type TicketOrganizationSetting = {
   _label_?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
-  /**  Default deadline for any tickets  */
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  /**  Default deadline for paid tickets  */
-  paidDeadline?: Maybe<Scalars['Int']>;
-  /**  Default deadline for emergency tickets  */
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  /**  Default deadline for warranty tickets  */
-  warrantyDeadline?: Maybe<Scalars['Int']>;
+  /**  Default deadline duration for any tickets  */
+  defaultDeadlineDuration?: Maybe<Scalars['String']>;
+  /**  Default deadline duration for paid tickets  */
+  paidDeadlineDuration?: Maybe<Scalars['String']>;
+  /**  Default deadline duration for emergency tickets  */
+  emergencyDeadlineDuration?: Maybe<Scalars['String']>;
+  /**  Default deadline duration for warranty tickets  */
+  warrantyDeadlineDuration?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -49855,10 +49847,10 @@ export type TicketOrganizationSetting = {
 
 export type TicketOrganizationSettingCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
+  defaultDeadlineDuration?: Maybe<Scalars['String']>;
+  paidDeadlineDuration?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49882,10 +49874,10 @@ export type TicketOrganizationSettingHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
+  defaultDeadlineDuration?: Maybe<Scalars['JSON']>;
+  paidDeadlineDuration?: Maybe<Scalars['JSON']>;
+  emergencyDeadlineDuration?: Maybe<Scalars['JSON']>;
+  warrantyDeadlineDuration?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -49903,10 +49895,10 @@ export type TicketOrganizationSettingHistoryRecord = {
 
 export type TicketOrganizationSettingHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
+  defaultDeadlineDuration?: Maybe<Scalars['JSON']>;
+  paidDeadlineDuration?: Maybe<Scalars['JSON']>;
+  emergencyDeadlineDuration?: Maybe<Scalars['JSON']>;
+  warrantyDeadlineDuration?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49929,10 +49921,10 @@ export enum TicketOrganizationSettingHistoryRecordHistoryActionType {
 
 export type TicketOrganizationSettingHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
+  defaultDeadlineDuration?: Maybe<Scalars['JSON']>;
+  paidDeadlineDuration?: Maybe<Scalars['JSON']>;
+  emergencyDeadlineDuration?: Maybe<Scalars['JSON']>;
+  warrantyDeadlineDuration?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49954,38 +49946,22 @@ export type TicketOrganizationSettingHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  defaultDeadline_not?: Maybe<Scalars['Int']>;
-  defaultDeadline_lt?: Maybe<Scalars['Int']>;
-  defaultDeadline_lte?: Maybe<Scalars['Int']>;
-  defaultDeadline_gt?: Maybe<Scalars['Int']>;
-  defaultDeadline_gte?: Maybe<Scalars['Int']>;
-  defaultDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  defaultDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline_not?: Maybe<Scalars['Int']>;
-  paidDeadline_lt?: Maybe<Scalars['Int']>;
-  paidDeadline_lte?: Maybe<Scalars['Int']>;
-  paidDeadline_gt?: Maybe<Scalars['Int']>;
-  paidDeadline_gte?: Maybe<Scalars['Int']>;
-  paidDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  paidDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline_not?: Maybe<Scalars['Int']>;
-  emergencyDeadline_lt?: Maybe<Scalars['Int']>;
-  emergencyDeadline_lte?: Maybe<Scalars['Int']>;
-  emergencyDeadline_gt?: Maybe<Scalars['Int']>;
-  emergencyDeadline_gte?: Maybe<Scalars['Int']>;
-  emergencyDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  emergencyDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline_not?: Maybe<Scalars['Int']>;
-  warrantyDeadline_lt?: Maybe<Scalars['Int']>;
-  warrantyDeadline_lte?: Maybe<Scalars['Int']>;
-  warrantyDeadline_gt?: Maybe<Scalars['Int']>;
-  warrantyDeadline_gte?: Maybe<Scalars['Int']>;
-  warrantyDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  warrantyDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  defaultDeadlineDuration?: Maybe<Scalars['JSON']>;
+  defaultDeadlineDuration_not?: Maybe<Scalars['JSON']>;
+  defaultDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  defaultDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paidDeadlineDuration?: Maybe<Scalars['JSON']>;
+  paidDeadlineDuration_not?: Maybe<Scalars['JSON']>;
+  paidDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  paidDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  emergencyDeadlineDuration?: Maybe<Scalars['JSON']>;
+  emergencyDeadlineDuration_not?: Maybe<Scalars['JSON']>;
+  emergencyDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  emergencyDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  warrantyDeadlineDuration?: Maybe<Scalars['JSON']>;
+  warrantyDeadlineDuration_not?: Maybe<Scalars['JSON']>;
+  warrantyDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  warrantyDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -50079,10 +50055,10 @@ export type TicketOrganizationSettingHistoryRecordsUpdateInput = {
 
 export type TicketOrganizationSettingUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
+  defaultDeadlineDuration?: Maybe<Scalars['String']>;
+  paidDeadlineDuration?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50099,38 +50075,78 @@ export type TicketOrganizationSettingWhereInput = {
   OR?: Maybe<Array<Maybe<TicketOrganizationSettingWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  defaultDeadline?: Maybe<Scalars['Int']>;
-  defaultDeadline_not?: Maybe<Scalars['Int']>;
-  defaultDeadline_lt?: Maybe<Scalars['Int']>;
-  defaultDeadline_lte?: Maybe<Scalars['Int']>;
-  defaultDeadline_gt?: Maybe<Scalars['Int']>;
-  defaultDeadline_gte?: Maybe<Scalars['Int']>;
-  defaultDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  defaultDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  paidDeadline?: Maybe<Scalars['Int']>;
-  paidDeadline_not?: Maybe<Scalars['Int']>;
-  paidDeadline_lt?: Maybe<Scalars['Int']>;
-  paidDeadline_lte?: Maybe<Scalars['Int']>;
-  paidDeadline_gt?: Maybe<Scalars['Int']>;
-  paidDeadline_gte?: Maybe<Scalars['Int']>;
-  paidDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  paidDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  emergencyDeadline?: Maybe<Scalars['Int']>;
-  emergencyDeadline_not?: Maybe<Scalars['Int']>;
-  emergencyDeadline_lt?: Maybe<Scalars['Int']>;
-  emergencyDeadline_lte?: Maybe<Scalars['Int']>;
-  emergencyDeadline_gt?: Maybe<Scalars['Int']>;
-  emergencyDeadline_gte?: Maybe<Scalars['Int']>;
-  emergencyDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  emergencyDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  warrantyDeadline?: Maybe<Scalars['Int']>;
-  warrantyDeadline_not?: Maybe<Scalars['Int']>;
-  warrantyDeadline_lt?: Maybe<Scalars['Int']>;
-  warrantyDeadline_lte?: Maybe<Scalars['Int']>;
-  warrantyDeadline_gt?: Maybe<Scalars['Int']>;
-  warrantyDeadline_gte?: Maybe<Scalars['Int']>;
-  warrantyDeadline_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  warrantyDeadline_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  defaultDeadlineDuration?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_contains?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_contains?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_starts_with?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_starts_with?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_ends_with?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_ends_with?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_contains_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_contains_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_starts_with_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_starts_with_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_ends_with_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_not_ends_with_i?: Maybe<Scalars['String']>;
+  defaultDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  defaultDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paidDeadlineDuration?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_contains?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_contains?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_starts_with?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_starts_with?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_ends_with?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_ends_with?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_contains_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_contains_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_starts_with_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_starts_with_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_ends_with_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_not_ends_with_i?: Maybe<Scalars['String']>;
+  paidDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paidDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  emergencyDeadlineDuration?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_contains?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_contains?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_starts_with?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_starts_with?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_ends_with?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_ends_with?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_contains_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_contains_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_starts_with_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_starts_with_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_ends_with_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_not_ends_with_i?: Maybe<Scalars['String']>;
+  emergencyDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  emergencyDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  warrantyDeadlineDuration?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_contains?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_contains?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_starts_with?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_starts_with?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_ends_with?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_ends_with?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_contains_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_contains_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_starts_with_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_starts_with_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_ends_with_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_not_ends_with_i?: Maybe<Scalars['String']>;
+  warrantyDeadlineDuration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  warrantyDeadlineDuration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
