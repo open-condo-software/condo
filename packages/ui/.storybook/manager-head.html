@@ -1,0 +1,13 @@
+<link rel='shortcut icon' href='/favicon.ico' type='image/x-icon'/>
+<script>
+    const observer = new MutationObserver(function () {
+        if (document.title.match(/Storybook$/)) {
+            document.title = document.title.replace('Storybook', 'Condo UI')
+        }
+    })
+    observer.observe(document.querySelector('title'), {
+        childList: true,
+        subtree: true,
+        characterData: true,
+    })
+</script>

@@ -14,18 +14,18 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "dist",
+    "rootDirs": ["src", ".storybook"],
     "resolveJsonModule": true,
-    "rootDir": "src",
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "target": "es6"
   },
   "include": [
-    "src"
+    "src",
+    ".storybook/*"
   ],
   "exclude": [
-    "node_modules",
-    "src/colors/colors.ts"
+    "node_modules"
   ]
 }
