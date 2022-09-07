@@ -95,6 +95,7 @@ class GqlWithKnexLoadList {
     }
 
     // Takes rawAggregate SQL function and apply it on all objects with id from ids
+    // TODO(Kanol): migrate to prisma
     async loadAggregate (rawAggregate, ids) {
         const knexQuery = this.knex(`${this.listKey}`)
         knexQuery.select(this.knex.raw(rawAggregate))
