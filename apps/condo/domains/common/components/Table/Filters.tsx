@@ -31,6 +31,8 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
         const handleClear = useCallback(() => {
             setValue('')
             isFunction(clearFilters) && clearFilters()
+            setSelectedKeys('')
+            confirm({ closeDropdown: false })
         }, [clearFilters])
 
         return (
@@ -55,9 +57,14 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
 
 export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boolean, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const handleClear = useCallback(() => {
+            isFunction(clearFilters) && clearFilters()
+            setSelectedKeys([])
+            confirm({ closeDropdown: false })
+        }, [clearFilters])
         return (
             <FilterContainer
-                clearFilters={clearFilters}
+                clearFilters={handleClear}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
@@ -80,9 +87,14 @@ const DROPDOWN_SELECT_STYLE: CSSProperties = { display: 'flex', flexDirection: '
 
 export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Select>, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const handleClear = useCallback(() => {
+            isFunction(clearFilters) && clearFilters()
+            setSelectedKeys([])
+            confirm({ closeDropdown: false })
+        }, [clearFilters])
         return (
             <SelectFilterContainer
-                clearFilters={clearFilters}
+                clearFilters={handleClear}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
@@ -111,9 +123,14 @@ export const getGQLSelectFilterDropdown = (
     containerStyles?: CSSProperties
 ) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const handleClear = useCallback(() => {
+            isFunction(clearFilters) && clearFilters()
+            setSelectedKeys('')
+            confirm({ closeDropdown: false })
+        }, [clearFilters])
         return (
             <SelectFilterContainer
-                clearFilters={clearFilters}
+                clearFilters={handleClear}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
@@ -165,6 +182,11 @@ export const getDateRangeFilterDropdown = (
     containerStyles?: CSSProperties
 ) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const handleClear = useCallback(() => {
+            isFunction(clearFilters) && clearFilters()
+            setSelectedKeys([])
+            confirm({ closeDropdown: false })
+        }, [clearFilters])
         const pickerProps = {
             value: undefined,
             onChange: e => {
@@ -179,7 +201,7 @@ export const getDateRangeFilterDropdown = (
         }
 
         return (
-            <FilterContainer clearFilters={clearFilters}
+            <FilterContainer clearFilters={handleClear}
                 showClearButton={selectedKeys && selectedKeys.length > 0}
                 style={containerStyles}
             >
