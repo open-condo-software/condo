@@ -50,7 +50,7 @@ async function registerMultiPaymentForOneReceipt (context, data) {
     })
 }
 
-async function sumPayments (context, data) {
+async function allPaymentsSum (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -58,7 +58,7 @@ async function sumPayments (context, data) {
     return await execGqlWithoutAccess(context, {
         query: SUM_PAYMENTS_QUERY,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to sumPayments',
+        errorMessage: '[error] Unable to sum payments',
         dataPath: 'obj',
     })
 }
@@ -74,6 +74,6 @@ module.exports = {
     registerMultiPayment,
     PaymentsFilterTemplate,
     registerMultiPaymentForOneReceipt,
-    sumPayments,
+    allPaymentsSum,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

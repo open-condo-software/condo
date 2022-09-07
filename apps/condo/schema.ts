@@ -32932,7 +32932,7 @@ export type Query = {
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
-  sumPayments?: Maybe<SumPaymentsOutput>;
+  allPaymentsSum?: Maybe<SumPaymentsOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;

@@ -94,7 +94,7 @@ describe('SumPaymentsService', () => {
                     'path': ['result'],
                     'data': {
                         'type': 'query',
-                        'target': 'sumPayments',
+                        'target': 'allPaymentsSum',
                     },
                 }])
             })
