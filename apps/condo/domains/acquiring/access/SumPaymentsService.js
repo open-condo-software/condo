@@ -10,7 +10,7 @@ async function canSumPayments ({ args: { where }, authentication: { item: user }
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    return await checkOrganizationPermission(user.id, get(where, ['organization', 'id'], null), 'canReadPayments',)
+    return await checkOrganizationPermission(user.id, get(where, ['organization', 'id'], null), 'canReadPayments')
 }
 
 /*
