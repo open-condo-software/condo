@@ -598,6 +598,16 @@ async function completeTestPayment(residentClient, integrationClient, serviceCon
     }
 }
 
+async function createPaymentsAndGetSum(paymentsAmount = 1) {
+    const { admin, billingReceipts, acquiringContext, organization } = await makePayer(paymentsAmount)
+    let totalSum = Big(0)
+    for (let i = 0; i < paymentsAmount; i++){
+        const [payment] = await createTestPayment(admin, organization, billingReceipts[i], acquiringContext)
+        totalSum = totalSum.plus(Big(payment.amount))
+    }
+    return { client: admin, organization, sum: totalSum.toFixed(8) }
+}
+
 
 module.exports = {
     AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration,
@@ -607,6 +617,7 @@ module.exports = {
     makeAcquiringContext,
     makeAcquiringContextAndIntegrationAccount,
     makeAcquiringContextAndIntegrationManager,
+    createPaymentsAndGetSum,
     Payment, createTestPayment, updateTestPayment,
     makePayer,
     makePayerAndPayments,
