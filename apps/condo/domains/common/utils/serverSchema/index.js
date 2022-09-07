@@ -93,6 +93,8 @@ class GqlWithKnexLoadList {
         this.keystone = modelAdapter
         this.knex = modelAdapter.adapter.knex
     }
+
+    // Takes rawAggregate SQL function and apply it on all objects with id from ids
     async loadAggregate (rawAggregate, ids) {
         const knexQuery = this.knex(`${this.listKey}`)
         knexQuery.select(this.knex.raw(rawAggregate))
