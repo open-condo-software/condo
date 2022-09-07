@@ -398,18 +398,12 @@ async function registerMultiPaymentForOneReceiptByTestClient(client, receipt, ac
     return [data.result, attrs]
 }
 
-async function sumPaymentsByTestClient(client, extraAttrs = {}) {
+async function sumPaymentsByTestClient(client, where = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.query(SUM_PAYMENTS_MUTATION, { data: attrs })
+    const { data, errors } = await client.query(SUM_PAYMENTS_QUERY, { where: where })
     throwIfError(data, errors)
-    return [data.result, attrs]
+    return data.result
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
