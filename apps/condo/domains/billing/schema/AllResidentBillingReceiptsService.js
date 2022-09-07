@@ -106,7 +106,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
 
                     const receiptsQuery = {
                         ...receiptsWhere,
-                        account: { number: serviceConsumer.accountNumber, unitName: resident.unitName, unitType: resident.unitType, deletedAt: null },
+                        account: { number: serviceConsumer.accountNumber, unitName: resident.unitName, deletedAt: null },
                         context: { id: serviceConsumer.billingIntegrationContext, deletedAt: null },
                         deletedAt: null,
                     }
