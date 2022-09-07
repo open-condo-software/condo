@@ -59,6 +59,7 @@ interface IPaymentsSumInfoProps {
     message: string
     currencyCode: string
     type?:  'success' | 'warning'
+    loading: boolean
 }
 
 const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
@@ -66,6 +67,7 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     message,
     currencyCode = DEFAULT_CURRENCY_CODE,
     type,
+    loading,
 }) => {
     const intl = useIntl()
 
@@ -76,23 +78,22 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
                 {...{ type }}
                 strong={true}
             >
-                {getMoneyRender(intl, currencyCode)(message)}
+                {loading ? '...' : getMoneyRender(intl, currencyCode)(message)}
             </Typography.Text>
         </Space>
     )
 }
 
-function GetSum (whereQuery, paymentStatus) {
-    const { data, loading } = useQuery(SUM_PAYMENTS_MUTATION, {
+function useSum (whereQuery) {
+    const { data, error, loading } = useQuery(SUM_PAYMENTS_MUTATION, {
         fetchPolicy: 'network-only',
         variables: {
             where: {
                 ...whereQuery,
-                status: paymentStatus,
             },
         },
     })
-    return loading ? 0 : Number(data.result.sum)
+    return { data, error, loading }
 }
 
 const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
@@ -157,7 +158,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         deletedAt: null,
         status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
     }
-
+    console.log(searchPaymentsQuery)
     const sortBy = sortersToSortBy(sorters, PAYMENTS_DEFAULT_SORT_BY)
 
     const {
@@ -174,9 +175,9 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
         fetchPolicy: 'network-only',
     })
 
-    const sumDonePayments = GetSum(searchPaymentsQuery, PAYMENT_DONE_STATUS)
-    const sumWithdrawnPayments = GetSum(searchPaymentsQuery, PAYMENT_WITHDRAWN_STATUS)
-    const sumAllPayments = sumDonePayments + sumWithdrawnPayments
+    const { data: sumDonePayments, loading: donePaymentsLoading } = useSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
+    const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = useSum({ ...searchPaymentsQuery, status: PAYMENT_WITHDRAWN_STATUS })
+    const { data: sumAllPayments, loading: allPaymentsLoading } = useSum({ ...searchPaymentsQuery })
 
     const [search, handleSearchChange] = useSearch<IFilters>(loading)
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
@@ -258,24 +259,27 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             <Col>
                                 <PaymentsSumInfo
                                     title={totalsSumTitle}
-                                    message={String(sumAllPayments)}
+                                    message={sumAllPayments ? sumAllPayments.result.sum : sumAllPayments}
                                     currencyCode={currencyCode}
+                                    loading={allPaymentsLoading}
                                 />
                             </Col>
                             <Col>
                                 <PaymentsSumInfo
                                     title={doneSumTitle}
-                                    message={String(sumDonePayments)}
+                                    message={sumDonePayments ? sumDonePayments.result.sum : sumDonePayments}
                                     currencyCode={currencyCode}
                                     type='success'
+                                    loading={donePaymentsLoading}
                                 />
                             </Col>
                             <Col>
                                 <PaymentsSumInfo
                                     title={withdrawnSumTitle}
-                                    message={String(sumWithdrawnPayments)}
+                                    message={sumWithdrawnPayments ? sumWithdrawnPayments.result.sum : sumWithdrawnPayments}
                                     currencyCode={currencyCode}
                                     type='warning'
+                                    loading={withdrawnPaymentsLoading}
                                 />
                             </Col>
                         </Row>
