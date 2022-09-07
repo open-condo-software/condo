@@ -1,7 +1,6 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -53,41 +52,42 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 
-export const TicketsPageContent = ({
-    tableColumns,
-    searchTicketsQuery,
-    sortBy,
-    filterMetas,
-    isTicketsFetching,
-    total,
-    tickets,
-}): JSX.Element => {
-    const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
-    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
-    const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
-    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
 
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const auth = useAuth() as { user: { id: string } }
-
+const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
     const router = useRouter()
-    const { filters } = parseQuery(router.query)
 
-    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
+    const { filters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
-    searchTicketsQuery = { ...searchTicketsQuery, ...{ deletedAt: null } }
+    const {
+        loading: isTicketsFetching,
+        count: total,
+        objs: tickets,
+        refetch,
+    } = Ticket.useObjects({
+        sortBy,
+        where: searchTicketsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
 
-    const loading = isTicketsFetching
+    const [isRefetching, setIsRefetching] = useState(false)
+    useEffect(() => {
+        const handler = setInterval(async () => {
+            setIsRefetching(true)
+            await refetch()
+            setIsRefetching(false)
+        }, TICKETS_RE_FETCH_INTERVAL)
+        return () => {
+            clearInterval(handler)
+        }
+    }, [refetch])
+
+    const tableColumns = useTableColumns(filterMetas, tickets)
+    const loading = isTicketsFetching && !isRefetching
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -96,22 +96,6 @@ export const TicketsPageContent = ({
             },
         }
     }, [router])
-
-    const [search, handleSearchChange] = useSearch<IFilters>(loading)
-    const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(loading)
-    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(loading)
-    const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(loading)
-    const [paid, handlePaidChange] = usePaidSearch<IFilters>(loading)
-    const noTicketsWithoutFilters = !tickets.length && isEmpty(filters) && !loading
-
-    const { TaskLauncher } = useTicketExportTask({
-        where: searchTicketsQuery,
-        sortBy,
-        format: EXCEL,
-        locale: intl.locale,
-        timeZone,
-        user: auth.user,
-    })
 
     const tooltipData = useFiltersTooltipData()
 
@@ -130,6 +114,74 @@ export const TicketsPageContent = ({
     }), [tooltipData, filters, tickets, total])
 
     return (
+        <Table
+            totalRows={total}
+            loading={loading}
+            dataSource={tickets}
+            columns={tableColumns}
+            onRow={handleRowAction}
+            components={tableComponents}
+            data-cy='ticket__table'
+        />
+    )
+}
+
+const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
+const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
+
+export const TicketsPageContent = ({
+    baseTicketsQuery,
+    filterMetas,
+    sortableProperties,
+}): JSX.Element => {
+    const intl = useIntl()
+    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
+    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
+    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
+    const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
+    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+
+    const auth = useAuth() as { user: { id: string } }
+
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
+    const searchTicketsQuery = { ...baseTicketsQuery,  ...filtersToWhere(filters), ...{ deletedAt: null } }
+    const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
+
+    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
+    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
+
+    const [search, handleSearchChange] = useSearch<IFilters>(false)
+    const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(false)
+    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(false)
+    const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(false)
+    const [paid, handlePaidChange] = usePaidSearch<IFilters>(false)
+
+    const { TaskLauncher } = useTicketExportTask({
+        where: searchTicketsQuery,
+        sortBy,
+        format: EXCEL,
+        locale: intl.locale,
+        timeZone,
+        user: auth.user,
+    })
+
+    const {
+        count: ticketsWithoutFiltersCount,
+        loading: ticketsWithoutFiltersCountLoading,
+    } = Ticket.useCount({ where: baseTicketsQuery })
+    const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
+
+    return (
         <>
             <Head>
                 <title>{PageTitleMessage}</title>
@@ -140,7 +192,7 @@ export const TicketsPageContent = ({
                 }/>
                 <TablePageContent>
                     {
-                        noTicketsWithoutFilters
+                        !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
@@ -244,17 +296,13 @@ export const TicketsPageContent = ({
                                         </TableFiltersContainer>
                                     </Col>
                                     <Col span={24}>
-                                        <Table
-                                            totalRows={total}
-                                            loading={loading}
-                                            dataSource={tickets}
-                                            columns={tableColumns}
-                                            onRow={handleRowAction}
-                                            components={tableComponents}
-                                            data-cy='ticket__table'
+                                        <TicketsTable
+                                            filterMetas={filterMetas}
+                                            sortBy={sortBy}
+                                            searchTicketsQuery={searchTicketsQuery}
                                         />
                                     </Col>
-                                    <TaskLauncher disabled={isEmpty(tickets)}/>
+                                    <TaskLauncher disabled={ticketsWithFiltersCount === 0}/>
                                 </Row>
                             )
                     }
@@ -265,45 +313,17 @@ export const TicketsPageContent = ({
     )
 }
 
-const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
-const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
-
 const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const filterMetas = useTicketTableFilters()
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
-    const router = useRouter()
-    const { filters, sorters, offset } = parseQuery(router.query)
-    const searchTicketsQuery = { ...filtersToWhere(filters), organization: { id: userOrganizationId } }
-
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-    const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
-
-    const {
-        loading: isTicketsFetching,
-        count: total,
-        objs: tickets,
-    } = Ticket.useObjects({
-        sortBy,
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
-
-    const tableColumns = useTableColumns(filterMetas, tickets)
+    const baseTicketsQuery = { organization: { id: userOrganizationId } }
 
     return (
         <TicketsPageContent
-            tableColumns={tableColumns}
-            searchTicketsQuery={searchTicketsQuery}
-            sortBy={sortBy}
+            baseTicketsQuery={baseTicketsQuery}
             filterMetas={filterMetas}
-            isTicketsFetching={isTicketsFetching}
-            total={total}
-            tickets={tickets}
+            sortableProperties={SORTABLE_PROPERTIES}
         />
     )
 }
