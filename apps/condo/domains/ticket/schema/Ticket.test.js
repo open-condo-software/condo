@@ -1753,7 +1753,7 @@ describe('Ticket', () => {
     })
 
     describe('deferred tickets', () => {
-        describe('changing the status from "Postponed" to any other without "deferredUntil", the value of the "postponedUntil" field is changed to the current date.', () => {
+        describe('changing the status from "deferred" to any other without "deferredUntil", the value of the "postponedUntil" field is changed to null', () => {
             const cases = [[NEW_OR_REOPENED_STATUS_TYPE, STATUS_IDS.OPEN], [CANCELED_STATUS_TYPE, STATUS_IDS.DECLINED]]
             test.each(cases)('change ticket status from "deferred" to %p', async (statusType, statusId) => {
                 const client = await makeClientWithProperty()
@@ -1767,10 +1767,8 @@ describe('Ticket', () => {
                     status: { connect: { id: statusId } },
                 })
 
-                const differenceDays = dayjs().diff(dayjs(updatedTicket.deferredUntil), 'days')
-
-                expect(differenceDays).toEqual(0)
                 expect(updatedTicket.status).toEqual(expect.objectContaining({ id: updatedAttrs.status.connect.id }))
+                expect(updatedTicket.deferredUntil).toBe(null)
             })
         })
         test('deferredUntil is null should not be with status "deferred"', async () => {
