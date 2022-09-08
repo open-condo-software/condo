@@ -26,8 +26,9 @@ async function canReadTicketOrganizationSettings ({ authentication: { item: user
 async function canManageTicketOrganizationSettings ({ authentication: { item: user }, operation }) {
     if (!user) throwAuthenticationError()
     if (user.deletedAt) return false
-    if (operation === 'create') return false
     if (user.isAdmin || user.isSupport) return true
+
+    if (operation === 'create') return false
 
     if (operation === 'update') {
         return {

@@ -21,14 +21,14 @@ const RegisterNewOrganizationService = new GQLCustomSchema('RegisterNewOrganizat
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
-                const extraData = { dv: data.dv, sender: data.sender }
+                const dvSenderData = { dv: data.dv, sender: data.sender }
                 const organization = await createOrganization(context, data)
-                const defaultRoles = await createDefaultRoles(context, organization, extraData)
+                const defaultRoles = await createDefaultRoles(context, organization, dvSenderData)
                 const adminRole = defaultRoles.Administrator
-                await createConfirmedEmployee(context, organization, context.authedItem, adminRole, extraData)
-                await createTrialSubscription(context, organization, extraData)
+                await createConfirmedEmployee(context, organization, context.authedItem, adminRole, dvSenderData)
+                await createTrialSubscription(context, organization, dvSenderData)
                 await TicketOrganizationSetting.create(context, {
-                    ...extraData,
+                    ...dvSenderData,
                     organization: { connect: { id: organization.id } },
                 })
                 pushOrganizationToSalesCRM(organization)

@@ -7,9 +7,9 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
+    expectToThrowValidationFailureError, catchErrorFrom,
 } = require('@condo/domains/common/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const {
     TicketOrganizationSetting,
     createTestTicketOrganizationSetting,
@@ -18,7 +18,7 @@ const {
 const {
     registerNewOrganization,
     createTestOrganizationEmployeeRole,
-    createTestOrganizationEmployee,
+    createTestOrganizationEmployee, createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     TICKET_DEFAULT_DEADLINE_DURATION_FIELDS,
@@ -34,7 +34,7 @@ describe('TicketOrganizationSetting', () => {
                 test('can not create TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await registerNewOrganization(admin)
+                    const [organization] = await createTestOrganization(admin)
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization)
                     await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
@@ -98,7 +98,9 @@ describe('TicketOrganizationSetting', () => {
                 test('can not create TicketOrganizationSetting', async () => {
                     const admin = await makeLoggedInAdminClient()
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                    const [organization] = await registerNewOrganization(admin)
+                    const [organization] = await createTestOrganization(admin)
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                    await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestTicketOrganizationSetting(userClient, organization)
@@ -144,15 +146,18 @@ describe('TicketOrganizationSetting', () => {
             })
         })
         describe('Admin', () => {
-            test('can not  create TicketOrganizationSetting', async () => {
+            test('can create TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await registerNewOrganization(admin)
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestTicketOrganizationSetting(admin, organization)
-                })
+                const [setting] = await createTestTicketOrganizationSetting(admin, organization)
+
+                expect(setting.organization.id).toEqual(organization.id)
             })
-            test('can not  delete TicketOrganizationSetting', async () => {
+            test('can not delete TicketOrganizationSetting', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await registerNewOrganization(admin)
 
@@ -195,11 +200,70 @@ describe('TicketOrganizationSetting', () => {
                 expect(setting.warrantyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
             })
         })
+        describe('Support', () => {
+            test('can create TicketOrganizationSetting', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const support = await makeClientWithSupportUser()
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+
+                const [setting] = await createTestTicketOrganizationSetting(support, organization)
+
+                expect(setting.organization.id).toEqual(organization.id)
+            })
+            test('can not delete TicketOrganizationSetting', async () => {
+                const support = await makeClientWithSupportUser()
+                const [organization] = await registerNewOrganization(support)
+
+                const [setting] = await TicketOrganizationSetting.getAll(support,  {
+                    organization: { id: organization.id },
+                })
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await TicketOrganizationSetting.delete(support, setting.id)
+                })
+            })
+            test('can update TicketOrganizationSetting', async () => {
+                const support = await makeClientWithSupportUser()
+                const [organization] = await registerNewOrganization(support)
+
+                const [setting] = await TicketOrganizationSetting.getAll(support,  {
+                    organization: { id: organization.id },
+                })
+
+                const [updatedSetting] = await updateTestTicketOrganizationSetting(support, setting.id, {})
+
+                expect(updatedSetting.id).toEqual(setting.id)
+                expect(updatedSetting.defaultDeadlineDuration).toEqual(setting.defaultDeadlineDuration)
+                expect(updatedSetting.paidDeadlineDuration).toEqual(setting.paidDeadlineDuration)
+                expect(updatedSetting.emergencyDeadlineDuration).toEqual(setting.emergencyDeadlineDuration)
+                expect(updatedSetting.warrantyDeadlineDuration).toEqual(setting.warrantyDeadlineDuration)
+            })
+            test('can read TicketOrganizationSetting', async () => {
+                const support = await makeClientWithSupportUser()
+                const [organization] = await registerNewOrganization(support)
+
+                const [setting] = await TicketOrganizationSetting.getAll(support,  {
+                    organization: { id: organization.id },
+                })
+
+                expect(setting.organization.id).toMatch(organization.id)
+                expect(setting.defaultDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                expect(setting.paidDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                expect(setting.emergencyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+                expect(setting.warrantyDeadlineDuration).toEqual(DEFAULT_TICKET_DEADLINE_DURATION)
+            })
+        })
         describe('Anonymous', () => {
             test('can not create TicketOrganizationSetting', async () => {
                 const anonymousClient = await makeClient()
                 const admin = await makeLoggedInAdminClient()
-                const [organization] = await registerNewOrganization(admin)
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestTicketOrganizationSetting(anonymousClient, organization)
@@ -303,6 +367,22 @@ describe('TicketOrganizationSetting', () => {
                     },
                     'Invalid DateInterval value.'
                 )
+            })
+        })
+        test('should not cam create with duplicate organization',  async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await registerNewOrganization(admin)
+            const [setting] = await TicketOrganizationSetting.getAll(admin,  {
+                organization: { id: organization.id },
+            })
+
+            expect(setting.organization.id).toEqual(organization.id)
+
+            await catchErrorFrom(async () => {
+                await createTestTicketOrganizationSetting(admin, { id: organization.id })
+            }, ({ errors }) => {
+                expect(errors).toHaveLength(1)
+                expect(errors[0].message).toContain('duplicate key value violates unique constraint "TicketOrganizationSetting_unique_organization"')
             })
         })
     })

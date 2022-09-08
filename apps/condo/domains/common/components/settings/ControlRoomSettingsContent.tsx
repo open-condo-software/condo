@@ -7,9 +7,7 @@ import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
-import {
-    TicketDeadlineSettingCard,
-} from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
+import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
