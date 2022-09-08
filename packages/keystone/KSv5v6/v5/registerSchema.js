@@ -27,7 +27,7 @@ function applyKeystoneV5AdminFixes (schema) {
 function convertStringToTypes (schema) {
     const { Text, Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File } = require('@keystonejs/fields')
     const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
-    const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText } = require('../../fields')
+    const { Json, SignedDecimal, AutoIncrementInteger, LocalizedText, DateInterval } = require('../../fields')
     const { HiddenRelationship } = require('../../plugins/utils/HiddenRelationship')
     const mapping = {
         CalendarDay,
@@ -51,6 +51,7 @@ function convertStringToTypes (schema) {
         LocalizedText,
         AuthedRelationship,
         HiddenRelationship,
+        DateInterval,
     }
 
     if (!schema.fields) throw new Error('convertStringToTypes(): wrong schema type! no fields!')

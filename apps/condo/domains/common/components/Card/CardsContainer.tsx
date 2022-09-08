@@ -33,9 +33,9 @@ export const CardsContainer: React.FC<CardsContainerProps> = ({ cardsPerRow = 3,
     return (
         <Row gutter={CONTAINER_GUTTER}>
             {
-                React.Children.map(children, (child) => {
+                React.Children.map(children, (child, index) => {
                     return (
-                        <Col span={colSpan}>
+                        <Col span={colSpan} key={index}>
                             {child}
                         </Col>
                     )

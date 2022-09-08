@@ -2,7 +2,7 @@ const { cloneDeep } = require('lodash/lang')
 const { DateTimeUtc } = require('@keystonejs/fields')
 
 const { GQLListSchema } = require('../../schema')
-const { Json } = require('../../fields')
+const { Json, DateInterval } = require('../../fields')
 const { convertStringToTypes } = require('./registerSchema')
 
 const TestMessage = new GQLListSchema('TestMessage', {
@@ -53,6 +53,13 @@ const TestMessage = new GQLListSchema('TestMessage', {
             isRequired: true,
         },
 
+        interval: {
+            schemaDoc: 'Message interval',
+            type: 'DateInterval',
+            defaultValue: 'P10D',
+            isRequired: true,
+        },
+
         deliveredAt: {
             schemaDoc: 'Delivered at time',
             type: 'DateTimeUtc',
@@ -83,4 +90,5 @@ test('convertStringToTypes()', () => {
     convertStringToTypes(schema)
     expect(schema.fields.deliveredAt.type).toBe(DateTimeUtc)
     expect(schema.fields.meta.type).toBe(Json)
+    expect(schema.fields.interval.type).toBe(DateInterval)
 })
