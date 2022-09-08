@@ -1,7 +1,5 @@
-const path = require('path')
-const pluralize = require('pluralize')
 const get = require('lodash/get')
-const config = require(path.join(__dirname, '../sd.config.js'))
+const pluralize = require('pluralize')
 
 const RAW_INT_TYPES = ['fontWeight', 'opacity']
 
@@ -32,12 +30,10 @@ const getShortHex = (hex) => {
     return `#${hex.charAt(1)}${hex.charAt(3)}${hex.charAt(5)}`
 }
 
-const StyleDictionary = require('style-dictionary').extend(config)
-
 /**
  * Adds px suffix to any sizing values without one
  */
-StyleDictionary.registerTransform({
+const intToPxTransformer = {
     name: 'transformer/int-px',
     type: 'value',
     matcher: (token) => {
@@ -49,29 +45,32 @@ StyleDictionary.registerTransform({
     transformer: (token) => {
         return `${token.original.value}px`
     },
-})
+}
 
 /**
  * Wraps specified single font in ""
  * and uses sans-serif as a fallback
  */
-StyleDictionary.registerTransform({
-    name: 'transformer/fonts/sans-serif',
-    type: 'value',
-    matcher: (token) => {
-        const isFont = isMatchingType(token, 'fontFamily')
-        const isSingleFont = Boolean(typeof token.original.value === 'string' && !token.original.value.includes(','))
-        return isFont && isSingleFont
-    },
-    transformer: (token) => {
-        return `"${token.original.value}", sans-serif`
-    },
-})
+const getDefaultFontTransformer = (defaultFont = 'sans-serif') => {
+    return {
+        name: `transformer/fonts/${defaultFont}`,
+        type: 'value',
+        matcher: (token) => {
+            const isFont = isMatchingType(token, 'fontFamily')
+            const isSingleFont = Boolean(typeof token.original.value === 'string' && !token.original.value.includes(','))
+            return isFont && isSingleFont
+        },
+        transformer: (token) => {
+            return `"${token.original.value}", ${defaultFont}`
+        },
+    }
+}
+
 
 /**
  * Converts font weights in string format to integer representation
  */
-StyleDictionary.registerTransform({
+const weightToIntTransformer = {
     name: 'transformer/fonts/int-weight',
     type: 'value',
     matcher: (token) => {
@@ -89,12 +88,12 @@ StyleDictionary.registerTransform({
 
         return token.original.value
     },
-})
+}
 
 /**
  * Converts figma-style box-shadows to css ones
  */
-StyleDictionary.registerTransform({
+const boxShadowTransformer = {
     name: 'transformer/shadow-css',
     type: 'value',
     matcher: (token) => {
@@ -126,12 +125,12 @@ StyleDictionary.registerTransform({
 
         return parts.join(' ')
     },
-})
+}
 
 /**
  * Converts hex-colors to short 3-letter notation if it's possible
  */
-StyleDictionary.registerTransform({
+const shortHexTransformer = {
     name: 'transformer/short-hex',
     type: 'value',
     matcher: (token) => {
@@ -143,12 +142,12 @@ StyleDictionary.registerTransform({
     transformer: (token) => {
         return getShortHex(token.value)
     },
-})
+}
 
 /**
  * Converts hex-colors to lower case
  */
-StyleDictionary.registerTransform({
+const lowerHexTransformer = {
     name: 'transformer/lower-hex',
     type: 'value',
     matcher: (token) => {
@@ -160,7 +159,28 @@ StyleDictionary.registerTransform({
     transformer: (token) => {
         return token.value.toLowerCase()
     },
-})
+}
 
-StyleDictionary.buildAllPlatforms()
+const allTransformers = [
+    getDefaultFontTransformer(),
+    intToPxTransformer,
+    weightToIntTransformer,
+    boxShadowTransformer,
+    shortHexTransformer,
+    lowerHexTransformer,
+]
 
+const webVarsTransformersChain = [
+    'name/cti/kebab',
+    'transformer/int-px',
+    'transformer/fonts/sans-serif',
+    'transformer/fonts/int-weight',
+    'transformer/shadow-css',
+    'transformer/short-hex',
+    'transformer/lower-hex',
+]
+
+module.exports = {
+    allTransformers,
+    webVarsTransformersChain,
+}

@@ -1,0 +1,41 @@
+name: UI-kit
+
+# Check that UI-kit is in valid state (all tokens are valid, and lib can be built)
+# If anything in source code changes (except stories, since they're not affecting lib itself)
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-including-and-excluding-paths
+
+on:
+  pull_request:
+    paths:
+      - 'packages/ui/src/**'
+      - '!packages/ui/src/stories/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Install packages
+        run: yarn install --immutable
+
+      - name: Build styles from tokens
+        run: yarn workspace @condo/ui build:styles --web less css
+
+      - name: Strict lint token values (CSS vars)
+        run: yarn stylelint "packages/ui/src/tokens/**/*.css"
+
+      - name: Basic lint of Less variables
+        run: yarn stylelint "packages/ui/src/tokens/**/*.less"
+
+      - name: Generate color set
+        run: yarn workspace @condo/ui build:colors
+
+      - name: Build lib
+        run: yarn workspace @condo/ui build:lib
