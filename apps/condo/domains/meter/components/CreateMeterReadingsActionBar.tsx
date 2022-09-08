@@ -37,9 +37,7 @@ export const CreateMeterReadingsActionBar = ({
                     const { property, unitName } = getFieldsValue(['property', 'unitName'])
                     const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
                     const isCreateMeterButtonDisabled = !property || !unitName
-                    const propertyMismatchError = getFieldError('property').map(error => {
-                        if (error.includes(AddressNotSelected)) return error
-                    })[0]
+                    const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                     return (
                         <ActionBar>
                             <Col>

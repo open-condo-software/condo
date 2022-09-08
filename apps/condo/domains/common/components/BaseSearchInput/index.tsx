@@ -1,4 +1,5 @@
 import { isEmpty } from 'lodash'
+import isFunction from 'lodash/isFunction'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import debounce from 'lodash/debounce'
@@ -25,7 +26,7 @@ interface ISearchInput<S> extends Omit<CustomSelectProps<S>, 'onSelect'> {
     infinityScroll?: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
-    setIsMatchSelectedPropertyAndInputPropertyName?: Dispatch<SetStateAction<boolean>>
+    setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
 }
 
 const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding: '10px 0' }
@@ -46,7 +47,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
         initialValueGetter,
         loadOptionsOnFocus = true,
         notFoundContent = NotFoundMessage,
-        setIsMatchSelectedPropertyAndInputPropertyName,
+        setIsMatchSelectedProperty,
         style,
         infinityScroll,
         value,
@@ -135,10 +136,10 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     const handleClear = useCallback(
         () => {
             setSelected(null)
-            if (typeof setIsMatchSelectedPropertyAndInputPropertyName === 'function') {
-                setIsMatchSelectedPropertyAndInputPropertyName(true)
+            if (isFunction(setIsMatchSelectedProperty)) {
+                setIsMatchSelectedProperty(true)
             }
-            if (props.onClear)
+            if (isFunction(props.onClear))
                 props.onClear()
         },
         [],
@@ -151,9 +152,9 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
 
     // Checking for compliance of the selected property and the value in the search bar
     useEffect(()=> {
-        if (!isEmpty(selected) && typeof setIsMatchSelectedPropertyAndInputPropertyName === 'function') {
-            if (selected !== searchValue) setIsMatchSelectedPropertyAndInputPropertyName(false)
-            else setIsMatchSelectedPropertyAndInputPropertyName(true)
+        if (!isEmpty(selected) && isFunction(setIsMatchSelectedProperty)) {
+            if (selected !== searchValue) setIsMatchSelectedProperty(false)
+            else setIsMatchSelectedProperty(true)
         }
     }, [searchValue, props, selected])
 

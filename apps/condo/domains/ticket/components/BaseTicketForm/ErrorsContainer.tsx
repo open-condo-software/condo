@@ -1,4 +1,5 @@
 import { useIntl } from '@condo/next/intl'
+import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 
@@ -28,12 +29,9 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ isVisible, pr
         !categoryClassifier && CategoryLabel,
         !deadline && DeadlineLabel,
     ].filter(Boolean)
-
-    const requiredFields = emptyFieldMessages && emptyFieldMessages.length > 0 &&
-    emptyFieldMessages
-        .reduce((firstError, secondError) => `${firstError}, ${secondError}`)
-        .toLocaleLowerCase()
-    const requiredErrorMessage = requiredFields && ErrorsContainerTitle.concat(` ${requiredFields}`)
+        .join(', ')
+    
+    const requiredErrorMessage = !isEmpty(emptyFieldMessages) && ErrorsContainerTitle.concat(` ${emptyFieldMessages.toLowerCase()}`)
 
 
     return (

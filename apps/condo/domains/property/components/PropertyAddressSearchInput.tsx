@@ -18,7 +18,7 @@ import { colors } from '@condo/domains/common/constants/style'
 
 type IAddressSearchInput = SelectProps<string> & {
     organization: Organization
-    setIsMatchSelectedPropertyAndInputPropertyName?: Dispatch<SetStateAction<boolean>>
+    setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
 }
 
 const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }

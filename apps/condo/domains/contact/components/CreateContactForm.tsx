@@ -19,6 +19,7 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useRef, useState } from 'react'
+import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -32,6 +33,7 @@ const INPUT_LAYOUT_PROPS = {
     },
     colon: false,
 }
+const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 
 const BottomLineWrapper = styled.div`
   display: flex;
@@ -67,14 +69,17 @@ export const CreateContactForm: React.FC = () => {
     const selectedUnitNameRef = useRef(selectedUnitName)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
-    const [isMatchSelectedPropertyAndInputPropertyName, setIsMatchSelectedPropertyAndInputPropertyName] = useState(true)
+    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
 
-    const { changeMessage, phoneValidator, emailValidator, requiredValidator, addressValidator } = useValidations({ allowLandLine: true })
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations({ allowLandLine: true })
+    const { addressValidator } = usePropertyValidations()
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator],
         email: [changeMessage(emailValidator, EmailErrorMessage)],
-        property: [changeMessage(requiredValidator, PropertyErrorMessage),
-            addressValidator(selectedPropertyId, isMatchSelectedPropertyAndInputPropertyName)],
+        property: [
+            changeMessage(requiredValidator, PropertyErrorMessage),
+            addressValidator(selectedPropertyId, isMatchSelectedProperty),
+        ],
         unit: [changeMessage(requiredValidator, UnitErrorMessage)],
         name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
     }
@@ -145,12 +150,10 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.property}
                                             required
                                             {...INPUT_LAYOUT_PROPS}
-                                            wrapperCol={{ span: 14 }}>
+                                            wrapperCol={ADDRESS_SEARCH_WRAPPER_COL}>
                                             <PropertyAddressSearchInput
                                                 organization={organization}
-                                                setIsMatchSelectedPropertyAndInputPropertyName={
-                                                    setIsMatchSelectedPropertyAndInputPropertyName
-                                                }
+                                                setIsMatchSelectedProperty={setIsMatchSelectedProperty}
                                                 onSelect={(_, option) => {
                                                     form.setFieldsValue({ 'unitName': null })
                                                     setSelectedPropertyId(option.key)
@@ -253,9 +256,7 @@ export const CreateContactForm: React.FC = () => {
                                     {
                                         ({ getFieldsValue, getFieldError }) => {
                                             const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
-                                            const propertyMismatchError = getFieldError('property').map(error => {
-                                                if (error.includes(AddressNotSelected)) return error
-                                            })[0]
+                                            const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                                             return (
                                                 <Row gutter={[0, 24]}>
                                                     <Col span={24}>

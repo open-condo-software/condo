@@ -31,9 +31,8 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading }) => {
             {
                 ({ getFieldsValue, getFieldError }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
-                    const propertyMismatchError = getFieldError('property').map(error => {
-                        if (error.includes(AddressNotSelected)) return error
-                    })[0]
+                    const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
+
                     const disabledCondition = !property || !details || !placeClassifier || !categoryClassifier || !deadline || !!propertyMismatchError
                     return (
                         <ActionBar isFormActionBar>
