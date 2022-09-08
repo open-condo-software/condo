@@ -11,7 +11,7 @@ class Logger {
     }
 
     printLog (message, params = {}, type) {
-        this.logger[type]({ message, ...params })
+        this.logger[type]({ msg: message, data: params })
     }
 
     debug (message, params = {}) {
