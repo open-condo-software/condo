@@ -290,6 +290,12 @@ describe('safeFormatError hide=false', () => {
             'extensions': {},
         })
     })
+    test('safeFormatError(null)', () => {
+        expect(safeFormatError(null)).toMatchObject({
+            'message': 'null',
+            'name': 'NonError',
+        })
+    })
 })
 
 describe('safeFormatError hide=true', () => {
