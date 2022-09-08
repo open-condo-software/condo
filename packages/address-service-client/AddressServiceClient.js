@@ -18,8 +18,6 @@ class AddressServiceClient {
      * @param {AddressServiceParams?} params Additional parameters
      */
     constructor (url, params) {
-        const { geo = null, count = 20, context = null } = params
-
         if (!url) {
             throw new Error('The `url` parameter is mandatory')
         }
@@ -27,9 +25,27 @@ class AddressServiceClient {
         this.url = url
 
         // The next fields allow to define some query parameters for all queries made by this client instance
+        const { geo = null, count = 20, context = null } = params
         this.geo = geo
         this.count = count
         this.context = context
+    }
+
+    /**
+     * @param {AddressServiceParams} params
+     * @returns {string}
+     * @private
+     */
+    urlifyParams (params) {
+        const urlParams = []
+        Object.keys(params).forEach((paramName) => {
+            const paramValue = params[paramName] || this[paramName] || null
+            if (paramValue) {
+                urlParams.push(`${paramName}=${paramValue}`)
+            }
+        })
+
+        return urlParams.join('&')
     }
 
     /**
@@ -55,25 +71,30 @@ class AddressServiceClient {
      * @public
      */
     async suggest (s, params) {
-
         if (!s) {
             throw new Error('The `s` parameter is mandatory')
         }
 
-        const urlParams = [`s=${s}`]
-
-        Object.keys(params).forEach((paramName) => {
-            const paramValue = params[paramName] || this[paramName] || null
-            if (paramValue) {
-                urlParams.push(`${paramName}=${paramValue}`)
-            }
-        })
+        const urlParams = [`s=${s}`, this.urlifyParams(params)].filter(Boolean)
 
         return this.call(`${this.url}/suggest?${urlParams.join('&')}`)
     }
 
-    async search () {
-        throw new Error('The method is not implemented yet')
+    /**
+     *
+     * @param {string} s
+     * @param {AddressServiceParams} params
+     * @returns {Promise<*>}
+     * @public
+     */
+    async search (s, params) {
+        if (!s) {
+            throw new Error('The `s` parameter is mandatory')
+        }
+
+        const urlParams = [`s=${s}`, this.urlifyParams(params)].filter(Boolean)
+
+        return this.call(`${this.url}/search?${urlParams.join('&')}`)
     }
 }
 
