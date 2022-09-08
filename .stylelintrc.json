@@ -1,3 +1,16 @@
 {
-  "extends": "stylelint-config-standard"
+  "extends": [
+    "stylelint-config-standard",
+    "stylelint-config-rational-order"
+  ],
+  "rules": {
+    "no-empty-first-line": null,
+    "no-missing-end-of-source-newline": null
+  },
+  "overrides": [
+    {
+      "files": ["**/*.less"],
+      "customSyntax": "postcss-less"
+    }
+  ]
 }
