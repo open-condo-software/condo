@@ -49,7 +49,7 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
 
 function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus, originalInput) {
     if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
-        resolvedData.deferredUntil = get(originalInput, 'deferredUntil', dayjs().toISOString())
+        resolvedData.deferredUntil = null
     }
 }
 
