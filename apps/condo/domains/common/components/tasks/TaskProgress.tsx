@@ -19,9 +19,9 @@ import {
     TasksContext,
 } from './index'
 import { CheckIcon } from '../icons/Check'
-import { ExpandIcon } from '../icons/ExpandIcon'
 import { CrossIcon } from '../icons/CrossIcon'
 import { CloseCircleIcon } from '../icons/CloseCircleIcon'
+import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 
 const InfiniteSpinningStyle = css`
   @keyframes rotate {
@@ -47,7 +47,7 @@ type ICircularProgressProps = {
 export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     <Progress
         type='circle'
-        width={22}
+        width={18}
         strokeWidth={14}
         strokeColor={{
             '0%': '#4CD174',
@@ -61,15 +61,11 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
 )
 
 const TaskIconsHoverSwitcher = styled.div`
-     cursor: pointer;
+    cursor: pointer;
   
     > * {
       position: relative;
-      right: 7px;
-      
-      &.ant-progress-circle {
-        right: 2px;
-      }
+      right: 3px;
     }
    
      > *:first-child {
@@ -201,15 +197,26 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
 
 const VisibilityControlButton = styled.div`
   position: absolute;
-  right: 30px;
-  top: 20px;
+  right: 20px;
+  top: 19px;
   z-index: 1;
   cursor: pointer;
+`
+
+const ChevronCollapseIconStyle = css`
+  transform-origin: center;
+  transform: rotate(180deg);
 `
 
 const infoIconStyles = css`
   color: ${colors.infoIconColor};
   font-size: 20px;
+`
+
+const TasksProgressTitleStyle = css`
+  font-size: 16px;
+  line-height: 1.25;
+  margin-bottom: 0;
 `
 
 interface ITasksProgressProps {
@@ -223,7 +230,6 @@ interface ITasksProgressProps {
 export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
     const intl = useIntl()
     const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
-    const DescriptionMsg = intl.formatMessage({ id: 'tasks.progressNotification.description' })
     const [collapsed, setCollapsed] = useState(false)
 
     const toggleCollapsed = () => {
@@ -235,9 +241,9 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                 onClick={toggleCollapsed}
             >
                 {collapsed ? (
-                    <ExpandIcon/>
+                    <ChevronIcon/>
                 ) : (
-                    <MinusOutlined/>
+                    <ChevronIcon css={ChevronCollapseIconStyle}/>
                 )}
             </VisibilityControlButton>
             <Row>
@@ -245,14 +251,9 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                     <InfoCircleOutlined css={infoIconStyles}/>
                 </Col>
                 <Col span={22}>
-                    <Typography.Paragraph strong>
+                    <Typography.Paragraph strong css={TasksProgressTitleStyle}>
                         {TitleMsg}
                     </Typography.Paragraph>
-                    {!collapsed && (
-                        <Typography.Paragraph style={{ color: colors.textSecondary }}>
-                            {DescriptionMsg}
-                        </Typography.Paragraph>
-                    )}
                     <List
                         style={{ display: collapsed ? 'none' : 'block' }}
                         dataSource={tasks}
