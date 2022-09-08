@@ -208,18 +208,27 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 inValidPhones.push(splitPhones[i])
                 continue
             }
-            contactPool.push(
-                contactCreateAction({
-                    organization: { connect: { id: String(userOrganizationId) } },
-                    property: { connect: { id: String(row.addons.property) } },
-                    unitName,
-                    unitType: row.addons.unitType,
-                    phone: phone,
-                    name: row.addons.fullName,
-                    email: row.addons.email,
-                    role: row.addons.role ? { connect: { id: String(row.addons.role) } } : undefined,
-                }),
-            )
+
+            const contactData = {
+                organization: { connect: { id: String(userOrganizationId) } },
+                property: { connect: { id: String(row.addons.property) } },
+                unitName,
+                unitType: row.addons.unitType,
+                phone: phone,
+                name: row.addons.fullName,
+                email: row.addons.email,
+            }
+
+            const role = get(row, ['addons', 'role'])
+
+            if (role) {
+                const roleId = get(rolesNameToIdMapping, String(role).trim().toLowerCase())
+                if (roleId) {
+                    contactData['role'] = { connect: { id: roleId } }
+                }
+            }
+
+            contactPool.push(contactCreateAction(contactData))
         }
         return Promise.all(contactPool).then(() => {
             if (inValidPhones.length > 0) {
