@@ -35,6 +35,10 @@ const SENDER_FIELD = {
     kmigratorOptions: { null: false },
 }
 
+/**
+ * @deprecated use address service plugin
+ * @see packages/keystone/plugins/addressService.js
+ */
 const ADDRESS_META_FIELD = {
     schemaDoc: 'Property address components',
     type: Json,
