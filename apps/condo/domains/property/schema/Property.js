@@ -29,14 +29,44 @@ const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 
-const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY, GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY } = require('../gql')
+const {
+    PROPERTY_MAP_GRAPHQL_TYPES,
+    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
+    GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
+} = require('../gql')
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
+const { addressService } = require('@condo/keystone/plugins/addressService')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
+
+const addressFieldHooks = {
+    validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem, operation }) => {
+        const value = resolvedData[fieldPath]
+        const isCreate = operation === 'create'
+        const isUpdateAddress = operation === 'update' && resolvedData.address !== existingItem.address
+
+        if (isCreate || isUpdateAddress) {
+            const organizationId = isCreate ? resolvedData.organization : existingItem.organization
+            const addressSearch = isCreate ? { address_i: value } : { address: value }
+            const where = {
+                ...addressSearch,
+                organization: {
+                    id: organizationId,
+                },
+                deletedAt: null,
+            }
+            const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
+
+            if (!isEmpty(sameAddressProperties)) {
+                addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
+            }
+        }
+    },
+}
 
 // ORGANIZATION_OWNED_FIELD
 const Property = new GQLListSchema('Property', {
@@ -50,38 +80,6 @@ const Property = new GQLListSchema('Property', {
             type: Text,
             isRequired: false,
         },
-
-        address: {
-            schemaDoc: 'Normalized address',
-            type: Text,
-            isRequired: true,
-            hooks: {
-                validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem, operation }) => {
-                    const value = resolvedData[fieldPath]
-                    const isCreate = operation === 'create'
-                    const isUpdateAddress = operation === 'update' && resolvedData.address !== existingItem.address
-
-                    if (isCreate || isUpdateAddress) {
-                        const organizationId = isCreate ? resolvedData.organization : existingItem.organization
-                        const addressSearch = isCreate ? { address_i: value } : { address: value }
-                        const where = {
-                            ...addressSearch,
-                            organization: {
-                                id: organizationId,
-                            },
-                            deletedAt: null,
-                        }
-                        const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
-
-                        if (!isEmpty(sameAddressProperties)) {
-                            addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
-                        }
-                    }
-                },
-            },
-        },
-
-        addressMeta: ADDRESS_META_FIELD,
 
         type: {
             schemaDoc: 'Common property type',
@@ -108,11 +106,12 @@ const Property = new GQLListSchema('Property', {
                     if (!resolvedData.hasOwnProperty(fieldPath)) return // skip if on value
                     const value = resolvedData[fieldPath]
                     if (value === null) return // null is OK
-                    if (typeof value !== 'object') { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
+                    if (typeof value !== 'object') {
+                        return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
+                    }
                     const { dv } = value
                     if (dv === 1) {
-                        if (!jsonMapValidator(value)){
-                            // console.log(JSON.stringify(jsonMapValidator.errors, null, 2))
+                        if (!jsonMapValidator(value)) {
                             return addFieldValidationError(`${JSON_SCHEMA_VALIDATION_ERROR}] invalid json structure of "map" field`)
                         }
                     } else {
@@ -179,7 +178,7 @@ const Property = new GQLListSchema('Property', {
                         const parkingSection = get(map, 'parking', [])
                         const parkingUnitsCount = !isEmpty(parkingSection) ? parkingSection
                             .map((section) => get(section, 'floors', [])
-                                .map(floor => get(floor, 'units', []).length)
+                                .map(floor => get(floor, 'units', []).length),
                             )
                             .flat()
                             .reduce((total, unitsOnFloor) => total + unitsOnFloor, 0) : 0
@@ -283,7 +282,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService('address', { address: addressFieldHooks }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         auth: true,
         delete: false,
