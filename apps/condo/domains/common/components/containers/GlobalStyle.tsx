@@ -295,9 +295,21 @@ export default function GlobalStyle () {
               ${cardCSS}
               
               .ant-notification-notice.tasks {
+                padding: 17px;
+                
                 .ant-notification-notice-close {
                   display: none;
-                }        
+                }
+                
+                .ant-notification-notice-message {
+                  display: none;
+                }
+                
+                .ant-notification-notice-description {
+                  div.ant-typography {
+                    margin-bottom: 0;
+                  }
+                }
               }
             `}
         />
