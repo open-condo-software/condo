@@ -24,11 +24,11 @@ describe('delete contact duplicates', () => {
         })
         await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-        const name1 = faker.lorem.word()
-        const name2 = faker.lorem.word()
-        const name3 = faker.lorem.word()
+        const name1 = faker.random.alphaNumeric(8)
+        const name2 = faker.random.alphaNumeric(8)
+        const name3 = faker.random.alphaNumeric(8)
         const phone = createTestPhone()
-        const unitName = faker.lorem.word()
+        const unitName = faker.random.alphaNumeric(8)
 
         const [duplicateContact1] = await createTestContact(userClient, organization, userClient.property, {
             unitName,
@@ -74,7 +74,7 @@ describe('delete contact duplicates', () => {
         })
         await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
-        const unitName = faker.lorem.word()
+        const unitName = faker.random.alphaNumeric(8)
 
         const [contact1] = await createTestContact(userClient, organization, userClient.property, {
             unitName,
@@ -108,11 +108,11 @@ describe('delete contact duplicates', () => {
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
 
-        const name1 = faker.lorem.word()
-        const name2 = faker.lorem.word()
-        const name3 = faker.lorem.word()
+        const name1 = faker.random.alphaNumeric(8)
+        const name2 = faker.random.alphaNumeric(8)
+        const name3 = faker.random.alphaNumeric(8)
         const phone = createTestPhone()
-        const unitName = faker.lorem.word()
+        const unitName = faker.random.alphaNumeric(8)
 
         const [duplicateContact1] = await createTestContact(adminClient, organization, property, {
             unitName,
@@ -153,17 +153,17 @@ describe('delete contact duplicates', () => {
         expect(deletedDuplicatedContact2.deletedAt).toBeDefined()
     })
 
-    test('leaves only the last created contact with tickets,' +
+    test('leaves only the last created contact with tickets, ' +
         'relinks contacts for tickets with deleted contacts', async () => {
         const adminClient = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(adminClient)
         const [property] = await createTestProperty(adminClient, organization)
 
-        const name1 = faker.lorem.word()
-        const name2 = faker.lorem.word()
-        const name3 = faker.lorem.word()
+        const name1 = faker.random.alphaNumeric(8)
+        const name2 = faker.random.alphaNumeric(8)
+        const name3 = faker.random.alphaNumeric(8)
         const phone = createTestPhone()
-        const unitName = faker.lorem.word()
+        const unitName = faker.random.alphaNumeric(8)
 
         const [contactWithoutTicket] = await createTestContact(adminClient, organization, property, {
             unitName,
