@@ -33831,10 +33831,6 @@ export type Property = {
   organization?: Maybe<Organization>;
   /**  Client understandable Property name. A well-known property name for the client  */
   name?: Maybe<Scalars['String']>;
-  /**  Normalized address  */
-  address?: Maybe<Scalars['String']>;
-  /**  Property address components  */
-  addressMeta?: Maybe<AddressMetaField>;
   /**  Common property type  */
   type?: Maybe<PropertyTypeType>;
   /**  Property map/schema  */
@@ -33854,6 +33850,14 @@ export type Property = {
   /**  Property area in square meters  */
   area?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  /**  Normalized address  */
+  address?: Maybe<Scalars['String']>;
+  /**  The origin of the address (some string which may looks like real address or some id)  */
+  addressSource?: Maybe<Scalars['String']>;
+  /**  The unique key of the address  */
+  addressKey?: Maybe<Scalars['String']>;
+  /**  Property address components  */
+  addressMeta?: Maybe<AddressMetaField>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33872,8 +33876,6 @@ export type Property = {
 export type PropertyCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
@@ -33881,6 +33883,10 @@ export type PropertyCreateInput = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33905,8 +33911,6 @@ export type PropertyHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
@@ -33917,6 +33921,10 @@ export type PropertyHistoryRecord = {
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  address?: Maybe<Scalars['String']>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33934,8 +33942,6 @@ export type PropertyHistoryRecord = {
 export type PropertyHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
@@ -33945,6 +33951,10 @@ export type PropertyHistoryRecordCreateInput = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33968,8 +33978,6 @@ export enum PropertyHistoryRecordHistoryActionType {
 export type PropertyHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<Scalars['String']>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
@@ -33979,6 +33987,10 @@ export type PropertyHistoryRecordUpdateInput = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34018,28 +34030,6 @@ export type PropertyHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address?: Maybe<Scalars['String']>;
-  address_not?: Maybe<Scalars['String']>;
-  address_contains?: Maybe<Scalars['String']>;
-  address_not_contains?: Maybe<Scalars['String']>;
-  address_starts_with?: Maybe<Scalars['String']>;
-  address_not_starts_with?: Maybe<Scalars['String']>;
-  address_ends_with?: Maybe<Scalars['String']>;
-  address_not_ends_with?: Maybe<Scalars['String']>;
-  address_i?: Maybe<Scalars['String']>;
-  address_not_i?: Maybe<Scalars['String']>;
-  address_contains_i?: Maybe<Scalars['String']>;
-  address_not_contains_i?: Maybe<Scalars['String']>;
-  address_starts_with_i?: Maybe<Scalars['String']>;
-  address_not_starts_with_i?: Maybe<Scalars['String']>;
-  address_ends_with_i?: Maybe<Scalars['String']>;
-  address_not_ends_with_i?: Maybe<Scalars['String']>;
-  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressMeta_not?: Maybe<Scalars['JSON']>;
-  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   type?: Maybe<Scalars['String']>;
   type_not?: Maybe<Scalars['String']>;
   type_contains?: Maybe<Scalars['String']>;
@@ -34108,6 +34098,64 @@ export type PropertyHistoryRecordWhereInput = {
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  address?: Maybe<Scalars['String']>;
+  address_not?: Maybe<Scalars['String']>;
+  address_contains?: Maybe<Scalars['String']>;
+  address_not_contains?: Maybe<Scalars['String']>;
+  address_starts_with?: Maybe<Scalars['String']>;
+  address_not_starts_with?: Maybe<Scalars['String']>;
+  address_ends_with?: Maybe<Scalars['String']>;
+  address_not_ends_with?: Maybe<Scalars['String']>;
+  address_i?: Maybe<Scalars['String']>;
+  address_not_i?: Maybe<Scalars['String']>;
+  address_contains_i?: Maybe<Scalars['String']>;
+  address_not_contains_i?: Maybe<Scalars['String']>;
+  address_starts_with_i?: Maybe<Scalars['String']>;
+  address_not_starts_with_i?: Maybe<Scalars['String']>;
+  address_ends_with_i?: Maybe<Scalars['String']>;
+  address_not_ends_with_i?: Maybe<Scalars['String']>;
+  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressSource_not?: Maybe<Scalars['String']>;
+  addressSource_contains?: Maybe<Scalars['String']>;
+  addressSource_not_contains?: Maybe<Scalars['String']>;
+  addressSource_starts_with?: Maybe<Scalars['String']>;
+  addressSource_not_starts_with?: Maybe<Scalars['String']>;
+  addressSource_ends_with?: Maybe<Scalars['String']>;
+  addressSource_not_ends_with?: Maybe<Scalars['String']>;
+  addressSource_i?: Maybe<Scalars['String']>;
+  addressSource_not_i?: Maybe<Scalars['String']>;
+  addressSource_contains_i?: Maybe<Scalars['String']>;
+  addressSource_not_contains_i?: Maybe<Scalars['String']>;
+  addressSource_starts_with_i?: Maybe<Scalars['String']>;
+  addressSource_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressSource_ends_with_i?: Maybe<Scalars['String']>;
+  addressSource_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressSource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressSource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -34219,8 +34267,6 @@ export enum PropertyTypeType {
 export type PropertyUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   name?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
-  addressMeta?: Maybe<Scalars['JSON']>;
   type?: Maybe<PropertyTypeType>;
   map?: Maybe<Scalars['JSON']>;
   unitsCount?: Maybe<Scalars['Int']>;
@@ -34228,6 +34274,10 @@ export type PropertyUpdateInput = {
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
   area?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34262,28 +34312,6 @@ export type PropertyWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address?: Maybe<Scalars['String']>;
-  address_not?: Maybe<Scalars['String']>;
-  address_contains?: Maybe<Scalars['String']>;
-  address_not_contains?: Maybe<Scalars['String']>;
-  address_starts_with?: Maybe<Scalars['String']>;
-  address_not_starts_with?: Maybe<Scalars['String']>;
-  address_ends_with?: Maybe<Scalars['String']>;
-  address_not_ends_with?: Maybe<Scalars['String']>;
-  address_i?: Maybe<Scalars['String']>;
-  address_not_i?: Maybe<Scalars['String']>;
-  address_contains_i?: Maybe<Scalars['String']>;
-  address_not_contains_i?: Maybe<Scalars['String']>;
-  address_starts_with_i?: Maybe<Scalars['String']>;
-  address_not_starts_with_i?: Maybe<Scalars['String']>;
-  address_ends_with_i?: Maybe<Scalars['String']>;
-  address_not_ends_with_i?: Maybe<Scalars['String']>;
-  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  addressMeta?: Maybe<Scalars['JSON']>;
-  addressMeta_not?: Maybe<Scalars['JSON']>;
-  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   type?: Maybe<PropertyTypeType>;
   type_not?: Maybe<PropertyTypeType>;
   type_in?: Maybe<Array<Maybe<PropertyTypeType>>>;
@@ -34330,6 +34358,64 @@ export type PropertyWhereInput = {
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  address?: Maybe<Scalars['String']>;
+  address_not?: Maybe<Scalars['String']>;
+  address_contains?: Maybe<Scalars['String']>;
+  address_not_contains?: Maybe<Scalars['String']>;
+  address_starts_with?: Maybe<Scalars['String']>;
+  address_not_starts_with?: Maybe<Scalars['String']>;
+  address_ends_with?: Maybe<Scalars['String']>;
+  address_not_ends_with?: Maybe<Scalars['String']>;
+  address_i?: Maybe<Scalars['String']>;
+  address_not_i?: Maybe<Scalars['String']>;
+  address_contains_i?: Maybe<Scalars['String']>;
+  address_not_contains_i?: Maybe<Scalars['String']>;
+  address_starts_with_i?: Maybe<Scalars['String']>;
+  address_not_starts_with_i?: Maybe<Scalars['String']>;
+  address_ends_with_i?: Maybe<Scalars['String']>;
+  address_not_ends_with_i?: Maybe<Scalars['String']>;
+  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressSource?: Maybe<Scalars['String']>;
+  addressSource_not?: Maybe<Scalars['String']>;
+  addressSource_contains?: Maybe<Scalars['String']>;
+  addressSource_not_contains?: Maybe<Scalars['String']>;
+  addressSource_starts_with?: Maybe<Scalars['String']>;
+  addressSource_not_starts_with?: Maybe<Scalars['String']>;
+  addressSource_ends_with?: Maybe<Scalars['String']>;
+  addressSource_not_ends_with?: Maybe<Scalars['String']>;
+  addressSource_i?: Maybe<Scalars['String']>;
+  addressSource_not_i?: Maybe<Scalars['String']>;
+  addressSource_contains_i?: Maybe<Scalars['String']>;
+  addressSource_not_contains_i?: Maybe<Scalars['String']>;
+  addressSource_starts_with_i?: Maybe<Scalars['String']>;
+  addressSource_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressSource_ends_with_i?: Maybe<Scalars['String']>;
+  addressSource_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressSource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressSource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -45930,8 +46016,6 @@ export enum SortPropertiesBy {
   OrganizationDesc = 'organization_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   UnitsCountAsc = 'unitsCount_ASC',
@@ -45946,6 +46030,12 @@ export enum SortPropertiesBy {
   AreaDesc = 'area_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressSourceAsc = 'addressSource_ASC',
+  AddressSourceDesc = 'addressSource_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -45965,8 +46055,6 @@ export enum SortPropertiesBy {
 export enum SortPropertyHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
   UnitsCountAsc = 'unitsCount_ASC',
@@ -45981,6 +46069,12 @@ export enum SortPropertyHistoryRecordsBy {
   AreaDesc = 'area_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressSourceAsc = 'addressSource_ASC',
+  AddressSourceDesc = 'addressSource_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
