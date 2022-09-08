@@ -132,37 +132,39 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
             // we want to show a developer friendly message
             result.developerMessage = printError(error)
         }
-        if (error.extensions) {
-            result.extensions = _(error.extensions).toJSON()
+        const extensions = get(error, 'extensions')
+        if (extensions) {
+            result.extensions = _(extensions).toJSON()
             // we already have more details inside originalError object and don't need this
             if (result.extensions.exception) delete result.extensions.exception
         }
     }
 
-    if (!hideInternals && error.originalError) {
-        result.originalError = safeFormatError(error.originalError, hideInternals, false)
+    const originalError = get(error, 'originalError')
+    if (!hideInternals && originalError) {
+        result.originalError = safeFormatError(originalError, hideInternals, false)
     }
 
     // KeystoneJS hotfixes! Taken from KeystoneJS sources. Probably useless in a future but we already have a tests for that!
-    if (error.originalError) {
-        if (error.originalError.path && !result.path) {
-            result.path = error.originalError.path
+    if (originalError) {
+        if (originalError.path && !result.path) {
+            result.path = originalError.path
         }
         if (isKeystoneErrorInstance(error.originalError)) {
-            result.name = error.originalError.name
-            result.data = error.originalError.data
-        } else if (error.originalError instanceof ApolloError) {
-            result.name = error.originalError.name
+            result.name = originalError.name
+            result.data = originalError.data
+        } else if (originalError instanceof ApolloError) {
+            result.name = originalError.name
         }
     }
 
     // save error uid
-    if (error.uid) {
+    if (error && error.uid) {
         result.uid = toString(error.uid)
     }
 
     // nested errors support
-    if (error.errors) {
+    if (error && error.errors) {
         const nestedErrors = toArray(error.errors).map((err) => safeFormatError(err, hideInternals, false))
         if (nestedErrors.length) result.errors = nestedErrors
     }
