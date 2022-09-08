@@ -1753,7 +1753,7 @@ describe('Ticket', () => {
     })
 
     describe('deferred tickets', () => {
-        describe('changing the status from "deferred" to any other without "deferredUntil", the value of the "postponedUntil" field is changed to null', () => {
+        describe('changing the status from "deferred" to any other without "deferredUntil", the value of the "deferredUntil" field is changed to null', () => {
             const cases = [[NEW_OR_REOPENED_STATUS_TYPE, STATUS_IDS.OPEN], [CANCELED_STATUS_TYPE, STATUS_IDS.DECLINED]]
             test.each(cases)('change ticket status from "deferred" to %p', async (statusType, statusId) => {
                 const client = await makeClientWithProperty()
