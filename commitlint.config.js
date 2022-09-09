@@ -1,35 +1,62 @@
+const path = require('path')
+const { readdirSync } = require('fs')
+
+const appsDir = path.join(__dirname, 'apps')
+const packagesDir = path.join(__dirname, 'packages')
+
+const getAppNames = (dir) => readdirSync(dir, { withFileTypes: true })
+    .filter(file => file.isDirectory())
+    .map(file => file.name)
+
 module.exports = {
+    extends: ['@commitlint/config-conventional'],
     plugins: ['commitlint-plugin-function-rules'],
     rules: {
-        'function-rules/subject-case': [
-            2, // level: error
+        'header-max-length': [1, 'always', 52],
+        'body-max-line-length': [1, 'always', 72],
+        'type-enum': [2, 'always', [
+            'build',
+            'chore',
+            'ci',
+            'docs',
+            'feat',
+            'fix',
+            'perf',
+            'refactor',
+            'revert',
+            'style',
+            'test',
+        ]],
+        'scope-enum': [2, 'always', [
+            ...getAppNames(appsDir),
+            ...getAppNames(packagesDir),
+        ]],
+        'subject-case': [1, 'always', ['sentence-case', 'start-case', 'pascal-case', 'upper-case']],
+        'function-rules/subject-min-length': [
+            2,
             'always',
-            ({ header }) => {
-                const standalonePrefixes = ['HOTFIX', 'INFRA', 'REFACTOR']
-                for (let prefix of standalonePrefixes) {
-                    if (header.match(new RegExp(`^${prefix} \\w+`, 'i'))) {
-                        return [true]
-                    }
+            ({ subject }) => {
+                if (!subject || !subject.match(/DOMA-\d+(\s+\S+){2,}/)) {
+                    return [
+                        false,
+                        'Commit message is too short. Subject must contains at least 2 words',
+                    ]
                 }
-                if (!header.match(/^DOMA-\d+ \w+/)) {
-                    return [false, 'Wrong commit prefix. Allowed prefixes: DOMA-123, HOTFIX, INFRA. Examples: "DOMA-123 describe what have been done", "HOTFIX describe what have been fixed", "INFRA describe what have been introduced".']
+
+                return [true]
+            },
+        ],
+        'function-rules/subject-empty': [
+            2,
+            'always',
+            ({ subject }) => {
+                if (!subject || !subject.match(/^DOMA-\d+/)) {
+                    return [
+                        false,
+                        'Wrong commit subject. Commit subject must starts with task number. Allowed formats: DOMA-123',
+                    ]
                 }
-                const headerMessage = header.split(/^DOMA-\d+ /)[1]
-                const words = headerMessage.split(' ')
-                const detailsPrompt = 'Please, provide more details about what was done'
-                const fixRegexp = new RegExp('fix', 'i')
-                if (words.length <= 2) {
-                    if (header.match(fixRegexp)) {
-                        const stopWords = ['review', 'bug', 'pr']
-                        for (let stopWord of stopWords) {
-                            const stopWordRegexp = new RegExp(stopWord, 'i')
-                            if (header.match(stopWordRegexp)) {
-                                return [false, `Messages, like "${stopWord} fixes" are too abstract. ${detailsPrompt}`]
-                            }
-                        }
-                    }
-                    return [false, `Commit message is too short. ${detailsPrompt}`]
-                }
+
                 return [true]
             },
         ],
