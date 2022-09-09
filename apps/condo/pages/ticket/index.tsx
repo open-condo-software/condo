@@ -54,7 +54,7 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 
-const TICKETS_RE_FETCH_INTERVAL = 5 * 1000
+const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
 
 const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
     const router = useRouter()
