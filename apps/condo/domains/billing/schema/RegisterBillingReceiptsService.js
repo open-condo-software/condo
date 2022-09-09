@@ -5,7 +5,7 @@
 const _ = require('lodash')
 const Big = require('big.js')
 
-const { find, getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { find: serverUtilsFind, getById, GQLCustomSchema } = require('@condo/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -13,8 +13,7 @@ const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/
 const { BILLING_CATEGORIES } = require('@condo/domains/billing/utils/constants')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
-const { getAddressSuggestions } = require(
-    '@condo/domains/common/utils/serverSideAddressApi')
+const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
 
 const RECEIPTS_LIMIT = 50
 
@@ -81,7 +80,7 @@ const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, 
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
     const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId } }
 
-    const existingProperties = await find('BillingProperty', propertiesQuery)
+    const existingProperties = await serverUtilsFind('BillingProperty', propertiesQuery)
     const existingPropertiesIndex = Object.fromEntries(existingProperties.map((property) => ([getBillingPropertyKey(property), property.id])))
 
     const propertiesToAdd = properties.filter(((property) => !Reflect.has(existingPropertiesIndex, getBillingPropertyKey(property))))
@@ -118,7 +117,7 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
             }
         )),
     }
-    const existingAccounts = await find('BillingAccount', {
+    const existingAccounts = await serverUtilsFind('BillingAccount', {
         ...existingAccountQuery,
         context: { id: billingContextId },
     })
@@ -185,7 +184,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
             }
         )),
     }
-    const existingReceipts = await find('BillingReceipt', {
+    const existingReceipts = await serverUtilsFind('BillingReceipt', {
         ...existingReceiptsQuery,
         context: { id: billingContextId },
     })
