@@ -66,7 +66,7 @@ async function registerBillingReceipts (context, data) {
         query: REGISTER_BILLING_RECEIPTS_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerBillingReceipts',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
