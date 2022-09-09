@@ -1,4 +1,5 @@
 import { Empty, EmptyProps, Space, Typography, Row, Col } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import isUndefined from 'lodash/isUndefined'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
@@ -30,6 +31,8 @@ const DEFAULT_CONTAINER_STYLE: CSSProperties = {
     height: '100%',
     width: '100%',
 }
+const ROW_GUTTER: Gutter | [Gutter, Gutter] = [10, 0]
+const ROW_STYLE = { marginTop: '24px' }
 
 export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
     image,
@@ -76,7 +79,7 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
                     <Typography.Text type='secondary'>
                         {message}
                     </Typography.Text>
-                    <Row gutter={[10, 0]} align='middle' justify='center' style={{ marginTop: '24px' }}>
+                    <Row gutter={ROW_GUTTER} align='middle' justify='center' style={ROW_STYLE}>
                         {
                             button ? (
                                 <Col>
