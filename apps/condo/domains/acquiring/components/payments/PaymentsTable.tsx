@@ -1,5 +1,5 @@
 import { FilterFilled } from '@ant-design/icons'
-import { useQuery } from '@apollo/client'
+import { useQuery } from '@condo/next/apollo'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
