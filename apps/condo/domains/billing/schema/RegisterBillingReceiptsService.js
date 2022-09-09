@@ -302,7 +302,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
         {
             access: access.canRegisterBillingReceipts,
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
 
                 const partialErrors = []
@@ -432,7 +432,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 3:
                 // Sync billing receipts
-                const { createdReceipts, updatedReceipts, notChangedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
+                const { createdReceipts, updatedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
                 // Step 4:
                 // Forming result
@@ -441,9 +441,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const resultData = [...createdReceipts, ...updatedReceipts].map(item => getById('BillingReceipt', item.id))
                 const resultErrors = partialErrors.map(err => (new Promise(() => { throw err })))
 
-                const result = [...resultData, ...resultErrors]
-
-                return result
+                return [...resultData, ...resultErrors]
             },
         },
     ],
@@ -452,4 +450,5 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
 module.exports = {
     RegisterBillingReceiptsService,
+    errors,
 }
