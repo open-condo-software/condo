@@ -84,6 +84,7 @@ export const ContactsPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(contactsLoading)
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
     const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery) && !contactsLoading && !loading
+    const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoContactsData ? 'flex' : 'none' }
 
     return (
         <>
@@ -96,6 +97,7 @@ export const ContactsPageContent = ({
                     <EmptyListView
                         label={EmptyListLabel}
                         message={EmptyListMessage}
+                        accessCheck={canManageContacts}
                         button={(
                             <ImportWrapper
                                 objectsName={ContactsMessage}
@@ -121,7 +123,7 @@ export const ContactsPageContent = ({
                         )}
                         createRoute={ADD_CONTACT_ROUTE}
                         createLabel={CreateContact}
-                        containerStyle={{ display: isNoContactsData ? 'flex' : 'none' }}
+                        containerStyle={EMPTY_LIST_VIEW_CONTAINER_STYLE}
                     />
                     <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start' hidden={isNoContactsData}>
                         <Col span={24}>

@@ -101,6 +101,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !propertiesLoading && !loading
 
     const canManageProperties = get(role, 'canManageProperties', false)
+    const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
 
     function onExportToExcelButtonClicked () {
         exportToExcel({
@@ -118,6 +119,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
             <EmptyListView
                 label={EmptyListLabel}
                 message={EmptyListMessage}
+                accessCheck={canManageProperties}
                 button={(
                     <ImportWrapper
                         objectsName={PropertiesMessage}
@@ -138,7 +140,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                 )}
                 createRoute='/property/create'
                 createLabel={CreateProperty}
-                containerStyle={{ display: isNoBuildingsData ? 'flex' : 'none' }}
+                containerStyle={EMPTY_LIST_VIEW_CONTAINER_STYLE}
             />
             <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
                 <Col span={24}>
