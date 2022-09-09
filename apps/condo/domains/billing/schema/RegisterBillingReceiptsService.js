@@ -10,7 +10,6 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/
 
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
-const { BILLING_CATEGORIES } = require('@condo/domains/billing/utils/constants')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
@@ -307,6 +306,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
 
                 const partialErrors = []
+                const knownCategories = []
 
                 // Step 0:
                 // Perform basic validations:
@@ -357,7 +357,12 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     }
 
                     // Validate category field
-                    if (!BILLING_CATEGORIES.includes(get(category, 'id'))) {
+                    try {
+                        if (!knownCategories.includes(category)) {
+                            await getById('BillingCategory')
+                            knownCategories.push(category)
+                        }
+                    } catch (e) {
                         partialErrors.push(new GQLError(errors.BILLING_CATEGORY_NOT_FOUND, context))
                         continue
                     }
