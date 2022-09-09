@@ -358,14 +358,12 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     }
 
                     // Validate category field
-                    try {
-                        if (!knownCategories.includes(category)) {
-                            await getById('BillingCategory')
-                            knownCategories.push(category)
+                    if (!knownCategories.includes(category.id)) {
+                        if (!(await getById('BillingCategory', category.id))) {
+                            partialErrors.push(new GQLError(errors.BILLING_CATEGORY_NOT_FOUND, context))
+                            continue
                         }
-                    } catch (e) {
-                        partialErrors.push(new GQLError(errors.BILLING_CATEGORY_NOT_FOUND, context))
-                        continue
+                        knownCategories.push(category.id)
                     }
 
                     // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
@@ -431,17 +429,16 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 }
 
                 // Step 2:
-                // Sync billing properties
+                // Sync billing properties and billing accounts
                 const syncedProperties = await syncBillingProperties(context, Object.values(propertyIndex), { billingContextId })
-
-                // Step 3:
-                // Sync Billing Accounts
                 const syncedAccounts = await syncBillingAccounts(context, Object.values(accountIndex), { properties: syncedProperties, billingContextId })
 
-                // Step 4:
+                // Step 3:
                 // Sync billing receipts
                 const { createdReceipts, updatedReceipts, notChangedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
+                // Step 4:
+                // Forming result
                 // To form a result with partial success a list of promises needs to be returned from function
                 // NOTE: getById is a hack that help to resolve complex fields
                 const resultData = [...createdReceipts, ...updatedReceipts].map(item => getById('BillingReceipt', item.id))
