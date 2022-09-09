@@ -899,7 +899,9 @@ describe('RegisterBillingReceiptsService', () => {
             await catchErrorFrom(async () => {
                 await registerBillingReceiptsByTestClient(admin, payload)
             }, (e) => {
+                console.log(e)
                 expect(e.errors[0].message).toContain('Month is wrong')
+                expect(e.errors[0].extensions.inputIndex).toEqual(0)
             })
         })
 
@@ -924,6 +926,30 @@ describe('RegisterBillingReceiptsService', () => {
             })
         })
 
+        test('Errors are indexed correctly, mutation creates entities it can create, and sends errors for others', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload(),
+                    createRegisterBillingReceiptsPayload({
+                        month: 13,
+                    }),
+                ],
+            }
+            const [result, errors] = await registerBillingReceiptsByTestClient(admin, payload, { raw: true })
+
+            expect(result).toHaveLength(2)
+            expect(result[1]).toBeNull()
+
+            expect(errors).toHaveLength(1)
+            expect(errors[0].extensions.inputIndex).toEqual(1)
+            expect(errors[0].message).toContain('Month is wrong')
+        })
+
         test('If there is an error, mutation creates entities it can create, and sends errors for others', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
@@ -943,8 +969,8 @@ describe('RegisterBillingReceiptsService', () => {
                     }),
                 ],
             }
-
             const [result, errors] = await registerBillingReceiptsByTestClient(admin, payload, { raw: true })
+
             expect(result).toHaveLength(5)
             expect(result[3]).toBeNull()
             expect(result[4]).toBeNull()

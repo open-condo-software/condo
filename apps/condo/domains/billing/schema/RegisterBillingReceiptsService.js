@@ -326,32 +326,32 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const accountIndex = {}
                 const receiptIndex = {}
 
-                for (const receiptInput of receiptsInput ) {
+                for (let i = 0; i < receiptsInput.length; ++i) {
 
-                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
+                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptsInput[i]
                     // Todo: (DOMA-2225) migrate it to address service
-                    let { normalizedAddress } = receiptInput
+                    let { normalizedAddress } = receiptsInput[i]
 
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
-                        partialErrors.push(new GQLError(errors.WRONG_MONTH, context))
+                        partialErrors.push(new GQLError({ ...errors.WRONG_MONTH, inputIndex: i }, context))
                         continue
                     }
                     if (year < 0) {
-                        partialErrors.push(new GQLError(errors.WRONG_YEAR, context))
+                        partialErrors.push(new GQLError({ ...errors.WRONG_YEAR, inputIndex: i }, context))
                         continue
                     }
                     const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
 
                     // Validate address field
                     if (address === '') {
-                        partialErrors.push(new GQLError(errors.ADDRESS_EMPTY_VALUE, context))
+                        partialErrors.push(new GQLError({ ...errors.ADDRESS_EMPTY_VALUE, inputIndex: i }, context))
                         continue
                     }
                     if (!normalizedAddress) {
                         const normalizedAddressFromSuggestions = get(await getAddressSuggestions(address, 1), ['0', 'value'])
                         if (!normalizedAddressFromSuggestions) {
-                            partialErrors.push(new GQLError(errors.ADDRESS_NOT_RECOGNIZED_VALUE, context))
+                            partialErrors.push(new GQLError({ ...errors.ADDRESS_NOT_RECOGNIZED_VALUE, inputIndex: i }, context))
                             continue
                         }
                         normalizedAddress = normalizedAddressFromSuggestions
@@ -360,7 +360,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     // Validate category field
                     if (!knownCategories.includes(category.id)) {
                         if (!(await getById('BillingCategory', category.id))) {
-                            partialErrors.push(new GQLError(errors.BILLING_CATEGORY_NOT_FOUND, context))
+                            partialErrors.push(new GQLError({ ...errors.BILLING_CATEGORY_NOT_FOUND, inputIndex: i }, context))
                             continue
                         }
                         knownCategories.push(category.id)
@@ -369,7 +369,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
                     const property = { address }
                     const propertyKey = getBillingPropertyKey(property)
-
                     if (!propertyIndex[propertyKey]) {
                         propertyIndex[propertyKey] = {
                             dv: dv,
@@ -386,7 +385,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                     const account = { unitName, unitType, number: accountNumber, property }
                     const accountKey = getBillingAccountKey(account)
-
                     if (!accountIndex[accountKey]) {
                         accountIndex[accountKey] = {
                             dv: dv,
@@ -405,7 +403,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                     const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
                     const receiptKey = getBillingReceiptKey(receipt)
-
                     if (!receiptIndex[receiptKey]) {
                         receiptIndex[receiptKey] = {
                             dv: dv,
