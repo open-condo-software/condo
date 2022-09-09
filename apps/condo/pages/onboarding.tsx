@@ -45,10 +45,12 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
     }, [refetchOnBoarding])
 
     useEffect(() => {
-        if (get(onBoarding, 'completed', false)) {
-            router.push('/')
+        // In some cases user may not have a connected `OnBoarding` record, like after invite with creating new `User` in `InviteNewOrganizationEmployeeService`
+        // So, when no `OnBoarding` record is connected, redirect from this page
+        if (!isLoading && (!onBoarding || onBoarding.completed)) {
+            router.push('/reports')
         }
-    }, [onBoarding])
+    }, [onBoarding, isLoading])
 
     const sortedOnBoardingSteps = useMemo(() => {
         return onBoardingSteps.sort((leftStep, rightStep) => {
