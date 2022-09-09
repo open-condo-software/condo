@@ -16,6 +16,7 @@ import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import qs from 'qs'
 import React from 'react'
@@ -72,13 +73,17 @@ export default function DivisionTable (props: BuildingTableProps) {
 
     const [search, handleSearchChange] = useSearch<IFilters>(divisionsLoading)
     const isNoDivisionsData = !divisions.length && isEmpty(filters) && !divisionsLoading && !loading
+    const canManageProperties = get(role, 'canManageProperties', false)
+    const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoDivisionsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
 
     return isNoDivisionsData
         ? <EmptyListView
             label={EmptyListLabel}
             message={EmptyListMessage}
             createRoute='/division/create'
-            createLabel={CreateDivision}/>
+            createLabel={CreateDivision}
+            accessCheck={canManageProperties}
+            containerStyle={EMPTY_LIST_VIEW_CONTAINER_STYLE}/>
         : (
             <Row align='middle' gutter={ROW_VERTICAL_GUTTERS}>
                 <Col span={24}>

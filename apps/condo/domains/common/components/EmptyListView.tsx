@@ -1,4 +1,5 @@
 import { Empty, EmptyProps, Space, Typography, Row, Col } from 'antd'
+import isUndefined from 'lodash/isUndefined'
 import { useRouter } from 'next/router'
 import { Button } from './Button'
 import { EmptyIcon } from './EmptyIcon'
@@ -11,6 +12,7 @@ export interface IEmptyListProps {
     createRoute: string
     createLabel: string
     containerStyle?: CSSProperties
+    accessCheck?: boolean
 }
 
 export interface IBasicEmptyListProps extends EmptyProps {
@@ -55,7 +57,7 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
 }
 
 export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
-    const { label, message, button, createRoute, createLabel, containerStyle } = props
+    const { label, message, button, createRoute, createLabel, containerStyle, accessCheck } = props
     const router = useRouter()
 
     return (
@@ -68,26 +70,31 @@ export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
             <Typography.Title level={4}>
                 {label}
             </Typography.Title>
-            <Typography.Text type='secondary'>
-                {message}
-            </Typography.Text>
-            <Row gutter={[10, 0]} align='middle' justify='center' style={{ marginTop: '24px' }}>
-                {
-                    button ? (
+            {
+                (accessCheck || isUndefined(accessCheck)) &&
+                <>
+                    <Typography.Text type='secondary'>
+                        {message}
+                    </Typography.Text>
+                    <Row gutter={[10, 0]} align='middle' justify='center' style={{ marginTop: '24px' }}>
+                        {
+                            button ? (
+                                <Col>
+                                    {button}
+                                </Col>
+                            ) : ''
+                        }
                         <Col>
-                            {button}
+                            <Button
+                                type='sberDefaultGradient'
+                                onClick={() => router.push(createRoute)}
+                            >
+                                {createLabel}
+                            </Button>
                         </Col>
-                    ) : ''
-                }
-                <Col>
-                    <Button
-                        type='sberDefaultGradient'
-                        onClick={() => router.push(createRoute)}
-                    >
-                        {createLabel}
-                    </Button>
-                </Col>
-            </Row>
+                    </Row>
+                </>
+            }
         </BasicEmptyListView>
     )
 }
