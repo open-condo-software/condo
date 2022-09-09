@@ -12,10 +12,19 @@ async function canReadBillingCategories ({ authentication: { item: user } }) {
     return {}
 }
 
+async function canManageBillingCategories ({ authentication: { item: user } }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
+
+    return false
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
     canReadBillingCategories,
+    canManageBillingCategories,
 }
