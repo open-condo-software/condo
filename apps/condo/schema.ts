@@ -36555,7 +36555,7 @@ export type QueryExportPaymentsToExcelArgs = {
 };
 
 
-export type QuerySumPaymentsArgs = {
+export type QueryAllPaymentsSumArgs = {
   where: PaymentWhereInput;
 };
 
