@@ -329,6 +329,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 for (const receiptInput of receiptsInput ) {
 
                     const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptInput
+                    // Todo: (DOMA-2225) migrate it to address service
                     let { normalizedAddress } = receiptInput
 
                     // Validate period field
