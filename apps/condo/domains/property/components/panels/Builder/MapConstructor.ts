@@ -1205,7 +1205,7 @@ class MapEdit extends MapView {
             }
             const units = []
             for (let unitOnFloor = 0; unitOnFloor < unitsOnFloor; unitOnFloor++) {
-                let label = ' '
+                let label = ''
                 if (floor > 0) {
                     label = String(unitNumber)
                     unitNumber++
