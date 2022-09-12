@@ -1,7 +1,12 @@
 {
   "name": "@condo/ui",
   "description": "A set of React UI components for developing applications inside the condo ecosystem",
-  "keywords": ["condo", "open-condo-software", "UI", "React"],
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "UI",
+    "React"
+  ],
   "version": "0.0.0-development",
   "repository": "https://github.com/open-condo-software/condo/blob/master/packages/ui",
   "author": {
