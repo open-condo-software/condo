@@ -43,7 +43,7 @@ const renderComment = (comment, locale) => {
     const userType = comment.userType === RESIDENT ? i18n('Contact', { locale }) : i18n('Employee', { locale })
     const content = comment.content
     const filesCount = comment.TicketCommentFiles
-    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.ticket.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
+    const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.tickets.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
 
     return `${createdAt}, ${createdBy} (${userType}): «${content}» ${filesCountToRender}`
 }
