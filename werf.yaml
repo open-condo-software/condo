@@ -400,8 +400,8 @@ shell:
   - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
-  - "yarn workspace @app/property_importer next telemetry disable"
-  - "yarn workspace @app/property_importer build"
+  - "yarn workspace @app/property-importer next telemetry disable"
+  - "yarn workspace @app/property-importer build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
 
