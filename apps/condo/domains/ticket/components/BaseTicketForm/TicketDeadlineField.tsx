@@ -45,8 +45,10 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
         return isNull(autoAddDays) ? autoAddDays : dayjs().add(autoAddDays, 'day')
     }, [autoAddDays])
 
-    const initialDeadline = dayjs(get(initialValues, 'deadline'))
-    const isShowDeadline = isTouchedTicketType ? !isNull(autoDeadlineValue) : !isNull(initialDeadline)
+    const initialDeadline = get(initialValues, 'deadline', null)
+    const isShowDeadline = isExistedTicket && !isTouchedTicketType
+        ? !(isNull(autoDeadlineValue) && isNull(initialDeadline))
+        : !isNull(autoDeadlineValue)
     const isShowAutoDeadlineLabel = !isNull(autoDeadlineValue) && isAutoDetectedDeadlineValue
     const isShowHiddenLabel = initialDeadline ? isTouchedTicketType && isNull(autoDeadlineValue) : isNull(autoDeadlineValue)
 
@@ -74,12 +76,18 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
 
     useEffect(() => {
         if (isExistedTicket) {
-            form.setFields([{ name: 'deadline', value: dayjs(get(initialValues, 'deadline')) }])
+            form.setFields([{ name: 'deadline', value: isNull(initialDeadline) ? initialDeadline : dayjs(initialDeadline) }])
             setIsAutoDetectedDeadlineValue(false)
         } else {
             form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
         }
-    }, [isExistedTicket])
+    }, [isExistedTicket, initialDeadline])
+
+    useEffect(() => {
+        if (!isExistedTicket || isTouchedTicketType) {
+            form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
+        }
+    }, [isExistedTicket, isTouchedTicketType, ticketSetting])
 
     return (
         <>
@@ -91,7 +99,6 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                         required
                         data-cy='ticket__deadline-item'
                         hidden={!isShowDeadline}
-                        initialValue={DEFAULT_DEADLINE_VALUE}
                     >
                         <DatePicker
                             format='DD MMMM YYYY'
