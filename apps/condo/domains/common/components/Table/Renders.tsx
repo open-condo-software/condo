@@ -6,6 +6,7 @@ import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isBoolean from 'lodash/isBoolean'
 import isString from 'lodash/isString'
+import isNull from 'lodash/isNull'
 import { FilterValue } from 'antd/es/table/interface'
 import { EllipsisConfig } from 'antd/es/typography/Base'
 
@@ -19,12 +20,10 @@ import { ELLIPSIS_ROWS } from '../../constants/style'
 import { EmptyTableCell } from './EmptyTableCell'
 import { Property, BuildingUnitSubType } from '@app/condo/schema'
 import { getAddressDetails } from '../../utils/helpers'
-import { isNull } from 'lodash'
 import Link from 'next/link'
 
 export type RenderReturnType = string | React.ReactNode
 
-const DEFAULT_CURRENCY_SEPARATOR = '.'
 const DEFAULT_CURRENCY_CODE = 'RUB'
 const ELLIPSIS_SETTINGS = { rows: ELLIPSIS_ROWS, expandable: false }
 const ELLIPSIS_STYLES = { marginBottom: 0 }
@@ -221,12 +220,10 @@ export const getTextRender = (search?: FilterValue | string) => {
     }
 }
 
-const getIntegerPartOfReading = (value: string) => value?.split(DEFAULT_CURRENCY_SEPARATOR)[0]
-
 export const renderMeterReading = (values: string[], resourceId: string, measure: string) => {
     // ELECTRICITY multi-tariff meter
     if (resourceId === ELECTRICITY_METER_RESOURCE_ID) {
-        const formatMeter = (value, index) => <>{`T${index + 1} - ${getIntegerPartOfReading(value)} ${measure}`}<br /></>
+        const formatMeter = (value, index) => <>{`T${index + 1} - ${Number(value)} ${measure}`}<br /></>
         const nonEmptyValues = values.filter(Boolean)
         if (nonEmptyValues.length) return nonEmptyValues.map(formatMeter)
 
@@ -234,7 +231,7 @@ export const renderMeterReading = (values: string[], resourceId: string, measure
     }
 
     // other resource 1-tariff meter
-    if (get(values, '0')) return `${getIntegerPartOfReading(values[0])} ${measure}`
+    if (get(values, '0')) return `${Number(values[0])} ${measure}`
     return null
 }
 
