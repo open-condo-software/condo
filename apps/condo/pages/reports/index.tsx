@@ -52,7 +52,7 @@ const IndexPage = () => {
                             ? <Loader size='large' fill />
                             : (externalReports
                                 .map((externalReport, key) => (
-                                    <Col key={key} span={12}>
+                                    <Col key={key} lg={12} md={24} xs={24} sm={24}>
                                         <ExternalReportCard externalReport={externalReport} />
                                     </Col>
                                 )))
