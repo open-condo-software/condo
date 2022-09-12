@@ -32,7 +32,7 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
             setValue('')
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys('')
-            confirm({ closeDropdown: false })
+            confirm({ closeDropdown: true })
         }, [clearFilters])
 
         return (
@@ -60,7 +60,7 @@ export const getOptionFilterDropdown = (options: Array<OptionType>, loading: boo
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys([])
-            confirm({ closeDropdown: false })
+            confirm({ closeDropdown: true })
         }, [clearFilters])
         return (
             <FilterContainer
@@ -90,7 +90,7 @@ export const getSelectFilterDropdown = (selectProps: ComponentProps<typeof Selec
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys([])
-            confirm({ closeDropdown: false })
+            confirm({ closeDropdown: true })
         }, [clearFilters])
         return (
             <SelectFilterContainer
@@ -126,7 +126,7 @@ export const getGQLSelectFilterDropdown = (
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys('')
-            confirm({ closeDropdown: false })
+            confirm({ closeDropdown: true })
         }, [clearFilters])
         return (
             <SelectFilterContainer
@@ -157,7 +157,7 @@ export const getDateFilterDropdown = (containerStyles?: CSSProperties) => {
             value: undefined,
             onChange: e => {
                 setSelectedKeys(e.toISOString())
-                confirm({ closeDropdown: false })
+                confirm({ closeDropdown: true })
             },
             allowClear: false,
         }
@@ -185,13 +185,13 @@ export const getDateRangeFilterDropdown = (
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys([])
-            confirm({ closeDropdown: false })
+            confirm({ closeDropdown: true })
         }, [clearFilters])
         const pickerProps = {
             value: undefined,
             onChange: e => {
                 setSelectedKeys([e[0].toISOString(), e[1].toISOString()])
-                confirm({ closeDropdown: false })
+                confirm({ closeDropdown: true })
             },
             allowClear: false,
         }
