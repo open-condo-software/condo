@@ -16,7 +16,8 @@ yarn add @condo/ui
 ## Usage
 You can import needed component with its props directly from package entry point like this:
 ```typescript
-import { Button, ButtonProps } from '@condo/ui'
+import { Button } from '@condo/ui'
+import type { ButtonProps } from '@condo/ui'
 ```
 
 ## Access theme colors
@@ -24,4 +25,5 @@ You also can directly access to all our theme colors as well
 by specifying import sub path like this:
 ```typescript
 import { colors } from '@condo/ui/colors'
+import type { ColorPalette } from '@condo/ui/colors'
 ```
