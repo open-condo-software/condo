@@ -66,4 +66,4 @@ jobs:
 
       - name: test app/property_importer
         run: |
-          yarn workspace @app/property_importer build
+          yarn workspace @app/property-importer build

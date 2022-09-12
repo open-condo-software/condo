@@ -1064,9 +1064,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/property_importer@workspace:apps/property_importer":
+"@app/property-importer@workspace:apps/property-importer":
   version: 0.0.0-use.local
-  resolution: "@app/property_importer@workspace:apps/property_importer"
+  resolution: "@app/property-importer@workspace:apps/property-importer"
   dependencies:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": 3.3.20
@@ -1096,7 +1096,7 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
-    "@property_importer/domains": "link:./domains"
+    "@property-importer/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^26.0.20
     "@types/node": ^14.14.25
@@ -4736,9 +4736,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer":
+"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
   version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer"
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
   languageName: node
   linkType: soft
 
@@ -8786,9 +8786,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@property_importer/domains@link:./domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer":
+"@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
   version: 0.0.0-use.local
-  resolution: "@property_importer/domains@link:./domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer"
+  resolution: "@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
   languageName: node
   linkType: soft
 
