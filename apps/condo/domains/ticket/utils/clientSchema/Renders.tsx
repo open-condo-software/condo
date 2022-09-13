@@ -248,9 +248,9 @@ export const getTicketClientNameRender = (search: FilterValue) => {
 }
 
 export const getTicketUserNameRender = (search: FilterValue) => {
-    return function render (user, ticket: Ticket) {
-        const contact = get(user, 'contact')
-        const name = contact ? get(contact, 'name') : get(user, 'clientName')
+    return function render (clientName, ticket: Ticket) {
+        const contact = get(ticket, 'contact')
+        const name = contact ? get(contact, 'name') : get(ticket, 'clientName')
         const address = get(ticket, ['property', 'address'])
         const userNameLength = get(name, 'length', 0)
         const maxUserNameLength = address ? address.length : userNameLength

@@ -199,6 +199,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
                 title: ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'clientName'),
+                dataIndex: 'clientName',
                 key: 'clientName',
                 sorter: true,
                 width: COLUMNS_WIDTH.clientName,
