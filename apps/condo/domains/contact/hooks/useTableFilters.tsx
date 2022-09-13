@@ -61,9 +61,8 @@ export function useContactsTableFilters (): Array<FiltersMeta<MeterReadingWhereI
                 keyword: 'unitName',
                 filters: [filterUnit],
                 component: {
-                    type: ComponentType.TagsSelect,
+                    type: ComponentType.Input,
                     props: {
-                        tokenSeparators: [' '],
                         placeholder: EnterUnitNameLabel,
                     },
                 },
