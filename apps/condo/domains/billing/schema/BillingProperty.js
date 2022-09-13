@@ -57,6 +57,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             schemaDoc: 'Link to the property model',
             type: Virtual,
             graphQLReturnType: 'Property',
+            graphQLReturnFragment: '{ id address }',
             resolver: async (item) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
                 const organizationId = billingContext.organization
