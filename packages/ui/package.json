@@ -8,7 +8,10 @@
     "React"
   ],
   "version": "0.0.0-development",
-  "repository": "https://github.com/open-condo-software/condo/blob/master/packages/ui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git"
+  },
   "author": {
     "name": "Matthew Savelev",
     "email": "msavelyev@doma.ai",
