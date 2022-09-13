@@ -14,6 +14,8 @@ import { preciseFloor } from './helpers'
 import { FilterDropdownProps } from 'antd/es/table/interface'
 import dayjs from 'dayjs'
 
+import { Ticket } from '@app/condo/schema'
+
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
 export type FiltersFromQueryType = { [key: string]: QueryArgType }
@@ -379,4 +381,13 @@ export const convertColumns = (
 
 export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
+}
+
+export const sorterUnitName: (a: Ticket, b: Ticket) => number = (a: Ticket, b: Ticket) => {
+    const firstUnitName = get(a, 'unitName', null)
+    const secondUnitName = get(b, 'unitName', null)
+    if (!firstUnitName && !secondUnitName) return 0
+    if (!secondUnitName) return -1
+    if (!firstUnitName) return 1
+    return Number(firstUnitName) - Number(secondUnitName)
 }

@@ -15,7 +15,7 @@ import {
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getSorterMap, parseQuery, sorterUnitName } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
@@ -167,7 +167,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
                 sortOrder: get(sorterMap, 'unitName'),
                 filteredValue: getFilteredValue(filters, 'unitName'),
                 key: 'unitName',
-                sorter: true,
+                sorter: sorterUnitName,
                 width: COLUMNS_WIDTH.unitName,
                 render: getUnitRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
