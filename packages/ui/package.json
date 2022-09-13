@@ -33,7 +33,7 @@
     "build": "yarn build:tokens && yarn build:lib",
     "build:sb": "yarn build:tokens && build-storybook",
     "dev": "yarn build:tokens && start-storybook -p 6006",
-    "prepare": "yarn install --mode update-lockfile && yarn build"
+    "prepack": "yarn install --mode update-lockfile && yarn build"
   },
   "files": [
     "dist"
