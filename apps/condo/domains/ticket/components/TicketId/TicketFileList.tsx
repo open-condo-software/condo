@@ -10,9 +10,7 @@ import { useIntl } from '@condo/next/intl'
 
 import { colors, fontSizes } from '@app/condo/domains/common/constants/style'
 
-// NOTE step 1 - only .svg or .html
-// NOTE TODO step 2 - if step 1 is successful, will need add .txt and other file types
-const REGEX_FORBIDDEN_TYPE_FILES = /.*\.(svg|html)$/i
+const DIRECT_DOWNLOAD_FILE_TYPES_REGEX = /.*\.(svg|html|htm|xml|txt)$/i
 
 interface ITicketFileListProps {
     files?: TicketFileType[]
@@ -83,11 +81,9 @@ export const TicketFileList: React.FC<ITicketFileListProps> = ({ files }) => {
         a.download = file.name
         a.click()
     }, [])
-
-
-    // TODO a problem with CORS on prod
+    
     const handleFileDownload = useCallback(async (file: UploadFile) => {
-        if (REGEX_FORBIDDEN_TYPE_FILES.test(file.name)) {
+        if (DIRECT_DOWNLOAD_FILE_TYPES_REGEX.test(file.name)) {
             try {
                 await downloadFile(file)
             } catch (e) {
