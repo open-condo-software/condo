@@ -37495,9 +37495,9 @@ export type ServiceConsumer = {
   resident?: Maybe<Resident>;
   /**  [DEPRECATED] Billing account, that will allow this resident to pay for certain service  */
   billingAccount?: Maybe<BillingAccount>;
-  /**  BillingAccount id, that is returned for current serviceConsumer in mobile client  */
+  /**  [DEPRECATED] BillingAccount id, that is returned for current serviceConsumer in mobile client  */
   residentBillingAccount?: Maybe<ResidentBillingAccount>;
-  /**  Billing integration context, that this serviceConsumer is connected to  */
+  /**  [DEPRECATED] Billing integration context, that this serviceConsumer is connected to  */
   billingIntegrationContext?: Maybe<BillingIntegrationOrganizationContext>;
   /**  Acquiring integration context, that this serviceConsumer is connected to  */
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContext>;
