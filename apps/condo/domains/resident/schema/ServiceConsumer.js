@@ -49,7 +49,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         // The reason for this field is to avoid adding check for resident user into global BillingAccount read access.
         // This field have specific use case for mobile client.
         residentBillingAccount: {
-            schemaDoc: 'BillingAccount id, that is returned for current serviceConsumer in mobile client',
+            schemaDoc: '[DEPRECATED] BillingAccount id, that is returned for current serviceConsumer in mobile client',
             type: Virtual,
             extendGraphQLTypes: ['type ResidentBillingAccount { id: ID! }'],
             graphQLReturnType: 'ResidentBillingAccount',
@@ -62,7 +62,7 @@ const ServiceConsumer = new GQLListSchema('ServiceConsumer', {
         },
 
         billingIntegrationContext: {
-            schemaDoc: 'Billing integration context, that this serviceConsumer is connected to',
+            schemaDoc: '[DEPRECATED] Billing integration context, that this serviceConsumer is connected to',
             type: Relationship,
             ref: 'BillingIntegrationOrganizationContext',
             isRequired: false,
