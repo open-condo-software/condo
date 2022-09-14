@@ -62,6 +62,7 @@ module.exports = {
     plugins: [
         ['@semantic-release/commit-analyzer', conventionalAnalyzerConfig],
         ['@semantic-release/release-notes-generator', conventionalChangelogConfig],
+        // TODO (DOMA-4207) Unfreeze npm version and switch to @condo/semantic-release-npm
         '@semantic-release/npm',
         '@semantic-release/github',
     ],
