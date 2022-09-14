@@ -27,6 +27,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const intl = useIntl()
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
+    const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion.today' })
     const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.WithoutDeadline' })
 
     const { isSmall } = useLayoutContext()
@@ -66,13 +67,17 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                 <Row justify='start' align='middle' style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
                     <Col span={24}>
                         <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>
-                            {`${AutoCompletionMessage} (+${DaysMessage})`}
+                            {
+                                autoAddDays === 0
+                                    ? AutoCompletionTodayMessage
+                                    : `${AutoCompletionMessage} (+${DaysMessage})`
+                            }
                         </Typography.Text>
                     </Col>
                 </Row>
             </Col>
         )
-    }, [AutoCompletionMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, isSmall])
+    }, [AutoCompletionMessage, AutoCompletionTodayMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, isSmall])
 
     useEffect(() => {
         if (isExistedTicket) {

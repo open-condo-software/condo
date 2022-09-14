@@ -27,7 +27,7 @@ import { ControlRoomSettingsContent } from '@condo/domains/common/components/set
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PAYMENT_DETAILS]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()

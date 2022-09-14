@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Typography } from 'antd'
+import isNull from 'lodash/isNull'
 
 import { TicketOrganizationSetting } from '@app/condo/schema'
 
@@ -44,17 +45,24 @@ export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps>
             return {
                 label: `${intl.formatMessage({ id: `pages.condo.settings.callCenter.card.ticketDeadlines.type.${fieldName}` })}: ${deadlineText}`,
                 type: fieldName,
+                deadlineDuration,
             }
         })
 
         return (
             <SettingCard title={TicketDeadlineTitle} onClick={handleClickCard}>
                 {
-                    humanizeDeadlines.map(({ label, type }) => (
-                        <Typography.Text key={type} type='secondary' ellipsis style={TYPOGRAPHY_STYLE}>
-                            {label}
-                        </Typography.Text>
-                    ))
+                    humanizeDeadlines.every(({ deadlineDuration }) => isNull(deadlineDuration))
+                        ? (
+                            <Typography.Text type='secondary' ellipsis style={TYPOGRAPHY_STYLE}>
+                                {TicketWithoutDefaultDeadlineLabel}
+                            </Typography.Text>
+                        )
+                        : humanizeDeadlines.map(({ label, type }) => (
+                            <Typography.Text key={type} type='secondary' ellipsis style={TYPOGRAPHY_STYLE}>
+                                {label}
+                            </Typography.Text>
+                        ))
                 }
             </SettingCard>
         )
