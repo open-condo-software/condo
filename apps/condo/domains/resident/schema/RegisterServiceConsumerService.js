@@ -98,21 +98,16 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     paymentCategory: paymentCategory,
                 }
 
-                const [ billingIntegrationContext ] = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
-                if (billingIntegrationContext) {
+                const billingIntegrationOrganizationContexts = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
+                for (const billingIntegrationContext of billingIntegrationOrganizationContexts) {
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
-                    const [billingAccount] = await BillingAccount.getAll(context,
-                        {
-                            context: { id: billingIntegrationContext.id },
-                            unitName: unitName,
-                            number_i: accountNumber,
-                        }
-                    )
+                    const [billingAccount] = await BillingAccount.getAll( context, { context: { id: billingIntegrationContext.id }, unitName: unitName, number_i: accountNumber })
                     // This is deprecated. These fields are not going to be set in future releases!
                     attrs.billingAccount = billingAccount ? { connect: { id: billingAccount.id } } : null
                     attrs.billingIntegrationContext = billingAccount ? { connect: { id: billingIntegrationContext.id } } : null
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
+                
                 if (!attrs.billingAccount) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {

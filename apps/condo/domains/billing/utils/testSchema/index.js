@@ -715,7 +715,7 @@ function createRegisterBillingReceiptsPayload(extraAttrs) {
  * Simplifies creating series of instances
  */
 
-async function addBillingIntegrationAndContext(client, organization, extraAttrs) {
+async function addBillingIntegrationAndContext(client, organization, extraAttrs = { context: {}, integration: {} }) {
     if (!organization || !organization.id) {
         throw new Error('No organization')
     }
