@@ -51,6 +51,7 @@ const BillingCategory = generateGQLTestUtils(BillingCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 async function createTestBillingIntegration (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -134,6 +135,7 @@ async function createTestBillingIntegrationOrganizationContext (client, organiza
         organization: { connect: { id: organization.id } },
         settings,
         state,
+        status: CONTEXT_FINISHED_STATUS,
         ...extraAttrs,
     }
     const obj = await BillingIntegrationOrganizationContext.create(client, attrs)

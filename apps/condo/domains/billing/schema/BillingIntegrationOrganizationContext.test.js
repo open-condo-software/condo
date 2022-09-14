@@ -319,7 +319,7 @@ describe('BillingIntegrationOrganizationContext', () => {
             const [integration] = await createTestBillingIntegration(admin, {
                 contextDefaultStatus: status,
             })
-            const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, { status: undefined })
             expect(context).toBeDefined()
             expect(context).toHaveProperty('status', status)
         })
