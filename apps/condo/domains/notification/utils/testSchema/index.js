@@ -16,6 +16,7 @@ const {
     PUSH_TRANSPORT_TYPES,
     DEVICE_PLATFORM_TYPES,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    MESSAGE_BATCH_TYPE_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
@@ -25,12 +26,12 @@ const {
     RemoteClient: RemoteClientGQL,
     SYNC_REMOTE_CLIENT_MUTATION,
     DISCONNECT_USER_FROM_REMOTE_CLIENT_MUTATION,
+    SET_MESSAGE_STATUS_MUTATION,
+    MessageUserBlackList: MessageUserBlackListGQL,
+    MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
+    MessageBatch: MessageBatchGQL,
 } = require('@condo/domains/notification/gql')
 
-const { SET_MESSAGE_STATUS_MUTATION } = require('@condo/domains/notification/gql')
-const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
-const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
-const { MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -38,7 +39,8 @@ const RemoteClient = generateGQLTestUtils(RemoteClientGQL)
 
 const MessageUserBlackList = generateGQLTestUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateGQLTestUtils(MessageOrganizationBlackListGQL)
-const MessageOrganizationWhiteList = generateGQLTestUtils(MessageOrganizationWhiteListGQL)
+const MessageBatch = generateGQLTestUtils(MessageBatchGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -233,6 +235,38 @@ async function updateTestMessageOrganizationBlackList (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
+async function createTestMessageBatch (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        messageType: sample(MESSAGE_BATCH_TYPE_OPTIONS),
+        title: faker.random.alphaNumeric(8),
+        message: faker.random.alphaNumeric(8),
+        deepLink: faker.random.alphaNumeric(8),
+        targets: [get(client, 'user.id', faker.datatype.uuid())],
+        ...extraAttrs,
+    }
+    const obj = await MessageBatch.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMessageBatch (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MessageBatch.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -240,5 +274,6 @@ module.exports = {
     RemoteClient, createTestRemoteClient, updateTestRemoteClient, syncRemoteClientByTestClient, disconnectUserFromRemoteClientByTestClient,
     MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList,
     MessageOrganizationBlackList, createTestMessageOrganizationBlackList, updateTestMessageOrganizationBlackList,
+    MessageBatch, createTestMessageBatch, updateTestMessageBatch,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

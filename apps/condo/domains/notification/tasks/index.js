@@ -1,5 +1,5 @@
-const { sendRemoteClientsUpgradeAppNotifications } = require('./sendRemoteClientsUpgradeAppNotifications')
+const { deliverMessage } = require('./deliverMessage')
 
 module.exports = {
-    sendRemoteClientsUpgradeAppNotifications,
+    deliverMessage,
 }

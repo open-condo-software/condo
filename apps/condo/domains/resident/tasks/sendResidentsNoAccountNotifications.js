@@ -45,7 +45,7 @@ const prepareAndSendNotification = async (context, resident, period) => {
     const data = {
         residentId: resident.id,
         userId: resident.user.id,
-        url: `${conf.SERVER_URL}/billing/receipts`,
+        url: `${conf.SERVER_URL}/billing/receipts/`,
         propertyId: resident.property.id,
         period,
     }
@@ -69,7 +69,7 @@ const prepareAndSendNotification = async (context, resident, period) => {
     }
 }
 
-const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${unitName}`
+const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${unitName}`.toLowerCase()
 
 /**
  * Detects all properties that have new billing receipts,
@@ -103,7 +103,7 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         const accountNumbers = uniq(accounts.map(accounts => get(accounts, 'number')))
         const accountsByAddresses = accounts.reduce(
             (result, account) => {
-                const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.name)
+                const fullAddress = makeAddress(get(account, 'property.address'), account.unitType, account.unitName)
 
                 result[fullAddress] = account
 
@@ -152,7 +152,8 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
             skip += residents.length
 
             for (const resident of residents) {
-                const fullAddress = makeAddress(get(resident, 'residentProperty.address'), resident.unitType, resident.name)
+                const fullAddress = makeAddress(get(resident, 'residentProperty.address'), resident.unitType, resident.unitName)
+
                 // Here we want to send notifications only to residents, that have accounts but no service consumers added for corresponding property
                 if (!accountsByAddresses[fullAddress]) continue
 

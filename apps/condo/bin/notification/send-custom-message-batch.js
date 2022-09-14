@@ -4,29 +4,19 @@
  * All data should be entered via keyboard. Copy/paste is also supported.
  *
  * Usage:
- *      yarn workspace @app/condo node ./bin/notification/send-receipt-added-notifications
+ *      yarn workspace @app/condo node ./bin/notification/send-custom-message-batch
  */
 const path = require('path')
-const { get } = require('lodash')
-const dayjs = require('dayjs')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { getLogger } = require('@condo/keystone/logging')
 
-const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { CUSTOM_CONTENT_MESSAGE_TYPE, PUSH_TRANSPORT, SMS_TRANSPORT, EMAIL_TRANSPORT } = require('@condo/domains/notification/constants/constants')
+const { MessageBatch } = require('@condo/domains/notification/utils/serverSchema')
+const { CUSTOM_CONTENT_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const { prompt } = require('../lib/prompt')
 
-const TODAY = dayjs().format(DATE_FORMAT)
 const LINE_ENDINGS_REGEXP = /[\r\n]+/giu
 const EXTRA_SPACES_REGEXP = /\s+/giu
-const IS_EMAIL_REGEXP = /^\S+@\S+\.\S+$/
-const IS_PHONE_REGEXP = /^\+7\d{10}$/
-const IS_UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-const REPORT_COUNT = 20
-const EMAIL_FROM = 'noreply@doma.ai'
 
 async function connectKeystone () {
     const resolved = path.resolve('./index.js')
@@ -38,9 +28,6 @@ async function connectKeystone () {
 
     return keystone
 }
-
-const logger = getLogger('sendRemoteClientsUpgradeAppNotifications')
-const makeMessageKey = (date, title, entityId) => `${date}:${title}:${entityId}`
 
 async function inputData () {
     let title, body, deepLink, targetItems
@@ -61,81 +48,19 @@ async function inputData () {
     }
 }
 
-const detectTransportType = (target) => {
-    if (IS_EMAIL_REGEXP.test(target)) return EMAIL_TRANSPORT
-    if (IS_PHONE_REGEXP.test(target)) return SMS_TRANSPORT
-    if (IS_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
-
-    console.error(`ERROR: [${target}] is neither email, phone or uuid value`)
-}
-
-const selectTarget = (target) => {
-    const transportType = detectTransportType(target)
-
-    if (transportType === SMS_TRANSPORT) return { to: { phone: target } }
-    if (transportType === EMAIL_TRANSPORT) return { to: { email: target }, emailFrom: EMAIL_FROM }
-    if (transportType === PUSH_TRANSPORT) return { to: { user: { id: target } } }
-
-    console.error(`ERROR: ${transportType} transport type is not supported`)
-}
-
-const prepareAndSendMessage = async (context, target, data) => {
-    const notificationKey = makeMessageKey(TODAY, data.title, target)
-    const transportType = detectTransportType(target)
-    const to = selectTarget(target, data.title)
-
-    if (!to) return 0
-
-    const messageData = {
-        ...to,
-        type: CUSTOM_CONTENT_MESSAGE_TYPE,
-        meta: {
-            dv: 1,
-            body: data.body,
-            data: {
-                userId: get(to, 'to.user.id'),
-                target: target,
-                url: data.deepLink,
-            },
-        },
-        sender: { dv: 1, fingerprint: 'send-custom-message-batch-notification' },
-        uniqKey: notificationKey,
-    }
-
-    if (transportType === PUSH_TRANSPORT) messageData.meta.title = data.title
-    if (transportType === EMAIL_TRANSPORT) messageData.meta.subject = data.title
-
-    try {
-        const result = await sendMessage(context, messageData)
-
-        return 1 - result.isDuplicateMessage
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-
-        return error
-    }
-}
-
 async function main () {
     const context = await connectKeystone()
     const { title, body, deepLink, targetItems } = await inputData()
-    const data = { title, body, deepLink }
 
-    let successCnt = 0, count = 0, failCnt = 0, failedTargets = []
-
-    for (const target of targetItems) {
-        count += 1
-        const success = await prepareAndSendMessage(context, target, data)
-
-        failCnt += 1 - success
-        successCnt += success
-
-        if (count % REPORT_COUNT === 0) logger.info(`Processed ${count}, succeeded ${successCnt}, failed: ${failCnt}, total: ${targetItems.length}`)
-        if (!success) failedTargets.push(target)
-    }
-
-    logger.info(`Processed ${count}, succeeded ${successCnt}, failed: ${failCnt}, total: ${targetItems.length}`)
-    logger.info({ msg: 'Failed targets: ', failedTargets })
+    await MessageBatch.create(context, {
+        dv: 1,
+        sender: { dv: 1, fingerprint: 'send-custom-message-batch' },
+        messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
+        title,
+        message: body,
+        deepLink,
+        targets: targetItems,
+    })
 
     context.disconnect()
 }

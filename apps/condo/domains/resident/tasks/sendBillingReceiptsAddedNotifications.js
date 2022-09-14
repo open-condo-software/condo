@@ -119,7 +119,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             accountNumber: get(receipt, 'account.number'),
             resident: {
                 unitType: get(receipt, 'account.unitType'),
-                unitName: get(receipt, 'account.unitName'),
+                unitName_i: get(receipt, 'account.unitName'),
                 deletedAt: null,
             },
         }))

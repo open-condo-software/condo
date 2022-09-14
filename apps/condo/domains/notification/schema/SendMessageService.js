@@ -1,7 +1,12 @@
 const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+
+const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
+
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/notification/access/SendMessageService')
+
 const {
     MESSAGE_TYPES,
     MESSAGE_META,
@@ -9,8 +14,6 @@ const {
     MESSAGE_RESENDING_STATUS,
 } = require('../constants/constants')
 const { deliverMessage } = require('../tasks')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 
 const errors = {
     EMAIL_FROM_REQUIRED: {

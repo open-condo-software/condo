@@ -27,6 +27,7 @@ const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domain
 const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
 const { MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL } = require('@condo/domains/notification/gql')
 const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const { MessageBatch: MessageBatchGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -167,6 +168,7 @@ async function checkMessageTypeInBlackList (context, message) {
 const MessageUserBlackList = generateServerUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlackListGQL)
 const MessageOrganizationWhiteList = generateServerUtils(MessageOrganizationWhiteListGQL)
+const MessageBatch = generateServerUtils(MessageBatchGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -181,5 +183,6 @@ module.exports = {
     MessageOrganizationBlackList,
     MessageOrganizationWhiteList,
     checkMessageTypeInBlackList,
+    MessageBatch,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
