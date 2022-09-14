@@ -33,26 +33,11 @@ describe('BillingIntegrationOrganizationContext', () => {
             expect(context).toHaveProperty(['organization', 'id'], organization.id)
         })
 
-        test('admin: can\'t create two BillingIntegrationOrganizationContext for same organization!', async () => {
+        test('admin: can create two BillingIntegrationOrganizationContext for same organization!', async () => {
             const { context, integration, organization, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
 
             await updateTestBillingIntegration(admin, integration.id, { isHidden: false })
-
-            await catchErrorFrom(async () => {
-                await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-            }, (e) => {
-                expect(e.errors[0].data.messages[0]).toContain('Can\'t create two BillingIntegrationOrganizationContexts')
-            })
-
-            expect(context).toHaveProperty(['integration', 'id'], integration.id)
-            expect(context).toHaveProperty(['organization', 'id'], organization.id)
-        })
-
-        test('admin: can create two BillingIntegrationOrganizationContext for same organization! If one billing is hidden and other one is not', async () => {
-            const { context, integration, organization, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-
-            await updateTestBillingIntegration(admin, integration.id, { isHidden: false })
-            const [ integration2 ] = await createTestBillingIntegration(admin, { isHidden: true })
+            const [ integration2 ] = await createTestBillingIntegration(admin, { isHidden: false })
 
             const [ context2 ] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration2)
 

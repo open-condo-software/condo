@@ -92,25 +92,6 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         delete: false,
         auth: true,
     },
-    hooks: {
-        validateInput: async ({ operation, resolvedData, addValidationError }) => {
-            // should have only one explicit (hidden = false) context in organization!
-            if (operation === 'create') {
-                const integration = await getById('BillingIntegration', get(resolvedData, ['integration']))
-                if (get(integration, 'isHidden') === true) { return } // we can add as many b2c integrations as we like
-
-                const contextsInThisOrganization = await find('BillingIntegrationOrganizationContext', {
-                    integration: { isHidden: false },
-                    organization: { id: get(resolvedData, 'organization') },
-                    deletedAt: null,
-                })
-
-                if (contextsInThisOrganization.length > 0) {
-                    addValidationError('Can\'t create two BillingIntegrationOrganizationContexts in same organization!')
-                }
-            }
-        },
-    },
 })
 
 module.exports = {
