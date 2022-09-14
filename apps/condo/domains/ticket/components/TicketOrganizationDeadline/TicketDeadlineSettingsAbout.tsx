@@ -1,12 +1,15 @@
 import React  from 'react'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import Link from 'next/link'
 
 import { useIntl } from '@condo/next/intl'
 import { TicketDeadlinePreview } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlinePreview'
+import { colors } from '@condo/domains/common/constants/style'
 
 const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]
+const LINK_STYLE = { color: colors.black }
 
 export const TicketDeadlineSettingsAbout: React.FC = () => {
     const intl = useIntl()
@@ -37,7 +40,13 @@ export const TicketDeadlineSettingsAbout: React.FC = () => {
                             <Col span={6}>
                                 <Typography.Text type='secondary'>{LinkLabel}</Typography.Text>
                             </Col>
-                            <Col span={18}>{LinkMessage}</Col>
+                            <Col span={18}>
+                                <Link href='/ticket/create'>
+                                    <Typography.Link style={LINK_STYLE} underline href='/ticket/create' target='_blank'>
+                                        {LinkMessage}
+                                    </Typography.Link>
+                                </Link>
+                            </Col>
                         </Row>
                     </Col>
                 </Row>

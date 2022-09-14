@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
 import { Col, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { useRouter } from 'next/router'
 
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
@@ -10,7 +11,7 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Button } from '@condo/domains/common/components/Button'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
-import { convertDurationToDays, convertDaysToDuration } from '@condo/domains/ticket/utils/helpers'
+import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -39,6 +40,10 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
     const EmergencyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.emergencyDeadline.label' })
     const WarrantyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.warrantyDeadline.label' })
     const SelectLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.select.label' })
+    const ChangesSavedLabel = intl.formatMessage({ id: 'ChangesSaved' })
+    const ReadyLabel = intl.formatMessage({ id: 'Ready' })
+
+    const router = useRouter()
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -49,7 +54,10 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
     })
 
     const action = TicketSetting.useUpdate({})
-    const updateAction = useCallback((value) => action(TicketSetting.formValuesProcessor(value), ticketSetting), [action, ticketSetting])
+    const updateAction = useCallback(async (value) => {
+        await action(TicketSetting.formValuesProcessor(value), ticketSetting)
+        await router.push('/settings?tab=controlRoom')
+    }, [action, router, ticketSetting])
 
     const initialValues = useMemo(() => TicketSetting.convertToFormState(ticketSetting), [ticketSetting])
 
@@ -67,12 +75,18 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
         })
     }, [OptionCurrentDateLabel, OptionWithoutDeadlineLabel, intl])
 
+    const getCompletedNotification = useCallback(() => ({
+        message: <Typography.Text strong>{ReadyLabel}</Typography.Text>,
+        description: <Typography.Text type='secondary'>{ChangesSavedLabel}</Typography.Text>,
+    }), [ChangesSavedLabel, ReadyLabel])
+
     const settingsForm = useMemo(() => (
         <FormWithAction
             initialValues={initialValues}
             action={updateAction}
             colon={false}
             layout='horizontal'
+            OnCompletedMsg={getCompletedNotification}
         >
             {({ handleSave, isLoading }) => (
                 <Row gutter={BIG_ROW_GUTTERS}>
@@ -177,7 +191,7 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                 </Row>
             )}
         </FormWithAction>
-    ), [DefaultDeadlineLabel, EmergencyDeadlineLabel, PaidDeadlineLabel, SelectLabel, WarrantyDeadlineLabel, initialValues, options, updateAction])
+    ), [DefaultDeadlineLabel, EmergencyDeadlineLabel, PaidDeadlineLabel, SelectLabel, WarrantyDeadlineLabel, getCompletedNotification, initialValues, options, updateAction])
 
     if (loading || !ticketSetting) return null
 
