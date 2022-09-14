@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import map from 'lodash/map'
@@ -18,9 +18,11 @@ import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
+import { useOrganization } from '@condo/next/organization'
+import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 
 import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
-import { TextProps } from 'antd/es/typography/Text'
 import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
 import { IFilters } from '../utils/helpers'
 import {
@@ -45,7 +47,15 @@ const COLUMNS_WIDTH = {
     assignee: '10%',
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets: Ticket[]) {
+const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
+
+export function useTableColumns <T> (
+    filterMetas: Array<FiltersMeta<T>>,
+    tickets: Ticket[],
+    refetchTickets: () => Promise<undefined>,
+    isRefetching: boolean,
+    setIsRefetching: Dispatch<SetStateAction<boolean>>,
+) {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -94,7 +104,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
     const { user } = useAuth()
 
     const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
-    const { objs: userTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
+    const { objs: userTicketsCommentReadTime, refetch: refetchUserTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
         where: {
             user: { id: user.id },
             ticket: {
@@ -102,13 +112,41 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, tickets
             },
         },
     })
-    const { objs: ticketsCommentsTime } = TicketCommentsTime.useObjects({
+    const { objs: ticketsCommentsTime, refetch: refetchTicketsCommentsTime } = TicketCommentsTime.useObjects({
         where: {
             ticket: {
                 id_in: ticketIds,
             },
         },
     })
+
+    const { useFlag, updateContext } = useFeatureFlags()
+    const { organization } = useOrganization()
+
+    useEffect(() => {
+        updateContext({ organization: organization.id })
+    }, [organization, updateContext])
+
+    const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
+
+    const refetch = useCallback(async () => {
+        await refetchTickets()
+        await refetchUserTicketsCommentReadTime()
+        await refetchTicketsCommentsTime()
+    }, [refetchTickets, refetchTicketsCommentsTime, refetchUserTicketsCommentReadTime])
+
+    useEffect(() => {
+        if (isRefetchTicketsFeatureEnabled) {
+            const handler = setInterval(async () => {
+                setIsRefetching(true)
+                await refetch()
+                setIsRefetching(false)
+            }, TICKETS_RE_FETCH_INTERVAL)
+            return () => {
+                clearInterval(handler)
+            }
+        }
+    }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
 
     return useMemo(() => {
         return [

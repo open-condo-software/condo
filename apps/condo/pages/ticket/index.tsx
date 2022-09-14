@@ -54,10 +54,14 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 
-const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
-
-const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
+const TicketsTable = ({
+    filterMetas,
+    sortBy,
+    searchTicketsQuery,
+    useTableColumns,
+}) => {
     const router = useRouter()
+    const [isRefetching, setIsRefetching] = useState(false)
 
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
@@ -74,31 +78,8 @@ const TicketsTable = ({ filterMetas, sortBy, searchTicketsQuery }) => {
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const { useFlag, updateContext } = useFeatureFlags()
-    const { organization } = useOrganization()
-
-    useEffect(() => {
-        updateContext({ organization: organization.id })
-    }, [organization, updateContext])
-
-    const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
-
-    const [isRefetching, setIsRefetching] = useState(false)
-    useEffect(() => {
-        if (isRefetchTicketsFeatureEnabled) {
-            const handler = setInterval(async () => {
-                setIsRefetching(true)
-                await refetch()
-                setIsRefetching(false)
-            }, TICKETS_RE_FETCH_INTERVAL)
-            return () => {
-                clearInterval(handler)
-            }
-        }
-    }, [isRefetchTicketsFeatureEnabled, refetch])
-
-    const tableColumns = useTableColumns(filterMetas, tickets)
     const loading = isTicketsFetching && !isRefetching
+    const tableColumns = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -144,6 +125,7 @@ export const TicketsPageContent = ({
     baseTicketsQuery,
     filterMetas,
     sortableProperties,
+    useTableColumns,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -308,6 +290,7 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <TicketsTable
+                                            useTableColumns={useTableColumns}
                                             filterMetas={filterMetas}
                                             sortBy={sortBy}
                                             searchTicketsQuery={searchTicketsQuery}
@@ -332,6 +315,7 @@ const TicketsPage: ITicketIndexPage = () => {
 
     return (
         <TicketsPageContent
+            useTableColumns={useTableColumns}
             baseTicketsQuery={baseTicketsQuery}
             filterMetas={filterMetas}
             sortableProperties={SORTABLE_PROPERTIES}
