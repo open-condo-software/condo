@@ -82,9 +82,6 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
             type: Integer,
             isRequired: false,
             defaultValue: 1,
-            hooks: {
-                validateInput: validateReport,
-            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
