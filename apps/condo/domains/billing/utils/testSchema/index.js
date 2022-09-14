@@ -715,13 +715,13 @@ function createRegisterBillingReceiptsPayload(extraAttrs) {
  * Simplifies creating series of instances
  */
 
-async function addBillingIntegrationAndContext(client, organization) {
+async function addBillingIntegrationAndContext(client, organization, extraAttrs) {
     if (!organization || !organization.id) {
         throw new Error('No organization')
     }
 
-    const [ billingIntegration ] = await createTestBillingIntegration(client)
-    const [ billingIntegrationContext ] = await createTestBillingIntegrationOrganizationContext(client, organization, billingIntegration)
+    const [ billingIntegration ] = await createTestBillingIntegration(client, extraAttrs.integration)
+    const [ billingIntegrationContext ] = await createTestBillingIntegrationOrganizationContext(client, organization, billingIntegration, extraAttrs.context)
 
     return {
         billingIntegration,

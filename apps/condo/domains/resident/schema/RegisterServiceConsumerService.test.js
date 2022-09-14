@@ -113,6 +113,43 @@ describe('RegisterServiceConsumerService', () => {
         expect(out.residentAcquiringIntegrationContext.integration.hostUrl).toEqual(acquiringIntegration.hostUrl)
     })
 
+    it('creates serviceConsumer with billingAccount for separate organization in case of 2 billing integrations', async () => {
+
+        const userClient = await makeClientWithProperty()
+        const adminClient = await makeLoggedInAdminClient()
+
+        const [ organization ] = await createTestOrganization(adminClient)
+
+        const { billingIntegration, billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, organization, { context: { priority: 1 } })
+        const { billingIntegration: billingIntegration2, billingIntegrationContext: billingIntegrationContext2 } = await addBillingIntegrationAndContext(adminClient, organization, { context: { priority: 2 } })
+
+        const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext2)
+        const [billingAccountAttrs] = await createTestBillingAccount(adminClient, billingIntegrationContext2, billingProperty)
+
+        const { acquiringIntegration, acquiringIntegrationContext } = await addAcquiringIntegrationAndContext(adminClient, organization, [ billingIntegration, billingIntegration2 ])
+
+        await updateTestUser(adminClient, userClient.user.id, { type: RESIDENT })
+        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+            unitName: billingAccountAttrs.unitName,
+        })
+
+        const payload = {
+            residentId: resident.id,
+            accountNumber: billingAccountAttrs.number,
+            organizationId: organization.id,
+        }
+
+        const [ out ] = await registerServiceConsumerByTestClient(userClient, payload)
+        expect(out).toBeDefined()
+        expect(out.accountNumber).toEqual(payload.accountNumber)
+        expect(out.resident.id).toEqual(payload.residentId)
+        expect(out.organization.id).toEqual(payload.organizationId)
+        expect(out.residentAcquiringIntegrationContext.id).toEqual(acquiringIntegrationContext.id)
+        expect(out.residentAcquiringIntegrationContext.integration).toBeDefined()
+        expect(out.residentAcquiringIntegrationContext.integration.id).toEqual(acquiringIntegration.id)
+        expect(out.residentAcquiringIntegrationContext.integration.hostUrl).toEqual(acquiringIntegration.hostUrl)
+    })
+
     it('creates serviceConsumer with billingAccount and Meters', async () => {
 
         const userClient = await makeClientWithProperty()
