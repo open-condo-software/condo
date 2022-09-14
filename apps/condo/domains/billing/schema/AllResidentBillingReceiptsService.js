@@ -18,6 +18,7 @@ const {
 const { generateQuerySortBy } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { generateQueryWhereInput } = require('@condo/domains/common/utils/codegeneration/generate.gql')
 const { GQLCustomSchema, find } = require('@condo/keystone/schema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 
 /**
@@ -107,7 +108,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const receiptsQuery = {
                         ...receiptsWhere,
                         account: { number: serviceConsumer.accountNumber, unitName: resident.unitName, deletedAt: null },
-                        context: { organization: { id: serviceConsumer.organization }, deletedAt: null },
+                        context: { organization: { id: serviceConsumer.organization }, status: CONTEXT_FINISHED_STATUS, deletedAt: null },
                         deletedAt: null,
                     }
                     const receiptsForConsumer = await BillingReceipt.getAll(
