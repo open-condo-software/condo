@@ -11,6 +11,7 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const get = require('lodash/get')
 const omit = require('lodash/omit')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
@@ -98,7 +99,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     paymentCategory: paymentCategory,
                 }
 
-                const billingIntegrationOrganizationContexts = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
+                const billingIntegrationOrganizationContexts = await BillingIntegrationOrganizationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, integration: { status: CONTEXT_FINISHED_STATUS, deletedAt: null }, deletedAt: null })
                 for (const billingIntegrationContext of billingIntegrationOrganizationContexts) {
                     const [acquiringIntegrationContext] = await AcquiringIntegrationContext.getAll(context, { organization: { id: organization.id, deletedAt: null }, deletedAt: null })
                     const [billingAccount] = await BillingAccount.getAll( context, { context: { id: billingIntegrationContext.id }, unitName: unitName, number_i: accountNumber })
