@@ -173,6 +173,7 @@ function registerTasks (modulesList) {
             Object.values(module).forEach(
                 (task) => {
                     if (task._type !== TASK_TYPE) {
+                        console.error(task)
                         throw new Error('Wrong task module export format! What\'s this? You should wrap everything by createTask()')
                     }
                 })

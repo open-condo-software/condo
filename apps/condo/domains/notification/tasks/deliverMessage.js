@@ -3,13 +3,14 @@ const isEmpty = require('lodash/isEmpty')
 const conf = require('@condo/config')
 const { createTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
-
+const { getLogger } = require('@condo/keystone/logging')
 const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
+
 const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 
-const sms = require('./transports/sms')
-const email = require('./transports/email')
-const push = require('./transports/push')
+const sms = require('../transports/sms')
+const email = require('../transports/email')
+const push = require('../transports/push')
 const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,
@@ -19,8 +20,7 @@ const {
     MESSAGE_PROCESSING_STATUS,
     MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
-} = require('./constants/constants')
-const { getLogger } = require('@condo/keystone/logging')
+} = require('../constants/constants')
 
 const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
 const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
@@ -173,7 +173,5 @@ async function deliverMessage (messageId) {
 }
 
 module.exports = {
-    deliverMessage: createTask('deliverMessage', deliverMessage, {
-        priority: 1,
-    }),
+    deliverMessage: createTask('deliverMessage', deliverMessage, { priority: 1 }),
 }

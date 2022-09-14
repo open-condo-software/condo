@@ -348,7 +348,14 @@ const makeLoggedInAdminClient = async () => {
 async function waitFor (callback, options = null) {
     const timeout = get(options, 'timeout', 15000)
     const interval = get(options, 'interval', 150)
+    const delay = get(options, 'delay', 0)
     let savedError = null
+
+    if (delay > 0) {
+        await new Promise((res) => {
+            setTimeout(res, delay + 1)
+        })
+    }
 
     return new Promise((res, rej) => {
         const handler1 = setInterval(async () => {

@@ -11,6 +11,7 @@ const { DisconnectUserFromRemoteClientService } = require('./DisconnectUserFromR
 const { SetMessageStatusService } = require('./SetMessageStatusService')
 const { MessageUserBlackList } = require('./MessageUserBlackList')
 const { MessageOrganizationBlackList } = require('./MessageOrganizationBlackList')
+const { MessageBatch } = require('./MessageBatch')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -22,5 +23,6 @@ module.exports = {
     SetMessageStatusService,
     MessageUserBlackList,
     MessageOrganizationBlackList,
+    MessageBatch,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

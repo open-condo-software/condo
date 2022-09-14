@@ -3,7 +3,7 @@
  */
 const sleep = async (time) => (
     new Promise(resolve => {
-        setTimeout(resolve, time)
+        setTimeout(resolve, time + 1)
     })
 )
 
