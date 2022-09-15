@@ -20,7 +20,7 @@ const config: StorybookConfig = {
     'core': {
         'builder': '@storybook/builder-webpack5'
     },
-    'staticDirs': ['../public'],
+    'staticDirs': [{ from: '../public', to: '/ui' }],
     'webpackFinal': async (config) => {
         const configRules = config && config.module ? config.module.rules : []
         const modifiedRules = configRules.map(rule => {
