@@ -48,3 +48,6 @@ ignore.*
 
 **/cypress/videos/**
 **/cypress/screenshots/**
+
+# Condo UI-kit static
+apps/condo/public/ui

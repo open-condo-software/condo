@@ -6,6 +6,7 @@
     "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
     "dev": "keystone dev",
     "debug": "node inspect node_modules/.bin/keystone dev",
+    "build:static": "yarn workspace @condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
     "build": "cross-env PHASE=build keystone build",
     "start": "keystone start",
     "worker": "cross-env PHASE=worker node worker.js",

@@ -63,6 +63,7 @@ shell:
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - "echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> /app/.env"
   - "yarn workspace @app/condo next telemetry disable"
+  - "yarn workspace @app/condo build:static"
   - "yarn workspace @app/condo build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"

@@ -14,5 +14,5 @@ export default create({
     textColor: colors.dom.blackAndWhite.black,
 
     brandTitle: 'Condo UI',
-    brandImage: '/logo.svg'
+    brandImage: '/ui/logo.svg'
 })
