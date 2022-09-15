@@ -38,6 +38,7 @@ export function usePaymentsTableFilters (
     const typeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
     const enterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
     const statusTitle = intl.formatMessage({ id: 'Status' })
+    const paymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const enterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
     const statuses = statusType.map((item) => ({
@@ -120,7 +121,7 @@ export function usePaymentsTableFilters (
                 component: {
                     type: ComponentType.Input,
                     modalFilterComponentWrapper: {
-                        label: 'accountTitle',
+                        label: paymentOrderTitle,
                         size: FilterComponentSize.Medium,
                     },
                 },

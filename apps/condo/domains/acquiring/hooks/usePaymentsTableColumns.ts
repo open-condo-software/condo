@@ -21,6 +21,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const typeTitle = intl.formatMessage({ id: 'PaymentType' })
     const transactionTitle = intl.formatMessage({ id: 'Transaction' })
     const paymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
+    const paymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const statusTitle = intl.formatMessage({ id: 'Status' })
 
     const { filters, sorters } = parseQuery(router.query)
@@ -87,7 +88,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             order: {
-                title: 'orderTitle',
+                title: paymentOrderTitle,
                 key: 'order',
                 dataIndex: 'order',
                 render: stringSearch,
