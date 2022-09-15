@@ -1,4 +1,5 @@
 /** @jsx jsx */
+import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
@@ -13,7 +14,6 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
 
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
@@ -42,7 +42,6 @@ const PropertyHintPage = () => {
     })
 
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
-    const { TicketPropertyHintContent } = useTicketPropertyHintContent()
 
     if (error || propertyLoading || ticketPropertyHintLoading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={propertyLoading} error={error ? ServerErrorMsg : null}/>

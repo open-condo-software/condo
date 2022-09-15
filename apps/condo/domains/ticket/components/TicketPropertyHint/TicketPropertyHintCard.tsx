@@ -9,18 +9,11 @@ import { useIntl } from '@condo/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-
-import { useTicketPropertyHintContent } from '@condo/domains/ticket/hooks/useTicketPropertyHintContent'
+import { TicketPropertyHintContent } from './TicketPropertyHintContent'
 
 const StyledAlert = styled(Alert)`
   background-color: ${colors.successBG};
   border: none;
-
-  .ant-alert-description {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
   
   .ant-alert-description > div {
     overflow: hidden;
@@ -39,8 +32,6 @@ const StyledAlert = styled(Alert)`
   }
 `
 
-const TEXT_STYLES: CSSProperties = { color: colors.black }
-
 type TicketPropertyHintCardProps = {
     propertyId: string
     hintContentStyle?: CSSProperties
@@ -49,7 +40,6 @@ type TicketPropertyHintCardProps = {
 export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
-    const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
 
     const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {
@@ -66,8 +56,6 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
 
     const AlertMessage = <Typography.Text strong>{PropertyHintMessage}</Typography.Text>
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
-
-    const { TicketPropertyHintContent, isContentOverflow } = useTicketPropertyHintContent()
     
     return ticketPropertyHintProperty && ticketPropertyHint && (
         <StyledAlert
@@ -77,18 +65,8 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
                     <TicketPropertyHintContent
                         html={htmlContent}
                         style={hintContentStyle}
+                        linkToHint={`/property/${propertyId}/hint`}
                     />
-                    {
-                        isContentOverflow && (
-                            <Link href={`/property/${propertyId}/hint`} passHref>
-                                <a target='_blank'>
-                                    <Typography.Link underline style={TEXT_STYLES}>
-                                        {ExtraTitleMessage}
-                                    </Typography.Link>
-                                </a>
-                            </Link>
-                        )
-                    }
                 </>
             }
             showIcon

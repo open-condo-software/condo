@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -30,7 +30,6 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { EXCEL } from '@condo/domains/common/constants/export'
@@ -41,7 +40,6 @@ import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch
 import { useAuth } from '@condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
-import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
