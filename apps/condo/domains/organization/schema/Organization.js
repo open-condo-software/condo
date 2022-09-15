@@ -45,10 +45,10 @@ const Organization = new GQLListSchema('Organization', {
             kmigratorOptions: { null: true },
             access: true,
             hooks: {
-                validateInput: async ({ resolvedData, addFieldValidationError })  => {
+                validateInput: async ({ resolvedData, addFieldValidationError, existingItem })  => {
                     const item = resolvedData
 
-                    const country = get(item, 'country')
+                    const country = get(item, 'country') || get(existingItem, 'country')
                     const tin = get(item, 'tin')
 
                     if (!country || !tin) {
