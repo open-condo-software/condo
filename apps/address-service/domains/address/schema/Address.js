@@ -29,6 +29,7 @@ const Address = new GQLListSchema('Address', {
             schemaDoc: 'The unique key of the address',
             type: Text,
             isRequired: true,
+            isUnique: true,
         },
 
         meta: {
