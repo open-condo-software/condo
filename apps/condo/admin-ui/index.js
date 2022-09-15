@@ -39,6 +39,10 @@ function SignInAsUser () {
 
 
 export default {
+    pages: () => {
+        window.React = React
+        return []
+    },
     itemHeaderActions: () => {
         return (
             <div>
