@@ -8,6 +8,7 @@ const access = require('@open-condo/keystone/access')
 const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
 const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
+const { SearchKeystoneApp } = require('@address-service/domains/common/utils/services/search/SearchKeystoneApp')
 const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
 
 const keystone = new Keystone({
@@ -52,5 +53,6 @@ module.exports = {
             hooks: require.resolve('@app/address-service/admin-ui'),
         }),
         new SuggestionKeystoneApp(),
+        new SearchKeystoneApp(),
     ],
 }
