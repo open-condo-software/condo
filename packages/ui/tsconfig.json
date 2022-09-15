@@ -9,20 +9,21 @@
       "dom",
       "esnext"
     ],
-    "module": "esnext",
+    "module": "commonjs",
     "moduleResolution": "node",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": ".",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
-    "target": "es6"
+    "target": "ES2017"
   },
   "include": [
-    "src",
+    "src/**/*",
+    ".storybook/**/*"
   ],
   "exclude": [
     "node_modules"

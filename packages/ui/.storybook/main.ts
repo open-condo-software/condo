@@ -1,10 +1,12 @@
+import type { StorybookConfig } from '@storybook/react/types'
+
 const baseCssLoaders = [
     'style-loader',
     { loader: 'css-loader', options: { importLoaders: 2 } },
     'postcss-loader'
 ]
 
-module.exports = {
+const config: StorybookConfig = {
     'stories': [
         '../src/stories/**/*.stories.mdx',
         '../src/stories/**/*.stories.@(js|jsx|ts|tsx)'
@@ -20,24 +22,25 @@ module.exports = {
     },
     'staticDirs': ['../public'],
     'webpackFinal': async (config) => {
-        const newConfig = { ...config }
-
-        const rules = config.module.rules.map(rule => {
-            if (rule.test.test('some.css')) {
+        const configRules = config && config.module ? config.module.rules : []
+        const modifiedRules = configRules.map(rule => {
+            if (rule.test && rule.test.constructor === RegExp && rule.test.test('some.css')) {
                 return {...rule, use: baseCssLoaders}
             }
 
             return rule
         })
 
-        rules.push({
+        modifiedRules.push({
             test: /\.less$/,
             sideEffects: true,
             use: [...baseCssLoaders, 'less-loader']
         })
 
-        newConfig.module.rules = rules
+        config.module = { ...config.module, rules: modifiedRules }
 
-        return newConfig
+        return config
     }
 }
+
+export default config
