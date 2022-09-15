@@ -144,7 +144,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         this.token = token
     }
 
-    getProviderContextName () {
+    getProviderName () {
         return DADATA_PROVIDER
     }
 

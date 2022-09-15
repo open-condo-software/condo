@@ -3,7 +3,7 @@ const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/p
 
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {
 
-    getProviderContextName () {
+    getProviderName () {
         return GOOGLE_PROVIDER
     }
 
