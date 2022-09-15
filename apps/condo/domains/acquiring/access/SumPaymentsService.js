@@ -8,7 +8,7 @@ const { checkOrganizationPermission } = require('@condo/domains/organization/uti
 async function canSumPayments ({ args: { where }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return {}
+    if (user.isAdmin || user.isSupport) return true
 
     return await checkOrganizationPermission(user.id, get(where, ['organization', 'id'], null), 'canReadPayments')
 }
