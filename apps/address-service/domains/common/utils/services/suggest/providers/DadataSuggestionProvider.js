@@ -186,8 +186,19 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {NormalizedSuggestion[]}
      */
     normalize (data) {
-        // TODO(nas) add other fields
-        return data.map((item) => ({ value: item.value }))
+        return data.map((item) => ({
+            value: item.value,
+            data: {
+                country: get(item, ['data', 'country']),
+                region: get(item, ['data', 'region_with_type']),
+                area: get(item, ['data', 'area_with_type']),
+                city: get(item, ['data', 'city_with_type']),
+                settlement: get(item, ['data', 'settlement_with_type']),
+                street: get(item, ['data', 'street_with_type']),
+                building: String(`${get(item, ['data', 'house_type_full'])} ${get(item, ['data', 'house'])}`).trim(),
+                block: String(`${get(item, ['data', 'block_type_full'])} ${get(item, ['data', 'block'])}`).trim(),
+            },
+        }))
     }
 
     /**
