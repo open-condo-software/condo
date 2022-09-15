@@ -22,7 +22,7 @@ class AbstractSuggestionProvider {
      * @private
      * @returns {string} The provider name (constant)
      */
-    getProviderContextName () {
+    getProviderName () {
         throw new Error('Method still not implemented.')
     }
 
@@ -34,10 +34,10 @@ class AbstractSuggestionProvider {
      */
     getContext (context = null) {
         return {
-            ...get(suggestionContexts, ['default', this.getProviderContextName()], {}),
+            ...get(suggestionContexts, ['default', this.getProviderName()], {}),
             ...(
                 context
-                    ? get(suggestionContexts, [context, this.getProviderContextName()], {})
+                    ? get(suggestionContexts, [context, this.getProviderName()], {})
                     : {}
             ),
         }
