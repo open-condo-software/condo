@@ -1,5 +1,5 @@
 import React from 'react'
-import { CardProps, Col, Row, Typography } from 'antd'
+import { CardProps, Col, Row, Typography, Skeleton } from 'antd'
 
 import { Card } from '@condo/domains/common/components/Card/Card'
 import { EllipsisConfig } from 'antd/es/typography/Base'
@@ -30,6 +30,14 @@ export const SettingCard: React.FC<SettingCardProps> = ({ title, children, onCli
                     </Typography.Paragraph>
                 </Col>
             </Row>
+        </Card>
+    )
+}
+
+export const SettingCardSkeleton: React.FC = () => {
+    return (
+        <Card style={CARD_STYLE}>
+            <Skeleton />
         </Card>
     )
 }

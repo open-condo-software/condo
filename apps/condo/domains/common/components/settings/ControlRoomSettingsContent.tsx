@@ -8,6 +8,7 @@ import { useOrganization } from '@condo/next/organization'
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 import { TicketDeadlineSettingCard } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingCard'
+import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
@@ -17,7 +18,7 @@ export const ControlRoomSettingsContent: React.FC = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const { obj: ticketSetting } = TicketSetting.useObject({
+    const { obj: ticketSetting, loading } = TicketSetting.useObject({
         where: {
             organization: { id: userOrganizationId },
         },
@@ -30,7 +31,11 @@ export const ControlRoomSettingsContent: React.FC = () => {
             </Col>
             <Col span={24}>
                 <CardsContainer autosize>
-                    <TicketDeadlineSettingCard ticketSetting={ticketSetting} />
+                    {
+                        loading
+                            ? <SettingCardSkeleton />
+                            : <TicketDeadlineSettingCard ticketSetting={ticketSetting} />
+                    }
                 </CardsContainer>
             </Col>
         </Row>
