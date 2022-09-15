@@ -86,7 +86,7 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
 
 function usePaymentsSum (whereQuery) {
     const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
-        fetchPolicy: 'network-only',
+        fetchPolicy: 'cache-first',
         variables: {
             where: {
                 ...whereQuery,
