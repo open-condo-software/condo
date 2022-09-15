@@ -75,7 +75,7 @@ describe('SumPaymentsService', () => {
                     'path': ['result'],
                     'data': {
                         'type': 'query',
-                        'target': 'allPaymentsSum',
+                        'target': '_allPaymentsSum',
                     },
                 }])
             })
