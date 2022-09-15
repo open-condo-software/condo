@@ -29,7 +29,7 @@
     "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",
-    "build:lib": "webpack && tsc --emitDeclarationOnly --declarationMap",
+    "build:lib": "webpack && tsc --project tsconfig.prod.json",
     "build": "yarn build:tokens && yarn build:lib",
     "build:sb": "yarn build:tokens && build-storybook",
     "dev": "yarn build:tokens && start-storybook -p 6006",

@@ -1,9 +1,9 @@
-const { create } = require('@storybook/theming')
-const get = require('lodash/get')
-const tokens = require('@condo/ui/src/tokens/tokens.json')
-const colors = require('@condo/ui/src/colors/colors.json')
+import { create } from '@storybook/theming'
+import get from 'lodash/get'
+import tokens from '@condo/ui/src/tokens/tokens.json'
+import colors from '@condo/ui/src/colors/colors.json'
 
-module.exports = create({
+export default create({
     base: 'light',
 
     colorSecondary: colors.dom.brand.main,
