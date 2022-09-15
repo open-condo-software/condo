@@ -86,6 +86,12 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 dataIndex: 'status',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
+            order: {
+                title: 'orderTitle',
+                key: 'order',
+                dataIndex: 'order',
+                render: stringSearch,
+            },
             amount: {
                 title: paymentAmountTitle,
                 key: 'amount',
