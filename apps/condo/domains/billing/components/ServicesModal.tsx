@@ -99,7 +99,8 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const address = get(receipt, ['property', 'address'])
     const unitName = get(receipt, ['account', 'unitName'])
     const unitType = get(receipt, ['account', 'unitType'])
-    const unitTypePrefix = intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` })
+
+    const UnitTypePrefix = intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` }).toLocaleLowerCase()
 
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
 
@@ -110,7 +111,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 {modalTitleMessage}
             </Typography.Title>
             <SubText size={configSize}>
-                {address}{unitName ? `, ${unitTypePrefix} ${unitName}` : ''}
+                {address}{unitName ? `, ${UnitTypePrefix}. ${unitName}` : ''}
             </SubText>
         </Space>
     )
