@@ -8,7 +8,7 @@ async function canReadUsers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return {}
 
     return false
 }
