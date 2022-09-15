@@ -20,6 +20,7 @@ const dateFilter = getDayRangeFilter('advancedAt')
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
 const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
+const orderFilter = getFilter('order', 'array', 'string', 'in')
 
 const statusType = [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS]
 
@@ -114,6 +115,17 @@ export function usePaymentsTableFilters (
                 },
             },
             {
+                keyword: 'order',
+                filters: [orderFilter],
+                component: {
+                    type: ComponentType.Input,
+                    modalFilterComponentWrapper: {
+                        label: 'accountTitle',
+                        size: FilterComponentSize.Medium,
+                    },
+                },
+            },
+            {
                 keyword: 'status',
                 filters: [statusFilter],
                 component: {
@@ -126,7 +138,7 @@ export function usePaymentsTableFilters (
                     },
                     modalFilterComponentWrapper: {
                         label: statusTitle,
-                        size: FilterComponentSize.Large,
+                        size: FilterComponentSize.Medium,
                     },
                 },
             },
