@@ -31101,6 +31101,11 @@ export type PaymentsFilterTemplatesUpdateInput = {
   data?: Maybe<PaymentsFilterTemplateUpdateInput>;
 };
 
+export type PaymentsSumOutput = {
+  __typename?: 'PaymentsSumOutput';
+  sum: Scalars['String'];
+};
+
 export type PaymentsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PaymentUpdateInput>;
@@ -44169,11 +44174,6 @@ export type StartPasswordRecoveryInput = {
 export type StartPasswordRecoveryOutput = {
   __typename?: 'StartPasswordRecoveryOutput';
   status: Scalars['String'];
-};
-
-export type PaymentsSumOutput = {
-  __typename?: 'PaymentsSumOutput';
-  sum: Scalars['String'];
 };
 
 export type SyncRemoteClientInput = {
