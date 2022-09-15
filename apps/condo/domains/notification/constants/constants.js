@@ -138,6 +138,8 @@ const MESSAGE_META = {
     [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: {
         dv: { defaultValue: '', required: true },
         text: { defaultValue: null, required: true },
+        personalAccount: { defaultValue: null, required: true },
+        address: { defaultValue: null, required: true },
         os: { defaultValue: null, required: true },
         appVersion: { defaultValue: null, required: true },
         organizationsData: { defaultValue: [], isRequired: false },
