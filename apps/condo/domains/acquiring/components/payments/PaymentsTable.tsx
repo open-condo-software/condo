@@ -78,7 +78,7 @@ const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
                 {...{ type }}
                 strong={true}
             >
-                {loading ? '...' : getMoneyRender(intl, currencyCode)(message)}
+                {loading ? '…' : getMoneyRender(intl, currencyCode)(message)}
             </Typography.Text>
         </Space>
     )
