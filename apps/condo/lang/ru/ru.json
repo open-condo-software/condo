@@ -1204,6 +1204,7 @@
   "DebtOverpayment": "Долг/Переплата",
   "PaymentPenalty": "Пени",
   "PaymentType": "Тип",
+  "PaymentOrder": "Платежное поручение",
   "PaymentAmount": "Сумма",
   "Transaction": "Транзакция",
   "Charged": "Начислено",

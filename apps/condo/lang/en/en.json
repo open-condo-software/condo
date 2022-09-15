@@ -1204,6 +1204,7 @@
   "DebtOverpayment": "Debt/Overpayment",
   "PaymentPenalty": "Penalty",
   "PaymentType": "Type",
+  "PaymentOrder": "Payment order",
   "PaymentAmount": "Amount",
   "Transaction": "Transaction",
   "Charged": "Charged",
