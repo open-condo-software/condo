@@ -5,7 +5,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
@@ -14,7 +14,6 @@ import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import ActionBar from '@condo/domains/common/components/ActionBar'
@@ -104,18 +103,20 @@ export const SettingsContent = () => {
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const tableColumns = useTicketPropertyHintTableColumns(filtersMeta, ticketPropertyHints)
-
-    const handleAddHintButtonClick = useCallback(async () => {
-        await router.push('/settings/hint/create')
-    }, [router])
-
-    const handleRowAction = useCallback((record) => {
+    const [hoverRowIndex, setHoverRowIndex] = useState()
+    const handleRowAction = useCallback((record, rowIndex) => {
         return {
             onClick: async () => {
                 await router.push(`/settings/hint/${record.id}/`)
             },
+            onMouseEnter: () => setHoverRowIndex(rowIndex),
+            onMouseLeave: () => setHoverRowIndex(null),
         }
+    }, [router])
+    const tableColumns = useTicketPropertyHintTableColumns(filtersMeta, ticketPropertyHints, hoverRowIndex)
+
+    const handleAddHintButtonClick = useCallback(async () => {
+        await router.push('/settings/hint/create')
     }, [router])
 
     const handleSearch = useCallback(e => {

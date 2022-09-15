@@ -46,6 +46,7 @@ const warningBg = '#FFECEB'
 const warningText = '#FF3B30'
 const infoIconColor = '#39CE66'
 const warningAlert = 'rgba(240, 134, 51, 0.1)'
+const tableRowHoverGray = '#FAFAFA'
 
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
@@ -77,6 +78,7 @@ const colors = {
     defaultWhite: generate(white),
     lightGrey: generate(lightGrey),
     beautifulBlue: generate(beautifulBlue),
+    tableRowHoverGray,
     transparent: 'transparent',
     markColor,
     white,

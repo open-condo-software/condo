@@ -13,6 +13,7 @@ export type HtmlContentProps = {
 const StyledDiv = styled.div`
   overflow: hidden;
   word-break: break-word;
+  position: relative;
   
   p {
     margin: 0;
