@@ -1,3 +1,4 @@
+import { useLazyQuery } from '@apollo/client'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
@@ -16,10 +17,13 @@ import { useOrganization } from '@condo/next/organization'
 import styled from '@emotion/styled'
 import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
+import { LOAD_CONTACTS } from '@condo/domains/contact/gql'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -70,6 +74,10 @@ export const CreateContactForm: React.FC = () => {
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const selectedUnitTypeRef = useRef(selectedUnitType)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
+    const [clientName, setClientName] = useState(null)
+    const [clientPhone, setClientPhone] = useState(null)
+    const [contactDuplicate, setContactDuplicate] = useState([])
+    const isContactDuplicateFetched = useRef(false)
 
     const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations({ allowLandLine: true })
     const { addressValidator } = usePropertyValidations()
@@ -109,6 +117,53 @@ export const CreateContactForm: React.FC = () => {
     useEffect(() => {
         selectedUnitTypeRef.current = selectedUnitType
     }, [selectedUnitType])
+    useEffect(() => {
+        isContactDuplicateFetched.current = false
+        setContactDuplicate([])
+    }, [selectedUnitType, selectedUnitName, selectedPropertyId, clientName, clientPhone])
+
+    const [searchContactDuplicate, { loading: isLoadingContactDuplicate  }] = useLazyQuery(LOAD_CONTACTS, {
+        onCompleted: (data) => {
+            setContactDuplicate(get(data, 'result', []))
+        },
+        onError: (e) => {
+            console.log(e.message)
+            setContactDuplicate([])
+        },
+    })
+    const findContactDuplicate = useCallback(()=> {
+        if (
+            !isContactDuplicateFetched.current &&
+            isEmpty(contactDuplicate) &&
+            !isLoadingContactDuplicate &&
+            !isEmpty(clientPhone) &&
+            clientPhone.length === 12 &&
+            !isNull(selectedUnitType) &&
+            !isNull(selectedUnitName) &&
+            !isNull(selectedPropertyId) &&
+            !isNull(clientName)
+        ) {
+            searchContactDuplicate({
+                variables: {
+                    where: {
+                        organization: {
+                            id_in: organization.id,
+                        },
+                        name_in: clientName,
+                        phone_in: clientPhone,
+                        property: { id_in: selectedPropertyId },
+                        unitName_in: selectedUnitName,
+                        unitType_in: selectedUnitType,
+                        deletedAt: null,
+                    },
+                },
+            })
+            isContactDuplicateFetched.current = true
+        }
+    }, [isLoadingContactDuplicate, selectedUnitType, selectedUnitName, selectedPropertyId, clientName, clientPhone, contactDuplicate])
+    useEffect( ()=> {
+        findContactDuplicate()
+    }, [isLoadingContactDuplicate, selectedUnitType, selectedUnitName, selectedPropertyId, clientName, clientPhone, contactDuplicate])
 
     const action = Contact.useCreate({
         organization: { connect: { id: organization.id } },
@@ -205,7 +260,12 @@ export const CreateContactForm: React.FC = () => {
                                             required
                                             validateFirst
                                             rules={validations.name}>
-                                            <Input placeholder={FullNamePlaceholderMessage}/>
+                                            <Input
+                                                onChange={(e) => {
+                                                    setContactDuplicate([])
+                                                    setClientName(e.target.value)
+                                                }}
+                                                placeholder={FullNamePlaceholderMessage}/>
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
@@ -218,7 +278,11 @@ export const CreateContactForm: React.FC = () => {
                                             rules={validations.phone}
                                             {...INPUT_LAYOUT_PROPS}
                                         >
-                                            <PhoneInput placeholder={ExamplePhoneMessage} block/>
+                                            <PhoneInput onChange={(e) => {
+                                                String(e).length < 12 && setContactDuplicate([])
+                                                setClientPhone(e)
+                                            }}
+                                            placeholder={ExamplePhoneMessage} block/>
                                         </Form.Item>
                                     </Col>
                                     <Col lg={18} xs={24}>
@@ -257,6 +321,7 @@ export const CreateContactForm: React.FC = () => {
                                         ({ getFieldsValue, getFieldError }) => {
                                             const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
                                             const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
+                                            const hasContactDuplicate = !isEmpty(contactDuplicate)
                                             return (
                                                 <Row gutter={[0, 24]}>
                                                     <Col span={24}>
@@ -266,7 +331,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={!property || !unitName || !phone || !name || !!propertyMismatchError}
+                                                                disabled={!property || !unitName || !phone || !name || !!propertyMismatchError || hasContactDuplicate}
                                                                 style={{ marginRight: 24 }}
                                                             >
                                                                 {SubmitButtonLabel}
@@ -277,6 +342,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 unit={unitName}
                                                                 name={name}
                                                                 propertyMismatchError={propertyMismatchError}
+                                                                hasContactDuplicate={hasContactDuplicate}
                                                             />
                                                         </BottomLineWrapper>
                                                     </Col>

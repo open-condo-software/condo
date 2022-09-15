@@ -1066,6 +1066,7 @@
   "contact.EmptyList.title": "Добавьте первого, это просто",
   "contact.ConfirmDeleteTitle": "Удалить жителя?",
   "contact.ConfirmDeleteMessage": "Все данные о жителе сотрутся навсегда",
+  "contact.ContactDuplicateError": "Контакт с таким номером телефона уже зарегистрирован в этом помещении",
   "focus.tooltipText": "Теперь вы можете перейти к следующему шагу",
   "onboarding.title": "С чего начать?",
   "onboarding.subtitle": "Данные подсказки помогут вам быстрее познакомиться с продуктом",
