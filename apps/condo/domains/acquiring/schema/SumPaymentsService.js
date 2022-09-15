@@ -12,14 +12,14 @@ const SumPaymentsService = new GQLCustomSchema('SumPaymentsService', {
     types: [
         {
             access: true,
-            type: 'type SumPaymentsOutput { sum: String! }',
+            type: 'type PaymentsSumOutput { sum: String! }',
         },
     ],
 
     queries: [
         {
             access: access.canSumPayments,
-            schema: '_allPaymentsSum(where: PaymentWhereInput!): SumPaymentsOutput',
+            schema: '_allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { where } = args
                 const paymentLoader = new GqlWithKnexLoadList({

@@ -32932,7 +32932,7 @@ export type Query = {
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
-  _allPaymentsSum?: Maybe<SumPaymentsOutput>;
+  _allPaymentsSum?: Maybe<PaymentsSumOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
@@ -44171,8 +44171,8 @@ export type StartPasswordRecoveryOutput = {
   status: Scalars['String'];
 };
 
-export type SumPaymentsOutput = {
-  __typename?: 'SumPaymentsOutput';
+export type PaymentsSumOutput = {
+  __typename?: 'PaymentsSumOutput';
   sum: Scalars['String'];
 };
 
