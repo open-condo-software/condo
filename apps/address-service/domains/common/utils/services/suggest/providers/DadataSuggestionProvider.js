@@ -171,6 +171,8 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             },
         )
 
+        //TODO(nas): add some calls counter (maybe datadog)
+
         const status = result.status
         if (status === 200) {
             const response = await result.json()
