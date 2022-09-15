@@ -4733,12 +4733,6 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
-  version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
-  languageName: node
-  linkType: soft
-
 "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry":
   version: 0.0.0-use.local
   resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fregistry%40workspace%3Aapps%2Fregistry"
@@ -9077,12 +9071,6 @@ __metadata:
   checksum: c1d2b6444d1803b2754653ce4d5f061a142dd0bc6fcfa889f9225ce35efdce95a8c046e22f2b92d33e7467898d821117c9c179c966717506dc6c94a653fa7a7e
   languageName: node
   linkType: hard
-
-"@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
-  version: 0.0.0-use.local
-  resolution: "@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
-  languageName: node
-  linkType: soft
 
 "@protobufjs/aspromise@npm:^1.1.1, @protobufjs/aspromise@npm:^1.1.2":
   version: 1.1.2
