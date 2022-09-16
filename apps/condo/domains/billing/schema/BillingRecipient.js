@@ -29,7 +29,7 @@ const BillingRecipient = new GQLListSchema('BillingRecipient', {
         iec: {
             schemaDoc: 'Importer-Exporter Code',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         bic: {

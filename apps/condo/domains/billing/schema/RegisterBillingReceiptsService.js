@@ -74,7 +74,7 @@ const errors = {
 
 const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
-const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, iec, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, iec, bic].join('_')
+const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, bic].join('_')
 
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
     const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId } }
@@ -285,9 +285,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'category: BillingCategoryWhereUniqueInput! ' +
 
                     'tin: String! ' +
-                    'iec: String! ' + // Is going to be made optional in future
-                    'bic: String! ' +
+                    'routingNumber: String! ' +
                     'bankAccount: String! ' +
+
+                    'tinMeta: JSON ' +
+                    'routingNumberMeta: JSON ' +
 
                     'raw: JSON ' +
                 '}',
@@ -328,9 +330,15 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
-                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, tin, iec, bic, bankAccount, raw } = receiptsInput[i]
+                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
+                    const { tin, tinMeta, routingNumber, bankAccount } = receiptsInput[i]
+
                     // Todo: (DOMA-2225) migrate it to address service
                     let { normalizedAddress } = receiptsInput[i]
+
+                    // Todo: (DOMA-3252) migrate it to new recipients
+                    const iec = get(tinMeta, 'iec')
+                    const bic = routingNumber
 
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
