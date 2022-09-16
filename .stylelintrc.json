@@ -5,7 +5,13 @@
   ],
   "rules": {
     "no-empty-first-line": null,
-    "no-missing-end-of-source-newline": null
+    "no-missing-end-of-source-newline": null,
+    "property-no-vendor-prefix": [true, {
+      "ignoreProperties": [
+        "mask-composite",
+        "background-clip"
+      ]
+    }]
   },
   "overrides": [
     {

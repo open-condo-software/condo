@@ -1,0 +1,183 @@
+@import "antd/lib/button/style/index.less";
+@import "@condo/ui/src/tokens/variables.less";
+@import "./mixins";
+
+@condo-button-padding-vert: @condo-global-spacing-12;
+@condo-button-padding-hor: @condo-global-spacing-20;
+@condo-button-border-width: @condo-global-border-width-default;
+@condo-button-line-height: @condo-global-typography-h4-line-height;
+@condo-button-focus-outline-width: @condo-global-border-width-default * 2;
+@condo-button-border-radius: @condo-global-border-radius-medium;
+@condo-button-gap: @condo-global-spacing-8;
+
+.condo-btn {
+  position: relative;
+  font-weight: @condo-global-typography-h4-font-weight;
+  font-size: @condo-global-typography-h4-font-size;
+  font-family: @condo-global-typography-h4-font-family;
+  letter-spacing: @condo-global-typography-h4-letter-spacing;
+  text-shadow: none;
+  border-radius: @condo-button-border-radius;
+  box-shadow: none;
+  transition: none;
+
+  span {
+    position: relative;
+    z-index: 1;
+  }
+
+  span + span {
+    margin-left: @condo-button-gap;
+  }
+
+  // After layer is used to show gradient outline on tab-focusing
+  &:focus-visible::after {
+    .condo-btn-layer(-@condo-button-focus-outline-width);
+
+    box-sizing: border-box;
+    background: @condo-global-color-brand-gradient-5 border-box;
+    border: @condo-button-focus-outline-width solid transparent;
+    border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
+    opacity: 1;
+    mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  &-primary {
+    .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
+    @condo-button-padding-hor, 0);
+
+    color: @condo-global-color-white;
+    background: @condo-global-color-black;
+
+    &:focus {
+      background: @condo-global-color-black;
+    }
+
+    &:hover {
+      background: @condo-global-color-brand-gradient-5;
+    }
+
+    &:active {
+      background: @condo-global-color-brand-gradient-7;
+    }
+
+    &.condo-btn-dangerous {
+      background: @condo-global-color-red-5;
+
+      &:focus {
+        background: @condo-global-color-red-5;
+      }
+
+      &:hover {
+        background: @condo-global-color-red-7;
+      }
+
+      &:active {
+        background: @condo-global-color-red-5;
+      }
+    }
+
+    &:disabled,
+    &:disabled:hover,
+    &:disabled:active,
+    &:disabled:focus,
+    &.condo-btn-dangerous:disabled,
+    &.condo-btn-dangerous:disabled:hover,
+    &.condo-btn-dangerous:disabled:active,
+    &.condo-btn-dangerous:disabled:focus {
+      color: @condo-global-color-white;
+      background: @condo-global-color-black;
+      opacity: @condo-global-opacity-disabled;
+    }
+  }
+
+  &-secondary {
+    .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
+    @condo-button-padding-hor, 0);
+
+    &,
+    &:focus {
+      .condo-btn-secondary-color(@condo-global-color-black, @condo-global-color-black);
+    }
+
+    &:hover {
+      .condo-btn-secondary-color(@condo-global-color-brand-gradient-5, @condo-global-color-green-5);
+    }
+
+    &:active {
+      .condo-btn-secondary-color(@condo-global-color-brand-gradient-7, @condo-global-color-green-7);
+    }
+
+    &.condo-btn-dangerous {
+      &,
+      &:focus {
+        .condo-btn-secondary-color(@condo-global-color-red-5, @condo-global-color-red-5);
+      }
+
+      &:hover {
+        .condo-btn-secondary-color(@condo-global-color-red-7, @condo-global-color-red-7);
+      }
+
+      &:active {
+        .condo-btn-secondary-color(@condo-global-color-red-5, @condo-global-color-red-5);
+      }
+
+      &::before,
+      &:focus::before {
+        background: @condo-global-color-red-5 border-box;
+      }
+
+      &:hover::before {
+        background: @condo-global-color-red-7 border-box;
+      }
+
+      &:active::before {
+        background: @condo-global-color-red-5 border-box;
+      }
+    }
+
+    // Used button before element for gradient border with radius
+    &::before {
+      .condo-btn-layer(0);
+
+      box-sizing: border-box;
+      border: @condo-button-border-width solid transparent;
+      opacity: 1;
+      mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+    }
+
+    &::before,
+    &:focus::before {
+      background: @condo-global-color-gray-7 border-box;
+    }
+
+    &:hover::before {
+      background: @condo-global-color-brand-gradient-5 border-box;
+    }
+
+    &:active::before {
+      background: @condo-global-color-brand-gradient-7 border-box;
+    }
+
+    &:disabled,
+    &:disabled:hover,
+    &:disabled:active,
+    &:disabled:focus,
+    &.condo-btn-dangerous:disabled,
+    &.condo-btn-dangerous:disabled:hover,
+    &.condo-btn-dangerous:disabled:active,
+    &.condo-btn-dangerous:disabled:focus {
+      .condo-btn-secondary-color(@condo-global-color-black, @condo-global-color-black);
+
+      opacity: @condo-global-opacity-disabled;
+
+      &::before {
+        background: @condo-global-color-gray-7;
+      }
+    }
+  }
+}

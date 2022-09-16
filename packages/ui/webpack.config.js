@@ -1,6 +1,7 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
+const lessLoader = require('./less-loader.config.json')
 
 const baseCssLoaders = [
     MiniCssExtractPlugin.loader,
@@ -11,6 +12,7 @@ const baseCssLoaders = [
 module.exports = {
     mode: 'production',
     entry: {
+        'index': './src/index.ts',
         'colors/index': './src/colors/index.ts',
     },
     output: {
@@ -44,7 +46,7 @@ module.exports = {
             },
             {
                 test: /\.less$/,
-                use: [...baseCssLoaders, 'less-loader'],
+                use: [...baseCssLoaders, lessLoader],
             },
             {
                 test: /\.js$/,
