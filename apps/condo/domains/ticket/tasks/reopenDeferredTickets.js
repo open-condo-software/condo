@@ -1,10 +1,13 @@
+const dayjs = require('dayjs')
+const { isEmpty, get } = require('lodash')
+
 const { createCronTask } = require('@condo/keystone/tasks')
 const { getSchemaCtx } = require('@condo/keystone/schema')
-const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const dayjs = require('dayjs')
-const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-const { isEmpty } = require('lodash')
 const { getLogger } = require('@condo/keystone/logging')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+
 const CHUNK_SIZE = 50
 
 const appLogger = getLogger('condo')
@@ -38,13 +41,37 @@ const reopenDeferredTickets = async () => {
         // TODO(DOMA-4155): Update ticket can break on getOrCreateContactByClientData
         for (const ticket of ticketsToChange) {
             try {
-                await Ticket.update(adminContext, ticket.id, {
+                const updatedData = {
                     dv: 1,
                     sender: { fingerprint: 'auto-reopen', dv: 1 },
-                    executor: { disconnectAll: true },
-                    assignee: { disconnectAll: true },
                     status: { connect: { id: STATUS_IDS.OPEN } },
-                })
+                }
+                const assigneeId = get(ticket, ['assignee', 'id'])
+                const executorId = get(ticket, ['executor', 'id'])
+                const organizationId = get(ticket, ['organization', 'id'])
+                if (assigneeId) {
+                    const employeeCount = await OrganizationEmployee.count(keystone, {
+                        user: { id: assigneeId },
+                        organization: { id: organizationId },
+                        isBlocked: false,
+                        deletedAt: null,
+                    })
+                    if (!employeeCount) {
+                        updatedData.assignee = { disconnectAll: true }
+                    }
+                }
+                if (executorId) {
+                    const employeeCount = await OrganizationEmployee.count(keystone, {
+                        user: { id: executorId },
+                        organization: { id: organizationId },
+                        isBlocked: false,
+                        deletedAt: null,
+                    })
+                    if (!employeeCount) {
+                        updatedData.executor = { disconnectAll: true }
+                    }
+                }
+                await Ticket.update(adminContext, ticket.id, updatedData)
             } catch (error) {
                 taskLogger.error({
                     msg: 'Failed to update Ticket',
