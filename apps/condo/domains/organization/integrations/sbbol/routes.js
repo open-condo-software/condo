@@ -40,7 +40,9 @@ class SbbolRoutes {
             }
 
             // This is NOT a `TokenSet` record from our schema
+            console.log('>>> sbbolAuthApi.completeAuth')
             const tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
+            console.log('>>> sbbolAuthApi.completeAuth completed')
             const { keystone } = await getSchemaCtx('User')
             const { access_token } = tokenSet
             const userInfo = await sbbolAuthApi.fetchUserInfo(access_token)

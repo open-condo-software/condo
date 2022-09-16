@@ -95,11 +95,14 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
         password: faker.internet.password(),
     }
 
+    console.log('>>> syncUser')
     const user = await syncUser({ context, userInfo: userData })
+    console.log('>>> syncOrganization')
     const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
+    console.log('>>> syncTokens')
     await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user })
 
-    await syncSubscriptions()
+    // await syncSubscriptions()
 
     const organizationEmployeeId = await getOrganizationEmployee({ context, user, organization })
     if (!organizationEmployeeId) {

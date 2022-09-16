@@ -1,5 +1,6 @@
 // Todo(zuch): need to write JWT verification
 
+const fs = require('fs')
 const { Issuer, custom } = require('openid-client') // certified openid client will all checks
 const jwtDecode = require('jwt-decode') // decode jwt without validation
 const util = require('util')
@@ -35,12 +36,33 @@ class SbbolOauth2Api {
         })
         client[custom.http_options] = (options) => {
             if (SBBOL_PFX.certificate) {
+                // Trying to solve an error "unable to verify the first certificate" when using only `SBBOL_PFX.certificate`
+                //
+                // TLS-certificate, that technical support has created is self-signed and needs appropriate CA to be set
+                // Test certificates in 'sbbol-test-certs' folder can be downloaded from https://developers.sber.ru/docs/ru/sberbusinessapi/start/tls
+                //
+                // Trying to attach certificate authorities to debug in dev-environment of SBBOL under localhost
+                // https://github.com/panva/node-openid-client/blob/main/docs/README.md#issuer
+                // > The following options can be provided agent, ca, cert, crl, headers, key, lookup, passphrase, pfx, timeout. These are all relayed to https://nodejs.org/api/https.html#httpsrequesturl-options-callback
+                const ca = [
+                    // This two certificates are a chain of obtained from SBBOL support
+                    // fs.readFileSync('./sbbol-test-certs/SberCA Test Int.pem'),
+                    // fs.readFileSync('./sbbol-test-certs/SberCA Test Root Int.pem'),
+                    // These are not part of chain. If they will be attached, SBBOL server responds with error
+                    // fs.readFileSync('./sbbol-test-certs/Test Root CA.pem'),
+                    // fs.readFileSync('./sbbol-test-certs/sberca-test-ext.pem'),
+                    // fs.readFileSync('./sbbol-test-certs/sberca-test-root-ext.pem'),
+                    // fs.readFileSync('./sbbol-test-certs/Sberbank Test Issuing CA.pem'),
+                ]
+                console.debug('>> ca', ca)
                 return {
                     ...options,
                     https: {
                         pfx: Buffer.from(SBBOL_PFX.certificate, 'base64'),
                         passphrase: SBBOL_PFX.passphrase,
+                        // ca,
                         ...(SBBOL_PFX.https || {}),
+                        // checkServerIdentity: () => null,
                     },
                 }
             }
@@ -84,7 +106,9 @@ class SbbolOauth2Api {
     }
 
     async completeAuth (inputOrReq, checks) {
+        console.log('>> completeAuth') // Here fails with "unable to verify the first certificate"
         const params = this.client.callbackParams(inputOrReq)
+        console.debug('>> this.client.callbackParams', params)
         return await this.client.callback(this.redirectUrl, params, checks)
     }
 
