@@ -1,8 +1,10 @@
 Система: {{ message.meta.os }}
 Версия приложения: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не указан{% endif %}
-Лицевой счёт: {{ message.meta.personalAccount }}
-Адрес: {{ message.meta.address }}
+{% for resident in message.meta.residentsExtraInfo %}
+    Адрес: {{ resident.address }}.
+    Лицевой счёт: {{ resident.accountNumber }}.
+{% endfor %}
 Сообщение: {{ message.meta.text | safe }}
 УК:
 {%- if message.meta.organizationsData.length == 0 -%}

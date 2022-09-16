@@ -9,7 +9,7 @@ const { MESSAGE_FORWARDED_TO_SUPPORT_TYPE } = require('@condo/domains/notificati
 const { SUPPORT_EMAIL } = require('@condo/domains/common/constants/requisites')
 const { get } = require('lodash')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
@@ -39,7 +39,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
         },
         {
             access: true,
-            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, personalAccount: String!, address: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
+            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
         },
         {
             access: true,
@@ -53,7 +53,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
             schema: 'sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, text, personalAccount, address, emailFrom, attachments = [], os, appVersion, lang } = data
+                const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang } = data
 
                 const user = get(context, ['req', 'user'])
                 if (!user) throw new Error('You cant execute sendMessageToSupport without user context!')
@@ -92,12 +92,21 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
                 const residents = await Resident.getAll(context, { user: { id: user.id } })
 
-                const organizationsIds = residents.reduce((accumulatedData, resident) => {
+                const organizationsIds = []
+                const residentsExtraInfo = []
+                for (let resident of residents) {
                     if (resident.organization && resident.organization.id) {
-                        return [...accumulatedData, resident.organization.id]
+                        organizationsIds.push(resident.organization.id)
                     }
-                    return accumulatedData
-                }, [])
+
+                    const residentInfo = { address: resident.address, accountNumber: null }
+
+                    const serviceConsumer = await ServiceConsumer.getOne(context, { resident: { id: resident.id } })
+                    if (serviceConsumer)
+                        residentInfo.accountNumber = serviceConsumer.accountNumber
+
+                    residentsExtraInfo.push(residentInfo)
+                }
 
                 let organizationsData = []
                 if (organizationsIds.length > 0) {
@@ -116,8 +125,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     meta: {
                         dv,
                         text,
-                        personalAccount,
-                        address,
+                        residentsExtraInfo,
                         os,
                         appVersion,
                         organizationsData,
