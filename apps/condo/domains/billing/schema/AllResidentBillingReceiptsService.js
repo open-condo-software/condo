@@ -115,7 +115,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         context,
                         receiptsQuery,
                         {
-                            sortBy, first, skip,
+                            first, skip, sortBy,
                         }
                     )
                     receiptsForConsumer.forEach(receipt => processedReceipts.push({
@@ -131,6 +131,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         services: receipt.services,
                         printableNumber: receipt.printableNumber,
                         serviceConsumer: serviceConsumer,
+                        priority: get(receipt, ['contet', 'priority']),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                     }))
                 }
