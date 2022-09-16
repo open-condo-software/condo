@@ -1,0 +1,42 @@
+.condo-btn(@line-height, @vert-padding, @hor-padding, @border-width) {
+  box-sizing: border-box;
+  height: @line-height + @vert-padding * 2;
+  padding: @vert-padding - @border-width @hor-padding - @border-width;
+  line-height: @line-height;
+  border-width: @border-width;
+}
+
+.condo-btn-layer(@margin) {
+  position: absolute;
+  top: @margin;
+  right: @margin;
+  bottom: @margin;
+  left: @margin;
+  display: block;
+  border-radius: inherit;
+  content: "";
+}
+
+.condo-btn-gradient-text (@gradient) {
+  background: @gradient;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.condo-btn-secondary-color (@text-color, @icon-color) {
+  color: @text-color;
+  background: transparent;
+  border: none;
+
+  & > span {
+    .condo-btn-gradient-text(@text-color);
+  }
+
+  & > .condo-btn-icon {
+    color: @icon-color;
+
+    & svg {
+      fill: @icon-color;
+    }
+  }
+}

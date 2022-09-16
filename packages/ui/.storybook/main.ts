@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/react/types'
+import lessLoader from '../less-loader.config.json'
 
 const baseCssLoaders = [
     'style-loader',
@@ -34,7 +35,7 @@ const config: StorybookConfig = {
         modifiedRules.push({
             test: /\.less$/,
             sideEffects: true,
-            use: [...baseCssLoaders, 'less-loader']
+            use: [...baseCssLoaders, lessLoader]
         })
 
         config.module = { ...config.module, rules: modifiedRules }

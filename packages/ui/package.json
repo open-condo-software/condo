@@ -41,11 +41,15 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
+    ".": "./dist/index.js",
     "./colors": "./dist/colors/index.js",
     "./src/": "./src/"
   },
   "typesVersions": {
     "*": {
+      "index.d.ts": [
+        "dist/index.d.ts"
+      ],
       "colors": [
         "dist/colors/index.d.ts"
       ]
@@ -100,5 +104,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "antd": "^4.23.1",
+    "classnames": "^2.3.2"
   }
 }
