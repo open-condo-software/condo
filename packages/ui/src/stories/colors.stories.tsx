@@ -75,9 +75,11 @@ export default {
     component: ColorPalette,
     parameters: {
         options: { showPanel: false },
+        controls: { disabled: true },
     },
 } as ComponentMeta<typeof ColorPalette>
 
 const Template: ComponentStory<typeof ColorPalette> = (args) => <ColorPalette {...args}/>
 
-export const DOM = Template.bind({}, { namespace: 'dom' })
+export const DOM = Template.bind({})
+DOM.args = { namespace: 'dom' }
