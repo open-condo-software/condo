@@ -197,7 +197,7 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
             <ModalContext.Provider value={{ progress, error, isImported }}>
                 <DataImporter onUpload={handleUpload}>
                     <Popover
-                        title={<Typography.Text style={{ fontWeight: 'bold' }}>{ImportPopoverTitle}</Typography.Text>}
+                        title={ImportPopoverTitle}
                         content={<ColumnsInfoBox
                             columns={columns}
                             exampleTemplateLink={exampleTemplateLink}

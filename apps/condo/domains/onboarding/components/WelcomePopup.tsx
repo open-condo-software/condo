@@ -1,75 +1,22 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { Col, Image, Row, Typography, Modal } from 'antd'
-import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
-import { fontSizes, colors, WELCOME_POPUP_BACKGROUND_COLORS } from '@condo/domains/common/constants/style'
-import { Button } from '@condo/domains/common/components/Button'
+import styled from '@emotion/styled'
+import { jsx } from '@emotion/react'
+import { Col, Image, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+
 import { useIntl } from '@condo/next/intl'
 
-const modalCss = css`
-  .ant-modal-content {
-    padding: 0;
-  }
+import { Modal } from '@condo/domains/common/components/Modal'
+import { fontSizes, colors, WELCOME_POPUP_BACKGROUND_COLORS } from '@condo/domains/common/constants/style'
+import { Button } from '@condo/domains/common/components/Button'
 
-  .ant-image-img {
-    width: auto;
-    max-width: 100%;
-  }
-
-  .ant-modal-header {
-    border-bottom: none;
-    padding: 40px;
-    
-    .ant-typography {
-      font-weight: 700;
-      font-size: 20px;
-      line-height: 28px;
-    }
-  }
-  
-  .ant-modal-body {
-    padding: 0 40px 20px 40px;
-    
-    .ant-col {
-      display: flex;
-      align-items: flex-end;
-    }
-  }
-
-  .ant-modal-footer {
-    padding: 0;
-    
-    .ant-btn {
-      border: 1px solid ${colors.inputBorderGrey};
-      padding: 4px 15px;
-    }
-  }
+const StyledButton = styled(Button)`
+  border: 1px solid ${colors.inputBorderGrey} !important;
+  padding: 4px 15px;
 `
 
-const crossIconStyles = css`
-  position: relative;
-  bottom: 8px;
-  right: 3px;
-`
-
-const ModalHeader = ({ handleModalClose }) => {
-    const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'WelcomePopup.title' })
-
-    return (
-        <Row justify='space-between'>
-            <Col>
-                <Typography.Title level={3}>{TitleMessage}</Typography.Title>
-            </Col>
-            <Col>
-                <CrossIcon onClick={handleModalClose} css={crossIconStyles}/>
-            </Col>
-        </Row>
-    )
-}
-
-const MODAL_ROW_STYLES = { padding: '20px 40px' }
+const MEDIUM_COLUMN_GUTTER: [Gutter, Gutter] = [20, 0]
 
 const ModalFooter = ({ step, setStep, handleModalClose }) => {
     const intl = useIntl()
@@ -79,18 +26,18 @@ const ModalFooter = ({ step, setStep, handleModalClose }) => {
     const handlePrevStepButtonClick = useCallback(() => setStep(currentStep => currentStep - 1), [setStep])
 
     return (
-        <Row style={MODAL_ROW_STYLES} justify='space-between'>
+        <Row justify='space-between'>
             <Col>
-                <Row gutter={[20, 0]}>
+                <Row gutter={MEDIUM_COLUMN_GUTTER}>
                     <Col>
-                        <Button onClick={handlePrevStepButtonClick} disabled={step === 0} type='text'>
+                        <StyledButton onClick={handlePrevStepButtonClick} disabled={step === 0} type='text'>
                             ←
-                        </Button>
+                        </StyledButton>
                     </Col>
                     <Col>
-                        <Button onClick={handleNextStepButtonClick} disabled={step === 2} type='text'>
+                        <StyledButton onClick={handleNextStepButtonClick} disabled={step === 2} type='text'>
                             →
-                        </Button>
+                        </StyledButton>
                     </Col>
                 </Row>
             </Col>
@@ -116,9 +63,13 @@ type WelcomePopupStep = {
 }
 
 const BODY_TEXT_STYLES = { fontSize: fontSizes.content, lineHeight: '24px', letterSpacing: '-0.01em' }
+const BIG_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
+const MEDIUM_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const SMALL_ROW_GUTTER: [Gutter, Gutter] = [0, 12]
 
 export function WelcomePopup () {
     const intl = useIntl()
+    const TitleMessage = intl.formatMessage({ id: 'WelcomePopup.title' })
 
     const [step, setStep] = useState(0)
     const [visible, setVisible] = useState(true)
@@ -152,23 +103,20 @@ export function WelcomePopup () {
 
     return (
         <Modal
-            css={modalCss}
-            centered
             visible={visible}
-            closable={false}
             onCancel={handleModalClose}
-            title={<ModalHeader handleModalClose={handleModalClose}/>}
+            titleText={TitleMessage}
             footer={<ModalFooter step={step} setStep={setStep} handleModalClose={handleModalClose}/>}
             width={570}
         >
-            <Row gutter={[0, 24]}>
+            <Row gutter={BIG_ROW_GUTTER}>
                 <Col span={24} style={backgroundImageStyles}>
-                    <Row gutter={[0, 20]}>
+                    <Row gutter={MEDIUM_ROW_GUTTER}>
                         {stepImages}
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Row gutter={[0, 12]}>
+                    <Row gutter={SMALL_ROW_GUTTER}>
                         <Col>
                             <Typography.Title level={5}>
                                 {intl.formatMessage({ id: `WelcomePopup.step${step + 1}.title` })}

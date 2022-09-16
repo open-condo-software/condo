@@ -2,17 +2,11 @@ import React, { useMemo } from 'react'
 import styled from '@emotion/styled'
 import { Modal as AntdModal, ModalProps as AntdModalProps, Typography } from 'antd'
 import isString from 'lodash/isString'
-import isNumber from 'lodash/isNumber'
 
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 
-type StyledModalProps = AntdModalProps & {
-    maxWidth?: string
-}
-
-const StyledModal = styled(AntdModal)<StyledModalProps>`
-  max-width: ${({ maxWidth }) => maxWidth};
+const StyledModal = styled(AntdModal)`
   margin: 40px 0;
     
   button.ant-modal-close {
@@ -39,14 +33,7 @@ const StyledModal = styled(AntdModal)<StyledModalProps>`
   .ant-modal-header {    
     flex-shrink: 0;
     border-bottom: none;
-    padding: 40px 40px 20px;
-    
-    .ant-typography {
-      width: calc(100% - 40px);
-      font-weight: 700;
-      font-size: ${fontSizes.large};
-      line-height: 28px;
-    }
+    padding: 40px 104px 20px 40px;
   }
     
   .ant-modal-body {
@@ -66,28 +53,25 @@ type ModalProps = AntdModalProps & {
     titleText?: string
 }
 
+const TITLE_STYLE: React.CSSProperties = { fontWeight: 700, fontSize: fontSizes.large, lineHeight: '28px' }
+
 export const Modal: React.FC<ModalProps> = ({ title, titleText, width = 570, ...otherProps }) => {
     const Title = useMemo(() => {
         if (titleText) {
-            return <Typography.Title level={3}>{titleText}</Typography.Title>
+            return <Typography.Title level={3} style={TITLE_STYLE}>{titleText}</Typography.Title>
         }
         if (isString(title)) {
-            return <Typography.Title level={3}>{title}</Typography.Title>
+            return <Typography.Title level={3} style={TITLE_STYLE}>{title}</Typography.Title>
         }
         return title
     }, [title, titleText])
-
-    const maxWidth = useMemo(() => {
-        return isNumber(width) ? `${width}px` : width
-    }, [width])
 
     return (
         <StyledModal
             centered
             closeIcon={<CrossIcon />}
             title={Title}
-            maxWidth={maxWidth}
-            width={null}
+            width={width}
             {...otherProps}
         />
     )

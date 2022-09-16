@@ -83,7 +83,7 @@ export const useUpdateMeterModal = (refetch) => {
                 propertyId={get(selectedMeter, ['property', 'id'])}
                 unitName={get(selectedMeter, 'unitName')}
                 initialValues={initialValues}
-                ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} {meterNumber}</Typography.Title>}
+                ModalTitleMsg={`${MeterNumberMessage} ${meterNumber}`}
                 visible={selectedMeter}
                 modalExtraFooter={modalFooter}
                 handleSubmit={handleSubmit}

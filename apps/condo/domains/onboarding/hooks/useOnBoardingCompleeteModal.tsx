@@ -33,7 +33,7 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
     const OnBoardingCompleteModal: React.FC = () => (
         <Modal
             closable={false}
-            title={<Typography.Title level={3}>{OnBoardingCompleteTitle}</Typography.Title>}
+            title={OnBoardingCompleteTitle}
             visible={isVisible}
             footer={[
                 <Button size='large' key='submit' type='sberPrimary' onClick={() => {

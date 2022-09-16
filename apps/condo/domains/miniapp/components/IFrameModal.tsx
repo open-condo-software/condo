@@ -36,10 +36,7 @@ const IFrameModal: React.FC<IIFrameModalProps> = React.memo((props) => {
             visible
             centered
             footer={null}
-            bodyStyle={MODAL_BODY_STYLES}
-            style={MODAL_STYLES}
             onCancel={handleClose}
-            closeIcon={<CrossIcon/>}
             closable={closable}
         >
             <IFrame

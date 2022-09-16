@@ -13,12 +13,13 @@ interface IApplySubscriptionModal {
 
 export const useSubscriptionPaymentModal = (): IApplySubscriptionModal => {
     const intl = useIntl()
+    const TitleMessage = intl.formatMessage({ id: 'subscription.modal.complete.title' })
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
 
     const SubscriptionPaymentModal: React.FC = () => (
         <Modal
-            title={<Typography.Title level={3}>{intl.formatMessage({ id: 'subscription.modal.complete.title' })}</Typography.Title>}
+            title={TitleMessage}
             visible={isVisible}
             onCancel={() => setIsVisible(false)}
             footer={[

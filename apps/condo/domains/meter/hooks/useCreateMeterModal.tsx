@@ -44,7 +44,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
                 unitName={unitName}
                 unitType={unitType}
                 initialValues={initialValues}
-                ModalTitleMsg={<Typography.Title level={3}>{AddMeterMessage}</Typography.Title>}
+                ModalTitleMsg={AddMeterMessage}
                 visible={isCreateMeterModalVisible}
                 handleSubmit={handleMeterCreate}
                 showCancelButton={false}

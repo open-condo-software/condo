@@ -94,7 +94,6 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
             onCancel={handleCloseModal}
             centered
             width={600}
-            bodyStyle={{ padding: '30px' }}
             footer={[
                 <Button
                     size='large'

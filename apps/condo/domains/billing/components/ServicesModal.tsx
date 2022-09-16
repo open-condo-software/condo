@@ -58,7 +58,7 @@ const ExpandIconWrapper = styled.div`
 const WideModalStyles = css`
   .services-modal {
     width: fit-content !important;
-    & > .ant-modal-content > .ant-modal-body {
+    & > .ant-modal-content > .ant-modal-body > .ant-table-wrapper {
       width: min-content;
     }
   }
@@ -144,7 +144,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
                 footer={null}
                 centered
                 className='services-modal'
-                style={{ marginTop:40 }}
+                width='auto'
             >
                 <Table
                     bordered
