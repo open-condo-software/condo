@@ -57,12 +57,14 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.company.companyName().replace(/ /, '-').toUpperCase() + ' TEST BILLING INTEGRATION'
     const currencyCode = 'RUB'
+    const country = 'ru'
 
     const attrs = {
         dv: 1,
         sender,
         name,
         currencyCode,
+        country,
         instruction: faker.datatype.string(),
         connectedMessage: faker.company.catchPhrase(),
         isHidden: true,
@@ -703,9 +705,12 @@ function createRegisterBillingReceiptsPayload(extraAttrs) {
         category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
 
         tin: faker.random.alphaNumeric(8),
-        iec: faker.random.alphaNumeric(8),
-        bic: faker.random.alphaNumeric(8),
+        routingNumber: faker.random.alphaNumeric(8),
         bankAccount: faker.random.alphaNumeric(8),
+
+        tinMeta: {
+            iec: faker.random.alphaNumeric(8),
+        },
 
         ...extraAttrs
     }

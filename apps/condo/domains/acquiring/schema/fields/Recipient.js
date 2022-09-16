@@ -8,7 +8,7 @@ const RECIPIENT_FIELDS_DEFINITION = {
     territoryCode: 'String',
     offsettingAccount: 'String',
     tin: 'String!',
-    iec: 'String!',
+    iec: 'String',
     bic: 'String!',
     bankAccount: 'String!',
 }
