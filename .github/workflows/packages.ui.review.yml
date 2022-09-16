@@ -1,0 +1,29 @@
+name: Request UI Review
+
+on:
+  pull_request:
+    types:
+      - labeled
+
+jobs:
+  chromatic:
+    if: ${{ github.event.label.name == '👨🏻‍🎨 Request UI-kit review' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Install packages
+        run: yarn install --immutable
+
+      - name: Publish chromatic build
+        uses: chromaui/action@v1
+        with:
+          workingDir: packages/ui
+          projectToken: ${{ secrets.UI_CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: "build:sb"
