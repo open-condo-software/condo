@@ -1,10 +1,17 @@
 Система: {{ message.meta.os }}
 Версия приложения: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не указан{% endif %}
-{% for resident in message.meta.residentsExtraInfo %}
-    Адрес: {{ resident.address }}.
-    Лицевой счёт: {{ resident.accountNumber }}.
-{% endfor %}
+Информация о резидентах:
+{%- if message.meta.residentsExtraInfo.length == 0 -%}
+  нет
+{%- else -%}
+ {% for resident in message.meta.residentsExtraInfo %}
+    Адрес: {% if resident.address %}{{ resident.address | safe }}{% else %}не указан{% endif %}.
+    Лицевой счёт: {% if resident.accountNumber %}{{ resident.accountNumber | safe }}{% else %}не указан{% endif %}.
+    Категория платежей: {% if resident.paymentCategory %}{{ resident.paymentCategory | safe }}{% else %}не указана{% endif %}.
+
+ {% endfor %}
+{% endif %}
 Сообщение: {{ message.meta.text | safe }}
 УК:
 {%- if message.meta.organizationsData.length == 0 -%}
