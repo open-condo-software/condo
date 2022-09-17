@@ -99,11 +99,13 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                         organizationsIds.push(resident.organization.id)
                     }
 
-                    const residentInfo = { address: resident.address, accountNumber: null }
+                    const residentInfo = { address: resident.address, accountNumber: null, paymentCategory: null }
 
                     const serviceConsumer = await ServiceConsumer.getOne(context, { resident: { id: resident.id } })
-                    if (serviceConsumer)
+                    if (serviceConsumer) {
                         residentInfo.accountNumber = serviceConsumer.accountNumber
+                        residentInfo.paymentCategory = serviceConsumer.paymentCategory
+                    }
 
                     residentsExtraInfo.push(residentInfo)
                 }
