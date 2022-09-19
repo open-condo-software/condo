@@ -7,8 +7,7 @@ const { get, uniq, compact } = require('lodash')
 const access = require('@condo/keystone/access')
 const { find } = require('@condo/keystone/schema')
 
-async function canReadOrganizations (params) {
-    const { authentication: { item: user } } = params
+async function canReadOrganizations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
