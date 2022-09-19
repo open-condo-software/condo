@@ -14,15 +14,15 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const intl = useIntl()
     const router = useRouter()
 
-    const addressTitle = intl.formatMessage({ id: 'field.Address' })
-    const dateTitle = intl.formatMessage({ id: 'Date' })
-    const accountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const unitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
-    const typeTitle = intl.formatMessage({ id: 'PaymentType' })
-    const transactionTitle = intl.formatMessage({ id: 'Transaction' })
-    const paymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
-    const paymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
-    const statusTitle = intl.formatMessage({ id: 'Status' })
+    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
+    const DateTitle = intl.formatMessage({ id: 'Date' })
+    const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const UnitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
+    const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
+    const TransactionTitle = intl.formatMessage({ id: 'Transaction' })
+    const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
+    const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const StatusTitle = intl.formatMessage({ id: 'Status' })
 
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
@@ -35,7 +35,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
 
         const columns = {
             date: {
-                title: dateTitle,
+                title: DateTitle,
                 key: 'advancedAt',
                 dataIndex: ['advancedAt'],
                 sorter: true,
@@ -43,14 +43,14 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 render: getDateRender(intl, String(search)),
             },
             account: {
-                title: accountTitle,
+                title: AccountTitle,
                 key: 'accountNumber',
                 dataIndex: 'accountNumber',
                 width: '120px',
                 render: stringSearch,
             },
             address: {
-                title: addressTitle,
+                title: AddressTitle,
                 key: 'address',
                 sorter: true,
                 render: (obj) => stringSearch(get(
@@ -60,7 +60,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 )),
             },
             unitName: {
-                title: unitNameTitle,
+                title: UnitNameTitle,
                 key: 'unitName',
                 width: '128px',
                 render: (obj) => stringSearch(get(
@@ -70,31 +70,31 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 )),
             },
             type: {
-                title: typeTitle,
+                title: TypeTitle,
                 key: 'type',
                 dataIndex: ['context', 'integration', 'name'],
                 render: stringSearch,
             },
             transaction: {
-                title: transactionTitle,
+                title: TransactionTitle,
                 key: 'transaction',
                 dataIndex: ['multiPayment', 'transactionId'],
                 render: stringSearch,
             },
             status: {
-                title: statusTitle,
+                title: StatusTitle,
                 key: 'status',
                 dataIndex: 'status',
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             order: {
-                title: paymentOrderTitle,
+                title: PaymentOrderTitle,
                 key: 'order',
                 dataIndex: 'order',
                 render: stringSearch,
             },
             amount: {
-                title: paymentAmountTitle,
+                title: PaymentAmountTitle,
                 key: 'amount',
                 dataIndex: 'amount',
                 render: getMoneyRender(intl, currencyCode),
