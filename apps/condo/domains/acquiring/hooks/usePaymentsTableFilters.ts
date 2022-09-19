@@ -32,14 +32,14 @@ export function usePaymentsTableFilters (
     const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
     const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
     const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
-    const accountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const addressMessage = intl.formatMessage({ id: 'pages.condo.payments.billingAddress' })
-    const enterAddressMessage = intl.formatMessage({ id: 'pages.condo.payments.enterBillingAddress' })
-    const typeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
-    const enterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
-    const statusTitle = intl.formatMessage({ id: 'Status' })
-    const paymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
-    const enterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
+    const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const AddressMessage = intl.formatMessage({ id: 'pages.condo.payments.billingAddress' })
+    const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.payments.enterBillingAddress' })
+    const TypeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
+    const EnterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
+    const StatusTitle = intl.formatMessage({ id: 'Status' })
+    const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
 
     const statuses = statusType.map((item) => ({
         name: intl.formatMessage({ id: 'payment.status.' + item }),
@@ -74,7 +74,7 @@ export function usePaymentsTableFilters (
                 component: {
                     type: ComponentType.Input,
                     modalFilterComponentWrapper: {
-                        label: accountTitle,
+                        label: AccountTitle,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -88,11 +88,11 @@ export function usePaymentsTableFilters (
                         search: searchBillingProperty(billingContext),
                         mode: 'multiple',
                         showArrow: true,
-                        placeholder: enterAddressMessage,
+                        placeholder: EnterAddressMessage,
                         infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
-                        label: addressMessage,
+                        label: AddressMessage,
                         size: FilterComponentSize.Large,
                     },
                 },
@@ -106,11 +106,11 @@ export function usePaymentsTableFilters (
                         search: searchAcquiringIntegration(organizationId),
                         mode: 'multiple',
                         showArrow: true,
-                        placeholder: enterTypeMessage,
+                        placeholder: EnterTypeMessage,
                         infinityScroll: true,
                     },
                     modalFilterComponentWrapper: {
-                        label: typeMessage,
+                        label: TypeMessage,
                         size: FilterComponentSize.Large,
                     },
                 },
@@ -121,7 +121,7 @@ export function usePaymentsTableFilters (
                 component: {
                     type: ComponentType.Input,
                     modalFilterComponentWrapper: {
-                        label: paymentOrderTitle,
+                        label: PaymentOrderTitle,
                         size: FilterComponentSize.Medium,
                     },
                 },
@@ -135,10 +135,10 @@ export function usePaymentsTableFilters (
                     props: {
                         mode: 'multiple',
                         showArrow: true,
-                        placeholder: enterStatusMessage,
+                        placeholder: EnterStatusMessage,
                     },
                     modalFilterComponentWrapper: {
-                        label: statusTitle,
+                        label: StatusTitle,
                         size: FilterComponentSize.Medium,
                     },
                 },
