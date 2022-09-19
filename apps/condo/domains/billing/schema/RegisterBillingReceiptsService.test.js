@@ -399,39 +399,6 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(data).toHaveLength(2)
             })
 
-            test('BillingReceipts are created if they have different recipient', async () => {
-
-                const [organization] = await createTestOrganization(admin)
-                const [integration] = await createTestBillingIntegration(admin)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-
-                const receiptInput = createRegisterBillingReceiptsPayload()
-
-                const payload = {
-                    context: { id: billingContext.id },
-                    receipts: [
-                        {
-                            ...receiptInput,
-                            tin: '1',
-                            importId: faker.random.alphaNumeric(24),
-                        },
-                        {
-                            ...receiptInput,
-                            tin: '2',
-                            importId: faker.random.alphaNumeric(24),
-                        },
-                    ],
-                }
-
-                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-                expect(billingProperties).toHaveLength(1)
-                expect(billingReceipts).toHaveLength(2)
-                expect(data).toHaveLength(2)
-            })
-
             test('BillingReceipts are created if they have different categories', async () => {
 
                 const [organization] = await createTestOrganization(admin)
