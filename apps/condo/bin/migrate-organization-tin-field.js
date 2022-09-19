@@ -10,7 +10,7 @@ const { get } = require('lodash')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
+const { validateTin } = require('@condo/domains/banking/utils/validate/tin.utils')
 
 const log = (message, intentChar = null, intentRepeatTimes = 10) => {
     if (intentChar != null) {
@@ -86,7 +86,7 @@ const migrateOrganizationTinField = async () => {
                     // let's assume all organizations at this point has meta.inn values
                     // now we will validate inn and set it to the organization.tin in case if inn are valid
                     const innValue = organization.meta.inn.toString().trim()
-                    const isValid = isValidTin(innValue, organization.country)
+                    const isValid = validateTin(innValue, organization.country).result
 
                     // set valid value
                     if (isValid) {
