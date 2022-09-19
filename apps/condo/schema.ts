@@ -21196,6 +21196,10 @@ export type Mutation = {
    * 			"defaultValue": null,
    * 			"required": true
    * 		},
+   * 		"residentsExtraInfo": {
+   * 			"defaultValue": null,
+   * 			"required": true
+   * 		},
    * 		"os": {
    * 			"defaultValue": null,
    * 			"required": true
