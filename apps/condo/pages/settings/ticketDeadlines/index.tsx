@@ -1,6 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { useIntl } from '@condo/next/intl'
@@ -9,6 +10,8 @@ import {
     TicketDeadlineSettingsAbout,
 } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsAbout'
 
+const ROW_GUTTER: [Gutter, Gutter] = [0, 60]
+
 const TicketDeadlinesContent: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.pageTitle' })
@@ -16,7 +19,7 @@ const TicketDeadlinesContent: React.FC = () => {
     return (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
-            <Row gutter={[0, 60]}>
+            <Row gutter={ROW_GUTTER}>
                 <Col span={24}>
                     <TicketDeadlineSettingsAbout />
                 </Col>

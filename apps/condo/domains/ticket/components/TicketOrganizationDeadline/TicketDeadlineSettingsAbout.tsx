@@ -14,9 +14,18 @@ const LINK_STYLE = { color: colors.black }
 export const TicketDeadlineSettingsAbout: React.FC = () => {
     const intl = useIntl()
     const DescriptionLabel = intl.formatMessage({ id: 'Description' })
-    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.about.description.message' })
-    const LinkLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.about.link.label' })
-    const LinkMessage = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.about.link.message' })
+    const LinkMessage = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.about.description.link.message' })
+    const DescriptionMessage = intl.formatMessage(
+        { id: 'pages.condo.settings.ticketDeadlines.about.description.message' },
+        {
+            link: (
+                <Link href='/ticket/create'>
+                    <Typography.Link style={LINK_STYLE} underline href='/ticket/create' target='_blank'>
+                        {LinkMessage}
+                    </Typography.Link>
+                </Link>
+            ),
+        })
 
     return (
         <Row gutter={MIDDLE_ROW_GUTTERS}>
@@ -27,25 +36,11 @@ export const TicketDeadlineSettingsAbout: React.FC = () => {
                 <Row gutter={SMALL_ROW_GUTTERS}>
                     <Col span={24}>
                         <Row>
-                            <Col span={6}>
+                            <Col span={24} md={5}>
                                 <Typography.Text type='secondary'>{DescriptionLabel}</Typography.Text>
                             </Col>
-                            <Col span={18}>
+                            <Col span={24} md={19}>
                                 <Typography.Text>{DescriptionMessage}</Typography.Text>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col span={24}>
-                        <Row>
-                            <Col span={6}>
-                                <Typography.Text type='secondary'>{LinkLabel}</Typography.Text>
-                            </Col>
-                            <Col span={18}>
-                                <Link href='/ticket/create'>
-                                    <Typography.Link style={LINK_STYLE} underline href='/ticket/create' target='_blank'>
-                                        {LinkMessage}
-                                    </Typography.Link>
-                                </Link>
                             </Col>
                         </Row>
                     </Col>

@@ -714,6 +714,7 @@
   "pages.condo.settings.ticketDeadlines.options.currentDate": "execute on the day the ticket is created",
   "pages.condo.settings.ticketDeadlines.select.label": "Complete by",
   "pages.condo.settings.ticketDeadlines.about.description.message": "In the form for creating and editing a ticket, there is an input field «Run until». Domá automatically fills in this field, adding N-days to the current date. You can choose not to show this field at all or set your own value by default.",
+  "pages.condo.settings.ticketDeadlines.about.description.link.message": "the form for creating",
   "pages.condo.settings.ticketDeadlines.about.link.label": "Link",
   "pages.condo.settings.ticketDeadlines.about.link.message": "Ticket creation form",
   "pages.index.PageTitle": "Analytics",
