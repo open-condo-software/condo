@@ -13,11 +13,14 @@ const PreviewWrapper = styled.div`
 `
 
 const ImageWrapper = styled.div`
+  height: 314px;
   overflow: hidden;
 `
 
 const Image = styled.img`
-  height: 314px;
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
 `
 
 export const TicketDeadlinePreview: React.FC = () => {

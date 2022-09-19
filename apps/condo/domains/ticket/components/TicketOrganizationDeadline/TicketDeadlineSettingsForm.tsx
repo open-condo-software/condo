@@ -15,10 +15,12 @@ import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
-        span: 6,
+        span: 24,
+        md: 5,
     },
     wrapperCol: {
-        span: 10,
+        span: 24,
+        md: 6,
     },
     styled: {
         paddingBottom: '12px',
