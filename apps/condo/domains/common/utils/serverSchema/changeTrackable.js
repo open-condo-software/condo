@@ -242,7 +242,7 @@ const storeChangesIfUpdated = (
         })
 
         if (keys(fieldsChanges).length > 0) {
-            createCallback(fieldsChangesWithRelatedFields, { existingItem, updatedItem, context })
+            await createCallback(fieldsChangesWithRelatedFields, { existingItem, updatedItem, context })
         }
     }
 }
