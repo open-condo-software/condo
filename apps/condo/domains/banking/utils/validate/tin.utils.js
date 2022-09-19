@@ -13,11 +13,13 @@
  * RU TIN with 12 characters - 397144170672
  */
 
+//GENERAL ERRORS
 const EMPTY = 'Tin is empty'
 const NOT_NUMERIC = 'Tin can contain only numeric digits'
-const WRONG_LENGTH_RU = 'Ru tin length was expected to be 10 or 12, but received '
-const CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
 
+//RU ERRORS
+const WRONG_LENGTH_RU = 'Ru tin length was expected to be 10 or 12, but received '
+const RU_CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
 const RU_TIN_WEIGHTS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
 
 
@@ -38,38 +40,36 @@ class TinValidation {
     errors = []
 
     validateRuTin (tin) {
-        if (!tin.length) this.errors.push(EMPTY)
-
         if (!/^[0-9]*$/.test(tin)) this.errors.push(NOT_NUMERIC)
 
         if (tin.length !== 10 && tin.length !== 12) this.errors.push(WRONG_LENGTH_RU + tin.length)
 
-
         if (tin.length === 10)
             if (getTinControlSumRU(tin) !== Number(tin.slice(-1))) {
-                this.errors.push(CONTROL_SUM_FAILED)
+                this.errors.push(RU_CONTROL_SUM_FAILED)
             }
 
         if (tin.length === 12)
             if (getTinControlSumRU(tin.slice(0, 11)) !== Number(tin.slice(10, -1)
                 || getTinControlSumRU(tin) !== Number(tin.slice(-1)))) {
-                this.errors.push(CONTROL_SUM_FAILED)
+                this.errors.push(RU_CONTROL_SUM_FAILED)
             }
+    }
+
+    validateTin (tin, country) {
+        const tinWithoutSpaces = tin.toString().trim()
+
+        if (!tin.length) {
+            this.errors.push(EMPTY)
+        }
+
+        if (country === 'RU')
+            return this.validateRuTin(tinWithoutSpaces)
 
         return {
             result: !this.errors.length,
             errors: this.errors,
         }
-    }
-
-
-    validateTin (tin, country) {
-        const tinWithoutSpaces = tin.toString().trim()
-
-        if (country === 'RU')
-            return this.validateRuTin(tinWithoutSpaces)
-
-        return
     }
 }
 
