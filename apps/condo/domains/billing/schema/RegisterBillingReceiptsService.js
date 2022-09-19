@@ -74,7 +74,7 @@ const errors = {
 
 const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
-const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account, recipient: { tin, bankAccount, bic } }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account), tin, bankAccount, bic].join('_')
+const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account) ].join('_')
 
 const syncBillingProperties = async (context, properties, { billingContextId }) => {
     const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId } }
