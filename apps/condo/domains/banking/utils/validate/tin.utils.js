@@ -64,7 +64,7 @@ class TinValidation {
         }
 
         if (country === 'RU')
-            return this.validateRuTin(tinWithoutSpaces)
+            this.validateRuTin(tinWithoutSpaces)
 
         return {
             result: !this.errors.length,

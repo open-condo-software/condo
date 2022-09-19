@@ -47,7 +47,7 @@ class RoutingNumberValidation {
         }
 
         if (country === 'RU')
-            return this.validateRuRoutingNumber(routingNumberWithoutSpaces)
+            this.validateRuRoutingNumber(routingNumberWithoutSpaces)
 
         return {
             result: !this.errors.length,
