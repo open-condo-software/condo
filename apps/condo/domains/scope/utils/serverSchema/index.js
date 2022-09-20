@@ -18,10 +18,56 @@ const PropertyScopeProperty = generateServerUtils(PropertyScopePropertyGQL)
 const SpecializationScope = generateServerUtils(SpecializationScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
+async function createDefaultPropertyScopeForNewOrganization (context, organization, dvSenderData) {
+    // TODO(DOMA-4065): Узнать какое имя должно быть у дефолтного скопа, сделать переводы, доставать из организации локаль (?)
+    await PropertyScope.create(context, {
+        name: 'Default',
+        organization: { connect: { id: organization.id } },
+        isDefault: true,
+        ...dvSenderData,
+    })
+}
+
+async function managePropertyScopeOrganizationEmployee (context, existingItem, updatedItem, operation) {
+    const isCreateOperation = operation === 'create'
+    const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
+    const { dv, sender } = updatedItem
+
+    if (isCreateOperation || isSoftDeleteOperation) {
+        const employeeId = updatedItem.id
+
+        if (isCreateOperation) {
+            const organizationId = updatedItem.organization
+            const defaultPropertyScope = await PropertyScope.getOne(context, { organization: { id: organizationId }, isDefault: true })
+
+            if (!defaultPropertyScope) return
+
+            await PropertyScopeOrganizationEmployee.create(context, {
+                propertyScope: { connect: { id: defaultPropertyScope.id } },
+                employee: { connect: { id: employeeId } },
+                dv, sender,
+            })
+        } else {
+            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(context, {
+                employee: { id: employeeId },
+            })
+
+            for (const propertyScopeOrganizationEmployee of propertyScopeOrganizationEmployees) {
+                await PropertyScopeOrganizationEmployee.update(context, propertyScopeOrganizationEmployee.id, {
+                    deletedAt: 'true',
+                    dv, sender,
+                })
+            }
+        }
+    }
+}
+
 module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
     SpecializationScope,
+    createDefaultPropertyScopeForNewOrganization,
+    managePropertyScopeOrganizationEmployee,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

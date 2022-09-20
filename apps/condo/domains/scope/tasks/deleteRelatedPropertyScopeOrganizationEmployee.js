@@ -6,7 +6,7 @@ const { PropertyScopeOrganizationEmployee } = require('@condo/domains/scope/util
  * Soft delete related PropertyScopeOrganizationEmployee after delete PropertyScope object
  */
 // TODO(DOMA-4152): write deleteRelatedPropertyScopeEntities function and load by chunks
-async function deleteRelatedPropertyScopeOrganizationEmployee (deletedPropertyScope, deletedMeterAt) {
+async function deleteRelatedPropertyScopeOrganizationEmployee (deletedPropertyScope, deletedPropertyScopeAt) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     const propertyScopeId = deletedPropertyScope.id
@@ -17,7 +17,7 @@ async function deleteRelatedPropertyScopeOrganizationEmployee (deletedPropertySc
 
     for (const propertyScopeOrganizationEmployee of propertyScopeOrganizationEmployees) {
         await PropertyScopeOrganizationEmployee.update(context, propertyScopeOrganizationEmployee.id, {
-            deletedAt: deletedMeterAt,
+            deletedAt: deletedPropertyScopeAt,
             dv: deletedPropertyScope.dv,
             sender: deletedPropertyScope.sender,
         })

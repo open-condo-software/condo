@@ -44,8 +44,6 @@ async function updateTestPropertyScope (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestPropertyScope logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -60,8 +58,6 @@ async function createTestPropertyScopeOrganizationEmployee (client, propertyScop
     if (!propertyScope || !propertyScope.id) throw new Error('no propertyScope.id')
     if (!employee || !employee.id) throw new Error('no employee.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestPropertyScopeOrganizationEmployee logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -79,8 +75,6 @@ async function updateTestPropertyScopeOrganizationEmployee (client, id, extraAtt
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestPropertyScopeOrganizationEmployee logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -95,8 +89,6 @@ async function createTestPropertyScopeProperty (client, propertyScope, property,
     if (!propertyScope || !propertyScope.id) throw new Error('no propertyScope.id')
     if (!property || !property.id) throw new Error('no property.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestPropertyScopeProperty logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -114,8 +106,6 @@ async function updateTestPropertyScopeProperty (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestPropertyScopeProperty logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -130,8 +120,6 @@ async function createTestSpecializationScope (client, employee, specialization, 
     if (!employee || !employee.id) throw new Error('no employee.id')
     if (!specialization || !specialization.id) throw new Error('no specialization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestSpecializationScope logic for generate fields
 
     const attrs = {
         dv: 1,
