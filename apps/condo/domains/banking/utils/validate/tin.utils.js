@@ -63,7 +63,7 @@ class TinValidation {
             this.errors.push(EMPTY)
         }
 
-        if (country === 'RU')
+        if (country === 'ru')
             this.validateRuTin(tinWithoutSpaces)
 
         return {

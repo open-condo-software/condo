@@ -59,7 +59,7 @@ class NumberValidation {
             this.errors.push(WRONG_LENGTH + numberWithoutSpaces.length)
         }
 
-        if (country === 'RU')
+        if (country === 'ru')
             this.validateRuNumber(numberWithoutSpaces, routingNumberWithoutSpaces)
 
         return {
