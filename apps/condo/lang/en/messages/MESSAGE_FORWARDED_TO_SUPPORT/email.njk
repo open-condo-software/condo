@@ -1,7 +1,7 @@
 Mobile OS: {{ message.meta.os }}
 App version: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}N/A{% endif %}
-Residents info:
+Resident info:
 {%- if message.meta.residentsExtraInfo.length == 0 -%}
   no
 {%- else -%}
@@ -9,13 +9,15 @@ Residents info:
     Organization: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. TIN: {{ residentInfo.organization.tin }}{% else %}N/A{% endif %}.
     Address: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}N/A{% endif %}.
     Account numbers:
-    {%- if residentInfo.accountNumbers.length == 0 -%}
-      no
-    {%- else -%}
-      {% for accountNumber in residentInfo.accountNumbers %}
-        - {{ accountNumber }}.
-      {% endfor %}
-    {% endif %}
+        {%- if residentInfo.serviceConsumers.length == 0 -%}
+          no
+        {%- else -%}
+          {% for serviceConsumer in residentInfo.serviceConsumers %}
+            Number: {% if serviceConsumer.accountNumber %}{{ serviceConsumer.accountNumber | safe }}{% else %}N/A{% endif %}.
+            Organization: {% if serviceConsumer.organizationName %}{{ serviceConsumer.organizationName | safe }}{% else %}N/A{% endif %}.
+
+          {% endfor %}
+        {% endif %}
 
  {% endfor %}
 {% endif %}

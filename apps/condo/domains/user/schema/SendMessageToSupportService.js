@@ -102,7 +102,10 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     const residentInfo = { address: resident.address, accountNumbers: null, organization: null }
 
                     if (residentServiceConsumers) {
-                        residentInfo.accountNumbers = [...residentServiceConsumers.map(x => x.accountNumber)]
+                        residentInfo.serviceConsumers = [...residentServiceConsumers.map(x => ({
+                            accountNumber: x.accountNumber,
+                            organizationName: x.organization.name,
+                        }))]
                     }
 
                     if (residentOrganization) {
