@@ -28,6 +28,7 @@ const {
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 } = require('./Organization')
+const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -148,6 +149,7 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
         name: faker.random.alphaNumeric(8),
         description: faker.random.words(8),
         organization: { connect: { id: organization.id } },
+        ticketVisibilityType: ORGANIZATION_TICKET_VISIBILITY,
         ...extraAttrs,
     }
     const obj = await OrganizationEmployeeRole.create(client, attrs)

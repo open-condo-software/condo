@@ -1,5 +1,21 @@
 const TIN_LENGTH = 10
 const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
+
+const ORGANIZATION_TICKET_VISIBILITY = 'organization'
+const PROPERTY_TICKET_VISIBILITY = 'property'
+const SPECIALIZATION_TICKET_VISIBILITY = 'specialization'
+const PROPERTY_AND_SPECIALIZATION_VISIBILITY = 'propertyAndSpecialization'
+const ASSIGNED_TICKET_VISIBILITY = 'assigned'
+const NONE_TICKET_VISIBILITY = 'none'
+const TICKET_VISIBILITY_OPTIONS = [
+    ORGANIZATION_TICKET_VISIBILITY,
+    PROPERTY_TICKET_VISIBILITY,
+    SPECIALIZATION_TICKET_VISIBILITY,
+    PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+    ASSIGNED_TICKET_VISIBILITY,
+    NONE_TICKET_VISIBILITY,
+]
+
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic
     'Administrator': {
@@ -25,6 +41,7 @@ const DEFAULT_ROLES = {
         'canReadBillingReceipts': true,
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': true,
+        'ticketVisibilityType': ORGANIZATION_TICKET_VISIBILITY,
         'canManageBankContractorAccounts': true,
     },
     'Dispatcher': {
@@ -51,6 +68,7 @@ const DEFAULT_ROLES = {
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': false,
         'canManageBankContractorAccounts': false,
+        'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -76,6 +94,7 @@ const DEFAULT_ROLES = {
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': false,
         'canManageBankContractorAccounts': false,
+        'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -100,6 +119,7 @@ const DEFAULT_ROLES = {
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': false,
+        'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageBankContractorAccounts': false,
     },
     'Technician': {
@@ -125,11 +145,19 @@ const DEFAULT_ROLES = {
         'canReadBillingReceipts': false,
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': false,
+        'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageBankContractorAccounts': false,
     },
 }
+
 module.exports = {
     TIN_LENGTH,
     DEFAULT_ORGANIZATION_TIMEZONE,
     DEFAULT_ROLES,
+    ORGANIZATION_TICKET_VISIBILITY,
+    PROPERTY_TICKET_VISIBILITY,
+    SPECIALIZATION_TICKET_VISIBILITY,
+    ASSIGNED_TICKET_VISIBILITY,
+    NONE_TICKET_VISIBILITY,
+    TICKET_VISIBILITY_OPTIONS,
 }
