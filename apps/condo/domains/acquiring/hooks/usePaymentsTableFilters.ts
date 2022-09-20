@@ -143,10 +143,6 @@ export function usePaymentsTableFilters (
                 },
             },
         ]
-    }, [
-        billingContext,
-        organizationId,
-        statusOptions,
-    ])
+    }, [AccountTitle, AddressMessage, DateMessage, EndDateMessage, EnterAddressMessage, EnterStatusMessage, EnterTypeMessage, PaymentOrderTitle, StartDateMessage, StatusTitle, TypeMessage, billingContext, organizationId, statusOptions])
 
 }
