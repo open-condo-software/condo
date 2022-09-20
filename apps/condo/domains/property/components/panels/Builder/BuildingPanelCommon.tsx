@@ -1,7 +1,8 @@
 /** @jsx jsx */
-import React, { useRef, useEffect, useCallback } from 'react'
+import React, { useRef, useEffect, useCallback, useMemo } from 'react'
 import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
+import debounce from 'lodash/debounce'
 import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
 import { jsx, css } from '@emotion/react'
@@ -9,11 +10,13 @@ import styled from '@emotion/styled'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { Button } from '@condo/domains/common/components/Button'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { BuildingUnitSubType } from '@app/condo/schema'
+import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
+import { BuildingUnitSubType, B2BAppGlobalFeature } from '@app/condo/schema'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
+
+const MESSAGE_DEBOUNCE_TIMEOUT = 2000
 
 export const CustomScrollbarCss = css`
   & div::-webkit-scrollbar {
@@ -66,9 +69,6 @@ interface IEmptyBuildingBlock {
     mode?: 'view' | 'edit'
 }
 
-const IMPORT_LINK_STYLE = {
-    color: colors.black,
-}
 const DESCRIPTION_STYLE = {
     display: 'block',
     fontSize: fontSizes.content,
@@ -85,15 +85,43 @@ const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
-    const EmptyPropertyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingDescription` })
-    const MapCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapTitle' })
-    const ImportExcelTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.ImportDataTitle' })
-    const NotImplementedMessage = intl.formatMessage({ id: 'NotImplementedYet' })
+    const MapManualCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
+    const MapAutoCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle' })
 
-    const { push, asPath } = useRouter()
+    const { push, asPath, query: { id: propertyId } } = useRouter()
     const createMapCallback = useCallback(() => {
         push(asPath + '/map/update')
     }, [asPath])
+
+    const { features: { PropertyMapGeneration: generatorAppOrigin }, requestFeature } = useGlobalAppsFeaturesContext()
+
+    const EmptyPropertyBuildingDescription = useMemo(() => {
+        const services = generatorAppOrigin
+            ? intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services' })
+            : ''
+        const prefix = `${mode}.${generatorAppOrigin ? 'auto' : 'manual'}`
+
+        return intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` }, { services })
+    }, [
+        intl,
+        mode,
+        generatorAppOrigin,
+    ])
+
+    const debouncedGenerateRequest = useMemo(() => {
+        return debounce(() => {
+            if (!Array.isArray(propertyId)) {
+                requestFeature({ feature: B2BAppGlobalFeature.PropertyMapGeneration, propertyId })
+            }
+        }, MESSAGE_DEBOUNCE_TIMEOUT, { leading: true, trailing: false })
+    }, [
+        propertyId,
+        requestFeature,
+    ])
+
+    const sendGenerateMapRequest = useCallback(() => {
+        debouncedGenerateRequest()
+    }, [debouncedGenerateRequest])
 
 
     return (
@@ -102,19 +130,23 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
                 {EmptyPropertyBuildingHeader}
             </Typography.Title>
             <Typography.Text style={DESCRIPTION_STYLE}>
-                {EmptyPropertyBuildingDescription}{mode === 'view' && (
-                    <Tooltip title={NotImplementedMessage}>
-                        <Typography.Link style={IMPORT_LINK_STYLE}>{ImportExcelTitle}</Typography.Link>
-                    </Tooltip>
-                )}
+                {EmptyPropertyBuildingDescription}
             </Typography.Text>
+            {mode === 'view' && generatorAppOrigin && (
+                <Button
+                    type='sberDefaultGradient'
+                    style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
+                    onClick={sendGenerateMapRequest}
+                >{MapAutoCreateTitle}</Button>
+            )}
             {mode === 'view' && (
                 <Button
                     type='sberDefaultGradient'
                     style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
                     secondary
                     onClick={createMapCallback}
-                >{MapCreateTitle}</Button>
+                >{MapManualCreateTitle}</Button>
+
             )}
         </BasicEmptyListView>
     )

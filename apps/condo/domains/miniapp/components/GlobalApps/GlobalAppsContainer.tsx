@@ -25,7 +25,10 @@ import { TasksContext } from '@condo/domains/common/components/tasks/'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import IFrameModal from '../IFrameModal'
 import dayjs from 'dayjs'
-import { useGlobalAppsFeaturesContext } from './GlobalAppsFeaturesContext'
+import {
+    useGlobalAppsFeaturesContext,
+    IRequestFeatureHandler,
+} from './GlobalAppsFeaturesContext'
 
 type ModalInfo = {
     url: string
@@ -36,6 +39,7 @@ type ModalInfo = {
 const MUTATION_RESULT_MESSAGE_NAME = 'CondoWebUserEventResult'
 const MODAL_OPEN_RESULT_MESSAGE_NAME = 'CondoWebOpenModalResult'
 const MODAL_CLOSE_RESULT_MESSAGE_NAME = 'CondoWebCloseModalResult'
+const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebRequestFeatureRequest'
 const MODAL_CLOSE_USER_REASON = 'userAction'
 const MODAL_CLOSE_APP_REASON = 'externalCommand'
 const TASK_GET_PROCESSING_STATUS = 'CondoWebGetProcessingTasks'
@@ -58,7 +62,7 @@ export const GlobalAppsContainer: React.FC = () => {
     const isGlobalAppsFetched = useRef(false)
     const [modals, setModals] = useState<{ [id: string]: ModalInfo }>({})
     const [isDebug, setIsDebug] = useState(false)
-    const { registerFeatures } = useGlobalAppsFeaturesContext()
+    const { registerFeatures, addFeatureHandler, removeFeatureHandler, features } = useGlobalAppsFeaturesContext()
 
     const { addTask, updateTask, tasks } = useContext(TasksContext)
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
@@ -255,6 +259,38 @@ export const GlobalAppsContainer: React.FC = () => {
         handleTask,
         handleCommand,
         handleGetTasks,
+    ])
+
+    const handleFeatureRequest: IRequestFeatureHandler = useCallback((context) => {
+        const receiverOrigin = get(features, context.feature)
+        if (receiverOrigin) {
+            for (const iframe of iframeRefs.current) {
+                if (iframe) {
+                    const origin = extractOrigin(iframe.src)
+                    if (receiverOrigin === origin) {
+                        const targetWindow = get(iframe, 'contentWindow', null)
+                        if (origin && targetWindow) {
+                            sendMessage({
+                                type: REQUEST_FEATURE_MESSAGE_NAME,
+                                data: context,
+                            }, targetWindow, origin)
+                        }
+                    }
+                }
+            }
+        }
+    }, [features])
+
+    useEffect(() => {
+        addFeatureHandler(handleFeatureRequest)
+
+        return () => {
+            removeFeatureHandler(handleFeatureRequest)
+        }
+    }, [
+        handleFeatureRequest,
+        addFeatureHandler,
+        removeFeatureHandler,
     ])
 
     useEffect(() => {
