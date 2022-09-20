@@ -1,4 +1,5 @@
 import {
+    getColumnTooltip,
     getDateRender,
     getMoneyRender,
     getStatusRender,
@@ -21,7 +22,8 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
     const TransactionTitle = intl.formatMessage({ id: 'Transaction' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
-    const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
+    const PaymentOrderTooltipTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
 
     const { filters, sorters } = parseQuery(router.query)
@@ -88,7 +90,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             order: {
-                title: PaymentOrderTitle,
+                title: getColumnTooltip(PaymentOrderColumnTitle, PaymentOrderTooltipTitle),
                 key: 'order',
                 dataIndex: 'order',
                 render: stringSearch,

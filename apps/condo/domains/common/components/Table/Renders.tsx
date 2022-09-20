@@ -271,3 +271,14 @@ export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue 
         )
     }
 }
+
+export const getColumnTooltip = (columnTitle: string, tooltipTitle: string) => {
+    return (
+        <Tooltip
+            title={tooltipTitle}
+            placement='top'
+        >
+            {columnTitle}
+        </Tooltip>
+    )
+}

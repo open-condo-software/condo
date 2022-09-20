@@ -8,7 +8,6 @@ import {
 } from '@condo/domains/common/utils/filters.utils'
 import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import { useIntl } from '@condo/next/intl'
-import { get } from 'lodash'
 import { useMemo } from 'react'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 
@@ -144,5 +143,10 @@ export function usePaymentsTableFilters (
                 },
             },
         ]
-    }, [get(billingContext, 'id', null), organizationId])
+    }, [
+        billingContext,
+        organizationId,
+        statusOptions,
+    ])
+
 }
