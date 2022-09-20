@@ -99,7 +99,7 @@
   "field.Phone.requiredError": "Укажите телефон",
   "field.Property.requiredError": "Укажите адрес",
   "field.Property.nonSelectedError": "Выберите адрес из списка",
-  "field.Unit.requiredError": "Выберете квартиру",
+  "field.Unit.requiredError": "Выберите квартиру",
   "field.email.requiredError": "Укажите email",
   "field.FullName.requiredError": "Укажите имя жителя",
   "field.Responsible": "Ответственный",
