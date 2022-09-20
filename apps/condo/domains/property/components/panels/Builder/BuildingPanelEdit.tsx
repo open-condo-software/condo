@@ -1264,7 +1264,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
 
     const [parkingName, setParkingName] = useState<string>('')
     const renameNextUnits = useRef(true)
@@ -1301,7 +1301,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     />
                 </Space>
                 <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
-                    {RenameNextUnitsLabel}
+                    {RenameNextParkingUnitsLabel}
                 </Checkbox>
             </Col>
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
@@ -1339,7 +1339,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -1442,7 +1442,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                         <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
-                            {RenameNextUnitsLabel}
+                            {RenameNextParkingUnitsLabel}
                         </Checkbox>
                     </Space>
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
