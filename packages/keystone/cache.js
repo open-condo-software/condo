@@ -29,12 +29,23 @@
 const express = require('express')
 const { get, set } = require('lodash')
 
+const ENABLE_CACHE_LOGGING = true
+
+
+let hits = 0
+let requests = 0
+let hasRequestId = 0
+
 class KeystoneCacheMiddleware {
 
     constructor (keystone) {
         this.cache = {}
 
         initCache(keystone, this.cache)
+    }
+
+    getCache () {
+        return this.cache
     }
 
     prepareMiddleware () {
@@ -44,6 +55,9 @@ class KeystoneCacheMiddleware {
             const requestId = get(req, ['headers', 'x-request-id'])
             res.on('close', () => {
                 if (requestId) {
+
+                    if (ENABLE_CACHE_LOGGING) { console.log(`DELETE_FROM_MIDDLEWARE: ${requestId}`) }
+
                     delete this.cache[requestId]
                 }
             })
@@ -77,10 +91,13 @@ const patchMutation = (mutationContext, mutation, isUpdateMutation, cache) => {
 
 const patchQuery = (queryContext, query, cache) => {
     return async function (args, context, gqlName, info, from) {
+        requests++
         let key = null
         const requestId = getRequestIdFromContext(context)
 
         if (requestId) {
+            hasRequestId++
+
             key = generateRequestKey(gqlName, args)
 
             if (!(requestId in cache)) {
@@ -90,18 +107,33 @@ const patchQuery = (queryContext, query, cache) => {
             // Drop the key, if the operation type is mutation
             const operationType = get(info, ['operation', 'operation'])
             if (operationType !== 'query' && get(cache, [requestId, key])) {
+
+                if (ENABLE_CACHE_LOGGING) { console.log(`DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`) }
+
                 delete cache[requestId][key]
             }
 
             if (key in cache[requestId]) {
-                return cache[requestId][key]
+                hits++
+
+                if (ENABLE_CACHE_LOGGING) { console.log(`HIT: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${hits}/${requests} Request ids: ${hasRequestId}/${requestId} `) }
+
+                return await cache[requestId][key]
             }
         }
-        const listResult = await query.call(queryContext, args, context, gqlName, info, from)
+        else {
+            if (ENABLE_CACHE_LOGGING) { console.log(`WARNING: No request ID\r\n${gqlName} ${JSON.stringify(args)}`)}
+        }
 
-        if (requestId && key) { set(cache, [requestId, key], listResult) }
+        if (ENABLE_CACHE_LOGGING) { console.log(`MISS: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${hits}/${requests} Request ids: ${hasRequestId}/${requests}`) }
+        const listResultPromise = query.call(queryContext, args, context, gqlName, info, from)
 
-        return listResult
+        if (requestId && key) {
+            set(cache, [requestId, key], listResultPromise)
+            if (ENABLE_CACHE_LOGGING) { console.log(`SET: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`) }
+        }
+
+        return await listResultPromise
     }
 }
 
