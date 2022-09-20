@@ -25,6 +25,7 @@ import { TasksContext } from '@condo/domains/common/components/tasks/'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import IFrameModal from '../IFrameModal'
 import dayjs from 'dayjs'
+import { useGlobalAppsFeaturesContext } from './GlobalAppsFeaturesContext'
 
 type ModalInfo = {
     url: string
@@ -51,10 +52,13 @@ export const GlobalAppsContainer: React.FC = () => {
 
     const appUrls = objs.map(app => app.appUrl)
     const appOrigins = appUrls.map(extractOrigin)
+
+
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
     const isGlobalAppsFetched = useRef(false)
     const [modals, setModals] = useState<{ [id: string]: ModalInfo }>({})
     const [isDebug, setIsDebug] = useState(false)
+    const { registerFeatures } = useGlobalAppsFeaturesContext()
 
     const { addTask, updateTask, tasks } = useContext(TasksContext)
     const { MiniAppTask: miniAppTaskUIInterface } = useMiniappTaskUIInterface()
@@ -65,6 +69,20 @@ export const GlobalAppsContainer: React.FC = () => {
     useEffect(() => {
         iframeRefs.current = iframeRefs.current.slice(0, appUrls.length)
     }, [appUrls])
+
+    useEffect(() => {
+        const globalFeatures = objs.reduce((acc, app) => {
+            const appOrigin = extractOrigin(app.appUrl)
+            const availableFeatures = (app.features || []).filter(featureName => !(featureName in acc))
+            const appFeatures = Object.assign({}, ...availableFeatures.map(featureName => ({ [featureName]: appOrigin })))
+
+            return {
+                ...acc,
+                ...appFeatures,
+            }
+        }, {})
+        registerFeatures(globalFeatures)
+    }, [objs, registerFeatures])
 
     const handleMutationResult = useCallback((payload) => {
         for (const iframe of iframeRefs.current) {
@@ -236,6 +254,7 @@ export const GlobalAppsContainer: React.FC = () => {
         deleteModalFromApp,
         handleTask,
         handleCommand,
+        handleGetTasks,
     ])
 
     useEffect(() => {

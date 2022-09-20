@@ -52,7 +52,9 @@ import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useT
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
+import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { FeatureFlagsProvider } from '@condo/featureflags/FeatureFlagsContext'
+
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -210,19 +212,21 @@ const MyApp = ({ Component, pageProps }) => {
                                 <OnBoardingProvider>
                                     <SubscriptionProvider>
                                         <TasksProvider>
-                                            <GlobalAppsContainer/>
-                                            <LayoutContextProvider>
-                                                <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                    <RequiredAccess>
-                                                        <Component {...pageProps} />
-                                                        {
-                                                            isEndTrialSubscriptionReminderPopupVisible && (
-                                                                <EndTrialSubscriptionReminderPopup/>
-                                                            )
-                                                        }
-                                                    </RequiredAccess>
-                                                </LayoutComponent>
-                                            </LayoutContextProvider>
+                                            <GlobalAppsFeaturesProvider>
+                                                <GlobalAppsContainer/>
+                                                <LayoutContextProvider>
+                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                        <RequiredAccess>
+                                                            <Component {...pageProps} />
+                                                            {
+                                                                isEndTrialSubscriptionReminderPopupVisible && (
+                                                                    <EndTrialSubscriptionReminderPopup/>
+                                                                )
+                                                            }
+                                                        </RequiredAccess>
+                                                    </LayoutComponent>
+                                                </LayoutContextProvider>
+                                            </GlobalAppsFeaturesProvider>
                                         </TasksProvider>
                                     </SubscriptionProvider>
                                 </OnBoardingProvider>
