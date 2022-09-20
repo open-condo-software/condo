@@ -91,28 +91,25 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 const files = await Promise.all(filesPromises)
 
                 const residents = await Resident.getAll(context, { user: { id: user.id } })
+                const serviceConsumers = await ServiceConsumer.getAll(context, { resident: { id_in: residents.map(x => x.id) } })
 
-                const organizationsIds = []
                 const residentsExtraInfo = []
-                for (let resident of residents) {
-                    if (resident.organization && resident.organization.id) {
-                        organizationsIds.push(resident.organization.id)
+
+                for (const resident of residents) {
+                    const residentServiceConsumers = serviceConsumers.filter(x => x.resident.id === resident.id)
+                    const residentOrganization = await Organization.getOne(context, { id: resident.organization.id })
+
+                    const residentInfo = { address: resident.address, accountNumbers: null, organization: null }
+
+                    if (residentServiceConsumers) {
+                        residentInfo.accountNumbers = [...residentServiceConsumers.map(x => x.accountNumber)]
                     }
 
-                    const residentInfo = { address: resident.address, accountNumber: null }
-
-                    const serviceConsumer = await ServiceConsumer.getOne(context, { resident: { id: resident.id } })
-                    if (serviceConsumer) {
-                        residentInfo.accountNumber = serviceConsumer.accountNumber
+                    if (residentOrganization) {
+                        residentInfo.organization = { name: residentOrganization.name, tin: residentOrganization.tin }
                     }
 
                     residentsExtraInfo.push(residentInfo)
-                }
-
-                let organizationsData = []
-                if (organizationsIds.length > 0) {
-                    const organizations = await Organization.getAll(context, { id_in: organizationsIds })
-                    organizationsData = organizations.map(({ name, tin }) => ({ name, tin }))
                 }
 
                 const messageAttrs = {
@@ -129,7 +126,6 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                         residentsExtraInfo,
                         os,
                         appVersion,
-                        organizationsData,
                         attachments: files,
                     },
                 }
