@@ -98,14 +98,14 @@ function usePaymentsSum (whereQuery) {
 
 const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
     const intl = useIntl()
-    const searchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const filtersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const startDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const endDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
-    const confirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
-    const totalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
-    const doneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
-    const withdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
+    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
+    const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
+    const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
+    const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
+    const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
@@ -208,7 +208,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                 <Row gutter={TAP_BAR_ROW_GUTTER}>
                                     <Col xs={24} sm={12} lg={8}>
                                         <Input
-                                            placeholder={searchPlaceholder}
+                                            placeholder={SearchPlaceholder}
                                             value={search}
                                             onChange={(e) => {
                                                 handleSearchChange(e.target.value)
@@ -220,7 +220,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                         <DateRangePicker
                                             value={dateRange}
                                             onChange={setDateRange}
-                                            placeholder={[startDateMessage, endDateMessage]}
+                                            placeholder={[StartDateMessage, EndDateMessage]}
                                         />
                                     </Col>
                                 </Row>
@@ -242,7 +242,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                                             onClick={() => setIsMultipleFiltersModalVisible(true)}
                                         >
                                             <FilterFilled/>
-                                            {filtersButtonLabel}
+                                            {FiltersButtonLabel}
                                             {appliedFiltersCount > 0 && ` (${appliedFiltersCount})`}
                                         </Button>
                                     </Col>
@@ -257,7 +257,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                         <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
                             <Col>
                                 <PaymentsSumInfo
-                                    title={totalsSumTitle}
+                                    title={TotalsSumTitle}
                                     message={get(sumAllPayments, 'result.sum')}
                                     currencyCode={currencyCode}
                                     loading={allPaymentsLoading}
@@ -265,7 +265,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             </Col>
                             <Col>
                                 <PaymentsSumInfo
-                                    title={doneSumTitle}
+                                    title={DoneSumTitle}
                                     message={get(sumDonePayments, 'result.sum')}
                                     currencyCode={currencyCode}
                                     type='success'
@@ -274,7 +274,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                             </Col>
                             <Col>
                                 <PaymentsSumInfo
-                                    title={withdrawnSumTitle}
+                                    title={WithdrawnSumTitle}
                                     message={get(sumWithdrawnPayments, 'result.sum')}
                                     currencyCode={currencyCode}
                                     type='warning'
@@ -313,7 +313,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                         type='sberDefaultGradient'
                         onClick={() => setIsStatusDescModalVisible(false)}
                     >
-                        {confirmTitle}
+                        {ConfirmTitle}
                     </Button>,
                 ]}
             >
