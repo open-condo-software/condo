@@ -52,6 +52,9 @@ module.exports = function createConfiguration (context) {
         cookies: {
             // TODO(pahaz): take it from .env!
             keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
+            short: {
+                sameSite: 'None',
+            },
         },
         claims: {
             // TODO(pahaz): SCOPES think about it!
