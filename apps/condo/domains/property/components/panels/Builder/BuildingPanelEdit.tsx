@@ -1007,7 +1007,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section)}
+                                disabled={!(floor && section && label.trim())}
                             > {SaveLabel} </Button>
                         </Col>
                         {
