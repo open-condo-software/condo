@@ -123,7 +123,7 @@ describe('SendMessageToSupportService', () => {
 
         const messages = await Message.getAll(adminClient, { id: result.id })
         expect(messages).toHaveLength(1)
-        expect(messages[0].meta.organizationsData).toHaveLength(2)
+        expect(messages[0].meta.residentsExtraInfo).toHaveLength(2)
     })
 
     test('with organization and service consumers', async () => {
