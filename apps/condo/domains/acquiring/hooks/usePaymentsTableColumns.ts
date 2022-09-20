@@ -106,9 +106,5 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
         }
 
         return Object.values(columns)
-    }, [
-        filters,
-        sorterMap,
-        currencyCode,
-    ])
+    }, [filters, DateTitle, intl, AccountTitle, AddressTitle, UnitNameTitle, TypeTitle, TransactionTitle, StatusTitle, openStatusDescModal, PaymentOrderColumnTitle, PaymentOrderTooltipTitle, PaymentAmountTitle, currencyCode])
 }
