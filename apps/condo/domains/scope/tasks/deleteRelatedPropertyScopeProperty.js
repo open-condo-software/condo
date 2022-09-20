@@ -1,0 +1,29 @@
+const { getSchemaCtx, find } = require('@condo/keystone/schema')
+const { createTask } = require('@condo/keystone/tasks')
+const { PropertyScopeProperty } = require('@condo/domains/scope/utils/serverSchema')
+
+/**
+ * Soft delete related PropertyScopeProperty after delete PropertyScope object
+ */
+// TODO(DOMA-4152): write deleteRelatedPropertyScopeEntities function and load by chunks
+async function deleteRelatedPropertyScopeProperty (deletedPropertyScope, deletedMeterAt) {
+    const { keystone: context } = await getSchemaCtx('Property')
+
+    const propertyScopeId = deletedPropertyScope.id
+    const propertyScopeProperties = await find('PropertyScopeProperty', {
+        propertyScope: { id: propertyScopeId },
+        deletedAt: null,
+    })
+
+    for (const propertyScopeProperty of propertyScopeProperties) {
+        await PropertyScopeProperty.update(context, propertyScopeProperty.id, {
+            deletedAt: deletedMeterAt,
+            dv: deletedPropertyScope.dv,
+            sender: deletedPropertyScope.sender,
+        })
+    }
+}
+
+module.exports = {
+    deleteRelatedPropertyScopeProperty: createTask('deleteRelatedPropertyScopeProperty', deleteRelatedPropertyScopeProperty),
+}

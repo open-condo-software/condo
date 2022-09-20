@@ -115,6 +115,7 @@ registerSchemas(keystone, [
     require('@condo/domains/acquiring/schema'),
     require('@condo/domains/miniapp/schema'),
     require('@condo/domains/analytics/schema'),
+    require('@condo/domains/scope/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ], [schemaDocPreprocessor, escapeSearchPreprocessor])
 
@@ -128,6 +129,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/organization/tasks'),
         require('@condo/domains/ticket/tasks'),
         require('@condo/domains/resident/tasks'),
+        require('@condo/domains/scope/tasks'),
         require('@open-condo/webhooks/tasks'),
     ])
 
