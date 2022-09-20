@@ -1,4 +1,5 @@
 const TIN_LENGTH = 10
+const MIN_ORGANIZATION_NAME_LENGTH = 3
 const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic
@@ -120,6 +121,7 @@ const DEFAULT_ROLES = {
 }
 module.exports = {
     TIN_LENGTH,
+    MIN_ORGANIZATION_NAME_LENGTH,
     DEFAULT_ORGANIZATION_TIMEZONE,
     DEFAULT_ROLES,
 }

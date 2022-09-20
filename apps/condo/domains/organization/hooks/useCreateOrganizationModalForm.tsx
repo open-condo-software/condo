@@ -1,3 +1,4 @@
+import { Rule } from 'rc-field-form/lib/interface'
 import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
 import { Form, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -13,10 +14,11 @@ import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 
-import { TIN_LENGTH } from '@condo/domains/organization/constants/common'
-import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
+import { TIN_LENGTH, MIN_ORGANIZATION_NAME_LENGTH } from '@condo/domains/organization/constants/common'
+import { NAME_TOO_SHORT_ERROR, NAME_VALUE_INVALID, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { isValidName } from '../utils/name.utils'
 
 interface ICreateOrganizationModalFormResult {
     ModalForm: React.FC
@@ -58,10 +60,26 @@ const prepareFinishFetchParams = ({ id, userId }) => ({
         },
     },
 })
-const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }) => ({
-    [EMPTY_NAME_ERROR]: {
+const getOrganizationNameValidator = (OrganizationNameIsInvalid: string): Rule => ( {
+    validator: (_, value: string) => {
+        if (isValidName(value)) return Promise.resolve()
+
+        return Promise.reject(OrganizationNameIsInvalid)
+    },
+})
+const prepareValidationErrorsMapping = ({
+    ValueIsTooShortMsg,
+    OrganizationNameIsInvalid,
+    TinTooShortMsg,
+    TinValueIsInvalid,
+}) => ({
+    [NAME_TOO_SHORT_ERROR]: {
         name: 'name',
         errors: [ValueIsTooShortMsg],
+    },
+    [NAME_VALUE_INVALID]: {
+        name: 'name',
+        errors: [OrganizationNameIsInvalid],
     },
     [TIN_TOO_SHORT_ERROR]: {
         name: 'tin',
@@ -72,8 +90,22 @@ const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, Ti
         errors: [TinValueIsInvalid],
     },
 })
-const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }) => ({
-    name: [requiredValidator],
+const prepareValidators = ({
+    requiredValidator,
+    trimValidator,
+    changeMessage,
+    minLengthValidator,
+    ValueIsTooShortMsg,
+    TinTooShortMsg,
+    tinValidator,
+    organizationNameValidator,
+}) => ({
+    name: [
+        requiredValidator,
+        trimValidator,
+        changeMessage(minLengthValidator(MIN_ORGANIZATION_NAME_LENGTH), ValueIsTooShortMsg),
+        organizationNameValidator,
+    ],
     tin: [
         requiredValidator,
         changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
@@ -93,10 +125,16 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
     const TinTooShortMsg = intl.formatMessage({ id: 'pages.organizations.tin.TooShortMessage' })
     const TinValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const OrganizationNameIsInvalid = intl.formatMessage({ id: 'pages.organizations.name.InvalidName' })
 
     const ErrorToFormFieldMsgMapping = React.useMemo(
-        () => prepareValidationErrorsMapping({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }),
-        [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid]
+        () => prepareValidationErrorsMapping({
+            ValueIsTooShortMsg,
+            OrganizationNameIsInvalid,
+            TinTooShortMsg,
+            TinValueIsInvalid,
+        }),
+        [ValueIsTooShortMsg, OrganizationNameIsInvalid, TinTooShortMsg, TinValueIsInvalid]
     )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
@@ -104,12 +142,21 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     const { user } = useAuth()
     const userId = get(user, 'id')
 
-    const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
+    const { requiredValidator, trimValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
+    const organizationNameValidator = getOrganizationNameValidator(OrganizationNameIsInvalid)
     const validators = React.useMemo(
-        () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }),
-        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator]
+        () => prepareValidators({
+            requiredValidator,
+            trimValidator,
+            changeMessage,
+            minLengthValidator,
+            ValueIsTooShortMsg,
+            TinTooShortMsg,
+            tinValidator,
+            organizationNameValidator,
+        }),
+        [requiredValidator, trimValidator, changeMessage, minLengthValidator, ValueIsTooShortMsg, TinTooShortMsg, tinValidator, organizationNameValidator]
     )
-
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
     const { refetch } = OrganizationEmployee.useObjects(fetchParams, FETCH_OPTIONS)
 

@@ -1,4 +1,3 @@
-import { get } from 'lodash'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@condo/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
@@ -70,6 +69,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const minLengthValidator: (length: number) => Rule = (length) => {
         return {
             min: length,
+            transform: (value) => value && value.trim(),
             message: FieldIsTooShortMessage,
         }
     }
@@ -77,6 +77,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const maxLengthValidator: (length: number) => Rule = (length) => {
         return {
             max: length,
+            transform: (value) => value && value.trim(),
             message: FieldIsTooLongMessage,
         }
     }

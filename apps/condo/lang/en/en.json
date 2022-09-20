@@ -772,6 +772,7 @@
   "pages.organizations.tin": "TIN",
   "pages.organizations.tin.TooShortMessage": "TIN field must contain 10 digits",
   "pages.organizations.tin.InvalidValue": "TIN field value is not valid",
+  "pages.organizations.name.InvalidName": "Name must contain letters",
   "pages.organizations.PageTitle": "Organizations",
   "pages.users.InviteNewUserButtonLabel": "Invite new user",
   "pages.users.InviteMessageTitle": "You have an invitation to «{name}»",
