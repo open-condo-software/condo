@@ -1829,6 +1829,8 @@ export type B2BApp = {
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
+  /**  List of global features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration]  */
+  features?: Maybe<Array<B2BAppGlobalFeature>>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2563,6 +2565,7 @@ export type B2BAppCreateInput = {
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
   accessRights?: Maybe<B2BAppAccessRightRelateToManyInput>;
+  features?: Maybe<Array<B2BAppGlobalFeature>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2573,6 +2576,10 @@ export type B2BAppCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
 };
+
+export enum B2BAppGlobalFeature {
+  PropertyMapGeneration = 'PropertyMapGeneration'
+}
 
 /**  A keystone list  */
 export type B2BAppHistoryRecord = {
@@ -2599,6 +2606,7 @@ export type B2BAppHistoryRecord = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
+  features?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2629,6 +2637,7 @@ export type B2BAppHistoryRecordCreateInput = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
+  features?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2664,6 +2673,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
+  features?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2845,6 +2855,10 @@ export type B2BAppHistoryRecordWhereInput = {
   setupButtonMessage_not_ends_with_i?: Maybe<Scalars['String']>;
   setupButtonMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   setupButtonMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  features?: Maybe<Scalars['JSON']>;
+  features_not?: Maybe<Scalars['JSON']>;
+  features_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  features_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2959,6 +2973,7 @@ export type B2BAppUpdateInput = {
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
   accessRights?: Maybe<B2BAppAccessRightRelateToManyInput>;
+  features?: Maybe<Array<B2BAppGlobalFeature>>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3143,6 +3158,10 @@ export type B2BAppWhereInput = {
   accessRights_some?: Maybe<B2BAppAccessRightWhereInput>;
   /**  condition must be false for all nodes  */
   accessRights_none?: Maybe<B2BAppAccessRightWhereInput>;
+  features?: Maybe<Array<B2BAppGlobalFeature>>;
+  features_not?: Maybe<Array<B2BAppGlobalFeature>>;
+  features_in?: Maybe<Array<Maybe<Array<B2BAppGlobalFeature>>>>;
+  features_not_in?: Maybe<Array<Maybe<Array<B2BAppGlobalFeature>>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

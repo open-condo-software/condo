@@ -24,8 +24,10 @@ const {
     OTHER_CATEGORY,
     LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR,
     GLOBAL_APP_NO_APP_URL_ERROR,
+    NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 } = require('@condo/domains/miniapp/constants')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
+const { GLOBAL_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/globalFeaturesField')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -76,8 +78,16 @@ const B2BApp = new GQLListSchema('B2BApp', {
             ref: 'B2BAppAccessRight.app',
             many: true,
         },
+        features: GLOBAL_FEATURES_FIELD,
     },
     hooks: {
+        resolveInput: ({ resolvedData, operation }) => {
+            if (operation === 'update' && resolvedData.hasOwnProperty('isGlobal') && !resolvedData.isGlobal) {
+                resolvedData['features'] = null
+            }
+            
+            return resolvedData
+        },
         validateInput: ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             if (newItem.isGlobal) {
@@ -85,6 +95,9 @@ const B2BApp = new GQLListSchema('B2BApp', {
                     return addValidationError(GLOBAL_APP_NO_APP_URL_ERROR)
                 }
             } else {
+                if (newItem.features) {
+                    return addValidationError(NON_GLOBAL_APP_WITH_FEATURES_ERROR)
+                }
                 if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
                     return addValidationError(LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
                 }

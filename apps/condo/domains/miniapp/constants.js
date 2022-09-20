@@ -13,6 +13,13 @@ const APP_TYPES = [
     B2B_APP_TYPE,
 ]
 
+// GLOBAL B2B APPS FEATURES
+const GLOBAL_FEATURE_GRAPHQL_TYPE = 'B2BAppGlobalFeature'
+const MAP_GENERATION_FEATURE = 'PropertyMapGeneration'
+const SUPPORTED_GLOBAL_FEATURES = [
+    MAP_GENERATION_FEATURE,
+]
+
 const OTHER_CATEGORY = 'OTHER'
 
 const B2B_APP_CATEGORIES = [
@@ -40,6 +47,7 @@ const B2C_APP_COLOR_SCHEMA_TYPE_NAME = 'AppColorSchemaField'
 const B2C_APP_COLOR_SCHEMA_INPUT_NAME = 'AppColorSchemaFieldInput'
 const LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR = '[app:noInstructionOrMessage] If the app is not global, then it must have either the appUrl field or the instruction and connectedMessage fields'
 const GLOBAL_APP_NO_APP_URL_ERROR = '[app:noAppUrl] If the app is global, it must have appUrl field'
+const NON_GLOBAL_APP_WITH_FEATURES_ERROR = '[app:non-global:features] Non global apps cannot specify features'
 
 
 
@@ -65,4 +73,8 @@ module.exports = {
     INCORRECT_HOUSE_TYPE_ERROR,
     B2C_APP_COLOR_SCHEMA_TYPE_NAME,
     B2C_APP_COLOR_SCHEMA_INPUT_NAME,
+    GLOBAL_FEATURE_GRAPHQL_TYPE,
+    MAP_GENERATION_FEATURE,
+    SUPPORTED_GLOBAL_FEATURES,
+    NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 }
