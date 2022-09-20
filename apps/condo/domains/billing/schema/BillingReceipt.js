@@ -17,7 +17,7 @@ const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD
 const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsField')
 const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
-const { BillingRecipient } = require('../utils/serverSchema')
+const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 
 
@@ -93,13 +93,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         services: SERVICES_FIELD,
 
+        //TODO @DanilovMaxim
         recipient: RECIPIENT_FIELD,
 
         // TODO @toplenboren (Doma-2241) make this not null!
         receiver: {
-            schemaDoc: 'Relation to the BillingRecipient. Going to override recipient field, has the same meaning',
+            schemaDoc: 'Relation to the BankAccount. Going to override recipient field, has the same meaning',
             type: Relationship,
-            ref: 'BillingRecipient',
+            ref: 'BankAccount',
             isRequired: true,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
@@ -118,7 +119,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
-            
+
             const account = await getById('BillingAccount', accountId)
             const { context: accountContextId } = account
             const property = await getById('BillingProperty', propertyId)
@@ -138,7 +139,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         }) => {
             const { sender: { fingerprint } } = resolvedData
 
-            // Handle cases when we do not need to search for BillingRecipient
+            // Handle cases when we do not need to search for BankAccount
             // receiver is explicitly set
             if ('receiver' in resolvedData) {
                 return
@@ -159,31 +160,34 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const tinMatches = recipient.tin && recipient.tin === organization.tin
 
             let receiverId
-            const sameRecipient = await BillingRecipient.getOne(context, {
-                context: { id: contextId },
+            const sameBankAccount = await BankAccount.getOne(context, {
                 tin: get(recipient, 'tin'),
-                iec: get(recipient, 'iec'),
-                bic: get(recipient, 'bic'),
-                bankAccount: get(recipient, 'bankAccount'),
+                routingNumber: get(recipient, 'routingNumber'),
+                number: get(recipient, 'number'),
                 deletedAt: null, // TODO(zuch): DOMA-2395 Move deletedAt filter to getOne
             })
-            const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
-            if (sameRecipient) {
-                receiverId = sameRecipient.id
+
+            if (sameBankAccount) {
+                receiverId = sameBankAccount.id
             } else {
-                const createdRecipient = await BillingRecipient.create(context, {
+                const { bankName = '', territoryCode = '' } = recipient
+
+                const integrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+                const organizationId = get(integrationContext, 'organization')
+
+                const createdBankAccount = await BankAccount.create(context, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: fingerprint },
-                    context: { connect: { id: contextId } },
-                    name: get(recipient, 'name', null),
+                    organization: { connect: { id: organizationId } },
                     tin: get(recipient, 'tin'),
-                    iec: get(recipient, 'iec'),
-                    bic: get(recipient, 'bic'),
-                    bankAccount: get(recipient, 'bankAccount'),
-                    isApproved: isTrustedBankAccountSource && tinMatches,
-                    bankName, territoryCode, offsettingAccount,
+                    country: get(recipient, 'country'),
+                    routingNumber: get(recipient, 'routingNumber'),
+                    number: get(recipient, 'number'),
+                    currencyCode: get(recipient, 'currencyCode'),
+                    approvedBy: isTrustedBankAccountSource && tinMatches ? 'GIS' : null,
+                    bankName, territoryCode,
                 })
-                receiverId = createdRecipient.id
+                receiverId = createdBankAccount.id
             }
             resolvedData.receiver = receiverId
         },
