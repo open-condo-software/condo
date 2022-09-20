@@ -54,7 +54,7 @@
     "facepaint": "^1.2.1",
     "get-contrast": "^2.0.0",
     "graphql": "^15.6.1",
-    "graphql-tag": "^2.12.6",
+    "graphql-tag": "2.12.6",
     "immer": "^9.0.0",
     "less": "^3.12.2",
     "lodash": "^4.17.21",

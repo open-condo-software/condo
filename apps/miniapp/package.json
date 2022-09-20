@@ -15,7 +15,7 @@
     "createschema": "./../../bin/createschema"
   },
   "dependencies": {
-    "@apollo/client": "3.3.20",
+    "@apollo/client": "3.6.9",
     "@app/condo": "workspace:^",
     "@condo/config": "workspace:^",
     "@condo/domains": "link:../condo/domains",
@@ -57,7 +57,7 @@
     "faker": "^5.5.3",
     "get-contrast": "^2.0.0",
     "graphql": "^15.6.1",
-    "graphql-tag": "^2.12.6",
+    "graphql-tag": "2.12.6",
     "immer": "9.0.13",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
