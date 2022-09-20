@@ -31,6 +31,10 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
         }
         return false
     }
+    const accessConditions =  [
+        { employees_some: { user: { id: user.id } } },
+        { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id } } } } },
+    ]
     if (user.type === SERVICE) {
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
             integration: {
@@ -44,24 +48,15 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
             },
             deletedAt: null,
         })
-        const organizationIds = uniq(billingContexts
+        const serviceOrganizationIds = uniq(billingContexts
             .map(({ organization }) => organization )
             .concat(acquiringContexts.map(({ organization }) => organization )))
-
-        if (organizationIds.length) {
-            return {
-                id_in: organizationIds,
-            }
+        if (serviceOrganizationIds.length) {
+            accessConditions.push({ id_in: serviceOrganizationIds })
         }
-        return false
     }
 
-    return {
-        OR: [
-            { employees_some: { user: { id: user.id } } },
-            { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id } } } } },
-        ],
-    }
+    return { OR: accessConditions }
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation }) {
