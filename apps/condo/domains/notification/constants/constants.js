@@ -141,7 +141,6 @@ const MESSAGE_META = {
         residentsExtraInfo: { defaultValue: null, required: true },
         os: { defaultValue: null, required: true },
         appVersion: { defaultValue: null, required: true },
-        organizationsData: { defaultValue: [], isRequired: false },
         attachments: { defaultValue: [], isRequired: false },
     },
     [TICKET_ASSIGNEE_CONNECTED_TYPE]: {

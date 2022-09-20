@@ -5,18 +5,18 @@ Residents info:
 {%- if message.meta.residentsExtraInfo.length == 0 -%}
   no
 {%- else -%}
- {% for resident in message.meta.residentsExtraInfo %}
-    Address: {% if resident.address %}{{ resident.address | safe }}{% else %}N/A{% endif %}.
-    Account number: {% if resident.accountNumber %}{{ resident.accountNumber | safe }}{% else %}N/A{% endif %}.
+ {% for residentInfo in message.meta.residentsExtraInfo %}
+    Organization: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. TIN: {{ residentInfo.organization.tin }}{% else %}N/A{% endif %}.
+    Address: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}N/A{% endif %}.
+    Account numbers:
+    {%- if residentInfo.accountNumbers.length == 0 -%}
+      no
+    {%- else -%}
+      {% for accountNumber in residentInfo.accountNumbers %}
+        - {{ accountNumber }}.
+      {% endfor %}
+    {% endif %}
 
  {% endfor %}
 {% endif %}
 Message text: {{ message.meta.text | safe }}
-Organizations:
-{%- if message.meta.organizationsData.length == 0 -%}
-  no
-{%- else -%}
-  {% for org in message.meta.organizationsData %}
-    - {{ org.name }}. TIN: {{ org.tin }}
-  {% endfor %}
-{% endif %}

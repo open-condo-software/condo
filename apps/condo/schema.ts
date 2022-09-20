@@ -21208,10 +21208,6 @@ export type Mutation = {
    * 			"defaultValue": null,
    * 			"required": true
    * 		},
-   * 		"organizationsData": {
-   * 			"defaultValue": [],
-   * 			"isRequired": false
-   * 		},
    * 		"attachments": {
    * 			"defaultValue": [],
    * 			"isRequired": false

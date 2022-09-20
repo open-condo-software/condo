@@ -126,7 +126,7 @@ describe('SendMessageToSupportService', () => {
         expect(messages[0].meta.organizationsData).toHaveLength(2)
     })
 
-    test('with organization and service consumer', async () => {
+    test('with organization and service consumers', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
         const [organization] = await registerNewOrganization(userClient)
@@ -135,14 +135,16 @@ describe('SendMessageToSupportService', () => {
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
             unitName,
         })
-        const accountNumber1 = faker.random.alphaNumeric(8)
         await createTestServiceConsumer(adminClient, resident, organization, {
-            accountNumber: accountNumber1,
+            accountNumber: faker.random.alphaNumeric(8),
+        })
+        await createTestServiceConsumer(adminClient, resident, organization, {
+            accountNumber: faker.random.alphaNumeric(8),
         })
         await addResidentAccess(userClient.user)
 
         const payload = {
-            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}. Resident must be attached to two organizations.`,
+            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}. Message must have residents extra info.`,
             emailFrom: EMAIL_FROM, // email passed from mobile application
             os: 'ios 15.1',
             appVersion: '0.0.1a',
@@ -156,8 +158,9 @@ describe('SendMessageToSupportService', () => {
         const messages = await Message.getAll(adminClient, { id: result.id })
         expect(messages).toHaveLength(1)
         const residentsExtraInfo = messages[0].meta.residentsExtraInfo[0]
-        expect(residentsExtraInfo.address.length).toBeGreaterThan(1)
-        expect(residentsExtraInfo.accountNumber.length).toBeGreaterThan(1)
+        expect(residentsExtraInfo.address).not.toHaveLength(0)
+        expect(residentsExtraInfo.accountNumbers).not.toBeFalsy()
+        expect(residentsExtraInfo.organization).not.toBeFalsy()
     })
 
     test('no attachments, no email', async () => {
