@@ -96,8 +96,8 @@ describe('AcquiringIntegrationContext', () => {
                             const [billingIntegration] = await createTestBillingIntegration(admin)
                             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                             await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
-
-                            const [organization] = await registerNewOrganization(admin)
+                            // service user can create context only for it's personal organizations (EPS)
+                            const [organization] = await registerNewOrganization(client)
 
                             const [context] = await createTestAcquiringIntegrationContext(client, organization, integration)
                             expect(context).toBeDefined()
@@ -113,7 +113,7 @@ describe('AcquiringIntegrationContext', () => {
                             const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                             await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
 
-                            const [organization] = await registerNewOrganization(admin)
+                            const [organization] = await registerNewOrganization(client)
 
                             await createTestAcquiringIntegrationContext(admin, organization, secondIntegration)
                             await expectToThrowValidationFailureError(async () => {
