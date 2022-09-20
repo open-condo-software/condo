@@ -373,9 +373,8 @@ describe('Check read access to organization from service user with billing integ
         const admin = await makeLoggedInAdminClient()
         const serviceUserClient = await makeClientWithIntegrationAccess(admin)
         const [organization] = await registerNewOrganization(admin)
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await Organization.getOne(serviceUserClient, { id: organization.id })
-        })
+        const resultOrganization = await Organization.getOne(serviceUserClient, { id: organization.id })
+        expect(resultOrganization).toBeUndefined()
     })
 
 })
@@ -397,8 +396,7 @@ describe('Check read access to organization from service user with acquiring int
         const serviceUserClient = await makeClientWithServiceUser()
         const [acquiringIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
         await createTestAcquiringIntegrationAccessRight(admin, acquiringIntegration, serviceUserClient.user)
-        await expectToThrowAccessDeniedErrorToObjects(async () => {
-            await Organization.getOne(serviceUserClient, { id: organization.id })
-        })
+        const resultOrganization = await Organization.getOne(serviceUserClient, { id: organization.id })
+        expect(resultOrganization).toBeUndefined()
     })
 })
