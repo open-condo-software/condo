@@ -18,7 +18,7 @@ const ALL_MINI_APPS_QUERY = gql`
     }
 `
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription about developer partnerUrl instruction connectedMessage appUrl category setupButtonMessage ${COMMON_FIELDS} }`
+const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription about developer partnerUrl instruction connectedMessage appUrl category setupButtonMessage features ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_CONTEXT_FIELDS = `{ app { id } organization { id } status ${COMMON_FIELDS} }`
