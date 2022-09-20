@@ -97,6 +97,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             defaultOption: NONE_TICKET_VISIBILITY,
             options: TICKET_VISIBILITY_OPTIONS,
         },
+        canManagePropertyScopes: { type: Checkbox, defaultValue: false },
         canManageBankContractorAccounts: {
             type: Checkbox,
             defaultValue: false,
