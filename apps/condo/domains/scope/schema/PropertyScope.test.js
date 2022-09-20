@@ -11,10 +11,12 @@ const {
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { PropertyScope, createTestPropertyScope, updateTestPropertyScope } = require('@condo/domains/scope/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { PropertyScope, createTestPropertyScope, updateTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee, PropertyScopeProperty, PropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
-const { createTestTicketPropertyHint } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicketPropertyHint, Ticket } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 describe('PropertyScope', () => {
     describe('accesses', () => {
@@ -165,6 +167,118 @@ describe('PropertyScope', () => {
                     await updateTestPropertyScope(anonymous, scope.id)
                 })
             })
+        })
+    })
+
+    describe('logic', () => {
+        it('delete related PropertyScopeOrganizationEmployee and PropertyScopeProperty objects after delete PropertyScope', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManagePropertyScopes: true,
+            })
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+            const [property] = await createTestProperty(admin, organization)
+
+            const [scope] = await createTestPropertyScope(user, organization)
+            const [propertyScopeProperty] = await createTestPropertyScopeProperty(user, scope, property)
+            const [propertyScopeOrganizationEmployee] = await createTestPropertyScopeOrganizationEmployee(user, scope, employee)
+
+            const readPropertyScopeProperty = await PropertyScopeProperty.getOne(admin, { id: propertyScopeProperty.id })
+            expect(readPropertyScopeProperty).toBeDefined()
+            const readPropertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { id: propertyScopeOrganizationEmployee.id })
+            expect(readPropertyScopeOrganizationEmployee).toBeDefined()
+
+            const [updatedScope] = await updateTestPropertyScope(user, scope.id, {
+                deletedAt: 'true',
+            })
+            expect(updatedScope.deletedAt).toBeDefined()
+
+            await waitFor(async () => {
+                const deletedPropertyScopeProperty = await PropertyScopeProperty.getOne(admin, { id: propertyScopeProperty.id, deletedAt_not: null })
+                const deletedPropertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { id: propertyScopeOrganizationEmployee.id, deletedAt_not: null })
+
+                expect(deletedPropertyScopeProperty.deletedAt).toBeDefined()
+                expect(deletedPropertyScopeOrganizationEmployee.deletedAt).toBeDefined()
+            })
+        })
+
+        it('dont delete not related PropertyScopeOrganizationEmployee and PropertyScopeProperty objects after delete PropertyScope', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManagePropertyScopes: true,
+            })
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+            const [property] = await createTestProperty(admin, organization)
+
+            const [scope] = await createTestPropertyScope(user, organization)
+            const [propertyScopeProperty] = await createTestPropertyScopeProperty(user, scope, property)
+            const [propertyScopeOrganizationEmployee] = await createTestPropertyScopeOrganizationEmployee(user, scope, employee)
+
+            await PropertyScopeProperty.getOne(admin, { id: propertyScopeProperty.id })
+            await PropertyScopeOrganizationEmployee.getOne(admin, { id: propertyScopeOrganizationEmployee.id })
+
+            const [scope1] = await createTestPropertyScope(user, organization)
+            const [updatedScope1] = await updateTestPropertyScope(user, scope1.id, {
+                deletedAt: 'true',
+            })
+            expect(updatedScope1.deletedAt).toBeDefined()
+
+            const deletedPropertyScopeProperty = await PropertyScopeProperty.getOne(admin, { id: propertyScopeProperty.id, deletedAt_not: null })
+            const deletedPropertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { id: propertyScopeOrganizationEmployee.id, deletedAt_not: null })
+
+            expect(deletedPropertyScopeProperty).toBeUndefined()
+            expect(deletedPropertyScopeOrganizationEmployee).toBeUndefined()
+        })
+
+        it('create default PropertyScope and PropertyScopeOrganizationEmployee for all employees in organization after register organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const [org] = await registerNewOrganization(admin)
+
+            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+            expect(defaultPropertyScope).toBeDefined()
+        })
+
+        // TODO(DOMA-4065): перенести в тесты для PropertyScopeOrganizationEmployee
+        it('create PropertyScopeOrganizationEmployee for default PropertyScope after employee creation', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [org] = await registerNewOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, org)
+            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
+
+            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+            const propertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { employee: { id: employee.id }, propertyScope: { id: defaultPropertyScope.id } })
+
+            expect(propertyScopeOrganizationEmployee).toBeDefined()
+        })
+
+        it('delete PropertyScopeOrganizationEmployee after employee deletion', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [org] = await registerNewOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, org)
+            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
+
+            await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+
+            await updateTestOrganizationEmployee(admin, employee.id, {
+                deletedAt: 'true',
+            })
+
+            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(admin, { employee: { id: employee.id } })
+
+            expect(propertyScopeOrganizationEmployees).toHaveLength(0)
         })
     })
 })

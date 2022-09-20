@@ -13,6 +13,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { managePropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     schemaDoc: 'B2B customer employees',
@@ -140,6 +141,9 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
             if (!hasDbFields(['organization'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
+        },
+        afterChange: async ({ context, existingItem, updatedItem, operation }) => {
+            await managePropertyScopeOrganizationEmployee(context, existingItem, updatedItem, operation)
         },
     },
 })
