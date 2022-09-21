@@ -10,6 +10,7 @@ const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
 const { SpecializationScope: SpecializationScopeGQL } = require('@condo/domains/scope/gql')
+const { find } = require('@condo/keystone/schema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateServerUtils(PropertyScopeGQL)
@@ -77,6 +78,38 @@ async function softDeletePropertyScopeProperties (context, updatedItem) {
     }
 }
 
+function mapEmployeeToVisibilityTypeToEmployees (employeeToVisibilityType, type) {
+    return employeeToVisibilityType.filter(({ visibilityType }) => visibilityType === type).map(({ employee }) => employee)
+}
+
+async function getPropertyScopes (organizationIds) {
+    const propertyScopes = await find('PropertyScope', {
+        organization: { id_in: organizationIds },
+        deletedAt: null,
+    })
+    const propertyScopeIds = propertyScopes.map(scope => scope.id)
+    const propertyScopeProperties = await find('PropertyScopeProperty', {
+        propertyScope: { id_in: propertyScopeIds },
+        deletedAt: null,
+    })
+    // TODO доставать скоупы из PropertyScopeOrganizationEmployee
+    const propertyScopeEmployees = await find('PropertyScopeOrganizationEmployee', {
+        propertyScope: { id_in: propertyScopeIds },
+        deletedAt: null,
+    })
+
+    return propertyScopes.map(scope => {
+        const properties = propertyScopeProperties
+            .filter(({ propertyScope }) => propertyScope === scope.id)
+            .map(({ property }) => property)
+        const employees = propertyScopeEmployees
+            .filter(({ propertyScope }) => propertyScope === scope.id)
+            .map(({ employee }) => employee)
+
+        return { ...scope, properties, employees }
+    })
+}
+
 module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
@@ -85,5 +118,7 @@ module.exports = {
     createDefaultPropertyScopeForNewOrganization,
     managePropertyScopeOrganizationEmployee,
     softDeletePropertyScopeProperties,
+    mapEmployeeToVisibilityTypeToEmployees,
+    getPropertyScopes,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
