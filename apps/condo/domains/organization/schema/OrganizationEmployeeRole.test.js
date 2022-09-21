@@ -18,6 +18,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { createTestTicket, Ticket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 const { ASSIGNEE_CONNECTED_EVENT_TYPE } = require('@condo/domains/ticket/utils/handlers')
+const { createTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
 
 describe('OrganizationEmployeeRole', () => {
     describe('defaults', () => {
@@ -278,7 +279,11 @@ describe('OrganizationEmployeeRole', () => {
         })
 
         describe('property', () => {
-            it('can read tickets only with properties which are in the divisions where employee is', async () => {
+            it('can read tickets organization ticket if employee is PropertyScope with isDefault flag', async () => {
+
+            })
+
+            it('can read tickets in properties from PropertyScope where this employee is', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -292,19 +297,10 @@ describe('OrganizationEmployeeRole', () => {
                 const [property2] = await createTestProperty(admin, organization)
                 const [property3] = await createTestProperty(admin, organization)
 
-                await createTestDivision(admin, organization, {
-                    properties: {
-                        connect: [
-                            { id: property.id },
-                            { id: property2.id },
-                        ],
-                    },
-                    executors: {
-                        connect: [
-                            { id: employee.id },
-                        ],
-                    },
-                })
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+                await createTestPropertyScopeProperty(admin, propertyScope, property)
+                await createTestPropertyScopeProperty(admin, propertyScope, property2)
+                await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
 
                 const [ticket1] = await createTestTicket(admin, organization, property)
                 const [ticket2] = await createTestTicket(admin, organization, property2)
@@ -319,7 +315,7 @@ describe('OrganizationEmployeeRole', () => {
                 expect(tickets[1].id).toEqual(ticket2.id)
             })
 
-            it('cannot read tickets if there no divisions in which employee is', async () => {
+            it('cannot read tickets if there no PropertyScope in which employee is', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -337,67 +333,28 @@ describe('OrganizationEmployeeRole', () => {
                 expect(readTicket).toBeUndefined()
             })
 
-            it('cannot read tickets with properties which are in the divisions where employee is not', async () => {
+            it('cannot read tickets with properties which are in the PropertyScope where employee is not', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     ticketVisibilityType: PROPERTY_TICKET_VISIBILITY,
                 })
-                const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-                const [employee1] = await createTestOrganizationEmployee(admin, organization, userClient1.user, role)
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
 
                 const [property] = await createTestProperty(admin, organization)
-                const [property2] = await createTestProperty(admin, organization)
-                const [property3] = await createTestProperty(admin, organization)
 
-                await createTestDivision(admin, organization, {
-                    properties: {
-                        connect: [
-                            { id: property.id },
-                        ],
-                    },
-                    executors: {
-                        connect: [
-                            { id: employee.id },
-                        ],
-                    },
-                })
-
-                await createTestDivision(admin, organization, {
-                    properties: {
-                        connect: [
-                            { id: property2.id },
-                            { id: property3.id },
-                        ],
-                    },
-                    executors: {
-                        connect: [
-                            { id: employee1.id },
-                        ],
-                    },
-                })
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+                await createTestPropertyScopeProperty(admin, propertyScope, property)
 
                 const [ticket1] = await createTestTicket(admin, organization, property)
-                const [ticket2] = await createTestTicket(admin, organization, property2)
-                const [ticket3] = await createTestTicket(admin, organization, property3)
 
-                const readTicketsByClient = await Ticket.getAll(userClient, {
-                    id_in: [ticket1.id, ticket2.id, ticket3.id],
-                }, { sortBy: 'createdAt_ASC' })
+                const readTicketsByClient = await Ticket.getOne(userClient, {
+                    id: ticket1.id,
+                })
 
-                expect(readTicketsByClient).toHaveLength(1)
-                expect(readTicketsByClient[0].id).toEqual(ticket1.id)
-
-                const readTicketsByClient1 = await Ticket.getAll(userClient1, {
-                    id_in: [ticket1.id, ticket2.id, ticket3.id],
-                }, { sortBy: 'createdAt_ASC' })
-
-                expect(readTicketsByClient1).toHaveLength(2)
-                expect(readTicketsByClient1[0].id).toEqual(ticket2.id)
-                expect(readTicketsByClient1[1].id).toEqual(ticket3.id)
+                expect(readTicketsByClient).toBeUndefined()
             })
         })
 

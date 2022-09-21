@@ -38,6 +38,7 @@ const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/tic
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { PROPERTY_ALREADY_EXISTS } = require('@condo/domains/property/constants/errors')
+const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/utils/serverSchema')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -345,6 +346,7 @@ const Property = new GQLListSchema('Property', {
 
                 if (isSoftDeleteOperation) {
                     await softDeleteTicketHintPropertiesByProperty(context, updatedItem)
+                    await softDeletePropertyScopeProperties(context, updatedItem)
                 }
             }
         },

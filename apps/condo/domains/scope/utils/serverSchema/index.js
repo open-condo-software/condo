@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
@@ -62,6 +62,21 @@ async function managePropertyScopeOrganizationEmployee (context, existingItem, u
     }
 }
 
+async function softDeletePropertyScopeProperties (context, updatedItem) {
+    const { dv, sender, id } = updatedItem
+
+    const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
+        property: { id },
+    })
+
+    for (const propertyScopeProperty of propertyScopeProperties) {
+        await PropertyScopeProperty.update(context, propertyScopeProperty.id, {
+            deletedAt: 'true',
+            dv, sender,
+        })
+    }
+}
+
 module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
@@ -69,5 +84,6 @@ module.exports = {
     SpecializationScope,
     createDefaultPropertyScopeForNewOrganization,
     managePropertyScopeOrganizationEmployee,
+    softDeletePropertyScopeProperties,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
