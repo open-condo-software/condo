@@ -6,15 +6,13 @@ const get = require('lodash/get')
 const omit = require('lodash/omit')
 const isEmpty = require('lodash/isEmpty')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { getById, find } = require('@open-condo/keystone/schema')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, SPECIALIZATION_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
-const { Division } = require('@condo/domains/division/utils/serverSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, SPECIALIZATION_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, NONE_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { mapEmployeeToVisibilityTypeToEmployees, getPropertyScopes } = require('@condo/domains/scope/utils/serverSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -33,58 +31,120 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         }
     }
 
-    const userEmployees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, deletedAt: null })
+    const userEmployees = await find('OrganizationEmployee', {
+        user: { id: user.id },
+        deletedAt: null,
+    })
+    const userEmployeeRoles = await find('OrganizationEmployeeRole', {
+        id_in: userEmployees.map(employee => employee.role),
+    })
+    const employeeToVisibilityType = userEmployees.map(employee => {
+        const visibilityType = userEmployeeRoles.find(role => role.id === employee.role).ticketVisibilityType
+        return { employee: employee, visibilityType }
+    })
 
-    const employeesWithDivisionTicketVisibility = userEmployees.filter(employee => employee.role.ticketVisibilityType === PROPERTY_TICKET_VISIBILITY)
-    const employeesWithSpecializationTicketVisibility = userEmployees.filter(employee => employee.role.ticketVisibilityType === SPECIALIZATION_TICKET_VISIBILITY)
+    const organizationTicketVisibilityOrganizationIds = []
+    const propertiesVisibilityPropertyIds = []
+    const specializationVisibilitySearchStatement = []
+    const propertyAndSpecializationVisibilitySearchStatement = []
+    const assignedVisibilityUserIds = []
+    const noneVisibilityOrganizationIds = []
 
-    const employeesWithDivisionAndSpecializationVisibility = [...employeesWithDivisionTicketVisibility, ...employeesWithSpecializationTicketVisibility]
-        .map(employee => employee.id)
-    const employeeDivisions = await Division.getAll(context, {
-        executors_some: { id_in: employeesWithDivisionAndSpecializationVisibility },
+    const employeeWithPropertyVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_TICKET_VISIBILITY)
+    const employeeWithSpecializationVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, SPECIALIZATION_TICKET_VISIBILITY)
+    const employeeWithPropertyAndSpecializationVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_AND_SPECIALIZATION_VISIBILITY)
+
+    const organizationIds = [...employeeWithPropertyVisibilityType, ...employeeWithPropertyAndSpecializationVisibilityType].map(employee => employee.organization)
+    const propertyScopes = await getPropertyScopes(organizationIds)
+
+    const employeeIds = [...employeeWithSpecializationVisibilityType, ...employeeWithPropertyAndSpecializationVisibilityType].map(employee => employee.id)
+    const specializationScopes = await find('SpecializationScope', {
+        employee: { id_in: employeeIds },
         deletedAt: null,
     })
 
-    const employeeDivisionProperties = []
-    for (const employeeId of employeesWithDivisionAndSpecializationVisibility) {
-        const properties = employeeDivisions
-            .filter(division => division.executors.find(executor => executor.id === employeeId))
-            .flatMap(division => division.properties.map(property => property.id))
-
-        employeeDivisionProperties.push({ employee: employeeId, properties })
-    }
-
-    const organizationTicketVisibilitySearchStatement = []
-    const divisionTicketVisibilitySearchStatement = []
-    const specializationDivisionTicketVisibilitySearchStatement = []
-    const assignedTicketVisibilitySearchStatement = []
-
-    for (const employee of userEmployees) {
-        const ticketVisibilityType = employee.role.ticketVisibilityType
-
-        switch (ticketVisibilityType) {
+    for (const { employee, visibilityType } of employeeToVisibilityType) {
+        switch (visibilityType) {
             case ORGANIZATION_TICKET_VISIBILITY: {
-                organizationTicketVisibilitySearchStatement.push(employee.organization.id)
-                break
-            }
-            case PROPERTY_TICKET_VISIBILITY: {
-                const properties = get(employeeDivisionProperties.find(obj => obj.employee === employee.id), 'properties', [])
-                divisionTicketVisibilitySearchStatement.push(...properties)
-
-                break
-            }
-            case SPECIALIZATION_TICKET_VISIBILITY: {
-                const employeeSpecializations = employee.specializations.map(specialization => specialization.id)
-                const properties = get(employeeDivisionProperties.find(obj => obj.employee === employee.id), 'properties', [])
-                specializationDivisionTicketVisibilitySearchStatement.push({
-                    property: properties,
-                    category: employeeSpecializations,
-                })
+                organizationTicketVisibilityOrganizationIds.push(employee.organization)
 
                 break
             }
             case ASSIGNED_TICKET_VISIBILITY: {
-                assignedTicketVisibilitySearchStatement.push(user.id)
+                assignedVisibilityUserIds.push(user.id)
+
+                break
+            }
+            case NONE_TICKET_VISIBILITY: {
+                noneVisibilityOrganizationIds.push(employee.organization)
+
+                break
+            }
+
+            case PROPERTY_TICKET_VISIBILITY: {
+                const employeePropertyScopes = propertyScopes.filter(scope => scope.employees.find(id => id === employee.id))
+                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.isDefault)
+
+                if (isEmployeeInDefaultPropertyScope) {
+                    const organizationProperties = await find('Property', {
+                        organization: { id: employee.organization },
+                        deletedAt: null,
+                    })
+                    propertiesVisibilityPropertyIds.push(...organizationProperties.map(property => property.id))
+
+                    break
+                }
+
+                const properties = employeePropertyScopes.flatMap(scope => scope.properties)
+                propertiesVisibilityPropertyIds.push(...properties)
+
+                break
+            }
+            case SPECIALIZATION_TICKET_VISIBILITY: {
+                const employeeSpecializations = specializationScopes
+                    .filter(specializationScope => specializationScope.employee === employee.id)
+                    .map(specializationScope => specializationScope.specialization)
+
+                specializationVisibilitySearchStatement.push({
+                    AND: [
+                        { organization: { id: employee.organization } },
+                        { classifier: { category: { id_in: employeeSpecializations } } },
+                    ],
+                })
+
+                break
+            }
+            case PROPERTY_AND_SPECIALIZATION_VISIBILITY: {
+                const employeeSpecializations = specializationScopes
+                    .filter(specializationScope => specializationScope.employee === employee.id)
+                    .map(specializationScope => specializationScope.specialization)
+
+                const employeePropertyScopes = propertyScopes.filter(scope => scope.employees.find(id => id === employee.id))
+                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.isDefault)
+
+                if (isEmployeeInDefaultPropertyScope) {
+                    const organizationProperties = await find('Property', {
+                        organization: { id: employee.organization },
+                        deletedAt: null,
+                    })
+
+                    propertyAndSpecializationVisibilitySearchStatement.push({
+                        AND: [
+                            { property: { id_in: organizationProperties.map(property => property.id) } },
+                            { classifier: { category: { id_in: employeeSpecializations } } },
+                        ],
+                    })
+
+                    break
+                }
+
+                const propertyIds = employeePropertyScopes.flatMap(scope => scope.properties)
+                propertyAndSpecializationVisibilitySearchStatement.push({
+                    AND: [
+                        { property: { id_in: propertyIds } },
+                        { classifier: { category: { id_in: employeeSpecializations } } },
+                    ],
+                })
 
                 break
             }
@@ -100,30 +160,32 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
             },
             {
                 AND: [
-                    { organization: { id_in: organizationTicketVisibilitySearchStatement } },
+                    { organization: { id_in: organizationTicketVisibilityOrganizationIds } },
                 ],
             },
             {
                 AND: [
-                    { property: { id_in: divisionTicketVisibilitySearchStatement } },
+                    { property: { id_in: propertiesVisibilityPropertyIds } },
                 ],
             },
+            ...specializationVisibilitySearchStatement,
+            ...propertyAndSpecializationVisibilitySearchStatement,
             {
                 AND: [
                     {
                         OR: [
-                            { assignee: { id_in: assignedTicketVisibilitySearchStatement } },
-                            { executor: { id_in: assignedTicketVisibilitySearchStatement } },
+                            { assignee: { id_in: assignedVisibilityUserIds } },
+                            { executor: { id_in: assignedVisibilityUserIds } },
                         ],
                     },
                 ],
             },
-            ...specializationDivisionTicketVisibilitySearchStatement.map(({ property, category }) => ({
+            {
                 AND: [
-                    { property: { id_in: property } },
-                    { classifier: { category: { id_in: category } } },
+                    { organization: { id_in: noneVisibilityOrganizationIds } },
+                    { id: null },
                 ],
-            })),
+            },
         ],
     }
 }
