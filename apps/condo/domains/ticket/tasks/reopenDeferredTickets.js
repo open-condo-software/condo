@@ -53,8 +53,16 @@ const reopenDeferredTickets = async () => {
                 const organizationId = get(ticket, ['organization', 'id'])
 
                 const employeeIds = []
-                assigneeId ? employeeIds.push(assigneeId) : delete updatedData.assignee
-                executorId ? employeeIds.push(executorId) : delete updatedData.executor
+                if (assigneeId) {
+                    employeeIds.push(assigneeId)
+                } else {
+                    delete updatedData.assignee
+                }
+                if (executorId) {
+                    employeeIds.push(executorId)
+                } else {
+                    delete updatedData.executor
+                }
 
                 if (!isEmpty(employeeIds)) {
                     const employees = await OrganizationEmployee.getAll(keystone, {
