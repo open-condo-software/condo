@@ -35,8 +35,15 @@ async function canManageSpecializationScopes ({ authentication: { item: user }, 
         const employee = await getById('OrganizationEmployee', employeeId)
         const organizationId = get(employee, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageOrganizationEmployees')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     } else if (operation === 'update' && itemId) {
+        const isSoftDeletedOperation = get(originalInput, 'deletedAt')
+        const updatedEmployeeId = get(originalInput, ['employee', 'connect', 'id'])
+        const updatedSpecializationId = get(originalInput, ['specialization', 'connect', 'id'])
+
+        // can update only if it soft delete operation
+        if (!isSoftDeletedOperation || updatedEmployeeId || updatedSpecializationId) return false
+
         const specializationScope = await getById('SpecializationScope', itemId)
         if (!specializationScope) return false
 
@@ -44,7 +51,7 @@ async function canManageSpecializationScopes ({ authentication: { item: user }, 
         const employee = await getById('OrganizationEmployee', employeeId)
         const organizationId = get(employee, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageOrganizationEmployees')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageEmployees')
     }
 
     return false

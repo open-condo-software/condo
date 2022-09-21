@@ -119,7 +119,6 @@ describe('PropertyScopeProperty', () => {
             it('employee with canManagePropertyScopes ability: cannot soft delete PropertyScopeProperty in not his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
-                const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
@@ -128,10 +127,6 @@ describe('PropertyScopeProperty', () => {
                 await createTestOrganizationEmployee(admin, organization, user.user, role)
 
                 const [organization1] = await createTestOrganization(admin)
-                const [role1] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManagePropertyScopes: true,
-                })
-                await createTestOrganizationEmployee(admin, organization, user1.user, role1)
                 const [propertyScope] = await createTestPropertyScope(admin, organization1)
                 const [property] = await createTestProperty(admin, organization1)
                 const [propertyScopeProperty] = await createTestPropertyScopeProperty(admin, propertyScope, property)
