@@ -25,17 +25,30 @@ async function canManagePropertyScopeProperties ({ authentication: { item: user 
 
     if (operation === 'create') {
         const propertyScopeId = get(originalInput, ['propertyScope', 'connect', 'id'])
-        if (!propertyScopeId) return false
+        const propertyId = get(originalInput, ['property', 'connect', 'id'])
+        if (!propertyScopeId || !propertyId) return false
 
         const propertyScope = await getById('PropertyScope', propertyScopeId)
-        const organizationId = get(propertyScope, 'organization')
+        const property = await getById('Property', propertyId)
+        const propertyScopeOrganizationId = get(propertyScope, 'organization')
+        const employeeOrganizationId = get(property, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
+        if (propertyScopeOrganizationId !== employeeOrganizationId)
+            return false
+
+        return await checkOrganizationPermission(user.id, propertyScopeOrganizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
-        const propertyScopeOrganizationEmployee = await getById('PropertyScopeOrganizationProperty', itemId)
-        if (!propertyScopeOrganizationEmployee) return false
+        const isSoftDeletedOperation = get(originalInput, 'deletedAt')
+        const updatedPropertyScopeId = get(originalInput, ['propertyScope', 'connect', 'id'])
+        const updatedPropertyId = get(originalInput, ['proeprty', 'connect', 'id'])
 
-        const propertyScopeId = propertyScopeOrganizationEmployee.propertyScope
+        // can update only if it soft delete operation
+        if (!isSoftDeletedOperation || updatedPropertyScopeId || updatedPropertyId) return false
+
+        const propertyScopeProperty = await getById('PropertyScopeProperty', itemId)
+        if (!propertyScopeProperty) return false
+
+        const propertyScopeId = propertyScopeProperty.propertyScope
         const propertyScope = await getById('PropertyScope', propertyScopeId)
         const organizationId = get(propertyScope, 'organization')
 
