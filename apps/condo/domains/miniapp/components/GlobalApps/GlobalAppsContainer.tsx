@@ -39,7 +39,7 @@ type ModalInfo = {
 const MUTATION_RESULT_MESSAGE_NAME = 'CondoWebUserEventResult'
 const MODAL_OPEN_RESULT_MESSAGE_NAME = 'CondoWebOpenModalResult'
 const MODAL_CLOSE_RESULT_MESSAGE_NAME = 'CondoWebCloseModalResult'
-const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebRequestFeatureRequest'
+const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebFeatureRequest'
 const MODAL_CLOSE_USER_REASON = 'userAction'
 const MODAL_CLOSE_APP_REASON = 'externalCommand'
 const TASK_GET_PROCESSING_STATUS = 'CondoWebGetProcessingTasks'
@@ -75,13 +75,13 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [appUrls])
 
     useEffect(() => {
-        const globalFeatures = objs.reduce((acc, app) => {
+        const globalFeatures = objs.reduce((registeredFeatures, app) => {
             const appOrigin = extractOrigin(app.appUrl)
-            const availableFeatures = (app.features || []).filter(featureName => !(featureName in acc))
+            const availableFeatures = (app.features || []).filter(featureName => !(featureName in registeredFeatures))
             const appFeatures = Object.assign({}, ...availableFeatures.map(featureName => ({ [featureName]: appOrigin })))
 
             return {
-                ...acc,
+                ...registeredFeatures,
                 ...appFeatures,
             }
         }, {})

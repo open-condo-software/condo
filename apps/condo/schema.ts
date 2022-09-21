@@ -1829,7 +1829,7 @@ export type B2BApp = {
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
-  /**  List of global features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration]  */
+  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration]  */
   features?: Maybe<Array<B2BAppGlobalFeature>>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
