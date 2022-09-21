@@ -20,7 +20,7 @@ const taskLogger = appLogger.child({ module: 'reopenDeferredTickets' })
  */
 const reopenDeferredTickets = async () => {
     const { keystone } = await getSchemaCtx('Ticket')
-    const adminContext = await keystone.createContext({ skipAccessControl: true })
+    const context = await keystone.createContext()
     const currentDate = dayjs().toISOString()
     const ticketWhere = {
         status: { id: STATUS_IDS.DEFERRED },
@@ -45,33 +45,34 @@ const reopenDeferredTickets = async () => {
                     dv: 1,
                     sender: { fingerprint: 'auto-reopen', dv: 1 },
                     status: { connect: { id: STATUS_IDS.OPEN } },
+                    assignee: { disconnectAll: true },
+                    executor: { disconnectAll: true },
                 }
                 const assigneeId = get(ticket, ['assignee', 'id'])
                 const executorId = get(ticket, ['executor', 'id'])
                 const organizationId = get(ticket, ['organization', 'id'])
-                if (assigneeId) {
-                    const employeeCount = await OrganizationEmployee.count(keystone, {
-                        user: { id: assigneeId },
+
+                const employeeIds = []
+                assigneeId ? employeeIds.push(assigneeId) : delete updatedData.assignee
+                executorId ? employeeIds.push(executorId) : delete updatedData.executor
+
+                if (!isEmpty(employeeIds)) {
+                    const employees = await OrganizationEmployee.getAll(keystone, {
+                        user: { id_in: employeeIds },
                         organization: { id: organizationId },
                         isBlocked: false,
                         deletedAt: null,
-                    })
-                    if (!employeeCount) {
-                        updatedData.assignee = { disconnectAll: true }
+                    }, {})
+
+                    if (assigneeId && employees.some(employee => get(employee, ['user', 'id'], null) === assigneeId)) {
+                        delete updatedData.assignee
+                    }
+                    if (executorId && employees.some(employee => get(employee, ['user', 'id'], null) === executorId)) {
+                        delete updatedData.executor
                     }
                 }
-                if (executorId) {
-                    const employeeCount = await OrganizationEmployee.count(keystone, {
-                        user: { id: executorId },
-                        organization: { id: organizationId },
-                        isBlocked: false,
-                        deletedAt: null,
-                    })
-                    if (!employeeCount) {
-                        updatedData.executor = { disconnectAll: true }
-                    }
-                }
-                await Ticket.update(adminContext, ticket.id, updatedData)
+
+                await Ticket.update(context, ticket.id, updatedData)
             } catch (error) {
                 taskLogger.error({
                     msg: 'Failed to update Ticket',
