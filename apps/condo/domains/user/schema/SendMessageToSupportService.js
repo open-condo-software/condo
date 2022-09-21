@@ -91,20 +91,20 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 const files = await Promise.all(filesPromises)
 
                 const residents = await Resident.getAll(context, { user: { id: user.id } })
-                const serviceConsumers = await ServiceConsumer.getAll(context, { resident: { id_in: residents.map(x => x.id) } })
+                const serviceConsumers = await ServiceConsumer.getAll(context, { resident: { id_in: residents.map(({ id }) => id) } })
 
                 const residentsExtraInfo = []
 
-                for (const resident of residents) {
-                    const residentServiceConsumers = serviceConsumers.filter(x => x.resident.id === resident.id)
-                    const residentOrganization = await Organization.getOne(context, { id: resident.organization.id })
+                for (const currentResident of residents) {
+                    const residentServiceConsumers = serviceConsumers.filter(({ resident }) => resident.id === currentResident.id)
+                    const residentOrganization = await Organization.getOne(context, { id: currentResident.organization.id })
 
-                    const residentInfo = { address: resident.address, accountNumbers: null, organization: null }
+                    const residentInfo = { address: currentResident.address, accountNumbers: null, organization: null }
 
                     if (residentServiceConsumers) {
-                        residentInfo.serviceConsumers = [...residentServiceConsumers.map(x => ({
-                            accountNumber: x.accountNumber,
-                            organizationName: x.organization.name,
+                        residentInfo.serviceConsumers = [...residentServiceConsumers.map(({ accountNumber, organization }) => ({
+                            accountNumber: accountNumber,
+                            organizationName: organization.name,
                         }))]
                     }
 
