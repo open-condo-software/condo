@@ -7,7 +7,6 @@ const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const access = require('@condo/domains/scope/access/PropertyScopeOrganizationEmployee')
-const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 
 const PropertyScopeOrganizationEmployee = new GQLListSchema('PropertyScopeOrganizationEmployee', {

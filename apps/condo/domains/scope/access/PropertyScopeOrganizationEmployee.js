@@ -25,13 +25,26 @@ async function canManagePropertyScopeOrganizationEmployees ({ authentication: { 
 
     if (operation === 'create') {
         const propertyScopeId = get(originalInput, ['propertyScope', 'connect', 'id'])
-        if (!propertyScopeId) return false
+        const employeeId = get(originalInput, ['employee', 'connect', 'id'])
+        if (!propertyScopeId || !employeeId) return false
 
         const propertyScope = await getById('PropertyScope', propertyScopeId)
-        const organizationId = get(propertyScope, 'organization')
+        const employee = await getById('OrganizationEmployee', employeeId)
+        const propertyScopeOrganizationId = get(propertyScope, 'organization')
+        const employeeOrganizationId = get(employee, 'organization')
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManagePropertyScopes')
+        if (propertyScopeOrganizationId !== employeeOrganizationId)
+            return false
+
+        return await checkOrganizationPermission(user.id, propertyScopeOrganizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
+        const isSoftDeletedOperation = get(originalInput, 'deletedAt')
+        const updatedPropertyScopeId = get(originalInput, ['propertyScope', 'connect', 'id'])
+        const updatedEmployeeId = get(originalInput, ['employee', 'connect', 'id'])
+
+        // can update only if it soft delete operation
+        if (!isSoftDeletedOperation || updatedPropertyScopeId || updatedEmployeeId) return false
+
         const propertyScopeOrganizationEmployee = await getById('PropertyScopeOrganizationEmployee', itemId)
         if (!propertyScopeOrganizationEmployee) return false
 

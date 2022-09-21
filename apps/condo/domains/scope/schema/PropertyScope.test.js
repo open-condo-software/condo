@@ -9,12 +9,11 @@ const {
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@condo/domains/common/utils/testSchema')
 
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { PropertyScope, createTestPropertyScope, updateTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee, PropertyScopeProperty, PropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, OrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const faker = require('faker')
-const { createTestTicketPropertyHint, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
@@ -245,40 +244,6 @@ describe('PropertyScope', () => {
 
             const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
             expect(defaultPropertyScope).toBeDefined()
-        })
-
-        // TODO(DOMA-4065): перенести в тесты для PropertyScopeOrganizationEmployee
-        it('create PropertyScopeOrganizationEmployee for default PropertyScope after employee creation', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const user = await makeClientWithNewRegisteredAndLoggedInUser()
-
-            const [org] = await registerNewOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, org)
-            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
-
-            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
-            const propertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { employee: { id: employee.id }, propertyScope: { id: defaultPropertyScope.id } })
-
-            expect(propertyScopeOrganizationEmployee).toBeDefined()
-        })
-
-        it('delete PropertyScopeOrganizationEmployee after employee deletion', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const user = await makeClientWithNewRegisteredAndLoggedInUser()
-
-            const [org] = await registerNewOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, org)
-            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
-
-            await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
-
-            await updateTestOrganizationEmployee(admin, employee.id, {
-                deletedAt: 'true',
-            })
-
-            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(admin, { employee: { id: employee.id } })
-
-            expect(propertyScopeOrganizationEmployees).toHaveLength(0)
         })
     })
 })

@@ -11,196 +11,241 @@ const {
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
+const { PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee, createTestPropertyScope, updateTestPropertyScope, PropertyScope } = require('@condo/domains/scope/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const faker = require('faker')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 describe('PropertyScopeOrganizationEmployee', () => {
-    describe('CRUD tests', () => {
-        describe('create', () => {
-            test('admin can', async () => {
-                // 1) prepare data
+    describe('accesses', () => {
+        describe('admin', () => {
+            describe('can create PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                // 2) action
-                const [obj, attrs] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const [organization] = await createTestOrganization(admin)
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+                const [propertyScopeOrganizationEmployee] = await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
 
-                // 3) check
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(1)
-                expect(obj.newId).toEqual(null)
-                expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.createdAt).toMatch(DATETIME_RE)
-                expect(obj.updatedAt).toMatch(DATETIME_RE)
-                // TODO(codegen): write others fields here! provide as match fields as you can here!
+                expect(propertyScopeOrganizationEmployee.id).toMatch(UUID_RE)
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
-                const client = await makeClientWithSupportUser()  // TODO(codegen): create SUPPORT client!
+            describe('can update PropertyScopeOrganizationEmployee', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [obj, attrs] = await createTestPropertyScopeOrganizationEmployee(client)  // TODO(codegen): write 'support: create PropertyScopeOrganizationEmployee' test
+                const [organization] = await createTestOrganization(admin)
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+                const [propertyScopeOrganizationEmployee] = await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
+                const [updatedPropertyScope] = await updateTestPropertyScopeOrganizationEmployee(admin, propertyScopeOrganizationEmployee.id, {})
 
-            test('user can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-
-                const [obj, attrs] = await createTestPropertyScopeOrganizationEmployee(client)  // TODO(codegen): write 'user: create PropertyScopeOrganizationEmployee' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestPropertyScopeOrganizationEmployee(client)  // TODO(codegen): write 'anonymous: create PropertyScopeOrganizationEmployee' test
-                })
+                expect(updatedPropertyScope.id).toEqual(propertyScope.id)
             })
         })
 
-        describe('update', () => {
-            test('admin can', async () => {
+        describe('employee', async () => {
+            it('employee with canManagePropertyScopes ability: can create PropertyScopeOrganizationEmployee with employee and propertyScope from his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [obj, attrs] = await updateTestPropertyScopeOrganizationEmployee(admin, objCreated.id)
-
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-            })
-
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
-
-                const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
-                const [obj, attrs] = await updateTestPropertyScopeOrganizationEmployee(client, objCreated.id)  // TODO(codegen): write 'support: update PropertyScopeOrganizationEmployee' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const [obj, attrs] = await updateTestPropertyScopeOrganizationEmployee(client, objCreated.id)  // TODO(codegen): write 'user: update PropertyScopeOrganizationEmployee' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
-
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestPropertyScopeOrganizationEmployee(client, objCreated.id)  // TODO(codegen): write 'anonymous: update PropertyScopeOrganizationEmployee' test
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManagePropertyScopes: true,
                 })
-            })
-        })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
 
-        describe('hard delete', () => {
-            test('admin can\'t', async () => {
+                const [propertyScope] = await createTestPropertyScope(user, organization)
+                const [propertyScopeOrganizationEmployee] = await createTestPropertyScopeOrganizationEmployee(user, propertyScope, employee)
+
+                expect(propertyScopeOrganizationEmployee.id).toMatch(UUID_RE)
+            })
+
+            it('employee with canManagePropertyScopes ability: cannot create PropertyScopeOrganizationEmployee with propertyScope from in not his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [organization1] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManagePropertyScopes: true,
+                })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+                const [propertyScope] = await createTestPropertyScope(admin, organization1)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await PropertyScopeOrganizationEmployee.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete PropertyScopeOrganizationEmployee' test
+                    await createTestPropertyScopeOrganizationEmployee(user, propertyScope, employee)
                 })
             })
 
-            test('user can\'t', async () => {
+            it('employee without canManagePropertyScopes ability: cannot create PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await PropertyScopeOrganizationEmployee.delete(client, objCreated.id)  // TODO(codegen): write 'user: delete PropertyScopeOrganizationEmployee' test
+                    await createTestPropertyScopeOrganizationEmployee(user, propertyScope, employee)
                 })
             })
 
-            test('anonymous can\'t', async () => {
+            it('employee with canManagePropertyScopes ability: can soft delete PropertyScopeOrganizationEmployee in his organization', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await PropertyScopeOrganizationEmployee.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete PropertyScopeOrganizationEmployee' test
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManagePropertyScopes: true,
+                })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                const [propertyScope] = await createTestPropertyScope(user, organization)
+                const [propertyScopeEmployee] = await createTestPropertyScopeOrganizationEmployee(user, propertyScope, employee)
+
+                const [updatedPropertyScopeEmployee] = await updateTestPropertyScopeOrganizationEmployee(user, propertyScopeEmployee.id, {
+                    deletedAt: 'true',
+                })
+
+                expect(updatedPropertyScopeEmployee.id).toEqual(propertyScopeEmployee.id)
+                expect(updatedPropertyScopeEmployee.deletedAt).toBeDefined()
+            })
+
+            it('employee with canManagePropertyScopes ability: cannot soft delete PropertyScopeOrganizationEmployee in not his organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManagePropertyScopes: true,
+                })
+                await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                const [organization1] = await createTestOrganization(admin)
+                const [role1] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManagePropertyScopes: true,
+                })
+                const [employee1] = await createTestOrganizationEmployee(admin, organization, user1.user, role1)
+                const [propertyScope] = await createTestPropertyScope(admin, organization1)
+                const [propertyScopeEmployee] = await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee1)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestPropertyScopeOrganizationEmployee(user, propertyScopeEmployee.id, {
+                        deletedAt: 'true',
+                    })
+                })
+            })
+
+            it('employee with canManagePropertyScopes ability: cannot update PropertyScopeOrganizationEmployee in his organization if its not soft delete operation', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManagePropertyScopes: true,
+                })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+                const [propertyScope] = await createTestPropertyScope(user, organization)
+                const [propertyScope1] = await createTestPropertyScope(user, organization)
+                const [propertyScopeEmployee] = await createTestPropertyScopeOrganizationEmployee(user, propertyScope, employee)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestPropertyScopeOrganizationEmployee(user, propertyScopeEmployee.id, {
+                        propertyScope: { connect: { id: propertyScope1.id } },
+                    })
+                })
+            })
+
+            it('employee without canManagePropertyScopes ability: cannot update PropertyScopeOrganizationEmployee', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+                const [propertyScopeEmployee] = await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestPropertyScopeOrganizationEmployee(user, propertyScopeEmployee.id, {
+                        deletedAt: 'true',
+                    })
                 })
             })
         })
 
-        describe('read', () => {
-            test('admin can', async () => {
+        describe('anonymous', async () => {
+            it('cannot create PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const anonymous = await makeClient()
 
-                const objs = await PropertyScopeOrganizationEmployee.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                const [employee] = await createTestOrganizationEmployee(admin, organization, admin.user, role)
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
 
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                        // TODO(codegen): write fields which important to ADMIN access check
-                    }),
-                ]))
-            })
-
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestPropertyScopeOrganizationEmployee(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const objs = await PropertyScopeOrganizationEmployee.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs).toHaveLength(1)
-                expect(objs[0]).toMatchObject({
-                    id: obj.id,
-                    // TODO(codegen): write fields which important to USER access check
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await createTestPropertyScopeOrganizationEmployee(anonymous, propertyScope, employee)
                 })
             })
 
-            // TODO(codegen): write test for user1 doesn't have access to user2 data if it's applicable
-
-            test('anonymous can\'t', async () => {
+            it('cannot update PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestPropertyScopeOrganizationEmployee(admin)
+                const anonymous = await makeClient()
 
-                const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await PropertyScopeOrganizationEmployee.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read PropertyScopeOrganizationEmployee' test
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+                const [employee] = await createTestOrganizationEmployee(admin, organization, admin.user, role)
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+                const [propertyScopeEmployee] = await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
+
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await updateTestPropertyScopeOrganizationEmployee(anonymous, propertyScopeEmployee.id, {})
                 })
             })
         })
     })
 
-    describe('Validation tests', () => {
-        test('Should have correct dv field (=== 1)', async () => {
-            // TODO(codegen): check it!
-        })
-    })
+    describe('logic', () => {
+        it('create PropertyScopeOrganizationEmployee for default PropertyScope after employee creation', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
+            const [org] = await registerNewOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, org)
+            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
+
+            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+            const propertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { employee: { id: employee.id }, propertyScope: { id: defaultPropertyScope.id } })
+
+            expect(propertyScopeOrganizationEmployee).toBeDefined()
+        })
+
+        it('delete PropertyScopeOrganizationEmployee after employee deletion', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [org] = await registerNewOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, org)
+            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
+
+            await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+
+            await updateTestOrganizationEmployee(admin, employee.id, {
+                deletedAt: 'true',
+            })
+
+            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(admin, { employee: { id: employee.id } })
+
+            expect(propertyScopeOrganizationEmployees).toHaveLength(0)
+        })
     })
 })
