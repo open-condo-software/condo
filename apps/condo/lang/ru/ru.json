@@ -1225,6 +1225,7 @@
   "pay": "Оплатить",
   "pages.paymentConfirm.VerifyPaymentAmount": "Проверьте сумму платежа",
   "api.common.WRONG_PHONE_FORMAT": "Неверный формат номера телефона",
+  "api.contact.CONTACT_DUPLICATE_ERROR": "Контакт с таким номером телефона уже зарегистрирован в этом помещении",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "Не найдены платежи для экспорта",
   "api.user.PASSWORD_IS_TOO_SHORT": "Длина введённого пароля меньше {min} символов",
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "Пароль слишком простой. Нужно использовать что-то более безопасное",

@@ -1225,6 +1225,7 @@
   "pay": "Pay",
   "pages.paymentConfirm.VerifyPaymentAmount": "Verify payment amount",
   "api.common.WRONG_PHONE_FORMAT": "Wrong phone number format",
+  "api.contact.CONTACT_DUPLICATE_ERROR": "Contact with this phone number is already registered in this room",
   "api.acquiring.exportPaymentsToExcel.NOTHING_TO_EXPORT": "No payments to export",
   "api.user.PASSWORD_IS_TOO_SHORT": "Password length is less then {min} characters",
   "api.user.PASSWORD_IS_FREQUENTLY_USED": "This password is weak or too obvious please choose something more secure",
