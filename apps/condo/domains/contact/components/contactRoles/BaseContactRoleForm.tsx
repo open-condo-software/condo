@@ -1,13 +1,14 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { useExistingContactRoles } from '@condo/domains/contact/hooks/useExistingContactRoles'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback } from 'react'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -45,17 +46,12 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
     const ReadyMessage = intl.formatMessage({ id: 'Ready' })
 
-    const [existingContactRoles, setExistingContactRoles] = useState<Set<string>>()
-
     const router = useRouter()
+
+    const existingContactRoles = useExistingContactRoles()
 
     const createContactRoleAction = ContactRole.useCreate({})
     const softDeleteContactRoleAction = ContactRole.useSoftDelete()
-    const { objs: contactRoles, loading } = ContactRole.useObjects({
-        where: {
-            deletedAt: null,
-        },
-    })
 
     const { trimValidator, contactRoleValidator } = useValidations()
 
@@ -74,10 +70,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
         await router.push(`/settings?tab=${SETTINGS_TAB_CONTACT_ROLES}`)
     }, [action, createContactRoleAction, initialValues, organizationId, softDeleteContactRoleAction])
 
-    useEffect(() => {
-        const roles = contactRoles.map(role => role.name)
-        setExistingContactRoles(new Set(roles))
-    }, [loading])
+
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
