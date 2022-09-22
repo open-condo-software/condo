@@ -225,6 +225,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     resetOnComplete?: boolean
     layout?: 'vertical' | 'horizontal'
     colon?: boolean
+    isNonFieldErrorHidden?: boolean
     formValuesToMutationDataPreprocessor?: (values: IFormValuesType) => IFormValuesType
     ErrorToFormFieldMsgMapping?: Record<string, {
         name: string
@@ -267,6 +268,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         style,
         onFieldsChange,
         formInstance,
+        isNonFieldErrorHidden,
         ...formProps
     } = props
 
@@ -374,7 +376,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             style={style}
             {...formProps}
         >
-            <Form.Item className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
+            <Form.Item hidden={isNonFieldErrorHidden} className='ant-non-field-error' name={NON_FIELD_ERROR_NAME}><Input /></Form.Item>
             {children({ handleSave, isLoading, handleSubmit: _handleSubmit, form })}
         </Form>
     )

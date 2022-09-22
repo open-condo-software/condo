@@ -9,14 +9,33 @@ const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/contact/access/Contact')
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
 
 /**
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
  * ("property", "unitName", "name", "phone")
  */
+const errors = {
+    UNABLE_TO_CREATE_CONTACT_DUPLICATE: {
+        mutation: 'signinResidentUser',
+        code: BAD_USER_INPUT,
+        type: UNABLE_TO_CREATE_CONTACT_DUPLICATE,
+        message: 'Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+        messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
+    },
+    UNABLE_TO_UPDATE_CONTACT_DUPLICATE: {
+        mutation: 'signinResidentUser',
+        code: BAD_USER_INPUT,
+        type: UNABLE_TO_UPDATE_CONTACT_DUPLICATE,
+        message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+        messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
+    },
+
+}
 const Contact = new GQLListSchema('Contact', {
     schemaDoc: 'Contact information of a person. Currently it will be related to a ticket, but in the future, it will be associated with more things',
     fields: {
@@ -108,7 +127,7 @@ const Contact = new GQLListSchema('Contact', {
 
     },
     hooks: {
-        validateInput: async ({ resolvedData, operation, existingItem, addValidationError }) => {
+        validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { property, unitName, unitType, name, phone } = newItem
 
@@ -126,11 +145,11 @@ const Contact = new GQLListSchema('Contact', {
             const [contact] = await find('Contact', condition)
             if (operation === 'create') {
                 if (contact) {
-                    return addValidationError('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                    throw new GQLError(errors.UNABLE_TO_CREATE_CONTACT_DUPLICATE, context)
                 }
             } else if (operation === 'update') {
                 if (contact && contact.id !== existingItem.id) {
-                    return addValidationError('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
+                    throw new GQLError(errors.UNABLE_TO_UPDATE_CONTACT_DUPLICATE, context)
                 }
             }
         },

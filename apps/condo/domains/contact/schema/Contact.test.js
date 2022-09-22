@@ -58,8 +58,7 @@ describe('Contact', () => {
             await catchErrorFrom(async () => {
                 await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                expect(errors[0].message).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
                 expect(data).toEqual({ 'obj': null })
             })
         })
@@ -85,8 +84,7 @@ describe('Contact', () => {
             await catchErrorFrom(async () => {
                 await updateTestContact(adminClient, contact.id, sameFields)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('You attempted to perform an invalid mutation')
-                expect(errors[0].data.messages[0]).toMatch('Cannot update contact, because another contact already exists with the same provided set of "property", "unitName", "name", "phone"')
+                expect(errors[0].message).toMatch('Cannot update contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
                 expect(data).toEqual({ 'obj': null })
             })
         })

@@ -24,16 +24,9 @@ const EXPORT_CONTACTS_TO_EXCEL =  gql`
     }
 `
 
-const LOAD_CONTACTS = gql`
-    query allContacts($where:ContactWhereInput) {
-        result: allContacts(where:$where) ${CONTACT_FIELDS}
-    }
-`
-
 module.exports = {
     Contact,
     EXPORT_CONTACTS_TO_EXCEL,
     ContactRole,
-    LOAD_CONTACTS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
