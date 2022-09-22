@@ -14,7 +14,7 @@ type ValidatorTypes = {
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
-    tinValidator: (country: string) => Rule,
+    tinValidator: (country: string) => Rule
     contactRoleValidator: (existingRoles: Set<string>) => Rule
 }
 
@@ -138,8 +138,10 @@ export const useValidations: UseValidations = (settings = {}) => {
 
     const contactRoleValidator = (existingRoles: Set<string>): Rule => ({
         validator: (_, value) => {
-            const normalizedValue = value.trim()
-            if (existingRoles.has(normalizedValue) || normalizedValue.startsWith('contact.role')) return Promise.reject(ContactRoleIsDuplicateMessage)
+            const normalizedValue = value && value.trim()
+            if (normalizedValue &&
+                (existingRoles.has(normalizedValue) || normalizedValue.startsWith('contact.role')))
+                return Promise.reject(ContactRoleIsDuplicateMessage)
             return Promise.resolve()
         },
     })
