@@ -3,6 +3,7 @@ const RE_FETCH_TICKETS_IN_CONTROL_ROOM = 'refetch-tickets-in-control-room'
 const SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK = 'send-submit-meter-readings-push-notifications-task'
 const SEND_METER_VERIFICATION_DATE_REMINDER_TASK = 'send-verification-date-reminder-task'
 const SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK = 'send-billing-receipts-notifications-task'
+const TICKET_IMPORT = 'ticket-import'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -10,4 +11,5 @@ module.exports = {
     SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK,
     SEND_METER_VERIFICATION_DATE_REMINDER_TASK,
     SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK,
+    TICKET_IMPORT,
 }

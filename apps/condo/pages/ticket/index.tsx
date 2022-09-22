@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { FilterFilled } from '@ant-design/icons'
+import { DiffOutlined, FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -40,6 +40,15 @@ import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch
 import { useAuth } from '@condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
+import { ImportWrapper } from '@condo/domains/common/components/Import'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import {
+    DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
+    EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
+} from '@condo/domains/common/constants/import'
+import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
+import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -51,6 +60,7 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
+const ROW_GUTTER_10_0: [Gutter, Gutter] = [10, 0]
 
 const TicketsTable = ({
     filterMetas,
@@ -136,6 +146,8 @@ export const TicketsPageContent = ({
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+    const TicketsMessage = intl.formatMessage({ id: 'menu.Tickets' })
+    const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -172,6 +184,43 @@ export const TicketsPageContent = ({
     } = Ticket.useCount({ where: baseTicketsQuery })
     const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
+    const { useFlag, updateContext } = useFeatureFlags()
+    const { user } = useAuth()
+    const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
+    const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
+
+    const TicketImportButton = useMemo(() => {
+        return isTicketImportFeatureEnabled && (
+            <ImportWrapper
+                accessCheck={isTicketImportFeatureEnabled}
+                domainTranslate={TicketReadingObjectsNameManyGenitiveMessage}
+                columns={columns}
+                objectsName={TicketsMessage}
+                onFinish={undefined}
+                rowValidator={ticketValidator}
+                rowNormalizer={ticketNormalizer}
+                objectCreator={ticketCreator}
+                exampleTemplateLink='/ticket-import-example.xlsx'
+                maxTableLength={
+                    hasFeature('bigger_limit_for_import')
+                        ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT
+                        : DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                }
+
+            >
+                <Button
+                    type='sberPrimary'
+                    icon={<DiffOutlined/>}
+                    secondary
+                />
+            </ImportWrapper>
+        )
+    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, ticketCreator, ticketNormalizer, ticketValidator])
+
+    useEffect(() => {
+        updateContext({ isSupport: user.isSupport || user.isAdmin })
+    }, [updateContext, user.isAdmin, user.isSupport])
+
     return (
         <>
             <Head>
@@ -183,12 +232,14 @@ export const TicketsPageContent = ({
                 }/>
                 <TablePageContent>
                     {
-                        !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0
+                        (!ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0)
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
                                 createRoute='/ticket/create'
-                                createLabel={CreateTicket}/>
+                                createLabel={CreateTicket}
+                                button={TicketImportButton}
+                            />
                             : (
                                 <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                                     <Col span={24}>
@@ -270,16 +321,25 @@ export const TicketsPageContent = ({
                                                             ) : null
                                                         }
                                                         <Col>
-                                                            <Button
-                                                                secondary
-                                                                type='sberPrimary'
-                                                                onClick={() => setIsMultipleFiltersModalVisible(true)}
-                                                                data-cy='ticket__filters-button'
-                                                            >
-                                                                <FilterFilled/>
-                                                                {FiltersButtonLabel}
-                                                                {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
-                                                            </Button>
+                                                            <Row gutter={ROW_GUTTER_10_0}>
+                                                                <Col>
+                                                                    {TicketImportButton}
+                                                                </Col>
+                                                                <Col>
+                                                                    <Button
+                                                                        secondary
+                                                                        type='sberPrimary'
+                                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                                        data-cy='ticket__filters-button'
+                                                                    >
+                                                                        <FilterFilled/>
+                                                                        {FiltersButtonLabel}
+                                                                        {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
+                                                                    </Button>
+                                                                </Col>
+                                                            </Row>
+
+
                                                         </Col>
                                                     </Row>
                                                 </Col>
