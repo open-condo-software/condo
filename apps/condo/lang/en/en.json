@@ -212,6 +212,7 @@
   "ContactRoles.editing": "Role editing",
   "ContactRoles.readOnlyRoleWarningTitle": "Readonly role",
   "ContactRoles.readOnlyRoleWarningMessage": "Contacts with this role will become contacts without role. You may set any other role to these contacts at any time.",
+  "ContactRoles.error.duplicate": "This role already exists",
   "contact.role.owner.name": "Owner",
   "contact.role.resident.name": "Resident",
   "contact.role.guest.name": "Guest",

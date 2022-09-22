@@ -7,7 +7,7 @@ import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -45,12 +45,19 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
     const ReadyMessage = intl.formatMessage({ id: 'Ready' })
 
+    const [existingContactRoles, setExistingContactRoles] = useState<Set<string>>()
+
     const router = useRouter()
 
     const createContactRoleAction = ContactRole.useCreate({})
     const softDeleteContactRoleAction = ContactRole.useSoftDelete()
+    const { objs: contactRoles, loading } = ContactRole.useObjects({
+        where: {
+            deletedAt: null,
+        },
+    })
 
-    const { trimValidator } = useValidations()
+    const { trimValidator, contactRoleValidator } = useValidations()
 
     const handleFormSubmit = useCallback(async (values) => {
         const initialContactRoleId = get(initialValues, 'id')
@@ -66,6 +73,11 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 
         await router.push(`/settings?tab=${SETTINGS_TAB_CONTACT_ROLES}`)
     }, [action, createContactRoleAction, initialValues, organizationId, softDeleteContactRoleAction])
+
+    useEffect(() => {
+        const roles = contactRoles.map(role => role.name)
+        setExistingContactRoles(new Set(roles))
+    }, [loading])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -90,7 +102,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                                     label={NameMessage}
                                     labelAlign='left'
                                     required
-                                    rules={[trimValidator]}
+                                    rules={[trimValidator, contactRoleValidator(existingContactRoles)]}
                                     {...COMMON_FORM_ITEM_PROPS}
                                 >
                                     <Input disabled={!organizationId} placeholder={NamePlaceholderValue}/>

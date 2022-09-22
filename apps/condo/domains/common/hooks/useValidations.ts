@@ -1,4 +1,3 @@
-import { get } from 'lodash'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@condo/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
@@ -15,7 +14,8 @@ type ValidatorTypes = {
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
-    tinValidator: (country: string) => Rule
+    tinValidator: (country: string) => Rule,
+    contactRoleValidator: (existingRoles: Set<string>) => Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -38,6 +38,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const ContactRoleIsDuplicateMessage = intl.formatMessage({ id: 'ContactRoles.error.duplicate' })
 
     const { allowLandLine } = settings
 
@@ -135,6 +136,14 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
+    const contactRoleValidator = (existingRoles: Set<string>): Rule => ({
+        validator: (_, value) => {
+            const normalizedValue = value.trim()
+            if (existingRoles.has(normalizedValue) || normalizedValue.startsWith('contact.role')) return Promise.reject(ContactRoleIsDuplicateMessage)
+            return Promise.resolve()
+        },
+    })
+
     return {
         changeMessage,
         requiredValidator,
@@ -147,5 +156,6 @@ export const useValidations: UseValidations = (settings = {}) => {
         maxLengthValidator,
         numberValidator,
         tinValidator,
+        contactRoleValidator,
     }
 }
