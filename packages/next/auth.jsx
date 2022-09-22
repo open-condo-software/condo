@@ -29,6 +29,7 @@ const userFragment = `
   phone
   email
   isAdmin
+  isSupport
 `
 
 let USER_QUERY = gql`
