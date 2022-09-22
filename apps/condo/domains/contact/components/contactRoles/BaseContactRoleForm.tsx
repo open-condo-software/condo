@@ -1,5 +1,6 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
@@ -49,6 +50,8 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     const createContactRoleAction = ContactRole.useCreate({})
     const softDeleteContactRoleAction = ContactRole.useSoftDelete()
 
+    const { trimValidator } = useValidations()
+
     const handleFormSubmit = useCallback(async (values) => {
         const initialContactRoleId = get(initialValues, 'id')
 
@@ -87,6 +90,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                                     label={NameMessage}
                                     labelAlign='left'
                                     required
+                                    rules={[trimValidator]}
                                     {...COMMON_FORM_ITEM_PROPS}
                                 >
                                     <Input disabled={!organizationId} placeholder={NamePlaceholderValue}/>
