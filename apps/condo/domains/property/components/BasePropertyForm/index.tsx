@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, notification, Row, Typography, RowProps, FormInstance } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -40,6 +40,7 @@ const INPUT_LAYOUT_PROPS = {
 const FORM_WITH_ACTION_STYLES = {
     width: '100%',
 }
+const PROMPT_CONTENT_TEXT_STYLE: CSSProperties = { fontSize: 16 }
 const PROPERTY_FULLSCREEN_ROW_GUTTER: RowProps['gutter']  = [0, 40]
 const PROPERTY_ROW_GUTTER: RowProps['gutter'] = [50, 40]
 
@@ -147,9 +148,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 form={form}
                                 handleSave={handleSave}
                             >
-                                <Typography.Paragraph>
+                                <Typography.Text type='secondary' style={PROMPT_CONTENT_TEXT_STYLE}>
                                     {PromptHelpMessage}
-                                </Typography.Paragraph>
+                                </Typography.Text>
                             </Prompt>
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
                                 <Col xs={24} lg={11}>

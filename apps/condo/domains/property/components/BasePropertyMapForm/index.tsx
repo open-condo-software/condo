@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, CSSProperties } from 'react'
 import { Typography, Form } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@condo/next/intl'
@@ -21,6 +21,7 @@ interface IPropertyMapFormProps {
 const PROPERTY_MAP_FORM_STYLES = {
     width: '100%',
 }
+const PROMPT_CONTENT_TEXT_STYLE: CSSProperties = { fontSize: 16 }
 
 const PROPERTY_FORM_VALIDATION_TRIGGER = ['onBlur', 'onSubmit']
 
@@ -50,9 +51,9 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
                         form={form}
                         handleSave={handleSave}
                     >
-                        <Typography.Paragraph>
+                        <Typography.Text type='secondary' style={PROMPT_CONTENT_TEXT_STYLE}>
                             {PromptHelpMessage}
-                        </Typography.Paragraph>
+                        </Typography.Text>
                     </Prompt>
                     <Form.Item
                         hidden

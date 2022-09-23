@@ -1,5 +1,5 @@
 import { Col, ColProps, Form, Row, Typography } from 'antd'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import uniqWith from 'lodash/uniqWith'
 import get from 'lodash/get'
 import { Gutter } from 'antd/es/grid/row'
@@ -172,6 +172,7 @@ const VALIDATE_FORM_TRIGGER = ['onBlur', 'onSubmit']
 const FORM_ROW_LARGE_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const FORM_ROW_MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 20]
 const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', padding: 0 } }
+const PROMPT_CONTENT_TEXT_STYLE: CSSProperties = { fontSize: 16 }
 
 export const CreateMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
@@ -285,9 +286,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                         form={form}
                         handleSave={handleSave}
                     >
-                        <Typography.Paragraph>
+                        <Typography.Text type='secondary' style={PROMPT_CONTENT_TEXT_STYLE}>
                             {PromptHelpMessage}
-                        </Typography.Paragraph>
+                        </Typography.Text>
                     </Prompt>
                     <Col span={24}>
                         <Row gutter={FORM_ROW_LARGE_VERTICAL_GUTTER}>

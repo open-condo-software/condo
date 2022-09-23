@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { isEqual, pick } from 'lodash'
-import { FormInstance } from 'antd'
+import { Row, Col, FormInstance } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 
 import { Modal } from '@condo/domains/common/components/Modal'
 import { useIntl } from '@condo/next/intl'
@@ -13,6 +14,7 @@ interface IPromptProps {
     handleSave: () => void
 }
 
+const ROW_GUTTER_20_0: [Gutter, Gutter] = [20, 0]
 
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
     const intl = useIntl()
@@ -67,24 +69,30 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
     return (
         <Modal
             visible={isModalVisible}
             onCancel={hideModal}
             title={title}
             centered
-            footer={[
-                <Button key='back' type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
-                    {LeaveLabel}
-                </Button>,
-                <Button key='submit' type='sberPrimary' onClick={handleSave}>
-                    {SaveLabel}
-                </Button>,
-            ]}
+            footer={
+                <Row gutter={ROW_GUTTER_20_0} justify='end'>
+                    <Col>
+                        <Button key='back' type='sberDanger' onClick={handleCancel}>
+                            {LeaveLabel}
+                        </Button>
+                    </Col>
+                    <Col>
+                        <Button key='submit' type='sberPrimary' onClick={handleSave}>
+                            {SaveLabel}
+                        </Button>
+                    </Col>
+                </Row>
+            }
         >
             {children}
         </Modal>
-
     )
 }
 

@@ -292,6 +292,7 @@ export const TicketSourceSelect: React.FC = () => {
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const TICKET_PROPERTY_HINT_STYLES: CSSProperties = { maxHeight: '11em', maxWidth: '250px' }
+const PROMPT_CONTENT_TEXT_STYLE: CSSProperties = { fontSize: 16 }
 
 export interface ITicketFormProps {
     organization?: Organization
@@ -509,9 +510,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                             form={form}
                             handleSave={handleSave}
                         >
-                            <Typography.Paragraph>
+                            <Typography.Text type='secondary' style={PROMPT_CONTENT_TEXT_STYLE}>
                                 {PromptHelpMessage}
-                            </Typography.Paragraph>
+                            </Typography.Text>
                         </Prompt>
                         <Col span={24}>
                             <Row gutter={BIG_VERTICAL_GUTTER}>
