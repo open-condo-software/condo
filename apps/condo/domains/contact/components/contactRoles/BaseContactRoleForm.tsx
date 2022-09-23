@@ -1,7 +1,5 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { useExistingContactRoles } from '@condo/domains/contact/hooks/useExistingContactRoles'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
@@ -9,6 +7,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
+import { useContactRoleValidationRules } from '../../hooks/useContactRoleValidationRules'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -48,12 +47,10 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 
     const router = useRouter()
 
-    const existingContactRoles = useExistingContactRoles()
-
     const createContactRoleAction = ContactRole.useCreate({})
     const softDeleteContactRoleAction = ContactRole.useSoftDelete()
 
-    const { trimValidator, contactRoleValidator } = useValidations()
+    const validationRules = useContactRoleValidationRules()
 
     const handleFormSubmit = useCallback(async (values) => {
         const initialContactRoleId = get(initialValues, 'id')
@@ -95,7 +92,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                                     label={NameMessage}
                                     labelAlign='left'
                                     required
-                                    rules={[trimValidator, contactRoleValidator(existingContactRoles)]}
+                                    rules={validationRules}
                                     {...COMMON_FORM_ITEM_PROPS}
                                 >
                                     <Input disabled={!organizationId} placeholder={NamePlaceholderValue}/>
