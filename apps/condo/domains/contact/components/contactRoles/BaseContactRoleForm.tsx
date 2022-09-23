@@ -1,13 +1,13 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
+import { useContactRoleValidationRules } from '@condo/domains/contact/hooks/useContactRoleValidationRules'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
-import { useContactRoleValidationRules } from '../../hooks/useContactRoleValidationRules'
 
 const LAYOUT = {
     layout: 'horizontal',
