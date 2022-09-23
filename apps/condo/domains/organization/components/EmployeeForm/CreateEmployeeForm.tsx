@@ -77,7 +77,7 @@ export const CreateEmployeeForm: React.FC = () => {
         { where: { organization: { id: get(organization, 'id') } } }
     )
 
-    const { changeMessage, requiredValidator, emailValidator, phoneValidator } = useValidations()
+    const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator } = useValidations()
     const alreadyRegisteredPhoneValidator = {
         validator: (_, value) => {
             if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
@@ -99,7 +99,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],
         email: [emailValidator, alreadyRegisteredEmailValidator],
-        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
+        name: [changeMessage(trimValidator, FullNameRequiredMessage)],
     }
 
     const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {
