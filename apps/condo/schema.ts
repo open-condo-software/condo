@@ -51958,7 +51958,8 @@ export enum TicketSourceTypeType {
   Messenger = 'messenger',
   SocialNetwork = 'social_network',
   MobileAppStaff = 'mobile_app_staff',
-  MobileAppResident = 'mobile_app_resident'
+  MobileAppResident = 'mobile_app_resident',
+  Import = 'import'
 }
 
 export type TicketSourceUpdateInput = {

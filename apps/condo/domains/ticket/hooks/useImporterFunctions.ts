@@ -45,7 +45,7 @@ const isValidDate = (value) => {
     return dayjs(value, DATE_PARSING_FORMAT).isValid()
 }
 
-const SOURCE_OTHER_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
+const SOURCE_IMPORT_ID = '92cfa7b1-b793-4c22-ae03-ea2aae1e1315'
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
@@ -196,7 +196,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             // classifier:
             // deadline:
             status: { connect: { id: STATUS_IDS.OPEN } },
-            source: { connect: { id: SOURCE_OTHER_ID } },
+            source: { connect: { id: SOURCE_IMPORT_ID } },
             unitName,
             unitType,
         }

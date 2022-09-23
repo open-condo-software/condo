@@ -1015,6 +1015,7 @@
   "ticket.source.SOCIAL_NETWORK.name": "Social media (vk, fb, ..)",
   "ticket.source.MOBILE_APP_STAFF.name": "Staff mobile app",
   "ticket.source.MOBILE_APP_RESIDENT.name": "Resident mobile app",
+  "ticket.source.IMPORT.name": "Import",
   "TicketAssignment": "Application assignment",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
