@@ -40,7 +40,7 @@ import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch
 import { useAuth } from '@condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
-import { ImportWrapper } from '@condo/domains/common/components/Import'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import {
     DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
