@@ -15,7 +15,6 @@ type ValidatorTypes = {
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
     tinValidator: (country: string) => Rule
-    contactRoleValidator: (existingRoles: Set<string>) => Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -38,7 +37,6 @@ export const useValidations: UseValidations = (settings = {}) => {
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
-    const ContactRoleIsDuplicateMessage = intl.formatMessage({ id: 'ContactRoles.error.duplicate' })
 
     const { allowLandLine } = settings
 
@@ -136,16 +134,6 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
-    const contactRoleValidator = (existingRoles: Set<string>): Rule => ({
-        validator: (_, value) => {
-            const normalizedValue = value && value.trim()
-            if (normalizedValue &&
-                (existingRoles.has(normalizedValue) || normalizedValue.startsWith('contact.role')))
-                return Promise.reject(ContactRoleIsDuplicateMessage)
-            return Promise.resolve()
-        },
-    })
-
     return {
         changeMessage,
         requiredValidator,
@@ -158,6 +146,5 @@ export const useValidations: UseValidations = (settings = {}) => {
         maxLengthValidator,
         numberValidator,
         tinValidator,
-        contactRoleValidator,
     }
 }
