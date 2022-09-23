@@ -45,24 +45,14 @@ const reopenDeferredTickets = async () => {
                     dv: 1,
                     sender: { fingerprint: 'auto-reopen', dv: 1 },
                     status: { connect: { id: STATUS_IDS.OPEN } },
-                    assignee: { disconnectAll: true },
-                    executor: { disconnectAll: true },
                 }
                 const assigneeId = get(ticket, ['assignee', 'id'])
                 const executorId = get(ticket, ['executor', 'id'])
                 const organizationId = get(ticket, ['organization', 'id'])
 
                 const employeeIds = []
-                if (assigneeId) {
-                    employeeIds.push(assigneeId)
-                } else {
-                    delete updatedData.assignee
-                }
-                if (executorId) {
-                    employeeIds.push(executorId)
-                } else {
-                    delete updatedData.executor
-                }
+                if (assigneeId) employeeIds.push(assigneeId)
+                if (executorId) employeeIds.push(executorId)
 
                 if (!isEmpty(employeeIds)) {
                     const employees = await OrganizationEmployee.getAll(keystone, {
@@ -72,11 +62,11 @@ const reopenDeferredTickets = async () => {
                         deletedAt: null,
                     }, {})
 
-                    if (assigneeId && employees.some(employee => get(employee, ['user', 'id'], null) === assigneeId)) {
-                        delete updatedData.assignee
+                    if (assigneeId && !employees.some(employee => get(employee, ['user', 'id'], null) === assigneeId)) {
+                        updatedData.assignee = { disconnectAll: true }
                     }
-                    if (executorId && employees.some(employee => get(employee, ['user', 'id'], null) === executorId)) {
-                        delete updatedData.executor
+                    if (executorId && !employees.some(employee => get(employee, ['user', 'id'], null) === executorId)) {
+                        updatedData.executor = { disconnectAll: true }
                     }
                 }
 
