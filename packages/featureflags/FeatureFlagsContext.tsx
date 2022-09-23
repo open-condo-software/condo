@@ -31,7 +31,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
 
     useEffect(() => {
-        const handler = setInterval(async () => {
+        const fetchFeatures = () => {
             if (serverUrl) {
                 fetch(`${serverUrl}/api/features`)
                     .then((res) => res.json())
@@ -40,7 +40,10 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
                     })
                     .catch(e => console.error(e))
             }
-        }, FEATURES_RE_FETCH_INTERVAL)
+        }
+
+        fetchFeatures()
+        const handler = setInterval(() => fetchFeatures(), FEATURES_RE_FETCH_INTERVAL)
 
         return () => {
             clearInterval(handler)
