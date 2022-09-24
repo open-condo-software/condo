@@ -10,6 +10,7 @@ import { v4 as uuidV4 } from 'uuid'
 import { MutationEmitter, MUTATION_RESULT_EVENT } from '@condo/next/apollo'
 import { useAuth } from '@condo/next/auth'
 import { SortB2BAppsBy } from '@app/condo/schema'
+import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
     IFRAME_MODAL_ACTION_MESSAGE_TYPE,
@@ -74,7 +75,7 @@ export const GlobalAppsContainer: React.FC = () => {
         iframeRefs.current = iframeRefs.current.slice(0, appUrls.length)
     }, [appUrls])
 
-    useEffect(() => {
+    useDeepCompareEffect(() => {
         const globalFeatures = objs.reduce((registeredFeatures, app) => {
             const appOrigin = extractOrigin(app.appUrl)
             const availableFeatures = (app.features || []).filter(featureName => !(featureName in registeredFeatures))
@@ -86,7 +87,7 @@ export const GlobalAppsContainer: React.FC = () => {
             }
         }, {})
         registerFeatures(globalFeatures)
-    }, [objs, registerFeatures])
+    }, [registerFeatures, objs])
 
     const handleMutationResult = useCallback((payload) => {
         for (const iframe of iframeRefs.current) {

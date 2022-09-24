@@ -235,12 +235,12 @@ describe('B2BApp', () => {
                     })
                 }, NON_GLOBAL_APP_WITH_FEATURES_ERROR)
 
-                // const [app] = await createTestB2BApp(admin, { isGlobal: false })
-                // await expectToThrowValidationFailureError(async () => {
-                //     await updateTestB2BApp(admin, app.id, {
-                //         features: [MAP_GENERATION_FEATURE],
-                //     })
-                // }, NON_GLOBAL_APP_WITH_FEATURES_ERROR)
+                const [app] = await createTestB2BApp(admin, { isGlobal: false })
+                await expectToThrowValidationFailureError(async () => {
+                    await updateTestB2BApp(admin, app.id, {
+                        features: [MAP_GENERATION_FEATURE],
+                    })
+                }, NON_GLOBAL_APP_WITH_FEATURES_ERROR)
             })
             test('Must reset if app stop being global', async () => {
                 const [globalApp] = await createTestB2BApp(admin, {
