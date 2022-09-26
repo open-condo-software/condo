@@ -11,7 +11,7 @@ const { getById, find } = require('@open-condo/keystone/schema')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, SPECIALIZATION_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, NONE_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, NONE_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { mapEmployeeToVisibilityTypeToEmployees, getPropertyScopes } = require('@condo/domains/scope/utils/serverSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
@@ -45,23 +45,25 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
     const organizationTicketVisibilityOrganizationIds = []
     const propertiesVisibilityPropertyIds = []
-    const specializationVisibilitySearchStatement = []
     const propertyAndSpecializationVisibilitySearchStatement = []
     const assignedVisibilityUserIds = []
-    const noneVisibilityOrganizationIds = []
 
     const employeeWithPropertyVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_TICKET_VISIBILITY)
-    const employeeWithSpecializationVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, SPECIALIZATION_TICKET_VISIBILITY)
     const employeeWithPropertyAndSpecializationVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_AND_SPECIALIZATION_VISIBILITY)
 
-    const organizationIds = [...employeeWithPropertyVisibilityType, ...employeeWithPropertyAndSpecializationVisibilityType].map(employee => employee.organization)
-    const propertyScopes = await getPropertyScopes(organizationIds)
+    const employeeWithPropertyVisibilityIds = [...employeeWithPropertyVisibilityType, ...employeeWithPropertyAndSpecializationVisibilityType].map(employee => employee.id)
+    let propertyScopes = []
+    if (employeeWithPropertyVisibilityIds.length > 0) {
+        propertyScopes = await getPropertyScopes(employeeWithPropertyVisibilityIds)
+    }
 
-    const employeeIds = [...employeeWithSpecializationVisibilityType, ...employeeWithPropertyAndSpecializationVisibilityType].map(employee => employee.id)
-    const specializationScopes = await find('SpecializationScope', {
-        employee: { id_in: employeeIds },
-        deletedAt: null,
-    })
+    let specializationScopes = []
+    if (employeeWithPropertyAndSpecializationVisibilityType.length > 0) {
+        specializationScopes = await find('SpecializationScope', {
+            employee: { id_in: employeeWithPropertyAndSpecializationVisibilityType.map(employee => employee.id) },
+            deletedAt: null,
+        })
+    }
 
     for (const { employee, visibilityType } of employeeToVisibilityType) {
         switch (visibilityType) {
@@ -70,27 +72,22 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
                 break
             }
+
             case ASSIGNED_TICKET_VISIBILITY: {
                 assignedVisibilityUserIds.push(user.id)
 
                 break
             }
-            case NONE_TICKET_VISIBILITY: {
-                noneVisibilityOrganizationIds.push(employee.organization)
-
-                break
-            }
 
             case PROPERTY_TICKET_VISIBILITY: {
-                const employeePropertyScopes = propertyScopes.filter(scope => scope.employees.find(id => id === employee.id))
-                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.isDefault)
+                const employeePropertyScopes = propertyScopes.filter(scope =>
+                    scope.hasAllEmployees && scope.organization === employee.organization ||
+                    scope.employees.find(id => id === employee.id)
+                )
+                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.hasAllProperties)
 
                 if (isEmployeeInDefaultPropertyScope) {
-                    const organizationProperties = await find('Property', {
-                        organization: { id: employee.organization },
-                        deletedAt: null,
-                    })
-                    propertiesVisibilityPropertyIds.push(...organizationProperties.map(property => property.id))
+                    organizationTicketVisibilityOrganizationIds.push(employee.organization)
 
                     break
                 }
@@ -100,51 +97,36 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
                 break
             }
-            case SPECIALIZATION_TICKET_VISIBILITY: {
-                const employeeSpecializations = specializationScopes
-                    .filter(specializationScope => specializationScope.employee === employee.id)
-                    .map(specializationScope => specializationScope.specialization)
 
-                specializationVisibilitySearchStatement.push({
-                    AND: [
-                        { organization: { id: employee.organization } },
-                        { classifier: { category: { id_in: employeeSpecializations } } },
-                    ],
-                })
-
-                break
-            }
             case PROPERTY_AND_SPECIALIZATION_VISIBILITY: {
-                const employeeSpecializations = specializationScopes
-                    .filter(specializationScope => specializationScope.employee === employee.id)
-                    .map(specializationScope => specializationScope.specialization)
+                const isEmployeeHasAllSpecializations = employee.hasAllSpecializations
 
-                const employeePropertyScopes = propertyScopes.filter(scope => scope.employees.find(id => id === employee.id))
-                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.isDefault)
+                const employeePropertyScopes = propertyScopes.filter(scope =>
+                    scope.hasAllEmployees && scope.organization === employee.organization ||
+                    scope.employees.find(id => id === employee.id)
+                )
+                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.hasAllProperties)
 
-                if (isEmployeeInDefaultPropertyScope) {
-                    const organizationProperties = await find('Property', {
-                        organization: { id: employee.organization },
-                        deletedAt: null,
-                    })
+                if (isEmployeeHasAllSpecializations && isEmployeeInDefaultPropertyScope) {
+                    organizationTicketVisibilityOrganizationIds.push(employee.organization)
+                } else if (isEmployeeHasAllSpecializations) {
+                    const properties = employeePropertyScopes.flatMap(scope => scope.properties)
+
+                    propertiesVisibilityPropertyIds.push(...properties)
+                } else {
+                    const employeeSpecializations = specializationScopes
+                        .filter(specializationScope => specializationScope.employee === employee.id)
+                        .map(specializationScope => specializationScope.specialization)
+
+                    const properties = employeePropertyScopes.flatMap(scope => scope.properties)
 
                     propertyAndSpecializationVisibilitySearchStatement.push({
                         AND: [
-                            { property: { id_in: organizationProperties.map(property => property.id) } },
+                            { property: { id_in: properties } },
                             { classifier: { category: { id_in: employeeSpecializations } } },
                         ],
                     })
-
-                    break
                 }
-
-                const propertyIds = employeePropertyScopes.flatMap(scope => scope.properties)
-                propertyAndSpecializationVisibilitySearchStatement.push({
-                    AND: [
-                        { property: { id_in: propertyIds } },
-                        { classifier: { category: { id_in: employeeSpecializations } } },
-                    ],
-                })
 
                 break
             }
@@ -168,7 +150,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                     { property: { id_in: propertiesVisibilityPropertyIds } },
                 ],
             },
-            ...specializationVisibilitySearchStatement,
             ...propertyAndSpecializationVisibilitySearchStatement,
             {
                 AND: [
@@ -178,12 +159,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                             { executor: { id_in: assignedVisibilityUserIds } },
                         ],
                     },
-                ],
-            },
-            {
-                AND: [
-                    { organization: { id_in: noneVisibilityOrganizationIds } },
-                    { id: null },
                 ],
             },
         ],

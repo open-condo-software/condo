@@ -25,33 +25,16 @@ const PropertyScope = new GQLListSchema('PropertyScope', {
 
         organization: ORGANIZATION_OWNED_FIELD,
 
-        isDefault: {
-            schemaDoc: 'The default Property Scope contains all employees and all properties from the organization and is created when the organization is registered. ' +
-                'It cannot be deleted and properties cannot be removed from it',
+        hasAllProperties: {
+            schemaDoc: 'True if PropertyScope includes all properties in organization',
             type: Checkbox,
-            isRequired: true,
-            hooks: {
-                validateInput: async ({ context, resolvedData, existingItem, fieldPath, addFieldValidationError }) => {
-                    const newItem = { ...existingItem, ...resolvedData }
-                    const isDefaultPropertyScopeChanged = existingItem && resolvedData[fieldPath] !== existingItem[fieldPath]
-                    const isDefaultPropertyScope = resolvedData[fieldPath] === true
+            defaultValue: false,
+        },
 
-                    if (isDefaultPropertyScopeChanged) {
-                        return addFieldValidationError('You cannot change isDefault of PropertyScope')
-                    }
-
-                    if (isDefaultPropertyScope) {
-                        const defaultPropertyScope = await PropertyScopeApi.getOne(context, {
-                            organization: { id: newItem.organization },
-                            isDefault: true,
-                        })
-
-                        if (defaultPropertyScope) {
-                            return addFieldValidationError('PropertyScope with isDefault already exists in current organization')
-                        }
-                    }
-                },
-            },
+        hasAllEmployees: {
+            schemaDoc: 'True if PropertyScope includes all employees in organization',
+            type: Checkbox,
+            defaultValue: false,
         },
 
     },

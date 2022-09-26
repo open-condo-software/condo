@@ -10,7 +10,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const PROPERTY_SCOPE_FIELDS = `{ name organization { id } isDefault ${COMMON_FIELDS} }`
+const PROPERTY_SCOPE_FIELDS = `{ name organization { id } hasAllProperties hasAllEmployees ${COMMON_FIELDS} }`
 const PropertyScope = generateGqlQueries('PropertyScope', PROPERTY_SCOPE_FIELDS)
 
 const PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS = `{ propertyScope { id } employee { id } ${COMMON_FIELDS} }`
