@@ -100,7 +100,6 @@ export const Modal: React.FC<ModalProps> = ({ children, title, titleText, width 
             isScrolling={isScrolling}
 
             // this hack need for forwarding ref
-            forceRender
             children={<div ref={contentChildrenRef}>{children}</div>}
             {...otherProps}
         />
