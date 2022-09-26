@@ -51959,7 +51959,7 @@ export enum TicketSourceTypeType {
   SocialNetwork = 'social_network',
   MobileAppStaff = 'mobile_app_staff',
   MobileAppResident = 'mobile_app_resident',
-  Import = 'import'
+  CrmImport = 'crm_import'
 }
 
 export type TicketSourceUpdateInput = {

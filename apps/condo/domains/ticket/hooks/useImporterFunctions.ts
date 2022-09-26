@@ -191,13 +191,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             isResidentTicket,
             organization: { connect: { id: String(userOrganizationId) } },
             property: { connect: { id: propertyId } },
-            // floorName:
-            // sectionName:
-            // sectionType:
-            // executor:
-            // assignee:
-            // classifier:
-            // deadline:
             status: { connect: { id: STATUS_IDS.OPEN } },
             source: { connect: { id: SOURCE_IMPORT_ID } },
             unitName,

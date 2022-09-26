@@ -1017,7 +1017,7 @@
   "ticket.source.SOCIAL_NETWORK.name": "Соц. сети (vk, fb, ..)",
   "ticket.source.MOBILE_APP_STAFF.name": "ЛК приложение сотрудника",
   "ticket.source.MOBILE_APP_RESIDENT.name": "ЛК приложение жителя",
-  "ticket.source.IMPORT.name": "Импорт",
+  "ticket.source.CRM_IMPORT.name": "Импорт",
   "TicketAssignment": "Назначение заявки",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Фио Жителя",
