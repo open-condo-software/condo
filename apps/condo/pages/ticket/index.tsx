@@ -60,7 +60,7 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 40]
 const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
-const ROW_GUTTER_10_0: [Gutter, Gutter] = [10, 0]
+const BUTTON_WRAPPER_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
 
 const TicketsTable = ({
     filterMetas,
@@ -321,7 +321,7 @@ export const TicketsPageContent = ({
                                                             ) : null
                                                         }
                                                         <Col>
-                                                            <Row gutter={ROW_GUTTER_10_0}>
+                                                            <Row gutter={BUTTON_WRAPPER_ROW_GUTTER}>
                                                                 <Col>
                                                                     {TicketImportButton}
                                                                 </Col>
