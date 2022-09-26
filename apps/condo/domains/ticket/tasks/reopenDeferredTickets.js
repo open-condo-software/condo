@@ -13,6 +13,8 @@ const CHUNK_SIZE = 50
 const appLogger = getLogger('condo')
 const taskLogger = appLogger.child({ module: 'reopenDeferredTickets' })
 
+const hasEmployee = (id, employees) => id && !employees.some(employee => get(employee, ['user', 'id'], null) === id)
+
 /**
  * Opens tickets that are in the "deferred" status and the date they are deferring has expired.
  * And resets the executor and assignee of this ticket.
@@ -62,10 +64,10 @@ const reopenDeferredTickets = async () => {
                         deletedAt: null,
                     }, {})
 
-                    if (assigneeId && !employees.some(employee => get(employee, ['user', 'id'], null) === assigneeId)) {
+                    if (hasEmployee(assigneeId, employees)) {
                         updatedData.assignee = { disconnectAll: true }
                     }
-                    if (executorId && !employees.some(employee => get(employee, ['user', 'id'], null) === executorId)) {
+                    if (hasEmployee(executorId, employees)) {
                         updatedData.executor = { disconnectAll: true }
                     }
                 }
