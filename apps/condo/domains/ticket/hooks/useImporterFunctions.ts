@@ -23,11 +23,11 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 
-const normalizeIsResidentTicket = (value: string) => {
-    const VALID_VALUES = ['да', 'нет', '']
-    const valueInLoverCase = value.toLowerCase()
-    if (!VALID_VALUES.includes(valueInLoverCase)) return null
-    return valueInLoverCase === 'да'
+const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {
+    const VALID_VALUES = [yes, no, '']
+    const valueInLowerCase = value.toLowerCase()
+    if (!VALID_VALUES.includes(valueInLowerCase)) return null
+    return valueInLowerCase === yes
 }
 
 const getFullDetails = (details: string, oldTicketNumber: string, createdAt: string) => {
@@ -49,6 +49,9 @@ const SOURCE_IMPORT_ID = '92cfa7b1-b793-4c22-ae03-ea2aae1e1315'
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
+    const IsResidentTicketValueYesMessage = intl.formatMessage({ id: 'ticket.import.value.isResidentTicket.yes' })
+    const IsResidentTicketValueNoMessage = intl.formatMessage({ id: 'ticket.import.value.isResidentTicket.no' })
+
     const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
     const IncorrectPhoneNumberFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhoneNumberFormat' })
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
@@ -124,7 +127,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.fullName = String(get(fullName, 'value', '')).trim()
         addons.details = String(get(details, 'value', '')).trim()
         addons.oldTicketNumber = String(get(oldTicketNumber, 'value', '')).trim()
-        addons.isResidentTicket = normalizeIsResidentTicket(String(get(isResidentTicket, 'value', '')).trim())
+        addons.isResidentTicket = normalizeIsResidentTicket(String(get(isResidentTicket, 'value', '')).trim(), IsResidentTicketValueYesMessage, IsResidentTicketValueNoMessage)
         addons.unitName = unitName.value ? String(unitName.value).trim() : null
         addons.unitType = addons.unitName ? 'flat' : null
         addons.isEmptyDetails = Boolean(String(get(details, 'value', '')).trim())
@@ -137,11 +140,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         })
         addons.contacts = objs
 
-        return Promise.resolve({ row, addons })
+        return { row, addons }
     }
 
-    const ticketValidator: RowValidator = (row) => {
-        if (!row) return Promise.resolve(false)
+    const ticketValidator: RowValidator = async (row) => {
+        if (!row) return false
         const errors = []
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
         if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
@@ -161,14 +164,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         if (errors.length) {
             row.errors = errors
-            return Promise.resolve(false)
+            return false
         }
 
-        return Promise.resolve(true)
+        return true
     }
 
     const ticketCreator: ObjectCreator = async (row) => {
-        if (!row) return Promise.resolve()
+        if (!row) return
         const phone = get(row, ['addons', 'phone'])
         const contacts = get(row, ['addons', 'contacts'], [])
         const fullName = get(row, ['addons', 'fullName'])

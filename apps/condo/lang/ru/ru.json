@@ -866,6 +866,8 @@
   "ticket.import.column.details": "Описание проблемы",
   "ticket.import.column.oldTicketNumber": "Номер заявки",
   "ticket.import.column.createdAt": "Дата создания",
+  "ticket.import.value.isResidentTicket.yes": "да",
+  "ticket.import.value.isResidentTicket.no": "нет",
   "Paid": "Платная",
   "Password": "Пароль",
   "Phone": "Телефон",

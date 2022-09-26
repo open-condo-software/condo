@@ -866,6 +866,8 @@
   "ticket.import.column.details": "Details",
   "ticket.import.column.oldTicketNumber": "Ticket number",
   "ticket.import.column.createdAt": "Date of creation",
+  "ticket.import.value.isResidentTicket.yes": "yes",
+  "ticket.import.value.isResidentTicket.no": "no",
   "Paid": "Paid",
   "Password": "Password",
   "Phone": "Phone",
