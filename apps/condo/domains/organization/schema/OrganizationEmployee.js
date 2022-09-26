@@ -118,6 +118,11 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             type: Checkbox,
             defaultValue: false,
         },
+        hasAllSpecializations: {
+            schemaDoc: 'True if employee has all specializations',
+            type: Checkbox,
+            defaultValue: false,
+        },
     },
     kmigratorOptions: {
         constraints: [
@@ -141,9 +146,6 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         validateInput: ({ resolvedData, existingItem, addValidationError, context }) => {
             if (!hasDbFields(['organization'], resolvedData, existingItem, context, addValidationError)) return
             if (!hasOneOfFields(['email', 'name', 'phone'], resolvedData, existingItem, addValidationError)) return
-        },
-        afterChange: async ({ context, existingItem, updatedItem, operation }) => {
-            await managePropertyScopeOrganizationEmployee(context, existingItem, updatedItem, operation)
         },
     },
 })

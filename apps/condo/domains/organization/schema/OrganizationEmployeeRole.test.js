@@ -279,7 +279,7 @@ describe('OrganizationEmployeeRole', () => {
         })
 
         describe('property', () => {
-            it('can read tickets organization ticket if employee is PropertyScope with isDefault flag', async () => {
+            it('can read tickets organization ticket if employee in PropertyScope with hasAllProperties flag', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -293,7 +293,7 @@ describe('OrganizationEmployeeRole', () => {
                 const [property2] = await createTestProperty(admin, organization)
 
                 const [propertyScope] = await createTestPropertyScope(admin, organization, {
-                    isDefault: true,
+                    hasAllProperties: true,
                 })
                 await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
 
@@ -381,67 +381,6 @@ describe('OrganizationEmployeeRole', () => {
                 })
 
                 expect(readTicketsByClient).toBeUndefined()
-            })
-        })
-
-        describe('specialization', () => {
-            it('can read tickets with TicketCategoryClassifier matches to employee SpecializationScope', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                const [organization] = await createTestOrganization(admin)
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    ticketVisibilityType: SPECIALIZATION_TICKET_VISIBILITY,
-                })
-                const [property] = await createTestProperty(admin, organization)
-                const [property2] = await createTestProperty(admin, organization)
-                const [classifier1] = await createTestTicketClassifier(admin)
-                const [classifier2] = await createTestTicketClassifier(admin)
-
-                const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-
-                await createTestSpecializationScope(admin, employee, classifier1.category)
-
-                const [ticket1] = await createTestTicket(admin, organization, property, {
-                    classifier: { connect: { id: classifier1.id } },
-                })
-                const [ticket2] = await createTestTicket(admin, organization, property2, {
-                    classifier: { connect: { id: classifier2.id } },
-                })
-
-                const readTickets = await Ticket.getAll(userClient, {
-                    id_in: [ticket1.id, ticket2.id],
-                })
-
-                expect(readTickets).toHaveLength(1)
-                expect(readTickets[0].id).toEqual(ticket1.id)
-            })
-
-            it('cannot read tickets with TicketCategory classifier matches to SpecializationScope from other organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                const [organization] = await createTestOrganization(admin)
-                const [organization1] = await createTestOrganization(admin)
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    ticketVisibilityType: SPECIALIZATION_TICKET_VISIBILITY,
-                })
-                const [property1] = await createTestProperty(admin, organization1)
-                const [classifier1] = await createTestTicketClassifier(admin)
-
-                const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-
-                await createTestSpecializationScope(admin, employee, classifier1.category)
-
-                const [ticket1] = await createTestTicket(admin, organization1, property1, {
-                    classifier: { connect: { id: classifier1.id } },
-                })
-
-                const readTicket = await Ticket.getOne(userClient, {
-                    id: ticket1.id,
-                })
-
-                expect(readTicket).toBeUndefined()
             })
         })
 
@@ -567,26 +506,6 @@ describe('OrganizationEmployeeRole', () => {
                 expect(readTickets).toHaveLength(2)
                 expect(readTickets[0].id).toEqual(ticket.id)
                 expect(readTickets[1].id).toEqual(ticket1.id)
-            })
-        })
-
-        describe('none', () => {
-            it('cannot read tickets with none ticketVisibilityType', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
-
-                const [organization] = await createTestOrganization(admin)
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    ticketVisibilityType: NONE_TICKET_VISIBILITY,
-                })
-                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-
-                const [property] = await createTestProperty(admin, organization)
-                const [ticket] = await createTestTicket(admin, organization, property)
-
-                const readTicket = await Ticket.getOne(userClient, { id: ticket.id })
-
-                expect(readTicket).toBeUndefined()
             })
         })
     })

@@ -24,43 +24,10 @@ async function createDefaultPropertyScopeForNewOrganization (context, organizati
     await PropertyScope.create(context, {
         name: 'Default',
         organization: { connect: { id: organization.id } },
-        isDefault: true,
+        hasAllProperties: true,
+        hasAllEmployees: true,
         ...dvSenderData,
     })
-}
-
-async function managePropertyScopeOrganizationEmployee (context, existingItem, updatedItem, operation) {
-    const isCreateOperation = operation === 'create'
-    const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
-    const { dv, sender } = updatedItem
-
-    if (isCreateOperation || isSoftDeleteOperation) {
-        const employeeId = updatedItem.id
-
-        if (isCreateOperation) {
-            const organizationId = updatedItem.organization
-            const defaultPropertyScope = await PropertyScope.getOne(context, { organization: { id: organizationId }, isDefault: true })
-
-            if (!defaultPropertyScope) return
-
-            await PropertyScopeOrganizationEmployee.create(context, {
-                propertyScope: { connect: { id: defaultPropertyScope.id } },
-                employee: { connect: { id: employeeId } },
-                dv, sender,
-            })
-        } else {
-            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(context, {
-                employee: { id: employeeId },
-            })
-
-            for (const propertyScopeOrganizationEmployee of propertyScopeOrganizationEmployees) {
-                await PropertyScopeOrganizationEmployee.update(context, propertyScopeOrganizationEmployee.id, {
-                    deletedAt: 'true',
-                    dv, sender,
-                })
-            }
-        }
-    }
 }
 
 async function softDeletePropertyScopeProperties (context, updatedItem) {
@@ -82,19 +49,23 @@ function mapEmployeeToVisibilityTypeToEmployees (employeeToVisibilityType, type)
     return employeeToVisibilityType.filter(({ visibilityType }) => visibilityType === type).map(({ employee }) => employee)
 }
 
-async function getPropertyScopes (organizationIds) {
-    const propertyScopes = await find('PropertyScope', {
-        organization: { id_in: organizationIds },
-        deletedAt: null,
-    })
-    const propertyScopeIds = propertyScopes.map(scope => scope.id)
-    const propertyScopeProperties = await find('PropertyScopeProperty', {
-        propertyScope: { id_in: propertyScopeIds },
-        deletedAt: null,
-    })
-    // TODO доставать скоупы из PropertyScopeOrganizationEmployee
+async function getPropertyScopes (employeeIds) {
     const propertyScopeEmployees = await find('PropertyScopeOrganizationEmployee', {
-        propertyScope: { id_in: propertyScopeIds },
+        employee: { id_in: employeeIds },
+        deletedAt: null,
+    })
+
+    const propertyScopeIds = propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.propertyScope)
+    const propertyScopes = await find('PropertyScope', {
+        OR: [
+            { id_in: propertyScopeIds },
+            { hasAllEmployees: true },
+        ],
+        deletedAt: null,
+    })
+
+    const propertyScopeProperties = await find('PropertyScopeProperty', {
+        propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         deletedAt: null,
     })
 
@@ -116,7 +87,6 @@ module.exports = {
     PropertyScopeProperty,
     SpecializationScope,
     createDefaultPropertyScopeForNewOrganization,
-    managePropertyScopeOrganizationEmployee,
     softDeletePropertyScopeProperties,
     mapEmployeeToVisibilityTypeToEmployees,
     getPropertyScopes,

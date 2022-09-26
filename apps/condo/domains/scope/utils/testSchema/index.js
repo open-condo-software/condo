@@ -32,7 +32,6 @@ async function createTestPropertyScope (client, organization, extraAttrs = {}) {
         sender,
         organization: { connect: { id: organization.id } },
         name,
-        isDefault: false,
         ...extraAttrs,
     }
     const obj = await PropertyScope.create(client, attrs)

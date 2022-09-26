@@ -242,7 +242,7 @@ describe('PropertyScope', () => {
 
             const [org] = await registerNewOrganization(admin)
 
-            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, hasAllEmployees: true, hasAllProperties: true })
             expect(defaultPropertyScope).toBeDefined()
         })
     })
