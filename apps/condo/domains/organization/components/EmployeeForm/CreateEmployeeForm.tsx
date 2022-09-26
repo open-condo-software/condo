@@ -9,6 +9,7 @@ import { useIntl } from '@condo/next/intl'
 import { useApolloClient } from '@condo/next/apollo'
 import { get, find, isEmpty } from 'lodash'
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 import { Button } from '@condo/domains/common/components/Button'
 import {
     OrganizationEmployee,
@@ -91,7 +92,7 @@ export const CreateEmployeeForm: React.FC = () => {
             if (isEmpty(value)) {
                 return  Promise.resolve()
             }
-            if (employee.find(emp => emp.email === value)) return Promise.reject(UserAlreadyInListMsg)
+            if (employee.find(emp => emp.email === normalizeEmail(value))) return Promise.reject(UserAlreadyInListMsg)
             return Promise.resolve()
         },
     }
