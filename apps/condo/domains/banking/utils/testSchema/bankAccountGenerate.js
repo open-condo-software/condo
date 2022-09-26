@@ -1,13 +1,13 @@
 const faker = require('faker')
 
-const { getTinControlSumRU } = require('@condo/domains/acquiring/utils/validate/tin.utils')
-const { NUMBER_WEIGHTS } = require('@condo/domains/acquiring/utils/validate/bankAccount.utils')
+const { getTinControlSumRU } = require('@condo/domains/banking/utils/validate/tin.utils')
+const { RU_NUMBER_WEIGHTS } = require('@condo/domains/banking/utils/validate/number.utils')
 
 function getRange (length) {
     return ({ min: Math.pow(10,length - 1), max: Math.pow(10, length) - 1 })
 }
 
-function createValidRUBankAccount (extra = {}) {
+function createValidRuBankAccount (extra = {}) {
     const tin = createValidRuTin10()
     const routingNumber = createValidRuRoutingNumber()
     const number = createValidRuNumber(routingNumber)
@@ -35,7 +35,7 @@ function createValidRuNumber (routingNumber) {
     let controlSum = 0
 
     for (const i in controlString) {
-        controlSum = (controlSum + (NUMBER_WEIGHTS[i] * controlString[i])) % 10
+        controlSum = (controlSum + (RU_NUMBER_WEIGHTS[i] * controlString[i])) % 10
     }
 
     const lastNumber = controlSum ?  (10 - controlSum) : controlSum
@@ -66,8 +66,8 @@ function createValidRuTin12 () {
 
 
 module.exports = {
-    createValidRUBankAccount,
-    createValidBankAccount,
+    createValidRuBankAccount,
+    createValidRuNumber,
     createValidRuRoutingNumber,
     createValidRuTin10,
     createValidRuTin12,

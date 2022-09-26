@@ -1,6 +1,6 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
 const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate/routingNumber.utils')
-// const { createValidRuBic } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
+const { createValidRuRoutingNumber } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -43,11 +43,11 @@ describe('validateBic()', () => {
         expect(result).toBe(false)
         expect(errors[0]).toBe('Routing number is empty')
     })
-    // test('for create valid RU BIC', () => {
-    //     const bic = createValidRuBic()
-    //     const { result } = validateBic(bic)
-    //     expect(result).toBe(true)
-    // })
+    test('for create valid RU BIC', () => {
+        const bic = createValidRuRoutingNumber()
+        const { result } = validateRoutingNumber(bic, COUNTRY_CODE_RU)
+        expect(result).toBe(true)
+    })
     test('for wrong country code as RU BIC', () => {
         const { result, errors } = validateRoutingNumber(WRONG_CODE_COUNTRY_RU_BIC, COUNTRY_CODE_RU)
         expect(result).toBe(false)

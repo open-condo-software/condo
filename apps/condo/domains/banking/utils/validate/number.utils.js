@@ -77,5 +77,6 @@ const validateNumber = (number, routingNumber, country) => {
 }
 
 module.exports = {
+    RU_NUMBER_WEIGHTS,
     validateNumber,
 }

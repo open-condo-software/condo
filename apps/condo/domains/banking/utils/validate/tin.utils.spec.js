@@ -1,6 +1,6 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
 const { validateTin } = require('@condo/domains/banking/utils/validate/tin.utils')
-// const { createValidTin10, createValidTin12 } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
+const { createValidRuTin10, createValidRuTin12 } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -53,16 +53,16 @@ describe('validateTin()', () => {
         expect(result).toBe(false)
         expect(errors[0]).toBe('Control sum is not valid for tin')
     })
-    // test('for create valid RU INN with 10 characters', () => {
-    //     const tin = createValidTin10()
-    //     const { result } = validateTin(tin, COUNTRY_CODE_RU)
-    //     expect(result).toBe(true)
-    // })
-    // test('for create valid RU INN with 12 characters', () => {
-    //     const tin = createValidTin12()
-    //     const { result } = validateTin(tin, COUNTRY_CODE_RU)
-    //     expect(result).toBe(true)
-    // })
+    test('for create valid RU INN with 10 characters', () => {
+        const tin = createValidRuTin10()
+        const { result } = validateTin(tin, COUNTRY_CODE_RU)
+        expect(result).toBe(true)
+    })
+    test('for create valid RU INN with 12 characters', () => {
+        const tin = createValidRuTin12()
+        const { result } = validateTin(tin, COUNTRY_CODE_RU)
+        expect(result).toBe(true)
+    })
 })
 
 module.exports = {

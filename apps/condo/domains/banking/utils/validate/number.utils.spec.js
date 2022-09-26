@@ -1,6 +1,6 @@
 const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/utils/string.utils')
 const { validateNumber } = require('@condo/domains/banking/utils/validate/number.utils')
-// const { createValidBankAccount } = require('@condo/domains/acquiring/utils/testSchema/recipientGenerate')
+const { createValidRuNumber } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
 const SPACES = SPACE_SYMBOLS.split('')
 
@@ -64,11 +64,11 @@ describe('validateBankAccount()', () => {
         expect(result).toBe(false)
         expect(errors[0]).toBe('Control sum is not valid for number')
     })
-    // test('for create valid RU BANK ACCOUNT', () => {
-    //     const bankAccount = createValidBankAccount(VALID_RU_BIC)
-    //     const { result } = validateNumber(bankAccount, VALID_RU_BIC)
-    //     expect(result).toBe(true)
-    // })
+    test('for create valid RU BANK ACCOUNT', () => {
+        const bankAccount = createValidRuNumber(VALID_RU_BIC)
+        const { result } = validateNumber(bankAccount, VALID_RU_BIC)
+        expect(result).toBe(true)
+    })
 })
 
 module.exports = {
