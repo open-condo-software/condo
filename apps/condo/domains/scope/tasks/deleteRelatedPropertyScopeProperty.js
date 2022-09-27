@@ -5,7 +5,6 @@ const { PropertyScopeProperty } = require('@condo/domains/scope/utils/serverSche
 /**
  * Soft delete related PropertyScopeProperty after delete PropertyScope object
  */
-// TODO(DOMA-4152): write deleteRelatedPropertyScopeEntities function and load by chunks
 async function deleteRelatedPropertyScopeProperty (deletedPropertyScope, deletedMeterAt) {
     const { keystone: context } = await getSchemaCtx('Property')
 

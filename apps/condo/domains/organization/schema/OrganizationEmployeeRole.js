@@ -86,10 +86,8 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             schemaDoc: `Which tickets the employee sees:
                         1) organization - sees all tickets in the organization.
                         2) property - Sees tickets in PropertyScope that have this employee
-                        3) specialization - Sees tickets by employee specialization
-                        4) propertyAndSpecialization - Sees tickets by employee specialization + PropertyScope
-                        5) assigned - sees only those tickets in which he is the executor or responsible
-                        6) none - can't see any tickets
+                        3) propertyAndSpecialization - Sees tickets by employee specialization + PropertyScope
+                        4) assigned - sees only those tickets in which he is the executor or responsible
                         `,
             type: Select,
             dataType: 'string',

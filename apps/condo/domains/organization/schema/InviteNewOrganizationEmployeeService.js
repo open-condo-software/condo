@@ -13,6 +13,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
+const { SpecializationScope } = require('@condo/domains/scope/utils/serverSchema')
 
 const errors = {
     inviteNewOrganizationEmployee: {
@@ -88,7 +89,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: TicketCategoryClassifierRelateToManyInput }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: [ID] }',
         },
         {
             access: true,
@@ -110,10 +111,12 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                let { organization, email, phone, role, position, name, specializations, ...restData } = data
+                let { organization, email, phone, role, position, name, specializations = [], ...restData } = data
+                const dvSenderData = { dv: restData.dv, sender: restData.sender }
+
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
-                if (restData.dv !== 1) throw new GQLError(errors.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH)
+                if (dvSenderData.dv !== 1) throw new GQLError(errors.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH)
                 if (!phone) throw new GQLError(errors.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)
@@ -133,7 +136,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         email,
                         phone,
                         password,
-                        ...restData,
+                        ...dvSenderData,
                     }
 
                     const { data: registerData, errors: registerErrors } = await context.executeGraphQL({
@@ -158,9 +161,17 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     email,
                     name,
                     phone,
-                    specializations,
-                    ...restData,
+                    ...dvSenderData,
                 })
+
+                // TODO(DOMA-4065): use createMany or something
+                for (const specializationId of specializations) {
+                    await SpecializationScope.create(context, {
+                        employee: { connect: { id: employee.id } },
+                        specialization: { connect: { id: specializationId } },
+                        ...dvSenderData,
+                    })
+                }
 
                 const organizationCountry = get(userOrganization, 'country', 'en')
                 const organizationName = get(userOrganization, 'name')

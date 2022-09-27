@@ -1,10 +1,10 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useState } from 'react'
 import {
     PageWrapper,
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
-import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
+import { Col, Radio, Row, RowProps, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/react'
 import { useIntl } from '@open-condo/next/intl'
@@ -13,15 +13,12 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { GetServerSideProps } from 'next'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import DivisionTable from '@condo/domains/division/components/DivisionsTable'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
 import { useTableFilters as usePropertyTableFilters } from '@condo/domains/property/hooks/useTableFilters'
 
 import PropertiesMap from '@condo/domains/common/components/PropertiesMap'
 import {
-    DivisionWhereInput,
     OrganizationEmployeeRole,
     PropertyWhereInput,
     Property as PropertyType,
@@ -29,10 +26,8 @@ import {
     SortPropertiesBy,
 } from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useTableColumns as useDivisionsTableColumns } from '@condo/domains/division/hooks/useTableColumns'
 import { ColumnsType } from 'antd/lib/table'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useTableFilters as useDivisionTableFilters } from '@condo/domains/division/hooks/useTableFilters'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 
@@ -57,10 +52,6 @@ type PropertiesContentProps = {
     searchPropertiesQuery: PropertyWhereInput
     propertiesTableColumns: ColumnsType
     sortPropertiesBy: SortPropertiesBy[]
-    divisionTableColumns: ColumnsType
-    searchDivisionsQuery: DivisionWhereInput
-    sortDivisionsBy: string[]
-    tab?: PropertiesType
     loading?: boolean
 }
 
@@ -69,33 +60,17 @@ const RADIO_GROUP_STYLE: CSSProperties = { display: 'flex', justifyContent: 'fle
 
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
-    const router = useRouter()
 
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
     const ShowMap = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeMap' })
     const ShowTable = intl.formatMessage({ id: 'pages.condo.property.index.ViewModeTable' })
-    const BuildingsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Buildings.Tab.Title' })
-    const DivisionsTabTitle = intl.formatMessage({ id: 'pages.condo.property.index.Divisions.Tab.Title' })
 
-    const [propertiesType, setPropertiesType] = useState<PropertiesType>(props.tab)
     const [viewMode, changeViewMode] = useState('list')
     const { isSmall } = useLayoutContext()
 
-    const initialTab = useRef(props.tab)
-
-    const { role, searchPropertiesQuery, searchDivisionsQuery, propertiesTableColumns,
-        divisionTableColumns, sortPropertiesBy, sortDivisionsBy, loading } = props
+    const { role, searchPropertiesQuery, propertiesTableColumns, sortPropertiesBy, loading } = props
 
     const handleViewModeChange = useCallback((e) => changeViewMode(e.target.value), [])
-
-    useEffect(() => {
-        if (!initialTab.current) {
-            const queryParams = getQueryParams()
-            initialTab.current = propertiesTypes.includes(queryParams.tab) ? queryParams.tab : propertiesTypes[0]
-        }
-        setPropertiesType(initialTab.current)
-        router.push(`/property?tab=${initialTab.current}`)
-    }, [])
 
     const [properties, setShownProperties] = useState<(PropertyType | DivisionType)[]>([])
 
@@ -126,51 +101,15 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
                         </Col>
                         {
                             viewMode !== 'map' && (
-                                <Col xs={24}>
-                                    <Tabs
-                                        defaultActiveKey={initialTab.current}
-                                        onChange={(key: PropertiesType) => {
-                                            setPropertiesType(key)
-                                            router.push(`/property?tab=${key}`)
-                                        }}>
-                                        <Tabs.TabPane
-                                            key='buildings'
-                                            tab={BuildingsTabTitle}
-                                        />
-                                        <Tabs.TabPane
-                                            key='divisions'
-                                            tab={DivisionsTabTitle}
-                                        />
-                                    </Tabs>
-                                </Col>
-                            )
-                        }
-                        {
-                            viewMode !== 'map' && (
                                 <Col span={24}>
-                                    {
-                                        propertiesType === 'buildings'
-                                            ? (
-                                                <BuildingsTable
-                                                    role={role}
-                                                    searchPropertiesQuery={searchPropertiesQuery}
-                                                    tableColumns={propertiesTableColumns}
-                                                    sortBy={sortPropertiesBy}
-                                                    onSearch={(properties) => setShownProperties(properties)}
-                                                    loading={loading}
-                                                />
-                                            )
-                                            : (
-                                                <DivisionTable
-                                                    role={role}
-                                                    searchDivisionsQuery={searchDivisionsQuery}
-                                                    tableColumns={divisionTableColumns}
-                                                    sortBy={sortDivisionsBy}
-                                                    onSearch={(properties) => setShownProperties(properties)}
-                                                    loading={loading}
-                                                />
-                                            )
-                                    }
+                                    <BuildingsTable
+                                        role={role}
+                                        searchPropertiesQuery={searchPropertiesQuery}
+                                        tableColumns={propertiesTableColumns}
+                                        sortBy={sortPropertiesBy}
+                                        onSearch={(properties) => setShownProperties(properties)}
+                                        loading={loading}
+                                    />
                                 </Col>
                             )
                         }
@@ -206,32 +145,13 @@ export default function PropertiesPage (props: PropertiesPageProps) {
         deletedAt: null,
     }
 
-    const divisionFilterMetas = useDivisionTableFilters()
-    const divisionTableColumns = useDivisionsTableColumns(divisionFilterMetas)
-
-    const {
-        filtersToWhere: filtersToDivisionsWhere,
-        sortersToSortBy: sortersToSortDivisionsBy,
-    } = useQueryMappers<DivisionWhereInput>(divisionFilterMetas, ['name'])
-
-    const searchDivisionsQuery = {
-        ...filtersToDivisionsWhere(filters),
-        organization: { id: organization.id, deletedAt: null },
-        deletedAt: null,
-    }
-
     return (
         <PropertiesContent
             searchPropertiesQuery={searchPropertiesQuery}
             propertiesTableColumns={propertiesTableColumns}
             sortPropertiesBy={sortersToSortPropertiesBy(sorters) as SortPropertiesBy[]}
 
-            searchDivisionsQuery={searchDivisionsQuery}
-            divisionTableColumns={divisionTableColumns}
-            sortDivisionsBy={sortersToSortDivisionsBy(sorters)}
-
             role={role}
-            tab={props.tab}
         />
     )
 }
