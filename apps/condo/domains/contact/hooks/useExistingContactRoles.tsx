@@ -9,7 +9,7 @@ export const useExistingContactRoles: UseExistingContactRoles = () => {
     const { objs: contactRoles, loading } = ContactRole.useObjects({})
 
     useEffect(() => {
-        const roles = contactRoles.map(role => role.name)
+        const roles = contactRoles.map(role => role.name.trim())
         setExistingContactRoles(new Set(roles))
     }, [loading])
 
