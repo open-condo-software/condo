@@ -164,7 +164,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             setAddressValidatorError={setAddressValidatorError}
                                             onSelect={(_, option) => {
                                                 const address = JSON.parse(option.key as string) as AddressMetaField
-                                                if (!validHouseTypes.includes(address.data.house_type_full)) {
+                                                if (!validHouseTypes.includes(address.data.house_type_full) && address.data.stead_type_full == null) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }
                                                 else if (AddressValidationErrorMsg) setAddressValidatorError(null)
