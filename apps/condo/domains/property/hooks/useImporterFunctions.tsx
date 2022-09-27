@@ -67,7 +67,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const propertyNormalizer: RowNormalizer = (row: TableRow) => {
         const [address] = row
         return addressApi.getSuggestions(String(address.value)).then((result) => {
-            const suggestion = get(result, ['suggestions', 0], null)
+            let suggestion = get(result, ['suggestions', 0], null)
+            if (get(suggestion, 'value') !== get(address, 'value')) suggestion = null
             return Promise.resolve({ row, addons: { suggestion } })
         })
     }
