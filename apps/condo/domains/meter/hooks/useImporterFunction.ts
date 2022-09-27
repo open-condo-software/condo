@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef } from 'react'
 import dayjs from 'dayjs'
 import { useOrganization } from '@condo/next/organization'
 import { useApolloClient } from '@condo/next/apollo'
@@ -6,7 +7,6 @@ import map from 'lodash/map'
 import isEmpty from 'lodash/isEmpty'
 import { SortMetersBy } from '@app/condo/schema'
 import { useIntl } from '@condo/next/intl'
-import { useMemo } from 'react'
 
 import {
     Columns,
@@ -111,6 +111,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const { addressApi } = useAddressApi()
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationIdRef = useRef(userOrganization.id)
+    useEffect(() => {
+        userOrganizationIdRef.current = userOrganizationId
+    }, [userOrganizationId])
 
     const meterCreateAction = Meter.useCreate({})
 
@@ -304,7 +308,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             meterId = addons.meterId
         } else {
             const newMeter = await meterCreateAction({
-                organization: { connect: { id: String(userOrganizationId) } },
+                organization: { connect: { id: String(userOrganizationIdRef.current) } },
                 property: { connect: { id: String(addons.propertyId) } },
                 resource: { connect: { id: addons.meterResourceId } },
                 unitName: String(unitName),
