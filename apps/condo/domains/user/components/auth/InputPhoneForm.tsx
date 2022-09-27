@@ -100,6 +100,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                 Router.push(`/auth/register?token=${token}`)
                 onFinish()
             },
+            // Skip notification
+            OnCompletedMsg: null,
             onFinally: () => {
                 setIsLoading(false)
             },

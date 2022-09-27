@@ -41,6 +41,8 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
                     onCompleted()
                 })
             },
+            // Skip notification
+            OnCompletedMsg: null,
             onError: (error) => {
                 console.error(error)
             },
@@ -57,6 +59,8 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
                     onCompleted()
                 })
             },
+            // Skip notification
+            OnCompletedMsg: null,
             onError: (error) => {
                 console.error(error)
             },

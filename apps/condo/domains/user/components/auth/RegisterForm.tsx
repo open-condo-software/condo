@@ -78,6 +78,8 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                     onFinish(userId)
                 })
             },
+            // Skip notification
+            OnCompletedMsg: null,
             intl,
             form,
         }).catch(() => {
