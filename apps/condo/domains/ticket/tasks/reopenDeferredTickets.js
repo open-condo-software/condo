@@ -84,5 +84,6 @@ const reopenDeferredTickets = async () => {
 }
 
 module.exports = {
-    reopenDeferredTickets: createCronTask('reopenDeferredTickets', '0 0/1 * * *', reopenDeferredTickets),
+    reopenDeferredTicketsCron: createCronTask('reopenDeferredTickets', '0 0/1 * * *', reopenDeferredTickets),
+    reopenDeferredTickets,
 }

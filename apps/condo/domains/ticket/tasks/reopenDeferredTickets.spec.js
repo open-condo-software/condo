@@ -2,7 +2,7 @@ const faker = require('faker')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
-const { makeLoggedInAdminClient, setFakeClientMode, waitFor } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@condo/keystone/test.utils')
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestOrganization,
@@ -77,14 +77,12 @@ describe('reopenDeferredTickets', () => {
 
             await updateTestOrganizationEmployee(admin, employee.id, employeePayload)
 
-            await waitFor(async () => {
-                await reopenDeferredTickets.delay()
+            await reopenDeferredTickets()
 
-                const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+            const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-                expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
-                expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
-            }, { delay: 100 }) // wait deferred until
+            expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
         })
         it('should reopen ticket and reset dismissed executor and assignee (2 different employees)', async () => {
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -97,14 +95,12 @@ describe('reopenDeferredTickets', () => {
             await updateTestOrganizationEmployee(admin, employee.id, employeePayload)
             await updateTestOrganizationEmployee(admin, employee2.id, employeePayload)
 
-            await waitFor(async () => {
-                await reopenDeferredTickets.delay()
+            await reopenDeferredTickets()
 
-                const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+            const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-                expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
-                expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
-            }, { delay: 100 }) // wait deferred until
+            expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
         })
         it('should reopen ticket and save existed executor and reset dismissed assignee', async () => {
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -116,14 +112,12 @@ describe('reopenDeferredTickets', () => {
 
             await updateTestOrganizationEmployee(admin, employee.id, employeePayload)
 
-            await waitFor(async () => {
-                await reopenDeferredTickets.delay()
+            await reopenDeferredTickets()
 
-                const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+            const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-                expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(client2, 'user.id'))
-                expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
-            }, { delay: 100 }) // wait deferred until
+            expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(client2, 'user.id'))
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
         })
         it('should reopen ticket and reset dismissed executor and save existed assignee', async () => {
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -135,14 +129,12 @@ describe('reopenDeferredTickets', () => {
 
             await updateTestOrganizationEmployee(admin, employee2.id, employeePayload)
 
-            await waitFor(async () => {
-                await reopenDeferredTickets.delay()
+            await reopenDeferredTickets()
 
-                const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+            const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-                expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
-                expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
-            }, { delay: 100 }) // wait deferred until
+            expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
         })
         it('should reopen ticket without executor and reset dismissed assignee', async () => {
             const [ticket] = await createTestTicket(admin, organization, property, {
@@ -153,14 +145,12 @@ describe('reopenDeferredTickets', () => {
 
             await updateTestOrganizationEmployee(admin, employee.id, employeePayload)
 
-            await waitFor(async () => {
-                await reopenDeferredTickets.delay()
+            await reopenDeferredTickets()
 
-                const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+            const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-                expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
-                expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
-            }, { delay: 100 }) // wait deferred until
+            expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
         })
     })
     it('should reopen ticket without executor and assignee', async () => {
@@ -169,14 +159,12 @@ describe('reopenDeferredTickets', () => {
             status: { connect: { id: STATUS_IDS.DEFERRED } },
         })
 
-        await waitFor(async () => {
-            await reopenDeferredTickets.delay()
+        await reopenDeferredTickets()
 
-            const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+        const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-            expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
-            expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
-        }, { delay: 100 }) // wait deferred until
+        expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
+        expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
     })
     it('should reopen ticket and save existed executor and assignee (1 employee)', async () => {
         const [ticket] = await createTestTicket(admin, organization, property, {
@@ -186,14 +174,12 @@ describe('reopenDeferredTickets', () => {
             status: { connect: { id: STATUS_IDS.DEFERRED } },
         })
 
-        await waitFor(async () => {
-            await reopenDeferredTickets.delay()
+        await reopenDeferredTickets()
 
-            const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+        const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-            expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(client, 'user.id'))
-            expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
-        }, { delay: 100 }) // wait deferred until
+        expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(client, 'user.id'))
+        expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
     })
     it('should reopen ticket and save existed executor and assignee (2 different employees)', async () => {
         const [ticket] = await createTestTicket(admin, organization, property, {
@@ -203,13 +189,11 @@ describe('reopenDeferredTickets', () => {
             status: { connect: { id: STATUS_IDS.DEFERRED } },
         })
 
-        await waitFor(async () => {
-            await reopenDeferredTickets.delay()
+        await reopenDeferredTickets()
 
-            const [updatedTicket] = await Ticket.getAll(admin, { id: ticket.id })
+        const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
-            expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(client2, 'user.id'))
-            expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
-        }, { delay: 100 }) // wait deferred until
+        expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(client2, 'user.id'))
+        expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(client, 'user.id'))
     })
 })
