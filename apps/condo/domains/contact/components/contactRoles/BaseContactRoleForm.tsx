@@ -1,6 +1,5 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
-import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { useContactRoleValidationRules } from '@condo/domains/contact/hooks/useContactRoleValidationRules'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
@@ -47,13 +46,12 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 
     const router = useRouter()
 
-    const createContactRoleAction = ContactRole.useCreate({})
-    const softDeleteContactRoleAction = ContactRole.useSoftDelete()
-
     const validationRules = useContactRoleValidationRules()
 
     const handleFormSubmit = useCallback(async (values) => {
         const initialContactRoleId = get(initialValues, 'id')
+        const normalizedName = values.name && values.name.trim()
+        values = { ...values, name: normalizedName }
 
         if (!initialContactRoleId) {
             await action({
@@ -65,7 +63,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
         }
 
         await router.push(`/settings?tab=${SETTINGS_TAB_CONTACT_ROLES}`)
-    }, [action, createContactRoleAction, initialValues, organizationId, softDeleteContactRoleAction])
+    }, [action, initialValues, organizationId])
 
 
 
