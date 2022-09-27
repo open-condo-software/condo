@@ -16,7 +16,7 @@ const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canManageOrganization canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canReadBillingReceipts canReadPayments canManageProperties canManageTickets canManageContacts canManageContactRoles canManageTicketComments canManageDivisions canManagePropertyScopes canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings canReadEntitiesOnlyInScopeOfDivision canManageBankContractorAccounts id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', ORGANIZATION_EMPLOYEE_ROLE_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone specializations { id name } role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
+const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
 const OrganizationEmployee = generateGqlQueries('OrganizationEmployee', ORGANIZATION_EMPLOYEE_FIELDS)
 
 const ORGANIZATION_LINK_FIELDS = `{ from ${ORGANIZATION_FIELDS} to { id name } ${COMMON_FIELDS} }`

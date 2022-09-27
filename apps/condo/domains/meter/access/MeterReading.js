@@ -10,10 +10,9 @@ const {
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { get } = require('lodash')
-const { getUserDivisionsInfo } = require('@condo/domains/division/utils/serverSchema')
 const { getById } = require('@open-condo/keystone/schema')
 
-async function canReadMeterReadings ({ authentication: { item: user }, context }) {
+async function canReadMeterReadings ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -27,39 +26,6 @@ async function canReadMeterReadings ({ authentication: { item: user }, context }
             meter: { id_in: availableMeterIds, deletedAt: null },
             deletedAt: null,
         }
-    }
-
-    const userDivisionsInfo = await getUserDivisionsInfo(context, user.id)
-
-    if (userDivisionsInfo) {
-        const { organizationsIdsWithEmployeeInDivision, divisionsPropertiesIds } = userDivisionsInfo
-
-        return {
-            OR: [
-                {
-                    AND: [
-                        {
-                            organization: {
-                                id_not_in: organizationsIdsWithEmployeeInDivision,
-                                OR: [
-                                    queryOrganizationEmployeeFor(user.id),
-                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                                ],
-                            },
-                        },
-                    ],
-                },
-                {
-                    AND: [
-                        {
-                            organization: { id_in: organizationsIdsWithEmployeeInDivision },
-                            meter: { property: { id_in: divisionsPropertiesIds } },
-                        },
-                    ],
-                },
-            ],
-        }
-
     }
 
     return {

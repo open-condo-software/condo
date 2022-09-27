@@ -109,7 +109,6 @@ registerSchemas(keystone, [
     require('@condo/domains/contact/schema'),
     require('@condo/domains/resident/schema'),
     require('@condo/domains/onboarding/schema'),
-    require('@condo/domains/division/schema'),
     require('@condo/domains/meter/schema'),
     require('@condo/domains/subscription/schema'),
     require('@condo/domains/acquiring/schema'),

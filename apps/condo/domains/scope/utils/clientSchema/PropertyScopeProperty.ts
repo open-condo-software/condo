@@ -11,8 +11,6 @@ import {
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { PropertyScopeProperty as PropertyScopePropertyGQL } from '@condo/domains/scope/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
-
 const {
     useObject,
     useObjects,

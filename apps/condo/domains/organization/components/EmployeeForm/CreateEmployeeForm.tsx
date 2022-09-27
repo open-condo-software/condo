@@ -142,20 +142,15 @@ export const CreateEmployeeForm: React.FC = () => {
             formValuesToMutationDataPreprocessor={(values) => {
                 // TODO(Dimitree): delete after useInviteNewOrganizationEmployee move to OrganizationEmployee
                 const role = get(values, 'role')
-                const specializations = get(values, 'specializations')
 
                 if (role) {
                     values.role = { id: String(role) }
-                }
-                if (specializations) {
-                    values.specializations = { connect: specializations.map(id => ({ id })) }
                 }
                 return values
             }}
         >
             {
                 ({ handleSave, isLoading }) => {
-
                     return (
                         <>
                             <Row>
