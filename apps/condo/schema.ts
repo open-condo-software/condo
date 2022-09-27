@@ -1619,6 +1619,9 @@ export type AddressMetaDataField = {
   unparsed_parts?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   qc?: Maybe<Scalars['String']>;
+  stead_type?: Maybe<Scalars['String']>;
+  stead_type_full?: Maybe<Scalars['String']>;
+  stead?: Maybe<Scalars['String']>;
 };
 
 export type AddressMetaDataFieldInput = {
@@ -1706,6 +1709,9 @@ export type AddressMetaDataFieldInput = {
   unparsed_parts?: Maybe<Scalars['String']>;
   source?: Maybe<Scalars['String']>;
   qc?: Maybe<Scalars['String']>;
+  stead_type?: Maybe<Scalars['String']>;
+  stead_type_full?: Maybe<Scalars['String']>;
+  stead?: Maybe<Scalars['String']>;
 };
 
 export type AddressMetaDataMetroField = {
