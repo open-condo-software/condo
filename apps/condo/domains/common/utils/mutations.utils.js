@@ -4,12 +4,6 @@ import find from 'lodash/find'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 
-const getMessageFrom = (error) => (
-    get(error, ['extensions', 'messageForUser']) ||
-    get(error, ['extensions', 'message']) ||
-    get(error.message)
-)
-
 /**
  * Mapping of error codes to field errors
  * Maps error codes to field names and list of errors, that **are declared on the client**
