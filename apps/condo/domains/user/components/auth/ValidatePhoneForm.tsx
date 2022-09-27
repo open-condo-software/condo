@@ -123,6 +123,8 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
             variables,
             intl,
             form,
+            // Skip notification
+            OnCompletedMsg: null,
             ErrorToFormFieldMsgMapping,
         })
     }, [intl, form, completeConfirmPhoneMutation])

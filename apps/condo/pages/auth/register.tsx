@@ -53,6 +53,8 @@ const RegisterPage: AuthPage = () => {
         return runMutation({
             mutation: createOnBoarding,
             variables: { data },
+            // Skip notification
+            OnCompletedMsg: null,
             intl,
         })
     }

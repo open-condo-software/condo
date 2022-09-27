@@ -74,6 +74,8 @@ export const SignInForm = (): React.ReactElement => {
                     return router.push(redirectUrl)
                 })
             },
+            // Skip notification
+            OnCompletedMsg: null,
             onFinally: () => {
                 setIsLoading(false)
             },
