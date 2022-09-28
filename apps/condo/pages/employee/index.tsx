@@ -8,7 +8,6 @@ import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
-import { canManageEmployee } from '@condo/domains/organization/permissions'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import {
     EMPLOYEE_PAGE_SIZE,
@@ -204,8 +203,9 @@ const EmployeesPage = () => {
     const intl = useIntl()
     const translations = intl.messages
 
-    const userOrganization = useOrganization()
+    const { userOrganization, link: { role } }  = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const canManageEmployee = get(role, 'canManageEmployees', null)
 
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
