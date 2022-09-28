@@ -85,8 +85,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     throw new GQLError(errors.ORGANIZATION_NOT_FOUND, context)
                 }
 
-                const unitName = get(resident, 'unitName', null)
-
                 const paymentCategory = get(extra, 'paymentCategory', null)
 
                 const attrs = {
@@ -104,7 +102,6 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     const [billingAccount] = await BillingAccount.getAll(context,
                         {
                             context: { id: billingIntegrationContext.id },
-                            unitName: unitName,
                             number_i: accountNumber,
                         }
                     )
@@ -114,7 +111,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                     attrs.acquiringIntegrationContext = billingAccount && acquiringIntegrationContext ? { connect: { id: acquiringIntegrationContext.id } } : null
                 }
                 if (!attrs.billingAccount) {
-                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, unitName: unitName, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
+                    const meters = await Meter.getAll(context, { accountNumber: accountNumber, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
                         throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND, context)
                     }
