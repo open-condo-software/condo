@@ -1,12 +1,14 @@
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
-import { useContactRoleValidationRules } from '@condo/domains/contact/hooks/useContactRoleValidationRules'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useIntl } from '@condo/next/intl'
 import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
+import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback } from 'react'
+import { useExistingContactRoles } from '@condo/domains/contact/components/contactRoles/useExistingContactRoles'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -43,10 +45,13 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     const NamePlaceholderValue = intl.formatMessage({ id: 'ContactRoles.namePlaceholderValue' })
     const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
     const ReadyMessage = intl.formatMessage({ id: 'Ready' })
+    const ContactRoleIsDuplicateMessage = intl.formatMessage({ id: 'ContactRoles.error.duplicate' })
 
     const router = useRouter()
 
-    const validationRules = useContactRoleValidationRules()
+    const existingContactRoles = useExistingContactRoles()
+
+    const { trimValidator } = useValidations()
 
     const handleFormSubmit = useCallback(async (values) => {
         const initialContactRoleId = get(initialValues, 'id')
@@ -64,7 +69,17 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
         await router.push(`/settings?tab=${SETTINGS_TAB_CONTACT_ROLES}`)
     }, [action, initialValues, organizationId])
 
+    const contactRoleValidator = (existingRoles: Set<string>): Rule => ({
+        validator: (_, value) => {
+            const normalizedValue = value && value.trim()
+            if (normalizedValue &&
+                (existingRoles.has(normalizedValue) || normalizedValue.startsWith('contact.role')))
+                return Promise.reject(ContactRoleIsDuplicateMessage)
+            return Promise.resolve()
+        },
+    })
 
+    const validationRules = [trimValidator, contactRoleValidator(existingContactRoles)]
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
