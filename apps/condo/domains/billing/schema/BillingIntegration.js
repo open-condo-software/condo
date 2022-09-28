@@ -77,6 +77,13 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
             many: true,
         },
 
+        isTrustedBankAccountSource: {
+            schemaDoc: 'If checked, then bank account objects created by this billing are automatically approved. E.g government-controlled billing',
+            type: Boolean,
+            isRequired: true,
+            defaultValue: false,
+        },
+
         // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
         isHidden: IS_HIDDEN_FIELD,
     },

@@ -152,6 +152,9 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             const newItem = { ...existingItem, ...resolvedData }
             const contextId = get(newItem, 'context')
             const recipient = get(newItem, 'recipient')
+            const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+            const billingIntegration = await getById('BillingIntegration', get(billingIntegrationContext, 'integration'))
+            const isTrustedBankAccountSource = get(billingIntegration, 'isTrustedBankAccountSource')
 
             let receiverId
             const sameRecipient = await BillingRecipient.getOne(context, {
@@ -175,6 +178,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     iec: get(recipient, 'iec'),
                     bic: get(recipient, 'bic'),
                     bankAccount: get(recipient, 'bankAccount'),
+                    isApproved: !!isTrustedBankAccountSource,
                     bankName, territoryCode, offsettingAccount,
                 })
                 receiverId = createdRecipient.id
