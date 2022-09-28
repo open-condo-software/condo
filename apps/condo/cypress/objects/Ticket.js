@@ -292,8 +292,45 @@ class TicketEdit {
     }
 }
 
+class TicketImport {
+/*
+Elements:
+    ticket=import-button
+    ticket-import-success
+    ticket-import-error
+*/
+
+    visit () {
+        cy.visit(TICKET_VIEW_URL)
+        cy.location('pathname').should('equal', TICKET_VIEW_URL)
+        cy.wait(['@getAllTickets'])
+
+        return this
+    }
+
+    importTicketTable (filePath) {
+        cy.get('[data-cy=data-import]')
+            .selectFile(filePath, { force: true })
+        // eslint-disable-next-line cypress/no-unnecessary-waiting
+        cy.wait(10000)
+
+        return this
+    }
+
+    closeSuccessModal () {
+        cy.get('[data-cy=ticket-import-success]')
+        cy.get('.ant-modal-close').click()
+    }
+
+    closeErrorModal () {
+        cy.get('[data-cy=ticket-import-error]')
+        cy.get('.ant-modal-confirm-btns > .ant-btn').first().click()
+    }
+}
+
 export {
     TicketCreate,
     TicketView,
     TicketEdit,
+    TicketImport,
 }

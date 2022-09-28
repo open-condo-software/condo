@@ -135,8 +135,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const { data: { objs } } = await searchContacts(client, {
             organizationId: userOrganizationId,
             propertyId: addons.propertyId,
-            unitName: addons.unitName,
-            unitType: addons.unitType,
+            unitName: undefined,
+            unitType: undefined,
         })
         addons.contacts = objs
 
@@ -204,7 +204,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             } else {
                 const newContact = await contactCreateAction({
                     organization: { connect: { id: String(userOrganizationId) } },
-                    property: { connect: { id: String(row.addons.property) } },
+                    property: { connect: { id: propertyId } },
                     unitName: String(unitName.value),
                     phone,
                     name: row.addons.fullName,
