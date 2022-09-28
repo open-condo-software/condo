@@ -1,7 +1,7 @@
 import sample from 'lodash/sample'
 import faker from 'faker'
 
-import { TicketCreate, TicketView, TicketEdit } from '../../objects/Ticket'
+import { TicketCreate, TicketView, TicketEdit, TicketImport } from '../../objects/Ticket'
 
 const authUserWithCookies = (userData) => {
     cy.setCookie('locale', 'en')
@@ -66,6 +66,57 @@ describe('Ticket',  function () {
                         .clickTicketDeadline()
                         .clickAssigneeInput()
                         .clickApplyChanges()
+                })
+            })
+        })
+    })
+    describe('Support', () => {
+        afterEach(() => {
+            cy.clearCookies()
+        })
+
+        const validCases = [
+            './cypress/testFiles/ticket/import-ticket-success-1.xlsx',
+            './cypress/testFiles/ticket/import-ticket-success-2.xlsx',
+            './cypress/testFiles/ticket/import-ticket-success-3.xlsx',
+            './cypress/testFiles/ticket/import-ticket-success-4.xlsx',
+            './cypress/testFiles/ticket/import-ticket-success-5.xlsx',
+            './cypress/testFiles/ticket/import-ticket-success-6.xlsx',
+            './cypress/testFiles/ticket/import-ticket-success-7.xlsx',
+        ]
+
+        const invalidCases = [
+            './cypress/testFiles/ticket/import-ticket-error-1.xlsx',
+            './cypress/testFiles/ticket/import-ticket-error-2.xlsx',
+            './cypress/testFiles/ticket/import-ticket-error-3.xlsx',
+            './cypress/testFiles/ticket/import-ticket-error-4.xlsx',
+            './cypress/testFiles/ticket/import-ticket-error-5.xlsx',
+        ]
+
+        validCases.forEach((filePath, index) => {
+            it(`can ticket import ${index + 1}`, () => {
+                cy.task('keystone:createSupportWithProperty').then((response) => {
+                    authUserWithCookies(response)
+
+                    const ticketImport = new TicketImport()
+                    ticketImport
+                        .visit()
+                        .importTicketTable(filePath)
+                        .closeSuccessModal()
+                })
+            })
+        })
+
+        invalidCases.forEach((filePath, index) => {
+            it(`can not ticket import ${index + 1}`, () => {
+                cy.task('keystone:createSupportWithProperty').then((response) => {
+                    authUserWithCookies(response)
+
+                    const ticketImport = new TicketImport()
+                    ticketImport
+                        .visit()
+                        .importTicketTable(filePath)
+                        .closeErrorModal()
                 })
             })
         })

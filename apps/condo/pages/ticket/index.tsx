@@ -206,7 +206,6 @@ export const TicketsPageContent = ({
                         ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT
                         : DEFAULT_RECORDS_LIMIT_FOR_IMPORT
                 }
-
             >
                 <Button
                     type='sberPrimary'
