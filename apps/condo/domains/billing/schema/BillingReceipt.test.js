@@ -813,6 +813,15 @@ describe('BillingReceipt', () => {
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
             })
+            test('Should create recipient and set receiver.isApproved field automatically if billing integration is trusted', async () => {
+                const { context: trustedBillingContext, integration: trustedIntegration } = await makeContextWithOrganizationAndIntegrationAsAdmin( { integrationAttrs: { isTrustedBankAccountSource: true } })
+                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, property, account)
+                expect(attrs).not.toHaveProperty('receiver')
+                expect(attrs).toHaveProperty(['recipient', 'tin'])
+                expect(receipt).toHaveProperty(['recipient', 'tin'])
+                expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
+                expect(receipt).toHaveProperty(['receiver', 'isApproved'], true)
+            })
             test('Should connect to existing recipient, if passed explicitly', async () => {
                 const recipientAttrs = createTestRecipient()
                 const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
