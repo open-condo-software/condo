@@ -50,8 +50,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
 
     const handleFormSubmit = useCallback(async (values) => {
         const initialContactRoleId = get(initialValues, 'id')
-        const normalizedName = values.name && values.name.trim()
-        values = { ...values, name: normalizedName }
+        values = { ...values, name: values.name.trim() }
 
         if (!initialContactRoleId) {
             await action({
