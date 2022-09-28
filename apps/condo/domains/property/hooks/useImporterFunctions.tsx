@@ -1,5 +1,6 @@
 import { useOrganization } from '@condo/next/organization'
 import { useApolloClient } from '@condo/next/apollo'
+import { useEffect, useRef } from 'react'
 import { useAddressApi } from '../../common/components/AddressApi'
 import get from 'lodash/get'
 import { Property } from '../utils/clientSchema'
@@ -52,10 +53,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const { addressApi } = useAddressApi()
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationIdRef = useRef(userOrganization.id)
+    useEffect(() => {
+        userOrganizationIdRef.current = userOrganizationId
+    }, [userOrganizationId])
 
-    const createPropertyAction = Property.useCreate({
-        organization: { connect: { id: userOrganizationId } },
-    })
+    const createPropertyAction = Property.useCreate({})
 
     const columns: Columns = [
         { name: 'address', type: 'string', required: true, label: AddressLabel },
@@ -82,7 +85,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const where = {
             address: address,
-            organization: { id: userOrganizationId },
+            organization: { id: userOrganizationIdRef.current },
         }
         return searchProperty(client, where, undefined)
             .then((res) => {
@@ -106,6 +109,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             name: String(value),
             address: String(value),
             addressMeta: { ...property, dv: 1 },
+            organization: { connect: { id: userOrganizationIdRef.current } },
             map,
         })
     }

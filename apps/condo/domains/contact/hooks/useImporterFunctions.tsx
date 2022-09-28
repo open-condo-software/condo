@@ -13,6 +13,7 @@ import { useApolloClient } from '@condo/next/apollo'
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 import get from 'lodash/get'
+import { useEffect, useRef } from 'react'
 
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -61,6 +62,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const { addressApi } = useAddressApi()
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationIdRef = useRef(userOrganization.id)
+    useEffect(() => {
+        userOrganizationIdRef.current = userOrganizationId
+    }, [userOrganizationId])
 
     const contactCreateAction = Contact.useCreate({})
 
@@ -129,7 +134,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 addons.address = suggestion.value
                 const where = {
                     address: suggestion.value,
-                    organization: { id: userOrganizationId },
+                    organization: { id: userOrganizationIdRef.current },
                 }
                 return searchProperty(client, where, undefined).then((res) => {
                     addons.property = res.length > 0 ? res[0].value : null
@@ -178,7 +183,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         const { data } = await searchContacts(client, {
-            organizationId: userOrganizationId,
+            organizationId: userOrganizationIdRef.current,
             propertyId: row.addons.property,
             unitName,
             unitType,
@@ -210,7 +215,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             }
 
             const contactData = {
-                organization: { connect: { id: String(userOrganizationId) } },
+                organization: { connect: { id: userOrganizationIdRef.current } },
                 property: { connect: { id: String(row.addons.property) } },
                 unitName,
                 unitType: row.addons.unitType,
