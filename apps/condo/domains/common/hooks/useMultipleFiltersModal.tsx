@@ -548,7 +548,9 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const handleFormValuesChange = useCallback(() => {
         const { newTemplateName, existedTemplateName } = form.getFieldsValue(['newTemplateName', 'existedTemplateName'])
-        const isTemplateValueNameExist = Boolean(newTemplateName || existedTemplateName)
+        const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
+        const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
+        const isTemplateValueNameExist = Boolean(trimmedNewTemplateName || trimmedExistedTemplateName)
 
         setIsSaveFiltersTemplateButtonDisabled(!isTemplateValueNameExist)
     },
