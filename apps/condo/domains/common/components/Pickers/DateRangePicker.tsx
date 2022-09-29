@@ -49,7 +49,6 @@ const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
     return (
         <DatePicker.RangePicker
             css={RANGE_PICKER_CSS}
-            allowClear={false}
             suffixIcon={<DownOutlined />}
             disabledDate={(date) => date > dayjs()}
             format='DD.MM.YYYY'
