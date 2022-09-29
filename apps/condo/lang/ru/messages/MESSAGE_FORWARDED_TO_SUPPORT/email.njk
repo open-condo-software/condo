@@ -5,18 +5,18 @@ Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не у
 {%- if message.meta.residentsExtraInfo.length == 0 -%}
   нет
 {%- else -%}
- {% for residentInfo in message.meta.residentsExtraInfo %}
-     УК: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. ИНН: {{ residentInfo.organization.tin }}{% else %}не указан{% endif %}.
-     Адрес: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}не указан{% endif %}.
-     Лицевые счета:
-     {%- if residentInfo.accountNumbers.length == 0 -%}
-       нет
-     {%- else -%}
-       {% for accountNumber in residentInfo.accountNumbers %}
-         - {{ accountNumber }}.
-       {% endfor %}
-     {% endif %}
+ {% for resident in message.meta.residentsExtraInfo %}
+    Адрес: {% if resident.address %}{{ resident.address | safe }}{% else %}не указан{% endif %}.
+    Лицевой счёт: {% if resident.accountNumber %}{{ resident.accountNumber | safe }}{% else %}не указан{% endif %}.
 
  {% endfor %}
 {% endif %}
 Сообщение: {{ message.meta.text | safe }}
+УК:
+{%- if message.meta.organizationsData.length == 0 -%}
+  нет
+{%- else -%}
+  {% for org in message.meta.organizationsData %}
+    - {{ org.name }}. ИНН: {{ org.tin }}
+  {% endfor %}
+{% endif %}
