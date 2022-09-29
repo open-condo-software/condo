@@ -414,17 +414,20 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSaveFiltersTemplate = useCallback(async () => {
         const { newTemplateName, existedTemplateName, ...otherValues } = form.getFieldsValue()
         const filtersValue = pickBy(otherValues)
+        const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
 
-        if (newTemplateName) {
+        if (trimmedNewTemplateName) {
             await createFiltersTemplateAction({
-                name: newTemplateName,
+                name: trimmedNewTemplateName,
                 fields: filtersValue,
             })
         }
 
-        if (existedTemplateName) {
+        const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
+
+        if (trimmedExistedTemplateName) {
             await updateFiltersTemplateAction({
-                name: existedTemplateName,
+                name: trimmedExistedTemplateName,
                 fields: filtersValue,
             }, selectedFiltersTemplate)
         }
