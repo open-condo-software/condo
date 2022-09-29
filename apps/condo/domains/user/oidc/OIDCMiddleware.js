@@ -18,7 +18,7 @@ class OIDCMiddleware {
         //
         // There is no way to fix it at the moment ...
         //
-        const provider = new Provider(conf.SERVER_URL, createConfiguration(keystone))
+        const provider = new Provider(conf.SERVER_URL, createConfiguration(keystone, conf))
         const app = express()
 
         OIDCBearerTokenKeystonePatch(app, keystone)
