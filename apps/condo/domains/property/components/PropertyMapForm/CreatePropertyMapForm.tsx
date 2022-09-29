@@ -26,7 +26,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
 
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
     const action = Property.useUpdate({}, () => push(`/property/${id}`))
-    const createAction = (value) => action(value, property)
+    const updatePropertyAction = (value) => action(value, property)
 
     const initialValues = Property.convertToFormState(property)
 
@@ -45,7 +45,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     return (
         <BasePropertyMapForm
             id={id}
-            action={createAction}
+            action={updatePropertyAction}
             type='building'
             initialValues={initialValues}
             organization={organization}
