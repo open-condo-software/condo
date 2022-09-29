@@ -35,6 +35,8 @@ describe('SendMessageToSupportService', () => {
                 new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')),
             ],
             text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM} and contains an attachment.`,
+            personalAccount: '990100000000',
+            address: 'Test address',
             emailFrom: EMAIL_FROM, // email passed from mobile application
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
@@ -54,6 +56,8 @@ describe('SendMessageToSupportService', () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
             text: 'Test with wrong email.',
+            personalAccount: '990100000000',
+            address: 'Test address',
             emailFrom: 'some-wrong_email',
             os: 'android 13',
             appVersion: '0.0.1a',
@@ -85,6 +89,8 @@ describe('SendMessageToSupportService', () => {
 
         const payload = {
             text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}`,
+            personalAccount: '990100000000',
+            address: 'Test address',
             emailFrom: EMAIL_FROM, // email passed from mobile application
             os: 'android 8',
             appVersion: '0.0.1a',
@@ -110,6 +116,8 @@ describe('SendMessageToSupportService', () => {
 
         const payload = {
             text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}. Resident must be attached to two organizations.`,
+            personalAccount: '990100000000',
+            address: 'Test address',
             emailFrom: EMAIL_FROM, // email passed from mobile application
             os: 'ios 15.1',
             appVersion: '0.0.1a',
@@ -129,6 +137,8 @@ describe('SendMessageToSupportService', () => {
         const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
         const payload = {
             text: 'Test message from resident to support. In this message resident has not passed the email address, so the sender\'s email is default',
+            personalAccount: '990100000000',
+            address: 'Test address',
             os: 'android 12',
             appVersion: '0.0.1a',
             lang: RU_LOCALE,
