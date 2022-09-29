@@ -1,4 +1,4 @@
-import React, { ComponentProps, CSSProperties, useCallback, useState } from 'react'
+import React, { ComponentProps, CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import dayjs from 'dayjs'
@@ -27,13 +27,16 @@ export const getFilterValue: FilterValueType = (path, filters) => get(filters, p
 
 export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSSProperties) => {
     return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const [value, setValue] = useState('')
         const handleClear = useCallback(() => {
-            setValue('')
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys('')
             confirm({ closeDropdown: true })
-        }, [clearFilters])
+        }, [clearFilters, confirm, setSelectedKeys])
+
+        const handleChangeInput = useCallback((event) => {
+            setSelectedKeys(event.target.value)
+            confirm({ closeDropdown: false })
+        }, [confirm, setSelectedKeys])
 
         return (
             <FilterContainer
@@ -43,12 +46,8 @@ export const getTextFilterDropdown = (placeholder: string, containerStyles?: CSS
             >
                 <Input
                     placeholder={placeholder}
-                    value={value}
-                    onChange={e => {
-                        setValue(e.target.value)
-                        setSelectedKeys(e.target.value)
-                        confirm({ closeDropdown: false })
-                    }}
+                    value={selectedKeys}
+                    onChange={handleChangeInput}
                 />
             </FilterContainer>
         )
