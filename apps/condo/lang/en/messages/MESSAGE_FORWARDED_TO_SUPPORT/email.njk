@@ -1,17 +1,10 @@
 Mobile OS: {{ message.meta.os }}
 App version: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}N/A{% endif %}
-Residents info:
-{%- if message.meta.residentsExtraInfo.length == 0 -%}
-  no
-{%- else -%}
- {% for resident in message.meta.residentsExtraInfo %}
-    Address: {% if resident.address %}{{ resident.address | safe }}{% else %}N/A{% endif %}.
-    Account number: {% if resident.accountNumber %}{{ resident.accountNumber | safe }}{% else %}N/A{% endif %}.
-    Payment category: {% if resident.paymentCategory %}{{ resident.paymentCategory | safe }}{% else %}N/A{% endif %}.
-
- {% endfor %}
-{% endif %}
+{% for resident in message.meta.residentsExtraInfo %}
+    Address: {{ resident.address }}.
+    Account number: {{ resident.accountNumber }}.
+{% endfor %}
 Message text: {{ message.meta.text | safe }}
 Organizations:
 {%- if message.meta.organizationsData.length == 0 -%}
