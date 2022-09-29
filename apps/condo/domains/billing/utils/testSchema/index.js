@@ -733,7 +733,7 @@ async function addBillingIntegrationAndContext(client, organization) {
     }
 }
 
-async function makeContextWithOrganizationAndIntegrationAsAdmin( { integrationAttrs={}, contextAttrs= {}, organizationAttrs = {} } ) {
+async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttrs={}, organizationAttrs = {}, contextAttrs= {} ) {
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin, integrationAttrs)
     const [organization] = await registerNewOrganization(admin, organizationAttrs)
