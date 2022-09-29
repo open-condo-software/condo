@@ -303,28 +303,42 @@ Elements:
     visit () {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait(['@getAllTickets'])
+        cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
 
         return this
     }
 
     importTicketTable (filePath) {
-        cy.get('[data-cy=data-import]')
+        cy.get('[data-cy=data-import]', { timeout: 30000 })
             .selectFile(filePath, { force: true })
-        // eslint-disable-next-line cypress/no-unnecessary-waiting
-        cy.wait(10000)
+
+        return this
+    }
+
+    waitCreatingTicket () {
+        cy.wait(['@selectContact', '@createTicket'])
+
+        return this
+    }
+
+    waitFetchingContact () {
+        cy.wait('@selectContact')
 
         return this
     }
 
     closeSuccessModal () {
-        cy.get('[data-cy=ticket-import-success]')
-        cy.get('.ant-modal-close').click()
+        cy.get('[data-cy=ticket-import-success]', { timeout: 30000 })
+            .should('be.visible')
+
+        return this
     }
 
     closeErrorModal () {
-        cy.get('[data-cy=ticket-import-error]')
-        cy.get('.ant-modal-confirm-btns > .ant-btn').first().click()
+        cy.get('[data-cy=ticket-import-error]', { timeout: 30000 })
+            .should('be.visible')
+
+        return this
     }
 }
 

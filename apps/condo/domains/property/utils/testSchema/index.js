@@ -19,13 +19,13 @@ const { EXPORT_PROPERTIES_TO_EXCEL } = require('@condo/domains/property/gql')
 const Property = generateGQLTestUtils(PropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false) {
+async function createTestProperty (client, organization, extraAttrs = {}, withFlat = false, addressMetaExtraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.address.streetAddress(true)
-    const { address, addressMeta } = buildFakeAddressAndMeta(withFlat)
+    const { address, addressMeta } = buildFakeAddressAndMeta(withFlat, addressMetaExtraAttrs)
     const attrs = {
         dv: 1,
         sender,
@@ -54,9 +54,9 @@ async function updateTestProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function makeClientWithProperty (includeFlat = false) {
+async function makeClientWithProperty (includeFlat = false, addressMetaExtraAttrs = {}) {
     const client = await makeClientWithRegisteredOrganization()
-    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, includeFlat)
+    const [property] = await createTestProperty(client, client.organization, { map: buildingMapJson }, includeFlat, addressMetaExtraAttrs)
     client.property = property
     return client
 }

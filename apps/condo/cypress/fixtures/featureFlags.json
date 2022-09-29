@@ -1,0 +1,55 @@
+{
+  "sms-after-ticket-creation": {
+    "defaultValue": false,
+    "rules": [
+      {
+        "condition": {
+          "organization": {
+            "$in": [
+              "2ee381df-cddc-4b30-aa0d-811578272b32"
+            ]
+          }
+        },
+        "force": true
+      }
+    ]
+  },
+  "refetch-tickets-in-control-room": {
+    "defaultValue": false,
+    "rules": [
+      {
+        "condition": {
+          "organization": {
+            "$in": [
+              "ids"
+            ]
+          }
+        },
+        "force": true
+      }
+    ]
+  },
+  "send-submit-meter-readings-push-notifications-task": {
+    "defaultValue": false
+  },
+  "send-verification-date-reminder-task": {
+    "defaultValue": false
+  },
+  "send-billing-receipts-added-notifications-task": {
+    "defaultValue": true
+  },
+  "send-residents-no-account-notifications-task": {
+    "defaultValue": true
+  },
+  "ticket-import": {
+    "defaultValue": false,
+    "rules": [
+      {
+        "condition": {
+          "isSupport": true
+        },
+        "force": true
+      }
+    ]
+  }
+}
