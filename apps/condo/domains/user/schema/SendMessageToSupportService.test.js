@@ -9,7 +9,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const conf = require('@condo/config')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeLoggedInAdminClient, UploadingFile } = require('@condo/keystone/test.utils')
-const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -17,7 +17,6 @@ const { Message } = require('@condo/domains/notification/utils/testSchema')
 const path = require('path')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
-const faker = require('faker')
 
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
@@ -124,40 +123,6 @@ describe('SendMessageToSupportService', () => {
         const messages = await Message.getAll(adminClient, { id: result.id })
         expect(messages).toHaveLength(1)
         expect(messages[0].meta.organizationsData).toHaveLength(2)
-    })
-
-    test('with organization and service consumer', async () => {
-        const userClient = await makeClientWithProperty()
-        const adminClient = await makeLoggedInAdminClient()
-        const [organization] = await registerNewOrganization(userClient)
-
-        const unitName = faker.random.alphaNumeric(8)
-        const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
-            unitName,
-        })
-        const accountNumber1 = faker.random.alphaNumeric(8)
-        await createTestServiceConsumer(adminClient, resident, organization, {
-            accountNumber: accountNumber1,
-        })
-        await addResidentAccess(userClient.user)
-
-        const payload = {
-            text: `Test message from resident to support. This message should be sent from ${EMAIL_FROM}. Resident must be attached to two organizations.`,
-            emailFrom: EMAIL_FROM, // email passed from mobile application
-            os: 'ios 15.1',
-            appVersion: '0.0.1a',
-            lang: RU_LOCALE,
-            meta: {},
-        }
-
-        const [result] = await supportSendMessageToSupportByTestClient(userClient, payload)
-        expect(result.status).toEqual(MESSAGE_SENDING_STATUS)
-
-        const messages = await Message.getAll(adminClient, { id: result.id })
-        expect(messages).toHaveLength(1)
-        const residentsExtraInfo = messages[0].meta.residentsExtraInfo[0]
-        expect(residentsExtraInfo.address.length).toBeGreaterThan(1)
-        expect(residentsExtraInfo.accountNumber.length).toBeGreaterThan(1)
     })
 
     test('no attachments, no email', async () => {
