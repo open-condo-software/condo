@@ -14,7 +14,9 @@ async function canReadPropertyScopeProperties ({ authentication: { item: user } 
     if (user.isAdmin || user.isSupport) return {}
 
     return {
-        organization: queryOrganizationEmployeeFor(user.id),
+        propertyScope: {
+            organization: queryOrganizationEmployeeFor(user.id),
+        },
     }
 }
 

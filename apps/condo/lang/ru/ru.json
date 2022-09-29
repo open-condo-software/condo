@@ -801,6 +801,7 @@
   "pages.users.UserIsAlreadyInList": "Пользователь уже добавлен в список",
   "employee.Position": "Должность",
   "employee.Specializations": "Специализации",
+  "employee.WorkCategoriesCount": "Типов работ:",
   "employee.Role": "Роль",
   "employee.AddEmployee": "Добавление сотрудника",
   "employee.InviteEmployee": "Пригласить сотрудника",

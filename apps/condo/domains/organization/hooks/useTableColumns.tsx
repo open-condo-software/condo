@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 import { identity } from 'lodash/util'
 import get from 'lodash/get'
@@ -5,31 +6,34 @@ import get from 'lodash/get'
 import { useIntl } from '@open-condo/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'
+import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
-import { createSorterMap, IFilters } from '../utils/helpers'
-import { OrganizationEmployeeRole } from '../utils/clientSchema'
-import { getOptionFilterDropdown } from '../../common/components/Table/Filters'
+import { IFilters } from '@condo/domains/organization/utils/helpers'
+import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
+import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 export const useTableColumns = (
+    filterMetas,
     organizationId: string,
-    sort: Array<string>,
-    filters: IFilters,
-    setFiltersApplied: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
+    const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
+    const WorkCategoriesCountMessage = intl.formatMessage({ id: 'employee.WorkCategoriesCount' })
 
-    const sorterMap = createSorterMap(sort)
-    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
-    const search = getFilteredValue<IFilters>(filters, 'search')
+    const router = useRouter()
+    const { filters } = parseQuery(router.query)
+    const search = getFilteredValue(filters, 'search')
 
     const render = getTableCellRenderer(search)
+
+    const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
 
     const renderCheckboxFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = organizationEmployeeRoles.map(OrganizationEmployeeRole.convertGQLItemToFormSelectState).filter(identity)
@@ -38,39 +42,36 @@ export const useTableColumns = (
             selectedKeys,
             confirm,
             clearFilters,
-            beforeChange: () => { setFiltersApplied(true) },
         }
 
         return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
+    }
+
+    const renderSpecializations = (employee) => {
+        const employeeSpecializations = employee.specializations.map(spec => spec.name)
+
+        if (employeeSpecializations.length > 8) {
+            return WorkCategoriesCountMessage + employeeSpecializations.length
+        }
+
+        return render(employeeSpecializations.join(', '))
     }
 
     const columns = useMemo(() => {
         return [
             {
                 title: NameMessage,
-                sortOrder: get(sorterMap, 'name'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'name'),
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                filterDropdown: getTextFilterDropdown(NameMessage, setFiltersApplied),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
                 render,
-            },
-            {
-                title: PositionMessage,
-                sortOrder: get(sorterMap, 'position'),
-                filteredValue: getFilteredValue<IFilters>(filters, 'position'),
-                dataIndex: 'position',
-                key: 'position',
                 width: '15%',
-                render,
-                filterDropdown: getTextFilterDropdown(PositionMessage, setFiltersApplied),
-                filterIcon: getFilterIcon,
             },
             {
                 title: RoleMessage,
-                sortOrder: get(sorterMap, 'role'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'role'),
                 dataIndex: 'role',
                 key: 'role',
@@ -81,30 +82,36 @@ export const useTableColumns = (
                 filterIcon: getFilterIcon,
             },
             {
+                title: PositionMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'position'),
+                dataIndex: 'position',
+                key: 'position',
+                width: '15%',
+                render,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'position'),
+                filterIcon: getFilterIcon,
+            },
+            {
+                title: SpecializationsMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'specialization'),
+                width: '15%',
+                render: (_, employee) => renderSpecializations(employee),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'specialization'),
+                filterIcon: getFilterIcon,
+            },
+            {
                 title: PhoneMessage,
-                sortOrder: get(sorterMap, 'phone'),
                 filteredValue: getFilteredValue<IFilters>(filters, 'phone'),
                 dataIndex: 'phone',
                 key: 'phone',
                 sorter: true,
                 width: '15%',
-                filterDropdown: getTextFilterDropdown(PhoneMessage, setFiltersApplied),
-                filterIcon: getFilterIcon,
-                render,
-            },
-            {
-                title: EmailMessage,
-                ellipsis: true,
-                dataIndex: 'email',
-                filteredValue: getFilteredValue<IFilters>(filters, 'email'),
-                key: 'email',
-                width: '20%',
-                filterDropdown: getTextFilterDropdown(EmailMessage, setFiltersApplied),
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'phone'),
                 filterIcon: getFilterIcon,
                 render,
             },
         ]
-    }, [sort, filters])
+    }, [NameMessage, PhoneMessage, PositionMessage, RoleMessage, SpecializationsMessage, filterMetas, filters, render, renderCheckboxFilterDropdown, renderSpecializations])
 
     return columns
 }

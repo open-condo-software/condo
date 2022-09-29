@@ -19,7 +19,7 @@ const PropertyScopeOrganizationEmployee = generateGqlQueries('PropertyScopeOrgan
 const PROPERTY_SCOPE_PROPERTY_FIELDS = `{ propertyScope { id } property { id } ${COMMON_FIELDS} }`
 const PropertyScopeProperty = generateGqlQueries('PropertyScopeProperty', PROPERTY_SCOPE_PROPERTY_FIELDS)
 
-const SPECIALIZATION_SCOPE_FIELDS = `{ employee { id } specialization { id } ${COMMON_FIELDS} }`
+const SPECIALIZATION_SCOPE_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
 const SpecializationScope = generateGqlQueries('SpecializationScope', SPECIALIZATION_SCOPE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
