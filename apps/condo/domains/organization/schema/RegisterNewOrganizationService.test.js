@@ -107,6 +107,12 @@ describe('RegisterNewOrganizationService', () => {
                 name_contains_i: 'technician',
             })
             expect(technicianRole).toMatchObject(getPermissions('Technician'))
+
+            const [contractorRole] = await OrganizationEmployeeRole.getAll(admin, {
+                organization: { id: org.id },
+                name_contains_i: 'contractor',
+            })
+            expect(contractorRole).toMatchObject(getPermissions('Contractor'))
         })
 
         it('creates trial subscription', async () => {
