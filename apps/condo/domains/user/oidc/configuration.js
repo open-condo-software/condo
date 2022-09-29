@@ -1,9 +1,10 @@
 const { getById } = require('@condo/keystone/schema')
-
 const { createAdapterClass } = require('./adapter')
 const { get } = require('lodash')
 
-module.exports = function createConfiguration (context) {
+const HTTPS_REGEXP = /^https:/
+
+module.exports = function createConfiguration (context, conf) {
     return {
         adapter: createAdapterClass(context),
         async findAccount (ctx, id) {
@@ -53,12 +54,12 @@ module.exports = function createConfiguration (context) {
             // TODO(pahaz): take it from .env!
             keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
             short: {
-                sameSite: 'None',
-                secure: true,
+                sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
+                secure: HTTPS_REGEXP.test(conf.SERVER_URL),
             },
             long: {
-                sameSite: 'None',
-                secure: true,
+                sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
+                secure: HTTPS_REGEXP.test(conf.SERVER_URL),
             },
         },
         claims: {

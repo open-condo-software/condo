@@ -7,7 +7,10 @@ const {
     createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient,
 } = require('@condo/keystone/test.utils')
 
-const { makeClientWithNewRegisteredAndLoggedInUser, createTestOidcClient } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestOidcClient,
+} = require('@condo/domains/user/utils/testSchema')
 
 const { createAdapterClass } = require('../oidc/adapter')
 
@@ -139,17 +142,17 @@ describe('OIDC', () => {
         const res1 = await request(oidcAuthUrl, c.getCookie())
         expect(res1.status).toBe(303)
         expect(res1.headers.location.startsWith('/oidc/interaction/')).toBeTruthy()
-        expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction.legacy', '_interaction.legacy.sig', '_interaction_resume', '_interaction_resume.sig', '_interaction_resume.legacy', '_interaction_resume.legacy.sig'])
+        expectCookieKeys(res1.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
         const res2 = await request(`${c.serverUrl}${res1.headers.location}`, res1.cookie)
         expect(res2.status).toBe(303)
         expect(res2.headers.location.startsWith(`${c.serverUrl}/oidc/auth/`)).toBeTruthy()
-        expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction.legacy', '_interaction.legacy.sig', '_interaction_resume', '_interaction_resume.sig', '_interaction_resume.legacy', '_interaction_resume.legacy.sig'])
+        expectCookieKeys(res2.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig'])
 
         const res3 = await request(res2.headers.location, res2.cookie)
         expect(res3.status).toBe(303)
         expect(res3.headers.location.startsWith(`${uri}#code`)).toBeTruthy()
-        expectCookieKeys(res3.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction.legacy', '_interaction.legacy.sig', '_interaction_resume', '_interaction_resume.sig', '_interaction_resume.legacy', '_interaction_resume.legacy.sig', '_session', '_session.sig', '_session.legacy', '_session.legacy.sig'])
+        expectCookieKeys(res3.cookie, ['keystone.sid', '_interaction', '_interaction.sig', '_interaction_resume', '_interaction_resume.sig', '_session', '_session.sig'])
 
         // 3) callback to server side ( callback with code to oidc app site; server get the access and cann use it )
 
