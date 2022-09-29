@@ -1,7 +1,9 @@
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
+import styled from '@emotion/styled'
+import compact from 'lodash/compact'
+import get from 'lodash/get'
 import { Breadcrumb, Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
-import { compact, get } from 'lodash'
 
 import { useIntl } from '@condo/next/intl'
 import { Ticket } from '@app/condo/schema'
@@ -9,6 +11,17 @@ import { Ticket } from '@app/condo/schema'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
+
+const StyledBreadcrumb = styled(Breadcrumb)`
+    ol {
+      list-style-type: none;
+      
+      li {
+        margin: 0;
+        padding: 0;
+      }
+    }
+`
 
 type TicketClassifierFieldProps = {
     ticket: Ticket
@@ -30,7 +43,7 @@ export const TicketClassifierField: React.FC<TicketClassifierFieldProps> = ({ ti
 
     return (
         <PageFieldRow title={ClassifierMessage} ellipsis>
-            <Breadcrumb separator='»'>
+            <StyledBreadcrumb separator='»'>
                 {
                     ticketClassifierNames.map((name, index) => {
                         return (
@@ -46,7 +59,7 @@ export const TicketClassifierField: React.FC<TicketClassifierFieldProps> = ({ ti
                         )
                     })
                 }
-            </Breadcrumb>
+            </StyledBreadcrumb>
         </PageFieldRow>
     )
 }
