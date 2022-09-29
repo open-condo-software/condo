@@ -72,7 +72,7 @@ const OidcAuthProvider = ({ children }) => {
 
     const requestAccessToStorage = useCallback(() => {
         if (!hasStorageAccess && document && document.requestStorageAccess) {
-            document && document.requestStorageAccess().then(
+            document.requestStorageAccess().then(
                 () => {
                     // Storage access was granted.
                     console.debug('document.requestStorageAccess(): access granted')
