@@ -14,5 +14,7 @@
   "RequestModal": "Open Modal",
   "ClearLogs": "Clear logs",
   "IAmExternal": "I'm external website opened in condo interface",
-  "ExternalButton": "ExternalButton"
+  "ExternalButton": "ExternalButton",
+  "NoAccessToStorage": "There is no access to the first-party cookies due to Intelligent Tracking Prevention! This is necessary to start authorization flow. Please grant an access by pressing the following button.",
+  "AskForAccessButton": "Grant access"
 }
