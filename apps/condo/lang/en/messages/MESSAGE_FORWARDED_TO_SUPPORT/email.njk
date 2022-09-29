@@ -8,6 +8,7 @@ Residents info:
  {% for resident in message.meta.residentsExtraInfo %}
     Address: {% if resident.address %}{{ resident.address | safe }}{% else %}N/A{% endif %}.
     Account number: {% if resident.accountNumber %}{{ resident.accountNumber | safe }}{% else %}N/A{% endif %}.
+    Payment category: {% if resident.paymentCategory %}{{ resident.paymentCategory | safe }}{% else %}N/A{% endif %}.
 
  {% endfor %}
 {% endif %}
