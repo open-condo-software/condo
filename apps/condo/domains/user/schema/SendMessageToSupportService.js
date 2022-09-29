@@ -95,16 +95,16 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
                 const residentsExtraInfo = []
 
-                for (const resident of residents) {
-                    const residentServiceConsumers = serviceConsumers.filter(({ resident: { id } }) => id === resident.id)
-                    const residentOrganization = await Organization.getOne(context, { id: resident.organization.id })
+                for (const currentResident of residents) {
+                    const residentServiceConsumers = serviceConsumers.filter(({ resident }) => resident.id === currentResident.id)
+                    const residentOrganization = await Organization.getOne(context, { id: currentResident.organization.id })
 
-                    const residentInfo = { address: resident.address, organization: null }
+                    const residentInfo = { address: currentResident.address, accountNumbers: null, organization: null }
 
                     if (residentServiceConsumers) {
-                        residentInfo.serviceConsumers = [...residentServiceConsumers.map(({ accountNumber, organization: { name: organizationName } }) => ({
-                            accountNumber,
-                            organizationName,
+                        residentInfo.serviceConsumers = [...residentServiceConsumers.map(({ accountNumber, organization }) => ({
+                            accountNumber: accountNumber,
+                            organizationName: organization.name,
                         }))]
                     }
 
