@@ -14,11 +14,13 @@ async function canReadSpecializationScopes ({ authentication: { item: user } }) 
     if (user.isAdmin || user.isSupport) return {}
 
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-            ],
+        employee: {
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                ],
+            },
         },
     }
 }

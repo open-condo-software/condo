@@ -801,6 +801,7 @@
   "pages.users.UserIsAlreadyInList": "The user is already in user list",
   "employee.Position": "Position",
   "employee.Specializations": "Specializations",
+  "employee.WorkCategoriesCount": "Count of work categories:",
   "employee.Role": "Role",
   "employee.AddEmployee": "Add employee",
   "employee.InviteEmployee": "Invite employee",

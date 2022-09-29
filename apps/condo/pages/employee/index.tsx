@@ -3,45 +3,40 @@ import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
+import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import {
-    EMPLOYEE_PAGE_SIZE,
-    filtersToQuery,
-    getPageIndexFromQuery,
-    getSortStringFromQuery,
-    IFilters,
-    queryToSorter,
-    sorterToQuery,
-} from '@condo/domains/organization/utils/helpers'
+import { IFilters } from '@condo/domains/organization/utils/helpers'
+import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { Col, Dropdown, Menu, Row, Typography } from 'antd'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { Table } from '@condo/domains/common/components/Table/Index'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import Input from '@condo/domains/common/components/antd/Input'
-import { debounce, get } from 'lodash'
+import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { SortOrganizationEmployeesBy } from '@app/condo/schema'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
+const SORTABLE_PROPERTIES = ['name', 'role', 'position', 'phone']
+const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
 
 export const EmployeesPageContent = ({
     tableColumns,
-    filtersToQuery,
-    filtersApplied,
-    setFiltersApplied,
-    searchEmployeeQuery,
-    sortBy,
     canManageEmployee,
-    loading,
+    employees,
+    employeesLoading,
+    total,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
@@ -53,22 +48,7 @@ export const EmployeesPageContent = ({
     const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
 
     const router = useRouter()
-    const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-
-    const {
-        fetchMore,
-        loading: employeesLoading,
-        count: total,
-        objs: employees,
-    } = OrganizationEmployee.useObjects({
-        sortBy,
-        where: searchEmployeeQuery,
-        skip: (offsetFromQuery * EMPLOYEE_PAGE_SIZE) - EMPLOYEE_PAGE_SIZE,
-        first: EMPLOYEE_PAGE_SIZE,
-    }, {
-        fetchPolicy: 'network-only',
-    })
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -78,29 +58,7 @@ export const EmployeesPageContent = ({
         }
     }, [])
 
-    const handleTableChange = useCallback(debounce((...tableChangeArguments) => {
-        const [nextPagination, nextFilters, nextSorter] = tableChangeArguments
-
-        const { current, pageSize } = nextPagination
-        const offset = filtersApplied ? 0 : current * pageSize - pageSize
-        const sort = sorterToQuery(nextSorter)
-        const filters = filtersToQuery(nextFilters)
-        setFiltersApplied(false)
-
-        if (!employeesLoading) {
-            fetchMore({
-                // @ts-ignore
-                sortBy: sort,
-                where: filters,
-                skip: offset,
-                first: EMPLOYEE_PAGE_SIZE,
-            }).then(async () => {
-                await updateQuery(router, { ...filtersFromQuery, ...nextFilters }, sort, offset)
-            })
-        }
-    }, 400), [employeesLoading])
-
-    const [search, handleSearchChange] = useSearch<IFilters>()
+    const [search, handleSearchChange] = useSearch<IFilters>(employeesLoading)
 
     const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
 
@@ -171,20 +129,11 @@ export const EmployeesPageContent = ({
                                 </Col>
                                 <Col span={24}>
                                     <Table
-                                        bordered
-                                        tableLayout='fixed'
-                                        loading={employeesLoading || loading}
+                                        totalRows={total}
+                                        loading={employeesLoading}
                                         dataSource={employees}
                                         columns={tableColumns}
                                         onRow={handleRowAction}
-                                        onChange={handleTableChange}
-                                        rowKey={record => record.id}
-                                        pagination={{
-                                            total,
-                                            current: offsetFromQuery,
-                                            pageSize: EMPLOYEE_PAGE_SIZE,
-                                            position: ['bottomLeft'],
-                                        }}
                                     />
                                 </Col>
                             </Row>
@@ -196,32 +145,58 @@ export const EmployeesPageContent = ({
 }
 
 const EmployeesPage = () => {
-    const router = useRouter()
-    const sortFromQuery = sorterToQuery(queryToSorter(getSortStringFromQuery(router.query)))
-    const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
-    const sortBy = sortFromQuery.length > 0 ? sortFromQuery : 'createdAt_DESC'
-    const intl = useIntl()
-    const translations = intl.messages
-
     const { link: { role = {} }, organization }  = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
     const canManageEmployee = get(role, 'canInviteNewOrganizationEmployees', null)
 
-    const [filtersApplied, setFiltersApplied] = useState(false)
-    const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
+    const router = useRouter()
+    const { filters, sorters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const filtersMeta = useTableFilters()
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
+    const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortOrganizationEmployeesBy[]
 
-    const searchEmployeeQuery = { ...filtersToQuery(filtersFromQuery, translations), organization: { id: userOrganizationId } }
+    const searchEmployeeQuery = {
+        ...filtersToWhere(filters),
+        organization: { id: userOrganizationId },
+    }
+
+    const {
+        loading: employeesLoading,
+        count: total,
+        objs: employees,
+    } = OrganizationEmployee.useObjects({
+        sortBy,
+        where: searchEmployeeQuery,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        first: DEFAULT_PAGE_SIZE,
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    const { objs: specializationScopes } = SpecializationScope.useObjects({
+        where: {
+            employee: { id_in: employees.map(employee => employee.id) },
+        },
+    })
+
+    const employeeWithSpecializations = employees.map(employee => {
+        const specializations = specializationScopes
+            .filter(spec => spec.employee.id === employee.id)
+            .map(spec => spec.specialization)
+
+        return { ...employee, specializations }
+    })
+
+    const tableColumns = useTableColumns(filtersMeta, userOrganizationId)
 
     return (
         <EmployeesPageContent
             tableColumns={tableColumns}
-            filtersToQuery={filtersToQuery}
-            filtersApplied={filtersApplied}
-            setFiltersApplied={setFiltersApplied}
-            searchEmployeeQuery={searchEmployeeQuery}
-            sortBy={sortBy}
             canManageEmployee={canManageEmployee}
-            loading={false}
+            employees={employeeWithSpecializations}
+            employeesLoading={employeesLoading}
+            total={total}
         />
     )
 }
