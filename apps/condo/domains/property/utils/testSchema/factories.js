@@ -5,7 +5,7 @@ const { AddressMetaDataFields } = require('../../schema/fields/AddressMetaField'
 const FIAS_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 35, 65, 75, 90, 91]
 const FIAS_ACTUALITY_STATE = [0, 1]
 
-const buildFakeAddressMeta = (withFlat = false) => {
+const buildFakeAddressMeta = (withFlat = false, extraAttrs = {}) => {
     const emptyData = Object.assign({}, ...Object.keys(AddressMetaDataFields).map((field) => ({[field]: null})))
     emptyData.postal_code = faker.address.zipCode()
     emptyData.country = faker.address.country()
@@ -65,6 +65,10 @@ const buildFakeAddressMeta = (withFlat = false) => {
     emptyData.geo_lat = faker.address.latitude()
     emptyData.geo_lon = faker.address.longitude()
 
+    for (const key in extraAttrs) (
+        emptyData[key] = extraAttrs[key]
+    )
+
     const fullHouseName = [emptyData.house_type, emptyData.house, emptyData.block_type, emptyData.block]
         .filter(Boolean)
         .join(' ')
@@ -81,8 +85,8 @@ const buildFakeAddressMeta = (withFlat = false) => {
     }
 }
 
-const buildFakeAddressAndMeta = (withFlat) => {
-    const addressMeta = buildFakeAddressMeta(withFlat)
+const buildFakeAddressAndMeta = (withFlat, addressMetaExtraAttrs = {}) => {
+    const addressMeta = buildFakeAddressMeta(withFlat, addressMetaExtraAttrs)
     let address = addressMeta.value
     if (withFlat) {
         const index = address.lastIndexOf(',')
