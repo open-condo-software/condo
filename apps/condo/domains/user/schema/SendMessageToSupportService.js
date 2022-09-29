@@ -39,7 +39,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
         },
         {
             access: true,
-            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, personalAccount: String!, address: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
+            type: 'input SendMessageToSupportInput { dv: Int!, sender: SenderFieldInput!, text: String!, emailFrom: String, attachments: [Upload], os: String!, appVersion: String!, lang: SendMessageToSupportLang!, meta: JSON! }',
         },
         {
             access: true,
@@ -53,7 +53,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
             schema: 'sendMessageToSupport(data: SendMessageToSupportInput!): SendMessageToSupportOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, text, personalAccount, address, emailFrom, attachments = [], os, appVersion, lang } = data
+                const { dv, sender, text, emailFrom, attachments = [], os, appVersion, lang } = data
 
                 const user = get(context, ['req', 'user'])
                 if (!user) throw new Error('You cant execute sendMessageToSupport without user context!')
@@ -116,8 +116,6 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                     meta: {
                         dv,
                         text,
-                        personalAccount,
-                        address,
                         os,
                         appVersion,
                         organizationsData,
