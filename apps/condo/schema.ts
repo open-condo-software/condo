@@ -6691,6 +6691,8 @@ export type BillingIntegration = {
   currencyCode?: Maybe<Scalars['String']>;
   accessRights: Array<BillingIntegrationAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
+  /**  If checked, then bank account objects created by this billing are automatically approved. E.g government-controlled billing  */
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -7031,6 +7033,7 @@ export type BillingIntegrationCreateInput = {
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7080,6 +7083,7 @@ export type BillingIntegrationHistoryRecord = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -7110,6 +7114,7 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7145,6 +7150,7 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   contextDefaultStatus?: Maybe<Scalars['String']>;
   dataFormat?: Maybe<Scalars['JSON']>;
   currencyCode?: Maybe<Scalars['String']>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -7327,6 +7333,8 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   currencyCode_not_ends_with_i?: Maybe<Scalars['String']>;
   currencyCode_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currencyCode_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
+  isTrustedBankAccountSource_not?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -8020,6 +8028,7 @@ export type BillingIntegrationUpdateInput = {
   dataFormat?: Maybe<BillingIntegrationDataFormatFieldInput>;
   currencyCode?: Maybe<Scalars['String']>;
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -8205,6 +8214,8 @@ export type BillingIntegrationWhereInput = {
   accessRights_some?: Maybe<BillingIntegrationAccessRightWhereInput>;
   /**  condition must be false for all nodes  */
   accessRights_none?: Maybe<BillingIntegrationAccessRightWhereInput>;
+  isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
+  isTrustedBankAccountSource_not?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -40678,6 +40689,8 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   CurrencyCodeAsc = 'currencyCode_ASC',
   CurrencyCodeDesc = 'currencyCode_DESC',
+  IsTrustedBankAccountSourceAsc = 'isTrustedBankAccountSource_ASC',
+  IsTrustedBankAccountSourceDesc = 'isTrustedBankAccountSource_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   IdAsc = 'id_ASC',
@@ -40792,6 +40805,8 @@ export enum SortBillingIntegrationsBy {
   CurrencyCodeDesc = 'currencyCode_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
+  IsTrustedBankAccountSourceAsc = 'isTrustedBankAccountSource_ASC',
+  IsTrustedBankAccountSourceDesc = 'isTrustedBankAccountSource_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
   IdAsc = 'id_ASC',
