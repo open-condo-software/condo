@@ -203,8 +203,8 @@ const EmployeesPage = () => {
     const intl = useIntl()
     const translations = intl.messages
 
-    const { userOrganization, link: { role } }  = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const { organization, link: { role } }  = useOrganization()
+    const userOrganizationId = get(organization, 'id', null)
     const canManageEmployee = get(role, 'canManageEmployees', null)
 
     const [filtersApplied, setFiltersApplied] = useState(false)
