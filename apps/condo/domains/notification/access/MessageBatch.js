@@ -16,7 +16,7 @@ async function canReadMessageBatches ({ authentication: { item: user } }) {
 async function canManageMessageBatches ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.isSupport) return true
+    if ((user.isAdmin || user.isSupport) && operation === 'create') return true
 
     return false
 }
