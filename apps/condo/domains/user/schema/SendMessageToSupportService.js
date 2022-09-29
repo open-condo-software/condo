@@ -90,13 +90,14 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
                 const files = await Promise.all(filesPromises)
 
-                const residents = await Resident.getAll(context, { user: { id: user.id, deletedAt: null } })
+                const residents = await Resident.getAll(context, { user: { id: user.id } })
                 const serviceConsumers = await ServiceConsumer.getAll(context, { resident: { id_in: residents.map(({ id }) => id) } })
 
                 const residentsExtraInfo = []
 
                 for (const resident of residents) {
                     const residentServiceConsumers = serviceConsumers.filter(({ resident: { id } }) => id === resident.id)
+                    const residentOrganization = await Organization.getOne(context, { id: resident.organization.id })
 
                     const residentInfo = { address: resident.address, organization: null }
 
@@ -107,9 +108,8 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                         }))]
                     }
 
-                    const { organization } = resident
-                    if (organization) {
-                        residentInfo.organization = { name: organization.name, tin: organization.tin }
+                    if (residentOrganization) {
+                        residentInfo.organization = { name: residentOrganization.name, tin: residentOrganization.tin }
                     }
 
                     residentsExtraInfo.push(residentInfo)
