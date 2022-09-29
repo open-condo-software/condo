@@ -169,19 +169,11 @@ const UNIT_TYPE_COL_STYLE: React.CSSProperties = {
 }
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
-export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
+const useHotkeyToSaveProperty = (map, mapEdit, property) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
-    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const ChangesSaved = intl.formatMessage({ id: 'ChangesSaved' })
-    const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
-    const AllParkingSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.AllTitle' })
-    const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
-    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
-
-    const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
-
+    
     const quickSave = Property.useUpdate({}, () => notification.success({
         message: ChangesSaved,
         placement: 'bottomRight',
@@ -190,13 +182,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         debounce(() => quickSave({ map }, property), DEBOUNCE_TIMEOUT),
         [map, property]
     )
-
-    const { push, query: { id } } = useRouter()
-    const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
-
-    const mode = mapEdit.editMode
-    const sections = mapEdit.sections
-    const address = get(property, 'address')
 
     const quickSaveCallback = useCallback((event) => {
         event.preventDefault()
@@ -211,6 +196,30 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
         })
     }, [debouncedQuickSave, mapEdit])
 
+    useHotkeys('ctrl+s', quickSaveCallback, [map, property])
+}
+
+export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
+    const intl = useIntl()
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
+    const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
+    const AllParkingSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.AllTitle' })
+    const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
+    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
+    const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+
+    const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
+
+    const { push, query: { id } } = useRouter()
+    const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
+
+    const mode = mapEdit.editMode
+    const sections = mapEdit.sections
+    const address = get(property, 'address')
+
+    useHotkeyToSaveProperty(map, mapEdit, property)
+
     const saveCallback = useCallback(() => {
         if (mapEdit.validate()) {
             handleSave()
@@ -222,8 +231,6 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
             placement: 'bottomRight',
         })
     }, [handleSave, mapValidationError, mapEdit])
-
-    useHotkeys('ctrl+s', quickSaveCallback, [map, property])
 
     const refresh = useCallback(() => {
         setMapEdit(cloneDeep(mapEdit))
