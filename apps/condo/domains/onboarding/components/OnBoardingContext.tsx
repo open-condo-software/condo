@@ -14,7 +14,6 @@ import {
 } from '@app/condo/schema'
 import { OrganizationEmployee as OrganizationEmployeeGql } from '@condo/domains/organization/gql'
 import { Property as PropertyGql } from '@condo/domains/property/gql'
-import { Division as DivisionGql } from '@condo/domains/division/gql'
 import { BillingIntegrationOrganizationContext as BillingGql } from '@condo/domains/billing/gql'
 import { AcquiringIntegrationContext as AcquiringGql } from '@condo/domains/acquiring/gql'
 import { useFocusContext } from '@condo/domains/common/components/Focus/FocusContextProvider'
@@ -96,11 +95,6 @@ export const OnBoardingProvider: React.FC = (props) => {
             query: OrganizationEmployeeGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
             resolver: (data) => get(data, 'objs', []).length > 1,
             action: () => Router.push('employee/create'),
-        },
-        'create.Division': {
-            query: DivisionGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
-            resolver: (data) => get(data, 'objs', []).length > 0,
-            action: () => Router.push('division/create'),
         },
         'create.Billing': {
             query: BillingGql.GET_ALL_OBJS_WITH_COUNT_QUERY,
