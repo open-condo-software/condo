@@ -116,24 +116,20 @@ describe('MessageBatch', () => {
         })
 
         describe('update', () => {
-            test('admin can', async () => {
+            test('admin can not ', async () => {
                 const [objCreated] = await createTestMessageBatch(admin)
-                const [obj, attrs] = await updateTestMessageBatch(admin, objCreated.id)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMessageBatch(admin, objCreated.id)
+                })
             })
 
-            test('support can', async () => {
+            test('support can not', async () => {
                 const [objCreated] = await createTestMessageBatch(support)
-                const [obj, attrs] = await updateTestMessageBatch(support, objCreated.id)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMessageBatch(support, objCreated.id)
+                })
             })
 
             test('user can not', async () => {
@@ -271,47 +267,6 @@ describe('MessageBatch', () => {
                 `${JSON_EXPECT_ARRAY_ERROR}targets] Expect non-empty JSON Array`
             )
         })
-
-        test('admin can not update messageType', async () => {
-            const [objCreated] = await createTestMessageBatch(admin)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMessageBatch(admin, objCreated.id, { messageType: sample(MESSAGE_BATCH_TYPE_OPTIONS) })
-            }, `${OPERATION_FORBIDDEN}] Updating messageType is forbidden.`)
-        })
-
-        test('admin can not update title', async () => {
-            const [objCreated] = await createTestMessageBatch(admin)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMessageBatch(admin, objCreated.id, { title: faker.random.alphaNumeric(8) })
-            }, `${OPERATION_FORBIDDEN}] Updating title is forbidden.`)
-        })
-
-        test('admin can not update message', async () => {
-            const [objCreated] = await createTestMessageBatch(admin)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMessageBatch(admin, objCreated.id, { message: faker.random.alphaNumeric(8) })
-            }, `${OPERATION_FORBIDDEN}] Updating message is forbidden.`)
-        })
-
-        test('admin can not update deepLink', async () => {
-            const [objCreated] = await createTestMessageBatch(admin)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMessageBatch(admin, objCreated.id, { deepLink: faker.random.alphaNumeric(8) })
-            }, `${OPERATION_FORBIDDEN}] Updating deepLink is forbidden.`)
-        })
-
-        test('admin can not update targets', async () => {
-            const [objCreated] = await createTestMessageBatch(admin)
-
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestMessageBatch(admin, objCreated.id, { targets: [faker.random.alphaNumeric(8)] })
-            }, `${OPERATION_FORBIDDEN}] Updating targets is forbidden.`)
-        })
-
     })
 
     describe('task', () => {
