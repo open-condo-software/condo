@@ -126,19 +126,19 @@ describe('SendMessageToSupportService', () => {
         expect(messages[0].meta.residentsExtraInfo).toHaveLength(2)
     })
 
-    test('with two organizations and two service consumers', async () => {
+    test('with organization and service consumers', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()
-        const [organization1] = await registerNewOrganization(userClient)
-        const [organization2] = await registerNewOrganization(userClient)
+        const [organization] = await registerNewOrganization(userClient)
 
+        const unitName = faker.random.alphaNumeric(8)
         const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
-            unitName: faker.random.alphaNumeric(8),
+            unitName,
         })
-        await createTestServiceConsumer(adminClient, resident, organization1, {
+        await createTestServiceConsumer(adminClient, resident, organization, {
             accountNumber: faker.random.alphaNumeric(8),
         })
-        await createTestServiceConsumer(adminClient, resident, organization2, {
+        await createTestServiceConsumer(adminClient, resident, organization, {
             accountNumber: faker.random.alphaNumeric(8),
         })
         await addResidentAccess(userClient.user)
@@ -159,10 +159,8 @@ describe('SendMessageToSupportService', () => {
         expect(messages).toHaveLength(1)
         const residentsExtraInfo = messages[0].meta.residentsExtraInfo[0]
         expect(residentsExtraInfo.address).not.toHaveLength(0)
+        expect(residentsExtraInfo.accountNumbers).not.toBeFalsy()
         expect(residentsExtraInfo.organization).not.toBeFalsy()
-        const [serviceConsumer1, serviceConsumer2] = residentsExtraInfo.serviceConsumers
-        expect(serviceConsumer1.organizationName).not.toEqual(serviceConsumer2.organizationName)
-        expect(serviceConsumer1.accountNumber).not.toEqual(serviceConsumer2.accountNumber)
     })
 
     test('no attachments, no email', async () => {

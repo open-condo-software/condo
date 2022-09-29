@@ -1,7 +1,7 @@
 Система: {{ message.meta.os }}
 Версия приложения: {{ message.meta.appVersion }}
 Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не указан{% endif %}
-Информация о жителе:
+Информация о резидентах:
 {%- if message.meta.residentsExtraInfo.length == 0 -%}
   нет
 {%- else -%}
@@ -9,15 +9,13 @@ Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не у
      УК: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. ИНН: {{ residentInfo.organization.tin }}{% else %}не указан{% endif %}.
      Адрес: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}не указан{% endif %}.
      Лицевые счета:
-         {%- if residentInfo.serviceConsumers.length == 0 -%}
-           нет
-         {%- else -%}
-           {% for serviceConsumer in residentInfo.serviceConsumers %}
-             Счёт: {% if serviceConsumer.accountNumber %}{{ serviceConsumer.accountNumber | safe }}{% else %}не указан{% endif %}.
-             Организация: {% if serviceConsumer.organizationName %}{{ serviceConsumer.organizationName | safe }}{% else %}не указан{% endif %}.
-
-           {% endfor %}
-         {% endif %}
+     {%- if residentInfo.accountNumbers.length == 0 -%}
+       нет
+     {%- else -%}
+       {% for accountNumber in residentInfo.accountNumbers %}
+         - {{ accountNumber }}.
+       {% endfor %}
+     {% endif %}
 
  {% endfor %}
 {% endif %}
