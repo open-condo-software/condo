@@ -1,6 +1,7 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
+import isEqual from 'lodash/isEqual'
 
 const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
@@ -36,7 +37,10 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
                 fetch(`${serverUrl}/api/features`)
                     .then((res) => res.json())
                     .then((features) => {
-                        growthbook.setFeatures(features)
+                        const prev = growthbook.getFeatures()
+                        if (!isEqual(prev, features)) {
+                            growthbook.setFeatures(features)
+                        }
                     })
                     .catch(e => console.error(e))
             }
