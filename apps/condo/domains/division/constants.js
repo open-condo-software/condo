@@ -3,7 +3,7 @@
  */
 
 // Limiting the number of properties in the division. It is necessary that there are no heavy requests in large management companies
-const MAX_PROPERTIES_IN_DIVISION = 150
+const MAX_PROPERTIES_IN_DIVISION = 250
 
 module.exports = {
     MAX_PROPERTIES_IN_DIVISION,
