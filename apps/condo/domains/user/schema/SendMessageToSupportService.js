@@ -90,7 +90,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
 
                 const files = await Promise.all(filesPromises)
 
-                const residents = await Resident.getAll(context, { user: { id: user.id, deletedAt: null }, deletedAt: null })
+                const residents = await Resident.getAll(context, { user: { id: user.id }, deletedAt: null })
                 const serviceConsumers = await ServiceConsumer.getAll(context, { resident: { id_in: residents.map(({ id }) => id) }, deletedAt: null })
 
                 const residentsExtraInfo = []
