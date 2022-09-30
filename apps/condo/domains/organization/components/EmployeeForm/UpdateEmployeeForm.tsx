@@ -1,9 +1,9 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import { Card, Col, Form, Row, Space, Typography } from 'antd'
+import { Card, Col, Form, FormItemProps, Row, Space, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { Button } from '@condo/domains/common/components/Button'
@@ -14,6 +14,8 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { useAuth } from '@open-condo/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -22,7 +24,7 @@ import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import { find, get } from 'lodash'
+import { assignWith, difference, find, get, isFunction } from 'lodash'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { colors, shadows } from '@condo/domains/common/constants/style'
 
@@ -43,6 +45,36 @@ const CardCss = css`
   box-shadow: ${shadows.elevated};
 `
 
+type InputWithCheckAllProps = FormItemProps & {
+    onCheckBoxChange?: (value: boolean) => void
+}
+
+const InputWithCheckAll: React.FC<InputWithCheckAllProps> = ({ children, onCheckBoxChange, ...formItemProps }) => {
+    return (
+        <>
+            <Form.Item {...formItemProps}>
+                {children}
+            </Form.Item>
+            <Form.Item
+                name='hasAllSpecializations'
+                valuePropName='checked'
+            >
+                <Checkbox
+                    onChange={(event) => {
+                        const value = event.target.checked
+
+                        if (isFunction(onCheckBoxChange)) {
+                            onCheckBoxChange(value)
+                        }
+                    }}
+                >
+                    Выбрать всё
+                </Checkbox>
+            </Form.Item>
+        </>
+    )
+}
+
 export const UpdateEmployeeForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
@@ -58,14 +90,21 @@ export const UpdateEmployeeForm = () => {
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { isSmall } = useLayoutContext()
+    const [isSpecializationsSelectDisabled, setIsSpecializationsSelectDisabled] = useState(false)
 
-    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const employeeId = String(get(query, 'id', ''))
+    const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
     const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
-        refetch().then(() => {
-            push(`/employee/${get(query, 'id')}/`)
-        })
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => Promise.resolve())
+    const { objs: specializationScopes } = SpecializationScope.useObjects({
+        where: {
+            employee: { id: employeeId },
+        },
     })
+    const createSpecializationScopeAction = SpecializationScope.useCreate({}, () => Promise.resolve())
+    const updateSpecializationScopeAction = SpecializationScope.useUpdate({}, () => Promise.resolve())
+    const initialSpecializations = specializationScopes.map(scope => scope.specialization)
+
     const { emailValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
         email: [emailValidator],
@@ -87,6 +126,41 @@ export const UpdateEmployeeForm = () => {
         return () => classifiersLoader.clear()
     }, [])
 
+    const initialValues = {
+        role: get(employee, ['role', 'id']),
+        position: get(employee, 'position'),
+        email: get(employee, 'email'),
+        specializations: initialSpecializations.map(spec => spec.id),
+    }
+
+    const formAction = useCallback(async (formValues) => {
+        const { specializations, ...updateEmployeeFormValues } = formValues
+        const initialSpecializationIds = initialSpecializations.map(spec => spec.id)
+
+        const deletedSpecializations = difference(initialSpecializationIds, specializations)
+        const newSpecializations = difference(specializations, initialSpecializationIds)
+
+        const specializationScopesToDelete = specializationScopes
+            .filter(scope => deletedSpecializations.includes(scope.specialization.id))
+        for (const specializationScopeToDelete of specializationScopesToDelete) {
+            await updateSpecializationScopeAction({
+                deletedAt: 'true',
+            }, specializationScopeToDelete)
+        }
+
+        for (const newSpecialization of newSpecializations) {
+            await createSpecializationScopeAction({
+                employee: { connect: { id: employeeId } },
+                specialization: { connect: { id: newSpecialization } },
+            })
+        }
+
+        await updateEmployeeAction(OrganizationEmployee.formValuesProcessor(updateEmployeeFormValues), employee)
+
+        await push(`/employee/${employeeId}/`)
+    }, [createSpecializationScopeAction, employee, employeeId, initialSpecializations, push, specializationScopes,
+        updateEmployeeAction, updateSpecializationScopeAction])
+
     const error = employeeError || employeeRolesError
     const loading = employeeLoading || employeeRolesLoading
 
@@ -95,16 +169,6 @@ export const UpdateEmployeeForm = () => {
     }
     if (loading) {
         return <Loader />
-    }
-    const formAction = (formValues) => {
-        return updateEmployeeAction(OrganizationEmployee.formValuesProcessor(formValues), employee)
-    }
-
-    const initialValues = {
-        role: get(employee, ['role', 'id']),
-        position: get(employee, 'position'),
-        email: get(employee, 'email'),
-        specializations: employee.specializations.map(spec => spec.id),
     }
 
     return (
@@ -115,22 +179,9 @@ export const UpdateEmployeeForm = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values)=> {
                 const isRoleDeleted = !values.role && initialValues.role
-                const role = values.role
-                const selectedRole = find(employeeRoles, { id: role })
-                const specializations = values.specializations
 
                 if (isRoleDeleted) {
                     values.role = null
-                }
-
-                if (specializations && specializations.length) {
-                    values.specializations = specializations.map(id => id)
-                } else {
-                    values.specializations = null
-                }
-
-                if (!selectedRole.canBeAssignedAsExecutor) {
-                    values.specializations = null
                 }
 
                 if (isRoleDeleted) {
@@ -197,15 +248,20 @@ export const UpdateEmployeeForm = () => {
 
                                                 if (get(selectedRole, 'canBeAssignedAsExecutor'))
                                                     return (<Col span={24}>
-                                                        <Form.Item
+                                                        <InputWithCheckAll
+                                                            onCheckBoxChange={(value) => setIsSpecializationsSelectDisabled(value)}
                                                             name='specializations'
                                                             label={SpecializationsLabel}
                                                             labelAlign='left'
                                                             validateFirst
                                                             {...INPUT_LAYOUT_PROPS}
                                                         >
-                                                            <GraphQlSearchInput mode='multiple' search={searchClassifers} />
-                                                        </Form.Item>
+                                                            <GraphQlSearchInput
+                                                                disabled={isSpecializationsSelectDisabled}
+                                                                mode='multiple'
+                                                                search={searchClassifers}
+                                                            />
+                                                        </InputWithCheckAll>
                                                     </Col>)
                                             }
                                         }

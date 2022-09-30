@@ -6,6 +6,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@open-condo/next/intl'
@@ -264,14 +265,21 @@ export const EmployeeInfoPage = () => {
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
-    const employeeId = get(query, 'id', '')
+    const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
             where: {
-                id: String(employeeId),
+                id: employeeId,
             },
         }
     )
+    const { objs: specializationScopes } = SpecializationScope.useObjects({
+        where: {
+            employee: { id: employeeId },
+        },
+    })
+
+    const employeeWithSpecializations = { ...employee, specializations: specializationScopes.map(scope => scope.specialization) }
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
@@ -285,7 +293,7 @@ export const EmployeeInfoPage = () => {
 
     return (
         <EmployeePageContent
-            employee={employee}
+            employee={employeeWithSpecializations}
             updateEmployeeAction={updateEmployeeAction}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}

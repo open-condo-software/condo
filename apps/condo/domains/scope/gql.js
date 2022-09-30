@@ -8,15 +8,17 @@ const { generateGqlQueries } = require('@condo/domains/common/utils/codegenerati
 
 const gql = require('graphql-tag')
 
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const PROPERTY_SCOPE_FIELDS = `{ name organization { id } hasAllProperties hasAllEmployees ${COMMON_FIELDS} }`
 const PropertyScope = generateGqlQueries('PropertyScope', PROPERTY_SCOPE_FIELDS)
 
-const PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS = `{ propertyScope { id } employee { id } ${COMMON_FIELDS} }`
+const PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS = `{ propertyScope { id } employee { id name } ${COMMON_FIELDS} }`
 const PropertyScopeOrganizationEmployee = generateGqlQueries('PropertyScopeOrganizationEmployee', PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS)
 
-const PROPERTY_SCOPE_PROPERTY_FIELDS = `{ propertyScope { id } property { id } ${COMMON_FIELDS} }`
+const PROPERTY_SCOPE_PROPERTY_FIELDS = `{ propertyScope { id } property { id address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } ${COMMON_FIELDS} }`
 const PropertyScopeProperty = generateGqlQueries('PropertyScopeProperty', PROPERTY_SCOPE_PROPERTY_FIELDS)
 
 const SPECIALIZATION_SCOPE_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`

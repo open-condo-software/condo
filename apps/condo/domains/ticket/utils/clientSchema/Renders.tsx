@@ -9,7 +9,6 @@ import get from 'lodash/get'
 import { Property, Ticket } from '@app/condo/schema'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { getHighlightedContents, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { getAddressCellRender } from '@condo/domains/division/utils/clientSchema/Renders'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 
@@ -21,6 +20,7 @@ import {
 } from '../helpers'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import isString from 'lodash/isString'
+import { getAddressCellRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 const NEW_COMMENTS_INDICATOR_TOOLTIP_WRAPPER_STYLES_ON_LARGER_THAN_XL: CSSProperties = { position: 'absolute', left: '-50px', top: '35%' }
 const NEW_COMMENTS_INDICATOR_WRAPPER_STYLES: CSSProperties = { padding: '24px' }
@@ -257,18 +257,6 @@ export const getTicketUserNameRender = (search: FilterValue) => {
         const trimmedUserName = userNameLength > maxUserNameLength ? `${name.substring(0, maxUserNameLength)}…` : name
 
         return getTableCellRenderer(search, false, null, null, null, name)(trimmedUserName)
-    }
-}
-
-export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
-    return function render (intl, properties) {
-        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-
-        if (isEmpty(properties)) {
-            return '—'
-        }
-
-        return properties.map((property) => getAddressCellRender(property, DeletedMessage, search))
     }
 }
 

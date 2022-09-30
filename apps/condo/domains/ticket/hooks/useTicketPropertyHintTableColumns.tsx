@@ -9,10 +9,10 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-import { getTicketPropertyHintAddressesRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { TicketPropertyHint } from '@app/condo/schema'
 import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { getManyPropertiesAddressRender } from '@condo/domains/property/utils/clientSchema/Renders'
 
 const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
@@ -42,7 +42,7 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
             .filter(ticketPropertyHintProperty => ticketPropertyHintProperty.ticketPropertyHint.id === ticketPropertyHint.id)
             .map(ticketPropertyHintProperty => ticketPropertyHintProperty.property)
 
-        return getTicketPropertyHintAddressesRender(search)(intl, properties)
+        return getManyPropertiesAddressRender(search)(intl, properties)
     }, [search, ticketPropertyHintsProperties])
 
     const renderTicketPropertyHint = useCallback((value, _) => {

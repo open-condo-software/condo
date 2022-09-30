@@ -4,7 +4,6 @@
 
 import { get, omit } from 'lodash'
 import {
-    DivisionCreateInput, DivisionUpdateInput,
     OrganizationEmployee,
     OrganizationEmployeeCreateInput,
     OrganizationEmployeeUpdateInput,
@@ -25,15 +24,9 @@ function convertGQLItemToFormSelectState (item: OrganizationEmployee): { value: 
 }
 
 function formValuesProcessor (formValues): OrganizationEmployeeCreateInput | OrganizationEmployeeUpdateInput {
-    const input: DivisionCreateInput | DivisionUpdateInput = omit(formValues, ['specializations', 'role'])
+    const input = omit(formValues, ['specializations', 'role'])
     if (formValues['role']) {
         input['role'] = { connect: { id: formValues['role'] } }
-    }
-    if (formValues['specializations']) {
-        input['specializations'] = {
-            disconnectAll: true,
-            connect: formValues['specializations'].map(id => ({ id })),
-        }
     }
 
     return input
