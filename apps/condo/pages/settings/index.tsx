@@ -9,10 +9,12 @@ import {
     SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
     SETTINGS_TAB_CONTROL_ROOM,
+    SETTINGS_TAB_PROPERTY_SCOPE,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
+import { PropertyScopeSettingsContent } from '@condo/domains/scope/components/PropertyScopeSettingsContent'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import {
     SettingsContent as TicketPropertyHintSettings,
@@ -27,7 +29,7 @@ import { ControlRoomSettingsContent } from '@condo/domains/common/components/set
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
@@ -37,6 +39,7 @@ const SettingsPage: React.FC = () => {
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
+    const TicketsVisibilityTitle = intl.formatMessage({ id: 'TicketsVisibility' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -73,12 +76,17 @@ const SettingsPage: React.FC = () => {
                 content: <ContactRolesSettingsContent/>,
             },
             {
+                key: SETTINGS_TAB_PROPERTY_SCOPE,
+                title: TicketsVisibilityTitle,
+                content: <PropertyScopeSettingsContent/>,
+            },
+            {
                 key: SETTINGS_TAB_CONTROL_ROOM,
                 title: ControlRoomTitle,
                 content: <ControlRoomSettingsContent />,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle],
+        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, TicketsVisibilityTitle, ControlRoomTitle],
     )
 
     const titleContent = useMemo(() => (

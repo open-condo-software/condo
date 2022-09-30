@@ -6,10 +6,11 @@ import {
     SpecializationScope,
     SpecializationScopeCreateInput,
     SpecializationScopeUpdateInput,
-    QueryAllSpecializationScopesArgs,
+    QueryAllSpecializationScopesArgs, OrganizationEmployeeCreateInput, OrganizationEmployeeUpdateInput,
 } from '@app/condo/schema'
 import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
 import { SpecializationScope as SpecializationScopeGQL } from '@condo/domains/scope/gql'
+import { omit } from 'lodash'
 
 const {
     useObject,
