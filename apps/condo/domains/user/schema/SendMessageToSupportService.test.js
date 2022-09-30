@@ -160,6 +160,7 @@ describe('SendMessageToSupportService', () => {
         const residentsExtraInfo = messages[0].meta.residentsExtraInfo[0]
         expect(residentsExtraInfo.address).not.toHaveLength(0)
         expect(residentsExtraInfo.organization).not.toBeFalsy()
+        expect(residentsExtraInfo.unitName).not.toBeFalsy()
         const [serviceConsumer1, serviceConsumer2] = residentsExtraInfo.serviceConsumers
         expect(serviceConsumer1.organizationName).not.toEqual(serviceConsumer2.organizationName)
         expect(serviceConsumer1.accountNumber).not.toEqual(serviceConsumer2.accountNumber)
