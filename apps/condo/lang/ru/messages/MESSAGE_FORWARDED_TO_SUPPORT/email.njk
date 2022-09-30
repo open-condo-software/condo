@@ -8,6 +8,7 @@ Email: {% if message.emailFrom %}{{ message.emailFrom | safe }}{% else %}не у
  {% for residentInfo in message.meta.residentsExtraInfo %}
      УК: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. ИНН: {{ residentInfo.organization.tin }}{% else %}не указан{% endif %}.
      Адрес: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}не указан{% endif %}.
+     Помещение: {% if residentInfo.unitName %}{{ residentInfo.unitName | safe }}{% else %}не указано{% endif %}.
      Лицевые счета:
          {%- if residentInfo.serviceConsumers.length == 0 -%}
            нет

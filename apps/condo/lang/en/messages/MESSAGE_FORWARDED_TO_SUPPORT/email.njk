@@ -8,6 +8,7 @@ Resident info:
  {% for residentInfo in message.meta.residentsExtraInfo %}
     Organization: {% if residentInfo.organization %}{{ residentInfo.organization.name }}. TIN: {{ residentInfo.organization.tin }}{% else %}N/A{% endif %}.
     Address: {% if residentInfo.address %}{{ residentInfo.address | safe }}{% else %}N/A{% endif %}.
+    Unit: {% if residentInfo.unitName %}{{ residentInfo.unitName | safe }}{% else %}N/A{% endif %}.
     Account numbers:
         {%- if residentInfo.serviceConsumers.length == 0 -%}
           no
