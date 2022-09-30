@@ -4683,6 +4683,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@condo/apollo-server-client@workspace:packages/apollo-server-client":
+  version: 0.0.0-use.local
+  resolution: "@condo/apollo-server-client@workspace:packages/apollo-server-client"
+  peerDependencies:
+    "@apollo/client": ^3.6.9
+    apollo-link-error: ^1.1.13
+    apollo-upload-client: ^17.0.0
+    cross-fetch: ^3.1.5
+    graphql: ^16.6.0
+    graphql-tag: ^2.12.6
+    react: ^18.2.0
+  languageName: unknown
+  linkType: soft
+
 "@condo/bicrypt@workspace:^, @condo/bicrypt@workspace:packages/bicrypt":
   version: 0.0.0-use.local
   resolution: "@condo/bicrypt@workspace:packages/bicrypt"
