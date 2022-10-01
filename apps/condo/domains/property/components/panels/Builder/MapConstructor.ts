@@ -163,6 +163,11 @@ class Map {
         return true
     }
 
+    getSectionFloorNames (section: number | null): string[] {
+        if (section === null) return []
+        return get(this.map, ['sections', section, 'floors']).map(floor => floor.name)
+    }
+
     private setAutoincrement () {
         const getSectionUnitIds = mapSection => mapSection.map(section => section.floors
             .map(floor => floor.units.map(unit => !isNaN(Number(unit.id)) ? Number(unit.id) : 0)))
