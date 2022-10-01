@@ -954,6 +954,13 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         setUnitType(value)
     }, [])
 
+    const isApplyButtonDisabled = useMemo(() => {
+        const isUnitLabelUnique = mode === 'addUnit'
+            ? builder.validateUniqueUnitLabel()
+            : builder.validateUniqueUnitLabel(label, 'section')
+        return !(floor && section && label.trim() && isUnitLabelUnique)
+    }, [floor, section, label, builder, mode])
+
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
@@ -1007,7 +1014,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section && label.trim())}
+                                disabled={isApplyButtonDisabled}
                             > {SaveLabel} </Button>
                         </Col>
                         {
@@ -1414,6 +1421,13 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         resetForm()
     }, [resetForm, refresh, builder])
 
+    const isApplyButtonDisabled = useMemo(() => {
+        const isUnitLabelUnique = mode === 'addParkingUnit'
+            ? builder.validateUniqueUnitLabel()
+            : builder.validateUniqueUnitLabel(label, 'parking')
+        return !(floor && section && label.trim() && isUnitLabelUnique)
+    }, [floor, section, label, builder, mode])
+
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
@@ -1451,7 +1465,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section)}
+                                disabled={isApplyButtonDisabled}
                             > {SaveLabel} </Button>
                         </Col>
                         {

@@ -137,7 +137,7 @@ class Map {
         return true
     }
 
-    public validateUniqueUnitLabel (): boolean {
+    public validateUniqueUnitLabel (renamedUnit: string = null, destination: keyof typeof MapViewMode = null): boolean {
         const unitLabels = this.map.sections
             ?.map((section) => section.floors
                 ?.map(floor => floor.units
@@ -152,6 +152,9 @@ class Map {
                 )
             ).flat(2)
 
+        if (renamedUnit && destination) {
+            destination === 'section' ? unitLabels.push(renamedUnit) : parkingUnitLabels.push(renamedUnit)
+        }
 
         const notUniqSectionLabels = unitLabels && unitLabels.length !== new Set(unitLabels).size
         const notUniqParkingLabels = parkingUnitLabels && parkingUnitLabels.length !== new Set(parkingUnitLabels).size
