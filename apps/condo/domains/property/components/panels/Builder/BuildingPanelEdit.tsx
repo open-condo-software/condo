@@ -1525,6 +1525,11 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setSection(null)
     }, [builder, refresh, floor, section, unitsOnFloor, unitType])
 
+    const isSubmitDisabled = useMemo(() => {
+        const sectionFloors = builder.getSectionFloorNames(section)
+        return !(floor && section !== null && unitsOnFloor && !sectionFloors.includes(floor))
+    }, [floor, section, unitsOnFloor])
+
     useEffect(() => {
         if (section !== null) {
             maxFloor.current = builder.getSectionMaxFloor(section) + 1
@@ -1538,12 +1543,15 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         if (floor && section !== null && unitsOnFloor > 0) {
-            builder.addPreviewSectionFloor({
-                section: Number(section),
-                index: Number(floor),
-                unitType,
-                unitCount: Number(unitsOnFloor),
-            })
+            const sectionFloors = builder.getSectionFloorNames(section)
+            if (!sectionFloors.includes(floor)) {
+                builder.addPreviewSectionFloor({
+                    section: Number(section),
+                    index: Number(floor),
+                    unitType,
+                    unitCount: Number(unitsOnFloor),
+                })
+            }
         } else {
             builder.removePreviewSectionFloor()
         }
@@ -1551,7 +1559,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [floor, section, unitsOnFloor, unitType])
 
-    const isSubmitDisabled = !(floor && section !== null && unitsOnFloor)
+
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
