@@ -101,7 +101,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
             : ''
         const prefix = `${mode}.${generatorAppOrigin ? 'auto' : 'manual'}`
 
-        return intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` }, { services })
+        return intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode === 'view' ? prefix : mode}.EmptyBuildingDescription` }, { services })
     }, [
         intl,
         mode,
