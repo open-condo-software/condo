@@ -1060,6 +1060,12 @@ class MapEdit extends MapView {
                 this.updateUnitNumbers(nextUnit)
             }
         }
+
+        // if no units at this section -> remove it
+        if (isObjectEmpty(this.map.sections[unitIndex.section].floors)) {
+            this.removeSection(this.map.sections[unitIndex.section].id, renameNextUnits)
+        }
+
         this.selectedUnit = null
         this.editMode = 'addUnit'
         this.notifyUpdater()
@@ -1079,6 +1085,12 @@ class MapEdit extends MapView {
                 this.updateParkingUnitNumbers(nextUnit)
             }
         }
+
+        // if no units at this parking -> remove it
+        if (isObjectEmpty(this.map.parking[unitIndex.parking].floors)) {
+            this.removeParking(this.map.parking[unitIndex.parking].id, renameNextUnits)
+        }
+
         this.selectedParkingUnit = null
         this.editMode = 'addParkingUnit'
         this.notifyUpdater()
@@ -1243,7 +1255,7 @@ class MapEdit extends MapView {
             id: String(++this.autoincrement),
             floors: [],
             name,
-            index: this.sections.length + 1,
+            index: this.parking.length + 1,
             type: BuildingSectionType.Section,
         }
 
@@ -1429,10 +1441,11 @@ class MapEdit extends MapView {
         if (typeof this.map.parking[removedIndex] !== 'undefined') {
             if (removedIndex === 0) {
                 // Rename from first unit
-                const firstSectionUnit = get(last(this.map.parking[removedIndex].floors), 'units.0')
+                const firstSectionUnit = get(last(this.map.parking[removedIndex].floors.filter(floor => floor.index > 0)), 'units.0')
                 if (firstSectionUnit) {
                     firstSectionUnit.label = '1'
-                    this.updateParkingUnit(firstSectionUnit, renameNextUnits)
+                    firstSectionUnit.index = '1'
+                    this.updateParkingUnitNumbers(firstSectionUnit)
                 }
             } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
                 // Rename from last unit at section - 1 of sectionIndex
