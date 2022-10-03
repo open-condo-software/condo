@@ -184,8 +184,7 @@ export const TicketsPageContent = ({
     } = Ticket.useCount({ where: baseTicketsQuery })
     const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
-    const { useFlag, updateContext } = useFeatureFlags()
-    const { user } = useAuth()
+    const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
@@ -215,10 +214,6 @@ export const TicketsPageContent = ({
             </ImportWrapper>
         )
     }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, ticketCreator, ticketNormalizer, ticketValidator])
-
-    useEffect(() => {
-        updateContext({ isSupport: user.isSupport || user.isAdmin })
-    }, [updateContext, user.isAdmin, user.isSupport])
 
     return (
         <>
