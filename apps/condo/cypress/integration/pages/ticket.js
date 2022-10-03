@@ -73,7 +73,7 @@ describe('Ticket',  function () {
 
     // problem with waiting for a request to create a ticket or get contacts on GitHub Actions.
     // Locally work ok
-    describe.skip('Support', () => {
+    describe('Support', () => {
         beforeEach(() => {
             cy.intercept('GET', '/api/features', { fixture: 'featureFlags.json' })
         })
@@ -100,10 +100,10 @@ describe('Ticket',  function () {
 
                         const ticketImport = new TicketImport()
                         ticketImport
-                            .visit()
+                            .visitTicketsPage()
                             .importTicketTable(filePath)
                             .waitCreatingTicket()
-                            .closeSuccessModal()
+                            .waitSuccessModal()
                     })
                 })
             })
@@ -123,10 +123,10 @@ describe('Ticket',  function () {
 
                         const ticketImport = new TicketImport()
                         ticketImport
-                            .visit()
+                            .visitTicketsPage()
                             .importTicketTable(filePath)
                             .waitFetchingContact()
-                            .closeErrorModal()
+                            .waitErrorModal()
                     })
                 })
             })
@@ -145,9 +145,9 @@ describe('Ticket',  function () {
 
                         const ticketImport = new TicketImport()
                         ticketImport
-                            .visit()
+                            .visitTicketsPage()
                             .importTicketTable(filePath)
-                            .closeErrorModal()
+                            .waitErrorModal()
                     })
                 })
             })

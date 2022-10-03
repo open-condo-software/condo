@@ -300,7 +300,7 @@ Elements:
     data-importer--error
 */
 
-    visit () {
+    visitTicketsPage () {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
         cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
@@ -327,14 +327,14 @@ Elements:
         return this
     }
 
-    closeSuccessModal () {
+    waitSuccessModal () {
         cy.get('[data-cy=data-importer--success]', { timeout: 30000 })
             .should('be.visible')
 
         return this
     }
 
-    closeErrorModal () {
+    waitErrorModal () {
         cy.get('[data-cy=data-importer--error]', { timeout: 30000 })
             .should('be.visible')
 
