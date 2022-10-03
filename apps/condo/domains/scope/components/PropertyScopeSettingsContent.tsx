@@ -76,7 +76,7 @@ export const PropertyScopeSettingsContent = () => {
     }, [router])
 
     const handleAddHintButtonClick = useCallback(async () => {
-        await router.push('/settings/hint/create')
+        await router.push('/settings/propertyScope/create')
     }, [router])
 
     const handleSearch = useCallback(e => {

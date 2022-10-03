@@ -33,7 +33,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
 
-    const render = useCallback(() => getTableCellRenderer(search), [search])
+    const render = useMemo(() => getTableCellRenderer(search), [search])
 
     const renderPropertyScopeProperties = useCallback((intl, propertyScope) => {
         const properties = propertyScopeProperties
@@ -58,7 +58,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             dataIndex: 'name',
             key: 'name',
             sorter: true,
-            width: '15%',
+            width: '20%',
             filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
             filterIcon: getFilterIcon,
             render,

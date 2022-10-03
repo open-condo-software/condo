@@ -744,6 +744,8 @@
   "pages.condo.settings.propertyScope.create": "Добавить зону видимости",
   "pages.condo.settings.propertyScope.form.chooseAllEmployees": "Выбрать всех сотрудников",
   "pages.condo.settings.propertyScope.form.chooseAllProperties": "Выбрать все дома",
+  "pages.condo.settings.propertyScope.form.editPropertyScope": "Редактирование зоны видимости",
+  "pages.condo.settings.propertyScope.form.newPropertyScope": "Новая зона видимости",
   "pages.condo.settings.propertyScope.alert.delete.Title": "Удалить зону видимости?",
   "pages.condo.settings.propertyScope.alert.delete.Message": "Восстановить будет невозможно. Но можно будет создать снова.",
   "pages.index.PageTitle": "Аналитика",

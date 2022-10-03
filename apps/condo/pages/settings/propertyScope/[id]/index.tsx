@@ -138,7 +138,7 @@ const PropertyScopeIdPage = () => {
                             canManagePropertyScopes && (
                                 <Col span={24}>
                                     <ActionBar>
-                                        <Link href={`/settings/hint/${scopeId}/update`}>
+                                        <Link href={`/settings/propertyScope/${scopeId}/update`}>
                                             <Button
                                                 color='green'
                                                 type='sberDefaultGradient'
