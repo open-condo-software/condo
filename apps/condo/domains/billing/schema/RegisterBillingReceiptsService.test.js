@@ -449,7 +449,7 @@ describe('RegisterBillingReceiptsService', () => {
                         },
                         {
                             ...receiptInput,
-                            month: 4,
+                            month: 10,
                             importId: faker.random.alphaNumeric(24),
                         },
                     ],

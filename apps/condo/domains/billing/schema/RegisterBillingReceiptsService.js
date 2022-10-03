@@ -349,7 +349,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         partialErrors.push(new GQLError({ ...errors.WRONG_YEAR, inputIndex: i }, context))
                         continue
                     }
-                    const period = (month <= 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
+                    const period = (month < 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
 
                     // Validate address field
                     if (address === '') {
