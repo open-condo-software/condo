@@ -955,9 +955,19 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     }, [])
 
     const isApplyButtonDisabled = useMemo(() => {
-        const isUnitLabelUnique = mode === 'addUnit'
-            ? builder.validateUniqueUnitLabel()
-            : builder.validateUniqueUnitLabel(label, 'section')
+        let isUnitLabelUnique = true
+        if (mode === 'addUnit') {
+            isUnitLabelUnique = builder.validateUniqueUnitLabel()
+        } else if (mode === 'editUnit') {
+            const selectedUnit = builder.getSelectedUnit()
+            const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
+            const labelValidation = selectedUnit.label !== label
+                ? builder.validateUniqueUnitLabel(label, 'section')
+                : true
+
+            isUnitLabelUnique = unitPlacementChanged && labelValidation
+        }
+
         return !(floor && section && label.trim() && isUnitLabelUnique)
     }, [floor, section, label, builder, mode])
 
@@ -1422,9 +1432,19 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [resetForm, refresh, builder])
 
     const isApplyButtonDisabled = useMemo(() => {
-        const isUnitLabelUnique = mode === 'addParkingUnit'
-            ? builder.validateUniqueUnitLabel()
-            : builder.validateUniqueUnitLabel(label, 'parking')
+        let isUnitLabelUnique = true
+        if (mode === 'addParkingUnit') {
+            isUnitLabelUnique = builder.validateUniqueUnitLabel()
+        } else if (mode === 'editParkingUnit') {
+            const selectedUnit = builder.getSelectedParkingUnit()
+            const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
+            const labelValidation = selectedUnit.label !== label
+                ? builder.validateUniqueUnitLabel(label, 'parking')
+                : true
+
+            isUnitLabelUnique = unitPlacementChanged && labelValidation
+        }
+
         return !(floor && section && label.trim() && isUnitLabelUnique)
     }, [floor, section, label, builder, mode])
 
