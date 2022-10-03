@@ -1,6 +1,7 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -21,13 +22,12 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
+import { Loader } from '@condo/domains/common/components/Loader'
 
 const SORTABLE_PROPERTIES = ['name']
 const PROPERTY_SCOPES_DEFAULT_SORT_BY = ['createdAt_DESC']
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
-
-const PROPERTY_SCOPE_PAGE_SIZE = 3
 
 export const PropertyScopeSettingsContent = () => {
     const intl = useIntl()
@@ -63,8 +63,8 @@ export const PropertyScopeSettingsContent = () => {
     } = PropertyScope.useObjects({
         sortBy,
         where: searchPropertyScopesQuery,
-        first: PROPERTY_SCOPE_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * PROPERTY_SCOPE_PAGE_SIZE,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
     const handleRowAction = useCallback((record) => {
@@ -83,7 +83,8 @@ export const PropertyScopeSettingsContent = () => {
         handleSearchChange(e.target.value)
     }, [handleSearchChange])
 
-    const tableColumns = usePropertyScopeColumns(filtersMeta, propertyScopes)
+    const { columns: tableColumns, loading: tableColumnsLoading } = usePropertyScopeColumns(filtersMeta, propertyScopes)
+    const loading = tableColumnsLoading || isPropertyScopesFetching
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -107,12 +108,12 @@ export const PropertyScopeSettingsContent = () => {
             <Col span={24}>
                 <Table
                     totalRows={total}
-                    loading={isPropertyScopesFetching}
+                    loading={loading}
                     onRow={handleRowAction}
                     dataSource={propertyScopes}
                     columns={tableColumns}
                     data-cy='propertyScope__table'
-                    pageSize={PROPERTY_SCOPE_PAGE_SIZE}
+                    pageSize={DEFAULT_PAGE_SIZE}
                 />
             </Col>
             {

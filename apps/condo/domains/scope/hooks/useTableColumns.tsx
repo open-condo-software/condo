@@ -1,6 +1,6 @@
 import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -18,16 +18,47 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
 
     const propertyScopeIds = propertyScopes.map(propertyScope => propertyScope.id)
-    const { objs: propertyScopeProperties } = PropertyScopeProperty.useObjects({
+    const {
+        objs: propertyScopeProperties,
+        count: propertiesCount,
+        fetchMore: fetchMoreProperties,
+        loading: propertiesLoading,
+    } = PropertyScopeProperty.useObjects({
         where: {
             propertyScope: { id_in: propertyScopeIds },
         },
     })
-    const { objs: propertyScopeEmployees } = PropertyScopeOrganizationEmployee.useObjects({
+    const {
+        objs: propertyScopeEmployees,
+        count: employeesCount,
+        fetchMore: fetchMoreEmployees,
+        loading: employeesLoading,
+    } = PropertyScopeOrganizationEmployee.useObjects({
         where: {
             propertyScope: { id_in: propertyScopeIds },
         },
     })
+
+    useEffect(() => {
+        if (fetchMoreProperties && propertiesCount > propertyScopeProperties.length) {
+            fetchMoreProperties({
+                variables: {
+                    skip: propertyScopeProperties.length,
+                },
+            })
+        }
+    }, [fetchMoreProperties, propertyScopeProperties.length])
+
+    useEffect(() => {
+        if (fetchMoreEmployees && employeesCount > propertyScopeEmployees.length) {
+            fetchMoreEmployees({
+                variables: {
+                    skip: propertyScopeEmployees.length,
+                },
+            })
+        }
+    }, [fetchMoreEmployees, propertyScopeEmployees.length])
+
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -51,30 +82,34 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
         return getManyEmployeesNameRender(search)(intl, employees)
     }, [propertyScopeEmployees, search])
 
-    return useMemo(() => [
-        {
-            title: PropertyScopeNameMessage,
-            filteredValue: getFilteredValue<IFilters>(filters, 'name'),
-            dataIndex: 'name',
-            key: 'name',
-            sorter: true,
-            width: '20%',
-            filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
-            filterIcon: getFilterIcon,
-            render,
-        },
-        {
-            title: PropertiesMessage,
-            ellipsis: true,
-            key: 'properties',
-            render: (_, propertyScope) => renderPropertyScopeProperties(intl, propertyScope),
-            width: '35%',
-        },
-        {
-            title: EmployeesMessage,
-            key: 'properties',
-            render: (_, propertyScope) => renderPropertyScopeEmployees(intl, propertyScope),
-            width: '35%',
-        },
-    ], [EmployeesMessage, PropertiesMessage, PropertyScopeNameMessage, filterMetas, filters, intl, render, renderPropertyScopeEmployees, renderPropertyScopeProperties])
+    return useMemo(() => ({
+        loading: propertiesLoading || employeesLoading,
+        columns:[
+            {
+                title: PropertyScopeNameMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'name'),
+                dataIndex: 'name',
+                key: 'name',
+                sorter: true,
+                width: '20%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
+                filterIcon: getFilterIcon,
+                render,
+            },
+            {
+                title: PropertiesMessage,
+                ellipsis: true,
+                key: 'properties',
+                render: (_, propertyScope) => renderPropertyScopeProperties(intl, propertyScope),
+                width: '35%',
+            },
+            {
+                title: EmployeesMessage,
+                key: 'properties',
+                render: (_, propertyScope) => renderPropertyScopeEmployees(intl, propertyScope),
+                width: '35%',
+            },
+        ],
+    }), [EmployeesMessage, PropertiesMessage, PropertyScopeNameMessage, employeesLoading, filterMetas, filters,
+        intl, propertiesLoading, render, renderPropertyScopeEmployees, renderPropertyScopeProperties])
 }

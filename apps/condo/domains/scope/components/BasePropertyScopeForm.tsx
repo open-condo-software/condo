@@ -1,6 +1,6 @@
 import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { difference, get } from 'lodash'
+import { difference } from 'lodash'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo } from 'react'
