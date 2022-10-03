@@ -24,7 +24,7 @@ import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/com
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 import { get } from 'lodash'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
@@ -59,7 +59,7 @@ const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
-const filterUnit = getStringContainsFilter('unitName')
+const filterUnit = getFilter('unitName', 'array', 'string', 'in')
 const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['classifier', 'place', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['classifier', 'category', 'id'], 'array', 'string', 'in')
@@ -267,7 +267,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 keyword: 'unitName',
                 filters: [filterUnit],
                 component: {
-                    type: ComponentType.Input,
+                    type: ComponentType.TagsSelect,
                     props: {
                         placeholder: EnterUnitNameLabel,
                     },
