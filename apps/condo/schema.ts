@@ -21944,6 +21944,7 @@ export type Mutation = {
   createOnBoardingByType?: Maybe<OnBoarding>;
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
+  registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -26575,6 +26576,11 @@ export type MutationRegisterMultiPaymentArgs = {
 
 export type MutationRegisterMultiPaymentForOneReceiptArgs = {
   data: RegisterMultiPaymentForOneReceiptInput;
+};
+
+
+export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
+  data: RegisterMultiPaymentForVirtualReceiptInput;
 };
 
 
@@ -36851,6 +36857,22 @@ export type RegisterMultiPaymentForOneReceiptOutput = {
   directPaymentUrl: Scalars['String'];
 };
 
+export type RegisterMultiPaymentForVirtualReceiptInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  receipt: RegisterMultiPaymentVirtualReceiptInput;
+  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput;
+};
+
+export type RegisterMultiPaymentForVirtualReceiptOutput = {
+  __typename?: 'RegisterMultiPaymentForVirtualReceiptOutput';
+  dv: Scalars['Int'];
+  multiPaymentId: Scalars['String'];
+  webViewUrl: Scalars['String'];
+  feeCalculationUrl: Scalars['String'];
+  directPaymentUrl: Scalars['String'];
+};
+
 export type RegisterMultiPaymentInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -36870,6 +36892,24 @@ export type RegisterMultiPaymentOutput = {
 export type RegisterMultiPaymentServiceConsumerInput = {
   serviceConsumer: ServiceConsumerWhereUniqueInput;
   receipts: Array<BillingReceiptWhereUniqueInput>;
+};
+
+export enum RegisterMultiPaymentVirtualReceiptCurrency {
+  Rub = 'RUB',
+  Usd = 'USD'
+}
+
+export type RegisterMultiPaymentVirtualReceiptInput = {
+  currencyCode: RegisterMultiPaymentVirtualReceiptCurrency;
+  amount: Scalars['String'];
+  period: Scalars['String'];
+  recipient: RegisterMultiPaymentVirtualReceiptRecipientInput;
+};
+
+export type RegisterMultiPaymentVirtualReceiptRecipientInput = {
+  bic: Scalars['String'];
+  bankAccount: Scalars['String'];
+  accountNumber: Scalars['String'];
 };
 
 export type RegisterNewOrganizationInput = {
