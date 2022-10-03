@@ -19,6 +19,25 @@ const REGISTER_NEW_USER_MUTATION = gql`
         user: registerNewUser(data: $data) ${USER_FIELDS}
     }
 `
+const userFragment = `
+  id
+  name
+  avatar {
+    publicUrl
+  }
+  phone
+  email
+  isAdmin
+  isSupport
+`
+
+const USER_QUERY = gql`
+    query {
+        authenticatedUser {
+            ${userFragment}
+        }
+    }
+`
 
 const GET_MY_USERINFO = gql`
     query getUser {
@@ -140,6 +159,7 @@ module.exports = {
     UserAdmin,
     REGISTER_NEW_USER_MUTATION,
     GET_MY_USERINFO,
+    USER_QUERY,
     SIGNIN_MUTATION,
     CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
     SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION,

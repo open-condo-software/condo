@@ -295,9 +295,9 @@ class TicketEdit {
 class TicketImport {
 /*
 Elements:
-    ticket=import-button
-    ticket-import-success
-    ticket-import-error
+    data-importer--upload
+    data-importer--success
+    data-importer--error
 */
 
     visit () {
@@ -309,7 +309,7 @@ Elements:
     }
 
     importTicketTable (filePath) {
-        cy.get('[data-cy=data-import]', { timeout: 30000 })
+        cy.get('[data-cy=data-importer--upload]', { timeout: 30000 })
             .selectFile(filePath, { force: true })
 
         return this
@@ -328,14 +328,14 @@ Elements:
     }
 
     closeSuccessModal () {
-        cy.get('[data-cy=ticket-import-success]', { timeout: 30000 })
+        cy.get('[data-cy=data-importer--success]', { timeout: 30000 })
             .should('be.visible')
 
         return this
     }
 
     closeErrorModal () {
-        cy.get('[data-cy=ticket-import-error]', { timeout: 30000 })
+        cy.get('[data-cy=data-importer--error]', { timeout: 30000 })
             .should('be.visible')
 
         return this

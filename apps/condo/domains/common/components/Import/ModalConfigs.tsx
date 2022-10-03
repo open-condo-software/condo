@@ -12,7 +12,7 @@ export const getUploadSuccessModalConfig = (title: string, content: string, okTe
         closable: true,
         content: (
             <Alert
-                data-cy='ticket-import-success'
+                data-cy='data-importer--success'
                 style={{ marginTop: 16 }}
                 message={content}
                 type='success'
@@ -34,7 +34,7 @@ export const getUploadErrorModalConfig = (title: string, defaultErrorText: strin
 
                         return (
                             <Alert
-                                data-cy='ticket-import-error'
+                                data-cy='data-importer--error'
                                 style={{ marginTop: 16 }}
                                 message={errorMessage}
                                 type='error'
@@ -106,7 +106,7 @@ export const getPartlyLoadedModalConfig = (
         closable: false,
         content: (
             <Alert
-                data-cy='ticket-import-error'
+                data-cy='data-importer--error'
                 style={{ marginTop: 16 }}
                 message={content}
                 type='warning'
