@@ -5,7 +5,7 @@
 const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
 
 /**
- * Billing entity can be read either by:
+ * BankAccount entity can be read either by:
  * 1. By admin or support
  * 2. Organization employee (without settings / state)
  */
