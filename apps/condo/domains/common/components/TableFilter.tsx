@@ -21,13 +21,15 @@ export interface IFilterContainerProps {
 
 const FILTER_CONTAINER_STYLES: CSSProperties = { padding: 16 }
 
+const handleStopPropagation = (e) => e.stopPropagation()
+
 export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const { showClearButton, clearFilters, children } = props
     const intl = useIntl()
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
 
     return (
-        <div style={FILTER_CONTAINER_STYLES}>
+        <div style={FILTER_CONTAINER_STYLES} onKeyDown={handleStopPropagation}>
             <Space size={8} direction='vertical' align='center'>
                 {children}
                 {
@@ -60,7 +62,7 @@ export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) =>
     const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
 
     return (
-        <StyledSelectFilterContainer style={style}>
+        <StyledSelectFilterContainer style={style} onKeyDown={handleStopPropagation}>
             {children}
             {
                 showClearButton && (
