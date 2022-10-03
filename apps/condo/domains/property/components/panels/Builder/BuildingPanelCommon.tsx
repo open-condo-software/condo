@@ -87,6 +87,7 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
     const MapManualCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
     const MapAutoCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle' })
+    const MapEditEmptyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription' })
 
     const { push, asPath, query: { id: propertyId } } = useRouter()
     const createMapCallback = useCallback(() => {
@@ -100,8 +101,9 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
             ? intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services' })
             : ''
         const prefix = `${mode}.${generatorAppOrigin ? 'auto' : 'manual'}`
+        const MapViewEmptyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` }, { services })
 
-        return intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode === 'view' ? prefix : mode}.EmptyBuildingDescription` }, { services })
+        return mode === 'edit' ? MapEditEmptyBuildingDescription : MapViewEmptyBuildingDescription
     }, [
         intl,
         mode,
