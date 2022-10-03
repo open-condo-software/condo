@@ -159,8 +159,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (phone && !isValidPhone) errors.push(IncorrectPhoneNumberFormatMessage)
         if (isResidentTicket && (!phone || !fullName)) errors.push(IncorrectPhoneAndFullNameForResidentTicketMessage)
 
-        const createAt = get(row, ['addons', 'createdAt'])
-        if (createAt && !isValidDate(createAt)) errors.push(intl.formatMessage({ id: 'errors.import.date' }, { columnName: CreatedAtLabel, format: DATE_PARSING_FORMAT }))
+        const createdAt = get(row, ['addons', 'createdAt'])
+        if (createdAt && !isValidDate(createdAt)) errors.push(intl.formatMessage({ id: 'errors.import.date' }, { columnName: CreatedAtLabel, format: DATE_PARSING_FORMAT }))
 
         if (errors.length) {
             row.errors = errors

@@ -23,6 +23,7 @@ import { TrackingProvider } from '@condo/domains/common/components/TrackingConte
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@condo/locales/extractReqLocale'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
+import { USER_QUERY } from '@condo/domains/user/gql'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { FocusElement } from '@condo/domains/common/components/Focus/FocusElement'
 import { OnBoardingProgress } from '@condo/domains/common/components/icons/OnBoardingProgress'
@@ -285,7 +286,7 @@ const apolloClientConfig = {
 export default (
     withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
         withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
-            withAuth({ ssr: true })(
+            withAuth({ ssr: true, USER_QUERY: USER_QUERY })(
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,

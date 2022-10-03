@@ -4,7 +4,6 @@ import { useIntl } from '@condo/next/intl'
 import XLSX from 'xlsx'
 import { TABLE_UPLOAD_ACCEPT_FILES } from '../constants/fileExtensions'
 import { makeAntdCols, makeAntdData } from '../utils/excel.utils'
-import { display } from 'html2canvas/dist/types/css/property-descriptors/display'
 
 type UploadCols = {
     title: string
@@ -86,7 +85,7 @@ export const DataImporter: React.FC<IDataImporterProps> = (props) => {
 
     return (
         <Upload
-            data-cy='data-import'
+            data-cy='data-importer--upload'
             { ...uploadConfig }
             accept={FILE_EXTENSIONS}
         >
