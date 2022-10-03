@@ -237,10 +237,6 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 if (alreadyWithMPPayments.length) {
                     addValidationError(`${MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP} Failed ids: ${alreadyWithMPPayments.join(', ')}`)
                 }
-                const noReceiptPayments = payments.filter(payment => !payment.receipt).map(payment => `"${payment.id}"`)
-                if (noReceiptPayments.length) {
-                    return addValidationError(`${MULTIPAYMENT_NO_RECEIPT_PAYMENTS} [${noReceiptPayments.join(', ')}]`)
-                }
                 const currencyCode = resolvedData['currencyCode']
                 const anotherCurrencyPayments = payments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
                 if (anotherCurrencyPayments.length) {
