@@ -42,7 +42,6 @@ const {
 const {
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
-    MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
     MULTIPAYMENT_MULTIPLE_CURRENCIES,
     MULTIPAYMENT_NOT_UNIQUE_RECEIPTS,
     MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH,
@@ -321,20 +320,6 @@ describe('MultiPayment', () => {
         })
         describe('Model validation', () => {
             describe('All linked payments should have', () => {
-                test('Billing receipt', async () => {
-                    const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer()
-                    const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext, {
-                        amount: '100.00',
-                        implicitFee: null,
-                    })
-                    const [secondPayment] = await createTestPayment(admin, organization, null, acquiringContext, {
-                        amount: '100.00',
-                        implicitFee: null,
-                    })
-                    await expectToThrowValidationFailureError(async () => {
-                        await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
-                    }, MULTIPAYMENT_NO_RECEIPT_PAYMENTS)
-                })
                 test('Same currency code', async () => {
                     const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
                     const [firstPayment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)

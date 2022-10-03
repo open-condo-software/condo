@@ -30,7 +30,6 @@ const PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME = '[payment:explicitFee:explicit
 const PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT = '[payment:explicitFee:explicitServiceCharge:bothGTZero] You\'re trying to update explicitFee/explicitServiceCharge property while other property of this pair was greater than zero, but only one of them allowed to be greater than zero at the same time. You need to explicitly pass "0" to one of them'
 const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
 const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
-const MULTIPAYMENT_NO_RECEIPT_PAYMENTS = '[multiPayment:payments:noReceipt] Some of listed payments have no receipts.'
 const MULTIPAYMENT_MULTIPLE_CURRENCIES = '[multiPayment:payments:currencyCode:mismatch] Some of listed payments have currency code which is not equal to multiPayment\'s one.'
 const MULTIPAYMENT_NOT_UNIQUE_RECEIPTS = '[multiPayment:payments:receipt:duplicates] Some of listed payments have same billing receipt which is not allowed. Please group all payments with same receipt into single one and repeat process.'
 const MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH = '[multiPayment:amount:formulaMismatch] Amount equality is not satisfied (multiPayment.amountWithoutExplicitFee = sum of multiPayment.payments.amount)'
@@ -87,7 +86,6 @@ module.exports = {
     PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
-    MULTIPAYMENT_NO_RECEIPT_PAYMENTS,
     MULTIPAYMENT_MULTIPLE_CURRENCIES,
     MULTIPAYMENT_NOT_UNIQUE_RECEIPTS,
     MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH,
