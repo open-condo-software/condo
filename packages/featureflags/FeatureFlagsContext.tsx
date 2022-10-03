@@ -2,6 +2,7 @@ import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growt
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
 import isEqual from 'lodash/isEqual'
+import get from 'lodash/get'
 import { useAuth } from '@condo/next/auth'
 
 const growthbook = new GrowthBook()
@@ -19,6 +20,9 @@ const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsConte
 const FeatureFlagsProviderWrapper = ({ children }) => {
     const growthbook = useGrowthBook()
     const { user } = useAuth()
+
+    const isSupport = get(user, 'isSupport', false)
+    const isAdmin = get(user, 'isAdmin', false)
 
     const {
         publicRuntimeConfig: {
@@ -57,8 +61,8 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     }, [growthbook, serverUrl])
 
     useEffect(() => {
-        updateContext({ isSupport: user.isSupport || user.isAdmin })
-    }, [updateContext, user.isAdmin, user.isSupport])
+        updateContext({ isSupport: isSupport || isAdmin })
+    }, [updateContext, isAdmin, isSupport])
 
     return (
         <FeatureFlagsContext.Provider value={{
