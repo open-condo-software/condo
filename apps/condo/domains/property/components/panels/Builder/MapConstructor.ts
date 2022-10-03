@@ -1094,7 +1094,7 @@ class MapEdit extends MapView {
         const oldFloor = this.map.parking[unitIndex.parking].floors[unitIndex.floor].id
         if (oldFloor !== unit.floor || oldParkingSection !== unit.section) {
             this.removeParkingUnit(unit.id, renameNextUnits)
-            this.addParkingUnit(unit)
+            this.addParkingUnit(unit, renameNextUnits)
         } else {
             this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
             this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
