@@ -95,6 +95,7 @@ registerSchemas(keystone, [
     require('@condo/domains/organization/schema'),
     require('@condo/domains/property/schema'),
     require('@condo/domains/billing/schema'),
+    require('@condo/domains/banking/schema'),
     require('@condo/domains/ticket/schema'),
     require('@condo/domains/notification/schema'),
     require('@condo/domains/contact/schema'),

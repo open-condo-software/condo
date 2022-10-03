@@ -4,10 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
 
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -17,15 +16,16 @@ const BankAccount = generateGQLTestUtils(BankAccountGQL)
 
 async function createTestBankAccount (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!organization || !organization.id) throw new Error('no organization')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestBankAccount logic for generate fields
-
+    const bankAccount = createValidRuBankAccount()
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        importId: faker.datatype.uuid(),
+        ...bankAccount,
         ...extraAttrs,
     }
     const obj = await BankAccount.create(client, attrs)
@@ -36,8 +36,6 @@ async function updateTestBankAccount (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestBankAccount logic for generate fields
 
     const attrs = {
         dv: 1,
