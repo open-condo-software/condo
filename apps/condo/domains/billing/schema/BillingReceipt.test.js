@@ -80,6 +80,7 @@ describe('BillingReceipt', () => {
             describe('Single object', () => {
                 test('Admin can', async () => {
                     const [receipt] = await createTestBillingReceipt(admin, context, property, account)
+
                     expect(receipt).toBeDefined()
                     expect(receipt).toHaveProperty(['context', 'id'], context.id)
                     expect(receipt).toHaveProperty(['property', 'id'], property.id)
@@ -94,6 +95,7 @@ describe('BillingReceipt', () => {
                     describe('Integration account', () => {
                         test('Can if linked to permitted integration, property, account via context', async () => {
                             const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account)
+
                             expect(receipt).toBeDefined()
                             expect(receipt).toHaveProperty(['context', 'id'], context.id)
                             expect(receipt).toHaveProperty(['property', 'id'], property.id)
@@ -129,6 +131,7 @@ describe('BillingReceipt', () => {
                         [property, anotherProperty],
                         [account, anotherAccount]
                     )
+
                     expect(receipts).toBeDefined()
                     expect(receipts).toHaveLength(2)
                     expect(receipts).toEqual(expect.arrayContaining([
@@ -156,6 +159,7 @@ describe('BillingReceipt', () => {
                                 [context, context],
                                 [property, property],
                                 [account, account])
+
                             expect(receipts).toBeDefined()
                             expect(receipts).toHaveLength(2)
                             expect(receipts[0]).toEqual(expect.objectContaining({
@@ -163,6 +167,7 @@ describe('BillingReceipt', () => {
                                 property: expect.objectContaining({ id: property.id }),
                                 account: expect.objectContaining({ id: account.id }),
                             }))
+
                             expect(receipts[1]).toEqual(expect.objectContaining({
                                 context: expect.objectContaining({ id: context.id }),
                                 property: expect.objectContaining({ id: property.id }),
@@ -210,6 +215,7 @@ describe('BillingReceipt', () => {
                 })
                 test('Admin can', async () => {
                     const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, payload)
+
                     expect(updatedReceipt).toBeDefined()
                     expect(updatedReceipt).toEqual(expect.objectContaining(payload))
                 })
@@ -222,6 +228,7 @@ describe('BillingReceipt', () => {
                     describe('Integration account', () => {
                         test('Can if linked to permitted integration via context', async () => {
                             const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+
                             expect(updatedReceipt).toBeDefined()
                             expect(updatedReceipt).toEqual(expect.objectContaining(payload))
                         })
@@ -272,6 +279,7 @@ describe('BillingReceipt', () => {
                 })
                 test('Admin can for any context', async () => {
                     const [updatedReceipts] = await updateTestBillingReceipts(admin, [payload, anotherPayload])
+
                     expect(updatedReceipts).toBeDefined()
                     expect(updatedReceipts).toHaveLength(2)
                     expect(updatedReceipts).toEqual(expect.arrayContaining([
@@ -290,6 +298,7 @@ describe('BillingReceipt', () => {
                             const [secondReceipt] = await createTestBillingReceipt(admin, context, property, account)
                             const secondPayload = { ...anotherPayload, id: secondReceipt.id }
                             const [updatedReceipts] = await updateTestBillingReceipts(integrationUser, [payload, secondPayload])
+
                             expect(updatedReceipts).toBeDefined()
                             expect(updatedReceipts).toHaveLength(2)
                             expect(updatedReceipts).toEqual(expect.arrayContaining([
@@ -333,6 +342,7 @@ describe('BillingReceipt', () => {
                 const receipts = await BillingReceipt.getAll(admin, {
                     id_in: [receipt.id, anotherReceipt.id],
                 })
+
                 expect(receipts).toHaveLength(2)
                 expect(receipts).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipt.id }),
@@ -343,6 +353,7 @@ describe('BillingReceipt', () => {
                 const receipts = await BillingReceipt.getAll(support, {
                     id_in: [receipt.id, anotherReceipt.id],
                 })
+
                 expect(receipts).toHaveLength(0)
             })
             describe('User', () => {
@@ -350,6 +361,7 @@ describe('BillingReceipt', () => {
                     const receipts = await BillingReceipt.getAll(integrationUser, {
                         id_in: [receipt.id, anotherReceipt.id],
                     })
+
                     expect(receipts).toHaveLength(1)
                     expect(receipts[0]).toHaveProperty('id', receipt.id)
                 })
@@ -357,6 +369,7 @@ describe('BillingReceipt', () => {
                     const receipts = await BillingReceipt.getAll(integrationManager, {
                         id_in: [receipt.id, anotherReceipt.id],
                     })
+
                     expect(receipts).toHaveLength(1)
                     expect(receipts[0]).toHaveProperty('id', receipt.id)
                 })
@@ -365,6 +378,7 @@ describe('BillingReceipt', () => {
                     const receipts = await BillingReceipt.getAll(reader, {
                         id_in: [receipt.id, anotherReceipt.id],
                     })
+
                     expect(receipts).toHaveLength(1)
                     expect(receipts[0]).toHaveProperty('id', receipt.id)
                 })
@@ -379,15 +393,18 @@ describe('BillingReceipt', () => {
                             const { data: { objs: receipts } } = await BillingReceipt.getAll(residentWithReceipt.residentClient, {
                                 id: residentWithReceipt.receipt.id,
                             }, { raw: true })
+
                             expect(receipts).toBeDefined()
                             expect(receipts).toHaveLength(1)
                             expect(receipts[0]).toHaveProperty('id', residentWithReceipt.receipt.id)
+
                             // Fields with access
                             expect(receipts[0].category).not.toBeNull()
                             expect(receipts[0].toPay).not.toBeNull()
                             expect(receipts[0].toPayDetails).not.toBeNull()
                             expect(receipts[0].services).not.toBeNull()
                             expect(receipts[0].recipient).not.toBeNull()
+
                             // Fields without access
                             expect(receipts[0].context).toBeNull()
                             expect(receipts[0].property).toBeNull()
@@ -413,6 +430,7 @@ describe('BillingReceipt', () => {
                             const { data: { objs: receipts } } = await BillingReceipt.getAll(residentWithReceipt.residentClient, {
                                 id_in: [residentWithReceipt.receipt.id, anotherUnitReceipt.id, anotherPropertyReceipt.id],
                             }, { raw: true })
+
                             expect(receipts).toHaveLength(3)
                             expect(receipts).toEqual(expect.arrayContaining([
                                 expect.objectContaining({ id: residentWithReceipt.receipt.id }),
@@ -430,6 +448,7 @@ describe('BillingReceipt', () => {
                             const { data: { objs: receipts } } = await BillingReceipt.getAll(residentClient, {
                                 id: residentReceipt.id,
                             }, { raw: true })
+
                             expect(receipts).toHaveLength(0)
                         })
                         test('If serviceConsumer accountNumber is wrong', async () => {
@@ -440,6 +459,7 @@ describe('BillingReceipt', () => {
                             const { data: { objs: receipts } } = await BillingReceipt.getAll(residentClient, {
                                 id: residentReceipt.id,
                             }, { raw: true })
+
                             expect(receipts).toHaveLength(0)
                         })
                         test('If serviceConsumer context is wrong', async () => {
@@ -451,6 +471,7 @@ describe('BillingReceipt', () => {
                             const { data: { objs: receipts } } = await BillingReceipt.getAll(residentClient, {
                                 id: residentReceipt.id,
                             }, { raw: true })
+
                             expect(receipts).toHaveLength(0)
                         })
                     })
@@ -459,6 +480,7 @@ describe('BillingReceipt', () => {
                     const receipts = await BillingReceipt.getAll(user, {
                         id_in: [receipt.id, anotherReceipt.id],
                     })
+
                     expect(receipts).not.toBeFalsy()
                     expect(receipts).toHaveLength(0)
                 })
@@ -523,6 +545,7 @@ describe('BillingReceipt', () => {
             describe('Soft delete', () => {
                 test('Admin can', async () => {
                     const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, payload)
+
                     expect(updatedReceipt).toBeDefined()
                     expect(updatedReceipt).toHaveProperty('deletedAt')
                     expect(updatedReceipt.deletedAt).not.toBeNull()
@@ -536,6 +559,7 @@ describe('BillingReceipt', () => {
                     describe('Integration account', () => {
                         test('Can if linked to permitted integration via context', async () => {
                             const [updatedAccount] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+
                             expect(updatedAccount).toBeDefined()
                             expect(updatedAccount).toHaveProperty('deletedAt')
                             expect(updatedAccount.deletedAt).not.toBeNull()
@@ -577,6 +601,7 @@ describe('BillingReceipt', () => {
             })
             test('Receipt with same importId can exist in different context', async () => {
                 const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount, { importId })
+
                 expect(receipt).toHaveProperty('importId', importId)
                 expect(anotherReceipt).toHaveProperty('importId', importId)
             })
@@ -611,13 +636,17 @@ describe('BillingReceipt', () => {
             describe('Can update importId', () => {
                 test('To different value', async () => {
                     expect(receipt).toHaveProperty('importId', importId)
+
                     const newImportId = faker.datatype.uuid()
                     const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, { importId: newImportId })
+
                     expect(updatedReceipt).toHaveProperty('importId', newImportId)
                 })
                 test('To same value', async () => {
                     expect(receipt).toHaveProperty('importId', importId)
+
                     const [updatedReceipt] = await updateTestBillingReceipt(admin, receipt.id, { importId })
+
                     expect(updatedReceipt).toHaveProperty('importId', importId)
                 })
             })
@@ -690,6 +719,7 @@ describe('BillingReceipt', () => {
                     toPay: '22.92',
                 }
                 const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+
                 expect(updatedReceipt).toHaveProperty('toPay', '22.92000000')
             })
         })
@@ -728,11 +758,15 @@ describe('BillingReceipt', () => {
         test('Restore soft-deleted receipt', async () => {
             expect(receipt).toHaveProperty('deletedAt')
             expect(receipt.deletedAt).toBeNull()
+
             const [deletedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, { deletedAt: dayjs().toISOString() })
+
             expect(deletedReceipt).toHaveProperty('id', receipt.id)
             expect(deletedReceipt).toHaveProperty('deletedAt')
             expect(deletedReceipt.deletedAt).not.toBeNull()
+
             const [restoredReceipt] = await updateTestBillingReceipt(integrationUser, deletedReceipt.id, { deletedAt: null })
+
             expect(restoredReceipt).toHaveProperty('id', receipt.id)
             expect(restoredReceipt).toHaveProperty('deletedAt')
             expect(restoredReceipt.deletedAt).toBeNull()
@@ -747,6 +781,7 @@ describe('BillingReceipt', () => {
                 },
             }
             const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+
             expect(updatedReceipt).toEqual(expect.objectContaining({
                 toPayDetails: expect.objectContaining(payload.toPayDetails),
             }))
@@ -787,6 +822,7 @@ describe('BillingReceipt', () => {
                 ],
             }
             const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+
             expect(updatedReceipt).toEqual(expect.objectContaining({
                 services: expect.arrayContaining(
                     payload.services.map(service => expect.objectContaining({
@@ -801,6 +837,7 @@ describe('BillingReceipt', () => {
                 period: '2011-12-01',
             }
             const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+
             expect(updatedReceipt).toEqual(expect.objectContaining(payload))
         })
     })
@@ -808,6 +845,7 @@ describe('BillingReceipt', () => {
         describe('receiver field', () => {
             test('Should create recipient and set receiver field automatically', async () => {
                 const [receipt, attrs] = await createTestBillingReceipt(admin, context, property, account)
+
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
@@ -819,6 +857,7 @@ describe('BillingReceipt', () => {
                 const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
                 const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
                 const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
+
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
@@ -831,6 +870,7 @@ describe('BillingReceipt', () => {
                 const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
                 const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
                 const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
+
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
@@ -843,6 +883,7 @@ describe('BillingReceipt', () => {
                 const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
                 const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
                 const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin + '0' }) })
+
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
@@ -857,6 +898,7 @@ describe('BillingReceipt', () => {
                     recipient: receiptRecipientField,
                     receiver: { connect: { id: recipient.id } },
                 })
+
                 expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
                 expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
             })
@@ -867,6 +909,7 @@ describe('BillingReceipt', () => {
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                     recipient: receiptRecipientField,
                 })
+
                 expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
                 expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
             })
