@@ -316,13 +316,13 @@ Elements:
     }
 
     waitCreatingTicket () {
-        cy.wait(['@selectContact', '@createTicket'])
+        cy.wait(['@selectContact', '@createTicket'], { timeout: 60000 })
 
         return this
     }
 
     waitFetchingContact () {
-        cy.wait('@selectContact')
+        cy.wait('@selectContact', { timeout: 60000 })
 
         return this
     }
