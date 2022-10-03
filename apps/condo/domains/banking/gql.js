@@ -10,7 +10,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const BANK_ACCOUNT_FIELDS = `{ organization { id } tin country routingNumber number currency approvedAt approvedBy importId territoryCode bankName meta tinMeta routingNumberMeta ${COMMON_FIELDS} }`
+const BANK_ACCOUNT_FIELDS = `{ organization { id } tin country routingNumber number currencyCode approvedAt approvedBy importId territoryCode bankName meta tinMeta routingNumberMeta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

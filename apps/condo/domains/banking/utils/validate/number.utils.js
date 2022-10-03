@@ -47,7 +47,7 @@ class NumberValidation {
         const numberWithoutSpaces = number.toString().trim()
         const routingNumberWithoutSpaces = routingNumber.toString().trim()
 
-        this.errors.push( ...validateRoutingNumber(routingNumberWithoutSpaces).errors )
+        this.errors.push( ...validateRoutingNumber(routingNumberWithoutSpaces, country).errors )
 
         if (!numberWithoutSpaces.length) {
             this.errors.push(EMPTY)

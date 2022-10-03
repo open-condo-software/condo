@@ -17,7 +17,6 @@ const { IMPORT_ID_FIELD, CURRENCY_CODE_FIELD } = require('@condo/domains/common/
 const { validateTin } = require('@condo/domains/banking/utils/validate/tin.utils')
 const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate/routingNumber.utils')
 const { validateNumber } = require('@condo/domains/banking/utils/validate/number.utils')
-const { getBankByRoutingNumber } = require('@condo/domains/common/utils/serverSideBankAccountApi')
 
 const BankAccount = new GQLListSchema('BankAccount', {
     schemaDoc: 'Bank account. We receive all transactions from this account and let the user mark them with a certain set of categories!',
@@ -80,8 +79,9 @@ const BankAccount = new GQLListSchema('BankAccount', {
 
                     const country = get(newItem, 'country')
                     const number = get(newItem, 'number')
+                    const routingNumber = get(newItem, 'routingNumber')
 
-                    const { result, errors } = validateNumber(number, country)
+                    const { result, errors } = validateNumber(number, routingNumber, country)
 
                     if ( !result ) {
                         addFieldValidationError(errors[0])
@@ -144,15 +144,6 @@ const BankAccount = new GQLListSchema('BankAccount', {
         update: access.canManageBankAccounts,
         delete: false,
         auth: true,
-    },
-    hooks: {
-        resolveInput: async ({ resolvedData, existingItem }) => {
-            const newItem = { ...existingItem, ...resolvedData }
-
-            resolvedData.routingNumberMeta = await getBankByRoutingNumber(newItem.bic)
-
-            return resolvedData
-        },
     },
     kmigratorOptions: {
         constraints: [
