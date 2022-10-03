@@ -22,6 +22,7 @@ import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
+import { useEffect, useRef } from 'react'
 
 const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {
     const VALID_VALUES = [yes, no, '']
@@ -74,6 +75,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const { addressApi } = useAddressApi()
 
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationIdRef = useRef(userOrganization.id)
+    useEffect(() => {
+        userOrganizationIdRef.current = userOrganizationId
+    }, [userOrganizationId])
 
     const contactCreateAction = Contact.useCreate({})
     const ticketCreateAction = Ticket.useCreate({})
@@ -114,7 +119,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
             const properties = await searchProperty(client, {
                 address: suggestion.value,
-                organization: { id: userOrganizationId },
+                organization: { id: userOrganizationIdRef.current },
             }, undefined)
 
             addons.propertyId = !isEmpty(properties) ? properties[0].value : null
@@ -133,7 +138,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.isEmptyDetails = Boolean(String(get(details, 'value', '')).trim())
 
         const { data: { objs } } = await searchContacts(client, {
-            organizationId: userOrganizationId,
+            organizationId: userOrganizationIdRef.current,
             propertyId: addons.propertyId,
             unitName: undefined,
             unitType: undefined,
@@ -189,7 +194,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             clientPhone: phone,
             details: getFullDetails(details, oldTicketNumber, createdAt),
             isResidentTicket,
-            organization: { connect: { id: String(userOrganizationId) } },
+            organization: { connect: { id: String(userOrganizationIdRef.current) } },
             property: { connect: { id: propertyId } },
             status: { connect: { id: STATUS_IDS.OPEN } },
             source: { connect: { id: SOURCE_IMPORT_ID } },
@@ -203,7 +208,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 ticketPayload.contact = { connect: { id: get(existingContact, 'id') } }
             } else {
                 const newContact = await contactCreateAction({
-                    organization: { connect: { id: String(userOrganizationId) } },
+                    organization: { connect: { id: String(userOrganizationIdRef.current) } },
                     property: { connect: { id: propertyId } },
                     unitName: String(unitName.value),
                     phone,
