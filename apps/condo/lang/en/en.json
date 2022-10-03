@@ -744,6 +744,8 @@
   "pages.condo.settings.propertyScope.create": "Create property scope",
   "pages.condo.settings.propertyScope.form.chooseAllEmployees": "Choose all employees",
   "pages.condo.settings.propertyScope.form.chooseAllProperties": "Choose all properties",
+  "pages.condo.settings.propertyScope.form.editPropertyScope": "Editing property scope",
+  "pages.condo.settings.propertyScope.form.newPropertyScope": "New property scope",
   "pages.condo.settings.propertyScope.alert.delete.Title": "Delete property scope?",
   "pages.condo.settings.propertyScope.alert.delete.Message": "It will be impossible to restore. But it will be possible to create again.",
   "pages.index.PageTitle": "Analytics",
