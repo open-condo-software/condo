@@ -34,7 +34,6 @@ function calculateReopenedCounter (existingItem, resolvedData, existedStatus, re
     if (existedStatusType === COMPLETED_STATUS_TYPE && resolvedStatusType === NEW_OR_REOPENED_STATUS_TYPE) {
         const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
         resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
-        resolvedData['executor'] = null
     }
 }
 
