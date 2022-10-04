@@ -178,7 +178,7 @@ class TicketView {
         cy.location('search').should('contain', 'property')
         cy.get('[data-cy=ticket__table] tbody tr').should('have.length.greaterThan', 3)
 
-        cy.get('[data-cy=common__filters-button-reset]').click()
+        cy.get('[data-cy=common__filters-button-reset]').filter(':visible').click()
         cy.wait('@getAllTickets')
         cy.location('search').should('not.contain', 'property')
         cy.location('search').should('be.empty')
