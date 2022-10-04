@@ -10,6 +10,7 @@ const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/comm
 const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
+const { createWriteStreamForExport } = require('@condo/domains/common/utils/exportToExcel')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const CSV_DELIMITER = ','
@@ -141,7 +142,7 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
 
 const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
     const filename = getTmpFile('csv')
-    const writeStream = fs.createWriteStream(filename, { encoding: 'utf8' })
+    const writeStream = createWriteStreamForExport(filename)
     let isFirstLine = true
     const listkey = taskServerUtils.gql.SINGULAR_FORM
 
