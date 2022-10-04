@@ -960,16 +960,21 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             isUnitLabelUnique = builder.validateUniqueUnitLabel()
         } else if (mode === 'editUnit') {
             const selectedUnit = builder.getSelectedUnit()
-            const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
-            const labelValidation = selectedUnit.label !== label
+            const unitPlacementChanged = selectedUnit.floor !== floor
+                || selectedUnit.section !== section
+                || unitType !== selectedUnit.unitType
+            const labelChanged = selectedUnit.label !== label
+            const labelValidation = labelChanged
                 ? builder.validateUniqueUnitLabel(label, 'section')
-                : true
+                : false
 
-            isUnitLabelUnique = unitPlacementChanged && labelValidation
+            isUnitLabelUnique = unitPlacementChanged
+                ? unitPlacementChanged && (!labelChanged || labelValidation )
+                : labelValidation
         }
 
         return !(floor && section && label.trim() && isUnitLabelUnique)
-    }, [floor, section, label, builder, mode])
+    }, [floor, section, label, unitType, builder, mode])
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -1438,11 +1443,14 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         } else if (mode === 'editParkingUnit') {
             const selectedUnit = builder.getSelectedParkingUnit()
             const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
-            const labelValidation = selectedUnit.label !== label
+            const labelChanged = selectedUnit.label !== label
+            const labelValidation = labelChanged
                 ? builder.validateUniqueUnitLabel(label, 'parking')
-                : true
+                : false
 
-            isUnitLabelUnique = unitPlacementChanged && labelValidation
+            isUnitLabelUnique = unitPlacementChanged
+                ? unitPlacementChanged && (!labelChanged || labelValidation)
+                : labelValidation
         }
 
         return !(floor && section && label.trim() && isUnitLabelUnique)
