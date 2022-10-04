@@ -1,4 +1,5 @@
 import '@condo/domains/common/components/wdyr'
+import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 
 import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
@@ -238,6 +239,7 @@ const MyApp = ({ Component, pageProps }) => {
                 </CacheProvider>
             </ConfigProvider>
             <JivoSiteWidget/>
+            <UseDeskWidget/>
         </>
     )
 }
