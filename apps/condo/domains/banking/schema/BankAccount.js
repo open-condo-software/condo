@@ -98,12 +98,22 @@ const BankAccount = new GQLListSchema('BankAccount', {
             schemaDoc: 'When the bank account received the status of approved',
             type: DateTimeUtc,
             isRequired: false,
+            access: {
+                read: true,
+                create: access.canManageIsApprovedField,
+                update: access.canManageIsApprovedField,
+            },
         },
 
         approvedBy: {
             schemaDoc: 'Who set the approved status for the bank account',
             type: Text,
             isRequired: false,
+            access: {
+                read: true,
+                create: access.canManageIsApprovedField,
+                update: access.canManageIsApprovedField,
+            },
         },
 
         importId: IMPORT_ID_FIELD,
@@ -146,6 +156,18 @@ const BankAccount = new GQLListSchema('BankAccount', {
         update: access.canManageBankAccounts,
         delete: false,
         auth: true,
+    },
+    hooks: {
+        resolveInput: async ({ operation, resolvedData }) => {
+
+            // If recipients is being updated -> drop approvedBy and approvedAt!
+            if (operation === 'update' && !('approvedAt' in resolvedData || 'approvedBy' in resolvedData) ) {
+                resolvedData.approvedAt = null
+                resolvedData.approvedBy = null
+            }
+
+            return resolvedData
+        },
     },
     kmigratorOptions: {
         constraints: [
