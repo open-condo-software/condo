@@ -24,6 +24,9 @@ const PropertyScopeProperty = generateGqlQueries('PropertyScopeProperty', PROPER
 const SPECIALIZATION_SCOPE_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
 const SpecializationScope = generateGqlQueries('SpecializationScope', SPECIALIZATION_SCOPE_FIELDS)
 
+const ASSIGNEE_SCOPE_FIELDS = `{ user { id } ticket { id } ${COMMON_FIELDS} }`
+const AssigneeScope = generateGqlQueries('AssigneeScope', ASSIGNEE_SCOPE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -31,5 +34,6 @@ module.exports = {
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
     SpecializationScope,
+    AssigneeScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

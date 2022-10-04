@@ -2,10 +2,10 @@ import React, { ComponentProps, useMemo } from 'react'
 import { css } from '@emotion/react'
 import { MapGL } from '@condo/domains/common/components/MapGL'
 import has from 'lodash/has'
-import { Property as PropertyType, Division as DivisionType } from '@app/condo/schema'
+import { Property as PropertyType } from '@app/condo/schema'
 
 type PropertiesMapProps = {
-    properties: (PropertyType | DivisionType)[]
+    properties: (PropertyType)[]
 } & Omit<ComponentProps<typeof MapGL>, 'points'>
 
 export default function PropertiesMap ({ properties, ...mapGLProps }: PropertiesMapProps) {

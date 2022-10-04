@@ -23,9 +23,9 @@ const useTicketAssignmentHook = ({
         fetchPolicy: 'network-only',
     })
 
-    // const { loading: loadingProperty, error: errorLoadingProperty, obj: property } = Property.useObject({
-    //     where: { id: propertyId },
-    // })
+    const { loading: loadingProperty, error: errorLoadingProperty, obj: property } = Property.useObject({
+        where: { id: propertyId },
+    })
 
     if (loadingDivisions || !divisions) {
         return {}
@@ -36,10 +36,10 @@ const useTicketAssignmentHook = ({
         return {}
     }
 
-    // if (errorLoadingProperty) {
-    //     console.error(errorLoadingProperty)
-    //     return {}
-    // }
+    if (errorLoadingProperty) {
+        console.error(errorLoadingProperty)
+        return {}
+    }
 
     let message
     if (divisions.length === 1) {
