@@ -13,12 +13,14 @@ const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
 const { SpecializationScope: SpecializationScopeGQL } = require('@condo/domains/scope/gql')
+const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateGQLTestUtils(PropertyScopeGQL)
 const PropertyScopeOrganizationEmployee = generateGQLTestUtils(PropertyScopeOrganizationEmployeeGQL)
 const PropertyScopeProperty = generateGQLTestUtils(PropertyScopePropertyGQL)
 const SpecializationScope = generateGQLTestUtils(SpecializationScopeGQL)
+const AssigneeScope = generateGQLTestUtils(AssigneeScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestPropertyScope (client, organization, extraAttrs = {}) {
@@ -145,6 +147,37 @@ async function updateTestSpecializationScope (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestAssigneeScope (client, user, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        ticket: { connect: { id: ticket.id } },
+        ...extraAttrs,
+    }
+    const obj = await AssigneeScope.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestAssigneeScope (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AssigneeScope.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -152,5 +185,6 @@ module.exports = {
     PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee,
     PropertyScopeProperty, createTestPropertyScopeProperty, updateTestPropertyScopeProperty,
     SpecializationScope, createTestSpecializationScope, updateTestSpecializationScope,
+    AssigneeScope, createTestAssigneeScope, updateTestAssigneeScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

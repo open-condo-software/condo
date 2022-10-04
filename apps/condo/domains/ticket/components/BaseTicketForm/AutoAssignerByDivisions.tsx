@@ -45,7 +45,7 @@ interface ITicketAutoAssignment {
     form: FormInstance,
 }
 
-const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organizationId, propertyId, categoryClassifier, onDivisionsFound, form }) => {
+const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organizationId, propertyId, categoryClassifier, form }) => {
     const intl = useIntl()
     const FoundOneDivisionMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.found.one' })
     const FoundManyDivisionsMessage = intl.formatMessage({ id: 'ticket.assignments.divisions.found.many' })
@@ -90,7 +90,7 @@ const AutoAssignerByDivisions: React.FC<ITicketAutoAssignment> = ({ organization
             assignee: responsibleUserId,
             executor: executorUserId,
         })
-        onDivisionsFound && onDivisionsFound(divisions || [])
+        // onDivisionsFound && onDivisionsFound(divisions || [])
     }, [responsibleUserId, executorUserId, form])
 
     useEffect(()=> {

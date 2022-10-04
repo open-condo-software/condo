@@ -7,4 +7,5 @@ export * as PropertyScope from './PropertyScope'
 export * as PropertyScopeOrganizationEmployee from './PropertyScopeOrganizationEmployee'
 export * as PropertyScopeProperty from './PropertyScopeProperty'
 export * as SpecializationScope from './SpecializationScope'
+export * as AssigneeScope from './AssigneeScope'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -53,6 +53,7 @@ const {
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -528,6 +529,10 @@ const Ticket = new GQLListSchema('Ticket', {
             )(...args)
 
             const [requestData] = args
+
+            const { context, existingItem, updatedItem } = requestData
+            await manageAssigneeScope({ context, existingItem, updatedItem })
+
             /* NOTE: this sends different kinds of notifications on ticket create/update */
             await sendTicketNotifications(requestData)
         },

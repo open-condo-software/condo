@@ -22,7 +22,6 @@ import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
     Property as PropertyType,
-    Division as DivisionType,
     SortPropertiesBy,
 } from '@app/condo/schema'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -72,7 +71,7 @@ export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
 
     const handleViewModeChange = useCallback((e) => changeViewMode(e.target.value), [])
 
-    const [properties, setShownProperties] = useState<(PropertyType | DivisionType)[]>([])
+    const [properties, setShownProperties] = useState<(PropertyType)[]>([])
 
     return (
         <>

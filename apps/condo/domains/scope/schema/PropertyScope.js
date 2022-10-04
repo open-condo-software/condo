@@ -10,7 +10,6 @@ const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSende
 const access = require('@condo/domains/scope/access/PropertyScope')
 const { deleteRelatedPropertyScopeOrganizationEmployee, deleteRelatedPropertyScopeProperty } = require('@condo/domains/scope/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { PropertyScope: PropertyScopeApi } = require('@condo/domains/scope/utils/serverSchema')
 
 
 const PropertyScope = new GQLListSchema('PropertyScope', {
