@@ -63,6 +63,7 @@ const {
     DEFAULT_DEFERRED_DAYS,
 } = require('../constants')
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
+const { get } = require('lodash')
 
 describe('Ticket', () => {
     describe('CRUD', () => {
@@ -1814,6 +1815,64 @@ describe('Ticket', () => {
             })
 
             expect(secondUpdatedTicket.deadline).toEqual(deferredUntil)
+        })
+    })
+
+    describe('reopened ticket', () => {
+        test('reset dismissed employees when update status from completed to open', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canReadEntitiesOnlyInScopeOfDivision: true,
+            })
+
+            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
+
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+                executor: { connect: { id: employee.user.id } },
+                assignee: { connect: { id: employee.user.id } },
+            })
+
+            await updateTestOrganizationEmployee(admin, employee.id, { deletedAt: dayjs().toISOString() })
+
+            const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.statusReopenedCounter).toEqual(1)
+            expect(get(updatedTicket, ['executor', 'id'], null)).toBeNull()
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
+        })
+
+        test('no reset dismissed employees when update status from completed to open', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canReadEntitiesOnlyInScopeOfDivision: true,
+            })
+
+            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
+
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+                executor: { connect: { id: employee.user.id } },
+                assignee: { connect: { id: employee.user.id } },
+            })
+
+            const [updatedTicket] = await updateTestTicket(admin, ticket.id, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            expect(ticket.id).toEqual(updatedTicket.id)
+            expect(updatedTicket.statusReopenedCounter).toEqual(1)
+            expect(get(updatedTicket, ['executor', 'id'], null)).toEqual(get(ticket, ['executor', 'id'], null))
+            expect(get(updatedTicket, ['assignee', 'id'], null)).toEqual(get(ticket, ['assignee', 'id'], null))
         })
     })
 
