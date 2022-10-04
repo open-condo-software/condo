@@ -364,6 +364,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const NewFilterMessage = intl.formatMessage({ id: 'filters.NewFilter' })
     const TemplateMessage = intl.formatMessage({ id: 'filters.Template' })
     const NewTemplateLabel = intl.formatMessage({ id: 'filters.NewTemplateLabel' })
+    const TemplateLabel = intl.formatMessage({ id: 'filters.TemplateLabel' })
     const NewTemplatePlaceholder = intl.formatMessage({ id: 'filters.NewTemplatePlaceholder' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const DeleteTitle = intl.formatMessage({ id: 'filters.DeleteTitle' })
@@ -388,10 +389,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             deletedAt: null,
         },
     })
-
-    useEffect(() => {
-        setSelectedFiltersTemplate(get(filtersTemplates, '0', null))
-    }, [loading])
 
     const createFiltersTemplateAction = filtersSchemaGql.useCreate({
         employee: { connect: { id: link.id } },
@@ -454,11 +451,14 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const ExistingFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
             name='existedTemplateName'
+            label={TemplateLabel}
+            labelCol={LABEL_COL_PROPS}
             initialValue={get(selectedFiltersTemplate, 'name')}
+            required
         >
-            <Input />
+            <Input placeholder={NewTemplatePlaceholder} />
         </Form.Item>
-    ), [selectedFiltersTemplate])
+    ), [NewTemplatePlaceholder, TemplateLabel, selectedFiltersTemplate])
 
     const NewFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
@@ -560,7 +560,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         <TabPane
             tab={get(filterTemplate, 'name', `${TemplateMessage} ${index + 1}`)}
             key={filterTemplate.id}
-            style={TAB_STYLE}
         >
             <ExistingFiltersTemplateNameInput />
         </TabPane>
@@ -606,10 +605,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                                             {
                                                 !isEmpty(filtersTemplates) ? (
                                                     <Tabs onChange={handleTabChange} activeKey={tabsActiveKey}>
-                                                        {templatesTabs}
                                                         <TabPane tab={NewFilterMessage} key='newFilter'>
                                                             <NewFiltersTemplateNameInput />
                                                         </TabPane>
+                                                        {templatesTabs}
                                                     </Tabs>
                                                 ) : (
                                                     <NewFiltersTemplateNameInput />
@@ -631,14 +630,14 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
-    const MultipleFiltersModal = useCallback(() => (
+    const MultipleFiltersModal = useMemo(() => (
         <Modal
             isMultipleFiltersModalVisible={isMultipleFiltersModalVisible}
             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
             filterMetas={filterMetas}
             filtersSchemaGql={filtersSchemaGql}
         />
-    ), [isMultipleFiltersModalVisible])
+    ), [filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible])
 
     return { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible }
 }

@@ -322,7 +322,7 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                 </Typography.Text>
             </Modal>
 
-            <MultipleFiltersModal/>
+            {MultipleFiltersModal}
         </>
     )
 }

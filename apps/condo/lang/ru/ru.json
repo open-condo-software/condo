@@ -127,6 +127,7 @@
   "filters.NewFilter": "Новый фильтр",
   "filters.Template": "Шаблон",
   "filters.NewTemplateLabel": "Название шаблона (только если хотите сохранить в шаблон, а не просто применить фильтр)",
+  "filters.TemplateLabel": "Название шаблона",
   "filters.NewTemplatePlaceholder": "Например, \"мой набор фильтров\"",
   "filters.DeleteTitle": "Удалить шаблон фильтра?",
   "filters.DeleteMessage": "Восстановить будет невозможно, только создать заново и сохранить",
