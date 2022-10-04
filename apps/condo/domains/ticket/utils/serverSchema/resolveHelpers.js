@@ -1,17 +1,19 @@
-const get = require('lodash/get')
+const { isUndefined, isEmpty, get } = require('lodash')
+const dayjs = require('dayjs')
 const { find } = require('@condo/keystone/schema')
 const { getById, getByCondition } = require('@condo/keystone/schema')
 
 const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
-const { isUndefined } = require('lodash')
 const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
-const dayjs = require('dayjs')
+
+const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, ['user', 'id'], null) === id)
 
 function calculateTicketOrder (resolvedData, statusId) {
     if (statusId === STATUS_IDS.OPEN) {
@@ -27,13 +29,41 @@ function calculateDefaultDeferredUntil (newItem, resolvedData, resolvedStatusId)
     }
 }
 
-function calculateReopenedCounter (existingItem, resolvedData, existedStatus, resolvedStatus) {
+async function resetDismissedEmployees (existingItem, resolvedData, existedStatus, resolvedStatus, context) {
+    const newItem = { ...existingItem, ...resolvedData }
+    const assigneeId = get(newItem, ['assignee'])
+    const executorId = get(newItem, ['executor'])
+    const organizationId = get(newItem, ['organization'])
+
+    const employeeIds = []
+    if (assigneeId) employeeIds.push(assigneeId)
+    if (executorId) employeeIds.push(executorId)
+
+    if (!isEmpty(employeeIds)) {
+        const employees = await OrganizationEmployee.getAll(context, {
+            user: { id_in: employeeIds },
+            organization: { id: organizationId },
+            isBlocked: false,
+            deletedAt: null,
+        }, {})
+
+        if (!hasEmployee(assigneeId, employees)) {
+            resolvedData['assignee'] = null
+        }
+        if (!hasEmployee(executorId, employees)) {
+            resolvedData['executor'] = null
+        }
+    }
+}
+
+async function calculateReopenedCounter (existingItem, resolvedData, existedStatus, resolvedStatus, context) {
     const existedStatusType = get(existedStatus, 'type')
     const resolvedStatusType = get(resolvedStatus, 'type')
 
     if (existedStatusType === COMPLETED_STATUS_TYPE && resolvedStatusType === NEW_OR_REOPENED_STATUS_TYPE) {
         const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
         resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
+        await resetDismissedEmployees(existingItem, resolvedData, existedStatus, resolvedStatus, context)
     }
 }
 

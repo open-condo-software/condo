@@ -412,7 +412,7 @@ const Ticket = new GQLListSchema('Ticket', {
                     const existedStatus = await TicketStatus.getOne(context, { id: existedStatusId })
                     const resolvedStatus = await TicketStatus.getOne(context, { id: resolvedStatusId })
 
-                    calculateReopenedCounter(existingItem, resolvedData, existedStatus, resolvedStatus)
+                    await calculateReopenedCounter(existingItem, resolvedData, existedStatus, resolvedStatus, context)
                     calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
                     calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus, originalInput)
                 }
