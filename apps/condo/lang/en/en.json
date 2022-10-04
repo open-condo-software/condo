@@ -127,6 +127,7 @@
   "filters.NewFilter": "New filter",
   "filters.Template": "Template",
   "filters.NewTemplateLabel": "Template name (Please fill it only if you want to save the template. To apply a filter leave this field empty.)",
+  "filters.TemplateLabel": "Template name",
   "filters.NewTemplatePlaceholder": "For example, \"my filters set\"",
   "filters.DeleteTitle": "Delete filter template?",
   "filters.DeleteMessage": "It would be impossible to restore filters settings set. Instead you can create new one and save it.",

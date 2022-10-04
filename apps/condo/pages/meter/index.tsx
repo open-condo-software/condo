@@ -224,7 +224,7 @@ export const MetersPageContent = ({
                         />
                     </Row>
                     <UpdateMeterModal />
-                    <MultipleFiltersModal />
+                    {MultipleFiltersModal}
                 </TablePageContent>
             </PageWrapper>
         </>
