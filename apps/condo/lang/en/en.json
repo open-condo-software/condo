@@ -868,6 +868,8 @@
   "ticket.import.column.createdAt": "Date of creation",
   "ticket.import.value.isResidentTicket.yes": "yes",
   "ticket.import.value.isResidentTicket.no": "no",
+  "ticket.import.value.details.oldTicketNumber": "Ticket number in the previous information system",
+  "ticket.import.value.details.createdAt": "Date of creation",
   "Paid": "Paid",
   "Password": "Password",
   "Phone": "Phone",

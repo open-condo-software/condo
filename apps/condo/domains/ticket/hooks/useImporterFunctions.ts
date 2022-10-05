@@ -31,13 +31,16 @@ const normalizeIsResidentTicket = (value: string, yes: string, no: string) => {
     return valueInLowerCase === yes
 }
 
-const getFullDetails = (details: string, oldTicketNumber: string, createdAt: string) => {
+const getFullDetails = (intl, details: string, oldTicketNumber: string, createdAt: string) => {
+    const OldTicketNumberMessage = intl.formatMessage({ id: 'ticket.import.value.details.oldTicketNumber' })
+    const CreatedAtMessage = intl.formatMessage({ id: 'ticket.import.value.details.createdAt' })
+
     let result = details
     if (oldTicketNumber) {
-        result += '\n' + oldTicketNumber
+        result += `.\n ${OldTicketNumberMessage} - ${oldTicketNumber}.`
     }
     if (createdAt) {
-        result += '\n' + createdAt
+        result += `\n ${CreatedAtMessage} - ${createdAt}.`
     }
     return result
 }
@@ -192,7 +195,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             canReadByResident: true,
             clientName: fullName,
             clientPhone: phone,
-            details: getFullDetails(details, oldTicketNumber, createdAt),
+            details: getFullDetails(intl, details, oldTicketNumber, createdAt),
             isResidentTicket,
             organization: { connect: { id: String(userOrganizationIdRef.current) } },
             property: { connect: { id: propertyId } },
