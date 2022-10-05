@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import { Card, Col, Form, FormItemProps, Row, Space, Typography } from 'antd'
+import { Card, Col, Form, Row, Space, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -14,7 +14,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { useAuth } from '@open-condo/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -24,9 +23,9 @@ import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import { assignWith, difference, find, get, isFunction } from 'lodash'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { difference, find, get } from 'lodash'
 import { colors, shadows } from '@condo/domains/common/constants/style'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -45,36 +44,6 @@ const CardCss = css`
   box-shadow: ${shadows.elevated};
 `
 
-type InputWithCheckAllProps = FormItemProps & {
-    onCheckBoxChange?: (value: boolean) => void
-}
-
-const InputWithCheckAll: React.FC<InputWithCheckAllProps> = ({ children, onCheckBoxChange, ...formItemProps }) => {
-    return (
-        <>
-            <Form.Item {...formItemProps}>
-                {children}
-            </Form.Item>
-            <Form.Item
-                name='hasAllSpecializations'
-                valuePropName='checked'
-            >
-                <Checkbox
-                    onChange={(event) => {
-                        const value = event.target.checked
-
-                        if (isFunction(onCheckBoxChange)) {
-                            onCheckBoxChange(value)
-                        }
-                    }}
-                >
-                    Выбрать всё
-                </Checkbox>
-            </Form.Item>
-        </>
-    )
-}
-
 export const UpdateEmployeeForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
@@ -86,11 +55,11 @@ export const UpdateEmployeeForm = () => {
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
 
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { isSmall } = useLayoutContext()
-    const [isSpecializationsSelectDisabled, setIsSpecializationsSelectDisabled] = useState(false)
 
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
@@ -131,6 +100,7 @@ export const UpdateEmployeeForm = () => {
         position: get(employee, 'position'),
         email: get(employee, 'email'),
         specializations: initialSpecializations.map(spec => spec.id),
+        hasAllSpecializations: get(employee, 'hasAllSpecializations'),
     }
 
     const formAction = useCallback(async (formValues) => {
@@ -248,20 +218,21 @@ export const UpdateEmployeeForm = () => {
 
                                                 if (get(selectedRole, 'canBeAssignedAsExecutor'))
                                                     return (<Col span={24}>
-                                                        <InputWithCheckAll
-                                                            onCheckBoxChange={(value) => setIsSpecializationsSelectDisabled(value)}
-                                                            name='specializations'
-                                                            label={SpecializationsLabel}
-                                                            labelAlign='left'
-                                                            validateFirst
-                                                            {...INPUT_LAYOUT_PROPS}
-                                                        >
-                                                            <GraphQlSearchInput
-                                                                disabled={isSpecializationsSelectDisabled}
-                                                                mode='multiple'
-                                                                search={searchClassifers}
-                                                            />
-                                                        </InputWithCheckAll>
+                                                        <GraphQlSearchInputWithCheckAll
+                                                            checkAllFieldName='hasAllSpecializations'
+                                                            checkAllInitialValue={initialValues.hasAllSpecializations}
+                                                            selectFormItemProps={{
+                                                                name: 'specializations',
+                                                                label: SpecializationsLabel,
+                                                                labelAlign: 'left',
+                                                                validateFirst: true,
+                                                                ...INPUT_LAYOUT_PROPS,
+                                                            }}
+                                                            selectProps={{
+                                                                search: searchClassifers,
+                                                            }}
+                                                            CheckAllMessage={CheckAllMessage}
+                                                        />
                                                     </Col>)
                                             }
                                         }

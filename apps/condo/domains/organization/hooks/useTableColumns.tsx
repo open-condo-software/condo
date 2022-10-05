@@ -26,6 +26,7 @@ export const useTableColumns = (
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
     const WorkCategoriesCountMessage = intl.formatMessage({ id: 'employee.WorkCategoriesCount' })
+    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -48,6 +49,10 @@ export const useTableColumns = (
     }
 
     const renderSpecializations = (employee) => {
+        if (employee.hasAllSpecializations) {
+            return AllSpecializationsMessage
+        }
+
         const employeeSpecializations = employee.specializations.map(spec => spec.name)
 
         if (employeeSpecializations.length > 8) {

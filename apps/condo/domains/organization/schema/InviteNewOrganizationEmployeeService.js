@@ -89,7 +89,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: [ID] }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: [ID], hasAllSpecializations: Boolean }',
         },
         {
             access: true,
@@ -111,7 +111,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                let { organization, email, phone, role, position, name, specializations = [], ...restData } = data
+                let { organization, email, phone, role, position, name, specializations = [], hasAllSpecializations, ...restData } = data
                 const dvSenderData = { dv: restData.dv, sender: restData.sender }
 
                 phone = normalizePhone(phone)
@@ -161,6 +161,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     email,
                     name,
                     phone,
+                    hasAllSpecializations,
                     ...dvSenderData,
                 })
 

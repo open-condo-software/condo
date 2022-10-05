@@ -21,6 +21,7 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { GraphQlSearchInputWithCheckAll } from '../../../common/components/GraphQlSearchInputWithCheckAll'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -66,6 +67,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
     const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
@@ -183,6 +185,36 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         <Input />
                                                     </Form.Item>
                                                 </Col>
+                                                <Form.Item noStyle dependencies={['role']}>
+                                                    {
+                                                        ({ getFieldsValue }) => {
+                                                            const { role } = getFieldsValue(['role'])
+                                                            const selectedRole = find(employeeRoles, { id: role })
+
+                                                            return (
+                                                                get(selectedRole, 'canBeAssignedAsExecutor') && (
+                                                                    <Col span={24}>
+                                                                        <GraphQlSearchInputWithCheckAll
+                                                                            checkAllFieldName='hasAllSpecializations'
+                                                                            checkAllInitialValue={false}
+                                                                            selectFormItemProps={{
+                                                                                name: 'specializations',
+                                                                                label: SpecializationsLabel,
+                                                                                labelAlign: 'left',
+                                                                                validateFirst: true,
+                                                                                ...INPUT_LAYOUT_PROPS,
+                                                                            }}
+                                                                            selectProps={{
+                                                                                search: searchClassifers,
+                                                                            }}
+                                                                            CheckAllMessage={CheckAllMessage}
+                                                                        />
+                                                                    </Col>
+                                                                )
+                                                            )
+                                                        }
+                                                    }
+                                                </Form.Item>
                                                 <Col span={24}>
                                                     <Form.Item
                                                         name='phone'
@@ -208,30 +240,6 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         <Input placeholder={ExampleEmailMsg}/>
                                                     </Form.Item>
                                                 </Col>
-                                                <Form.Item noStyle dependencies={['role']}>
-                                                    {
-                                                        ({ getFieldsValue }) => {
-                                                            const { role } = getFieldsValue(['role'])
-                                                            const selectedRole = find(employeeRoles, { id: role })
-
-                                                            return (
-                                                                get(selectedRole, 'canBeAssignedAsExecutor') && (
-                                                                    <Col span={24}>
-                                                                        <Form.Item
-                                                                            name='specializations'
-                                                                            label={SpecializationsLabel}
-                                                                            labelAlign='left'
-                                                                            validateFirst
-                                                                            {...INPUT_LAYOUT_PROPS}
-                                                                        >
-                                                                            <GraphQlSearchInput mode='multiple' search={searchClassifers} />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                )
-                                                            )
-                                                        }
-                                                    }
-                                                </Form.Item>
                                             </Row>
                                         </Col>
                                     </Row>
