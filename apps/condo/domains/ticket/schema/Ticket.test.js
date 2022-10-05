@@ -1848,7 +1848,7 @@ describe('Ticket', () => {
             expect(get(updatedTicket, ['assignee', 'id'], null)).toBeNull()
         })
 
-        test('no reset dismissed employees when update status from completed to open', async () => {
+        test('non-dismissed employees are not being reset on updating ticket status from completed to open', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
