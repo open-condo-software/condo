@@ -9,6 +9,7 @@ import uniqBy from 'lodash/uniqBy'
 
 import { ApolloClient } from '@apollo/client'
 import { useApolloClient } from '@condo/next/apollo'
+import { useIntl } from '@condo/next/intl'
 
 import {
     useTracking,
@@ -65,16 +66,31 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         getInitialValueQuery,
         infinityScroll,
         disabled,
+        placeholder,
+        value: selectedValues,
         eventName: propEventName,
         eventProperties = {},
         ...restProps
     } = props
+
+    const intl = useIntl()
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+
     const client = useApolloClient()
     const [selected, setSelected] = useState('')
     const [isLoading, setLoading] = useState(false)
     const [data, setData] = useState([])
     const [isAllDataLoaded, setIsAllDataLoaded] = useState(false)
     const [value, setValue] = useState('')
+
+    const _placeholder = useMemo(() => (isLoading && !data.length) ? LoadingMessage : placeholder,
+        [LoadingMessage, data.length, isLoading, placeholder])
+
+    const _selectedValue = useMemo(() => (isLoading && !data.length) ? [] : selectedValues,
+        [data.length, isLoading, selectedValues])
+
+    const isDisabled = useMemo(() => disabled || (isLoading && !data.length),
+        [data.length, disabled, isLoading])
 
     const { logEvent, getEventName } = useTracking()
 
@@ -103,18 +119,19 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         : data.map((option, index) => renderOption(option, index))
 
     const loadInitialOptions = useCallback(async () => {
-        const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
+        const values = initialValue || selectedValues
+        const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(values) : { id_in: values }
 
-        if (Array.isArray(initialValue) && initialValue.length) {
+        if (Array.isArray(values) && values.length) {
             setLoading(true)
 
             const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
-            const initialOptions = await searchFn(client, null, initialValueQuery, initialValue.length)
+            const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
 
             setData(data => uniqBy([...initialOptions, ...data], 'value'))
             setLoading(false)
         }
-    }, [getInitialValueQuery, initialValue, initialValueSearch, client, search])
+    }, [initialValue, selectedValues, getInitialValueQuery, initialValueSearch, search, client])
 
     useEffect(() => {
         loadInitialOptions()
@@ -186,12 +203,12 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             setLoading(false)
 
             if (data.length > 0) {
-                setData(prevData => [...prevData, ...data])
+                setData(prevData => uniqBy([...prevData, ...data], 'value'))
             } else {
                 setIsAllDataLoaded(true)
             }
         },
-        [],
+        [client, isAllDataLoaded, search],
     )
 
     const throttledSearchMore = useMemo(
@@ -219,9 +236,10 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             onClear={handleClear}
             onPopupScroll={infinityScroll && handleScroll}
             searchValue={value}
-            value={value}
+            value={_selectedValue}
+            placeholder={_placeholder}
             loading={isLoading}
-            disabled={disabled}
+            disabled={isDisabled}
             {...restProps}
         >
             {options}
