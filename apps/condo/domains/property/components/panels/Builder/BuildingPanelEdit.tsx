@@ -969,7 +969,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 : false
 
             isUnitLabelUnique = unitPlacementChanged
-                ? unitPlacementChanged && (!labelChanged || labelValidation )
+                ? (!labelChanged || labelValidation)
                 : labelValidation
         }
 
@@ -1449,7 +1449,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 : false
 
             isUnitLabelUnique = unitPlacementChanged
-                ? unitPlacementChanged && (!labelChanged || labelValidation)
+                ? (!labelChanged || labelValidation)
                 : labelValidation
         }
 
