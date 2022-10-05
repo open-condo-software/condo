@@ -1,4 +1,6 @@
+import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
 import { Gutter } from 'antd/es/grid/row'
+import uniq from 'lodash/uniq'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Col, Row, Typography } from 'antd'
 import get from 'lodash/get'
@@ -22,7 +24,12 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
-import { PropertyScope, PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
+import {
+    PropertyScope,
+    PropertyScopeOrganizationEmployee,
+    PropertyScopeProperty,
+    SpecializationScope,
+} from '@condo/domains/scope/utils/clientSchema'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -66,6 +73,16 @@ const PropertyScopeIdPage = () => {
         },
     })
     const employees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee), [propertyScopeEmployees])
+    const propertyScopesEmployeeIds = useMemo(() => uniq(employees.map(employee => employee.id)), [employees])
+    const {
+        objs: specializationScopes,
+        count: specializationScopesCount,
+        loading: specializationScopesLoading,
+    } = SpecializationScope.useObjects({
+        where: {
+            employee: { id_in: propertyScopesEmployeeIds },
+        },
+    })
     const propertyScopeName = useMemo(() => get(propertyScope, 'name'), [propertyScope])
 
     const renderPropertyScopeProperties = useMemo(() => properties.map(property => (
@@ -81,18 +98,24 @@ const PropertyScopeIdPage = () => {
         </Typography.Paragraph>
     )), [properties])
 
-    const renderPropertyScopeEmployees = useMemo(() => employees.map(employee => (
-        <Typography.Paragraph
-            key={employee.id}
-            style={PARAGRAPH_STYLES}
-        >
-            <Typography.Link
-                href={`/employee/${get(employee, 'id')}`}
+    const renderPropertyScopeEmployees = useMemo(() => employees.map(employee => {
+        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+
+        return (
+            <Typography.Paragraph
+                key={employee.id}
+                style={PARAGRAPH_STYLES}
             >
-                {employee.name}
-            </Typography.Link>
-        </Typography.Paragraph>
-    )), [employees])
+                <Typography.Link
+                    href={`/employee/${get(employee, 'id')}`}
+                >
+                    <Typography.Text>
+                        {employee.name} {specializationsMessage && `(${specializationsMessage})`}
+                    </Typography.Text>
+                </Typography.Link>
+            </Typography.Paragraph>
+        )
+    }), [employees, intl, specializationScopes])
 
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction(propertyScope)

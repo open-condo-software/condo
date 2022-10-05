@@ -23,6 +23,7 @@ import {
 } from '@app/condo/schema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { searchEmployeeWithSpecializations } from '../../organization/utils/clientSchema/search'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -192,7 +193,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                             selectProps={{
                                                 disabled: !organizationId,
                                                 initialValue: initialEmployees,
-                                                search: searchEmployee(organizationId, null),
+                                                search: searchEmployeeWithSpecializations(intl, organizationId),
                                                 showArrow: false,
                                                 mode: 'multiple',
                                             }}

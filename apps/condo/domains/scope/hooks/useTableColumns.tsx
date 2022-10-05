@@ -1,4 +1,5 @@
 import { useIntl } from '@condo/next/intl'
+import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
@@ -9,7 +10,7 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getManyEmployeesNameRender } from '@condo/domains/organization/utils/clientSchema/Renders'
 import { getManyPropertiesAddressRender } from '@condo/domains/property/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '../utils/clientSchema'
+import { PropertyScopeOrganizationEmployee, PropertyScopeProperty, SpecializationScope } from '../utils/clientSchema'
 
 export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const intl = useIntl()
@@ -41,6 +42,18 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
         },
     })
 
+    const propertyScopesEmployeeIds = uniq(propertyScopeEmployees.map(scope => scope.employee.id))
+
+    const {
+        objs: specializationScopes,
+        count: specializationScopesCount,
+        loading: specializationScopesLoading,
+    } = SpecializationScope.useObjects({
+        where: {
+            employee: { id_in: propertyScopesEmployeeIds },
+        },
+    })
+
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
@@ -58,10 +71,10 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const renderPropertyScopeEmployees = useCallback((intl, propertyScope) => {
         const employees = propertyScopeEmployees
             .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id === propertyScope.id)
-            .map(propertyScopeEmployee => propertyScopeEmployee.employee.name)
+            .map(propertyScopeEmployee => propertyScopeEmployee.employee)
 
-        return getManyEmployeesNameRender(search)(intl, employees)
-    }, [propertyScopeEmployees, search])
+        return getManyEmployeesNameRender(search)(intl, employees, specializationScopes)
+    }, [propertyScopeEmployees, search, specializationScopes])
 
     return useMemo(() => ({
         loading: propertiesLoading || employeesLoading,
