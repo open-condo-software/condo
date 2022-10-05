@@ -244,7 +244,15 @@ module.exports = {
         app.use('/admin/api', async (req, res, next) => {
             req.features = await featureToggleManager.fetchFeatures()
 
-            return next()
+            // try-catch must be strictly before error handler
+            try {
+                return next()
+            } catch (err) {
+                return next(err)
+            }
         })
+
+        // The next middleware must be the last one
+        app.use(expressErrorHandler)
     },
 }
