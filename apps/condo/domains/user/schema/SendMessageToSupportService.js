@@ -10,7 +10,6 @@ const { SUPPORT_EMAIL_MOBILE } = require('@condo/domains/common/constants/requis
 const { get } = require('lodash')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { v4: uuid } = require('uuid')
 const dayjs = require('dayjs')
