@@ -1,5 +1,4 @@
 import '@condo/domains/common/components/wdyr'
-import { concatPagination } from '@apollo/client/utilities'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import get from 'lodash/get'
 
@@ -280,12 +279,6 @@ const apolloCacheConfig = {
         },
         BuildingUnit: {
             keyFields: false,
-        },
-        Query: {
-            fields: {
-                allPropertyScopeOrganizationEmployees: concatPagination(),
-                allPropertyScopeProperties: concatPagination(),
-            },
         },
     },
 }

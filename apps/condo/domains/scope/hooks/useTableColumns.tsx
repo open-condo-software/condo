@@ -1,6 +1,6 @@
 import { useIntl } from '@condo/next/intl'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -17,7 +17,8 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
 
-    const propertyScopeIds = propertyScopes.map(propertyScope => propertyScope.id)
+    const propertyScopeIds = useMemo(() => propertyScopes.map(propertyScope => propertyScope.id), [propertyScopes])
+
     const {
         objs: propertyScopeProperties,
         count: propertiesCount,
@@ -28,6 +29,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             propertyScope: { id_in: propertyScopeIds },
         },
     })
+
     const {
         objs: propertyScopeEmployees,
         count: employeesCount,
@@ -38,27 +40,6 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             propertyScope: { id_in: propertyScopeIds },
         },
     })
-
-    useEffect(() => {
-        if (fetchMoreProperties && propertiesCount > propertyScopeProperties.length) {
-            fetchMoreProperties({
-                variables: {
-                    skip: propertyScopeProperties.length,
-                },
-            })
-        }
-    }, [fetchMoreProperties, propertyScopeProperties.length])
-
-    useEffect(() => {
-        if (fetchMoreEmployees && employeesCount > propertyScopeEmployees.length) {
-            fetchMoreEmployees({
-                variables: {
-                    skip: propertyScopeEmployees.length,
-                },
-            })
-        }
-    }, [fetchMoreEmployees, propertyScopeEmployees.length])
-
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)

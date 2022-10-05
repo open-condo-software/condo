@@ -40,6 +40,8 @@ export const UpdatePropertyScopeForm = ({ id }) => {
         name: get(propertyScope, 'name'),
         propertyScopeProperties,
         propertyScopeEmployees,
+        hasAllProperties: get(propertyScope, 'hasAllProperties'),
+        hasAllEmployees: get(propertyScope, 'hasAllEmployees'),
     }), [propertyScope, propertyScopeEmployees, propertyScopeProperties])
 
     const loading = scopeLoading || scopePropertiesLoading || scopeEmployeesLoading

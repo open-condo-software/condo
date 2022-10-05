@@ -17,7 +17,7 @@ import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { map } from 'lodash'
@@ -65,6 +65,7 @@ export const EmployeePageContent = ({
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
+    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
 
     const { user } = useAuth()
     const { isSmall } = useLayoutContext()
@@ -76,14 +77,21 @@ export const EmployeePageContent = ({
 
     const name = get(employee, 'name')
     const email = get(employee, 'email')
+    const hasAllSpecializations = get(employee, 'hasAllSpecializations')
 
-    const handleEmployeeBlock = (blocked) => {
+    const renderSpecializations = useCallback((specializations) => (
+        <Typography.Text>
+            {map(specializations, 'name').join(', ')}
+        </Typography.Text>
+    ), [])
+
+    const handleEmployeeBlock = useCallback((blocked) => {
         if (!isEmployeeEditable) {
             return
         }
 
         updateEmployeeAction({ isBlocked: blocked }, employee)
-    }
+    }, [employee, isEmployeeEditable, updateEmployeeAction])
 
     return (
         <>
@@ -197,16 +205,14 @@ export const EmployeePageContent = ({
                                                         </Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField
-                                                            value={get(employee, 'specializations')}
-                                                            render={
-                                                                (specializations) => (
-                                                                    <Typography.Text>
-                                                                        {map(specializations, 'name').join(', ')}
-                                                                    </Typography.Text>
-                                                                )
-                                                            }
-                                                        />
+                                                        {
+                                                            hasAllSpecializations ? AllSpecializationsMessage : (
+                                                                <NotDefinedField
+                                                                    value={get(employee, 'specializations')}
+                                                                    render={renderSpecializations}
+                                                                />
+                                                            )
+                                                        }
                                                     </Col>
                                                     {
                                                         email && <>

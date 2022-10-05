@@ -1,3 +1,4 @@
+import { jsx } from '@emotion/react'
 import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { difference } from 'lodash'
@@ -21,6 +22,7 @@ import {
     PropertyScopeProperty as PropertyScopePropertyType,
 } from '@app/condo/schema'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -55,6 +57,8 @@ type BasePropertyScopeFormProps = {
         name?: string
         propertyScopeProperties: PropertyScopePropertyType[]
         propertyScopeEmployees: PropertyScopeOrganizationEmployeeType[]
+        hasAllProperties?: boolean
+        hasAllEmployees?: boolean
     }
     loading?: boolean
 }
@@ -64,14 +68,9 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const PropertyScopeNameMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertyScopeName' })
     const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
+    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
 
     const router = useRouter()
-
-    const { requiredValidator } = useValidations()
-    const validations: { [key: string]: Rule[] } = {
-        properties: [requiredValidator],
-        employees: [requiredValidator],
-    }
 
     const createPropertyScopePropertyAction = PropertyScopeProperty.useCreate({})
     const softDeletePropertyScopePropertyAction = PropertyScopeProperty.useSoftDelete()
@@ -89,7 +88,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
 
         const propertyScope = await action(otherValues)
 
-        const newProperties = difference(properties, initialProperties)
+        const newProperties = initialProperties ? difference(properties, initialProperties) : properties
         for (const propertyId of newProperties) {
             await createPropertyScopePropertyAction({
                 propertyScope: { connect: { id: propertyScope.id } },
@@ -152,47 +151,53 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                             <Col span={24}>
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
-                                        <Form.Item
-                                            name='properties'
-                                            label={PropertiesMessage}
-                                            labelAlign='left'
-                                            validateFirst
-                                            rules={validations.properties}
-                                            required
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <GraphQlSearchInput
-                                                disabled={!organizationId}
-                                                initialValue={initialProperties}
-                                                search={searchOrganizationProperty(organizationId)}
-                                                showArrow={false}
-                                                mode='multiple'
-                                                infinityScroll
-                                            />
-                                        </Form.Item>
+                                        <GraphQlSearchInputWithCheckAll
+                                            checkAllFieldName='hasAllProperties'
+                                            checkAllInitialValue={initialValues.hasAllProperties}
+                                            selectFormItemProps={{
+                                                name: 'properties',
+                                                label: PropertiesMessage,
+                                                labelAlign: 'left',
+                                                validateFirst: true,
+                                                required: true,
+                                                ...INPUT_LAYOUT_PROPS,
+                                            }}
+                                            selectProps={{
+                                                disabled: !organizationId,
+                                                initialValue: initialProperties,
+                                                search: searchOrganizationProperty(organizationId),
+                                                showArrow: false,
+                                                mode: 'multiple',
+                                                infinityScroll: true,
+                                            }}
+                                            CheckAllMessage={CheckAllMessage}
+                                        />
                                     </Col>
                                 </Row>
                             </Col>
                             <Col span={24}>
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
-                                        <Form.Item
-                                            name='employees'
-                                            label={EmployeesMessage}
-                                            labelAlign='left'
-                                            validateFirst
-                                            rules={validations.properties}
-                                            required
-                                            {...INPUT_LAYOUT_PROPS}
-                                        >
-                                            <GraphQlSearchInput
-                                                disabled={!organizationId}
-                                                initialValue={initialEmployees}
-                                                search={searchEmployee(organizationId, null)}
-                                                showArrow={false}
-                                                mode='multiple'
-                                            />
-                                        </Form.Item>
+                                        <GraphQlSearchInputWithCheckAll
+                                            checkAllFieldName='hasAllEmployees'
+                                            checkAllInitialValue={initialValues.hasAllProperties}
+                                            selectFormItemProps={{
+                                                name: 'employees',
+                                                label: EmployeesMessage,
+                                                labelAlign: 'left',
+                                                validateFirst: true,
+                                                required: true,
+                                                ...INPUT_LAYOUT_PROPS,
+                                            }}
+                                            selectProps={{
+                                                disabled: !organizationId,
+                                                initialValue: initialEmployees,
+                                                search: searchEmployee(organizationId, null),
+                                                showArrow: false,
+                                                mode: 'multiple',
+                                            }}
+                                            CheckAllMessage={CheckAllMessage}
+                                        />
                                     </Col>
                                 </Row>
                             </Col>
