@@ -52,6 +52,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                 >
                     <GraphQlSearchInput
                         {...selectProps}
+                        mode='multiple'
                         disabled={selectProps.disabled || isAllChecked}
                     />
                 </Form.Item>
