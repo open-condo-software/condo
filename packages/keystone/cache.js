@@ -59,7 +59,7 @@ class KeystoneCacheMiddleware {
                 if (requestId) {
 
                     if (ENABLE_CACHE_LOGGING) {
-                        logger.info( { msg: `DELETE_FROM_MIDDLEWARE: ${requestId}` })
+                        logger.info(`DELETE_FROM_MIDDLEWARE: ${requestId}`)
                     }
 
                     delete this.cache[requestId]
@@ -118,7 +118,7 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
             if (operationType !== 'query' && get(cacheMiddleware.cache, [requestId, key])) {
 
                 if (ENABLE_CACHE_LOGGING) {
-                    logger.info({ msg: `DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}` })
+                    logger.info(`DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`)
                 }
 
                 delete cacheMiddleware.cache[requestId][key]
@@ -128,20 +128,19 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
                 cacheMiddleware.hits++
 
                 if (ENABLE_CACHE_LOGGING) {
-                    logger.info({ msg: `HIT: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${cacheMiddleware.hits}/${cacheMiddleware.requests} Request ids: ${cacheMiddleware.hasRequestId}/${requestId} ` })
+                    logger.info(`HIT: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${cacheMiddleware.hits}/${cacheMiddleware.requests} Request ids: ${cacheMiddleware.hasRequestId}/${requestId} `)
                 }
 
                 return await cacheMiddleware.cache[requestId][key]
             }
-        }
-        else {
+        } else {
             if (ENABLE_CACHE_LOGGING) {
-                logger.info({ msg: `WARNING: No request ID\r\n${gqlName} ${JSON.stringify(args)}` })
+                logger.info(`WARNING: No request ID\r\n${gqlName} ${JSON.stringify(args)}`)
             }
         }
 
         if (ENABLE_CACHE_LOGGING) {
-            logger.info({ msg: `MISS: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${cacheMiddleware.hits}/${cacheMiddleware.requests} Request ids: ${cacheMiddleware.hasRequestId}/${cacheMiddleware.requests}` })
+            logger.info(`MISS: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${cacheMiddleware.hits}/${cacheMiddleware.requests} Request ids: ${cacheMiddleware.hasRequestId}/${cacheMiddleware.requests}`)
         }
 
         const listResultPromise = query.call(queryContext, args, context, gqlName, info, from)
@@ -150,7 +149,7 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
             set(cacheMiddleware.cache, [requestId, key], listResultPromise)
 
             if (ENABLE_CACHE_LOGGING) {
-                logger.info( { msg: `SET: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}` })
+                logger.info( `SET: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}` )
             }
         }
 
