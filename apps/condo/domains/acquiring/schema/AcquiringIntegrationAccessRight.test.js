@@ -22,7 +22,7 @@ const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
-const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 
 describe('AcquiringIntegrationAccessRight', () => {
     describe('CRUD tests', () => {

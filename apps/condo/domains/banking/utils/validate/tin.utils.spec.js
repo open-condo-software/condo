@@ -5,14 +5,14 @@ const { createValidRuTin10, createValidRuTin12 } = require('@condo/domains/banki
 const SPACES = SPACE_SYMBOLS.split('')
 
 const COUNTRY_CODE_RU = 'ru'
-const VALID_TINS = ['1654019570', '6311095616', '500110474504']
+const VALID_RU_TINS = ['1654019570', '6311095616', '500110474504']
 const WRONG_LENGTH_TIN = '01234556789'
 const WRONG_FORMAT_TIN = '01234b567890'
 const INVALID_CONTROL_SUM_TIN_10 = '1234567810'
 const INVALID_CONTROL_SUM_TIN_12 = '500110474556'
 
 describe('validateTin()', () => {
-    VALID_TINS.forEach(tin => {
+    VALID_RU_TINS.forEach(tin => {
         test(`for valid 10 or 12 char RU INN (${tin})`, () => {
             const { result } = validateTin(tin, COUNTRY_CODE_RU)
             expect(result).toBe(true)
@@ -66,7 +66,7 @@ describe('validateTin()', () => {
 })
 
 module.exports = {
-    VALID_TINS,
+    VALID_RU_TINS,
     WRONG_LENGTH_TIN,
     WRONG_FORMAT_TIN,
     INVALID_CONTROL_SUM_TIN_10,
