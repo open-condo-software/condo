@@ -863,6 +863,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 }
 
 const BUTTON_SPACE_SIZE = 28
+const ERROR_TEXT_STYLE: React.CSSProperties = { color: colors.sberDangerRed }
 
 const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
@@ -874,6 +875,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
     const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const UnitValidationErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -998,6 +1000,9 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                     <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                    {isApplyButtonDisabled && (
+                        <Typography.Text style={ERROR_TEXT_STYLE}>{UnitValidationErrorLabel}</Typography.Text>
+                    )}
                 </Space>
             </Col>
             <Col span={24}>
@@ -1362,6 +1367,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
+    const UnitValidationErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -1483,6 +1489,9 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Space direction='vertical' size={8}>
                         <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
                         <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                        {isApplyButtonDisabled && (
+                            <Typography.Text style={ERROR_TEXT_STYLE}>{UnitValidationErrorLabel}</Typography.Text>
+                        )}
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
                             {RenameNextParkingUnitsLabel}
                         </Checkbox>
