@@ -6,28 +6,16 @@
  * Usage:
  *      yarn workspace @app/condo node ./bin/notification/send-custom-message-batch
  */
-const path = require('path')
-
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 
 const { MessageBatch } = require('@condo/domains/notification/utils/serverSchema')
 const { CUSTOM_CONTENT_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+
+const { connectKeystone } = require('../lib/keystone.helpers')
 
 const { prompt } = require('../lib/prompt')
 
 const LINE_ENDINGS_REGEXP = /[\r\n]+/giu
 const EXTRA_SPACES_REGEXP = /\s+/giu
-
-async function connectKeystone () {
-    const resolved = path.resolve('./index.js')
-    const { distDir, keystone, apps } = require(resolved)
-    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-    // we need only apollo
-    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-    await keystone.connect()
-
-    return keystone
-}
 
 async function inputData () {
     let title, body, deepLink, targetItems

@@ -77,7 +77,7 @@ const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${u
  * and tries to send notifications to that residents.
  * @param billingContext
  * @param receiptsWhere
- * @returns {Promise<void>}
+ * @returns {Promise<{attemptsCount: number, processedCount: number, successCount: number}>}
  */
 const sendResidentsNoAccountNotificationsForContext = async (billingContext, receiptsWhere) => {
     const { keystone: context } = await getSchemaCtx('Resident')
@@ -166,6 +166,8 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
     }
 
     logger.info({ msg: 'Notifications sent', successCount, attemptsCount, processedCount })
+
+    return { successCount, attemptsCount, processedCount }
 }
 
 /**
@@ -181,6 +183,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
 
     const { thisMonthStart } = getStartDates()
     const today = dayjs().format(DATE_FORMAT_Z)
+
     const requestPeriod = period || thisMonthStart
     const contextWhere = { status: CONTEXT_FINISHED_STATUS, deletedAt: null }
     const billingContexts = billingContextId
@@ -193,8 +196,10 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
 
     logger.info({ msg: 'Billing context proceed', billingContextsCount: billingContexts.length, requestPeriod, billingContextId })
 
+    let totalSuccessCount = 0, totaAttemptsCount = 0, totaProcessedCount = 0
+
     for (const billingContext of billingContexts) {
-        const redisVarName = `${REDIS_LAST_DATE_KEY}-${period}-${billingContext.id}`
+        const redisVarName = `${REDIS_LAST_DATE_KEY}-${requestPeriod}-${billingContext.id}`
 
         /**
          * This represents min value for billingReceipt createdAt to start processing from
@@ -202,7 +207,11 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
          * 2. Use createdAt value from last success script execution stored in Redis, else
          * 3. Use thisMonthStart
          */
-        const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await redisClient.get(redisVarName) || thisMonthStart
+        const storedLastDt = await redisClient.get(redisVarName)
+
+        logger.info({ msg: 'storedLastDt:', redisVarName, storedLastDt })
+
+        const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : storedLastDt || thisMonthStart
 
         const receiptsWhere = {
             period_in: [requestPeriod],
@@ -211,26 +220,33 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
             deletedAt: null,
         }
 
-        logger.info({ msg: 'processing', organizationId: billingContext.organization.id, billingContextId })
+        logger.info({ msg: 'processing', organizationId: billingContext.organization.id, billingContextId, receiptsWhere })
 
-        await sendResidentsNoAccountNotificationsForContext(billingContext, receiptsWhere)
+        const { successCount, attemptsCount, processedCount } = await sendResidentsNoAccountNotificationsForContext(billingContext, receiptsWhere)
+
+        totalSuccessCount += successCount
+        totaAttemptsCount += attemptsCount
+        totaProcessedCount += processedCount
+
         /**
          * Store datetime for period + billingContext, so that for next execution continue from billing receipts added after this datetime moment.
          */
         await redisClient.set(redisVarName, today)
     }
+
+    logger.info({ msg: 'Total', totalSuccessCount, totaAttemptsCount, totaProcessedCount })
 }
 
 /**
  * Sends notifications to residents without accounts on properties with newly added billing receipts for actual periods
+ * @param resendFromDt
  * @returns {Promise<void>}
  */
-const sendResidentsNoAccountNotifications = async () => {
-    const { thisMonthStart, prevMonthStart } = getStartDates()
-    const currentDay = Number(dayjs().format('DD'))
-    const periods = currentDay < 20 ? [prevMonthStart, thisMonthStart] : [thisMonthStart]
+const sendResidentsNoAccountNotifications = async (resendFromDt) => {
+    const { prevMonthStart, thisMonthStart } = getStartDates()
+    const periods = [prevMonthStart, thisMonthStart]
 
-    for (const period in periods) await sendResidentsNoAccountNotificationsForPeriod(period)
+    for (const period of periods) await sendResidentsNoAccountNotificationsForPeriod(period, undefined, resendFromDt)
 }
 
 module.exports = {
