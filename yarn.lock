@@ -443,6 +443,23 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/amocrm@workspace:apps/amocrm":
+  version: 0.0.0-use.local
+  resolution: "@app/amocrm@workspace:apps/amocrm"
+  dependencies:
+    axios: ^0.21.4
+    cookie-parser: ^1.4.5
+    cookies: ^0.8.0
+    dotenv: ^10.0.0
+    esdk-obs-nodejs: ^3.21.6
+    express: ^4.17.1
+    graphql: ^15.6.1
+    graphql-tag: ^2.12.5
+    pg: ^8.7.1
+    tough-cookie: ^4.0.0
+  languageName: unknown
+  linkType: soft
+
 "@app/asterix_bot@workspace:apps/asterix_bot":
   version: 0.0.0-use.local
   resolution: "@app/asterix_bot@workspace:apps/asterix_bot"
@@ -575,6 +592,7 @@ __metadata:
     classnames: ^2.2.6
     cross-env: ^7.0.3
     css-loader: 1.0.0
+    csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 9.7.0
     dayjs: ^1.10.6
@@ -1065,9 +1083,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/property-importer@workspace:apps/property-importer":
+"@app/property_importer@workspace:apps/property_importer":
   version: 0.0.0-use.local
-  resolution: "@app/property-importer@workspace:apps/property-importer"
+  resolution: "@app/property_importer@workspace:apps/property_importer"
   dependencies:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": 3.3.20
@@ -1097,7 +1115,7 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
-    "@property-importer/domains": "link:./domains"
+    "@property_importer/domains": "link:./domains"
     "@testing-library/react": ^11.2.5
     "@types/jest": ^26.0.20
     "@types/node": ^14.14.25
@@ -4758,9 +4776,9 @@ __metadata:
   languageName: node
   linkType: soft
 
-"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
+"@condo/domains@link:../condo/domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer":
   version: 0.0.0-use.local
-  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
+  resolution: "@condo/domains@link:../condo/domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer"
   languageName: node
   linkType: soft
 
@@ -8977,9 +8995,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer":
+"@property_importer/domains@link:./domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer":
   version: 0.0.0-use.local
-  resolution: "@property-importer/domains@link:./domains::locator=%40app%2Fproperty-importer%40workspace%3Aapps%2Fproperty-importer"
+  resolution: "@property_importer/domains@link:./domains::locator=%40app%2Fproperty_importer%40workspace%3Aapps%2Fproperty_importer"
   languageName: node
   linkType: soft
 
@@ -13869,7 +13887,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.21.2":
+"axios@npm:^0.21.2, axios@npm:^0.21.4":
   version: 0.21.4
   resolution: "axios@npm:0.21.4"
   dependencies:
@@ -16872,6 +16890,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie-parser@npm:^1.4.5":
+  version: 1.4.6
+  resolution: "cookie-parser@npm:1.4.6"
+  dependencies:
+    cookie: 0.4.1
+    cookie-signature: 1.0.6
+  checksum: 1e5a63aa82e8eb4e02d2977c6902983dee87b02e87ec5ec43ac3cb1e72da354003716570cd5190c0ad9e8a454c9d3237f4ad6e2f16d0902205a96a1c72b77ba5
+  languageName: node
+  linkType: hard
+
 "cookie-signature@npm:1.0.6":
   version: 1.0.6
   resolution: "cookie-signature@npm:1.0.6"
@@ -16883,6 +16911,13 @@ __metadata:
   version: 1.2.0
   resolution: "cookie-signature@npm:1.2.0"
   checksum: d11f56f909733695d989511bf0e1dd874220d818b9d118945dce3c275fa50adfb3f6984354de0f5eefdc9347951a22ba3545230a762576019d23c16055b12d4c
+  languageName: node
+  linkType: hard
+
+"cookie@npm:0.4.1":
+  version: 0.4.1
+  resolution: "cookie@npm:0.4.1"
+  checksum: bd7c47f5d94ab70ccdfe8210cde7d725880d2fcda06d8e375afbdd82de0c8d3b73541996e9ce57d35f67f672c4ee6d60208adec06b3c5fc94cebb85196084cf8
   languageName: node
   linkType: hard
 
@@ -16907,7 +16942,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookies@npm:~0.8.0":
+"cookies@npm:^0.8.0, cookies@npm:~0.8.0":
   version: 0.8.0
   resolution: "cookies@npm:0.8.0"
   dependencies:
@@ -17927,6 +17962,13 @@ __metadata:
   bin:
     csv-parser: bin/csv-parser
   checksum: adc9d67d9f185249825570778c24d13004625301655330f6b735a052b9fdfbe1a239a014afb1f89939e0626ee573718f71f9f14164db7c17e4bcb2f38d6a162b
+  languageName: node
+  linkType: hard
+
+"csv-stringify@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "csv-stringify@npm:6.2.0"
+  checksum: c2fa074fbf2bcb8cea966c1bdf89d377f1f79bbd33e13092131cac511363479a4e7a923f26fe741e2ef5bad479a400c72e18ceb4b7c33e1f0a60cf33f5c31f1c
   languageName: node
   linkType: hard
 
@@ -19764,7 +19806,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esdk-obs-nodejs@npm:3.21.6":
+"esdk-obs-nodejs@npm:3.21.6, esdk-obs-nodejs@npm:^3.21.6":
   version: 3.21.6
   resolution: "esdk-obs-nodejs@npm:3.21.6"
   dependencies:
@@ -22527,7 +22569,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql-tag@npm:^2.11.0, graphql-tag@npm:^2.12.0, graphql-tag@npm:^2.12.6, graphql-tag@npm:^2.4.2":
+"graphql-tag@npm:^2.11.0, graphql-tag@npm:^2.12.0, graphql-tag@npm:^2.12.5, graphql-tag@npm:^2.12.6, graphql-tag@npm:^2.4.2":
   version: 2.12.6
   resolution: "graphql-tag@npm:2.12.6"
   dependencies:
@@ -31721,6 +31763,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pg-pool@npm:^3.5.2":
+  version: 3.5.2
+  resolution: "pg-pool@npm:3.5.2"
+  peerDependencies:
+    pg: ">=8.0"
+  checksum: a5d029200257671f0c17ca54b9ab6213e2060e64e5cc792b78edd50ab471a26cd364890d05d546d9296949e079e943821cf2ceb4d488f4e6a6789fb781a628bf
+  languageName: node
+  linkType: hard
+
 "pg-protocol@npm:^1.5.0":
   version: 1.5.0
   resolution: "pg-protocol@npm:1.5.0"
@@ -31758,6 +31809,26 @@ __metadata:
     pg-native:
       optional: true
   checksum: d0e7040967779b9ccea16897f099510bcaf6bc86f77a6d8fa7e293c24d8bd2fd2ec46d99d6d1adc9be4cc8f254aa909361346b693088c1ba4501414f7afb2fe3
+  languageName: node
+  linkType: hard
+
+"pg@npm:^8.7.1":
+  version: 8.8.0
+  resolution: "pg@npm:8.8.0"
+  dependencies:
+    buffer-writer: 2.0.0
+    packet-reader: 1.0.0
+    pg-connection-string: ^2.5.0
+    pg-pool: ^3.5.2
+    pg-protocol: ^1.5.0
+    pg-types: ^2.1.0
+    pgpass: 1.x
+  peerDependencies:
+    pg-native: ">=3.0.1"
+  peerDependenciesMeta:
+    pg-native:
+      optional: true
+  checksum: fa30a85814dd7238b582c3bc6c0b9e2b0ae38dd0a6bb485ef480e64bb5ce589de6cb873ce4d3cd10c37a3e0a1e1281ba75dc7d80b1a68bae91999cd5b70d398b
   languageName: node
   linkType: hard
 
