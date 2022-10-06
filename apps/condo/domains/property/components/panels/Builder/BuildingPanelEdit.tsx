@@ -954,28 +954,6 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         setUnitType(value)
     }, [])
 
-    const isApplyButtonDisabled = useMemo(() => {
-        let isUnitLabelUnique = true
-        if (mode === 'addUnit') {
-            isUnitLabelUnique = builder.validateUniqueUnitLabel()
-        } else if (mode === 'editUnit') {
-            const selectedUnit = builder.getSelectedUnit()
-            const unitPlacementChanged = selectedUnit.floor !== floor
-                || selectedUnit.section !== section
-                || unitType !== selectedUnit.unitType
-            const labelChanged = selectedUnit.label !== label
-            const labelValidation = labelChanged
-                ? builder.validateUniqueUnitLabel(label, 'section')
-                : false
-
-            isUnitLabelUnique = unitPlacementChanged
-                ? (!labelChanged || labelValidation)
-                : labelValidation
-        }
-
-        return !(floor && section && label.trim() && isUnitLabelUnique)
-    }, [floor, section, label, unitType, builder, mode])
-
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
@@ -1029,7 +1007,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={isApplyButtonDisabled}
+                                disabled={!(floor && section && label.trim())}
                             > {SaveLabel} </Button>
                         </Col>
                         {
@@ -1436,26 +1414,6 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         resetForm()
     }, [resetForm, refresh, builder])
 
-    const isApplyButtonDisabled = useMemo(() => {
-        let isUnitLabelUnique = true
-        if (mode === 'addParkingUnit') {
-            isUnitLabelUnique = builder.validateUniqueUnitLabel()
-        } else if (mode === 'editParkingUnit') {
-            const selectedUnit = builder.getSelectedParkingUnit()
-            const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
-            const labelChanged = selectedUnit.label !== label
-            const labelValidation = labelChanged
-                ? builder.validateUniqueUnitLabel(label, 'parking')
-                : false
-
-            isUnitLabelUnique = unitPlacementChanged
-                ? (!labelChanged || labelValidation)
-                : labelValidation
-        }
-
-        return !(floor && section && label.trim() && isUnitLabelUnique)
-    }, [floor, section, label, builder, mode])
-
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
@@ -1493,7 +1451,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={isApplyButtonDisabled}
+                                disabled={!(floor && section)}
                             > {SaveLabel} </Button>
                         </Col>
                         {
@@ -1553,11 +1511,6 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setSection(null)
     }, [builder, refresh, floor, section, unitsOnFloor, unitType])
 
-    const isSubmitDisabled = useMemo(() => {
-        const sectionFloors = builder.getSectionFloorNames(section)
-        return !(floor && section !== null && unitsOnFloor && !sectionFloors.includes(floor))
-    }, [floor, section, unitsOnFloor])
-
     useEffect(() => {
         if (section !== null) {
             maxFloor.current = builder.getSectionMaxFloor(section) + 1
@@ -1571,15 +1524,12 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         if (floor && section !== null && unitsOnFloor > 0) {
-            const sectionFloors = builder.getSectionFloorNames(section)
-            if (!sectionFloors.includes(floor)) {
-                builder.addPreviewSectionFloor({
-                    section: Number(section),
-                    index: Number(floor),
-                    unitType,
-                    unitCount: Number(unitsOnFloor),
-                })
-            }
+            builder.addPreviewSectionFloor({
+                section: Number(section),
+                index: Number(floor),
+                unitType,
+                unitCount: Number(unitsOnFloor),
+            })
         } else {
             builder.removePreviewSectionFloor()
         }
@@ -1587,7 +1537,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [floor, section, unitsOnFloor, unitType])
 
-
+    const isSubmitDisabled = !(floor && section !== null && unitsOnFloor)
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
