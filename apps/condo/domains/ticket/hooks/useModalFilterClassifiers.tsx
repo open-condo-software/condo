@@ -26,6 +26,7 @@ const MULTIPLE_SELECT_STYLE: CSSProperties = { width: '100%' }
 function FilterModalBaseClassifierSelect ({ form, type }) {
     const intl = useIntl()
     const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const client = useApolloClient()
     const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])
@@ -97,8 +98,8 @@ function FilterModalBaseClassifierSelect ({ form, type }) {
             onBlur={handleBlur}
             open={open}
             getPopupContainer={getFiltersModalPopupContainer}
-            loading={loading}
-            placeholder={SelectMessage}
+            disabled={loading}
+            placeholder={loading ? LoadingMessage : SelectMessage}
             style={MULTIPLE_SELECT_STYLE}
         />
     )
