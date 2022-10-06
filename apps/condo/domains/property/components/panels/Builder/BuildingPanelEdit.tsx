@@ -886,11 +886,13 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const [floors, setFloors] = useState([])
 
     const renameNextUnits = useRef(true)
+    const isFieldsChanged = useRef(false)
 
     const updateSection = (value) => {
         setSection(value)
         setFloors(builder.getSectionFloorOptions(value))
         if (mode === 'editUnit') {
+            isFieldsChanged.current = true
             const mapUnit = builder.getSelectedUnit()
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
@@ -902,6 +904,16 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         }
     }
 
+    const onChangeFloor = (floor) => {
+        isFieldsChanged.current = true
+        setFloor(floor)
+    }
+
+    const onChangeLabel = (event) => {
+        isFieldsChanged.current = true
+        setLabel(event.target.value)
+    }
+
     useEffect(() => {
         setSections(builder.getSectionOptions())
         const mapUnit = builder.getSelectedUnit()
@@ -911,6 +923,8 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
             setUnitType(mapUnit.unitType)
+
+            isFieldsChanged.current = false
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
@@ -953,6 +967,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     }, [resetForm, refresh, builder])
 
     const updateUnitType = useCallback((value) => {
+        isFieldsChanged.current = true
         setUnitType(value)
     }, [])
 
@@ -999,8 +1014,8 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             <Col span={24}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
-                    <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
-                    {isApplyButtonDisabled && (
+                    <Input allowClear={true} value={label} onChange={onChangeLabel} style={INPUT_STYLE} />
+                    {(isFieldsChanged.current && isApplyButtonDisabled) && (
                         <Typography.Text style={ERROR_TEXT_STYLE}>{UnitValidationErrorLabel}</Typography.Text>
                     )}
                 </Space>
@@ -1019,7 +1034,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
                     <Space direction='vertical' size={8} style={INPUT_STYLE}>
                         <Typography.Text type='secondary' >{FloorLabel}</Typography.Text>
-                        <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
+                        <Select value={floor} onSelect={onChangeFloor} style={INPUT_STYLE}>
                             {floors.map(floorOption => {
                                 return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
                             })}
@@ -1377,11 +1392,13 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const [floors, setFloors] = useState([])
 
     const renameNextUnits = useRef(true)
+    const isFieldsChanged = useRef(false)
 
     const updateSection = (value) => {
         setSection(value)
         setFloors(builder.getParkingSectionFloorOptions(value))
         if (mode === 'editParkingUnit') {
+            isFieldsChanged.current = true
             const mapUnit = builder.getSelectedParkingUnit()
             if (value === mapUnit.section) {
                 setFloor(mapUnit.floor)
@@ -1393,6 +1410,16 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         }
     }
 
+    const onChangeFloor = (floor) => {
+        isFieldsChanged.current = true
+        setFloor(floor)
+    }
+
+    const onChangeLabel = (event) => {
+        isFieldsChanged.current = true
+        setLabel(event.target.value)
+    }
+
     useEffect(() => {
         setSections(builder.getParkingSectionOptions())
         const mapUnit = builder.getSelectedParkingUnit()
@@ -1401,6 +1428,8 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
+
+            isFieldsChanged.current = false
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
@@ -1477,7 +1506,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             <Col span={24}>
                 <Space direction='vertical' size={8} style={INPUT_STYLE}>
                     <Typography.Text type='secondary' >{FloorLabel}</Typography.Text>
-                    <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
+                    <Select value={floor} onSelect={onChangeFloor} style={INPUT_STYLE}>
                         {floors.map(floorOption => {
                             return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
                         })}
@@ -1488,8 +1517,8 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
                     <Space direction='vertical' size={8}>
                         <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
-                        <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
-                        {isApplyButtonDisabled && (
+                        <Input allowClear={true} value={label} onChange={onChangeLabel} style={INPUT_STYLE} />
+                        {(isFieldsChanged.current && isApplyButtonDisabled) && (
                             <Typography.Text style={ERROR_TEXT_STYLE}>{UnitValidationErrorLabel}</Typography.Text>
                         )}
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
