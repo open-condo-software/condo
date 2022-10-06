@@ -1,22 +1,36 @@
-import React, { useCallback, useState } from 'react'
-import find from 'lodash/find'
-import get from 'lodash/get'
-import differenceBy from 'lodash/differenceBy'
-import uniqBy from 'lodash/uniqBy'
-import { Col, FormInstance, Row, Select, Typography } from 'antd'
-import { Rule } from 'rc-field-form/lib/interface'
-
-import { useIntl } from '@open-condo/next/intl'
-
-import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
-import { GraphQlSearchInput, RenderOptionFunc } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
-
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
+import {
+    ASSIGNED_TICKET_VISIBILITY,
+    PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+} from '@condo/domains/organization/constants/common'
+import { searchEmployeeUserWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
+import {
+    PropertyScope,
+    PropertyScopeOrganizationEmployee,
+    PropertyScopeProperty,
+} from '@condo/domains/scope/utils/clientSchema'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { Alert, Col, FormInstance, Row, Select, Typography } from 'antd'
+import { differenceBy, get } from 'lodash'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { useCallback, useEffect, useState } from 'react'
 import { TicketFormItem } from './index'
-import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
-import { searchEmployeeUser } from '../../utils/clientSchema/search'
+
+const getOptionsSortedByTicketVisibilityType = (employeeOptions) => {
+    const employeesWithPropertyAndSpecializationVisibility = employeeOptions
+        .filter(({ data }) => data.employee.role.ticketVisibilityType === PROPERTY_AND_SPECIALIZATION_VISIBILITY)
+    const employeesWithAssigneeVisibility = employeeOptions
+        .filter(({ data }) => data.employee.role.ticketVisibilityType === ASSIGNED_TICKET_VISIBILITY)
+    const employeesWithOtherVisibility = differenceBy(
+        employeeOptions,
+        [...employeesWithPropertyAndSpecializationVisibility, ...employeesWithAssigneeVisibility],
+        'value')
+
+    return [...employeesWithPropertyAndSpecializationVisibility, ...employeesWithAssigneeVisibility, ...employeesWithOtherVisibility]
+}
 
 type TicketAssignmentsProps = {
     validations: { [key: string]: Rule[] },
@@ -33,7 +47,6 @@ const TicketAssignments = ({
     organizationId,
     propertyId,
     disableUserInteraction,
-    autoAssign,
     categoryClassifier,
     form,
 }: TicketAssignmentsProps) => {
@@ -43,122 +56,110 @@ const TicketAssignments = ({
     const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
     const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
-    const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
-    const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
-    const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
-    const BlockedEmployeeMessage = intl.formatMessage({ id: 'employee.isBlocked' })
+    const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.employeesOnProperty' })
+    const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
 
     const { isSmall } = useLayoutContext()
+    const { user } = useAuth()
 
-    const [divisions, setDivisions] = useState([])
-
-    const formatUserFieldLabel = ({ text, value, data: employee }) => {
-        if (!employee) {
-            return null
-        }
-        const matchedSpecialization = find(employee.specializations, { id: categoryClassifier })
-        return (
-            <UserNameField user={{ name: text, id: value }}>
-                {({ name, postfix }) => (
-                    <>
-                        <Typography.Text>
-                            {name} {postfix}
-                        </Typography.Text>
-                        {matchedSpecialization && (
-                            <Typography.Text type='secondary'>
-                                {`(${matchedSpecialization.name.toLowerCase()})`}
-                            </Typography.Text>
-                        )}
-                    </>
-                )}
-            </UserNameField>
-        )
-    }
-
-    const getTechniciansFrom = (division) => (
-        division.executors.filter(({ specializations }) => (
-            specializations.some(({ id }) => id === categoryClassifier)
-        ))
-    )
-
-    const convertToOption = (employee) => ({
-        text: employee.name,
-        value: employee.user.id,
-        data: employee,
+    const { objs: propertyScopeProperties } = PropertyScopeProperty.useObjects({
+        where: {
+            property: { id: propertyId },
+        },
+    })
+    const { objs: propertyScopes } = PropertyScope.useObjects({
+        where: {
+            organization: { id: organizationId },
+            OR: [
+                { id_in: propertyScopeProperties.map(scope => scope.propertyScope.id) },
+                { hasAllProperties: true },
+            ],
+        },
+    })
+    const propertyScopesWithAllPropertiesAndEmployees = propertyScopes.filter(scope => scope.hasAllProperties && scope.hasAllEmployees)
+    const { objs: propertyScopeEmployees } = PropertyScopeOrganizationEmployee.useObjects({
+        where: {
+            propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
+        },
     })
 
-    const renderOptions: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[] = useCallback(
-        (items, renderOption) => {
-            return items.map((item) => get(item, 'data.isBlocked', false)
-                ? renderBlockedOption(item, BlockedEmployeeMessage)
-                : renderOption(item))
-        }, [BlockedEmployeeMessage])
+    const [autoAssigneePropertyScopeName, setAutoAssigneePropertyScopeName] = useState<string>()
+    const [autoAssignedUserId, setAutoAssignedUserId] = useState<string>()
 
-    /**
-     * Employees are grouped by following rules:
-     * 1. Technicians with matched specialization, belonging to matched division;
-     * 2. Technicians with matched specialization, belonging to other matched divisions;
-     * 3. Rest of employees.
-     */
-    const renderOptionGroups = (employeeOptions, renderOption) => {
-        const [currentDivision, ...otherDivisions] = divisions
-        let techniciansOnDivisionOptions = []
-        let techniciansOnOtherDivisionsOptions = []
+    useEffect(() => {
+        form.setFieldsValue({
+            assignee: autoAssignedUserId,
+            executor: autoAssignedUserId,
+        })
+    }, [autoAssignedUserId, form])
 
-        if (currentDivision) {
-            const techniciansOnDivision = getTechniciansFrom(currentDivision)
-            techniciansOnDivisionOptions = techniciansOnDivision.map(convertToOption)
+    const updateAssigneeAndExecutorFields = useCallback((employeeOpt, isPropertyAndSpecializationMatch) => {
+        const userId = employeeOpt.value
+        setAutoAssignedUserId(userId)
 
-            const techniciansOnOtherDivisions =
-                differenceBy(
-                    uniqBy(
-                        otherDivisions.reduce((acc, otherDivision) => ([
-                            ...acc,
-                            ...getTechniciansFrom(otherDivision),
-                        ]), []),
-                        'id',
-                    ),
-                    techniciansOnDivision,
-                    'id',
-                )
+        if (isPropertyAndSpecializationMatch) {
+            const { employee } = employeeOpt.data
 
-            techniciansOnOtherDivisionsOptions = techniciansOnOtherDivisions.map(convertToOption)
+            if (propertyScopesWithAllPropertiesAndEmployees.length > 0) {
+                setAutoAssigneePropertyScopeName(propertyScopesWithAllPropertiesAndEmployees[0].name)
+            } else {
+                const propertyScope = propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
+                setAutoAssigneePropertyScopeName(propertyScope.propertyScope.name)
+            }
+        } else {
+            setAutoAssigneePropertyScopeName(null)
+        }
+    }, [propertyScopeEmployees, propertyScopesWithAllPropertiesAndEmployees])
+
+    const renderOptionGroups = useCallback((employeeOptions, renderOption) => {
+        const result = []
+
+        const employeesWithMatchesPropertyAndSpecializationScope = employeeOptions.filter(({ data }) => {
+            const { specializations, employee } = data
+
+            const isPropertyMatches = propertyScopesWithAllPropertiesAndEmployees.length > 0 ||
+                propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
+            const isSpecializationMatches = employee.hasAllSpecializations ||
+                !!specializations.find(({ id }) => id === categoryClassifier)
+
+            return isPropertyMatches && isSpecializationMatches
+        })
+
+        const otherEmployees = differenceBy(employeeOptions, employeesWithMatchesPropertyAndSpecializationScope, 'value')
+
+        if (employeesWithMatchesPropertyAndSpecializationScope.length > 0) {
+            const sortedEmployeeOpts = getOptionsSortedByTicketVisibilityType(employeesWithMatchesPropertyAndSpecializationScope)
+            updateAssigneeAndExecutorFields(sortedEmployeeOpts[0], true)
+
+            result.push(
+                <Select.OptGroup label={EmployeesOnPropertyMessage}>
+                    {sortedEmployeeOpts.map(renderOption)}
+                </Select.OptGroup>
+            )
         }
 
-        const otherTechniciansOptions = differenceBy(employeeOptions, [
-            ...techniciansOnDivisionOptions,
-            ...techniciansOnOtherDivisionsOptions,
-        ], 'value')
+        if (otherEmployees.length > 0) {
+            const sortedEmployeeOpts = getOptionsSortedByTicketVisibilityType(otherEmployees)
 
-        const result = []
-        if (!currentDivision || techniciansOnDivisionOptions.length === 0 && techniciansOnOtherDivisionsOptions.length === 0) {
-            result.push(renderOptions(otherTechniciansOptions, renderOption))
-        } else {
-            if (techniciansOnDivisionOptions.length > 0) {
+            if (employeesWithMatchesPropertyAndSpecializationScope.length === 0) {
+                const ticketAuthor = sortedEmployeeOpts.find(({ value }) => value === user.id)
+                updateAssigneeAndExecutorFields(ticketAuthor, false)
+
                 result.push(
-                    <Select.OptGroup label={ExecutorsOnThisDivisionLabel}>
-                        {renderOptions(techniciansOnDivisionOptions, renderOption)}
-                    </Select.OptGroup>
+                    sortedEmployeeOpts.map(renderOption)
                 )
-            }
-            if (techniciansOnOtherDivisionsOptions.length > 0) {
+            } else {
                 result.push(
-                    <Select.OptGroup label={ExecutorsOnOtherDivisionsLabel}>
-                        {renderOptions(techniciansOnOtherDivisionsOptions, renderOption)}
-                    </Select.OptGroup>
-                )
-            }
-            if (otherTechniciansOptions.length > 0) {
-                result.push(
-                    <Select.OptGroup label={OtherExecutors}>
-                        {renderOptions(otherTechniciansOptions, renderOption)}
+                    <Select.OptGroup label={OtherMessage}>
+                        {sortedEmployeeOpts.map(renderOption)}
                     </Select.OptGroup>
                 )
             }
         }
 
         return result
-    }
+    }, [EmployeesOnPropertyMessage, OtherMessage, categoryClassifier, propertyScopeEmployees,
+        propertyScopesWithAllPropertiesAndEmployees.length, updateAssigneeAndExecutorFields, user.id])
 
     return (
         <Col span={24}>
@@ -168,17 +169,18 @@ const TicketAssignments = ({
                 </Col>
                 <Col span={isSmall ? 24 : 18}>
                     <Row justify='space-between'>
-                        {autoAssign && propertyId && (
-                            <Col span={24}>
-                                <AutoAssignerByDivisions
-                                    organizationId={organizationId}
-                                    propertyId={propertyId}
-                                    categoryClassifier={categoryClassifier}
-                                    onDivisionsFound={setDivisions}
-                                    form={form}
-                                />
-                            </Col>
-                        )}
+                        {
+                            autoAssigneePropertyScopeName && (
+                                <Col span={24}>
+                                    <Alert
+                                        showIcon
+                                        type='info'
+                                        message='Ответственный и исполнитель назначены автоматически'
+                                        description={`Дом из этой заявки входит в зону видимости «${autoAssigneePropertyScopeName}». Поэтому алгоритм Домá автоматически назначил ответственного и исполнителя.`}
+                                    />
+                                </Col>
+                            )
+                        }
                         <Col span={11}>
                             <TicketFormItem
                                 name='executor'
@@ -188,11 +190,14 @@ const TicketAssignments = ({
                                 <GraphQlSearchInput
                                     showArrow={false}
                                     disabled={disableUserInteraction}
-                                    formatLabel={formatUserFieldLabel}
                                     renderOptions={renderOptionGroups}
-                                    search={searchEmployeeUser(organizationId, ({ role }) => (
-                                        get(role, 'canBeAssignedAsExecutor', false)
-                                    ))}
+                                    search={searchEmployeeUserWithSpecializations(
+                                        intl,
+                                        organizationId,
+                                        propertyId,
+                                        ({ role }) => (
+                                            get(role, 'canBeAssignedAsExecutor', false)
+                                        ))}
                                 />
                             </TicketFormItem>
                         </Col>
@@ -204,13 +209,12 @@ const TicketAssignments = ({
                                 label={<LabelWithInfo title={ResponsibleExtra} message={ResponsibleLabel}/>}
                             >
                                 <GraphQlSearchInput
-                                    formatLabel={formatUserFieldLabel}
                                     showArrow={false}
                                     disabled={disableUserInteraction}
-                                    search={searchEmployeeUser(organizationId, ({ role }) => (
+                                    renderOptions={renderOptionGroups}
+                                    search={searchEmployeeUserWithSpecializations(intl, organizationId, propertyId, ({ role }) => (
                                         get(role, 'canBeAssignedAsResponsible', false)
                                     ))}
-                                    renderOptions={renderOptions}
                                 />
                             </TicketFormItem>
                         </Col>
