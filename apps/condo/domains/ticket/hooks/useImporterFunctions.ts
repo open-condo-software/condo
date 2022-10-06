@@ -35,14 +35,16 @@ const getFullDetails = (intl, details: string, oldTicketNumber: string, createdA
     const OldTicketNumberMessage = intl.formatMessage({ id: 'ticket.import.value.details.oldTicketNumber' })
     const CreatedAtMessage = intl.formatMessage({ id: 'ticket.import.value.details.createdAt' })
 
-    let result = details
+    const additionalInformation: string[] = []
     if (oldTicketNumber) {
-        result += `.\n ${OldTicketNumberMessage} - ${oldTicketNumber}.`
+        additionalInformation.push(`${OldTicketNumberMessage} — ${oldTicketNumber}.`)
     }
     if (createdAt) {
-        result += `\n ${CreatedAtMessage} - ${createdAt}.`
+        const formattedDate = dayjs(createdAt).format('DD.MM.YYYY')
+        additionalInformation.push(`${CreatedAtMessage} — ${formattedDate}.`)
     }
-    return result
+
+    return `${details}\n${additionalInformation.join(' ')}`
 }
 
 const isValidDate = (value) => {
