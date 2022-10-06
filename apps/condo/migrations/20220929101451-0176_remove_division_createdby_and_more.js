@@ -4,8 +4,13 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
 
--- Move data from Division to PropertyScope
+-- [CUSTOM] Move data from Division to PropertyScope
 
 INSERT INTO "PropertyScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", "hasAllProperties", "hasAllEmployees")
 SELECT "id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", false, false
@@ -21,6 +26,12 @@ FROM "Division_properties_many";
 INSERT INTO "PropertyScopeOrganizationEmployee" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "employee")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division_left_id", "OrganizationEmployee_right_id"
 FROM "Division_executors_many";
+
+
+INSERT INTO "PropertyScopeOrganizationEmployee" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "employee")
+SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division"."id",  "Division"."responsible"
+FROM "Division"
+WHERE "deletedAt" is null;
     
 --
 -- Delete model division_properties_many
@@ -38,6 +49,12 @@ DROP TABLE "Division" CASCADE;
 -- Delete model divisionhistoryrecord
 --
 DROP TABLE "DivisionHistoryRecord" CASCADE;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)

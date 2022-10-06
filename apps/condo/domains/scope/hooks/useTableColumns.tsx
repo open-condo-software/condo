@@ -88,7 +88,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 width: '20%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
-                render,
+                render: (name) => render(intl.formatMessage({ id: name }) || name),
             },
             {
                 title: PropertiesMessage,

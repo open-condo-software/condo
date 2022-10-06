@@ -23,9 +23,8 @@ const AssigneeScope = generateServerUtils(AssigneeScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createDefaultPropertyScopeForNewOrganization (context, organization, dvSenderData) {
-    // TODO(DOMA-4065): Узнать какое имя должно быть у дефолтного скопа, сделать переводы, доставать из организации локаль (?)
     await PropertyScope.create(context, {
-        name: 'Default',
+        name: 'pages.condo.settings.propertyScope.default.name',
         organization: { connect: { id: organization.id } },
         hasAllProperties: true,
         hasAllEmployees: true,
