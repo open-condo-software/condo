@@ -16,7 +16,7 @@ const { stringify } = require('csv-stringify')
 const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('../exportToExcel')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
-const CSV_DELIMITER = ','
+const CSV_DELIMITER = ';'
 
 const logger = getLogger('export')
 
