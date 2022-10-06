@@ -266,6 +266,7 @@ const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 export const TicketSourceSelect: React.FC = () => {
     const intl = useIntl()
     const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
+    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
 
     const { objs: sources, loading } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM },
@@ -276,15 +277,16 @@ export const TicketSourceSelect: React.FC = () => {
         <Form.Item
             label={TicketSourceLabel}
             required
-            name='source'
+            name={loading ? null : 'source'}
             data-cy='ticket__source-item'
             initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
         >
             <Select
+                loading={loading}
                 style={TICKET_SOURCE_SELECT_STYLE}
                 options={sourceOptions}
-                defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
                 disabled={loading}
+                value={loading ? LoadingMessage : ''}
             />
         </Form.Item>
     )
