@@ -575,6 +575,7 @@ __metadata:
     classnames: ^2.2.6
     cross-env: ^7.0.3
     css-loader: 1.0.0
+    csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 9.7.0
     dayjs: ^1.10.6
@@ -17927,6 +17928,13 @@ __metadata:
   bin:
     csv-parser: bin/csv-parser
   checksum: adc9d67d9f185249825570778c24d13004625301655330f6b735a052b9fdfbe1a239a014afb1f89939e0626ee573718f71f9f14164db7c17e4bcb2f38d6a162b
+  languageName: node
+  linkType: hard
+
+"csv-stringify@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "csv-stringify@npm:6.2.0"
+  checksum: c2fa074fbf2bcb8cea966c1bdf89d377f1f79bbd33e13092131cac511363479a4e7a923f26fe741e2ef5bad479a400c72e18ceb4b7c33e1f0a60cf33f5c31f1c
   languageName: node
   linkType: hard
 
