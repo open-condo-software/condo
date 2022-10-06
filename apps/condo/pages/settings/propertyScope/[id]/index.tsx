@@ -49,6 +49,8 @@ const PropertyScopeIdPage = () => {
     const EditMessage = intl.formatMessage({ id: 'Edit' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.alert.delete.Title' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.alert.delete.Message' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allProperties' })
+    const AllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allEmployees' })
 
     const router = useRouter()
     const { link } = useOrganization()
@@ -83,39 +85,55 @@ const PropertyScopeIdPage = () => {
             employee: { id_in: propertyScopesEmployeeIds },
         },
     })
-    const propertyScopeName = useMemo(() => get(propertyScope, 'name'), [propertyScope])
+    const propertyScopeName = useMemo(() => {
+        const name = get(propertyScope, 'name')
 
-    const renderPropertyScopeProperties = useMemo(() => properties.map(property => (
-        <Typography.Paragraph
-            key={property.id}
-            style={PARAGRAPH_STYLES}
-        >
-            <Typography.Link
-                href={`/property/${get(property, 'id')}`}
-            >
-                {property.name ? `\n${property.name}\n` : getAddressRender(property)}
-            </Typography.Link>
-        </Typography.Paragraph>
-    )), [properties])
+        return name && intl.formatMessage({ id: name }) || name
+    }, [intl, propertyScope])
 
-    const renderPropertyScopeEmployees = useMemo(() => employees.map(employee => {
-        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+    const renderPropertyScopeProperties = useMemo(() => {
+        if (get(propertyScope, 'hasAllProperties')) {
+            return AllPropertiesMessage
+        }
 
-        return (
+        return properties.map(property => (
             <Typography.Paragraph
-                key={employee.id}
+                key={property.id}
                 style={PARAGRAPH_STYLES}
             >
                 <Typography.Link
-                    href={`/employee/${get(employee, 'id')}`}
+                    href={`/property/${get(property, 'id')}`}
                 >
-                    <Typography.Text>
-                        {employee.name} {specializationsMessage && `(${specializationsMessage})`}
-                    </Typography.Text>
+                    {property.name ? `\n${property.name}\n` : getAddressRender(property)}
                 </Typography.Link>
             </Typography.Paragraph>
-        )
-    }), [employees, intl, specializationScopes])
+        ))
+    }, [AllPropertiesMessage, properties, propertyScope])
+
+    const renderPropertyScopeEmployees = useMemo(() => {
+        if (get(propertyScope, 'hasAllEmployees')) {
+            return AllEmployeesMessage
+        }
+
+        return employees.map(employee => {
+            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+
+            return (
+                <Typography.Paragraph
+                    key={employee.id}
+                    style={PARAGRAPH_STYLES}
+                >
+                    <Typography.Link
+                        href={`/employee/${get(employee, 'id')}`}
+                    >
+                        <Typography.Text>
+                            {employee.name} {specializationsMessage && `(${specializationsMessage})`}
+                        </Typography.Text>
+                    </Typography.Link>
+                </Typography.Paragraph>
+            )
+        })
+    }, [AllEmployeesMessage, employees, intl, specializationScopes])
 
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction(propertyScope)

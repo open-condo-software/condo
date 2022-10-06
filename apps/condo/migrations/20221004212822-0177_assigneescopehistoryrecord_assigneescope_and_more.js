@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+
 --
 -- Create model assigneescopehistoryrecord
 --
@@ -28,6 +34,113 @@ CREATE INDEX "AssigneeScope_createdBy_4605faa4" ON "AssigneeScope" ("createdBy")
 CREATE INDEX "AssigneeScope_ticket_e8a38c15" ON "AssigneeScope" ("ticket");
 CREATE INDEX "AssigneeScope_updatedBy_3e164999" ON "AssigneeScope" ("updatedBy");
 CREATE INDEX "AssigneeScope_user_30b38706" ON "AssigneeScope" ("user");
+
+--
+-- [CUSTOM] Create AssigneeScope for already assigned as assignee users
+--
+INSERT INTO "AssigneeScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "user", "ticket")
+SELECT "id", "dv", "v", "sender", "createdAt", "updatedAt", "assignee", "id"
+FROM "Ticket" as t
+WHERE "assignee" is not null AND
+      (SELECT count(*) FROM "AssigneeScope" as s WHERE s."user" = t.assignee AND s."ticket" = t."id" AND s."deletedAt" is null) = 0
+;
+
+--
+-- [CUSTOM] Create AssigneeScope for already assigned as executor users
+--
+INSERT INTO "AssigneeScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "user", "ticket")
+SELECT "id", "dv", "v", "sender", "createdAt", "updatedAt", "executor", "id"
+FROM "Ticket" as t
+WHERE "executor" is not null AND
+      (SELECT count(*) FROM "AssigneeScope" as s WHERE s."user" = t."executor" AND s."ticket" = t."id" AND s."deletedAt" is null) = 0
+;
+
+-- it's required for gen_random_uuid() function!
+CREATE EXTENSION if not exists pgcrypto;
+
+--
+-- [CUSTOM] Added Contractor role
+--
+INSERT INTO "OrganizationEmployeeRole" (
+    id, dv, v, sender, organization, "createdAt", "updatedAt",
+    name,
+    description,
+    "canManageTickets",
+    "canManageContacts",
+    "canManageTicketComments",
+    "canShareTickets",
+    "canBeAssignedAsExecutor",
+    "canManageEmployees",
+    "canManageRoles",
+    "canManageIntegrations",
+    "canManageProperties",
+    "canManageContactRoles",
+    "canManageDivisions",
+    "canManageMeters",
+    "canManageMeterReadings",
+    "canBeAssignedAsResponsible",
+    "canReadPayments",
+    "canReadBillingReceipts",
+    "canReadEntitiesOnlyInScopeOfDivision",
+    "canManageTicketPropertyHints",
+    "canManagePropertyScopes",
+    "canManageOrganization",
+    "ticketVisibilityType"
+)
+SELECT
+    gen_random_uuid(), 1, v, '{"dv": 1, "fingerprint": "migration"}'::json, org.id, now(), now(),
+    'employee.role.Contractor.name',
+    'employee.role.Contractor.description',
+    true,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    'assigned'
+FROM "Organization" AS org;
+
+--
+-- [CUSTOM] Added canManagePropertyScopes to administrator role
+--
+UPDATE "OrganizationEmployeeRole"
+SET "canManagePropertyScopes" = true
+WHERE name = 'employee.role.Administrator.name';
+
+--
+-- [CUSTOM] Set ticketVisibilityType to existing roles
+--
+UPDATE "OrganizationEmployeeRole" 
+SET "ticketVisibilityType" = 'organization' 
+WHERE "name" = 'employee.role.Administrator';
+        
+UPDATE "OrganizationEmployeeRole" 
+SET "ticketVisibilityType" = 'property'
+WHERE "name" = ANY(ARRAY['employee.role.Dispatcher.name', 'employee.role.Manager.name']);
+
+UPDATE "OrganizationEmployeeRole" 
+SET "ticketVisibilityType" = 'propertyAndSpecialization'
+WHERE "name" = ANY(ARRAY['employee.role.Foreman.name', 'employee.role.Technician.name']);
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+ 
 COMMIT;
 
     `)

@@ -5,6 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+
+--
 -- Create model propertyscope
 --
 CREATE TABLE "PropertyScope" ("name" text NOT NULL, "hasAllProperties" boolean NOT NULL, "hasAllEmployees" boolean NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "dv" integer NOT NULL, "sender" jsonb NOT NULL, "createdBy" uuid NULL, "organization" uuid NOT NULL, "updatedBy" uuid NULL);
@@ -103,11 +108,10 @@ CREATE UNIQUE INDEX "property_scope_organization_employee_unique_propertyScope_a
 -- it's required for gen_random_uuid() function!
 CREATE EXTENSION if not exists pgcrypto;
 --
--- Move data from "OrganizationEmployee_specializations_many" to "SpecializationScope"
+-- [CUSTOM] Move data from "OrganizationEmployee_specializations_many" to "SpecializationScope"
 INSERT INTO "SpecializationScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "employee", "specialization")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), specs."OrganizationEmployee_left_id", specs."TicketCategoryClassifier_right_id"
 FROM "OrganizationEmployee_specializations_many" as specs;
-
 
 --
 -- Delete model organizationemployee_specializations_many
@@ -155,6 +159,30 @@ CREATE INDEX "SpecializationScope_updatedBy_7f085533" ON "SpecializationScope" (
 CREATE INDEX "PropertyScopeOrganizationEmployee_employee_118907dc" ON "PropertyScopeOrganizationEmployee" ("employee");
 CREATE INDEX "PropertyScopeOrganizationEmployee_propertyScope_076ec80d" ON "PropertyScopeOrganizationEmployee" ("propertyScope");
 CREATE INDEX "PropertyScopeOrganizationEmployee_updatedBy_6914815c" ON "PropertyScopeOrganizationEmployee" ("updatedBy");
+
+-- 
+-- [CUSTOM] Set all specializations to employees who has not any specialization 
+--
+UPDATE "OrganizationEmployee" as e
+SET "hasAllSpecializations" = true
+WHERE "hasAllSpecializations" = false AND
+      e."deletedAt" is null AND
+      (SELECT count(*) FROM "SpecializationScope" WHERE "employee" = e."id" AND "SpecializationScope"."deletedAt" is null) = 0;
+
+
+--
+-- [CUSTOM] Create default PropertyScope for all organizations
+--
+INSERT INTO "PropertyScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", "hasAllProperties", "hasAllEmployees")
+SELECT "id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", 'pages.condo.settings.propertyScope.default.name', "id", true, true
+FROM "Organization"
+WHERE "deletedAt" is null;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)

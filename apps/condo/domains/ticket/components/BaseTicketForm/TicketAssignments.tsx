@@ -58,6 +58,8 @@ const TicketAssignments = ({
     const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
     const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.employeesOnProperty' })
     const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
+    const AutoAssignAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.autoAssignAlert.title' })
+    const AutoAssignAlertMessage = intl.formatMessage({ id: 'pages.condo.ticket.autoAssignAlert.message' })
 
     const { isSmall } = useLayoutContext()
     const { user } = useAuth()
@@ -175,8 +177,8 @@ const TicketAssignments = ({
                                     <Alert
                                         showIcon
                                         type='info'
-                                        message='Ответственный и исполнитель назначены автоматически'
-                                        description={`Дом из этой заявки входит в зону видимости «${autoAssigneePropertyScopeName}». Поэтому алгоритм Домá автоматически назначил ответственного и исполнителя.`}
+                                        message={AutoAssignAlertTitle}
+                                        description={AutoAssignAlertMessage.replace('name', autoAssigneePropertyScopeName)}
                                     />
                                 </Col>
                             )
