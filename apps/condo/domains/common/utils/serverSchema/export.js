@@ -12,6 +12,9 @@ const { sleep } = require('@condo/domains/common/utils/sleep')
 const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const { createWriteStreamForExport } = require('@condo/domains/common/utils/exportToExcel')
 
+const { stringify } = require('csv-stringify')
+const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('../exportToExcel')
+
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
 const CSV_DELIMITER = ','
 
@@ -143,20 +146,20 @@ const exportRecordsAsXlsxFile = async ({ context, loadRecordsBatch, convertRecor
 const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecordToFileRow, baseAttrs, taskServerUtils, totalRecordsCount, taskId }) => {
     const filename = getTmpFile('csv')
     const writeStream = createWriteStreamForExport(filename)
-    let isFirstLine = true
-    const listkey = taskServerUtils.gql.SINGULAR_FORM
+
+    const task = await taskServerUtils.getOne(context, { id: taskId })
+    const columns = getHeadersTranslations(EXPORT_TYPE_TICKETS, task.locale)
+    const stringifier = stringify({ header: true, columns, delimiter: CSV_DELIMITER })
+    stringifier.pipe(writeStream)
 
     await processRecords({
         context,
         loadRecordsBatch,
         processRecordsBatch: async (batch) => {
             const convertedRecords = await Promise.all(batch.map(convertRecordToFileRow))
-            if (isFirstLine) {
-                // NOTE(pahaz): need to write headers
-                writeStream.write(Object.keys(convertedRecords[0]).join(CSV_DELIMITER) + '\n')
-                isFirstLine = false
-            }
-            writeStream.write(convertedRecords.map(row => Object.values(row).map(JSON.stringify).join(CSV_DELIMITER)).join('\n') + '\n')
+            convertedRecords.forEach(row => {
+                stringifier.write(Object.values(row))
+            })
         },
         baseAttrs, taskServerUtils, totalRecordsCount, taskId,
     })
@@ -166,7 +169,7 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
     const stream = fs.createReadStream(filename, { encoding: 'utf8' })
     const file = buildUploadInputFrom({
         stream, filename: `export_${dayjs().format('DD_MM')}.csv`, mimetype: 'text/csv', encoding: 'utf8',
-        meta: { listkey, id: taskId },
+        meta: { listkey: taskServerUtils.gql.SINGULAR_FORM, id: taskId },
     })
 
     return await taskServerUtils.update(context, taskId, {
