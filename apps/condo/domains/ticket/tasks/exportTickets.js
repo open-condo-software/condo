@@ -30,6 +30,9 @@ const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 const HEADER_DATE_FORMAT = 'DD.MM.YYYY'
 
 const EMPTY_VALUE = '—'
+
+// Exporting large amount of records into Excel crashes server Pod because it gets out of memory
+// When records count is more than this constant, CSV file will be generated instead of Excel
 const MAX_XLSX_FILE_ROWS = 10000
 
 const buildReviewValuesTranslationsFrom = (locale) => ({
