@@ -14,7 +14,9 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
                 name
                 canBeAssignedAsExecutor
                 canBeAssignedAsResponsible
+                ticketVisibilityType
             }
+            hasAllSpecializations
         }
     }
 `
@@ -36,7 +38,7 @@ async function _search (client, query, variables) {
     })
 }
 
-export function searchEmployeeWithSpecializations (intl, organizationId) {
+export function searchEmployeeWithSpecializations (intl, organizationId, filter) {
     if (!organizationId) return
 
     return async function (client, value) {
@@ -51,11 +53,46 @@ export function searchEmployeeWithSpecializations (intl, organizationId) {
         if (error || specializationScopesError) console.warn(error)
 
         return employees
-            .filter(Boolean)
+            .filter(filter || Boolean)
             .map(employee => {
                 const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
 
                 return { text: `${employee.name}${specializationsMessage ? ` (${specializationsMessage})` : ''}`, value: employee.id }
+            })
+    }
+}
+
+export function searchEmployeeUserWithSpecializations (intl, organizationId, propertyId, filter) {
+    if (!organizationId) return
+
+    return async function (client, value) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+
+        const employees = data.objs
+
+        const { data: specializationScopes, error: specializationScopesError } = await _search(client, GET_ALL_SPECIALIZATION_SCOPE_QUERY, {
+            employeeIds: employees.map(employee => employee.id),
+        })
+
+        if (error || specializationScopesError) console.warn(error)
+
+        return employees
+            .filter(filter || Boolean)
+            .filter(({ user }) => user)
+            .map(employee => {
+                const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
+                const specializations = specializationScopes.objs
+                    .filter(scope => scope.employee.id === employee.id)
+                    .map(scope => scope.specialization)
+
+                return {
+                    text: `${employee.name}${specializationsMessage ? ` (${specializationsMessage})` : ''}`,
+                    value: employee.user.id,
+                    data: {
+                        specializations,
+                        employee,
+                    },
+                }
             })
     }
 }

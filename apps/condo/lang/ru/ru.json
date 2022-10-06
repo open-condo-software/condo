@@ -596,6 +596,8 @@
   "pages.condo.ticket.select.group.apartment": "Апартаменты",
   "pages.condo.ticket.select.group.warehouse": "Кладовые",
   "pages.condo.ticket.select.group.commercial": "Коммерч. п.",
+  "pages.condo.ticket.select.group.employeesOnProperty": "Сотрудники на этом доме:",
+  "pages.condo.ticket.select.group.other": "Остальные:",
   "pages.condo.ticket.title.CanReadByResident": "Житель {canReadByResident} заявку в моб. приложении",
   "pages.condo.ticket.title.ResidentCannotReadTicket": "не видит",
   "pages.condo.ticket.title.TicketInfo": "Информация о заявке",

@@ -100,9 +100,10 @@ export const CreateTicketForm: React.FC = () => {
         {
             status: { connect: { id: OPEN_STATUS } },
         },
-        (ticket) => {
+        async (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
-            router.push('/ticket')
+            console.log('ticket', ticket)
+            await router.push('/ticket')
         })
 
     const createAction = useCallback((variables) => {

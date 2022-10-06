@@ -596,6 +596,8 @@
   "pages.condo.ticket.select.group.apartment": "Apartments",
   "pages.condo.ticket.select.group.warehouse": "Warehouse",
   "pages.condo.ticket.select.group.commercial": "Commercial units",
+  "pages.condo.ticket.select.group.employeesOnProperty": "Employees on this property:",
+  "pages.condo.ticket.select.group.other": "Other:",
   "pages.condo.ticket.title.CanReadByResident": "The resident {canReadByResident} the ticket in the mobile application",
   "pages.condo.ticket.title.ResidentCannotReadTicket": "does not see",
   "pages.condo.ticket.title.TicketInfo": "Task information",
