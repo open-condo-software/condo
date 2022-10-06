@@ -318,11 +318,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const billingAccount = await getById('BillingAccount', billingAccountId)
 
                         const consumer = consumersByIds[group.serviceConsumer.id]
-                        const resident = await getById('Resident', consumer.resident)
 
                         if (
                             billingAccount.number !== consumer.accountNumber
-                            || billingAccount.unitName !== resident.unitName
                             || billingAccount.context !== consumer.billingIntegrationContext
                         ) {
                             throw new GQLError({
