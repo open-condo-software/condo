@@ -12,6 +12,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
+    searchAllOrganizationProperties,
     searchEmployee,
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
@@ -123,6 +124,10 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         initialProperties, propertyScopeEmployees, propertyScopeProperties, router, softDeletePropertyScopeEmployeeAction, softDeletePropertyScopePropertyAction,
     ])
 
+    const searchPropertiesFn = useMemo(() => initialValues.id ?
+        searchAllOrganizationProperties(initialProperties) : searchOrganizationProperty,
+    [initialProperties, initialValues.id])
+
     if (loading) {
         return (
             <Loader fill size='large'/>
@@ -164,7 +169,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                     selectProps={{
                                         disabled: !organizationId,
                                         initialValue: initialProperties,
-                                        search: searchOrganizationProperty(organizationId),
+                                        search: searchPropertiesFn(organizationId),
                                         showArrow: false,
                                         mode: 'multiple',
                                         infinityScroll: true,

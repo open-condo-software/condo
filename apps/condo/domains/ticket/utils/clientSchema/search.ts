@@ -144,6 +144,46 @@ export function searchOrganizationProperty (organizationId) {
     }
 }
 
+export function searchAllOrganizationProperties (initialProperties) {
+    return function (organizationId) {
+        if (!organizationId) return
+        return async function (client, searchText, query = {}, first = 10, skip = 0) {
+            const where = {
+                OR: [
+                    {
+                        AND: [
+                            {
+                                id_in: initialProperties,
+                                OR: [
+                                    { deletedAt: null },
+                                    { deletedAt_not: null },
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        AND: [
+                            {
+                                organization: {
+                                    id: organizationId,
+                                },
+                                ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
+                                ...query,
+                                deletedAt: null,
+                            },
+                        ],
+                    },
+                ],
+            }
+            const orderBy = 'address_ASC'
+            const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+            if (error) console.warn(error)
+
+            return data.objs.map(({ address, id }) => ({ text: address, value: id }))
+        }
+    }
+}
+
 export function searchOrganizationPropertyWithoutPropertyHint (organizationId, organizationPropertiesWithTicketHint = []) {
     if (!organizationId) return
     return async function (client, searchText, query = {}, first = 10, skip = 0) {
