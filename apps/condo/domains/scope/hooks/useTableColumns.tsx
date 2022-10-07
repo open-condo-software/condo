@@ -9,7 +9,10 @@ import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.util
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getManyEmployeesNameRender } from '@condo/domains/organization/utils/clientSchema/Renders'
-import { getManyPropertiesAddressRender } from '@condo/domains/property/utils/clientSchema/Renders'
+import {
+    geOneAddressAndPropertiesCountRender,
+    getManyPropertiesAddressRender,
+} from '@condo/domains/property/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { PropertyScopeOrganizationEmployee, PropertyScopeProperty, SpecializationScope } from '../utils/clientSchema'
 
@@ -73,7 +76,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             .filter(propertyScopeProperty => propertyScopeProperty.propertyScope.id === propertyScope.id)
             .map(propertyScopeProperty => propertyScopeProperty.property)
 
-        return getManyPropertiesAddressRender(search)(intl, properties)
+        return geOneAddressAndPropertiesCountRender(search)(intl, properties)
     }, [AllPropertiesMessage, propertyScopeProperties, search])
 
     const renderPropertyScopeEmployees = useCallback((intl, propertyScope) => {

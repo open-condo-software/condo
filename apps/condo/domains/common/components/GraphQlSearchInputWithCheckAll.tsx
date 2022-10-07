@@ -62,11 +62,13 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         <Row gutter={0}>
             <Col span={24}>
                 <Form.Item
+                    labelAlign='left'
                     rules={rules}
                     {...selectFormItemProps}
                 >
                     <GraphQlSearchInput
                         {...selectProps}
+                        mode='multiple'
                         placeholder={isAllChecked && CheckedAllMessage || selectProps.placeholder}
                         disabled={selectProps.disabled || isAllChecked}
                     />

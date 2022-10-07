@@ -29,7 +29,7 @@ export default function PropertiesMap ({ properties, ...mapGLProps }: Properties
 
         const divisions = properties
             .filter(division => has(division, ['properties']))
-            .flatMap((division: DivisionType) => division.properties)
+            // .flatMap((division: DivisionType) => division.properties)
             .filter(property => has(property, ['addressMeta', 'data']))
             .map(propertyMapper)
 
