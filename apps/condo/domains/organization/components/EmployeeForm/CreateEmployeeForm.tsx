@@ -2,7 +2,7 @@
 import { Card, Col, Form, Row } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useOrganization } from '@open-condo/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@open-condo/next/intl'
@@ -21,6 +21,7 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Alert } from '../../../common/components/Alert'
 import { GraphQlSearchInputWithCheckAll } from '../../../common/components/GraphQlSearchInputWithCheckAll'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
@@ -124,6 +125,17 @@ export const CreateEmployeeForm: React.FC = () => {
         return () => classifiersLoader.clear()
     }, [])
 
+    const specializationsFormItemProps = useMemo(() => ({
+        name: 'specializations',
+        label: SpecializationsLabel,
+        validateFirst: true,
+        ...INPUT_LAYOUT_PROPS,
+    }), [SpecializationsLabel])
+
+    const specializationsSelectProps = useMemo(() => ({
+        search: searchClassifers,
+    }), [searchClassifers])
+
     if (loading || error)
         return <LoadingOrErrorPage title={InviteEmployeeLabel} loading={loading} error={error ? ServerErrorMsg : null} />
 
@@ -194,17 +206,8 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                         <GraphQlSearchInputWithCheckAll
                                                                             checkAllFieldName='hasAllSpecializations'
                                                                             checkAllInitialValue={false}
-                                                                            selectFormItemProps={{
-                                                                                name: 'specializations',
-                                                                                label: SpecializationsLabel,
-                                                                                labelAlign: 'left',
-                                                                                validateFirst: true,
-                                                                                ...INPUT_LAYOUT_PROPS,
-                                                                            }}
-                                                                            selectProps={{
-                                                                                search: searchClassifers,
-                                                                                mode: 'multiple',
-                                                                            }}
+                                                                            selectFormItemProps={specializationsFormItemProps}
+                                                                            selectProps={specializationsSelectProps}
                                                                             CheckAllMessage={CheckAllMessage}
                                                                             checkBoxOffset={8}
                                                                             form={form}
@@ -252,18 +255,12 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 const role = employeeRoles.find(x => x.id === roleId)
                                                 if (!role) return null
                                                 return (
-                                                    <Card
-                                                        title={role.name}
-                                                        bordered={false}
-                                                        css={CardCss}
-                                                        headStyle={{
-                                                            color: colors.lightGrey[10],
-                                                            fontSize: 24,
-                                                            fontWeight: 'bold',
-                                                        }}
-                                                    >
-                                                        {role.description}
-                                                    </Card>
+                                                    <Alert
+                                                        type='info'
+                                                        showIcon
+                                                        message={role.name}
+                                                        description={role.description}
+                                                    />
                                                 )
                                             }}
                                         </Form.Item>
@@ -296,6 +293,5 @@ export const CreateEmployeeForm: React.FC = () => {
                 }
             }
         </FormWithAction>
-
     )
 }

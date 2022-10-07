@@ -10,7 +10,7 @@ import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
 import { BasePropertyScopeForm } from './BasePropertyScopeForm'
 
 
-export const CreateTicketPropertyHintForm = () => {
+export const CreatePropertyScopeForm = () => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 

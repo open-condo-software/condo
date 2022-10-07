@@ -33,6 +33,7 @@ const StyledAlert = styled(DefaultAlert)<{ bgColor, messageColor, descriptionCol
   }
   
   & > .ant-alert-content > .ant-alert-message {
+    font-weight: 600;
     font-size: 16px;
     line-height: 21px;
     color: ${props => props.messageColor};
