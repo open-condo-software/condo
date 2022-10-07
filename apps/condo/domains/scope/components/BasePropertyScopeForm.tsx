@@ -40,7 +40,6 @@ const LAYOUT = {
 }
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
-const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 25]
 const APARTMENT_COMPLEX_NAME_FIELD_PROPS = {
     labelCol: {
         sm: 6,
@@ -70,7 +69,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const PropertyScopeNameMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertyScopeName' })
     const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
-    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
+    const CheckAllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
+    const CheckAllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllEmployees' })
 
     const router = useRouter()
 
@@ -175,13 +175,14 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                         infinityScroll: true,
                                     }}
                                     checkBoxOffset={6}
-                                    CheckAllMessage={CheckAllMessage}
+                                    CheckAllMessage={CheckAllPropertiesMessage}
+                                    form={form}
                                 />
                             </Col>
                             <Col span={24}>
                                 <GraphQlSearchInputWithCheckAll
                                     checkAllFieldName='hasAllEmployees'
-                                    checkAllInitialValue={initialValues.hasAllProperties}
+                                    checkAllInitialValue={initialValues.hasAllEmployees}
                                     selectFormItemProps={{
                                         name: 'employees',
                                         label: EmployeesMessage,
@@ -198,7 +199,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                         mode: 'multiple',
                                     }}
                                     checkBoxOffset={6}
-                                    CheckAllMessage={CheckAllMessage}
+                                    CheckAllMessage={CheckAllEmployeesMessage}
+                                    form={form}
                                 />
                             </Col>
                             {children({ handleSave, isLoading, form })}

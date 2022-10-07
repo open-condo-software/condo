@@ -38,9 +38,6 @@ const INPUT_LAYOUT_PROPS = {
     wrapperCol: {
         span: 14,
     },
-    style: {
-        paddingBottom: '24px',
-    },
 }
 
 const CardCss = css`
@@ -152,7 +149,7 @@ export const CreateEmployeeForm: React.FC = () => {
             }}
         >
             {
-                ({ handleSave, isLoading }) => {
+                ({ handleSave, isLoading, form }) => {
                     return (
                         <>
                             <Row>
@@ -206,9 +203,11 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                             }}
                                                                             selectProps={{
                                                                                 search: searchClassifers,
+                                                                                mode: 'multiple',
                                                                             }}
                                                                             CheckAllMessage={CheckAllMessage}
                                                                             checkBoxOffset={8}
+                                                                            form={form}
                                                                         />
                                                                     </Col>
                                                                 )

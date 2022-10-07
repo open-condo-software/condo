@@ -29,15 +29,13 @@ import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
-        span: 11,
+        span: 8,
     },
     wrapperCol: {
-        span: 13,
-    },
-    style: {
-        maxWidth: '453px',
+        span: 14,
     },
 }
+
 const CardCss = css`
   width: 300px;
   height: fit-content;
@@ -161,7 +159,7 @@ export const UpdateEmployeeForm = () => {
                 return values
             }}
         >
-            {({ handleSave, isLoading }) => {
+            {({ handleSave, isLoading, form }) => {
                 return (
                     <Row gutter={[0, 40]} justify='center'>
                         <Col xs={10} lg={2}>
@@ -217,24 +215,28 @@ export const UpdateEmployeeForm = () => {
                                                 const selectedRole = find(employeeRoles, { id: role })
 
                                                 if (get(selectedRole, 'canBeAssignedAsExecutor'))
-                                                    return (<Col span={24}>
-                                                        <GraphQlSearchInputWithCheckAll
-                                                            checkAllFieldName='hasAllSpecializations'
-                                                            checkAllInitialValue={initialValues.hasAllSpecializations}
-                                                            selectFormItemProps={{
-                                                                name: 'specializations',
-                                                                label: SpecializationsLabel,
-                                                                labelAlign: 'left',
-                                                                validateFirst: true,
-                                                                ...INPUT_LAYOUT_PROPS,
-                                                            }}
-                                                            selectProps={{
-                                                                search: searchClassifers,
-                                                            }}
-                                                            CheckAllMessage={CheckAllMessage}
-                                                            checkBoxOffset={8}
-                                                        />
-                                                    </Col>)
+                                                    return (
+                                                        <Col span={24}>
+                                                            <GraphQlSearchInputWithCheckAll
+                                                                checkAllFieldName='hasAllSpecializations'
+                                                                checkAllInitialValue={initialValues.hasAllSpecializations}
+                                                                selectFormItemProps={{
+                                                                    name: 'specializations',
+                                                                    label: SpecializationsLabel,
+                                                                    labelAlign: 'left',
+                                                                    validateFirst: true,
+                                                                    ...INPUT_LAYOUT_PROPS,
+                                                                }}
+                                                                selectProps={{
+                                                                    search: searchClassifers,
+                                                                    mode: 'multiple',
+                                                                }}
+                                                                CheckAllMessage={CheckAllMessage}
+                                                                checkBoxOffset={8}
+                                                                form={form}
+                                                            />
+                                                        </Col>
+                                                    )
                                             }
                                         }
                                     </Form.Item>

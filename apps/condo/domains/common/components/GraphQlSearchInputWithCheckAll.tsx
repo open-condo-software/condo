@@ -1,8 +1,9 @@
-import { Col, Form, FormItemProps, Row } from 'antd'
+import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import { isFunction } from 'lodash'
 
-import React, { ComponentProps, useCallback, useState } from 'react'
-import { useValidations } from '../hooks/useValidations'
+import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
+import { useIntl } from '@condo/next/intl'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import Checkbox from './antd/Checkbox'
 import { GraphQlSearchInput } from './GraphQlSearchInput'
@@ -15,6 +16,7 @@ type InputWithCheckAllProps = {
     CheckAllMessage: string,
     selectProps: ComponentProps<typeof GraphQlSearchInput>
     checkBoxOffset?: number
+    form: FormInstance
 }
 
 export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = (
@@ -25,9 +27,13 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         checkAllInitialValue,
         selectProps,
         CheckAllMessage,
+        form,
         checkBoxOffset,
     }
 ) => {
+    const intl = useIntl()
+    const CheckedAllMessage = intl.formatMessage({ id: 'CheckedAll' })
+
     const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)
     const { requiredValidator } = useValidations()
 
@@ -39,6 +45,13 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
             onCheckBoxChange(value)
         }
     }, [onCheckBoxChange])
+
+    const formItemName = String(selectFormItemProps.name)
+    useEffect(() => {
+        if (isAllChecked) {
+            form.setFieldsValue({ [formItemName]: [] })
+        }
+    }, [form, formItemName, isAllChecked])
 
     const rules = []
     if (selectFormItemProps.required && !isAllChecked) {
@@ -54,7 +67,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                 >
                     <GraphQlSearchInput
                         {...selectProps}
-                        mode='multiple'
+                        placeholder={isAllChecked && CheckedAllMessage || selectProps.placeholder}
                         disabled={selectProps.disabled || isAllChecked}
                     />
                 </Form.Item>

@@ -148,7 +148,7 @@ const PropertyScopeIdPage = () => {
                 </Typography.Paragraph>
             )
         })
-    }, [AllEmployeesMessage, employees, intl, specializationScopes])
+    }, [AllEmployeesMessage, employees, intl, propertyScope, specializationScopes])
 
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction(propertyScope)
