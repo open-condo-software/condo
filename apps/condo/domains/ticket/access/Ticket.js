@@ -46,7 +46,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
     const organizationTicketVisibilityOrganizationIds = []
     const propertiesVisibilityPropertyIds = []
     const propertyAndSpecializationVisibilitySearchStatement = []
-    const assignedVisibilityUserIds = []
 
     const employeeWithPropertyVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_TICKET_VISIBILITY)
     const employeeWithPropertyAndSpecializationVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_AND_SPECIALIZATION_VISIBILITY)
@@ -69,12 +68,6 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         switch (visibilityType) {
             case ORGANIZATION_TICKET_VISIBILITY: {
                 organizationTicketVisibilityOrganizationIds.push(employee.organization)
-
-                break
-            }
-
-            case ASSIGNED_TICKET_VISIBILITY: {
-                assignedVisibilityUserIds.push(user.id)
 
                 break
             }
@@ -155,8 +148,8 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
                 AND: [
                     {
                         OR: [
-                            { assignee: { id_in: assignedVisibilityUserIds } },
-                            { executor: { id_in: assignedVisibilityUserIds } },
+                            { assignee: { id: user.id } },
+                            { executor: { id: user.id } },
                         ],
                     },
                 ],

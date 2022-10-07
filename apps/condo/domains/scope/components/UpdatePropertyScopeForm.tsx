@@ -35,14 +35,15 @@ export const UpdatePropertyScopeForm = ({ id }) => {
     const action = PropertyScope.useUpdate({})
     const updateAction = useCallback((values) => action(values, propertyScope), [action, propertyScope])
 
+    const name = get(propertyScope, 'name')
     const initialValues = useMemo(() => ({
         id: get(propertyScope, 'id'),
-        name: get(propertyScope, 'name'),
+        name: name && intl.formatMessage({ id: name }) || name,
         propertyScopeProperties,
         propertyScopeEmployees,
         hasAllProperties: get(propertyScope, 'hasAllProperties'),
         hasAllEmployees: get(propertyScope, 'hasAllEmployees'),
-    }), [propertyScope, propertyScopeEmployees, propertyScopeProperties])
+    }), [intl, name, propertyScope, propertyScopeEmployees, propertyScopeProperties])
 
     const loading = scopeLoading || scopePropertiesLoading || scopeEmployeesLoading
 

@@ -150,57 +150,51 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                 </Form.Item>
                             </Col>
                             <Col span={24}>
-                                <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                    <Col span={24}>
-                                        <GraphQlSearchInputWithCheckAll
-                                            checkAllFieldName='hasAllProperties'
-                                            checkAllInitialValue={initialValues.hasAllProperties}
-                                            selectFormItemProps={{
-                                                name: 'properties',
-                                                label: PropertiesMessage,
-                                                labelAlign: 'left',
-                                                validateFirst: true,
-                                                required: true,
-                                                ...INPUT_LAYOUT_PROPS,
-                                            }}
-                                            selectProps={{
-                                                disabled: !organizationId,
-                                                initialValue: initialProperties,
-                                                search: searchOrganizationProperty(organizationId),
-                                                showArrow: false,
-                                                mode: 'multiple',
-                                                infinityScroll: true,
-                                            }}
-                                            CheckAllMessage={CheckAllMessage}
-                                        />
-                                    </Col>
-                                </Row>
+                                <GraphQlSearchInputWithCheckAll
+                                    checkAllFieldName='hasAllProperties'
+                                    checkAllInitialValue={initialValues.hasAllProperties}
+                                    selectFormItemProps={{
+                                        name: 'properties',
+                                        label: PropertiesMessage,
+                                        labelAlign: 'left',
+                                        validateFirst: true,
+                                        required: true,
+                                        ...INPUT_LAYOUT_PROPS,
+                                    }}
+                                    selectProps={{
+                                        disabled: !organizationId,
+                                        initialValue: initialProperties,
+                                        search: searchOrganizationProperty(organizationId),
+                                        showArrow: false,
+                                        mode: 'multiple',
+                                        infinityScroll: true,
+                                    }}
+                                    checkBoxOffset={6}
+                                    CheckAllMessage={CheckAllMessage}
+                                />
                             </Col>
                             <Col span={24}>
-                                <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                    <Col span={24}>
-                                        <GraphQlSearchInputWithCheckAll
-                                            checkAllFieldName='hasAllEmployees'
-                                            checkAllInitialValue={initialValues.hasAllProperties}
-                                            selectFormItemProps={{
-                                                name: 'employees',
-                                                label: EmployeesMessage,
-                                                labelAlign: 'left',
-                                                validateFirst: true,
-                                                required: true,
-                                                ...INPUT_LAYOUT_PROPS,
-                                            }}
-                                            selectProps={{
-                                                disabled: !organizationId,
-                                                initialValue: initialEmployees,
-                                                search: searchEmployeeWithSpecializations(intl, organizationId),
-                                                showArrow: false,
-                                                mode: 'multiple',
-                                            }}
-                                            CheckAllMessage={CheckAllMessage}
-                                        />
-                                    </Col>
-                                </Row>
+                                <GraphQlSearchInputWithCheckAll
+                                    checkAllFieldName='hasAllEmployees'
+                                    checkAllInitialValue={initialValues.hasAllProperties}
+                                    selectFormItemProps={{
+                                        name: 'employees',
+                                        label: EmployeesMessage,
+                                        labelAlign: 'left',
+                                        validateFirst: true,
+                                        required: true,
+                                        ...INPUT_LAYOUT_PROPS,
+                                    }}
+                                    selectProps={{
+                                        disabled: !organizationId,
+                                        initialValue: initialEmployees,
+                                        search: searchEmployeeWithSpecializations(intl, organizationId, null),
+                                        showArrow: false,
+                                        mode: 'multiple',
+                                    }}
+                                    checkBoxOffset={6}
+                                    CheckAllMessage={CheckAllMessage}
+                                />
                             </Col>
                             {children({ handleSave, isLoading, form })}
                         </Row>

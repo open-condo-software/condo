@@ -208,6 +208,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                                 search: searchClassifers,
                                                                             }}
                                                                             CheckAllMessage={CheckAllMessage}
+                                                                            checkBoxOffset={8}
                                                                         />
                                                                     </Col>
                                                                 )
