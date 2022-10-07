@@ -1,10 +1,10 @@
 import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { isEmpty } from 'lodash'
+import React from 'react'
 
-import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 
-export const getEmployeeSpecializationsMessage = (intl, employee, specializationScopes) => {
+export const getEmployeeSpecializationsMessage = (intl, employee, specializationScopes): React.ReactElement => {
     const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
     const SpecializationsCountMessage = intl.formatMessage({ id: 'employee.SpecializationsCount' })
 
@@ -12,18 +12,32 @@ export const getEmployeeSpecializationsMessage = (intl, employee, specialization
         .filter(scope => scope.employee.id === employee.id)
         .map(scope => scope.specialization.name)
 
-    let specializationsMessage
+    let SpecializationsMessage = <></>
     if (employee.hasAllSpecializations) {
-        specializationsMessage = AllSpecializationsMessage
-    } else if (employeeSpecializations.length > 1) {
-        specializationsMessage = SpecializationsCountMessage + employeeSpecializations.length
-    } else if (employeeSpecializations.length === 1) {
-        specializationsMessage = employeeSpecializations[0]
+        SpecializationsMessage = (
+            <Typography.Text>
+                ({AllSpecializationsMessage.toLowerCase()})
+            </Typography.Text>
+        )
+    } else if (employeeSpecializations.length > 0){
+        const firstSpecializationMessage = employeeSpecializations[0].toLowerCase()
+
+        if (employeeSpecializations.length > 1) {
+            SpecializationsMessage = (
+                <Typography.Text>
+                    ({firstSpecializationMessage}&nbsp;
+                    <Typography.Text type='secondary'>
+                        {SpecializationsCountMessage + employeeSpecializations.length})
+                    </Typography.Text>
+                </Typography.Text>
+            )
+        } else {
+            SpecializationsMessage = <Typography.Text>({firstSpecializationMessage})</Typography.Text>
+        }
     }
 
-    return specializationsMessage
+    return SpecializationsMessage
 }
-
 
 export const getManyEmployeesNameRender = (search: FilterValue) => {
     return function render (intl, employees, specializationScopes) {
@@ -36,7 +50,7 @@ export const getManyEmployeesNameRender = (search: FilterValue) => {
 
             return (
                 <Typography.Paragraph key={employee.id} style={{ margin: 0 }}>
-                    {employee.name} {specializationsMessage && `(${specializationsMessage})`}
+                    {employee.name} {specializationsMessage && specializationsMessage}
                 </Typography.Paragraph>
             )
         })

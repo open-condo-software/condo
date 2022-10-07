@@ -11,7 +11,7 @@ const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
 const { SpecializationScope: SpecializationScopeGQL } = require('@condo/domains/scope/gql')
-const { find, getByCondition } = require('@condo/keystone/schema')
+const { find } = require('@condo/keystone/schema')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -37,6 +37,21 @@ async function softDeletePropertyScopeProperties (context, updatedItem) {
 
     const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
         property: { id },
+    })
+
+    for (const propertyScopeProperty of propertyScopeProperties) {
+        await PropertyScopeProperty.update(context, propertyScopeProperty.id, {
+            deletedAt: 'true',
+            dv, sender,
+        })
+    }
+}
+
+async function softDeletePropertyScopeOrganizationEmployee (context, updatedItem) {
+    const { dv, sender, id } = updatedItem
+
+    const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
+        organizationEmployee: { id },
     })
 
     for (const propertyScopeProperty of propertyScopeProperties) {
@@ -173,6 +188,7 @@ module.exports = {
     mapEmployeeToVisibilityTypeToEmployees,
     getPropertyScopes,
     manageAssigneeScope,
+    softDeletePropertyScopeOrganizationEmployee,
     AssigneeScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

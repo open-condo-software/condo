@@ -11,7 +11,6 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getManyEmployeesNameRender } from '@condo/domains/organization/utils/clientSchema/Renders'
 import {
     geOneAddressAndPropertiesCountRender,
-    getManyPropertiesAddressRender,
 } from '@condo/domains/property/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { PropertyScopeOrganizationEmployee, PropertyScopeProperty, SpecializationScope } from '../utils/clientSchema'
@@ -89,7 +88,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             .map(propertyScopeEmployee => propertyScopeEmployee.employee)
 
         return getManyEmployeesNameRender(search)(intl, employees, specializationScopes)
-    }, [propertyScopeEmployees, search, specializationScopes])
+    }, [AllEmployeesMessage, propertyScopeEmployees, search, specializationScopes])
 
     return useMemo(() => ({
         loading: propertiesLoading || employeesLoading,
@@ -100,7 +99,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                width: '35%',
+                width: '25%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
                 render: (name) => render(intl.formatMessage({ id: name }) || name),
@@ -110,13 +109,13 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 ellipsis: true,
                 key: 'properties',
                 render: (_, propertyScope) => renderPropertyScopeProperties(intl, propertyScope),
-                width: '35%',
+                width: '38%',
             },
             {
                 title: EmployeesMessage,
                 key: 'employees',
                 render: (_, employeeScope) => renderPropertyScopeEmployees(intl, employeeScope),
-                width: '30%',
+                width: '38%',
             },
         ],
     }), [EmployeesMessage, PropertiesMessage, PropertyScopeNameMessage, employeesLoading, filterMetas, filters,

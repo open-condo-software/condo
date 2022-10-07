@@ -86,21 +86,23 @@ const TicketAssignments = ({
     })
 
     const [autoAssigneePropertyScopeName, setAutoAssigneePropertyScopeName] = useState<string>()
-    const [autoAssignedUserId, setAutoAssignedUserId] = useState<string>()
+    const [autoAssignedAsExecutorUserId, setAutoAssignedAsExecutorUserId] = useState<string>()
+    const [autoAssignedAsAssigneeUserId, setAutoAssignedAsAssigneeUserId] = useState<string>()
 
     useEffect(() => {
         form.setFieldsValue({
-            assignee: autoAssignedUserId,
-            executor: autoAssignedUserId,
+            assignee: autoAssignedAsAssigneeUserId,
+            executor: autoAssignedAsExecutorUserId,
         })
-    }, [autoAssignedUserId, form])
+    }, [autoAssignedAsAssigneeUserId, autoAssignedAsExecutorUserId, form])
 
     const updateAssigneeAndExecutorFields = useCallback((employeeOpt, isPropertyAndSpecializationMatch) => {
         const userId = employeeOpt.value
-        setAutoAssignedUserId(userId)
+        setAutoAssignedAsAssigneeUserId(userId)
 
         if (isPropertyAndSpecializationMatch) {
             const { employee } = employeeOpt.data
+            setAutoAssignedAsExecutorUserId(userId)
 
             if (propertyScopesWithAllPropertiesAndEmployees.length > 0) {
                 setAutoAssigneePropertyScopeName(propertyScopesWithAllPropertiesAndEmployees[0].name)
@@ -178,7 +180,7 @@ const TicketAssignments = ({
                                         showIcon
                                         type='info'
                                         message={AutoAssignAlertTitle}
-                                        description={AutoAssignAlertMessage.replace('name', autoAssigneePropertyScopeName)}
+                                        description={AutoAssignAlertMessage.replace('{name}', autoAssigneePropertyScopeName)}
                                     />
                                 </Col>
                             )
@@ -214,10 +216,9 @@ const TicketAssignments = ({
                                     showArrow={false}
                                     disabled={disableUserInteraction}
                                     renderOptions={renderOptionGroups}
-                                    search={searchEmployeeUserWithSpecializations(intl, organizationId, propertyId, ({ role }) =>
-                                        // get(role, 'canBeAssignedAsResponsible', false)
-                                        true
-                                    )}
+                                    search={searchEmployeeUserWithSpecializations(intl, organizationId, propertyId, ({ role }) => (
+                                        get(role, 'canBeAssignedAsResponsible', false)
+                                    ))}
                                 />
                             </TicketFormItem>
                         </Col>

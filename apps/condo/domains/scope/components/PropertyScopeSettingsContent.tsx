@@ -1,7 +1,6 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -22,27 +21,48 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
-import { Loader } from '@condo/domains/common/components/Loader'
 
 const SORTABLE_PROPERTIES = ['name']
 const PROPERTY_SCOPES_DEFAULT_SORT_BY = ['createdAt_DESC']
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
-const SettingsContent = ({
-    organization,
-    filtersMeta,
-    propertyScopes,
-    total,
-}) => {
+export const PropertyScopeSettingsContent = () => {
     const intl = useIntl()
     const PropertyScopeTitle = intl.formatMessage({ id: 'TicketsVisibility' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreatePropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.create' })
 
-    const router = useRouter()
+    const userOrganization = useOrganization()
+    const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    const canManagePropertyScopes = useMemo(() => get(organization, ['link', 'role', 'canManagePropertyScopes']), [organization])
+    const router = useRouter()
+    const { filters, sorters, offset } = parseQuery(router.query)
+
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const filtersMeta = usePropertyScopeTableFilters()
+
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
+    const sortBy = sortersToSortBy(sorters, PROPERTY_SCOPES_DEFAULT_SORT_BY) as SortPropertyScopesBy[]
+
+    const searchPropertyScopesQuery = useMemo(() => ({
+        ...filtersToWhere(filters),
+        organization: { id: userOrganizationId },
+    }), [filters, filtersToWhere, userOrganizationId])
+
+    const {
+        loading: isPropertyScopesFetching,
+        count: total,
+        objs: propertyScopes,
+    } = PropertyScope.useObjects({
+        sortBy,
+        where: searchPropertyScopesQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    })
+
+    const canManagePropertyScopes = useMemo(() => get(userOrganization, ['link', 'role', 'canManagePropertyScopes']), [userOrganization])
     const [search, handleSearchChange] = useSearch<IFilters>(false)
 
     const handleRowAction = useCallback((record) => {
@@ -109,46 +129,5 @@ const SettingsContent = ({
                 )
             }
         </Row>
-    )
-}
-
-export const PropertyScopeSettingsContent = () => {
-
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const router = useRouter()
-    const { filters, sorters, offset } = parseQuery(router.query)
-
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
-
-    const filtersMeta = usePropertyScopeTableFilters()
-
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
-    const sortBy = sortersToSortBy(sorters, PROPERTY_SCOPES_DEFAULT_SORT_BY) as SortPropertyScopesBy[]
-
-    const searchPropertyScopesQuery = useMemo(() => ({
-        ...filtersToWhere(filters),
-        organization: { id: userOrganizationId },
-    }), [filters, filtersToWhere, userOrganizationId])
-
-    const {
-        loading: isPropertyScopesFetching,
-        count: total,
-        objs: propertyScopes,
-    } = PropertyScope.useObjects({
-        sortBy,
-        where: searchPropertyScopesQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    })
-
-    return isPropertyScopesFetching ? <Loader /> : (
-        <SettingsContent
-            organization={userOrganization}
-            filtersMeta={filtersMeta}
-            total={total}
-            propertyScopes={propertyScopes}
-        />
     )
 }

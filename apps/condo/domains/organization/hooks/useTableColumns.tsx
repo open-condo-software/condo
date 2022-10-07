@@ -1,3 +1,4 @@
+import { Typography } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useMemo } from 'react'
 import { identity } from 'lodash/util'
@@ -14,10 +15,13 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
+import { getEmployeeSpecializationsMessage } from '../utils/clientSchema/Renders'
 
 export const useTableColumns = (
     filterMetas,
     organizationId: string,
+    employees
 ) => {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
@@ -25,7 +29,6 @@ export const useTableColumns = (
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
-    const WorkCategoriesCountMessage = intl.formatMessage({ id: 'employee.WorkCategoriesCount' })
     const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
 
     const router = useRouter()
@@ -33,6 +36,12 @@ export const useTableColumns = (
     const search = getFilteredValue(filters, 'search')
 
     const render = getTableCellRenderer(search)
+
+    const { objs: specializationScopes } = SpecializationScope.useObjects({
+        where: {
+            employee: { id_in: employees.map(employee => employee.id) },
+        },
+    })
 
     const { loading, objs: organizationEmployeeRoles } = OrganizationEmployeeRole.useObjects({ where: { organization: { id: organizationId } } })
 
@@ -52,14 +61,13 @@ export const useTableColumns = (
         if (employee.hasAllSpecializations) {
             return AllSpecializationsMessage
         }
+        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
 
-        const employeeSpecializations = employee.specializations.map(spec => spec.name)
-
-        if (employeeSpecializations.length > 8) {
-            return WorkCategoriesCountMessage + employeeSpecializations.length
-        }
-
-        return render(employeeSpecializations.join(', '))
+        return (
+            <Typography.Paragraph key={employee.id} style={{ margin: 0 }}>
+                {employee.name} {specializationsMessage && specializationsMessage}
+            </Typography.Paragraph>
+        )
     }
 
     const columns = useMemo(() => {
