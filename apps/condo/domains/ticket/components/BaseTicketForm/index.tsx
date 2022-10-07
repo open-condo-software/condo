@@ -273,20 +273,34 @@ export const TicketSourceSelect: React.FC = () => {
     })
     const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
 
+    const LoadingSelect = useMemo(() => (
+        <Form.Item
+            label={TicketSourceLabel}
+            required
+        >
+            <Select
+                style={TICKET_SOURCE_SELECT_STYLE}
+                disabled={true}
+                placeholder={LoadingMessage}
+            />
+        </Form.Item>
+    ), [LoadingMessage, TicketSourceLabel])
+
+    if (loading) return LoadingSelect
+
     return (
         <Form.Item
             label={TicketSourceLabel}
             required
-            name={loading ? null : 'source'}
+            name='source'
             data-cy='ticket__source-item'
             initialValue={DEFAULT_TICKET_SOURCE_CALL_ID}
         >
             <Select
-                loading={loading}
                 style={TICKET_SOURCE_SELECT_STYLE}
                 options={sourceOptions}
+                defaultValue={DEFAULT_TICKET_SOURCE_CALL_ID}
                 disabled={loading}
-                value={loading ? LoadingMessage : ''}
             />
         </Form.Item>
     )
