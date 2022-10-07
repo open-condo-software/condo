@@ -98,10 +98,6 @@ const patchQuery = (queryContext, query, cache) => {
         if (requestId) {
             hasRequestId++
 
-            if (!args.first) {
-                args.first = 100
-            }
-
             key = generateRequestKey(gqlName, args)
 
             if (!(requestId in cache)) {
