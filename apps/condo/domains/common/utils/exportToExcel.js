@@ -1,7 +1,6 @@
 const conf = require('@condo/config')
 const { i18n } = require('@condo/locales/loader')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const fs = require('fs')
 
 const EXPORT_TYPE_PAYMENTS = 'payments'
 const EXPORT_TYPE_CONTACTS = 'contacts'
@@ -85,20 +84,6 @@ function ticketStatusesTranslations (locale) {
     }, {})
 }
 
-/**
- * Should be used in all export operations to make file compatible with Excel
- * @param filename
- * @returns {WriteStream}
- */
-const createWriteStreamForExport = (filename) => {
-    const writeStream = fs.createWriteStream(filename, { encoding: 'utf8' })
-    // Excel does not recognizes UTF-8 encoding without BOM (Byte Order Mark).
-    // This mark should be inserted into beginning of file stream
-    const BYTE_ORDER_MARKER = '\ufeff'
-    writeStream.write(BYTE_ORDER_MARKER)
-    return writeStream
-}
-
 module.exports = {
     EXPORT_TYPE_PAYMENTS,
     EXPORT_TYPE_CONTACTS,
@@ -116,5 +101,4 @@ module.exports = {
     getHeadersTranslations,
     translationStringKeyForExcelExportHeader,
     ticketStatusesTranslations,
-    createWriteStreamForExport,
 }
