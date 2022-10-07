@@ -1,10 +1,10 @@
 import { jsx } from '@emotion/react'
-import { Col, Form, Input, Row } from 'antd'
+import { Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { difference } from 'lodash'
+import { difference, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@condo/next/intl'
 
@@ -25,6 +25,8 @@ import {
 import { Loader } from '@condo/domains/common/components/Loader'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { searchEmployeeWithSpecializations } from '../../organization/utils/clientSchema/search'
+import { Alert } from '../../common/components/Alert'
+import { FormHintAlert } from './FormHintAlert'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -84,6 +86,13 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const initialProperties = useMemo(() => propertyScopeProperties.map(propertyScopeProperty => propertyScopeProperty.property.id), [propertyScopeProperties])
     const initialEmployees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee.id), [propertyScopeEmployees])
     const initialFormValues = { ...initialValues, employees: initialEmployees, properties: initialProperties }
+
+    const [showHintAlert, setShowHintAlert] = useState<boolean>()
+    useEffect(() => {
+        if (!loading && initialValues) {
+            setShowHintAlert(!isEmpty(initialEmployees))
+        }
+    }, [loading])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, employees, ...otherValues } = values
@@ -197,12 +206,21 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                         search: searchEmployeeWithSpecializations(intl, organizationId, null),
                                         showArrow: false,
                                         mode: 'multiple',
+                                        onChange: (value) => setShowHintAlert(!isEmpty(value)),
                                     }}
                                     checkBoxOffset={6}
                                     CheckAllMessage={CheckAllEmployeesMessage}
                                     form={form}
+                                    onCheckBoxChange={() => setShowHintAlert(false)}
                                 />
                             </Col>
+                            {
+                                showHintAlert && (
+                                    <Col offset={6}>
+                                        <FormHintAlert />
+                                    </Col>
+                                )
+                            }
                             {children({ handleSave, isLoading, form })}
                         </Row>
                     )}
