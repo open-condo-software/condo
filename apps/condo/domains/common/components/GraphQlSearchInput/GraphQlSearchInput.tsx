@@ -7,6 +7,7 @@ import throttle from 'lodash/throttle'
 import isFunction from 'lodash/isFunction'
 import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
+import debounce from 'lodash/debounce'
 
 import { ApolloClient } from '@apollo/client'
 import { useApolloClient } from '@condo/next/apollo'
@@ -18,6 +19,7 @@ import {
     TrackingEventType,
 } from '@condo/domains/common/components/TrackingContext'
 
+import { Loader } from '../Loader'
 import { WhereType } from '../../utils/tables.utils'
 import { isNeedToLoadNewElements } from '../../utils/select.utils'
 
@@ -76,6 +78,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
 
     const client = useApolloClient()
     const [isSearchLoading, setSearchLoading] = useState(false)
@@ -88,21 +91,26 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const [searchData, setSearchData] = useState([])
     const [searchValue, setSearchValue] = useState('')
 
-    const loading = useMemo(() => isInitialLoading || ((isSearchLoading || isMoreLoading) && isEmpty(allData)),
-        [allData, isInitialLoading, isMoreLoading, isSearchLoading])
-    const placeholder = useMemo(() => loading ? LoadingMessage : initialPlaceholder,
-        [LoadingMessage, initialPlaceholder, loading])
-    const selectedValue = useMemo(() => loading ? [] : initialSelectedValues,
-        [initialSelectedValues, loading])
-    const isDisabled = useMemo(() => disabled || loading,
-        [disabled, loading])
-
     const { logEvent, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
     const componentProperties = { ...eventProperties }
 
-    const renderOption = (option, index?) => {
+    const needShowLoadingMessage = useMemo(() => isInitialLoading || ((isSearchLoading || isMoreLoading) && isEmpty(allData)),
+        [allData, isInitialLoading, isMoreLoading, isSearchLoading])
+    const placeholder = useMemo(() => needShowLoadingMessage ? LoadingMessage : initialPlaceholder,
+        [LoadingMessage, initialPlaceholder, needShowLoadingMessage])
+    const selectedValue = useMemo(() => needShowLoadingMessage ? [] : initialSelectedValues,
+        [initialSelectedValues, needShowLoadingMessage])
+    const isDisabled = useMemo(() => disabled || needShowLoadingMessage,
+        [disabled, needShowLoadingMessage])
+
+    const notFoundContent = useMemo(() => isInitialLoading || isSearchLoading || isMoreLoading
+        ? <Loader size='small' delay={0} fill />
+        : NotFoundMessage,
+    [NotFoundMessage, isInitialLoading, isMoreLoading, isSearchLoading])
+
+    const renderOption = useCallback((option, index?) => {
         let optionLabel = option.text
 
         if (formatLabel) {
@@ -117,16 +125,26 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 </Typography.Text>
             </Select.Option>
         )
-    }
+    }, [disabled, formatLabel])
 
-    const renderedOptions = useMemo(() => renderOptions
-        ? renderOptions(options, renderOption)
-        : options.map((option, index) => renderOption(option, index)), [renderOption, renderOptions, options])
+    const renderedOptions = useMemo(() => {
+        const dataOptions = renderOptions
+            ? renderOptions(options, renderOption)
+            : options.map((option, index) => renderOption(option, index))
+        if (!isMoreLoading) return dataOptions
+        return [
+            ...dataOptions,
+            (
+                <Select.Option key='loader' value={null} disabled>
+                    <Loader size='small' delay={0} fill />
+                </Select.Option>
+            ),
+        ]
+    }, [renderOptions, options, renderOption, isMoreLoading])
 
     const loadInitialOptions = useCallback(async () => {
         const values = initialValue || initialSelectedValues
         if (!isEmpty(values)) {
-            seInitialLoading(true)
             const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(values) : { id_in: values }
             const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
             const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
@@ -135,15 +153,19 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         }
     }, [initialValue, initialSelectedValues, getInitialValueQuery, initialValueSearch, search, client])
 
-    const handleSearch = useCallback(async searchingValue => {
-        if (!search) return
-        setSearchValue(searchingValue)
+    const debounceSearch = useMemo(() => debounce(async (searchingValue) => {
         setIsAllDataLoaded(false)
         setSearchLoading(true)
         const data = await search(client, searchingValue)
         setSearchData(data)
         setSearchLoading(false)
-    }, [client, search])
+    }, DEBOUNCE_TIMEOUT), [client, search])
+
+    const handleSearch = useCallback(async searchingValue => {
+        if (!search) return
+        setSearchValue(searchingValue)
+        await debounceSearch(searchingValue)
+    }, [debounceSearch, search])
 
     const handleSelect = useCallback(async (value, option) => {
         if (onSelect) onSelect(value, option)
@@ -233,8 +255,9 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             searchValue={searchValue}
             value={selectedValue}
             placeholder={placeholder}
-            loading={loading}
+            loading={isInitialLoading || isSearchLoading || isSearchLoading}
             disabled={isDisabled}
+            notFoundContent={notFoundContent}
             {...restProps}
         >
             {renderedOptions}
