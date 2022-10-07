@@ -232,6 +232,7 @@ export const UpdateEmployeeForm = () => {
                                                                 search: searchClassifers,
                                                             }}
                                                             CheckAllMessage={CheckAllMessage}
+                                                            checkBoxOffset={8}
                                                         />
                                                     </Col>)
                                             }

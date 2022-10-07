@@ -1,6 +1,6 @@
 import { Col, Form, FormItemProps, Row } from 'antd'
 import { isFunction } from 'lodash'
-import { Rule } from 'rc-field-form/lib/interface'
+
 import React, { ComponentProps, useCallback, useState } from 'react'
 import { useValidations } from '../hooks/useValidations'
 
@@ -14,6 +14,7 @@ type InputWithCheckAllProps = {
     checkAllInitialValue: boolean,
     CheckAllMessage: string,
     selectProps: ComponentProps<typeof GraphQlSearchInput>
+    checkBoxOffset?: number
 }
 
 export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = (
@@ -24,6 +25,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         checkAllInitialValue,
         selectProps,
         CheckAllMessage,
+        checkBoxOffset,
     }
 ) => {
     const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)
@@ -57,7 +59,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                     />
                 </Form.Item>
             </Col>
-            <Col span={14} offset={8}>
+            <Col span={14} offset={checkBoxOffset}>
                 <Form.Item
                     name={checkAllFieldName}
                     valuePropName='checked'

@@ -214,9 +214,10 @@ const TicketAssignments = ({
                                     showArrow={false}
                                     disabled={disableUserInteraction}
                                     renderOptions={renderOptionGroups}
-                                    search={searchEmployeeUserWithSpecializations(intl, organizationId, propertyId, ({ role }) => (
-                                        get(role, 'canBeAssignedAsResponsible', false)
-                                    ))}
+                                    search={searchEmployeeUserWithSpecializations(intl, organizationId, propertyId, ({ role }) =>
+                                        // get(role, 'canBeAssignedAsResponsible', false)
+                                        true
+                                    )}
                                 />
                             </TicketFormItem>
                         </Col>

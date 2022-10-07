@@ -1,4 +1,5 @@
 import { useIntl } from '@condo/next/intl'
+import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
@@ -17,6 +18,8 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const PropertyScopeNameMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertyScopeName' })
     const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allProperties' })
+    const AllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allEmployees' })
 
     const propertyScopeIds = useMemo(() => propertyScopes.map(propertyScope => propertyScope.id), [propertyScopes])
 
@@ -61,6 +64,10 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const render = useMemo(() => getTableCellRenderer(search), [search])
 
     const renderPropertyScopeProperties = useCallback((intl, propertyScope) => {
+        if (get(propertyScope, 'hasAllProperties')) {
+            return AllPropertiesMessage
+        }
+
         const properties = propertyScopeProperties
             .filter(propertyScopeProperty => propertyScopeProperty.propertyScope.id === propertyScope.id)
             .map(propertyScopeProperty => propertyScopeProperty.property)
@@ -69,6 +76,10 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     }, [propertyScopeProperties, search])
 
     const renderPropertyScopeEmployees = useCallback((intl, propertyScope) => {
+        if (get(propertyScope, 'hasAllEmployees')) {
+            return AllEmployeesMessage
+        }
+
         const employees = propertyScopeEmployees
             .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id === propertyScope.id)
             .map(propertyScopeEmployee => propertyScopeEmployee.employee)
@@ -85,7 +96,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 dataIndex: 'name',
                 key: 'name',
                 sorter: true,
-                width: '20%',
+                width: '35%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
                 render: (name) => render(intl.formatMessage({ id: name }) || name),
@@ -99,9 +110,9 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             },
             {
                 title: EmployeesMessage,
-                key: 'properties',
-                render: (_, propertyScope) => renderPropertyScopeEmployees(intl, propertyScope),
-                width: '35%',
+                key: 'employees',
+                render: (_, employeeScope) => renderPropertyScopeEmployees(intl, employeeScope),
+                width: '30%',
             },
         ],
     }), [EmployeesMessage, PropertiesMessage, PropertyScopeNameMessage, employeesLoading, filterMetas, filters,
