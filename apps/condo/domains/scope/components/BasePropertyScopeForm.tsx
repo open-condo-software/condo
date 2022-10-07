@@ -1,19 +1,14 @@
-import { jsx } from '@emotion/react'
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { difference, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     searchAllOrganizationProperties,
-    searchEmployee,
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
@@ -24,8 +19,8 @@ import {
 } from '@app/condo/schema'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
-import { searchEmployeeWithSpecializations } from '../../organization/utils/clientSchema/search'
-import { Alert } from '../../common/components/Alert'
+import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
+
 import { FormHintAlert } from './FormHintAlert'
 
 const INPUT_LAYOUT_PROPS = {
@@ -42,13 +37,22 @@ const LAYOUT = {
 }
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
-const APARTMENT_COMPLEX_NAME_FIELD_PROPS = {
+const PROPERTY_SCOPE_NAME_FIELD_PROPS = {
     labelCol: {
         sm: 6,
     },
     wrapperCol:{
         sm: 8,
     },
+}
+const BASE_FORM_ITEM_PROPS = {
+    validateFirst: true,
+    required: true,
+    ...INPUT_LAYOUT_PROPS,
+}
+const BASE_SELECT_PROPS = {
+    showArrow: false,
+    infinityScroll: true,
 }
 
 type BasePropertyScopeFormProps = {
@@ -137,6 +141,30 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         searchAllOrganizationProperties(initialProperties) : searchOrganizationProperty,
     [initialProperties, initialValues.id])
 
+    const propertiesFormItemProps = useMemo(() => ({
+        name: 'properties',
+        label: PropertiesMessage,
+        ...BASE_FORM_ITEM_PROPS,
+    }), [PropertiesMessage])
+    const propertiesSelectProps = useMemo(() => ({
+        initialValue: initialProperties,
+        search: searchPropertiesFn(organizationId),
+        disabled: !organizationId,
+        ...BASE_SELECT_PROPS,
+    }), [initialProperties, organizationId, searchPropertiesFn])
+    const employeesFormItemProps = useMemo(() => ({
+        name: 'employees',
+        label: EmployeesMessage,
+        ...BASE_FORM_ITEM_PROPS,
+    }), [EmployeesMessage])
+    const employeesSelectProps = useMemo(() => ({
+        disabled: !organizationId,
+        initialValue: initialEmployees,
+        search: searchEmployeeWithSpecializations(intl, organizationId, null),
+        onChange: (value) => setShowHintAlert(!isEmpty(value)),
+        ...BASE_SELECT_PROPS,
+    }), [initialEmployees, intl, organizationId])
+
     if (loading) {
         return (
             <Loader fill size='large'/>
@@ -158,7 +186,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                     name='name'
                                     label={PropertyScopeNameMessage}
                                     labelAlign='left'
-                                    {...APARTMENT_COMPLEX_NAME_FIELD_PROPS}
+                                    {...PROPERTY_SCOPE_NAME_FIELD_PROPS}
                                 >
                                     <Input disabled={!organizationId} />
                                 </Form.Item>
@@ -167,22 +195,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                 <GraphQlSearchInputWithCheckAll
                                     checkAllFieldName='hasAllProperties'
                                     checkAllInitialValue={initialValues.hasAllProperties}
-                                    selectFormItemProps={{
-                                        name: 'properties',
-                                        label: PropertiesMessage,
-                                        labelAlign: 'left',
-                                        validateFirst: true,
-                                        required: true,
-                                        ...INPUT_LAYOUT_PROPS,
-                                    }}
-                                    selectProps={{
-                                        disabled: !organizationId,
-                                        initialValue: initialProperties,
-                                        search: searchPropertiesFn(organizationId),
-                                        showArrow: false,
-                                        mode: 'multiple',
-                                        infinityScroll: true,
-                                    }}
+                                    selectFormItemProps={propertiesFormItemProps}
+                                    selectProps={propertiesSelectProps}
                                     checkBoxOffset={6}
                                     CheckAllMessage={CheckAllPropertiesMessage}
                                     form={form}
@@ -192,22 +206,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                 <GraphQlSearchInputWithCheckAll
                                     checkAllFieldName='hasAllEmployees'
                                     checkAllInitialValue={initialValues.hasAllEmployees}
-                                    selectFormItemProps={{
-                                        name: 'employees',
-                                        label: EmployeesMessage,
-                                        labelAlign: 'left',
-                                        validateFirst: true,
-                                        required: true,
-                                        ...INPUT_LAYOUT_PROPS,
-                                    }}
-                                    selectProps={{
-                                        disabled: !organizationId,
-                                        initialValue: initialEmployees,
-                                        search: searchEmployeeWithSpecializations(intl, organizationId, null),
-                                        showArrow: false,
-                                        mode: 'multiple',
-                                        onChange: (value) => setShowHintAlert(!isEmpty(value)),
-                                    }}
+                                    selectFormItemProps={employeesFormItemProps}
+                                    selectProps={employeesSelectProps}
                                     checkBoxOffset={6}
                                     CheckAllMessage={CheckAllEmployeesMessage}
                                     form={form}

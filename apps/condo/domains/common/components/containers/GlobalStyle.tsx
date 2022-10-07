@@ -63,27 +63,45 @@ export default function GlobalStyle () {
                   position: relative;
                   bottom: 4px;
                 }
+                
+                & .ant-checkbox-inner {
+                  background-color: inherit;
+                  border: 1px solid ${colors.inputBorderGrey};
+                  border-radius: 4px;
+                             
+                  width: 24px;
+                  height: 24px;
+                  
+                  &:focus {
+                    background-color: inherit;
+                  }
+                  
+                  &::after {
+                    left: 36%;
+                    width: 7.714px;
+                    height: 12.143px;
+                  }
+                }
+              }
+              
+              .ant-checkbox-wrapper:hover .ant-checkbox-inner, .ant-checkbox:hover .ant-checkbox-inner,
+              .ant-checkbox-input:focus + .ant-checkbox-inner {
+                border-color: ${colors.inputBorderHover};
               }
               
               .ant-checkbox {
                 width: 24px;
                 height: 24px;
+                border-color: ${colors.inputBorderGrey};
               }
               
-              .ant-checkbox-inner {
-                  width: 24px;
-                  height: 24px;
+              .ant-checkbox-input:focus:not(:checked) + .ant-checkbox-inner {
+                background-color: inherit;
               }
 
               .ant-form-item input[type="checkbox"] {
                 width: 24px;
                 height: 24px;
-              }  
-              
-              .ant-checkbox-inner::after {
-                left: 36%;
-                width: 7.714px;
-                height: 12.143px;
               }
               
               .ant-checkbox-checked {
@@ -163,18 +181,6 @@ export default function GlobalStyle () {
               .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input:focus, .ant-input-affix-wrapper > input.ant-input:focus {
                 -webkit-box-shadow: none !important;
                 box-shadow: none !important;
-              }
-              
-              .ant-checkbox {
-                border-color: ${colors.inputBorderGrey};
-              }
-              
-              .ant-checkbox-inner {
-                border-radius: 4px;
-              }
-              
-              .ant-checkbox-input:focus:not(:checked) + .ant-checkbox-inner {
-                background-color: ${colors.ultraLightGrey};
               }
 
               .ant-form-item-explain, .ant-form-item-extra {
