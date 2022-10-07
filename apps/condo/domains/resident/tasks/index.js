@@ -1,16 +1,8 @@
-const {
-    sendBillingReceiptNotificationsTaskWorkDays,
-    sendBillingReceiptNotificationsTaskWeekends,
-} = require('./sendBillingReceiptNotifications.task')
-
-const {
-    manageResidentToPropertyAndOrganizationConnections,
-    manageResidentToTicketClientConnections,
-} = require('./residentTicket.task')
+const { sendBillingReceiptsAddedNotifications } = require('./sendBillingReceiptsAddedNotifications')
+const { sendResidentsNoAccountNotifications, sendResidentsNoAccountNotificationsForPeriod } = require('./sendResidentsNoAccountNotifications')
 
 module.exports = {
-    sendBillingReceiptNotificationsTaskWorkDays,
-    sendBillingReceiptNotificationsTaskWeekends,
-    manageResidentToPropertyAndOrganizationConnections,
-    manageResidentToTicketClientConnections,
+    sendBillingReceiptsAddedNotifications,
+    sendResidentsNoAccountNotifications,
+    sendResidentsNoAccountNotificationsForPeriod,
 }

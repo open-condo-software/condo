@@ -13,11 +13,22 @@
  *        period + propertyId + residentId there will be only one notification, all consequent attempts will be just skipped.
  */
 
+const path = require('path')
 const { get } = require('lodash')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
 
-const { sendResidentsNoAccountNotificationsForPeriod } = require('@condo/domains/resident/tasks/helpers')
+const { sendResidentsNoAccountNotificationsForPeriod } = require('@condo/domains/resident/tasks/index')
 
-const { connectKeystone } = require('../lib/keystone.helpers')
+async function connectKeystone () {
+    const resolved = path.resolve('./index.js')
+    const { distDir, keystone, apps } = require(resolved)
+    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
+    // we need only apollo
+    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
+    await keystone.connect()
+
+    return keystone
+}
 
 const checkBillingContext = context => get(context, 'length') >= 36 ? context : undefined
 

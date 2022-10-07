@@ -12,7 +12,7 @@ const {
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 
 const { makeBillingReceiptWithResident } = require('./spec.helpers')
-const { makeMessageKey, makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
+const { makeMessageKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
 
 const index = require('@app/condo/index')
 
@@ -171,14 +171,6 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
 
             expect(messageType).toEqual(BILLING_RECEIPT_ADDED_TYPE)
             expect(debt).toBeNull()
-        })
-
-        it('calculates correct accountKey', () => {
-            const key = makeAccountKey('   AAAA   ', '    bBbB    ', ' ccCC 19    ')
-            const key1 = makeAccountKey('   ББББ   ', '    ГггГ    ', ' ддДД 23    ')
-
-            expect(key).toEqual('aaaa:bbbb:cccc 19')
-            expect(key1).toEqual('бббб:гггг:дддд 23')
         })
     })
 

@@ -27,8 +27,9 @@ class FeatureToggleManager {
         try {
             const redisClient = getRedisClient()
             const cachedFeatureFlags = await redisClient.get(REDIS_FEATURES_KEY)
-
-            if (cachedFeatureFlags) return JSON.parse(cachedFeatureFlags)
+            if (cachedFeatureFlags) {
+                return JSON.parse(cachedFeatureFlags)
+            }
 
             if (featureToggleApiUrl && featureToggleApiKey) {
                 const fetchedFeatureFlags = await fetch(`${featureToggleApiUrl}/${featureToggleApiKey}`)

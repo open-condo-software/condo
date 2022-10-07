@@ -28,7 +28,6 @@ const CHUNK_SIZE = 20
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
 const makeMessageKey = (period, accountNumber, categoryId, residentId) => `${period}:${accountNumber}:${categoryId}:${residentId}`
-const makeAccountKey = (...args) => args.map(value => `${value}`.trim().toLowerCase()).join(':')
 const getMessageTypeAndDebt = (toPay, toPayCharge) => {
     if (toPay <= 0) return { messageType: BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, debt: 0 }
     // TODO (DOMA-3581) debt value population is disabled until user will be able to manage push notifications
@@ -56,9 +55,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
     const category = getLocalized(locale, receipt.category.nameNonLocalized)
     const currencyCode = get(receipt, 'context.integration.currencyCode') || DEFAULT_CURRENCY_CODE
 
-    // Temporarily disabled checking toPayCharge value (it's temporarily not used by now)
-    // if (isNull(toPay) || isNull(toPayCharge)) return 0
-    if (isNull(toPay)) return 0
+    if (isNull(toPay) || isNull(toPayCharge)) return 0
 
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
     const data = {
@@ -119,15 +116,13 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
         const contextIds = uniq(receipts.map(receipt => get(receipt, 'context.id')))
         const accountsData = receipts.map(receipt => ({
-            accountNumber_i: get(receipt, 'account.number'),
+            accountNumber: get(receipt, 'account.number'),
             resident: {
                 unitType: get(receipt, 'account.unitType'),
                 unitName_i: get(receipt, 'account.unitName'),
-                address_i: get(receipt, 'property.address'),
                 deletedAt: null,
             },
         }))
-
         const serviceConsumerWhere = {
             AND: [
                 {
@@ -138,26 +133,10 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
             ],
         }
         const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumerWhere })
-
-        const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
-            const params = [
-                get(item, 'resident.address'),
-                get(item, 'accountNumber'),
-                get(item, 'resident.unitType'),
-                get(item, 'resident.unitName'),
-            ]
-
-            return makeAccountKey(...params)
-        })
+        const consumersByAccountKey = groupBy(serviceConsumers, (item) => `${get(item, 'accountNumber')}:${get(item, 'resident.unitType')}:${get(item, 'resident.unitName')}`)
 
         for (const receipt of receipts) {
-            const params = [
-                get(receipt, 'property.address'),
-                get(receipt, 'account.number'),
-                get(receipt, 'account.unitType'),
-                get(receipt, 'account.unitName'),
-            ]
-            const receiptAccountKey = makeAccountKey(...params)
+            const receiptAccountKey = `${get(receipt, 'account.number')}:${get(receipt, 'account.unitType')}:${get(receipt, 'account.unitName')}`
             const consumers = consumersByAccountKey[receiptAccountKey]
 
             // We have no ServiceConsumer records for this receipt
@@ -202,9 +181,6 @@ const sendBillingReceiptsAddedNotifications = async (resendFromDt = null) => {
      * 3. Use thisMonthStart
      */
     const lastDt = resendFromDt ? resendFromDt.replace(' ', 'T') : await redisClient.get(REDIS_LAST_DATE_KEY) || thisMonthStart
-
-    logger.info({ msg: 'stored date', storedDt: await redisClient.get(REDIS_LAST_DATE_KEY) })
-
     const receiptsWhere = {
         period_in: [prevMonthStart, thisMonthStart],
         createdAt_gt: lastDt,
@@ -217,6 +193,5 @@ module.exports = {
     sendBillingReceiptsAddedNotifications,
     sendBillingReceiptsAddedNotificationsForPeriod,
     makeMessageKey,
-    makeAccountKey,
     getMessageTypeAndDebt,
 }
