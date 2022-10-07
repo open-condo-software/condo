@@ -97,19 +97,27 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
 
 const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
     const dev = process.env.NODE_ENV === 'development'
+    console.log('prepareKeystoneExpressApp: before require')
     const {
         distDir,
         keystone,
         apps,
         configureExpress,
     } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
+    console.log('prepareKeystoneExpressApp: after require')
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
     if (excludeApps && dev) console.info('prepareKeystoneExpressApp() with excluded apps:', excludeApps, 'apps:', newApps.map(x => x.constructor.name))
+    console.log('prepareKeystoneExpressApp: before prepare')
     const { middlewares } = await keystone.prepare({ apps: newApps, distDir, dev })
+    console.log('prepareKeystoneExpressApp: after prepare')
     await keystone.connect()
+    console.log('prepareKeystoneExpressApp: after connect')
     const app = express()
+    console.log('prepareKeystoneExpressApp: express')
     if (configureExpress) configureExpress(app)
+    console.log('prepareKeystoneExpressApp: before middleware')
     app.use(middlewares)
+    console.log('prepareKeystoneExpressApp: after middleware')
     return { keystone, app }
 }
 
