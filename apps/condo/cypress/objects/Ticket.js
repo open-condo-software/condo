@@ -169,7 +169,10 @@ class TicketView {
         cy.get('input#property')
             .click()
             .type(propertyAddress.slice(0, 5))
-            .type('{downArrow}')
+
+        cy.wait('@selectProperty')
+
+        cy.get('[data-cy=search-input--option]', { timeout: 5000 })
             .type('{enter}')
 
         cy.get('[data-cy=common__filters-button-submit]').click()

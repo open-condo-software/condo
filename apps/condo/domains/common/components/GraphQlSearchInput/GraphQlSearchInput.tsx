@@ -77,7 +77,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'LoadingInProgress' })
     const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
 
     const client = useApolloClient()
@@ -119,7 +119,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option id={index} key={option.key || value} value={value} title={option.text}>
+            <Select.Option id={index} key={option.key || value} value={value} title={option.text} data-cy='search-input--option'>
                 <Typography.Text title={option.text} disabled={disabled}>
                     {optionLabel}
                 </Typography.Text>
@@ -131,15 +131,14 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const dataOptions = renderOptions
             ? renderOptions(options, renderOption)
             : options.map((option, index) => renderOption(option, index))
-        if (!isMoreLoading) return dataOptions
-        return [
-            ...dataOptions,
-            (
-                <Select.Option key='loader' value={null} disabled>
+        if (isMoreLoading) {
+            dataOptions.push(
+                <Select.Option key='loader' disabled>
                     <Loader size='small' delay={0} fill />
                 </Select.Option>
-            ),
-        ]
+            )
+        }
+        return dataOptions
     }, [renderOptions, options, renderOption, isMoreLoading])
 
     const loadInitialOptions = useCallback(async () => {
