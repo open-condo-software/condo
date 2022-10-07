@@ -12,26 +12,28 @@
  */
 
 const path = require('path')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+//const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/helpers')
 
-const { sendBillingReceiptsAddedNotifications } = require('@condo/domains/resident/tasks/index')
-
-async function connectKeystone () {
-    const resolved = path.resolve('./index.js')
-    const { distDir, keystone, apps } = require(resolved)
-    const graphqlIndex = apps.findIndex(app => app instanceof GraphQLApp)
-    // we need only apollo
-    await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
-    await keystone.connect()
-
-    return keystone
-}
+const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
 
 async function main () {
-    const keystone = await connectKeystone()
-    const resendFromDt = process.argv[2]
+    const excludeApps = [
+        'VersioningMiddleware',
+        'OIDCMiddleware',
+        'FeaturesMiddleware',
+        'OBSFilesMiddleware',
+        'SberBuisnessOnlineMiddleware',
+        'AdminUIApp',
+        'NextApp',
+    ]
 
-    await sendBillingReceiptsAddedNotifications(resendFromDt)
+    console.log('pr:', path.resolve('./index.js'))
+
+    const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps })
+
+    // const resendFromDt = process.argv[2]
+
+    // await sendBillingReceiptsAddedNotifications(resendFromDt)
 
     keystone.disconnect()
 }
