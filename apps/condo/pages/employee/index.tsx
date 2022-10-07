@@ -1,4 +1,5 @@
-import { EllipsisOutlined } from '@ant-design/icons'
+import { EllipsisOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -101,29 +102,6 @@ export const EmployeesPageContent = ({
                                                     allowClear={true}
                                                 />
                                             </Col>
-                                            {
-                                                canManageEmployee && (
-                                                    <Dropdown.Button
-                                                        overlay={dropDownMenu}
-                                                        buttonsRender={() => [
-                                                            <Button
-                                                                key='left'
-                                                                type='sberPrimary'
-                                                                style={{ borderRight: '1px solid white' }}
-                                                                onClick={handleAddEmployee}
-                                                            >
-                                                                {CreateEmployee}
-                                                            </Button>,
-                                                            <Button
-                                                                key='right'
-                                                                type='sberPrimary'
-                                                                style={{ borderLeft: '1px solid white', lineHeight: '150%' }}
-                                                                icon={<EllipsisOutlined/>}
-                                                            />,
-                                                        ]}
-                                                    />
-                                                )
-                                            }
                                         </Row>
                                     </TableFiltersContainer>
                                 </Col>
@@ -136,6 +114,21 @@ export const EmployeesPageContent = ({
                                         onRow={handleRowAction}
                                     />
                                 </Col>
+                                {
+                                    canManageEmployee && (
+                                        <Col span={24}>
+                                            <ActionBar>
+                                                <Button
+                                                    type='sberDefaultGradient'
+                                                    icon={<PlusCircleOutlined/>}
+                                                    onClick={handleAddEmployee}
+                                                >
+                                                    {CreateEmployee}
+                                                </Button>
+                                            </ActionBar>
+                                        </Col>
+                                    )
+                                }
                             </Row>
                     }
                 </TablePageContent>

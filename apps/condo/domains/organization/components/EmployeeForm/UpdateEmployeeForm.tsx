@@ -242,13 +242,13 @@ export const UpdateEmployeeForm = () => {
                                     </Form.Item>
                                     <Space size={40} style={{ paddingTop: '36px' }}>
                                         <FormResetButton
-                                            type='sberPrimary'
+                                            type='sberDefaultGradient'
                                             secondary
                                         />
                                         <Button
                                             key='submit'
                                             onClick={handleSave}
-                                            type='sberPrimary'
+                                            type='sberDefaultGradient'
                                             loading={isLoading}
                                         >
                                             {ApplyChangesMessage}

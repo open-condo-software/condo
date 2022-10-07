@@ -279,7 +279,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 <Button
                                                     key='submit'
                                                     onClick={handleSave}
-                                                    type='sberPrimary'
+                                                    type='sberDefaultGradient'
                                                     loading={isLoading}
                                                     disabled={!phone}
                                                 >
