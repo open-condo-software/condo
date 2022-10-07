@@ -142,7 +142,7 @@ const PropertyScopeIdPage = () => {
                         href={`/employee/${get(employee, 'id')}`}
                     >
                         <Typography.Text>
-                            {employee.name} {specializationsMessage && `(${specializationsMessage})`}
+                            {employee.name} {specializationsMessage && specializationsMessage}
                         </Typography.Text>
                     </Typography.Link>
                 </Typography.Paragraph>

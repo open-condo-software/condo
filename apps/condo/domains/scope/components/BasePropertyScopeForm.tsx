@@ -165,6 +165,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         ...BASE_SELECT_PROPS,
     }), [initialEmployees, intl, organizationId])
 
+    const handleCheckAllEmployeesCheckboxChange = useCallback(() => setShowHintAlert(false), [])
+
     if (loading) {
         return (
             <Loader fill size='large'/>
@@ -211,7 +213,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                     checkBoxOffset={6}
                                     CheckAllMessage={CheckAllEmployeesMessage}
                                     form={form}
-                                    onCheckBoxChange={() => setShowHintAlert(false)}
+                                    onCheckBoxChange={handleCheckAllEmployeesCheckboxChange}
                                 />
                             </Col>
                             {

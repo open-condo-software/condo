@@ -167,27 +167,13 @@ const EmployeesPage = () => {
         fetchPolicy: 'network-only',
     })
 
-    const { objs: specializationScopes } = SpecializationScope.useObjects({
-        where: {
-            employee: { id_in: employees.map(employee => employee.id) },
-        },
-    })
-
-    const employeeWithSpecializations = employees.map(employee => {
-        const specializations = specializationScopes
-            .filter(spec => spec.employee.id === employee.id)
-            .map(spec => spec.specialization)
-
-        return { ...employee, specializations }
-    })
-
-    const tableColumns = useTableColumns(filtersMeta, userOrganizationId)
+    const tableColumns = useTableColumns(filtersMeta, userOrganizationId, employees)
 
     return (
         <EmployeesPageContent
             tableColumns={tableColumns}
             canManageEmployee={canManageEmployee}
-            employees={employeeWithSpecializations}
+            employees={employees}
             employeesLoading={employeesLoading}
             total={total}
         />

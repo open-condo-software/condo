@@ -1,4 +1,6 @@
+import { Typography } from 'antd'
 import { gql } from 'graphql-tag'
+import React from 'react'
 import { getEmployeeSpecializationsMessage } from './Renders'
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
@@ -56,8 +58,13 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
             .filter(filter || Boolean)
             .map(employee => {
                 const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
+                const EmployeeText = (
+                    <Typography.Text>
+                        {employee.name} {specializationsMessage && specializationsMessage}
+                    </Typography.Text>
+                )
 
-                return { text: `${employee.name}${specializationsMessage ? ` (${specializationsMessage})` : ''}`, value: employee.id }
+                return { text: EmployeeText, value: employee.id }
             })
     }
 }
@@ -81,12 +88,18 @@ export function searchEmployeeUserWithSpecializations (intl, organizationId, pro
             .filter(({ user }) => user)
             .map(employee => {
                 const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
+                const EmployeeText = (
+                    <Typography.Text>
+                        {employee.name} {specializationsMessage && specializationsMessage}
+                    </Typography.Text>
+                )
+
                 const specializations = specializationScopes.objs
                     .filter(scope => scope.employee.id === employee.id)
                     .map(scope => scope.specialization)
 
                 return {
-                    text: `${employee.name}${specializationsMessage ? ` (${specializationsMessage})` : ''}`,
+                    text: EmployeeText,
                     value: employee.user.id,
                     data: {
                         specializations,
