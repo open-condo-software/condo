@@ -15,6 +15,7 @@ import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/o
 import { useAuth } from '@open-condo/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
+import { Alert } from '../../../common/components/Alert'
 import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -24,7 +25,6 @@ import {
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { difference, find, get } from 'lodash'
-import { colors, shadows } from '@condo/domains/common/constants/style'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 
 const INPUT_LAYOUT_PROPS = {
@@ -36,16 +36,9 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-const CardCss = css`
-  width: 300px;
-  height: fit-content;
-  box-shadow: ${shadows.elevated};
-`
-
 export const UpdateEmployeeForm = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const EmployeeUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
@@ -132,6 +125,17 @@ export const UpdateEmployeeForm = () => {
     const error = employeeError || employeeRolesError
     const loading = employeeLoading || employeeRolesLoading
 
+    const specializationsFormItemProps = useMemo(() => ({
+        name: 'specializations',
+        label: SpecializationsLabel,
+        validateFirst: true,
+        ...INPUT_LAYOUT_PROPS,
+    }), [SpecializationsLabel])
+
+    const specializationsSelectProps = useMemo(() => ({
+        search: searchClassifers,
+    }), [searchClassifers])
+
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
@@ -167,14 +171,6 @@ export const UpdateEmployeeForm = () => {
                         </Col>
                         <Col xs={24} lg={12} offset={1}>
                             <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
-                                        {EmployeeUpdateTitle}
-                                    </Typography.Title>
-                                </Col>
                                 <Col span={24}>
                                     <Form.Item
                                         {...INPUT_LAYOUT_PROPS}
@@ -220,17 +216,8 @@ export const UpdateEmployeeForm = () => {
                                                             <GraphQlSearchInputWithCheckAll
                                                                 checkAllFieldName='hasAllSpecializations'
                                                                 checkAllInitialValue={initialValues.hasAllSpecializations}
-                                                                selectFormItemProps={{
-                                                                    name: 'specializations',
-                                                                    label: SpecializationsLabel,
-                                                                    labelAlign: 'left',
-                                                                    validateFirst: true,
-                                                                    ...INPUT_LAYOUT_PROPS,
-                                                                }}
-                                                                selectProps={{
-                                                                    search: searchClassifers,
-                                                                    mode: 'multiple',
-                                                                }}
+                                                                selectFormItemProps={specializationsFormItemProps}
+                                                                selectProps={specializationsSelectProps}
                                                                 CheckAllMessage={CheckAllMessage}
                                                                 checkBoxOffset={8}
                                                                 form={form}
@@ -265,18 +252,12 @@ export const UpdateEmployeeForm = () => {
                                         const role = employeeRoles.find(x => x.id === roleId)
                                         if (!role) return null
                                         return (
-                                            <Card
-                                                title={role.name}
-                                                bordered={false}
-                                                css={CardCss}
-                                                headStyle={{
-                                                    color: colors.lightGrey[10],
-                                                    fontSize: 24,
-                                                    fontWeight: 'bold',
-                                                }}
-                                            >
-                                                {role.description}
-                                            </Card>
+                                            <Alert
+                                                type='info'
+                                                showIcon
+                                                message={role.name}
+                                                description={role.description}
+                                            />
                                         )
                                     }}
                                 </Form.Item>

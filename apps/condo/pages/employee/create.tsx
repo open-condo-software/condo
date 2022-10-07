@@ -29,7 +29,7 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <Col lg={17} xs={24}>
+                            <Col span={24}>
                                 <CreateEmployeeForm />
                             </Col>
                         </Row>
