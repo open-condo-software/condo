@@ -4,10 +4,9 @@
 
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/meter/access/MeterReadingFilterTemplate')
 const { METER_READING_FILTER_FIELD } = require('./fields/MeterReadingFilters')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const MeterReadingFilterTemplate = new GQLListSchema('MeterReadingFilterTemplate', {

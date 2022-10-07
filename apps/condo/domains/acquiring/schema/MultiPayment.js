@@ -6,8 +6,7 @@ const { Text, DateTimeUtc, Select, Relationship, Virtual } = require('@keystonej
 const { getById, find } = require('@condo/keystone/schema')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const {
     CURRENCY_CODE_FIELD,
     NON_NEGATIVE_MONEY_FIELD,

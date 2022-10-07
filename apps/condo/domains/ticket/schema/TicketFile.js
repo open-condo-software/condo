@@ -3,13 +3,12 @@
  */
 const { Relationship, File } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/ticket/access/TicketFile')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const TICKET_FILE_FOLDER_NAME = 'ticket'
 const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)

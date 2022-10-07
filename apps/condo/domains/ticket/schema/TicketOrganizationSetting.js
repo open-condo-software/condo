@@ -8,10 +8,8 @@ const { get, isNull } = require('lodash')
 
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { DateInterval } = require('@condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
-
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/ticket/access/TicketOrganizationSetting')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { MAX_TICKET_DEADLINE_DURATION, MIN_TICKET_DEADLINE_DURATION, DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')

@@ -5,10 +5,9 @@
 const { Relationship } = require('@keystonejs/fields')
 
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/organization/access/OrganizationLink')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 /**
  * Relationship between Organization that allows an employee of a "parent" (or "holding", you name it) Organization to interact as an employee of another "child" Organizations.

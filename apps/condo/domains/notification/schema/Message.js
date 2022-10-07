@@ -3,10 +3,9 @@
  */
 
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 
 const access = require('@condo/domains/notification/access/Message')

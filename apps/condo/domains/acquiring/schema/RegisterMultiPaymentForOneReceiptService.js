@@ -21,7 +21,7 @@ const {
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
+const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 
 const {
     RECEIPTS_ARE_DELETED,
@@ -138,7 +138,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 } = data
 
                 // Stage 0. Check if input is valid
-                checkDvSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
                 const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)

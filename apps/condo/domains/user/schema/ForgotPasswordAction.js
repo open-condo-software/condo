@@ -3,10 +3,8 @@
  */
 const { Text, Relationship, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/user/access/ForgotPasswordAction')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-
 
 const ForgotPasswordAction = new GQLListSchema('ForgotPasswordAction', {
     schemaDoc: 'Forgot password actions is used for anonymous user password recovery procedure',

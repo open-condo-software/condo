@@ -8,10 +8,9 @@ const { Text, Select } = require('@keystonejs/fields')
 
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const { JSON_EXPECT_ARRAY_ERROR, OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
 

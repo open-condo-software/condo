@@ -4,8 +4,7 @@
 
 const { Text, Checkbox, Password } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
-const { dvAndSender } = require('@address-service/domains/common/schema/plugins/dvAndSender')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@address-service/domains/user/access/User')
 
 const User = new GQLListSchema('User', {

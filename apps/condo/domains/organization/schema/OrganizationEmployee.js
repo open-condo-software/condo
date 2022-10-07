@@ -8,12 +8,11 @@ const { userIsAdmin } = require('@condo/keystone/access')
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, tracked, softDeleted, uuided } = require('@condo/keystone/plugins')
+const { historical, versioned, tracked, softDeleted, uuided, dvAndSender } = require('@condo/keystone/plugins')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/validation.utils')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     schemaDoc: 'B2B customer employees',

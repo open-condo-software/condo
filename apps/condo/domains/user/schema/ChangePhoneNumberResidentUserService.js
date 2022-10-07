@@ -8,7 +8,7 @@ const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSc
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { checkDvSender } = require('../../common/utils/serverSchema/validators')
+const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -63,7 +63,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { token, sender } = data
-                checkDvSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
                 if (!context.authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
                 const userId = context.authedItem.id
                 const action = await ConfirmPhoneAction.getOne(context,

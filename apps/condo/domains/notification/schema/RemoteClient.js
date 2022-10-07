@@ -6,14 +6,13 @@ const { Text, Relationship, Select } = require('@keystonejs/fields')
 
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const { REQUIRED_NO_VALUE_ERROR, VALUE_TOO_SHORT } = require('@condo/domains/common/constants/errors')
 
 const access = require('@condo/domains/notification/access/RemoteClient')
 
 const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES } = require('../constants/constants')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const APP_ID_MIN_LENGTH = 7
 

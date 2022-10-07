@@ -16,7 +16,7 @@ const { getHeadersTranslations, EXPORT_TYPE_PAYMENTS } = require('@condo/domains
 const { i18n } = require('@condo/locales/loader')
 const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const conf = require('@condo/config')
-const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
+const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
@@ -69,7 +69,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
             resolver: async (parent, args, context) => {
                 const { sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
 
-                checkDvSender(args.data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(args.data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
