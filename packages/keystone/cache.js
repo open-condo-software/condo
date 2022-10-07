@@ -29,25 +29,23 @@
 const express = require('express')
 const { get, set } = require('lodash')
 
-const conf = require('@condo/config')
+const ENABLE_CACHE_LOGGING = true
 
-const { getLogger } = require('./logging')
 
-const logger = getLogger('cache-l1')
-
-const ENABLE_CACHE_LOGGING = !!conf.ENABLE_CACHE_LOGGING
-
+let hits = 0
+let requests = 0
+let hasRequestId = 0
 
 class KeystoneCacheMiddleware {
 
     constructor (keystone) {
         this.cache = {}
 
-        this.hits = 0
-        this.requests = 0
-        this.hasRequestId = 0
+        initCache(keystone, this.cache)
+    }
 
-        initCache(keystone, this)
+    getCache () {
+        return this.cache
     }
 
     prepareMiddleware () {
@@ -58,9 +56,7 @@ class KeystoneCacheMiddleware {
             res.on('close', () => {
                 if (requestId) {
 
-                    if (ENABLE_CACHE_LOGGING) {
-                        logger.info( { msg: `DELETE_FROM_MIDDLEWARE: ${requestId}` })
-                    }
+                    if (ENABLE_CACHE_LOGGING) { console.log(`DELETE_FROM_MIDDLEWARE: ${requestId}`) }
 
                     delete this.cache[requestId]
                 }
@@ -79,7 +75,7 @@ const getRequestIdFromContext = (context) => {
     return get(context, ['req', 'headers', 'x-request-id'], null)
 }
 
-const patchMutation = (mutationContext, mutation, isUpdateMutation, cacheMiddleware) => {
+const patchMutation = (mutationContext, mutation, isUpdateMutation, cache) => {
     return async (data, context, mutationState) => {
         let requestId
         if (isUpdateMutation) {
@@ -87,21 +83,20 @@ const patchMutation = (mutationContext, mutation, isUpdateMutation, cacheMiddlew
         } else {
             requestId = getRequestIdFromContext(context)
         }
-        if (requestId) { delete cacheMiddleware.cache[requestId] }
-        return await mutation.call(mutationContext, data, context, mutationState)
+        if (requestId) { delete cache[requestId] }
+        return await mutation.call(mutationContext, data, context,
+            mutationState)
     }
 }
 
-const patchQuery = (queryContext, query, cacheMiddleware) => {
+const patchQuery = (queryContext, query, cache) => {
     return async function (args, context, gqlName, info, from) {
-
-        cacheMiddleware.requests++
-
+        requests++
         let key = null
         const requestId = getRequestIdFromContext(context)
 
         if (requestId) {
-            cacheMiddleware.hasRequestId++
+            hasRequestId++
 
             if (!args.first) {
                 args.first = 100
@@ -109,73 +104,61 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
 
             key = generateRequestKey(gqlName, args)
 
-            if (!(requestId in cacheMiddleware.cache)) {
-                cacheMiddleware.cache[requestId] = {}
+            if (!(requestId in cache)) {
+                cache[requestId] = {}
             }
 
             // Drop the key, if the operation type is mutation
             const operationType = get(info, ['operation', 'operation'])
-            if (operationType !== 'query' && get(cacheMiddleware.cache, [requestId, key])) {
+            if (operationType !== 'query' && get(cache, [requestId, key])) {
 
-                if (ENABLE_CACHE_LOGGING) {
-                    logger.info({ msg: `DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}` })
-                }
+                if (ENABLE_CACHE_LOGGING) { console.log(`DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`) }
 
-                delete cacheMiddleware.cache[requestId][key]
+                delete cache[requestId][key]
             }
 
-            if (key in cacheMiddleware.cache[requestId]) {
-                cacheMiddleware.hits++
+            if (key in cache[requestId]) {
+                hits++
 
-                if (ENABLE_CACHE_LOGGING) {
-                    logger.info({ msg: `HIT: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${cacheMiddleware.hits}/${cacheMiddleware.requests} Request ids: ${cacheMiddleware.hasRequestId}/${requestId} ` })
-                }
+                if (ENABLE_CACHE_LOGGING) { console.log(`HIT: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${hits}/${requests} Request ids: ${hasRequestId}/${requestId} `) }
 
-                return await cacheMiddleware.cache[requestId][key]
+                return await cache[requestId][key]
             }
         }
         else {
-            if (ENABLE_CACHE_LOGGING) {
-                logger.info({ msg: `WARNING: No request ID\r\n${gqlName} ${JSON.stringify(args)}` })
-            }
+            if (ENABLE_CACHE_LOGGING) { console.log(`WARNING: No request ID\r\n${gqlName} ${JSON.stringify(args)}`)}
         }
 
-        if (ENABLE_CACHE_LOGGING) {
-            logger.info({ msg: `MISS: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${cacheMiddleware.hits}/${cacheMiddleware.requests} Request ids: ${cacheMiddleware.hasRequestId}/${cacheMiddleware.requests}` })
-        }
-
+        if (ENABLE_CACHE_LOGGING) { console.log(`MISS: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}\r\nScore: ${hits}/${requests} Request ids: ${hasRequestId}/${requests}`) }
         const listResultPromise = query.call(queryContext, args, context, gqlName, info, from)
 
         if (requestId && key) {
-            set(cacheMiddleware.cache, [requestId, key], listResultPromise)
-
-            if (ENABLE_CACHE_LOGGING) {
-                logger.info( { msg: `SET: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}` })
-            }
+            set(cache, [requestId, key], listResultPromise)
+            if (ENABLE_CACHE_LOGGING) { console.log(`SET: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`) }
         }
 
         return await listResultPromise
     }
 }
 
-const initCache = (keystone, cacheMiddleware) => {
+const initCache = (keystone, cache) => {
 
     const originalCreateList = keystone.createList
 
     keystone.createList = async (...args) => {
         const list = originalCreateList.apply(keystone, args)
 
-        list.createMutation = patchMutation(list, list.createMutation, false, cacheMiddleware)
-        list.createManyMutation = patchMutation(list, list.createManyMutation, false, cacheMiddleware)
+        list.createMutation = patchMutation(list, list.createMutation, false, cache)
+        list.createManyMutation = patchMutation(list, list.createManyMutation, false, cache)
 
-        list.updateMutation = patchMutation(list, list.updateMutation, true, cacheMiddleware)
-        list.updateManyMutation = patchMutation(list, list.updateManyMutation, true, cacheMiddleware)
+        list.updateMutation = patchMutation(list, list.updateMutation, true, cache)
+        list.updateManyMutation = patchMutation(list, list.updateManyMutation, true, cache)
 
-        list.deleteMutation = patchMutation(list, list.deleteMutation, true, cacheMiddleware)
-        list.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, cacheMiddleware)
+        list.deleteMutation = patchMutation(list, list.deleteMutation, true, cache)
+        list.deleteManyMutation = patchMutation(list, list.deleteManyMutation, true, cache)
 
-        list.listQuery = patchQuery(list, list.listQuery, cacheMiddleware)
-        list.itemQuery = patchQuery(list, list.itemQuery, cacheMiddleware)
+        list.listQuery = patchQuery(list, list.listQuery, cache)
+        list.itemQuery = patchQuery(list, list.itemQuery, cache)
 
         return list
     }
