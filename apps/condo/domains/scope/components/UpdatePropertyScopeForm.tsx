@@ -22,7 +22,8 @@ export const UpdatePropertyScopeForm = ({ id }) => {
     const propertyScopeId = get(propertyScope, 'id', null)
     const { objs: propertyScopeProperties, loading: scopePropertiesLoading } = PropertyScopeProperty.useObjects({
         where: {
-            propertyScope: { id: propertyScopeId },
+            propertyScope: { id: propertyScopeId, deletedAt: null },
+            deletedAt: null,
         },
     })
     const { objs: propertyScopeEmployees, loading: scopeEmployeesLoading } = PropertyScopeOrganizationEmployee.useObjects({

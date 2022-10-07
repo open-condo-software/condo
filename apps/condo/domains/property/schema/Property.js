@@ -346,7 +346,6 @@ const Property = new GQLListSchema('Property', {
 
                 if (isSoftDeleteOperation) {
                     await softDeleteTicketHintPropertiesByProperty(context, updatedItem)
-                    await softDeletePropertyScopeProperties(context, updatedItem)
                 }
             }
         },

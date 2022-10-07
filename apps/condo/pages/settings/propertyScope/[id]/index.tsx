@@ -51,6 +51,7 @@ const PropertyScopeIdPage = () => {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.alert.delete.Message' })
     const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allProperties' })
     const AllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allEmployees' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const router = useRouter()
     const { link } = useOrganization()
@@ -65,7 +66,8 @@ const PropertyScopeIdPage = () => {
 
     const { objs: propertyScopeProperties } = PropertyScopeProperty.useObjects({
         where: {
-            propertyScope: { id: scopeId },
+            propertyScope: { id: scopeId, deletedAt: null },
+            deletedAt: null,
         },
     })
     const properties = useMemo(() => propertyScopeProperties.map(propertyScopeProperty => propertyScopeProperty.property), [propertyScopeProperties])
@@ -96,19 +98,32 @@ const PropertyScopeIdPage = () => {
             return AllPropertiesMessage
         }
 
-        return properties.map(property => (
-            <Typography.Paragraph
-                key={property.id}
-                style={PARAGRAPH_STYLES}
-            >
-                <Typography.Link
-                    href={`/property/${get(property, 'id')}`}
+        return properties.map(property => {
+            const isDeleted = !!get(property, 'deletedAt')
+            const propertyMessage = property.name ? `\n${property.name}` : getAddressRender(property, DeletedMessage)
+
+            return (
+                <Typography.Paragraph
+                    key={property.id}
+                    style={PARAGRAPH_STYLES}
                 >
-                    {property.name ? `\n${property.name}\n` : getAddressRender(property)}
-                </Typography.Link>
-            </Typography.Paragraph>
-        ))
-    }, [AllPropertiesMessage, properties, propertyScope])
+                    {
+                        isDeleted ? (
+                            <>
+                                {propertyMessage}
+                            </>
+                        ) : (
+                            <Typography.Link
+                                href={`/property/${get(property, 'id')}`}
+                            >
+                                {propertyMessage}
+                            </Typography.Link>
+                        )
+                    }
+                </Typography.Paragraph>
+            )
+        })
+    }, [AllPropertiesMessage, DeletedMessage, properties, propertyScope])
 
     const renderPropertyScopeEmployees = useMemo(() => {
         if (get(propertyScope, 'hasAllEmployees')) {

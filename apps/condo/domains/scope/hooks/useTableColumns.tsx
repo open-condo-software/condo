@@ -30,7 +30,8 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
         loading: propertiesLoading,
     } = PropertyScopeProperty.useObjects({
         where: {
-            propertyScope: { id_in: propertyScopeIds },
+            propertyScope: { id_in: propertyScopeIds, deletedAt: null },
+            deletedAt: null,
         },
     })
 
@@ -73,7 +74,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             .map(propertyScopeProperty => propertyScopeProperty.property)
 
         return getManyPropertiesAddressRender(search)(intl, properties)
-    }, [propertyScopeProperties, search])
+    }, [AllPropertiesMessage, propertyScopeProperties, search])
 
     const renderPropertyScopeEmployees = useCallback((intl, propertyScope) => {
         if (get(propertyScope, 'hasAllEmployees')) {
