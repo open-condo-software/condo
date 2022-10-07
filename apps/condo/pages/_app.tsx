@@ -47,7 +47,6 @@ import { BarMeterIcon } from '@condo/domains/common/components/icons/BarMeterIco
 import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniAppsIcon'
 import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
-import JivoSiteWidget from '@condo/domains/common/components/JivoSiteWidget'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
 import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
@@ -239,7 +238,6 @@ const MyApp = ({ Component, pageProps }) => {
                     </FeatureFlagsProvider>
                 </CacheProvider>
             </ConfigProvider>
-            <JivoSiteWidget/>
             <UseDeskWidget/>
         </>
     )
