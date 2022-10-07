@@ -10,7 +10,7 @@ const dayjs = require('dayjs')
 const { Text, Select, Virtual, Integer, CalendarDay, Decimal } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { Checkbox } = require('@keystonejs/fields')
 
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
@@ -33,7 +33,6 @@ const { PROPERTY_MAP_GRAPHQL_TYPES, GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY
 const { Property: PropertyAPI } = require('../utils/serverSchema')
 const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)

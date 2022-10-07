@@ -7,7 +7,7 @@ const { pick, get } = require('lodash')
 const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
 
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { getById } = require('@condo/keystone/schema')
 
 const access = require('@condo/domains/resident/access/ServiceConsumer')
@@ -15,7 +15,6 @@ const access = require('@condo/domains/resident/access/ServiceConsumer')
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const ServiceConsumer = new GQLListSchema('ServiceConsumer', {

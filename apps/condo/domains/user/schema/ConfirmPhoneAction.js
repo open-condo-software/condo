@@ -3,14 +3,13 @@
  */
 const { Text, Integer, Checkbox, DateTimeUtc } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, uuided, softDeleted } = require('@condo/keystone/plugins')
+const { historical, uuided, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/user/access/ConfirmPhoneAction')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 
 const {
     SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',

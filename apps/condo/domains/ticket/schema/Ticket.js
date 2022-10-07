@@ -9,7 +9,7 @@ const { triggersManager } = require('@condo/triggers')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
 const { GQLListSchema, getByCondition, getById } = require('@condo/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const {
     PROPERTY_REQUIRED_ERROR,
@@ -47,7 +47,6 @@ const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
 const { sendTicketNotifications } = require('../utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('../constants')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const dayjs = require('dayjs')
 const { calculateDeferredUntil } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 

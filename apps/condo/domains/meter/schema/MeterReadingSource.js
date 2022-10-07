@@ -5,12 +5,9 @@
 const { LocalizedText } = require('@condo/keystone/fields')
 const { Select } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/meter/access/MeterReadingSource')
 const { METER_READING_SOURCE_TYPES } = require('@condo/domains/meter/constants/constants')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-
-
 
 const MeterReadingSource = new GQLListSchema('MeterReadingSource', {
     schemaDoc: 'Ticket source. Income call, mobile_app, ...',

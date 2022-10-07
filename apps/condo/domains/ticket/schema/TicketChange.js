@@ -7,7 +7,7 @@ const { Ticket } = require('./Ticket')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS } = require('../constants')
 const { Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema, find, getById } = require('@condo/keystone/schema')
-const { versioned, uuided, tracked } = require('@condo/keystone/plugins')
+const { versioned, uuided, tracked, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/ticket/access/TicketChange')
 const { generateChangeTrackableFieldsFrom, buildSetOfFieldsToTrackFrom } = require('@condo/domains/common/utils/serverSchema/changeTrackable')
 const { ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
@@ -17,7 +17,6 @@ const { getTranslations } = require('@condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { TicketStatus } = require('@condo/domains/ticket/schema/TicketStatus')
 const { TicketSource } = require('@condo/domains/ticket/schema/TicketSource')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const getTranslation = (translations, key) => {
     if (translations[key]) return translations[key]

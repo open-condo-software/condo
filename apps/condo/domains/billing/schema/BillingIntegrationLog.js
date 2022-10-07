@@ -5,13 +5,12 @@
 const { Text } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/billing/access/BillingIntegrationLog')
 const { WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const BillingIntegrationLog = new GQLListSchema('BillingIntegrationLog', {

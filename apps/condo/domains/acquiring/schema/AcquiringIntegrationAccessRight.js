@@ -3,12 +3,10 @@
  */
 
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationAccessRight')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-
 
 const AcquiringIntegrationAccessRight = new GQLListSchema('AcquiringIntegrationAccessRight', {
     schemaDoc: 'Link between Acquiring integration and user, the existence of this connection means that this user has the rights to perform actions on behalf of the integration',

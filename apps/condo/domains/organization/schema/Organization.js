@@ -8,7 +8,7 @@ const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { Json } = require('@condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
@@ -17,7 +17,6 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const access = require('@condo/domains/organization/access/Organization')
 const userAccess = require('@condo/domains/user/access/User')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 

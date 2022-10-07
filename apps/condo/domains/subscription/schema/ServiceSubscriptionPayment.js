@@ -5,14 +5,12 @@
 const { Text, Relationship, Select, Decimal } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/subscription/access/ServiceSubscriptionPayment')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { values } = require('lodash')
 const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_PAYMENT_STATUS_TRANSITIONS, SUBSCRIPTION_TYPE, SUBSCRIPTION_PAYMENT_CURRENCY } = require('../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../constants/errors')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-
 
 const ServiceSubscriptionPayment = new GQLListSchema('ServiceSubscriptionPayment', {
     schemaDoc: 'Payment request for service subscription',

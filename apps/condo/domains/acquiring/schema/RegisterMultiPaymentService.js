@@ -21,7 +21,7 @@ const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeB
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
+const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 const { MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, RECEIPTS_ARE_DELETED, RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, RECEIPTS_HAS_MULTIPLE_CURRENCIES,
     RECEIPT_HAS_DELETED_BILLING_INTEGRATION, BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
@@ -208,7 +208,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, groupedReceipts } = data
 
                 // Stage 0. Check if input is valid
-                checkDvSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
 
                 if (!get(groupedReceipts, 'length')) {
                     throw new GQLError(errors.MISSING_REQUIRED_GROUPED_RECEIPTS, context)

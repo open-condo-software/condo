@@ -4,10 +4,9 @@
 
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/acquiring/access/PaymentsFilterTemplate')
 const { PAYMENTS_FILTER_FIELD } = require('@condo/domains/acquiring/schema/fields/PaymentsFilter')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const PaymentsFilterTemplate = new GQLListSchema('PaymentsFilterTemplate', {
     schemaDoc: 'The payments filter preset',

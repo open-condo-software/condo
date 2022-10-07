@@ -5,7 +5,7 @@ const get = require('lodash/get')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
 
 const { GQLListSchema, find, getByCondition, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -15,8 +15,6 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
 
 const { Meter: MeterApi } = require('./../utils/serverSchema')
-const { MeterReading } = require('../utils/serverSchema')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 
 

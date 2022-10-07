@@ -5,9 +5,8 @@
 const { Relationship, Checkbox, Select } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/onboarding/access/OnBoarding')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OnBoarding = new GQLListSchema('OnBoarding', {
     schemaDoc: 'User action guide. It should be used to build complex hierarchical systems of user actions.',

@@ -20,7 +20,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { checkDvSender } = require('@condo/domains/common/utils/serverSchema/validators')
+const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 const {
@@ -182,7 +182,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data } = args
                 const { phone: inputPhone, sender, captcha } = data
-                checkDvSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'startConfirmPhoneAction' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'startConfirmPhoneAction' }, context)
+                checkDvAndSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'startConfirmPhoneAction' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'startConfirmPhoneAction' }, context)
                 const { error } = await captchaCheck(captcha, 'start_confirm_phone')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'startConfirmPhoneAction', data: { error } }, context)
@@ -245,7 +245,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             resolver: async (parent, args, context, info, extra) => {
                 const { data } = args
                 const { token, sender, captcha } = data
-                checkDvSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'resendConfirmPhoneActionSms' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'resendConfirmPhoneActionSms' }, context)
+                checkDvAndSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'resendConfirmPhoneActionSms' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'resendConfirmPhoneActionSms' }, context)
                 const { error } = await captchaCheck(captcha, 'resend_sms')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'resendConfirmPhoneActionSms', data: { error } }, context)
@@ -304,7 +304,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             resolver: async (parent, args, context, info, extra) => {
                 const { data } = args
                 const { token, smsCode, sender, captcha } = data
-                checkDvSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'completeConfirmPhoneAction' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'completeConfirmPhoneAction' }, context)
+                checkDvAndSender(data, { ...errors.DV_VERSION_MISMATCH, mutation: 'completeConfirmPhoneAction' }, { ...errors.WRONG_SENDER_FORMAT, mutation: 'completeConfirmPhoneAction' }, context)
                 const { error } = await captchaCheck(captcha, 'complete_verify_phone')
                 if (error) {
                     throw new GQLError({ ...errors.CAPTCHA_CHECK_FAILED, mutation: 'completeConfirmPhoneAction', data: { error } }, context)

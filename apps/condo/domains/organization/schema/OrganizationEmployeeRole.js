@@ -5,12 +5,11 @@ const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/co
 const { Checkbox, Virtual } = require('@keystonejs/fields')
 const { LocalizedText } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, dvAndSender } = require('@condo/keystone/plugins')
 const { Organization } = require('../utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const get = require('lodash/get')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',

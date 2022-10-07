@@ -4,15 +4,13 @@
 
 const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/division/access/Division')
 const { OrganizationEmployee, Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { get } = require('lodash')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { MAX_PROPERTIES_IN_DIVISION } = require('@condo/domains/division/constants')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-
 
 const Division = new GQLListSchema('Division', {
     schemaDoc: 'Grouping of properties and employees with one single responsible person',

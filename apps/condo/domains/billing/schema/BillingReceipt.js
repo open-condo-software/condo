@@ -8,7 +8,7 @@ const { get } = require('lodash')
 const { Text, Relationship } = require('@keystonejs/fields')
 
 const { GQLListSchema, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
@@ -19,7 +19,6 @@ const { SERVICES_FIELD } = require('./fields/BillingReceipt/Services')
 const { RECIPIENT_FIELD } = require('./fields/BillingReceipt/Recipient')
 const { BillingRecipient } = require('../utils/serverSchema')
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'

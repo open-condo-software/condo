@@ -4,10 +4,9 @@
 
 const { Text, Relationship, Select, Checkbox, Integer } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { LocalizedText } = require('@condo/keystone/fields')
 const access = require('@condo/domains/onboarding/access/OnBoardingStep')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const OnBoardingStep = new GQLListSchema('OnBoardingStep', {
     schemaDoc: 'Logic part of user app guide.',

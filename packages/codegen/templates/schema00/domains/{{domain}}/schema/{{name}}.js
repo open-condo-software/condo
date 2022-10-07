@@ -6,7 +6,6 @@ const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay,
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
-const { dvAndSender } = require('@{{app}}/domains/common/schema/plugins/dvAndSender')
 const access = require('@{{app}}/domains/{{ domain }}/access/{{name}}')
 
 

@@ -4,7 +4,7 @@
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')
@@ -23,7 +23,6 @@ const {
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 

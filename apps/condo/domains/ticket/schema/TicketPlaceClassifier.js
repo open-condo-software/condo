@@ -4,10 +4,9 @@
 
 const { Text } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/TicketPlaceClassifier')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const TicketPlaceClassifier = new GQLListSchema('TicketPlaceClassifier', {
     schemaDoc: 'Describes where the incident occurred',

@@ -5,7 +5,7 @@
 const { Text, Checkbox, Password, File, Select, Virtual } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
@@ -15,7 +15,6 @@ const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 

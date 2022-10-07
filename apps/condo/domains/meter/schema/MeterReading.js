@@ -4,13 +4,12 @@
 
 const { Relationship, DateTimeUtc, Decimal } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
 const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 const MeterReading = new GQLListSchema('MeterReading', {

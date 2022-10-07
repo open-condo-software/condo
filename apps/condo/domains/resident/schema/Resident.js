@@ -5,7 +5,7 @@
 const { pick, get, isNull } = require('lodash')
 const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const { ADDRESS_META_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 
@@ -28,8 +28,7 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { manageResidentToTicketClientConnections } = require('../tasks')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
-const { RESIDENT_ORGANIZATION_FIELDS, RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
+const { RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',

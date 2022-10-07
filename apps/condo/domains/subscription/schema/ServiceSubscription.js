@@ -4,7 +4,7 @@
 
 const { Text, Select, Checkbox, DateTimeUtc, Integer, Decimal } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
 const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
@@ -15,7 +15,6 @@ const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = requ
 const { Json } = require('@condo/keystone/fields')
 const { OVERLAPPING_ERROR } = require('../constants/errors')
 const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
-const { dvAndSender } = require('@condo/domains/common/schema/plugins/dvAndSender')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
