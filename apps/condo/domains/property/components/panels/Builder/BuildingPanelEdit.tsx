@@ -4,7 +4,7 @@ import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Proper
 import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
+import { MAX_PROPERTY_FLOORS_COUNT, MAX_PROPERTY_UNITS_COUNT_PER_FLOOR, MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useIntl } from '@condo/next/intl'
 import { css, jsx } from '@emotion/react'
@@ -814,7 +814,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{FloorCountLabel}</Typography.Text>
-                    <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} style={INPUT_STYLE} type='number' />
+                    <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} max={MAX_PROPERTY_FLOORS_COUNT} style={INPUT_STYLE} type='number' />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
@@ -852,7 +852,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
-                    <InputNumber min={1} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type='number'/>
+                    <InputNumber min={1} max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type='number'/>
                 </Space>
             </Col>
             <Col span={24}>

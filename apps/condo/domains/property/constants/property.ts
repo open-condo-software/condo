@@ -428,6 +428,11 @@ const buildingAddressMetaJson = {
 
 const MIN_SECTIONS_TO_SHOW_FILTER = 2
 
+// This number was picked empirically according to fact that no property exceeded this number
+// Also it is due to performance limitation of current UI implementation, that will hang when user will try to enter more
+const MAX_PROPERTY_FLOORS_COUNT = 100
+const MAX_PROPERTY_UNITS_COUNT_PER_FLOOR = 100
+
 export {
     buildingEmptyMapJson,
     buildingMapJson,
@@ -436,4 +441,6 @@ export {
     validHouseTypes,
     autoFixBuildingMapJson,
     MIN_SECTIONS_TO_SHOW_FILTER,
+    MAX_PROPERTY_FLOORS_COUNT,
+    MAX_PROPERTY_UNITS_COUNT_PER_FLOOR,
 }
