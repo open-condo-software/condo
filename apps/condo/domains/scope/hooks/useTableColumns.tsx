@@ -2,7 +2,7 @@ import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -27,37 +27,38 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
 
     const {
         objs: propertyScopeProperties,
-        count: propertiesCount,
-        fetchMore: fetchMoreProperties,
         loading: propertiesLoading,
     } = PropertyScopeProperty.useObjects({
         where: {
             propertyScope: { id_in: propertyScopeIds, deletedAt: null },
             deletedAt: null,
         },
+    }, {
+        fetchAll: true,
     })
 
     const {
         objs: propertyScopeEmployees,
-        count: employeesCount,
-        fetchMore: fetchMoreEmployees,
         loading: employeesLoading,
     } = PropertyScopeOrganizationEmployee.useObjects({
         where: {
             propertyScope: { id_in: propertyScopeIds },
         },
+    }, {
+        fetchAll: true,
     })
 
     const propertyScopesEmployeeIds = uniq(propertyScopeEmployees.map(scope => scope.employee.id))
 
     const {
         objs: specializationScopes,
-        count: specializationScopesCount,
         loading: specializationScopesLoading,
     } = SpecializationScope.useObjects({
         where: {
             employee: { id_in: propertyScopesEmployeeIds },
         },
+    }, {
+        fetchAll: true,
     })
 
     const router = useRouter()
@@ -91,7 +92,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     }, [AllEmployeesMessage, propertyScopeEmployees, search, specializationScopes])
 
     return useMemo(() => ({
-        loading: propertiesLoading || employeesLoading,
+        loading: propertiesLoading || employeesLoading || specializationScopesLoading,
         columns:[
             {
                 title: PropertyScopeNameMessage,
@@ -118,6 +119,5 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 width: '38%',
             },
         ],
-    }), [EmployeesMessage, PropertiesMessage, PropertyScopeNameMessage, employeesLoading, filterMetas, filters,
-        intl, propertiesLoading, render, renderPropertyScopeEmployees, renderPropertyScopeProperties])
+    }), [PropertiesMessage, PropertyScopeNameMessage, filterMetas, filters, intl, propertiesLoading, render, renderPropertyScopeProperties])
 }

@@ -255,6 +255,26 @@ const MyApp = ({ Component, pageProps }) => {
 
 const { publicRuntimeConfig: { defaultLocale  } } = getConfig()
 
+const skipFirstPaginationTypePolicy = {
+    keyArgs: (args, context) => {
+        const { where } = args
+        const { fieldName } = context
+
+        const jsonWhere = JSON.stringify(where)
+
+        return fieldName + jsonWhere
+    },
+    merge (existing, incoming, { args: { skip = 0, first } }) {
+        const merged = existing ? existing.slice(0) : []
+
+        for (let i = 0; i < incoming.length; ++i) {
+            merged[skip + i] = incoming[i]
+        }
+
+        return merged
+    },
+}
+
 /*
     Configuration for `InMemoryCache` of Apollo
     Add fields, related to pagination strategies of Apollo.
@@ -279,6 +299,12 @@ const apolloCacheConfig = {
         },
         BuildingUnit: {
             keyFields: false,
+        },
+        Query: {
+            fields: {
+                allPropertyScopeOrganizationEmployees: skipFirstPaginationTypePolicy,
+                allPropertyScopeProperties: skipFirstPaginationTypePolicy,
+            },
         },
     },
 }

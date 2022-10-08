@@ -25,11 +25,15 @@ export const UpdatePropertyScopeForm = ({ id }) => {
             propertyScope: { id: propertyScopeId, deletedAt: null },
             deletedAt: null,
         },
+    }, {
+        fetchAll: true,
     })
     const { objs: propertyScopeEmployees, loading: scopeEmployeesLoading } = PropertyScopeOrganizationEmployee.useObjects({
         where: {
             propertyScope: { id: propertyScopeId },
         },
+    }, {
+        fetchAll: true,
     })
     const organizationId = useMemo(() => get(propertyScope, ['organization', 'id']), [propertyScope])
 

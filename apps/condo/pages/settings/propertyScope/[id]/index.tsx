@@ -69,12 +69,16 @@ const PropertyScopeIdPage = () => {
             propertyScope: { id: scopeId, deletedAt: null },
             deletedAt: null,
         },
+    }, {
+        fetchAll: true,
     })
     const properties = useMemo(() => propertyScopeProperties.map(propertyScopeProperty => propertyScopeProperty.property), [propertyScopeProperties])
     const { objs: propertyScopeEmployees } = PropertyScopeOrganizationEmployee.useObjects({
         where: {
             propertyScope: { id: scopeId },
         },
+    }, {
+        fetchAll: true,
     })
     const employees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee), [propertyScopeEmployees])
     const propertyScopesEmployeeIds = useMemo(() => uniq(employees.map(employee => employee.id)), [employees])
@@ -86,6 +90,8 @@ const PropertyScopeIdPage = () => {
         where: {
             employee: { id_in: propertyScopesEmployeeIds },
         },
+    }, {
+        fetchAll: true,
     })
     const propertyScopeName = useMemo(() => {
         const name = get(propertyScope, 'name')
