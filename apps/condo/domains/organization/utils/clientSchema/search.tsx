@@ -64,12 +64,12 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
                     </Typography.Text>
                 )
 
-                return { text: EmployeeText, value: employee.id }
+                return { text: EmployeeText, title: employee.name, value: employee.id }
             })
     }
 }
 
-export function searchEmployeeUserWithSpecializations (intl, organizationId, propertyId, filter) {
+export function searchEmployeeUserWithSpecializations (intl, organizationId, specializationScopes, filter) {
     if (!organizationId) return
 
     return async function (client, value) {
@@ -77,35 +77,10 @@ export function searchEmployeeUserWithSpecializations (intl, organizationId, pro
 
         const employees = data.objs
 
-        const { data: specializationScopes, error: specializationScopesError } = await _search(client, GET_ALL_SPECIALIZATION_SCOPE_QUERY, {
-            employeeIds: employees.map(employee => employee.id),
-        })
-
-        if (error || specializationScopesError) console.warn(error)
+        if (error) console.warn(error)
 
         return employees
             .filter(filter || Boolean)
             .filter(({ user }) => user)
-            .map(employee => {
-                const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
-                const EmployeeText = (
-                    <Typography.Text>
-                        {employee.name} {specializationsMessage && specializationsMessage}
-                    </Typography.Text>
-                )
-
-                const specializations = specializationScopes.objs
-                    .filter(scope => scope.employee.id === employee.id)
-                    .map(scope => scope.specialization)
-
-                return {
-                    text: EmployeeText,
-                    value: employee.user.id,
-                    data: {
-                        specializations,
-                        employee,
-                    },
-                }
-            })
     }
 }
