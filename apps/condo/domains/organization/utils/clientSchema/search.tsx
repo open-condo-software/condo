@@ -4,8 +4,8 @@ import React from 'react'
 import { getEmployeeSpecializationsMessage } from './Renders'
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query selectOrganizationEmployee ($value: String, $organizationId: ID) {
-        objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
+    query selectOrganizationEmployee ($value: String, $organizationId: ID, $first: Int = 100, $skip: Int) {
+        objs: allOrganizationEmployees(first: $first, skip: $skip, where: {name_contains_i: $value, organization: { id: $organizationId }}) {
             name
             id
             user {
@@ -24,8 +24,8 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
 `
 
 const GET_ALL_SPECIALIZATION_SCOPE_QUERY = gql`
-    query selectSpecializationScope ($employeeIds: [ID]) {
-        objs: allSpecializationScopes(where: {employee: { id_in: $employeeIds } }) {
+    query selectSpecializationScope ($employeeIds: [ID], $first: Int = 100, $skip: Int) {
+        objs: allSpecializationScopes(first: $first, skip: $skip, where: {employee: { id_in: $employeeIds } }) {
             employee { id }
             specialization { id name }
         }
@@ -43,8 +43,8 @@ async function _search (client, query, variables) {
 export function searchEmployeeWithSpecializations (intl, organizationId, filter) {
     if (!organizationId) return
 
-    return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+    return async function (client, value, where, first, skip) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId, first, skip })
 
         const employees = data.objs
 
@@ -72,8 +72,8 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
 export function searchEmployeeUserWithSpecializations (intl, organizationId, specializationScopes, filter) {
     if (!organizationId) return
 
-    return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId })
+    return async function (client, value, where, first, skip) {
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, organizationId, first, skip })
 
         const employees = data.objs
 

@@ -89,6 +89,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const { propertyScopeProperties = [], propertyScopeEmployees = [] } = initialValues
     const initialProperties = useMemo(() => propertyScopeProperties.map(propertyScopeProperty => propertyScopeProperty.property.id), [propertyScopeProperties])
     const initialEmployees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee.id), [propertyScopeEmployees])
+
     const initialFormValues = { ...initialValues, employees: initialEmployees, properties: initialProperties }
 
     const [showHintAlert, setShowHintAlert] = useState<boolean>()

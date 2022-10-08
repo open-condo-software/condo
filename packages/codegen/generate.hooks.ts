@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
 import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
@@ -10,6 +10,9 @@ import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
+type UseObjectsQueryHookOptions<TData, TVariables> = QueryHookOptions<TData, TVariables> & {
+    fetchAll?: boolean
+}
 type IUUIDObject = { id: string }
 type IOnCompleteType<GQLObject> = (obj: GQLObject) => void
 type IUseObjectsQueryReturnType<GQLObject> = {
@@ -52,8 +55,8 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
     useUpdate: (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>)
     => IUseUpdateActionType<GQLObject, GQLUpdateInput>
     useSoftDelete: (onComplete?: IOnCompleteType<GQLObject>)
-    => IUseSoftDeleteActionType<GQLObject> 
-    useObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
+    => IUseSoftDeleteActionType<GQLObject>
+    useObjects: (variables: QueryVariables, options?: UseObjectsQueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectsReturnType<GQLObject, QueryVariables>
     useObject: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectReturnType<GQLObject, QueryVariables>
@@ -207,7 +210,7 @@ export function generateReactHooks<
         }
     }
 
-    function useObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
+    function useObjects (variables: QueryVariables, options?: UseObjectsQueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const intl = useIntl()
         const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
         const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
@@ -223,6 +226,17 @@ export function generateReactHooks<
         const typedRefetch: IRefetchType<GQLObject, QueryVariables> = refetch
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
         const typedStopPolling: IStopPollingType = stopPolling
+
+        const fetchAll = get(options, 'fetchAll', false)
+        useEffect(() => {
+            if (fetchAll && !loading && typedFetchMore && count > objs.length) {
+                typedFetchMore({
+                    variables: {
+                        skip: objs.length,
+                    },
+                })
+            }
+        }, [count, fetchAll, loading, objs.length, typedFetchMore])
 
         let readableError
 
