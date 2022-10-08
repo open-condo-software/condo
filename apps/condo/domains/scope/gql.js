@@ -15,7 +15,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const PROPERTY_SCOPE_FIELDS = `{ name organization { id } hasAllProperties hasAllEmployees ${COMMON_FIELDS} }`
 const PropertyScope = generateGqlQueries('PropertyScope', PROPERTY_SCOPE_FIELDS)
 
-const PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS = `{ propertyScope { id name } employee { id name hasAllSpecializations } ${COMMON_FIELDS} }`
+const PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS = `{ propertyScope { id name } employee { id user { id } name hasAllSpecializations role { ticketVisibilityType } } ${COMMON_FIELDS} }`
 const PropertyScopeOrganizationEmployee = generateGqlQueries('PropertyScopeOrganizationEmployee', PROPERTY_SCOPE_ORGANIZATION_EMPLOYEE_FIELDS)
 
 const PROPERTY_SCOPE_PROPERTY_FIELDS = `{ propertyScope { id } property { id address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } ${COMMON_FIELDS} }`

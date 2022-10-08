@@ -60,7 +60,7 @@ Domain-agnostic implementation of tasks is located in `apps/condo/domains/common
 1. Create a hook in `domains/*/components/hooks/use[Domain][Action]Task`
    For example like a `domains/ticket/components/hooks/useTicketExportTask.tsx`
 2. Use its `TaskLauncher` in appropriate page
-   For example like in `pages/ticket/index.tsx`
+   For example like in `pages/ticket/index.ts`
 3. Mount it into `pages/_app.tsx`
 
 

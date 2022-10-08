@@ -50,12 +50,13 @@ async function softDeletePropertyScopeProperties (context, updatedItem) {
 async function softDeletePropertyScopeOrganizationEmployee (context, updatedItem) {
     const { dv, sender, id } = updatedItem
 
-    const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
-        organizationEmployee: { id },
+    const propertyScopeEmployees = await PropertyScopeOrganizationEmployee.getAll(context, {
+        employee: { id },
+        deletedAt: null,
     })
 
-    for (const propertyScopeProperty of propertyScopeProperties) {
-        await PropertyScopeProperty.update(context, propertyScopeProperty.id, {
+    for (const propertyScopeEmployee of propertyScopeEmployees) {
+        await PropertyScopeOrganizationEmployee.update(context, propertyScopeEmployee.id, {
             deletedAt: 'true',
             dv, sender,
         })
