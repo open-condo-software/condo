@@ -4,7 +4,11 @@ import getConfig from 'next/config'
 import get from 'lodash/get'
 
 const { publicRuntimeConfig:{ UseDeskWidgetId } } = getConfig()
-const fieldId = 20560
+const useDeskFieldsIdsMap = {
+    tin: 20560,
+    role: 20574,
+    organizationName: 20572,
+}
 
 const UseDeskWidget: React.FC = () => {
     const { link } = useOrganization()
@@ -19,7 +23,13 @@ const UseDeskWidget: React.FC = () => {
                 additional_fields:
                     [
                         {
-                            id: fieldId, value: get(link, ['organization', 'tin'], null),
+                            id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
+                        },
+                        {
+                            id: useDeskFieldsIdsMap.organizationName, value: get(link, ['organization', 'name'], null),
+                        },
+                        {
+                            id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
                         },
                     ],
             })
