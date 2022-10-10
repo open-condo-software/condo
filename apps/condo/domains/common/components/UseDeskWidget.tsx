@@ -1,7 +1,8 @@
 import { useOrganization } from '@condo/next/organization'
 import React, { useEffect } from 'react'
 import getConfig from 'next/config'
-import { get, isFunction } from 'lodash'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 
 const { publicRuntimeConfig:{ UseDeskWidgetId } } = getConfig()
 const useDeskFieldsIdsMap = {
