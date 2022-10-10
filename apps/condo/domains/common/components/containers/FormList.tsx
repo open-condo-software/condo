@@ -12,6 +12,7 @@ import {
     Typography,
     Space,
 } from 'antd'
+import { Options } from 'scroll-into-view-if-needed'
 
 import { Modal } from '@condo/domains/common/components/Modal'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -240,6 +241,7 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
     style?: CSSProperties,
     children: IFormWithActionChildren
     formInstance?: FormInstance
+    scrollToFirstError?: Options | boolean
 }
 
 const FormWithAction: React.FC<IFormWithAction> = (props) => {

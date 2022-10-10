@@ -76,6 +76,7 @@
   "HotCodeReload.action": "Понятно, перезагрузить",
   "ExportAsExcel": "Выгрузить в Excel",
   "FiltersLabel": "Фильтры",
+  "field.required": "Это обязательное поле — заполните его",
   "field.AccountNumberShort": "ЛС",
   "field.TotalPayment": "ИТОГО к оплате",
   "field.Address": "Адрес",
