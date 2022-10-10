@@ -131,8 +131,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
 
         const phoneNumber = String(get(phone, 'value', '')).trim()
-        addons.phone = phoneNumber || null
-        addons.isValidPhone = Boolean(normalizePhone(phoneNumber, true))
+        const normalizedPhone = normalizePhone(phoneNumber, true)
+        addons.phone = normalizedPhone || null
+        addons.isValidPhone = Boolean(normalizedPhone)
         addons.createdAt = createdAt.value ? String(createdAt.value) : ''
         addons.fullName = String(get(fullName, 'value', '')).trim()
         addons.details = String(get(details, 'value', '')).trim()
