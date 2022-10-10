@@ -1,4 +1,4 @@
-import { EllipsisOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { PlusCircleOutlined } from '@ant-design/icons'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -13,12 +13,10 @@ import { useTableColumns } from '@condo/domains/organization/hooks/useTableColum
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IFilters } from '@condo/domains/organization/utils/helpers'
-import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { Col, Dropdown, Menu, Row, Typography } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { Col, Row, Typography } from 'antd'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import Input from '@condo/domains/common/components/antd/Input'
 import { get } from 'lodash'
@@ -30,7 +28,7 @@ import { SortOrganizationEmployeesBy } from '@app/condo/schema'
 
 const ADD_EMPLOYEE_ROUTE = '/employee/create/'
 const SORTABLE_PROPERTIES = ['name', 'role', 'position', 'phone']
-const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
+const EMPLOYEE_DEFAULT_SORT_BY = ['createdAt_DESC']
 
 export const EmployeesPageContent = ({
     tableColumns,
@@ -45,8 +43,6 @@ export const EmployeesPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
     const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
-    const AddItemUsingUploadLabel = intl.formatMessage({ id: 'AddItemUsingFileUpload' })
 
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
@@ -62,16 +58,6 @@ export const EmployeesPageContent = ({
     const [search, handleSearchChange] = useSearch<IFilters>(employeesLoading)
 
     const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
-
-    const dropDownMenu = (
-        <Menu>
-            <Menu.Item key='1'>
-                <Tooltip title={NotImplementedYetMessage}>
-                    {AddItemUsingUploadLabel}
-                </Tooltip>
-            </Menu.Item>
-        </Menu>
-    )
 
     return (
         <>
@@ -147,7 +133,7 @@ const EmployeesPage = () => {
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const filtersMeta = useTableFilters()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filtersMeta, SORTABLE_PROPERTIES)
-    const sortBy = sortersToSortBy(sorters, TICKET_HINTS_DEFAULT_SORT_BY) as SortOrganizationEmployeesBy[]
+    const sortBy = sortersToSortBy(sorters, EMPLOYEE_DEFAULT_SORT_BY) as SortOrganizationEmployeesBy[]
 
     const searchEmployeeQuery = {
         ...filtersToWhere(filters),
