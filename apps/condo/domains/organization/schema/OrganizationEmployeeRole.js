@@ -10,7 +10,7 @@ const { Organization } = require('../utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')
 const get = require('lodash/get')
-const { TICKET_VISIBILITY_OPTIONS, NONE_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { TICKET_VISIBILITY_OPTIONS, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/scope/constants')
 
 const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
     schemaDoc: 'Employee role name and access permissions',
@@ -92,7 +92,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             type: Select,
             dataType: 'string',
             isRequired: true,
-            defaultOption: NONE_TICKET_VISIBILITY,
+            defaultOption: ORGANIZATION_TICKET_VISIBILITY,
             options: TICKET_VISIBILITY_OPTIONS,
         },
         canManagePropertyScopes: { type: Checkbox, defaultValue: false },

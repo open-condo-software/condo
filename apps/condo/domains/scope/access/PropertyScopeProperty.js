@@ -6,6 +6,7 @@ const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatt
 const get = require('lodash/get')
 const { checkOrganizationPermission, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { getById } = require('@condo/keystone/schema')
+const { isSoftDelete } = require('@condo/keystone/access')
 
 async function canReadPropertyScopeProperties ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -35,17 +36,11 @@ async function canManagePropertyScopeProperties ({ authentication: { item: user 
         const propertyScopeOrganizationId = get(propertyScope, 'organization')
         const employeeOrganizationId = get(property, 'organization')
 
-        if (propertyScopeOrganizationId !== employeeOrganizationId)
-            return false
+        if (propertyScopeOrganizationId !== employeeOrganizationId) return false
 
         return await checkOrganizationPermission(user.id, propertyScopeOrganizationId, 'canManagePropertyScopes')
     } else if (operation === 'update' && itemId) {
-        const isSoftDeletedOperation = get(originalInput, 'deletedAt')
-        const updatedPropertyScopeId = get(originalInput, ['propertyScope', 'connect', 'id'])
-        const updatedPropertyId = get(originalInput, ['proeprty', 'connect', 'id'])
-
-        // can update only if it soft delete operation
-        if (!isSoftDeletedOperation || updatedPropertyScopeId || updatedPropertyId) return false
+        if (!isSoftDelete(originalInput)) return false
 
         const propertyScopeProperty = await getById('PropertyScopeProperty', itemId)
         if (!propertyScopeProperty) return false

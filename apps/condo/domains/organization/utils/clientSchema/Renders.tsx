@@ -12,11 +12,11 @@ export const getEmployeeSpecializationsMessage = (intl, employee, specialization
         .filter(scope => scope.employee.id === employee.id)
         .map(scope => scope.specialization.name)
 
-    let SpecializationsMessage = <></>
+    let SpecializationsMessage
     if (employee.hasAllSpecializations) {
         SpecializationsMessage = (
             <Typography.Text>
-                ({AllSpecializationsMessage.toLowerCase()})
+                {AllSpecializationsMessage.toLowerCase()}
             </Typography.Text>
         )
     } else if (employeeSpecializations.length > 0){
@@ -25,19 +25,21 @@ export const getEmployeeSpecializationsMessage = (intl, employee, specialization
         if (employeeSpecializations.length > 1) {
             SpecializationsMessage = (
                 <Typography.Text>
-                    ({firstSpecializationMessage}&nbsp;
+                    {firstSpecializationMessage}&nbsp;
                     <Typography.Text type='secondary'>
-                        {SpecializationsCountMessage + employeeSpecializations.length})
+                        {SpecializationsCountMessage + employeeSpecializations.length}
                     </Typography.Text>
                 </Typography.Text>
             )
         } else {
-            SpecializationsMessage = <Typography.Text>({firstSpecializationMessage})</Typography.Text>
+            SpecializationsMessage = <Typography.Text>{firstSpecializationMessage}</Typography.Text>
         }
     }
 
     return SpecializationsMessage
 }
+
+const PARAGRAPH_STYLES = { margin: 0 }
 
 export const getManyEmployeesNameRender = (search: FilterValue) => {
     return function render (intl, employees, specializationScopes) {
@@ -49,8 +51,12 @@ export const getManyEmployeesNameRender = (search: FilterValue) => {
             const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
 
             return (
-                <Typography.Paragraph key={employee.id} style={{ margin: 0 }}>
-                    {employee.name} {specializationsMessage && specializationsMessage}
+                <Typography.Paragraph key={employee.id} style={PARAGRAPH_STYLES}>
+                    {employee.name} {specializationsMessage && (
+                        <Typography.Text>
+                        ({specializationsMessage})
+                        </Typography.Text>
+                    )}
                 </Typography.Paragraph>
             )
         })

@@ -29,7 +29,6 @@ import React, { useMemo } from 'react'
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
     searchEmployeeUser,
-    searchOrganizationDivision,
     searchOrganizationProperty,
 } from '../utils/clientSchema/search'
 import {

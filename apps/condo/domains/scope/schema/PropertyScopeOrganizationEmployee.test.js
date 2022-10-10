@@ -18,7 +18,7 @@ const { registerNewOrganization } = require('@condo/domains/organization/utils/t
 describe('PropertyScopeOrganizationEmployee', () => {
     describe('accesses', () => {
         describe('admin', () => {
-            describe('can create PropertyScopeOrganizationEmployee', async () => {
+            it('can create PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -31,7 +31,7 @@ describe('PropertyScopeOrganizationEmployee', () => {
                 expect(propertyScopeOrganizationEmployee.id).toMatch(UUID_RE)
             })
 
-            describe('can update PropertyScopeOrganizationEmployee', async () => {
+            it('can update PropertyScopeOrganizationEmployee', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -41,9 +41,9 @@ describe('PropertyScopeOrganizationEmployee', () => {
                 const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
                 const [propertyScopeOrganizationEmployee] = await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
 
-                const [updatedPropertyScope] = await updateTestPropertyScopeOrganizationEmployee(admin, propertyScopeOrganizationEmployee.id, {})
+                const [updatedPropertyScopeOrganizationEmployee] = await updateTestPropertyScopeOrganizationEmployee(admin, propertyScopeOrganizationEmployee.id, {})
 
-                expect(updatedPropertyScope.id).toEqual(propertyScope.id)
+                expect(updatedPropertyScopeOrganizationEmployee.id).toEqual(propertyScopeOrganizationEmployee.id)
             })
         })
 
@@ -214,20 +214,6 @@ describe('PropertyScopeOrganizationEmployee', () => {
     })
 
     describe('logic', () => {
-        it('create PropertyScopeOrganizationEmployee for default PropertyScope after employee creation', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const user = await makeClientWithNewRegisteredAndLoggedInUser()
-
-            const [org] = await registerNewOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, org)
-            const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
-
-            const defaultPropertyScope = await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
-            const propertyScopeOrganizationEmployee = await PropertyScopeOrganizationEmployee.getOne(admin, { employee: { id: employee.id }, propertyScope: { id: defaultPropertyScope.id } })
-
-            expect(propertyScopeOrganizationEmployee).toBeDefined()
-        })
-
         it('delete PropertyScopeOrganizationEmployee after employee deletion', async () => {
             const admin = await makeLoggedInAdminClient()
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -235,14 +221,15 @@ describe('PropertyScopeOrganizationEmployee', () => {
             const [org] = await registerNewOrganization(admin)
             const [role] = await createTestOrganizationEmployeeRole(admin, org)
             const [employee] = await createTestOrganizationEmployee(admin, org, user.user, role)
-
-            await PropertyScope.getOne(admin, { organization: { id: org.id }, isDefault: true })
+            const [propertyScope] = await createTestPropertyScope(admin, org)
+            await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
 
             await updateTestOrganizationEmployee(admin, employee.id, {
                 deletedAt: 'true',
             })
 
-            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(admin, { employee: { id: employee.id } })
+            const propertyScopeOrganizationEmployees = await PropertyScopeOrganizationEmployee.getAll(admin,
+                { employee: { id: employee.id }, propertyScope: { id: propertyScope.id } })
 
             expect(propertyScopeOrganizationEmployees).toHaveLength(0)
         })

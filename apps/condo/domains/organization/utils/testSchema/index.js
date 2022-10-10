@@ -28,7 +28,7 @@ const {
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 } = require('./Organization')
-const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/scope/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)

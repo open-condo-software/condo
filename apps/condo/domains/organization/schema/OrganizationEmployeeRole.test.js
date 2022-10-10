@@ -13,10 +13,9 @@ const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErro
 const { getTranslations, getAvailableLocales } = require('@open-condo/locales/loader')
 const { DEFAULT_ROLES } = require('../constants/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
-const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, SPECIALIZATION_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, NONE_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY } = require('@condo/domains/scope/constants')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket, Ticket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { ASSIGNEE_CONNECTED_EVENT_TYPE } = require('@condo/domains/ticket/utils/handlers')
 const { createTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee, createTestSpecializationScope } = require('@condo/domains/scope/utils/testSchema')
 
 describe('OrganizationEmployeeRole', () => {

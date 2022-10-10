@@ -32,21 +32,6 @@ async function createDefaultPropertyScopeForNewOrganization (context, organizati
     })
 }
 
-async function softDeletePropertyScopeProperties (context, updatedItem) {
-    const { dv, sender, id } = updatedItem
-
-    const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
-        property: { id },
-    })
-
-    for (const propertyScopeProperty of propertyScopeProperties) {
-        await PropertyScopeProperty.update(context, propertyScopeProperty.id, {
-            deletedAt: 'true',
-            dv, sender,
-        })
-    }
-}
-
 async function softDeletePropertyScopeOrganizationEmployee (context, updatedItem) {
     const { dv, sender, id } = updatedItem
 
@@ -99,6 +84,12 @@ async function getPropertyScopes (employeeIds) {
     })
 }
 
+/**
+ * Checks changes in the current assignee field and another assignee field (for example, assignee and executor in the ticket).
+ 1) Creates an AssigneeScope if the user is specified in assigneeField and there is no such AssigneeScope yet.
+ 2) Removes the AssigneeScope if the user was removed from the assigneeField and in another assigneeField not this user
+ 3) When updating assigneeField, deletes the AssigneeScope for the old user and creates an AssigneeScope for the new one
+ */
 async function createOrDeleteAssigneeScope ({ assigneeField, otherAssigneeField, context, existingItem, updatedItem }) {
     const existingAssigneeFieldId = get(existingItem, assigneeField)
     const existingOtherAssigneeFieldId = get(existingItem, otherAssigneeField)
@@ -185,7 +176,6 @@ module.exports = {
     PropertyScopeProperty,
     SpecializationScope,
     createDefaultPropertyScopeForNewOrganization,
-    softDeletePropertyScopeProperties,
     mapEmployeeToVisibilityTypeToEmployees,
     getPropertyScopes,
     manageAssigneeScope,

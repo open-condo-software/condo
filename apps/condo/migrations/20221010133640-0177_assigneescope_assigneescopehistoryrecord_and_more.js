@@ -136,21 +136,32 @@ FROM "OrganizationEmployee_specializations_many" as specs;
 --
 INSERT INTO "PropertyScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", "hasAllProperties", "hasAllEmployees")
 SELECT "id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", false, false
-FROM "Division"
-WHERE "deletedAt" is null;
+FROM "Division" WHERE id NOT IN (SELECT id FROM "PropertyScope");
 
+--
+-- [CUSTOM] Move data from Division_properties_many to PropertyScopeProperty
+--
 INSERT INTO "PropertyScopeProperty" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "property")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division_left_id", "Property_right_id"
-FROM "Division_properties_many";
+FROM "Division_properties_many" WHERE (SELECT count(*) FROM "PropertyScopeProperty" WHERE "propertyScope" = "Division_left_id" AND "property" = "Property_right_id") = 0;
 
+--
+-- [CUSTOM] Move data from Division_executors_many (not responsible employees) to PropertyScopeOrganizationEmployee
+--
 INSERT INTO "PropertyScopeOrganizationEmployee" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "employee")
-SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division_left_id", "OrganizationEmployee_right_id"
-FROM "Division_executors_many";
+SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), t."Division_left_id", t."OrganizationEmployee_right_id"
+FROM (
+    SELECT * FROM "Division_executors_many"
+    WHERE "OrganizationEmployee_right_id" NOT IN (SELECT "responsible" FROM "Division")
+    AND (SELECT count(*) FROM "PropertyScopeOrganizationEmployee" WHERE "propertyScope" = "Division_left_id" AND "employee" = "OrganizationEmployee_right_id") = 0
+    ) as t;
 
+--
+-- [CUSTOM] Move data from Division.responsible to PropertyScopeOrganizationEmployee
+--
 INSERT INTO "PropertyScopeOrganizationEmployee" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "employee")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division"."id",  "Division"."responsible"
-FROM "Division"
-WHERE "deletedAt" is null;
+FROM "Division" WHERE (SELECT count(*) FROM "PropertyScopeOrganizationEmployee" WHERE "propertyScope" = "Division".id AND "employee" = "responsible") = 0;
 
 --
 -- Delete model organizationemployee_specializations_many

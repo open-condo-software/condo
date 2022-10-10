@@ -1,16 +1,13 @@
-const TIN_LENGTH = 10
-const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
-
-const ORGANIZATION_TICKET_VISIBILITY = 'organization'
-const PROPERTY_TICKET_VISIBILITY = 'property'
-const PROPERTY_AND_SPECIALIZATION_VISIBILITY = 'propertyAndSpecialization'
-const ASSIGNED_TICKET_VISIBILITY = 'assigned'
-const TICKET_VISIBILITY_OPTIONS = [
+const {
     ORGANIZATION_TICKET_VISIBILITY,
     PROPERTY_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     ASSIGNED_TICKET_VISIBILITY,
-]
+    TICKET_VISIBILITY_OPTIONS,
+} = require('@condo/domains/scope/constants')
+
+const TIN_LENGTH = 10
+const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
 
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic

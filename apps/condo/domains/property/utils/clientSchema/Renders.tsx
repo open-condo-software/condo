@@ -1,12 +1,12 @@
 import { Typography } from 'antd'
+import { isEmpty } from 'lodash'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
+
 import { Property } from '@app/condo/schema'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
-import { isEmpty } from 'lodash'
-
-import { getPropertyAddressParts } from '../helpers'
+import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 
 const ADDRESS_RENDER_POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -36,6 +36,7 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
 export const geOneAddressAndPropertiesCountRender = (search: FilterValue) => {
     return function render (intl, properties) {
         const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+        const MoreAddressesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
 
         if (isEmpty(properties)) {
             return '—'
@@ -48,7 +49,7 @@ export const geOneAddressAndPropertiesCountRender = (search: FilterValue) => {
 
         return (
             <Typography.Text>
-                {firstPropertyAddress} <Typography.Text type='secondary'>и ещё адресов: {properties.length - 1}</Typography.Text>
+                {firstPropertyAddress} <Typography.Text type='secondary'>{MoreAddressesMessage}{properties.length - 1}</Typography.Text>
             </Typography.Text>
         )
     }

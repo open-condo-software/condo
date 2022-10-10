@@ -1,7 +1,7 @@
 import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import { isFunction } from 'lodash'
 
-import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { useIntl } from '@condo/next/intl'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
@@ -46,20 +46,22 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         }
     }, [onCheckBoxChange])
 
-    const formItemName = String(selectFormItemProps.name)
+    const formItemName = useMemo(() => String(selectFormItemProps.name), [selectFormItemProps.name])
     useEffect(() => {
         if (isAllChecked) {
             form.setFieldsValue({ [formItemName]: [] })
         }
     }, [form, formItemName, isAllChecked])
 
-    const rules = []
-    if (selectFormItemProps.required && !isAllChecked) {
-        rules.push(requiredValidator)
-    }
+    const rules = useMemo(() => [], [])
+    useEffect(() => {
+        if (selectFormItemProps.required && !isAllChecked) {
+            rules.push(requiredValidator)
+        }
+    }, [isAllChecked, requiredValidator, rules, selectFormItemProps.required])
 
     return (
-        <Row gutter={0}>
+        <Row>
             <Col span={24}>
                 <Form.Item
                     labelAlign='left'

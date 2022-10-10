@@ -7,6 +7,12 @@ import {
 } from '@condo/domains/organization/constants/common'
 import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
 
+/**
+ * Returns a new array with sorted employees in the following order:
+ * 1) employees with specific specializations, starting with fewer specializations
+ * 2) employees with hasAllSpecialization flag
+ * 3) employees without specializations
+ */
 export const getEmployeesSortedBySpecializations = (employees, specializationScopes) => {
     const employeesWithAllSpecializations = []
     const employeeWithSpecificSpecializations = []
@@ -35,6 +41,12 @@ export const getEmployeesSortedBySpecializations = (employees, specializationSco
     return [...sortedEmployeeWithSpecificSpecializations, ...employeesWithAllSpecializations, ...employeesWithoutSpecializations]
 }
 
+/**
+ * Returns a new array with sorted employees in the following order:
+ * 1) employees with PROPERTY_AND_SPECIALIZATION_VISIBILITY ticketVisibilityType, sorted by specializations
+ * 2) employees with ASSIGNED_TICKET_VISIBILITY ticketVisibilityType, sorted by specializations
+ * 3) employees with other ticketVisibilityType, sorted by specializations
+ */
 export const getEmployeesSortedByTicketVisibilityType = (employees, specializationScopes) => {
     const employeesWithPropertyAndSpecializationVisibility = employees
         .filter(({ role }) => role.ticketVisibilityType === PROPERTY_AND_SPECIALIZATION_VISIBILITY)
@@ -84,7 +96,11 @@ export const convertEmployeesToOptions = (employees, intl, specializationScopes)
 
         const EmployeeText = (
             <Typography.Text>
-                {employee.name} {specializationsMessage && specializationsMessage}
+                {employee.name} {specializationsMessage && (
+                    <Typography.Text>
+                    ({specializationsMessage})
+                    </Typography.Text>
+                )}
             </Typography.Text>
         )
 
