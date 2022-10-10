@@ -1,7 +1,7 @@
 import { useOrganization } from '@condo/next/organization'
 import React, { useEffect } from 'react'
 import getConfig from 'next/config'
-import get from 'lodash/get'
+import { get, isFunction } from 'lodash'
 
 const { publicRuntimeConfig:{ UseDeskWidgetId } } = getConfig()
 const useDeskFieldsIdsMap = {
@@ -10,12 +10,21 @@ const useDeskFieldsIdsMap = {
     organizationName: 20572,
 }
 
+const getUserIdentify = () => {
+    if (typeof window === 'undefined') {
+        return null
+    }
+
+    return get(window, ['usedeskMessenger', 'userIdentify'], null)
+}
+
 const UseDeskWidget: React.FC = () => {
     const { link } = useOrganization()
 
+    const userIdentify = getUserIdentify()
+
     useEffect(() => {
-        // @ts-ignore
-        if (UseDeskWidgetId) window.usedeskMessenger.userIdentify(
+        if (UseDeskWidgetId && isFunction(userIdentify)) userIdentify(
             {
                 name: get(link, 'name', null),
                 email: get(link, 'email', null),
@@ -33,7 +42,7 @@ const UseDeskWidget: React.FC = () => {
                         },
                     ],
             })
-    }, [link])
+    }, [link, userIdentify])
 
     return UseDeskWidgetId ?
         <script async src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}></script> : null
