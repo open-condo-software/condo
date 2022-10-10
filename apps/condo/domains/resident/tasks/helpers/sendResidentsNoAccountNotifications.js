@@ -62,6 +62,7 @@ const prepareAndSendNotification = async (context, resident, period) => {
 
     try {
         const { isDuplicateMessage } = await sendMessage(context, messageData)
+
         return (isDuplicateMessage) ? 0 : 1
     } catch (error) {
         logger.info({ msg: 'sendMessage error', error, data: messageData })
@@ -85,9 +86,9 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
     const billingPropertiesWhere = { context: { id: billingContext.id }, deletedAt: null }
     const billingProperties = await loadListByChunks({ context, list: BillingProperty, where: billingPropertiesWhere })
 
-    if (isEmpty(billingProperties)) return
-
     let successCount = 0, attemptsCount = 0, processedCount = 0
+
+    if (isEmpty(billingProperties)) return { successCount, attemptsCount, processedCount }
 
     for (const billingProperty of billingProperties) {
 
@@ -196,7 +197,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
 
     logger.info({ msg: 'Billing context proceed', billingContextsCount: billingContexts.length, requestPeriod, billingContextId })
 
-    let totalSuccessCount = 0, totaAttemptsCount = 0, totaProcessedCount = 0
+    let totalSuccessCount = 0, totalAttemptsCount = 0, totalProcessedCount = 0
 
     for (const billingContext of billingContexts) {
         const redisVarName = `${REDIS_LAST_DATE_KEY}-${requestPeriod}-${billingContext.id}`
@@ -225,8 +226,8 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         const { successCount, attemptsCount, processedCount } = await sendResidentsNoAccountNotificationsForContext(billingContext, receiptsWhere)
 
         totalSuccessCount += successCount
-        totaAttemptsCount += attemptsCount
-        totaProcessedCount += processedCount
+        totalAttemptsCount += attemptsCount
+        totalProcessedCount += processedCount
 
         /**
          * Store datetime for period + billingContext, so that for next execution continue from billing receipts added after this datetime moment.
@@ -234,7 +235,7 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
         await redisClient.set(redisVarName, today)
     }
 
-    logger.info({ msg: 'Total', totalSuccessCount, totaAttemptsCount, totaProcessedCount })
+    logger.info({ msg: 'Total', totalSuccessCount, totalAttemptsCount, totalProcessedCount })
 }
 
 /**
