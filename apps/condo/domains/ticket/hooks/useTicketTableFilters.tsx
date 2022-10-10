@@ -33,7 +33,6 @@ import {
     searchOrganizationProperty,
 } from '../utils/clientSchema/search'
 import {
-    divisionFilterQueryToWhereProcessor,
     getIsResidentContactFilter,
     getTicketAttributesFilter,
 } from '../utils/tables.utils'
@@ -103,7 +102,6 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.ProblemClassifier' })
-    const DivisionLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Division' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const AttributeLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Attribute' })
     const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
@@ -223,29 +221,10 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
-                        size: FilterComponentSize.MediumLarge,
+                        size: FilterComponentSize.Large,
                     },
                     columnFilterComponentWrapper: {
                         width: '400px',
-                    },
-                },
-            },
-            {
-                keyword: 'division',
-                filters: [filterProperty],
-                queryToWhereProcessor: divisionFilterQueryToWhereProcessor,
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchOrganizationDivision(userOrganizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: SelectMessage,
-                        keyField: 'key',
-                    },
-                    modalFilterComponentWrapper: {
-                        label: DivisionLabel,
-                        size: FilterComponentSize.Small,
                     },
                 },
             },

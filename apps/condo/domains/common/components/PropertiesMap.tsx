@@ -27,13 +27,7 @@ export default function PropertiesMap ({ properties, ...mapGLProps }: Properties
             .filter((property) => has(property, ['addressMeta', 'data'])) as unknown as PropertyType[])
             .map(propertyMapper)
 
-        const divisions = properties
-            .filter(division => has(division, ['properties']))
-            // .flatMap((division: DivisionType) => division.properties)
-            .filter(property => has(property, ['addressMeta', 'data']))
-            .map(propertyMapper)
-
-        return buildings.concat(divisions)
+        return buildings
 
     }, [properties])
 

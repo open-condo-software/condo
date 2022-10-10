@@ -45,7 +45,6 @@ const onBoardingIcons = {
     organization: BankFilled,
     house: HouseIcon,
     user: UserIcon,
-    division: WechatFilled,
     chat: WechatFilled,
     billing: ProfileFilled,
     creditCard: CreditCardFilled,

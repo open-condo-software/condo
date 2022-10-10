@@ -34,12 +34,6 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
         order: 3,
     },
     {
-        icon: 'division',
-        action: 'create',
-        entity: 'Division',
-        order: 4,
-    },
-    {
         icon: 'chat',
         action: 'create',
         entity: 'Squad', // should be renamed
@@ -67,10 +61,7 @@ const DEFAULT_ADMINISTRATOR_STEPS_TRANSITION = {
         'create.Acquiring',
     ],
     'create.Property': [],
-    'create.OrganizationEmployee': [
-        'create.Division',
-    ],
-    'create.Division': [],
+    'create.OrganizationEmployee': [],
     'create.Billing': [],
     'create.Acquiring': [],
 }
