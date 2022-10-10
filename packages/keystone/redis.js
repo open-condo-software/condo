@@ -11,7 +11,7 @@ const logger = getLogger('redis')
  *
  * @param {string} name -- name of redis client or the task purpose (we can use a different REDIS_URL for each name)
  * @param {string} purpose -- regular / subscriber redis client mode (read details: https://github.com/luin/ioredis#pubsub); you can also use it if you need a two redis client with different settings; For example, the Bull is required three different redis clients
- * @param {string} opts -- RedisConfig to customize some client options; But please use don't use it!
+ * @param {string} opts -- RedisConfig to customize some client options; But please don't use it!
  * @return {import('ioredis')}
  */
 function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
