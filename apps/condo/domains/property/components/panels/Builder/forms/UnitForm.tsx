@@ -117,6 +117,10 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             isUnitLabelUnique = builder.validateUniqueUnitLabel()
         } else if (mode === 'editUnit') {
             const selectedUnit = builder.getSelectedUnit()
+            if (!selectedUnit) {
+                return false
+            }
+
             const unitPlacementChanged = selectedUnit.floor !== floor
                 || selectedUnit.section !== section
                 || unitType !== selectedUnit.unitType

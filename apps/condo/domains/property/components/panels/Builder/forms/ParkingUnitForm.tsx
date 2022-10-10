@@ -109,6 +109,10 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             isUnitLabelUnique = builder.validateUniqueUnitLabel()
         } else if (mode === 'editParkingUnit') {
             const selectedUnit = builder.getSelectedParkingUnit()
+            if (!selectedUnit) {
+                return false
+            }
+
             const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
             const labelChanged = selectedUnit.label !== label
             const labelValidation = labelChanged

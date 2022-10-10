@@ -660,8 +660,10 @@ interface IPropertyMapUnitProps {
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit }) => {
     const selectUnit = useCallback(() => {
         if (unit.unitType !== BuildingUnitSubType.Parking) {
+            builder.removePreviewUnit()
             builder.setSelectedUnit(unit)
         } else {
+            builder.removePreviewParkingUnit()
             builder.setSelectedParkingUnit(unit)
         }
         refresh()
