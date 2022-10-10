@@ -301,7 +301,6 @@ const MODAL_PROPS: ModalProps = { width: 978 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
 const MODAL_FORM_VALIDATE_TRIGGER: string[] = ['onBlur', 'onSubmit']
-const TAB_STYLE = { paddingTop: 20 }
 
 type ResetFiltersModalButtonProps = {
     handleReset?: () => void
@@ -414,10 +413,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
 
         if (trimmedNewTemplateName) {
-            await createFiltersTemplateAction({
+            const createdFilter = await createFiltersTemplateAction({
                 name: trimmedNewTemplateName,
                 fields: filtersValue,
             })
+            setSelectedFiltersTemplate(createdFilter || null)
         }
 
         const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
@@ -522,9 +522,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                 </Row>
             </Col>
         </Row>,
-    ], [DeleteLabel, DeleteMessage, DeleteTitle, SaveTemplateMessage, ApplyMessage,
-        handleDeleteFiltersTemplate, handleResetFilters, handleSaveFiltersTemplate, handleSubmitButtonClick,
-        isSaveFiltersTemplateButtonDisabled])
+    ], [handleResetFilters, selectedFiltersTemplate, DeleteTitle, DeleteMessage, DeleteLabel, handleDeleteFiltersTemplate, handleSaveFiltersTemplate, isSaveFiltersTemplateButtonDisabled, SaveTemplateMessage, handleSubmitButtonClick, ApplyMessage])
 
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false),
         [setIsMultipleFiltersModalVisible])
