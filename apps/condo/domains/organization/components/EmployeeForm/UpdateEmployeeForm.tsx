@@ -1,6 +1,6 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { Card, Col, Form, Row, Space, Typography } from 'antd'
+import { jsx } from '@emotion/react'
+import { Col, Form, Row, Space } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -15,8 +15,8 @@ import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/o
 import { useAuth } from '@open-condo/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
-import { Alert } from '../../../common/components/Alert'
-import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
+import { Alert } from '@condo/domains/common/components/Alert'
+import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -55,14 +55,14 @@ export const UpdateEmployeeForm = () => {
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
     const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => Promise.resolve())
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({})
     const { objs: specializationScopes } = SpecializationScope.useObjects({
         where: {
             employee: { id: employeeId },
         },
     })
-    const createSpecializationScopeAction = SpecializationScope.useCreate({}, () => Promise.resolve())
-    const updateSpecializationScopeAction = SpecializationScope.useUpdate({}, () => Promise.resolve())
+    const createSpecializationScopeAction = SpecializationScope.useCreate({})
+    const updateSpecializationScopeAction = SpecializationScope.useUpdate({})
     const initialSpecializations = specializationScopes.map(scope => scope.specialization)
 
     const { emailValidator } = useValidations()

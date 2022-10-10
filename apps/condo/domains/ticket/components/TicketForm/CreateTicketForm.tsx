@@ -102,7 +102,6 @@ export const CreateTicketForm: React.FC = () => {
         },
         async (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
-            console.log('ticket', ticket)
             await router.push('/ticket')
         })
 

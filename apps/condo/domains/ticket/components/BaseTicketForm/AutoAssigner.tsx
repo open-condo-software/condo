@@ -10,6 +10,13 @@ import {
     getPropertyScopeNameByEmployee,
 } from '@condo/domains/scope/utils/clientSchema/utils'
 
+/**
+ * Sets the employee user in the assignee and executor fields after selecting ticket category classifier.
+ If an employee has a SpecializationScope with a specialization that matches the categoryClassifier
+ and the employee is in a PropertyScope that has a ticket property,
+ then the employee's user is set to the assignee and executor fields.
+ If there was no such employee, then the author of the ticket is set in the assignee field.
+ */
 export const AutoAssigner = ({
     form,
     categoryClassifierId,

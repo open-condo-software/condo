@@ -78,8 +78,8 @@ export default function GlobalStyle () {
                   
                   &::after {
                     left: 36%;
-                    width: 7.714px;
-                    height: 12.143px;
+                    width: 7px;
+                    height: 12px;
                   }
                 }
               }

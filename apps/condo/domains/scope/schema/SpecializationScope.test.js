@@ -18,7 +18,7 @@ const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/ut
 describe('SpecializationScope', () => {
     describe('accesses', () => {
         describe('admin', () => {
-            describe('can create SpecializationScope', async () => {
+            it('can create SpecializationScope', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -31,7 +31,7 @@ describe('SpecializationScope', () => {
                 expect(specializationScope.id).toMatch(UUID_RE)
             })
 
-            describe('can update SpecializationScope', async () => {
+            it('can update SpecializationScope', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 

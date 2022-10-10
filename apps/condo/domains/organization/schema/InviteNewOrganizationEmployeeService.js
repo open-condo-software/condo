@@ -165,7 +165,6 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     ...dvSenderData,
                 })
 
-                // TODO(DOMA-4065): use createMany or something
                 for (const specializationId of specializations) {
                     await SpecializationScope.create(context, {
                         employee: { connect: { id: employee.id } },

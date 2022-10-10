@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { Card, Col, Form, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useEffect, useMemo } from 'react'
@@ -21,12 +21,11 @@ import {
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Alert } from '../../../common/components/Alert'
-import { GraphQlSearchInputWithCheckAll } from '../../../common/components/GraphQlSearchInputWithCheckAll'
-import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { Alert } from '@condo/domains/common/components/Alert'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { colors, shadows } from '@condo/domains/common/constants/style'
+import { shadows } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/react'
 import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
@@ -141,6 +140,7 @@ export const CreateEmployeeForm: React.FC = () => {
 
     const initialValues = {
         role: get(employeeRoles, [0, 'id'], ''),
+        hasAllSpecializations: true,
     }
 
     return (
@@ -205,7 +205,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                                     <Col span={24}>
                                                                         <GraphQlSearchInputWithCheckAll
                                                                             checkAllFieldName='hasAllSpecializations'
-                                                                            checkAllInitialValue={false}
+                                                                            checkAllInitialValue={true}
                                                                             selectFormItemProps={specializationsFormItemProps}
                                                                             selectProps={specializationsSelectProps}
                                                                             CheckAllMessage={CheckAllMessage}

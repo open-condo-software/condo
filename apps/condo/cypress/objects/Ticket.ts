@@ -76,7 +76,6 @@ class TicketCreate {
         cy.get('[data-cy=ticket__classifier-option]')
             .first()
             .click()
-        cy.wait('@getAllDivisions')
         cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search').should('not.have.class', '.ant-select-open')
 
         cy.get('[data-cy=ticket__category-select-item] .ant-select-selection-search')
@@ -243,7 +242,12 @@ class TicketEdit {
             '@getAllTickets',
             '@getAllTicketClassifiers',
             '@getAllProperties',
+            '@getAllTicketOrganizationSettings',
             '@getAllOrganizationEmployees',
+            '@getAllPropertyScopeProperties',
+            '@getAllPropertyScopes',
+            '@getAllSpecializationScopes',
+            '@getAllPropertyScopeOrganizationEmployees',
         ])
 
         cy.location('pathname').should('contain', '/update')
@@ -258,7 +262,6 @@ class TicketEdit {
         cy.get('[data-cy=ticket__classifier-option]')
             .first()
             .click()
-        cy.wait('@getAllDivisions')
         cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search').should('not.have.class', '.ant-select-open')
 
         cy.get('[data-cy=ticket__category-select-item] .ant-select-selection-search')
@@ -272,7 +275,7 @@ class TicketEdit {
     }
 
     clickTicketDeadline (): this {
-        cy.get('[data-cy=ticket__deadline-item]').click()
+        cy.get('[data-cy=ticket__deadline-item] input').click()
         cy.get('.ant-picker-today-btn').click()
 
         return this

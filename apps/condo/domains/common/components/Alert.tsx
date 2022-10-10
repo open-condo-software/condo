@@ -2,7 +2,7 @@ import styled from '@emotion/styled'
 import { Alert as DefaultAlert, AlertProps } from 'antd'
 import React, { ComponentProps } from 'react'
 
-import { colors } from '@condo/domains/common/constants/style'
+import { colors, fontSizes } from '@condo/domains/common/constants/style'
 
 const getAlertColorsByType = (type: ComponentProps<typeof Alert>['type']) => {
     const defaultColors = {
@@ -28,19 +28,19 @@ const StyledAlert = styled(DefaultAlert)<{ bgColor, messageColor, descriptionCol
   }
   
   & svg {
-    font-size: 21px;
+    font-size: ${fontSizes.large};
     color: ${props => props.messageColor};
   }
   
   & > .ant-alert-content > .ant-alert-message {
     font-weight: 600;
-    font-size: 16px;
+    font-size: ${fontSizes.content};
     line-height: 21px;
     color: ${props => props.messageColor};
   }
 `
 
-export const Alert: React.FC<AlertProps> = ({ type, ...otherProps }) => {
+export const Alert: React.FC<AlertProps> = ({ type, ...props }) => {
     const alertColors = getAlertColorsByType(type)
 
     return (
@@ -48,7 +48,7 @@ export const Alert: React.FC<AlertProps> = ({ type, ...otherProps }) => {
             bgColor={alertColors.bg}
             messageColor={alertColors.message}
             descriptionColor={alertColors.description}
-            {...otherProps}
+            {...props}
         />
     )
 }

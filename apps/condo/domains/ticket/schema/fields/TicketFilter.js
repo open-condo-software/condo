@@ -13,7 +13,6 @@ const TicketFilterFields = {
     details: 'String',
     property: '[String]',
     address: 'String',
-    division: '[String]',
     clientName: 'String',
     executor: '[String]',
     assignee: '[String]',

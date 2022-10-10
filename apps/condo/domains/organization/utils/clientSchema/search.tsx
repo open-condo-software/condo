@@ -60,7 +60,11 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
                 const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
                 const EmployeeText = (
                     <Typography.Text>
-                        {employee.name} {specializationsMessage && specializationsMessage}
+                        {employee.name} {specializationsMessage && (
+                            <Typography.Text>
+                                ({specializationsMessage})
+                            </Typography.Text>
+                        )}
                     </Typography.Text>
                 )
 

@@ -304,6 +304,7 @@ const apolloCacheConfig = {
             fields: {
                 allPropertyScopeOrganizationEmployees: skipFirstPaginationTypePolicy,
                 allPropertyScopeProperties: skipFirstPaginationTypePolicy,
+                allSpecializationScopes: skipFirstPaginationTypePolicy,
             },
         },
     },

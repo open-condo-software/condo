@@ -48,18 +48,6 @@ const GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY = gql`
     }
 `
 
-const GET_ALL_DIVISIONS_BY_VALUE_QUERY = gql`
-    query selectDivision ($where: DivisionWhereInput, $orderBy: String) {
-        objs: allDivisions(where: $where, orderBy: $orderBy, first: 10) {
-            id
-            name
-            properties { 
-                id
-            }
-        }
-    }
-`
-
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrganizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
@@ -200,28 +188,6 @@ export function searchOrganizationPropertyWithoutPropertyHint (organizationId, o
         if (error) console.warn(error)
 
         return data.objs.map(({ address, id }) => ({ text: address, value: id }))
-    }
-}
-
-export function searchOrganizationDivision (organizationId: string) {
-    if (!organizationId) return
-
-    return async function (client, value) {
-        const where = {
-            organization: {
-                id: organizationId,
-                deletedAt: null,
-            },
-            name_contains_i: value,
-            deletedAt: null,
-        }
-        const orderBy = 'name_ASC'
-        const { data = [], error } = await _search(client, GET_ALL_DIVISIONS_BY_VALUE_QUERY, { where, orderBy })
-
-        if (error) console.warn(error)
-
-        return data.objs
-            .map(({ name, id, properties }) => ({ text: name, key: id, value: properties.map(property => property.id) }))
     }
 }
 

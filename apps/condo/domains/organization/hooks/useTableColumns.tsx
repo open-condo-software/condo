@@ -58,14 +58,11 @@ export const useTableColumns = (
     }
 
     const renderSpecializations = (employee) => {
-        if (employee.hasAllSpecializations) {
-            return AllSpecializationsMessage
-        }
         const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
 
         return (
             <Typography.Paragraph key={employee.id} style={{ margin: 0 }}>
-                {employee.name} {specializationsMessage && specializationsMessage}
+                {specializationsMessage && specializationsMessage}
             </Typography.Paragraph>
         )
     }
