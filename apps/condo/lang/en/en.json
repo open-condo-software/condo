@@ -76,6 +76,7 @@
   "HotCodeReload.action": "Got it, reload",
   "ExportAsExcel": "Export to Excel",
   "FiltersLabel": "Filters",
+  "field.required": "This field is required — please fill it out",
   "field.AccountNumberShort": "Account Number",
   "field.TotalPayment": "TOTAL payable",
   "field.Address": "Address",
