@@ -18,7 +18,6 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
-const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('OrganizationEmployee', () => {
@@ -48,17 +47,8 @@ describe('OrganizationEmployee', () => {
             await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
             const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
 
-            const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
-            const [categoryClassifier2] = await createTestTicketCategoryClassifier(admin)
+            const [obj, attrs] = await createTestOrganizationEmployee(managerUserClient, organization, user, role)
 
-            const [obj, attrs] = await createTestOrganizationEmployee(managerUserClient, organization, user, role, {
-                specializations: {
-                    connect: [
-                        { id: categoryClassifier1.id },
-                        { id: categoryClassifier2.id },
-                    ],
-                },
-            })
             expect(obj.id).toBeDefined()
             expect(obj.dv).toEqual(1)
             expect(obj.sender).toEqual(attrs.sender)
@@ -67,17 +57,6 @@ describe('OrganizationEmployee', () => {
             expect(obj.updatedBy).toEqual(expect.objectContaining({ id: managerUserClient.user.id }))
             expect(obj.createdAt).toMatch(DATETIME_RE)
             expect(obj.updatedAt).toMatch(DATETIME_RE)
-            expect(obj.specializations).toHaveLength(2)
-            expect(obj.specializations).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(categoryClassifier1, ['id', 'name'])),
-                ]),
-            )
-            expect(obj.specializations).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
-                ]),
-            )
         })
 
     })
