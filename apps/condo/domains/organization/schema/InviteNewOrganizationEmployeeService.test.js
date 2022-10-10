@@ -25,6 +25,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+const { SpecializationScope } = require('../../scope/utils/testSchema')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {
@@ -41,12 +42,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
                     const extraAttrs = {
-                        specializations: {
-                            connect: [
-                                { id: categoryClassifier1.id },
-                                { id: categoryClassifier2.id },
-                            ],
-                        },
+                        specializations: [categoryClassifier1.id, categoryClassifier2.id],
                     }
                     const client = await makeClientWithRegisteredOrganization()
                     const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, extraAttrs)
@@ -54,17 +50,15 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     expect(employee.email).toEqual(userAttrs.email)
                     expect(employee.phone).toEqual(userAttrs.phone)
                     expect(employee.name).toEqual(userAttrs.name)
-                    expect(employee.specializations).toHaveLength(2)
-                    expect(employee.specializations).toEqual(
-                        expect.arrayContaining([
-                            expect.objectContaining(pick(categoryClassifier1, ['id', 'name'])),
-                        ])
-                    )
-                    expect(employee.specializations).toEqual(
-                        expect.arrayContaining([
-                            expect.objectContaining(pick(categoryClassifier2, ['id', 'name'])),
-                        ])
-                    )
+
+                    const specializationScopes = await SpecializationScope.getAll(admin, {
+                        employee: { id: employee.id },
+                    }, {
+                        sortBy: 'createdAt_ASC',
+                    })
+                    expect(specializationScopes).toHaveLength(2)
+                    expect(specializationScopes[0].specialization.id).toEqual(categoryClassifier1.id)
+                    expect(specializationScopes[1].specialization.id).toEqual(categoryClassifier2.id)
 
                     /**
                      * Check that notification about invitation as employee was sent
@@ -93,13 +87,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: client.userAttrs.phone,
                     }
                     const extraAttrs = {
-                        specializations: {
-                            connect: [
-                                { id: categoryClassifier1.id },
-                            ],
-                        },
+                        specializations: [categoryClassifier1.id],
                     }
                     const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
+
                     expect(employee.email).toEqual(client1.userAttrs.email)
                     expect(employee.user.id).toEqual(client.user.id)
                     expect(employee.phone).toEqual(client.userAttrs.phone)
@@ -222,11 +213,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: inviteClient.userAttrs.phone,
                     }
                     const extraAttrs = {
-                        specializations: {
-                            connect: [
-                                { id: categoryClassifier1.id },
-                            ],
-                        },
+                        specializations: [categoryClassifier1.id],
                     }
                     await catchErrorFrom(async () => {
                         await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)

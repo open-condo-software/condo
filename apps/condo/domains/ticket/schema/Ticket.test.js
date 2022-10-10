@@ -16,6 +16,7 @@ const {
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
+
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
@@ -776,95 +777,6 @@ describe('Ticket', () => {
             const readTickets = await Ticket.getAll(userClient, { id_in: [ticketInOtherProperty.id, ticketInOtherUnit.id] })
 
             expect(readTickets).toHaveLength(0)
-        })
-
-        test('employee with division limited role: can read tickets only from his divisions', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
-            const [organization] = await createTestOrganization(admin)
-            const [propertyInDivision1] = await createTestProperty(admin, organization)
-            const [propertyInDivision2] = await createTestProperty(admin, organization)
-            const [propertyOutOfDivision] = await createTestProperty(admin, organization)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canReadEntitiesOnlyInScopeOfDivision: true,
-            })
-            const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
-            await createTestDivision(admin, organization, employee, {
-                properties: {
-                    connect: [
-                        { id: propertyInDivision1.id },
-                    ],
-                },
-            })
-            await createTestDivision(admin, organization, employee, {
-                properties: {
-                    connect: [
-                        { id: propertyInDivision2.id },
-                    ],
-                },
-            })
-            const [ticketFromDivision1] = await createTestTicket(admin, organization, propertyInDivision1)
-            const [ticketFromDivision2] = await createTestTicket(admin, organization, propertyInDivision2)
-            await createTestTicket(admin, organization, propertyOutOfDivision)
-
-            const tickets = await Ticket.getAll(client)
-            expect(tickets).toHaveLength(2)
-
-            const [readTicketFromDivision1] = await Ticket.getAll(client, { id: ticketFromDivision1.id })
-            expect(readTicketFromDivision1.id).toBeDefined()
-
-            const [readTicketFromDivision2] = await Ticket.getAll(client, { id: ticketFromDivision2.id })
-            expect(readTicketFromDivision2.id).toBeDefined()
-        })
-
-        test('employee with division limited role: can read tickets where he is assignee or executor', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
-            const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canReadEntitiesOnlyInScopeOfDivision: true,
-            })
-            await createTestOrganizationEmployee(admin, organization, client.user, role, {})
-
-            const [ticket1] = await createTestTicket(admin, organization, property, { assignee: { connect: { id: client.user.id } } })
-            const [ticket2] = await createTestTicket(admin, organization, property, { executor: { connect: { id: client.user.id } } })
-
-            const tickets = await Ticket.getAll(client)
-            expect(tickets).toHaveLength(2)
-
-            const [readTicketFromDivision1] = await Ticket.getAll(client, { id: ticket1.id })
-            expect(readTicketFromDivision1.id).toBeDefined()
-
-            const [readTicketFromDivision2] = await Ticket.getAll(client, { id: ticket2.id })
-            expect(readTicketFromDivision2.id).toBeDefined()
-        })
-
-        test('employee: can read all organization tickets if in other organization he has division limited role', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
-            const [organization] = await createTestOrganization(admin)
-            const [property] = await createTestProperty(admin, organization)
-            const [divisionLimitedRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                canReadEntitiesOnlyInScopeOfDivision: true,
-            })
-            await createTestOrganizationEmployee(admin, organization, client.user, divisionLimitedRole, {})
-
-            const [organization1] = await createTestOrganization(admin)
-            const [property1] = await createTestProperty(admin, organization1)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization1)
-            await createTestOrganizationEmployee(admin, organization1, client.user, role, {})
-
-            await createTestTicket(admin, organization, property)
-            const [ticket] = await createTestTicket(admin, organization1, property1)
-
-            const tickets = await Ticket.getAll(client)
-
-            expect(tickets).toHaveLength(1)
-            expect(tickets[0].id).toEqual(ticket.id)
         })
 
         test('anonymous: create Ticket', async () => {
