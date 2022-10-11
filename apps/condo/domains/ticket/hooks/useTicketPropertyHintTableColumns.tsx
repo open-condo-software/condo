@@ -12,12 +12,11 @@ import { IFilters } from '@condo/domains/contact/utils/helpers'
 import { getTicketPropertyHintAddressesRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { TicketPropertyHint } from '@app/condo/schema'
-import { colors } from '@condo/domains/common/constants/style'
 import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 
 const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', overflow: 'hidden', wordBreak: 'break-word', whiteSpace: 'inherit' }
 
-export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: TicketPropertyHint[], hoverRowIndex: number) {
+export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: TicketPropertyHint[]) {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
@@ -46,17 +45,14 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
         return getTicketPropertyHintAddressesRender(search)(intl, properties)
     }, [search, ticketPropertyHintsProperties])
 
-    const renderTicketPropertyHint = useCallback((value, _, index) => {
-        const ellipsisBgColor = hoverRowIndex === index ? colors.tableRowHoverGray : colors.white
-
+    const renderTicketPropertyHint = useCallback((value, _) => {
         return (
             <TicketPropertyHintContent
                 html={value}
                 style={HINT_STYLES}
-                ellipsisBgColor={ellipsisBgColor}
             />
         )
-    }, [hoverRowIndex])
+    }, [])
 
     return useMemo(() => {
         return [

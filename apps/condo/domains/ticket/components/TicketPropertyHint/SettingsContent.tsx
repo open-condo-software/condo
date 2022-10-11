@@ -103,17 +103,14 @@ export const SettingsContent = () => {
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const [hoverRowIndex, setHoverRowIndex] = useState()
-    const handleRowAction = useCallback((record, rowIndex) => {
+    const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
                 await router.push(`/settings/hint/${record.id}/`)
             },
-            onMouseEnter: () => setHoverRowIndex(rowIndex),
-            onMouseLeave: () => setHoverRowIndex(null),
         }
     }, [router])
-    const tableColumns = useTicketPropertyHintTableColumns(filtersMeta, ticketPropertyHints, hoverRowIndex)
+    const tableColumns = useTicketPropertyHintTableColumns(filtersMeta, ticketPropertyHints)
 
     const handleAddHintButtonClick = useCallback(async () => {
         await router.push('/settings/hint/create')

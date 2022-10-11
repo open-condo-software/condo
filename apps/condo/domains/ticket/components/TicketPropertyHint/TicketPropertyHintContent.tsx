@@ -5,19 +5,8 @@ import { HtmlContent, HtmlContentProps } from '@condo/domains/common/components/
 import { useIntl } from '@condo/next/intl'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 
-const Ellipsis = styled.div<{ bgColor }>`
-  width: 100%;
-  background-color: ${props => props.bgColor || 'inherit'};
-  transition: .2s;
-  
-  &::after {
-    content: '…';
-  }
-`
-
 type TicketPropertyHintContentProps = HtmlContentProps & {
     linkToHint?: string
-    ellipsisBgColor?: string
 }
 
 const StyledLink = styled.a`
@@ -50,7 +39,6 @@ export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps)
     return (
         <>
             <HtmlContent {...props} ref={ref}/>
-            {isContentOverflow && <Ellipsis bgColor={props.ellipsisBgColor} />}
             {
                 isContentOverflow && props.linkToHint && (
                     <StyledLink href={props.linkToHint} target='_blank' rel='noreferrer'>
