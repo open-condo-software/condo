@@ -10,11 +10,11 @@ const { find } = require('@condo/keystone/schema')
 async function canReadOrganizations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    
+
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        const userResidents = await find('Resident', { user:{ id: user.id }, deletedAt: null })
+        const userResidents = await find('Resident', { user: { id: user.id }, deletedAt: null })
         if (!userResidents.length) return false
         const residentOrganizations = compact(userResidents.map(resident => get(resident, 'organization')))
         const residentsIds = userResidents.map(resident => resident.id)
@@ -25,17 +25,10 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
         const serviceConsumerOrganizations = userServiceConsumers.map(sc => sc.organization)
         const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
         if (organizations.length) {
-            return {
-                id_in: uniq(organizations),
-            }
+            return { id_in: uniq(organizations) }
         }
         return false
-    }
-    const accessConditions =  [
-        { employees_some: { user: { id: user.id } } },
-        { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id } } } } },
-    ]
-    if (user.type === SERVICE) {
+    } else if (user.type === SERVICE) {
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
             integration: {
                 accessRights_some: { user: { id: user.id }, deletedAt: null },
@@ -48,15 +41,21 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
             },
             deletedAt: null,
         })
-        const serviceOrganizationIds = uniq(billingContexts
-            .map(({ organization }) => organization )
-            .concat(acquiringContexts.map(({ organization }) => organization )))
+        const serviceOrganizationIds = billingContexts
+            .map(({ organization }) => organization)
+            .concat(acquiringContexts.map(({ organization }) => organization))
         if (serviceOrganizationIds.length) {
-            accessConditions.push({ id_in: serviceOrganizationIds })
+            return { id_in: uniq(serviceOrganizationIds) }
         }
+        return false
     }
 
-    return { OR: accessConditions }
+    return {
+        OR: [
+            { employees_some: { user: { id: user.id } } },
+            { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id } } } } },
+        ],
+    }
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation }) {
