@@ -30856,6 +30856,8 @@ export type PaymentsFilter = {
   accountNumber?: Maybe<Scalars['String']>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['String']>;
+  status?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type PaymentsFilterInput = {
@@ -30863,6 +30865,8 @@ export type PaymentsFilterInput = {
   accountNumber?: Maybe<Scalars['String']>;
   address?: Maybe<Array<Maybe<Scalars['String']>>>;
   type?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['String']>;
+  status?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 /**  The payments filter preset  */

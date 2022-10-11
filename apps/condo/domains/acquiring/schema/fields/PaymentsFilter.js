@@ -10,6 +10,8 @@ const PaymentsFilterFields = {
     accountNumber: 'String',
     address: '[String]',
     type: '[String]',
+    order: 'String',
+    status: '[String]',
 }
 
 const PAYMENTS_FILTER_TYPE = `
