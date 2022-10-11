@@ -1,5 +1,7 @@
+/** @jsx jsx */
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useIntl } from '@condo/next/intl'
+import { jsx } from '@emotion/react'
 import { Row, Col, Space, Typography } from 'antd'
 import Select from '@condo/domains/common/components/antd/Select'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -14,7 +16,7 @@ import {
     INPUT_STYLE,
     BUTTON_SPACE_SIZE,
     MODAL_FORM_CHECKBOX_STYLE,
-
+    ERROR_TEXT_STYLE,
 } from './BaseUnitForm'
 
 const { Option } = Select
@@ -29,6 +31,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
+    const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -36,6 +39,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
+    const [isValidationErrorVisible, setIsValidationErrorVisible] = useState(false)
 
     const renameNextUnits = useRef(true)
 
@@ -62,6 +66,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             setLabel(mapUnit.label)
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
+            setIsValidationErrorVisible(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
@@ -84,26 +89,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
 
-    const applyChanges = useCallback(() => {
-        const mapUnit = builder.getSelectedParkingUnit()
-        if (mapUnit) {
-            builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
-        } else {
-            builder.removePreviewParkingUnit()
-            builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
-            resetForm()
-        }
-        refresh()
-    }, [builder, refresh, resetForm, label, floor, section])
-
-    const deleteUnit = useCallback(() => {
-        const mapUnit = builder.getSelectedParkingUnit()
-        builder.removeParkingUnit(mapUnit.id, renameNextUnits.current)
-        refresh()
-        resetForm()
-    }, [resetForm, refresh, builder])
-
-    const isApplyButtonDisabled = useMemo(() => {
+    const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
         if (mode === 'addParkingUnit') {
             isUnitLabelUnique = builder.validateUniqueUnitLabel()
@@ -124,8 +110,30 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 : labelValidation
         }
 
-        return !(floor && section && label.trim() && isUnitLabelUnique)
+        return floor && section && label.trim() && isUnitLabelUnique
     }, [floor, section, label, builder, mode])
+
+    const applyChanges = useCallback(() => {
+        setIsValidationErrorVisible(!isUnitUnique)
+        if (isUnitUnique) {
+            const mapUnit = builder.getSelectedParkingUnit()
+            if (mapUnit) {
+                builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
+            } else {
+                builder.removePreviewParkingUnit()
+                builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
+                resetForm()
+            }
+            refresh()
+        }
+    }, [builder, refresh, resetForm, label, floor, section, isUnitUnique])
+
+    const deleteUnit = useCallback(() => {
+        const mapUnit = builder.getSelectedParkingUnit()
+        builder.removeParkingUnit(mapUnit.id, renameNextUnits.current)
+        refresh()
+        resetForm()
+    }, [resetForm, refresh, builder])
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -153,7 +161,19 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
                     <Space direction='vertical' size={8}>
                         <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
-                        <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                        <Input
+                            allowClear
+                            value={label}
+                            onChange={e => {
+                                isValidationErrorVisible && setIsValidationErrorVisible(false)
+                                setLabel(e.target.value)
+                            }}
+                            style={INPUT_STYLE}
+                            status={isValidationErrorVisible ? 'error' : ''}
+                        />
+                        {isValidationErrorVisible && (
+                            <Typography.Text style={ERROR_TEXT_STYLE}>{UnitErrorLabel}</Typography.Text>
+                        )}
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
                             {RenameNextParkingUnitsLabel}
                         </Checkbox>
@@ -164,7 +184,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={isApplyButtonDisabled}
+                                disabled={!(floor && section && label.trim())}
                             > {SaveLabel} </Button>
                         </Col>
                         {

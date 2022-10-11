@@ -1,5 +1,7 @@
+/** @jsx jsx */
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { useIntl } from '@condo/next/intl'
+import { jsx } from '@emotion/react'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
 import isEmpty from 'lodash/isEmpty'

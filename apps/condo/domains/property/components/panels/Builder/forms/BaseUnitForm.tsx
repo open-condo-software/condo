@@ -1,7 +1,9 @@
+/** @jsx jsx */
 import React from 'react'
 import { RowProps } from 'antd'
+import { css, jsx } from '@emotion/react'
+import { colors } from '@condo/domains/common/constants/style'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
-import { css } from '@emotion/react'
 
 export interface IPropertyMapModalForm {
     builder: MapEdit
@@ -18,6 +20,7 @@ export const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', margin
 export const MODAL_FORM_BUTTON_GUTTER: RowProps['gutter'] = [0, 16]
 export const INPUT_STYLE = { width: '100%' }
 export const BUTTON_SPACE_SIZE = 28
+export const ERROR_TEXT_STYLE: React.CSSProperties = { color: colors.sberDangerRed }
 
 export const FormModalCss = css`
   & .ant-space,
