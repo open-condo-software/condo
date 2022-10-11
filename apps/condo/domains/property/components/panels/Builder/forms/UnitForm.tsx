@@ -15,6 +15,7 @@ import {
     MODAL_FORM_ROW_BUTTONS_GUTTER,
     MODAL_FORM_CHECKBOX_STYLE,
     INPUT_STYLE,
+    ERROR_TEXT_STYLE,
     BUTTON_SPACE_SIZE,
     FormModalCss,
 } from './BaseUnitForm'
@@ -31,6 +32,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
     const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -39,6 +41,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const [sections, setSections] = useState([])
     const [floors, setFloors] = useState([])
+    const [isValidationErrorVisible, setIsValidationErrorVisible] = useState(false)
 
     const renameNextUnits = useRef(true)
 
@@ -66,6 +69,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             setSection(mapUnit.section)
             setFloor(mapUnit.floor)
             setUnitType(mapUnit.unitType)
+            setIsValidationErrorVisible(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
@@ -88,30 +92,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
 
-    const applyChanges = useCallback(() => {
-        const mapUnit = builder.getSelectedUnit()
-        if (mapUnit) {
-            builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
-        } else {
-            builder.removePreviewUnit()
-            builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
-            resetForm()
-        }
-        refresh()
-    }, [builder, refresh, resetForm, label, floor, section, unitType])
-
-    const deleteUnit = useCallback(() => {
-        const mapUnit = builder.getSelectedUnit()
-        builder.removeUnit(mapUnit.id, renameNextUnits.current)
-        refresh()
-        resetForm()
-    }, [resetForm, refresh, builder])
-
-    const updateUnitType = useCallback((value) => {
-        setUnitType(value)
-    }, [])
-
-    const isApplyButtonDisabled = useMemo(() => {
+    const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
         if (mode === 'addUnit') {
             isUnitLabelUnique = builder.validateUniqueUnitLabel()
@@ -134,8 +115,35 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 : labelValidation
         }
 
-        return !(floor && section && label.trim() && isUnitLabelUnique)
+        return floor && section && label.trim() && isUnitLabelUnique
     }, [floor, section, label, unitType, builder, mode])
+
+    const applyChanges = useCallback(() => {
+        setIsValidationErrorVisible(!isUnitUnique)
+
+        if (isUnitUnique) {
+            const mapUnit = builder.getSelectedUnit()
+            if (mapUnit) {
+                builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
+            } else {
+                builder.removePreviewUnit()
+                builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
+                resetForm()
+            }
+            refresh()
+        }
+    }, [builder, refresh, resetForm, label, floor, section, unitType, isUnitUnique])
+
+    const deleteUnit = useCallback(() => {
+        const mapUnit = builder.getSelectedUnit()
+        builder.removeUnit(mapUnit.id, renameNextUnits.current)
+        refresh()
+        resetForm()
+    }, [resetForm, refresh, builder])
+
+    const updateUnitType = useCallback((value) => {
+        setUnitType(value)
+    }, [])
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -158,7 +166,19 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             <Col span={24}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
-                    <Input allowClear={true} value={label} onChange={e => setLabel(e.target.value)} style={INPUT_STYLE} />
+                    <Input
+                        allowClear
+                        status={isValidationErrorVisible ? 'error' : ''}
+                        value={label}
+                        onChange={e => {
+                            isValidationErrorVisible && setIsValidationErrorVisible(false)
+                            setLabel(e.target.value)
+                        }}
+                        style={INPUT_STYLE}
+                    />
+                    {isValidationErrorVisible && (
+                        <Typography.Text style={ERROR_TEXT_STYLE}>{UnitErrorLabel}</Typography.Text>
+                    )}
                 </Space>
             </Col>
             <Col span={24}>
@@ -190,7 +210,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                 secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={isApplyButtonDisabled}
+                                disabled={!(floor && section && label.trim())}
                             > {SaveLabel} </Button>
                         </Col>
                         {

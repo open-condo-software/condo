@@ -1,5 +1,7 @@
+/** @jsx jsx */
 import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react'
 import { useIntl } from '@condo/next/intl'
+import { jsx } from '@emotion/react'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
 import { DownOutlined, DeleteFilled } from '@ant-design/icons'
 import Select from '@condo/domains/common/components/antd/Select'
