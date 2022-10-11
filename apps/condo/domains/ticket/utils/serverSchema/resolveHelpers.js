@@ -56,7 +56,7 @@ async function resetDismissedEmployees (existingItem, resolvedData, existedStatu
     }
 }
 
-async function calculateReopenedCounter (existingItem, resolvedData, existedStatus, resolvedStatus, context) {
+async function calculateReopenedCounter (context, existingItem, resolvedData, existedStatus, resolvedStatus) {
     const existedStatusType = get(existedStatus, 'type')
     const resolvedStatusType = get(resolvedStatus, 'type')
 
@@ -64,6 +64,12 @@ async function calculateReopenedCounter (existingItem, resolvedData, existedStat
         const existedStatusReopenedCounter = existingItem['statusReopenedCounter']
         resolvedData['statusReopenedCounter'] = existedStatusReopenedCounter + 1
         await resetDismissedEmployees(existingItem, resolvedData, existedStatus, resolvedStatus, context)
+    }
+}
+
+function calculateStatusUpdatedAt (resolvedData, existedStatusId, resolvedStatusId) {
+    if (resolvedStatusId !== existedStatusId) {
+        resolvedData['statusUpdatedAt'] = new Date().toISOString()
     }
 }
 
@@ -236,6 +242,7 @@ module.exports = {
     overrideTicketFieldsForResidentUserType,
     setClientIfContactPhoneAndTicketAddressMatchesResidentFields,
     calculateCompletedAt,
+    calculateStatusUpdatedAt,
     softDeleteTicketHintPropertiesByProperty,
     connectContactToTicket,
     calculateDeferredUntil,
