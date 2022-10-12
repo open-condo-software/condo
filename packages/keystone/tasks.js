@@ -157,6 +157,8 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
         throw new Error('This function is converted to a task, and you need to use fn.delay(...) to call the tasks')
     }
 
+    if (fn.delay || fn.applyAsync) throw new Error('You trying to create two tasks for one function! You MUST use one function only for one task!')
+
     fn.delay = delay
     fn.applyAsync = applyAsync
     errorTaskCallPrevent.delay = delay
