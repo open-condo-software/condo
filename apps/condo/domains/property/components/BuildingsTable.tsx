@@ -15,7 +15,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
-import { Property } from '@condo/domains/property/utils/clientSchema'
+import { Property, PropertyTable } from '@condo/domains/property/utils/clientSchema'
 import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
 import { useIntl } from '@condo/next/intl'
 import { Col, notification, Row } from 'antd'
@@ -61,13 +61,12 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
 
-    const { loading: propertiesLoading, refetch, objs: properties, count: total } = Property.useObjects({
+    const { loading: propertiesLoading, refetch, objs: properties, count: total } = PropertyTable.useObjects({
         sortBy,
         where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
     }, {
-        fetchPolicy: 'network-only',
         onCompleted: () => {
             props.onSearch && props.onSearch(properties)
         },
