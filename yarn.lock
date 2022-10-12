@@ -372,6 +372,7 @@ __metadata:
   resolution: "@app/address-service@workspace:apps/address-service"
   dependencies:
     "@address-service/domains": "link:./domains"
+    "@condo/codegen": "workspace:^"
     "@condo/config": "workspace:^"
     "@condo/keystone": "workspace:^"
     "@emotion/babel-plugin": ^11.10.0
@@ -891,6 +892,7 @@ __metadata:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": 3.3.20
     "@app/condo": "workspace:^"
+    "@condo/codegen": "workspace:^"
     "@condo/config": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@condo/keystone": "workspace:^"
@@ -986,6 +988,7 @@ __metadata:
   dependencies:
     "@apollo/client": 3.3.20
     "@app/condo": "workspace:^"
+    "@condo/codegen": "workspace:^"
     "@condo/config": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@condo/keystone": "workspace:^"
@@ -1072,6 +1075,7 @@ __metadata:
   dependencies:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": 3.3.20
+    "@condo/codegen": "workspace:^"
     "@condo/config": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@condo/keystone": "workspace:^"
@@ -4709,14 +4713,16 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@condo/codegen@workspace:packages/codegen":
+"@condo/codegen@workspace:^, @condo/codegen@workspace:packages/codegen":
   version: 0.0.0-use.local
   resolution: "@condo/codegen@workspace:packages/codegen"
   dependencies:
     boxen: ^4.2.0
     chalk: 4.1.2
+    graphql-tag: ^2.12.6
     ncp: ^2.0.0
     nunjucks: ^3.2.2
+    pluralize: ^8
     yargs: ^16.2.0
   languageName: unknown
   linkType: soft
@@ -31991,7 +31997,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pluralize@npm:^8.0.0":
+"pluralize@npm:^8, pluralize@npm:^8.0.0":
   version: 8.0.0
   resolution: "pluralize@npm:8.0.0"
   checksum: 08931d4a6a4a5561a7f94f67a31c17e6632cb21e459ab3ff4f6f629d9a822984cf8afef2311d2005fbea5d7ef26016ebb090db008e2d8bce39d0a9a9d218736e
