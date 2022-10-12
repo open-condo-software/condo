@@ -1,19 +1,22 @@
-import React from 'react'
-import { IDivisionFormState } from '@condo/domains/division/utils/clientSchema/Division'
+import React, { useCallback } from 'react'
 import { Col, Form, Row } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import { useIntl } from '@condo/next/intl'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Rule } from 'rc-field-form/lib/interface'
+import get from 'lodash/get'
+
+import { Division, Organization } from '@app/condo/schema'
+import { useIntl } from '@condo/next/intl'
+
+import { IDivisionFormState } from '@condo/domains/division/utils/clientSchema/Division'
+import Input from '@condo/domains/common/components/antd/Input'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import FormSubheader from '@condo/domains/common/components/FormSubheader'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { get } from 'lodash'
+import { GraphQlSearchInput, RenderOptionFunc } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     searchEmployee,
     searchOrganizationProperty,
 } from '@condo/domains/ticket/utils/clientSchema/search'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
-import { Division, Organization } from '@app/condo/schema'
+import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -30,7 +33,6 @@ const INPUT_LAYOUT_PROPS = {
         xl: 8,
     },
 }
-
 
 interface IBaseDivisionFormProps {
     organization: Organization
@@ -54,6 +56,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
     const ResponsibleHintDescriptionMessage = intl.formatMessage({ id: 'division.form.hint.responsible.description' })
     const ExecutorsHintTitleMessage = intl.formatMessage({ id: 'division.form.hint.executors.title' })
     const ExecutorsHintDescriptionMessage = intl.formatMessage({ id: 'division.form.hint.executors.description' })
+    const BlockedEmployeeMessage = intl.formatMessage({ id: 'employee.isBlocked' })
 
     const { changeMessage, requiredValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -73,6 +76,13 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                 }
             })
     }
+
+    const renderOptions: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[] = useCallback(
+        (items, renderOption) => {
+            return items.map((item) => get(item, 'isBlocked', false)
+                ? renderBlockedOption(item, BlockedEmployeeMessage)
+                : renderOption(item))
+        }, [BlockedEmployeeMessage])
 
     return (
         <FormWithAction
@@ -134,6 +144,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                                     get(role, 'canBeAssignedAsResponsible', false)
                                 ))}
                                 showArrow={false}
+                                renderOptions={renderOptions}
                             />
                         </Form.Item>
                     </Col>
@@ -158,6 +169,7 @@ const BaseDivisionForm: React.FC<IBaseDivisionFormProps> = (props) => {
                                 ))}
                                 showArrow={false}
                                 mode='multiple'
+                                renderOptions={renderOptions}
                             />
                         </Form.Item>
                     </Col>

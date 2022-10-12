@@ -808,6 +808,7 @@
   "employee.role.Foreman.description": "The site foreman is responsible for the performance and quality of work on the site. The site master distributes tasks to performers and configures routing.",
   "employee.role.Technician.name": "Technician",
   "employee.role.Technician.description": "The technician works with tasks and performs work. The technician does not have access to other sections and capabilities of the system, except for applications.",
+  "employee.isBlocked": "blocked",
   "DeletedEmployee": "Deleted employee",
   "ContactCenterEmployee": "Contact center employee",
   "meterReadingSource.Call.name": "Call",

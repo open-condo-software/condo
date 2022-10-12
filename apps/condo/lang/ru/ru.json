@@ -808,6 +808,7 @@
   "employee.role.Foreman.description": "Мастер участка отвечает за выполнение и качество работ на участке. Мастер участка распределяет задачи по исполнителям и настраивает маршрутизацию.",
   "employee.role.Technician.name": "Техник",
   "employee.role.Technician.description": "Техник работает с задачами и выполняет работы. Техник не имеет доступа до других разделов и возможностей системы, кроме заявок.",
+  "employee.isBlocked": "заблокирован",
   "DeletedEmployee": "Удаленный сотрудник",
   "ContactCenterEmployee": "Сотрудник КЦ",
   "meterReadingSource.Call.name": "Звонок",

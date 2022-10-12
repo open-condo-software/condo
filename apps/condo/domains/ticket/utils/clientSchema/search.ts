@@ -63,6 +63,7 @@ const GET_ALL_DIVISIONS_BY_VALUE_QUERY = gql`
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrganizationEmployee ($value: String, $organizationId: ID) {
         objs: allOrganizationEmployees(where: {name_contains_i: $value, organization: { id: $organizationId }}) {
+            isBlocked
             name
             id
             user {
@@ -240,7 +241,7 @@ export function searchEmployee (organizationId, filter) {
 
         return data.objs
             .filter(filter || Boolean)
-            .map(({ name, id }) => ({ text: name, value: id }))
+            .map(({ name, id, isBlocked }) => ({ text: name, value: id, isBlocked }))
     }
 }
 
