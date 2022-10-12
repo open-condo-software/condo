@@ -8,7 +8,7 @@ import {
     MessageBatchUpdateInput,
     QueryAllMessageBatchesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/codegen/generate.hooks'
 import { MessageBatch as MessageBatchGQL } from '@condo/domains/notification/gql'
 
 const {

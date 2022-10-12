@@ -9,7 +9,7 @@ import {
     QueryAllTicketClassifiersArgs,
     TicketClassifierWhereInput,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/codegen/generate.hooks'
 import { TicketClassifier as TicketClassifierGQL } from '@condo/domains/ticket/gql'
 
 export type ITicketClassifierWhereInput = Pick<TicketClassifierWhereInput, 'organization' | 'organization_is_null' | 'id' | 'place' | 'category' | 'problem'>
