@@ -1,5 +1,5 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
 import {
     Col,
@@ -463,6 +463,12 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setIsMultipleFiltersModalVisible(false)
     }, [router, setIsMultipleFiltersModalVisible])
 
+    const ExistingFiltersTemplateNameInputRules = useMemo(
+        () => [{ required: true, message: FieldRequiredMessage, whitespace: true }], [FieldRequiredMessage])
+
+    const NewFiltersTemplateNameInputRules = useMemo(
+        () => [{ required: false, message: FieldRequiredMessage, whitespace: true }], [FieldRequiredMessage])
+
     const ExistingFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
             name='existedTemplateName'
@@ -470,22 +476,22 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             labelCol={LABEL_COL_PROPS}
             initialValue={get(selectedFiltersTemplate, 'name')}
             required
-            rules={[{ required: true, message: FieldRequiredMessage, whitespace: true }]}
+            rules={ExistingFiltersTemplateNameInputRules}
         >
             <Input placeholder={NewTemplatePlaceholder} />
         </Form.Item>
-    ), [FieldRequiredMessage, NewTemplatePlaceholder, TemplateLabel, selectedFiltersTemplate])
+    ), [ExistingFiltersTemplateNameInputRules, NewTemplatePlaceholder, TemplateLabel, selectedFiltersTemplate])
 
     const NewFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
             name='newTemplateName'
             label={NewTemplateLabel}
             labelCol={LABEL_COL_PROPS}
-            rules={[{ required: false, message: FieldRequiredMessage, whitespace: true }]}
+            rules={NewFiltersTemplateNameInputRules}
         >
             <Input placeholder={NewTemplatePlaceholder} />
         </Form.Item>
-    ), [FieldRequiredMessage, NewTemplateLabel, NewTemplatePlaceholder])
+    ), [NewFiltersTemplateNameInputRules, NewTemplateLabel, NewTemplatePlaceholder])
 
     const handleSubmitButtonClick = useCallback(async () => {
         const values = form.getFieldsValue()
