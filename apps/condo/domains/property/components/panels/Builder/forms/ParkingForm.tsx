@@ -98,19 +98,23 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const iconRotation = minFloorHidden ? 0 : 180
     const minFloorMargin = minFloorHidden ? '-28px' : 0
 
+    const parkingOptions = useMemo(() => (
+        builder.map.parking.filter(section => !section.preview).map(section => (
+            <Select.Option
+                key={`copy-${section.id}`}
+                value={section.id}
+            >
+                {CopyLabel} {section.name}
+            </Select.Option>
+        ))
+    ), [builder.map.parking, CopyLabel])
+
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptyParking}>
                     <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
-                    {builder.map.parking.filter(section => !section.preview).map(section => (
-                        <Select.Option
-                            key={`copy-${section.id}`}
-                            value={section.id}
-                        >
-                            {CopyLabel} {section.name}
-                        </Select.Option>
-                    ))}
+                    {parkingOptions}
                 </Select>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
