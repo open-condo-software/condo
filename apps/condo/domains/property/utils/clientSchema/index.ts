@@ -4,4 +4,5 @@
  */
 
 export * as Property from './Property'
+export * as PropertyTable from './PropertyTable'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
