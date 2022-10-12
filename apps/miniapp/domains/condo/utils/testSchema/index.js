@@ -6,7 +6,7 @@
 const faker = require('faker')
 const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@miniapp/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
 const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
 
 const { User: UserGQL } = require('@miniapp/domains/condo/gql')

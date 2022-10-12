@@ -7,7 +7,7 @@ const faker = require('faker')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { createTestEmail } = require('@condo/domains/user/utils/testSchema')
 
-const { generateGQLTestUtils } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
+const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
 
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')

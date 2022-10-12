@@ -6,19 +6,11 @@
 const faker = require('faker')
 
 const {
-    generateServerUtils,
-    execGqlWithoutAccess,
-} = require('@address-service/domains/common/utils/codegeneration/generate.server.utils')
-
-const {
     generateGQLTestUtils,
-    throwIfError,
-} = require('@address-service/domains/common/utils/codegeneration/generate.test.utils')
+} = require('@condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@address-service/domains/user/gql')
 const { getRandomString, makeLoggedInAdminClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
-const { STAFF } = require('@condo/domains/user/constants/common')
-const { STAFF_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
