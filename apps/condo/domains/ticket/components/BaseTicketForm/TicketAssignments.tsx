@@ -1,15 +1,22 @@
-import { useIntl } from '@condo/next/intl'
-import { find, get, differenceBy, uniqBy } from 'lodash'
-import { UserNameField } from '@condo/domains/user/components/UserNameField'
+import React, { useCallback, useState } from 'react'
+import find from 'lodash/find'
+import get from 'lodash/get'
+import differenceBy from 'lodash/differenceBy'
+import uniqBy from 'lodash/uniqBy'
 import { Col, FormInstance, Row, Select, Typography } from 'antd'
-import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
-import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { searchEmployeeUser } from '../../utils/clientSchema/search'
-import React, { useState } from 'react'
 import { Rule } from 'rc-field-form/lib/interface'
-import { TicketFormItem } from './index'
+
+import { useIntl } from '@condo/next/intl'
+
+import { UserNameField } from '@condo/domains/user/components/UserNameField'
+import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
+import { GraphQlSearchInput, RenderOptionFunc } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
+
+import { TicketFormItem } from './index'
+import { AutoAssignerByDivisions } from './AutoAssignerByDivisions'
+import { searchEmployeeUser } from '../../utils/clientSchema/search'
 
 type TicketAssignmentsProps = {
     validations: { [key: string]: Rule[] },
@@ -39,6 +46,7 @@ const TicketAssignments = ({
     const ExecutorsOnThisDivisionLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnThisDivision' })
     const ExecutorsOnOtherDivisionsLabel = intl.formatMessage({ id: 'ticket.assignments.executor.OnOtherDivisions' })
     const OtherExecutors = intl.formatMessage({ id: 'ticket.assignments.executor.Other' })
+    const BlockedEmployeeMessage = intl.formatMessage({ id: 'employee.isBlocked' })
 
     const { isSmall } = useLayoutContext()
 
@@ -79,6 +87,13 @@ const TicketAssignments = ({
         data: employee,
     })
 
+    const renderOptions: (items: any[], renderOption: RenderOptionFunc) => JSX.Element[] = useCallback(
+        (items, renderOption) => {
+            return items.map((item) => get(item, 'data.isBlocked', false)
+                ? renderBlockedOption(item, BlockedEmployeeMessage)
+                : renderOption(item))
+        }, [BlockedEmployeeMessage])
+
     /**
      * Employees are grouped by following rules:
      * 1. Technicians with matched specialization, belonging to matched division;
@@ -117,26 +132,26 @@ const TicketAssignments = ({
 
         const result = []
         if (!currentDivision || techniciansOnDivisionOptions.length === 0 && techniciansOnOtherDivisionsOptions.length === 0) {
-            result.push(otherTechniciansOptions.map(renderOption))
+            result.push(renderOptions(otherTechniciansOptions, renderOption))
         } else {
             if (techniciansOnDivisionOptions.length > 0) {
                 result.push(
                     <Select.OptGroup label={ExecutorsOnThisDivisionLabel}>
-                        {techniciansOnDivisionOptions.map(renderOption)}
+                        {renderOptions(techniciansOnDivisionOptions, renderOption)}
                     </Select.OptGroup>
                 )
             }
             if (techniciansOnOtherDivisionsOptions.length > 0) {
                 result.push(
                     <Select.OptGroup label={ExecutorsOnOtherDivisionsLabel}>
-                        {techniciansOnOtherDivisionsOptions.map(renderOption)}
+                        {renderOptions(techniciansOnOtherDivisionsOptions, renderOption)}
                     </Select.OptGroup>
                 )
             }
             if (otherTechniciansOptions.length > 0) {
                 result.push(
                     <Select.OptGroup label={OtherExecutors}>
-                        {otherTechniciansOptions.map(renderOption)}
+                        {renderOptions(otherTechniciansOptions, renderOption)}
                     </Select.OptGroup>
                 )
             }
@@ -195,6 +210,7 @@ const TicketAssignments = ({
                                     search={searchEmployeeUser(organizationId, ({ role }) => (
                                         get(role, 'canBeAssignedAsResponsible', false)
                                     ))}
+                                    renderOptions={renderOptions}
                                 />
                             </TicketFormItem>
                         </Col>

@@ -3,19 +3,21 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import { Select, SelectProps, Typography } from 'antd'
 import get from 'lodash/get'
+import throttle from 'lodash/throttle'
 import isFunction from 'lodash/isFunction'
 import uniqBy from 'lodash/uniqBy'
+
 import { ApolloClient } from '@apollo/client'
 import { useApolloClient } from '@condo/next/apollo'
 
-import { WhereType } from '../utils/tables.utils'
-import throttle from 'lodash/throttle'
-import { isNeedToLoadNewElements } from '../utils/select.utils'
 import {
     useTracking,
     TrackingEventPropertiesType,
     TrackingEventType,
 } from '@condo/domains/common/components/TrackingContext'
+
+import { WhereType } from '../../utils/tables.utils'
+import { isNeedToLoadNewElements } from '../../utils/select.utils'
 
 
 type GraphQlSearchInputOption = {
