@@ -2,7 +2,7 @@
 
 ```js
 const { ApolloServerClient } = require('@condo/apollo-server-client')
-const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
+const { generateGqlQueries } = require('@condo/codegen/generate.gql')
 
 const conf = require('@condo/config')
 const { endpoint, authRequisites } = conf.BILLING_INTEGRATION ? JSON.parse(conf.BILLING_INTEGRATION) : {}
