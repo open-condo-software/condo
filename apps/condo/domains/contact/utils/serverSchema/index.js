@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')

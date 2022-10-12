@@ -10,7 +10,7 @@ const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const { find } = require('@condo/keystone/schema')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
 
 const {
     Message: MessageGQL,

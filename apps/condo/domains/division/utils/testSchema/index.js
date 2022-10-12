@@ -5,7 +5,7 @@
  */
 const faker = require('faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
 
