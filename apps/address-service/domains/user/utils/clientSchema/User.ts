@@ -8,7 +8,7 @@ import {
     UserUpdateInput,
     QueryAllUsersArgs,
 } from '@app/address-service/schema'
-import { generateReactHooks } from '@address-service/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/codegen/generate.hooks'
 import { User as UserGQL } from '@address-service/domains/user/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO

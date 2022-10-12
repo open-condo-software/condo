@@ -11,7 +11,7 @@ import {
     TicketOrganizationSettingUpdateInput,
     QueryAllTicketOrganizationSettingsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/codegen/generate.hooks'
 import { TicketOrganizationSetting as TicketOrganizationSettingGQL } from '@condo/domains/ticket/gql'
 import { TICKET_DEFAULT_DEADLINE_DURATION_FIELDS } from '@condo/domains/ticket/constants/common'
 
