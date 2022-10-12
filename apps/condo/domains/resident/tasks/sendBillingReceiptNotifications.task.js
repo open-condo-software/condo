@@ -6,11 +6,19 @@ const { sendBillingReceiptNotifications } = require('./helpers')
 removeCronTask('sendBillingReceiptNotificationsTaskWorkDays', '17 10-15 * * 1-5')
 removeCronTask('sendBillingReceiptNotificationsTaskWeekends', '17 12-15 * * 0,6')
 
+function sendBillingReceiptNotificationsWorkDays (...args) {
+    return sendBillingReceiptNotifications(...args)
+}
+
+function sendBillingReceiptNotificationsWeekends (...args) {
+    return sendBillingReceiptNotifications(...args)
+}
+
 /** PODS work according to UTC, so time in cron-tasks should also be according to UTC too. */
-const sendBillingReceiptNotificationsTaskWorkDays = createCronTask('sendBillingReceiptNotificationsTaskWorkDays', '17 7-12 * * 1-5', sendBillingReceiptNotifications)
-const sendBillingReceiptNotificationsTaskWeekends = createCronTask('sendBillingReceiptNotificationsTaskWeekends', '17 9-12 * * 0,6', sendBillingReceiptNotifications)
+const sendBillingReceiptNotificationsWorkDaysTask = createCronTask('sendBillingReceiptNotificationsWorkDaysTask', '17 7-12 * * 1-5', sendBillingReceiptNotificationsWorkDays)
+const sendBillingReceiptNotificationsWeekendsTask = createCronTask('sendBillingReceiptNotificationsWeekendsTask', '17 9-12 * * 0,6', sendBillingReceiptNotificationsWeekends)
 
 module.exports = {
-    sendBillingReceiptNotificationsTaskWorkDays,
-    sendBillingReceiptNotificationsTaskWeekends,
+    sendBillingReceiptNotificationsWorkDaysTask,
+    sendBillingReceiptNotificationsWeekendsTask,
 }
