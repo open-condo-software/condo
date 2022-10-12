@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -134,6 +134,7 @@ export const TicketsPageContent = ({
     filterMetas,
     sortableProperties,
     useTableColumns,
+    showImport = false,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -189,7 +190,7 @@ export const TicketsPageContent = ({
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
     const TicketImportButton = useMemo(() => {
-        return isTicketImportFeatureEnabled && (
+        return showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
                 accessCheck={isTicketImportFeatureEnabled}
                 domainTranslate={TicketReadingObjectsNameManyGenitiveMessage}
@@ -213,7 +214,7 @@ export const TicketsPageContent = ({
                 />
             </ImportWrapper>
         )
-    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, ticketCreator, ticketNormalizer, ticketValidator])
+    }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
     return (
         <>
@@ -371,6 +372,7 @@ const TicketsPage: ITicketIndexPage = () => {
             baseTicketsQuery={baseTicketsQuery}
             filterMetas={filterMetas}
             sortableProperties={SORTABLE_PROPERTIES}
+            showImport
         />
     )
 }
