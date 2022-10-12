@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@miniapp/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
 
 const { User: UserGQL } = require('@miniapp/domains/condo/gql')
 /* AUTOGENERATE MARKER <IMPORT> */

@@ -5,7 +5,7 @@
  */
 const get = require('lodash/get')
 
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')

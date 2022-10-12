@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
 const uniq = require('lodash/uniq')

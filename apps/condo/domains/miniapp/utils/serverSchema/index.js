@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { execGqlWithoutAccess, generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
+const { execGqlWithoutAccess, generateServerUtils } = require('@condo/codegen/generate.server.utils')
 
 const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
 const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
