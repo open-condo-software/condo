@@ -4719,13 +4719,27 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@condo/codegen@workspace:packages/codegen"
   dependencies:
+    "@apollo/client": 3.3.20
+    "@condo/config": "workspace:^"
+    "@condo/keystone": "workspace:^"
+    "@condo/next": "workspace:^"
+    "@graphql-typed-document-node/core": ^3.1.1
     boxen: ^4.2.0
     chalk: 4.1.2
+    dayjs: ^1.10.6
+    graphql: ^15.6.1
     graphql-tag: ^2.12.6
+    js-cookie: ^2.2.1
+    lodash: ^4.17.21
     ncp: ^2.0.0
     nunjucks: ^3.2.2
     pluralize: ^8
+    react: ^16.13.1
+    react-dom: ^16.13.1
     yargs: ^16.2.0
+  peerDependencies:
+    react: ">=16"
+    react-dom: ">=16"
   languageName: unknown
   linkType: soft
 
