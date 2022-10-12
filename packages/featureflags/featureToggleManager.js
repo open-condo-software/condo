@@ -12,6 +12,8 @@ let featureToggleApiKey
 const REDIS_FEATURES_KEY = 'features'
 const FEATURES_EXPIRED_IN_SECONDS = 60
 
+const WRONG_FEATURE_TOGGLE_CONFIG_ERROR = 'Wrong FEATURE_TOGGLE_CONFIG config!'
+
 class FeatureToggleManager {
     constructor () {
         try {
@@ -40,9 +42,13 @@ class FeatureToggleManager {
                 redisClient.set(REDIS_FEATURES_KEY, JSON.stringify(fetchedFeatureFlags), 'EX', FEATURES_EXPIRED_IN_SECONDS)
 
                 return fetchedFeatureFlags
+            } else {
+                throw new Error(WRONG_FEATURE_TOGGLE_CONFIG_ERROR)
             }
         } catch (e) {
             logger.error({ msg: 'fetchFeatures error', error: e })
+
+            return {}
         }
     }
 
