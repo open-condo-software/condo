@@ -78,7 +78,6 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
         } else {
             builder.removePreviewSection()
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [minFloor, floorCount, unitsOnFloor, sectionName, unitType])
 
     useEffect(() => {

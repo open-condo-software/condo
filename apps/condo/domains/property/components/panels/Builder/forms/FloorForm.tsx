@@ -68,7 +68,6 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     useEffect(() => {
         setSections(builder.getSectionOptions())
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [builder])
 
     useEffect(() => {
@@ -89,7 +88,21 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [floor, section, unitsOnFloor, unitType])
 
+    const unitSubtypeOptions = useMemo(() => (
+        Object.values(BuildingUnitSubType)
+            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
+            .map((unitType, key) => (
+                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
+                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                </Select.Option>
+            ))
+    ), [BuildingUnitSubType])
 
+    const sectionOptions = useMemo(() => (
+        sections.map((sec, index) => {
+            return <Option key={sec.id} value={index}>{SectionTitlePrefix} {sec.label}</Option>
+        })
+    ), [sections, SectionTitlePrefix])
 
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
@@ -97,14 +110,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 <Space direction='vertical' size={8} style={INPUT_STYLE}>
                     <Typography.Text type='secondary'>{UnitTypeAtFloorLabel}</Typography.Text>
                     <Select value={unitType} onSelect={setUnitType}>
-                        {Object.values(BuildingUnitSubType)
-                            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
-                            .map((unitType, key) => (
-                                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                                </Select.Option>
-                            ))
-                        }
+                        {unitSubtypeOptions}
                     </Select>
                 </Space>
             </Col>
@@ -112,9 +118,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 <Space direction='vertical' size={8} style={INPUT_STYLE}>
                     <Typography.Text type='secondary'>{SectionLabel}</Typography.Text>
                     <Select value={section} onSelect={setSection} style={INPUT_STYLE}>
-                        {sections.map((sec, index) => {
-                            return <Option key={sec.id} value={index}>{SectionTitlePrefix} {sec.label}</Option>
-                        })}
+                        {sectionOptions}
                     </Select>
                 </Space>
             </Col>

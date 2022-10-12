@@ -70,6 +70,18 @@ export enum MapViewMode {
     'parking',
 }
 
+export enum MapEditMode {
+    AddSection = 'addSection',
+    EditSection = 'editSection',
+    AddParking = 'addParking',
+    EditParking = 'editParking',
+    AddUnit = 'addUnit',
+    EditUnit = 'editUnit',
+    AddParkingUnit = 'addParkingUnit',
+    EditParkingUnit = 'editParkingUnit',
+    AddSectionFloor = 'addSectionFloor',
+}
+
 
 // TODO(DOMA-1755): refactor the data structure in such a way that changes in one element occur independently of other elements
 class Map {

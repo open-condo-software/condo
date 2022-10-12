@@ -46,7 +46,7 @@ import { AddParkingForm, EditParkingForm } from '@condo/domains/property/compone
 import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
 
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
-import { MapEdit, MapViewMode } from './MapConstructor'
+import { MapEdit, MapViewMode, MapEditMode } from './MapConstructor'
 
 const DEBOUNCE_TIMEOUT = 800
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
@@ -445,21 +445,21 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
         }
 
         if (container.current && container.current.style.paddingRight !== '0px') {
-            const lastSectionSelected = builder.editMode === 'editSection'
+            const lastSectionSelected = builder.editMode === MapEditMode.EditSection
                 && get(builder.getSelectedSection(), 'index') === builder.lastSectionIndex
-            const lastParkingSelected = builder.editMode === 'editParking'
+            const lastParkingSelected = builder.editMode === MapEditMode.EditParking
                 && get(builder.getSelectedParking(), 'index') === builder.lastParkingIndex
-            const addUnitToLastSection = builder.editMode === 'addUnit'
+            const addUnitToLastSection = builder.editMode === MapEditMode.AddUnit
                 && last(builder.sections).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
                     .includes(String(builder.previewUnitId))
-            const addParkingUnitToLastSection = builder.editMode === 'addParkingUnit'
+            const addParkingUnitToLastSection = builder.editMode === MapEditMode.AddParkingUnit
                 && last(builder.parking).floors
                     .flatMap(floor => floor.units.map(unit => unit.id))
                     .includes(String(builder.previewParkingUnitId))
-            const editUnitAtLastSection = builder.editMode === 'editUnit'
+            const editUnitAtLastSection = builder.editMode === MapEditMode.EditUnit
                 && get(builder.getSelectedUnit(), 'sectionIndex') === builder.lastSectionIndex
-            const editParkingUnitAtLastSection = builder.editMode === 'editParkingUnit'
+            const editParkingUnitAtLastSection = builder.editMode === MapEditMode.EditParkingUnit
                 && get(builder.getSelectedParkingUnit(), 'sectionIndex') === builder.lastParkingIndex
 
             if (lastSectionSelected
