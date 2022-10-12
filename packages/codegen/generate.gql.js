@@ -22,7 +22,7 @@ function genGetCountGQL (key) {
     const [MODEL, MODELS] = getModelForms(key)
     return gql`
         query get${MODELS}Meta($where: ${MODEL}WhereInput) {
-            meta: _all${MODELS}Meta(where: $where) { count }
+        meta: _all${MODELS}Meta(where: $where) { count }
         }
     `
 }
@@ -209,6 +209,7 @@ function generateQuerySortBy (schemaName, fields) {
 }
 
 module.exports = {
+    getModelForms,
     generateGqlQueries,
     generateQueryWhereInput,
     generateQuerySortBy,

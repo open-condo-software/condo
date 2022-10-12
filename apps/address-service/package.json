@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@address-service/domains": "link:./domains",
+    "@condo/codegen": "workspace:^",
     "@condo/config": "workspace:^",
     "@condo/keystone": "workspace:^",
     "@emotion/babel-plugin": "^11.10.0",
