@@ -105,19 +105,33 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const iconRotation = minFloorHidden ? 0 : 180
     const minFloorMargin = minFloorHidden ? '-28px' : 0
 
+    const sectionOptions = useMemo(() => (
+        builder.map.sections.filter(section => !section.preview).map(section => (
+            <Select.Option
+                key={`copy-${section.id}`}
+                value={section.id}
+            >
+                {CopyLabel}{section.name}
+            </Select.Option>
+        ))
+    ), [builder.map.sections, CopyLabel])
+
+    const unitTypeOptions = useMemo(() => (
+        Object.values(BuildingUnitSubType)
+            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
+            .map((unitType, key) => (
+                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
+                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                </Select.Option>
+            ))
+    ), [BuildingUnitSubType])
+
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
             <Col span={24}>
                 <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptySections}>
                     <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
-                    {builder.map.sections.filter(section => !section.preview).map(section => (
-                        <Select.Option
-                            key={`copy-${section.id}`}
-                            value={section.id}
-                        >
-                            {CopyLabel}{section.name}
-                        </Select.Option>
-                    ))}
+                    {sectionOptions}
                 </Select>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
@@ -142,13 +156,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{UnitTypeLabel}</Typography.Text>
                     <Select value={unitType} onSelect={setUnitType}>
-                        {Object.values(BuildingUnitSubType)
-                            .filter(unitType => unitType !== BuildingUnitSubType.Parking)
-                            .map((unitType, key) => (
-                                <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
-                                </Select.Option>
-                            ))}
+                        {unitTypeOptions}
                     </Select>
                 </Space>
             </Col>
