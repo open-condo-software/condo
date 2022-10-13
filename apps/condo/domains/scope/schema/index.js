@@ -7,6 +7,7 @@ const { PropertyScope } = require('./PropertyScope')
 const { PropertyScopeOrganizationEmployee } = require('./PropertyScopeOrganizationEmployee')
 const { PropertyScopeProperty } = require('./PropertyScopeProperty')
 const { AssigneeScope } = require('./AssigneeScope')
+const { ExportPropertyScopeService } = require('./ExportPropertyScopeService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
     AssigneeScope,
+    ExportPropertyScopeService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -15070,6 +15070,19 @@ export type ExportPropertiesToExcelOutput = {
   linkToFile: Scalars['String'];
 };
 
+export type ExportPropertyScopeToExcelInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  where: PropertyScopeWhereInput;
+  sortBy?: Maybe<Array<SortPropertyScopesBy>>;
+};
+
+export type ExportPropertyScopeToExcelOutput = {
+  __typename?: 'ExportPropertyScopeToExcelOutput';
+  status: Scalars['String'];
+  linkToFile: Scalars['String'];
+};
+
 export type ExportTicketAnalyticsToExcelInput = {
   where: TicketWhereInput;
   groupBy?: Maybe<Array<TicketAnalyticsGroupBy>>;
@@ -36357,6 +36370,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
+  exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -40348,6 +40362,11 @@ export type QueryExportTicketAnalyticsToExcelArgs = {
 
 export type QueryGetExternalReportIframeUrlArgs = {
   data: GetExternalReportIframeUrlInput;
+};
+
+
+export type QueryExportPropertyScopesToExcelArgs = {
+  data: ExportPropertyScopeToExcelInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

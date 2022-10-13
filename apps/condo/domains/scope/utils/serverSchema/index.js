@@ -11,13 +11,28 @@ const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL 
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
 const { find } = require('@condo/keystone/schema')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { EXPORT_PROPERTY_SCOPE_MUTATION } = require('@condo/domains/scope/gql')
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateServerUtils(PropertyScopeGQL)
 const PropertyScopeOrganizationEmployee = generateServerUtils(PropertyScopeOrganizationEmployeeGQL)
 const PropertyScopeProperty = generateServerUtils(PropertyScopePropertyGQL)
 const AssigneeScope = generateServerUtils(AssigneeScopeGQL)
+async function exportPropertyScope (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: EXPORT_PROPERTY_SCOPE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to exportPropertyScope',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createDefaultPropertyScopeForNewOrganization (context, organization, dvSenderData) {
@@ -168,6 +183,60 @@ async function manageAssigneeScope ({ context, existingItem, updatedItem }) {
     })
 }
 
+const loadPropertyScopesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const propertyScopesLoader = new GqlWithKnexLoadList({
+        listKey: 'PropertyScope',
+        fields: 'id name hasAllProperties hasAllEmployees',
+        sortBy,
+        where,
+    })
+    return await propertyScopesLoader.load()
+}
+
+const loadPropertyScopePropertiesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const propertyScopePropertyLoader = new GqlWithKnexLoadList({
+        listKey: 'PropertyScopeProperty',
+        fields: 'id',
+        singleRelations: [
+            ['Property', 'property', 'address'],
+            ['PropertyScope', 'propertyScope', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+    return await propertyScopePropertyLoader.load()
+}
+
+const loadPropertyScopeEmployeesForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const propertyScopeEmployeesLoader = new GqlWithKnexLoadList({
+        listKey: 'PropertyScopeOrganizationEmployee',
+        fields: 'id',
+        singleRelations: [
+            ['OrganizationEmployee', 'employee', 'name', 'employeeName'],
+            ['OrganizationEmployee', 'employee', 'id'],
+            ['OrganizationEmployee', 'employee', 'hasAllSpecializations', 'hasAllSpecializations'],
+            ['PropertyScope', 'propertyScope', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+    return await propertyScopeEmployeesLoader.load()
+}
+
+const loadOrganizationEmployeeSpecializationsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const organizationEmployeeSpecializationsLoader = new GqlWithKnexLoadList({
+        listKey: 'OrganizationEmployeeSpecialization',
+        fields: 'id',
+        singleRelations: [
+            ['TicketCategoryClassifier', 'specialization', 'name'],
+            ['OrganizationEmployee', 'employee', 'id'],
+        ],
+        sortBy,
+        where,
+    })
+    return await organizationEmployeeSpecializationsLoader.load()
+}
+
 module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
@@ -178,5 +247,10 @@ module.exports = {
     manageAssigneeScope,
     softDeletePropertyScopeOrganizationEmployee,
     AssigneeScope,
+    exportPropertyScope,
+    loadPropertyScopesForExcelExport,
+    loadPropertyScopePropertiesForExcelExport,
+    loadPropertyScopeEmployeesForExcelExport,
+    loadOrganizationEmployeeSpecializationsForExcelExport,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
