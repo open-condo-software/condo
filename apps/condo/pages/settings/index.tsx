@@ -39,7 +39,7 @@ const SettingsPage: React.FC = () => {
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
-    const TicketsVisibilityTitle = intl.formatMessage({ id: 'TicketsVisibility' })
+    const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -77,7 +77,7 @@ const SettingsPage: React.FC = () => {
             },
             {
                 key: SETTINGS_TAB_PROPERTY_SCOPE,
-                title: TicketsVisibilityTitle,
+                title: PropertyScopeTitle,
                 content: <PropertyScopeSettingsContent/>,
             },
             {
@@ -86,7 +86,7 @@ const SettingsPage: React.FC = () => {
                 content: <ControlRoomSettingsContent />,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, TicketsVisibilityTitle, ControlRoomTitle],
+        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, DetailsTitle, canManageContactRoles, RolesTitle, PropertyScopeTitle, ControlRoomTitle],
     )
 
     const titleContent = useMemo(() => (

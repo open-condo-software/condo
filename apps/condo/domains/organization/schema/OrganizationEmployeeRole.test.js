@@ -3,7 +3,7 @@
  */
 
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { createTestOrganizationEmployee } = require('../utils/testSchema')
+const { createTestOrganizationEmployee, createTestOrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
@@ -16,7 +16,7 @@ const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Or
 const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY } = require('@condo/domains/scope/constants')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestTicket, Ticket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { createTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee, createTestSpecializationScope } = require('@condo/domains/scope/utils/testSchema')
+const { createTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
 
 describe('OrganizationEmployeeRole', () => {
     describe('defaults', () => {
@@ -410,7 +410,7 @@ describe('OrganizationEmployeeRole', () => {
         })
 
         describe('property and specialization', () => {
-            it('can read tickets with TicketCategoryClassifier matches to employee SpecializationScope ' +
+            it('can read tickets with TicketCategoryClassifier matches to employee OrganizationEmployeeSpecialization ' +
                 'and property from PropertyScope where this employee is', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -429,7 +429,7 @@ describe('OrganizationEmployeeRole', () => {
                 const [propertyScope] = await createTestPropertyScope(admin, organization)
                 await createTestPropertyScopeProperty(admin, propertyScope, property)
                 await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
-                await createTestSpecializationScope(admin, employee, classifier1.category)
+                await createTestOrganizationEmployeeSpecialization(admin, employee, classifier1.category)
 
                 const [ticket1] = await createTestTicket(admin, organization, property, {
                     classifier: { connect: { id: classifier1.id } },
@@ -476,7 +476,7 @@ describe('OrganizationEmployeeRole', () => {
                 expect(readTickets[1].id).toEqual(ticket1.id)
             })
 
-            it('cannot read tickets with TicketCategoryClassifier matches to employee SpecializationScope ' +
+            it('cannot read tickets with TicketCategoryClassifier matches to employee OrganizationEmployeeSpecialization ' +
                 'and there no property from PropertyScope where this employee is', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -490,7 +490,7 @@ describe('OrganizationEmployeeRole', () => {
 
                 const [property] = await createTestProperty(admin, organization)
 
-                await createTestSpecializationScope(admin, employee, classifier1.category)
+                await createTestOrganizationEmployeeSpecialization(admin, employee, classifier1.category)
 
                 const [ticket1] = await createTestTicket(admin, organization, property, {
                     classifier: { connect: { id: classifier1.id } },
@@ -504,7 +504,7 @@ describe('OrganizationEmployeeRole', () => {
             })
 
             it('cannot read tickets with property from PropertyScope where this employee is ' +
-                'and TicketCategoryClassifier not matches to employee SpecializationScope', async () => {
+                'and TicketCategoryClassifier not matches to employee OrganizationEmployeeSpecialization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 

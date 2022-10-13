@@ -1,8 +1,10 @@
-import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
+
+import { useIntl } from '@condo/next/intl'
+
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -13,7 +15,8 @@ import {
     geOneAddressAndPropertiesCountRender,
 } from '@condo/domains/property/utils/clientSchema/Renders'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { PropertyScopeOrganizationEmployee, PropertyScopeProperty, SpecializationScope } from '../utils/clientSchema'
+import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 
 export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const intl = useIntl()
@@ -48,12 +51,12 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
         fetchAll: true,
     })
 
-    const propertyScopesEmployeeIds = uniq(propertyScopeEmployees.map(scope => scope.employee.id))
+    const propertyScopesEmployeeIds: string[] = uniq(propertyScopeEmployees.map(scope => scope.employee.id))
 
     const {
-        objs: specializationScopes,
-        loading: specializationScopesLoading,
-    } = SpecializationScope.useObjects({
+        objs: organizationEmployeeSpecializations,
+        loading: organizationEmployeeSpecializationsLoading,
+    } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id_in: propertyScopesEmployeeIds },
         },
@@ -88,11 +91,11 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id === propertyScope.id)
             .map(propertyScopeEmployee => propertyScopeEmployee.employee)
 
-        return getManyEmployeesNameRender(search)(intl, employees, specializationScopes)
-    }, [AllEmployeesMessage, propertyScopeEmployees, search, specializationScopes])
+        return getManyEmployeesNameRender(search)(intl, employees, organizationEmployeeSpecializations)
+    }, [AllEmployeesMessage, propertyScopeEmployees, search, organizationEmployeeSpecializations])
 
     return useMemo(() => ({
-        loading: propertiesLoading || employeesLoading || specializationScopesLoading,
+        loading: propertiesLoading || employeesLoading || organizationEmployeeSpecializationsLoading,
         columns:[
             {
                 title: PropertyScopeNameMessage,

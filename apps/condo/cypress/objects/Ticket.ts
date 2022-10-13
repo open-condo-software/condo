@@ -242,12 +242,7 @@ class TicketEdit {
             '@getAllTickets',
             '@getAllTicketClassifiers',
             '@getAllProperties',
-            '@getAllTicketOrganizationSettings',
             '@getAllOrganizationEmployees',
-            '@getAllPropertyScopeProperties',
-            '@getAllPropertyScopes',
-            '@getAllSpecializationScopes',
-            '@getAllPropertyScopeOrganizationEmployees',
         ])
 
         cy.location('pathname').should('contain', '/update')
@@ -275,7 +270,7 @@ class TicketEdit {
     }
 
     clickTicketDeadline (): this {
-        cy.get('[data-cy=ticket__deadline-item] input').click()
+        cy.get('[data-cy=ticket__deadline-item]').click()
         cy.get('.ant-picker-today-btn').click()
 
         return this

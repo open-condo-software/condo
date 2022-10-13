@@ -10,12 +10,14 @@ const { Organization: OrganizationGQL } = require('@condo/domains/organization/g
 const { OrganizationEmployee: OrganizationEmployeeGQL } = require('@condo/domains/organization/gql')
 const { OrganizationEmployeeRole: OrganizationEmployeeRoleGQL } = require('@condo/domains/organization/gql')
 const { OrganizationLink: OrganizationLinkGQL } = require('@condo/domains/organization/gql')
+const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Organization = generateServerUtils(OrganizationGQL)
 const OrganizationEmployee = generateServerUtils(OrganizationEmployeeGQL)
 const OrganizationEmployeeRole = generateServerUtils(OrganizationEmployeeRoleGQL)
 const OrganizationLink = generateServerUtils(OrganizationLinkGQL)
+const OrganizationEmployeeSpecialization = generateServerUtils(OrganizationEmployeeSpecializationGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -23,5 +25,6 @@ module.exports = {
     OrganizationEmployee,
     OrganizationEmployeeRole,
     OrganizationLink,
+    OrganizationEmployeeSpecialization,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -14,6 +14,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import * as Organization from './Organization'
 import * as OrganizationEmployee from './OrganizationEmployee'
 import * as OrganizationEmployeeRole from './OrganizationEmployeeRole'
+import * as OrganizationEmployeeSpecialization from './OrganizationEmployeeSpecialization'
 import * as OrganizationLink from './OrganizationLink'
 
 function convertGQLItemToUIState (item) {
@@ -81,6 +82,7 @@ export {
     OrganizationEmployee,
     OrganizationEmployeeRole,
     OrganizationLink,
+    OrganizationEmployeeSpecialization,
 }
 
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -15,8 +15,8 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
-import { getEmployeeSpecializationsMessage } from '../utils/clientSchema/Renders'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
 
 export const useTableColumns = (
     filterMetas,
@@ -29,7 +29,6 @@ export const useTableColumns = (
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
-    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -37,7 +36,7 @@ export const useTableColumns = (
 
     const render = getTableCellRenderer(search)
 
-    const { objs: specializationScopes } = SpecializationScope.useObjects({
+    const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id_in: employees.map(employee => employee.id) },
         },
@@ -58,7 +57,7 @@ export const useTableColumns = (
     }
 
     const renderSpecializations = (employee) => {
-        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
         return (
             <Typography.Paragraph key={employee.id} style={{ margin: 0 }}>

@@ -23,6 +23,7 @@ const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/ut
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
+const { OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 const { SpecializationScope } = require('../../scope/utils/testSchema')
@@ -51,14 +52,14 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     expect(employee.phone).toEqual(userAttrs.phone)
                     expect(employee.name).toEqual(userAttrs.name)
 
-                    const specializationScopes = await SpecializationScope.getAll(admin, {
+                    const organizationEmployeeSpecializations = await OrganizationEmployeeSpecialization.getAll(admin, {
                         employee: { id: employee.id },
                     }, {
                         sortBy: 'createdAt_ASC',
                     })
-                    expect(specializationScopes).toHaveLength(2)
-                    expect(specializationScopes[0].specialization.id).toEqual(categoryClassifier1.id)
-                    expect(specializationScopes[1].specialization.id).toEqual(categoryClassifier2.id)
+                    expect(organizationEmployeeSpecializations).toHaveLength(2)
+                    expect(organizationEmployeeSpecializations[0].specialization.id).toEqual(categoryClassifier1.id)
+                    expect(organizationEmployeeSpecializations[1].specialization.id).toEqual(categoryClassifier2.id)
 
                     /**
                      * Check that notification about invitation as employee was sent

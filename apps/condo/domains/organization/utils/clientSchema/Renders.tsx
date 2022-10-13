@@ -4,11 +4,11 @@ import { isEmpty } from 'lodash'
 import React from 'react'
 
 
-export const getEmployeeSpecializationsMessage = (intl, employee, specializationScopes): React.ReactElement => {
+export const getEmployeeSpecializationsMessage = (intl, employee, organizationEmployeeSpecializations): React.ReactElement => {
     const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
     const SpecializationsCountMessage = intl.formatMessage({ id: 'employee.SpecializationsCount' })
 
-    const employeeSpecializations = specializationScopes
+    const employeeSpecializations = organizationEmployeeSpecializations
         .filter(scope => scope.employee.id === employee.id)
         .map(scope => scope.specialization.name)
 
@@ -42,13 +42,13 @@ export const getEmployeeSpecializationsMessage = (intl, employee, specialization
 const PARAGRAPH_STYLES = { margin: 0 }
 
 export const getManyEmployeesNameRender = (search: FilterValue) => {
-    return function render (intl, employees, specializationScopes) {
+    return function render (intl, employees, organizationEmployeeSpecializations) {
         if (isEmpty(employees)) {
             return '—'
         }
 
         return employees.map(employee => {
-            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
             return (
                 <Typography.Paragraph key={employee.id} style={PARAGRAPH_STYLES}>

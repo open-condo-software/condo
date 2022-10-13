@@ -56,9 +56,9 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         propertyScopes = await getPropertyScopes(employeeWithPropertyVisibilityIds)
     }
 
-    let specializationScopes = []
+    let organizationEmployeeSpecializations = []
     if (employeeWithPropertyAndSpecializationVisibilityType.length > 0) {
-        specializationScopes = await find('SpecializationScope', {
+        organizationEmployeeSpecializations = await find('OrganizationEmployeeSpecialization', {
             employee: { id_in: employeeWithPropertyAndSpecializationVisibilityType.map(employee => employee.id) },
             deletedAt: null,
         })
@@ -107,9 +107,9 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
 
                     propertiesVisibilityPropertyIds.push(...properties)
                 } else {
-                    const employeeSpecializations = specializationScopes
-                        .filter(specializationScope => specializationScope.employee === employee.id)
-                        .map(specializationScope => specializationScope.specialization)
+                    const employeeSpecializations = organizationEmployeeSpecializations
+                        .filter(organizationEmployeeSpecialization => organizationEmployeeSpecialization.employee === employee.id)
+                        .map(organizationEmployeeSpecialization => organizationEmployeeSpecialization.specialization)
 
                     const properties = employeePropertyScopes.flatMap(scope => scope.properties)
 

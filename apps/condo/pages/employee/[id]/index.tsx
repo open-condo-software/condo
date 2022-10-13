@@ -6,7 +6,7 @@ import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayer
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@open-condo/next/intl'
@@ -283,13 +283,13 @@ export const EmployeeInfoPage = () => {
             },
         }
     )
-    const { objs: specializationScopes } = SpecializationScope.useObjects({
+    const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id: employeeId },
         },
     })
 
-    const employeeWithSpecializations = { ...employee, specializations: specializationScopes.map(scope => scope.specialization) }
+    const employeeWithSpecializations = { ...employee, specializations: organizationEmployeeSpecializations.map(scope => scope.specialization) }
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))

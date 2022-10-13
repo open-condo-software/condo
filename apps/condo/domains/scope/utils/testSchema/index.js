@@ -5,21 +5,16 @@
  */
 const faker = require('faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@condo/domains/common/utils/codegeneration/generate.test.utils')
-
 const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
-const { SpecializationScope: SpecializationScopeGQL } = require('@condo/domains/scope/gql')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
+const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateGQLTestUtils(PropertyScopeGQL)
 const PropertyScopeOrganizationEmployee = generateGQLTestUtils(PropertyScopeOrganizationEmployeeGQL)
 const PropertyScopeProperty = generateGQLTestUtils(PropertyScopePropertyGQL)
-const SpecializationScope = generateGQLTestUtils(SpecializationScopeGQL)
 const AssigneeScope = generateGQLTestUtils(AssigneeScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -116,37 +111,6 @@ async function updateTestPropertyScopeProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestSpecializationScope (client, employee, specialization, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!employee || !employee.id) throw new Error('no employee.id')
-    if (!specialization || !specialization.id) throw new Error('no specialization.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        employee: { connect: { id: employee.id } },
-        specialization: { connect: { id: specialization.id } },
-        ...extraAttrs,
-    }
-    const obj = await SpecializationScope.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestSpecializationScope (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await SpecializationScope.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 async function createTestAssigneeScope (client, user, ticket, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
@@ -184,7 +148,6 @@ module.exports = {
     PropertyScope, createTestPropertyScope, updateTestPropertyScope,
     PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee,
     PropertyScopeProperty, createTestPropertyScopeProperty, updateTestPropertyScopeProperty,
-    SpecializationScope, createTestSpecializationScope, updateTestSpecializationScope,
     AssigneeScope, createTestAssigneeScope, updateTestAssigneeScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

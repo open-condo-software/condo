@@ -29,7 +29,7 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const PropertyScopeSettingsContent = () => {
     const intl = useIntl()
-    const PropertyScopeTitle = intl.formatMessage({ id: 'TicketsVisibility' })
+    const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreatePropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.create' })
 
