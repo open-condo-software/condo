@@ -10,9 +10,10 @@ interface IErrorsContainerProps {
     phone: string
     propertyMismatchError: string
     hasContactDuplicate: boolean
+    nameSpecCharError: boolean
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address, unit, phone, name, propertyMismatchError, hasContactDuplicate }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address, unit, phone, name, propertyMismatchError, hasContactDuplicate, nameSpecCharError }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -20,6 +21,7 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address, unit
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const contactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     const disabledUserInteractions = !address || !unit || !phone || !!propertyMismatchError || hasContactDuplicate
     const messageLabels = []
@@ -30,10 +32,13 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address, unit
 
     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
     const contactDuplicateError = hasContactDuplicate ? contactDuplicateMessage : undefined
+    const hasNameSpecCharError = nameSpecCharError ? FullNameInvalidCharMessage : undefined
+
     return (
         disabledUserInteractions && (
             <ErrorsWrapper>
                 <div>{contactDuplicateError}</div>
+                <div>{hasNameSpecCharError}</div>
                 <div>{propertyMismatchError}</div>
                 <div>{requiredErrorMessage}</div>
             </ErrorsWrapper>

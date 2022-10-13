@@ -47,6 +47,7 @@ export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const FullNamePlaceholderMessage = intl.formatMessage({ id:'field.FullName' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'field.FullName.requiredError' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
@@ -74,7 +75,7 @@ export const CreateContactForm: React.FC = () => {
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
 
-    const { changeMessage, phoneValidator, emailValidator, requiredValidator } = useValidations({ allowLandLine: true })
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator } = useValidations({ allowLandLine: true })
     const { addressValidator } = usePropertyValidations()
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator],
@@ -84,7 +85,10 @@ export const CreateContactForm: React.FC = () => {
             addressValidator(selectedPropertyId, isMatchSelectedProperty),
         ],
         unit: [changeMessage(requiredValidator, UnitErrorMessage)],
-        name: [changeMessage(requiredValidator, FullNameRequiredMessage)],
+        name: [
+            changeMessage(requiredValidator, FullNameRequiredMessage),
+            changeMessage(specCharValidator, FullNameInvalidCharMessage),
+        ],
     }
 
     const { loading, obj: property } = Property.useObject({ where:{ id: selectedPropertyId ? selectedPropertyId : null } })
@@ -281,6 +285,7 @@ export const CreateContactForm: React.FC = () => {
                                             const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
                                             const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                                             const hasDuplicateError = Boolean(getFieldError('_NON_FIELD_ERROR_').find((error => error.includes(ContactDuplicateError))))
+                                            const nameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))
                                             const hasContactDuplicate = isFieldsChanged ? false : hasDuplicateError
 
                                             return (
@@ -292,7 +297,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={!property || !unitName || !phone || !name || !!propertyMismatchError || hasContactDuplicate}
+                                                                disabled={!property || !unitName || !phone || !name || !!propertyMismatchError || hasContactDuplicate || nameSpecCharError}
                                                                 style={{ marginRight: 24 }}
                                                             >
                                                                 {SubmitButtonLabel}
@@ -304,6 +309,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 name={name}
                                                                 propertyMismatchError={propertyMismatchError}
                                                                 hasContactDuplicate={hasContactDuplicate}
+                                                                nameSpecCharError={nameSpecCharError}
                                                             />
                                                         </BottomLineWrapper>
                                                     </Col>

@@ -96,6 +96,7 @@
   "field.floorName": "Этаж",
   "field.FullName": "Full name",
   "field.FullName.short": "Full name",
+  "field.FullName.invalidChar": "You entered invalid characters - correct. You can only enter letters, spaces, and hyphens",
   "field.Phone.lengthError": "The value of the field \" Phone \"is too long (Maximum: 15 characters)",
   "field.Phone.requiredError": "Enter your phone",
   "field.Property.requiredError": "Enter the address",

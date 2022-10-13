@@ -40,6 +40,7 @@ export const EditContactForm: React.FC = () => {
     const ProfileUpdateTitle = intl.formatMessage({ id: 'EditingContact' })
     const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
     const FullNamePlaceholderMessage = intl.formatMessage({ id: 'field.FullName' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const ExamplePhoneMessage = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMessage = intl.formatMessage({ id: 'example.Email' })
@@ -82,11 +83,15 @@ export const EditContactForm: React.FC = () => {
         await push(`/contact/${contactId}`)
     })
 
-    const { requiredValidator, phoneValidator, emailValidator, trimValidator } = useValidations({ allowLandLine: true })
+    const { requiredValidator, phoneValidator, emailValidator, trimValidator, changeMessage, specCharValidator } = useValidations({ allowLandLine: true })
     const validations = {
         phone: [requiredValidator, phoneValidator],
         email: [emailValidator],
-        name: [requiredValidator, trimValidator],
+        name: [
+            requiredValidator,
+            trimValidator,
+            changeMessage(specCharValidator, FullNameInvalidCharMessage),
+        ],
     }
 
     if (error) {
