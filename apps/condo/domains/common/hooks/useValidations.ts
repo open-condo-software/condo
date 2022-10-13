@@ -71,8 +71,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const specCharValidator: Rule = {
         validator: (_, value) => {
             if (value) {
-                const invalidCharRegex = SPECIAL_CHAR_REGEXP
-                if (invalidCharRegex.test(value)) return Promise.reject()
+                if (SPECIAL_CHAR_REGEXP.test(value)) return Promise.reject()
             } else {
                 return Promise.reject()
             }
