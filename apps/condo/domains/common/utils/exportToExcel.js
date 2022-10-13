@@ -8,6 +8,7 @@ const EXPORT_TYPE_CONTACTS = 'contacts'
 const EXPORT_TYPE_METERS = 'meters'
 const EXPORT_TYPE_BUILDINGS = 'buildings'
 const EXPORT_TYPE_TICKETS = 'tickets'
+const EXPORT_TYPE_PROPERTY_SCOPES = 'propertyScopes'
 
 const TICKETS_REPORTS_PREFIX = 'ticket_report_'
 const TICKET_REPORT_PROPERTY_STATUS = 'property_status'
@@ -48,6 +49,9 @@ const EXCEL_TEMPLATES_HEADERS = {
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_PROPERTY}`]: [
         'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+    ],
+    [EXPORT_TYPE_PROPERTY_SCOPES]: [
+        'name', 'properties', 'employees',
     ],
 }
 
@@ -113,6 +117,7 @@ module.exports = {
     TICKET_REPORT_STATUS_EXECUTOR,
     TICKET_REPORT_STATUS_PROPERTY,
     EXCEL_TEMPLATES_HEADERS,
+    EXPORT_TYPE_PROPERTY_SCOPES,
     getHeadersTranslations,
     translationStringKeyForExcelExportHeader,
     ticketStatusesTranslations,

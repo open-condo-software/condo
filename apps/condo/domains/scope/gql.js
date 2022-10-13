@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const gql = require('graphql-tag')
+const { gql } = require('graphql-tag')
 
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { generateGqlQueries } = require('@condo/codegen/generate.gql')
@@ -23,6 +23,12 @@ const PropertyScopeProperty = generateGqlQueries('PropertyScopeProperty', PROPER
 const ASSIGNEE_SCOPE_FIELDS = `{ user { id } ticket { id } ${COMMON_FIELDS} }`
 const AssigneeScope = generateGqlQueries('AssigneeScope', ASSIGNEE_SCOPE_FIELDS)
 
+const EXPORT_PROPERTY_SCOPE_QUERY = gql`
+    query exportPropertyScopesToExcel($data: ExportPropertyScopeToExcelInput!) {
+        result: exportPropertyScopesToExcel(data: $data) { status, linkToFile }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -30,5 +36,6 @@ module.exports = {
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
     AssigneeScope,
+    EXPORT_PROPERTY_SCOPE_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

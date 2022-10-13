@@ -10,6 +10,7 @@ const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL 
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
 const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { EXPORT_PROPERTY_SCOPE_MUTATION } = require('@condo/domains/scope/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateGQLTestUtils(PropertyScopeGQL)
@@ -142,6 +143,20 @@ async function updateTestAssigneeScope (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function exportPropertyScopeByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(EXPORT_PROPERTY_SCOPE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -149,5 +164,6 @@ module.exports = {
     PropertyScopeOrganizationEmployee, createTestPropertyScopeOrganizationEmployee, updateTestPropertyScopeOrganizationEmployee,
     PropertyScopeProperty, createTestPropertyScopeProperty, updateTestPropertyScopeProperty,
     AssigneeScope, createTestAssigneeScope, updateTestAssigneeScope,
+    exportPropertyScopeByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

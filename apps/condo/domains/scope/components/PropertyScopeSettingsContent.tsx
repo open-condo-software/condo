@@ -21,6 +21,9 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
+import { ExportToExcelActionBar } from '../../common/components/ExportToExcelActionBar'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 
 const SORTABLE_PROPERTIES = ['name']
 const PROPERTY_SCOPES_DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -35,6 +38,8 @@ export const PropertyScopeSettingsContent = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const { isSmall } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -116,7 +121,13 @@ export const PropertyScopeSettingsContent = () => {
             {
                 canManagePropertyScopes && (
                     <Col span={24}>
-                        <ActionBar>
+                        <ExportToExcelActionBar
+                            hidden={isSmall}
+                            searchObjectsQuery={searchPropertyScopesQuery}
+                            sortBy={sortBy}
+                            exportToExcelQuery={EXPORT_PROPERTY_SCOPE_QUERY}
+                            useTimeZone={false}
+                        >
                             <Button
                                 type='sberDefaultGradient'
                                 icon={<PlusCircleOutlined/>}
@@ -124,7 +135,7 @@ export const PropertyScopeSettingsContent = () => {
                             >
                                 {CreatePropertyScopeMessage}
                             </Button>
-                        </ActionBar>
+                        </ExportToExcelActionBar>
                     </Col>
                 )
             }

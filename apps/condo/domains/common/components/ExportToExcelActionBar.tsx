@@ -71,6 +71,7 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
     return (
         <Form.Item noStyle>
             <ActionBar hidden={hidden}>
+                {props.children}
                 <Button
                     type='sberBlack'
                     secondary
