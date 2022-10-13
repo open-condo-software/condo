@@ -5,7 +5,7 @@ const PHONE = /^\+?\d*(\.\d*)?$/
 const PHONE_CLEAR_REGEXP = /[^+0-9]/g
 const JAVASCRIPT_URL_XSS = /[u00-u1F]*j[\s]*a[\s]*v[\s]*a[\s]*s[\s]*c[\s]*r[\s]*i[\s]*p[\s]*t[\s]*:/i
 const QUERY_SPLIT_REGEX = /[\s.,]+/gm
-const SPECIAL_CHAR_REGEXP = /[^A-ZА-Я0-9\s-]/ig
+const SPECIAL_CHAR_REGEXP = /[^\p{L}\s-]/ui
 
 module.exports = {
     ALPHANUMERIC_REGEXP,
