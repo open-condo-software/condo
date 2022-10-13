@@ -24,7 +24,8 @@ import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/com
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { get } from 'lodash'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
+import { searchOrganizationPropertyScope } from '../../scope/utils/clientSchema/search'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
@@ -113,6 +114,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
+    const PropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
     const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'id'), [statuses])
@@ -220,10 +222,31 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     },
                     modalFilterComponentWrapper: {
                         label: AddressMessage,
-                        size: FilterComponentSize.Large,
+                        size: FilterComponentSize.MediumLarge,
                     },
                     columnFilterComponentWrapper: {
                         width: '400px',
+                    },
+                },
+            },
+            {
+                keyword: 'propertyScope',
+                filters: [filterProperty],
+                queryToWhereProcessor: (propertyScopeProperties) => {
+                    return propertyScopeProperties && propertyScopeProperties
+                        .map(property => property.split(',')).flat(1)
+                },
+                component: {
+                    type: ComponentType.GQLSelect,
+                    props: {
+                        search: searchOrganizationPropertyScope(userOrganizationId),
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: PropertyScopeMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
