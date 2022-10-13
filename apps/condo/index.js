@@ -178,7 +178,7 @@ class PaymentLinkMiddleware {
 
         await router.init()
 
-        app.get('/api/payment-link', router.handleRequest.bind(router))
+        app.get('/payment-link', router.handleRequest.bind(router))
 
         return app
     }
