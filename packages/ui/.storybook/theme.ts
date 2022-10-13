@@ -6,12 +6,12 @@ import colors from '@condo/ui/src/colors/colors.json'
 export default create({
     base: 'light',
 
-    colorSecondary: colors.dom.brand.main,
+    colorSecondary: colors.green["5"],
 
     appBorderRadius: parseInt(get(tokens, ['global', 'borderRadius', 'large', 'value'], '12')),
-    appBg: colors.dom.blackAndWhite.gray15,
+    appBg: colors.gray["1"],
 
-    textColor: colors.dom.blackAndWhite.black,
+    textColor: colors.black,
 
     brandTitle: 'Condo UI',
     brandImage: '/ui/logo.svg'
