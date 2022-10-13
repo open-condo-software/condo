@@ -10,10 +10,21 @@ interface IErrorsContainerProps {
     phone: string
     propertyMismatchError: string
     hasContactDuplicate: boolean
-    nameSpecCharError: boolean
+    hasNameSpecCharError: boolean
+    hasNameTrimValidateError: boolean
 }
 
-export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address, unit, phone, name, propertyMismatchError, hasContactDuplicate, nameSpecCharError }) => {
+export const ErrorsContainer: React.FC<IErrorsContainerProps> = (props) => {
+    const {
+        address,
+        unit,
+        phone,
+        name,
+        propertyMismatchError,
+        hasContactDuplicate,
+        hasNameSpecCharError,
+        hasNameTrimValidateError,
+    } = props
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
@@ -23,22 +34,22 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address, unit
     const contactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
     const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
-    const disabledUserInteractions = !address || !unit || !phone || !!propertyMismatchError || hasContactDuplicate
+    const disabledUserInteractions = !address || !unit || !phone || !!propertyMismatchError || hasContactDuplicate || hasNameSpecCharError || hasNameTrimValidateError
     const messageLabels = []
     if (!address) messageLabels.push(`"${AddressLabel}"`)
     if (!unit) messageLabels.push(`"${UnitLabel}"`)
-    if (!name) messageLabels.push(`"${NameLabel}"`)
+    if (hasNameTrimValidateError) messageLabels.push(`"${NameLabel}"`)
     if (!phone) messageLabels.push(`"${PhoneLabel}"`)
 
     const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
     const contactDuplicateError = hasContactDuplicate ? contactDuplicateMessage : undefined
-    const hasNameSpecCharError = nameSpecCharError ? FullNameInvalidCharMessage : undefined
+    const nameSpecCharError = hasNameSpecCharError ? FullNameInvalidCharMessage : undefined
 
     return (
         disabledUserInteractions && (
             <ErrorsWrapper>
                 <div>{contactDuplicateError}</div>
-                <div>{hasNameSpecCharError}</div>
+                <div>{nameSpecCharError}</div>
                 <div>{propertyMismatchError}</div>
                 <div>{requiredErrorMessage}</div>
             </ErrorsWrapper>
