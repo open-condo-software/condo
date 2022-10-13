@@ -2,7 +2,7 @@ const querystring = require('querystring')
 const { isNil } = require('lodash')
 const { getLogger } = require('@condo/keystone/logging')
 const logger = getLogger('payment/linkHandler')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getSchemaCtx, getById } = require('@condo/keystone/schema')
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
@@ -32,10 +32,22 @@ class PaymentLinkRouter {
             currencyCode,
             amount,
             period,
-            bic,
-            bankAccount,
             accountNumber,
         } = params
+
+        // the first step is to extract bic/bankAccount from the acquiringIntegrationContext.recipient
+        const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContextId)
+
+        // validate that recipient exists
+        if (isNil(acquiringContext.recipient)) {
+            throw new Error('AcquiringIntegrationContext.recipient is empty')
+        }
+
+        // validate that recipient data filled up properly
+        const { bic, bankAccount } = acquiringContext.recipient
+        if (isNil(bic) || isNil(bankAccount)) {
+            throw new Error('AcquiringIntegrationContext.recipient is filled with empty bic/bankAccount')
+        }
 
         return await registerMultiPaymentForVirtualReceipt(this.context, {
             sender,
@@ -74,7 +86,7 @@ class PaymentLinkRouter {
 
         try {
             if (isVirtual) {
-                const params = this.extractVirtualReceiptParams(req)
+                const params = await this.extractVirtualReceiptParams(req)
                 return await this.handlePaymentLink(
                     res,
                     params,
@@ -131,8 +143,6 @@ class PaymentLinkRouter {
             cc: currencyCode,
             a: amount,
             p: period,
-            b: bic,
-            ba: bankAccount,
             an: accountNumber,
             su: successUrl,
             fu: failureUrl,
@@ -143,8 +153,6 @@ class PaymentLinkRouter {
             currencyCode,
             amount,
             period,
-            bic,
-            bankAccount,
             accountNumber,
             successUrl,
             failureUrl,
@@ -159,7 +167,7 @@ class PaymentLinkRouter {
 
         // do some sort of minimal validations
         if (isNil(successUrl) || isNil(failureUrl)) {
-            throw new Error('bad_request')
+            throw new Error('Missing QP: successUrl/failureUrl')
         }
     }
 
@@ -168,7 +176,7 @@ class PaymentLinkRouter {
 
         // do some sort of minimal validations
         if (isNil(acquiringIntegrationContextId) || isNil(billingReceiptId)) {
-            throw new Error('bad_request')
+            throw new Error('Missing QP: acquiringIntegrationContextId/billingReceiptId')
         }
     }
 
@@ -178,8 +186,6 @@ class PaymentLinkRouter {
             currencyCode,
             amount,
             period,
-            bic,
-            bankAccount,
             accountNumber,
         } = params
 
@@ -188,10 +194,8 @@ class PaymentLinkRouter {
             || isNil(currencyCode)
             || isNil(amount)
             || isNil(period)
-            || isNil(bic)
-            || isNil(bankAccount)
             || isNil(accountNumber)) {
-            throw new Error('bad_request')
+            throw new Error('Missing QP: acquiringIntegrationContextId/currencyCode/amount/period/accountNumber')
         }
     }
 }
