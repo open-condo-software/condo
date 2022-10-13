@@ -40,6 +40,32 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
+        it('sends only one notification of BILLING_RECEIPT_ADDED_TYPE for same user but multiple billing receipts', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { receipt, resident, residentUser } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } } )
+            const { receipt: receipt1, resident: resident1 } = await makeBillingReceiptWithResident({ toPay: '10000', toPayDetails: { charge: '1000', formula: '', balance: '9000', penalty: '0' } }, undefined, residentUser)
+
+            expect(resident.user.id).toEqual(resident1.user.id)
+
+            let lastDt
+            const setLastDt = (dt) => lastDt = dt
+
+            await sendBillingReceiptsAddedNotificationsForPeriod({ id_in: [receipt.id] }, setLastDt)
+
+            const notificationKey = makeMessageKey(receipt.period, receipt.account.number, receipt.category.id, resident.id)
+            const notificationKey1 = makeMessageKey(receipt1.period, receipt1.account.number, receipt1.category.id, resident1.id)
+            const messageWhere = {
+                type: BILLING_RECEIPT_ADDED_TYPE,
+                uniqKey_in: [notificationKey, notificationKey1],
+            }
+            const messages = await Message.getAll(admin, messageWhere)
+
+            expect(messages.length).toEqual(1)
+            expect(lastDt).toEqual(receipt.createdAt)
+            expect(messages[0].organization.id).toEqual(resident.organization.id)
+        })
+
+
         it('sends notification of BILLING_RECEIPT_ADDED_TYPE for toPay > 0 and missing toPayDetails', async () => {
             const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '10000' } )

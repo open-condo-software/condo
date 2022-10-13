@@ -102,6 +102,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
     const { keystone: context } = await getSchemaCtx('Resident')
     const receiptsCount = await BillingReceipt.count(context, receiptsWhere)
     let skip = 0, successCount = 0
+    const notifiedUsers = new Set()
 
     logger.info({ msg: 'sending billing receipts', receiptsCount, data: receiptsWhere })
 
@@ -171,8 +172,12 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 // ServiceConsumer has no connection to Resident
                 if (!resident || resident.deletedAt) continue
 
+                // NOTE: (DOMA-4351) skip already notified user to get rid of duplicate notifications
+                if (notifiedUsers.has(resident.user.id)) continue
+
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
+                notifiedUsers.add(resident.user.id)
                 successConsumerCount += success
             }
 
