@@ -288,7 +288,7 @@ export const CreateContactForm: React.FC = () => {
                                             const hasNameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))
                                             const hasNameTrimValidateError = Boolean(getFieldError('name').find((error => error.includes(FullNameRequiredMessage))))
                                             const hasContactDuplicate = isFieldsChanged ? false : hasDuplicateError
-
+                                            const isDisabled = !property || !unitName || !phone || hasNameTrimValidateError || !!propertyMismatchError || hasContactDuplicate || hasNameSpecCharError
                                             return (
                                                 <Row gutter={[0, 24]}>
                                                     <Col span={24}>
@@ -298,15 +298,7 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={
-                                                                    !property ||
-                                                                    !unitName ||
-                                                                    !phone ||
-                                                                    hasNameTrimValidateError ||
-                                                                    !!propertyMismatchError ||
-                                                                    hasContactDuplicate ||
-                                                                    hasNameSpecCharError
-                                                                }
+                                                                disabled={isDisabled}
                                                                 style={{ marginRight: 24 }}
                                                             >
                                                                 {SubmitButtonLabel}
