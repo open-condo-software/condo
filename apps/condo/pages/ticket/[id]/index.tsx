@@ -238,9 +238,9 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
         const minutesHavePassed = dayjs.duration(diffInMinutes, 'minutes').format('m')
 
         const timeSinceCreation = compact([
-            Number(daysHavePassed) > 0 && DaysShortMessage.replace('${days}', daysHavePassed),
-            Number(hoursHavePassed) > 0 && HoursShortMessage.replace('${hours}', hoursHavePassed),
-            Number(minutesHavePassed) > 0 && MinutesShortMessage.replace('${minutes}', minutesHavePassed),
+            Number(daysHavePassed) > 0 && DaysShortMessage.replace('{days}', daysHavePassed),
+            Number(hoursHavePassed) > 0 && HoursShortMessage.replace('{hours}', hoursHavePassed),
+            Number(minutesHavePassed) > 0 && MinutesShortMessage.replace('{minutes}', minutesHavePassed),
         ])
 
         if (isEmpty(timeSinceCreation)) {
@@ -338,7 +338,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                                                 {ChangedMessage}: {dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm')}
                                                             </Typography.Paragraph>
                                                             <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
-                                                                {TimeHasPassedMessage.replace('${time}', getTimeSinceCreation())}
+                                                                {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
                                                             </Typography.Paragraph>
                                                         </Col>
                                                     )
