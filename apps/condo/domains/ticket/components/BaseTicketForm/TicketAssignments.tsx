@@ -53,12 +53,12 @@ const TicketAssignments = ({
 
     const { isSmall } = useLayoutContext()
 
-    const { objs: propertyScopeProperties } = PropertyScopeProperty.useObjects({
+    const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useObjects({
         where: {
             property: { id: propertyId },
         },
     })
-    const { objs: propertyScopes } = PropertyScope.useObjects({
+    const { objs: propertyScopes, loading: scopesLoading } = PropertyScope.useObjects({
         where: {
             organization: { id: organizationId },
             OR: [
@@ -67,13 +67,13 @@ const TicketAssignments = ({
             ],
         },
     })
-    const { objs: propertyScopeEmployees } = PropertyScopeOrganizationEmployee.useObjects({
+    const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useObjects({
         where: {
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
     })
     const employeeIds = propertyScopeEmployees.map(scope => scope.employee.id)
-    const { objs: organizationEmployeeSpecializations, loading } = OrganizationEmployeeSpecialization.useObjects({
+    const { objs: organizationEmployeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id_in: employeeIds },
         },
@@ -121,6 +121,8 @@ const TicketAssignments = ({
 
     const search = useMemo(() => searchEmployeeUserWithSpecializations(intl, organizationId, null),
         [intl, organizationId])
+
+    const loading = propertiesLoading || scopesLoading || employeesLoading || specializationsLoading
 
     return (
         <Col span={24}>
