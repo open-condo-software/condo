@@ -52,6 +52,10 @@ import {
     updateQuery,
 } from '../utils/filters.utils'
 import { Ticket } from '@app/condo/schema'
+import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
+import isEqual from 'lodash/isEqual'
+import dayjs from 'dayjs'
+import isArray from 'lodash/isArray'
 
 interface IFilterComponentProps<T> {
     name: string
@@ -346,6 +350,23 @@ const { TabPane } = Tabs
 const MAIN_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
 const SCROLL_TO_FIRST_ERROR_CONFIG: Options = { behavior: 'smooth', block: 'center' }
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
+const NEW_TEMPLATE_NAME = 'newTemplateName'
+const EXISTED_TEMPLATE_NAME = 'existedTemplateName'
+
+const convertFormValuesToFiltersView = (formValues) => {
+    const result = { ...formValues }
+    if (result.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete result[NON_FIELD_ERROR_NAME]
+    if (result.hasOwnProperty(NEW_TEMPLATE_NAME)) delete result[NEW_TEMPLATE_NAME]
+    if (result.hasOwnProperty(EXISTED_TEMPLATE_NAME)) delete result[EXISTED_TEMPLATE_NAME]
+    for (const key in result) {
+        if (isEmpty(result[key])) delete result[key]
+        else if (isArray(result[key]) && !isEmpty(result[key]) && dayjs.isDayjs(result[key][0])) {
+            // the dates in the form are in dayjs format, need to convert them to ISO
+            result[key] = (result[key] as Array<any>).map(item => dayjs(item).toISOString())
+        }
+    }
+    return result
+}
 
 type MultipleFiltersModalProps = {
     isMultipleFiltersModalVisible: boolean
@@ -421,11 +442,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
         const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
         if (selectedFiltersTemplate && !trimmedExistedTemplateName) {
-            showTemplateNameError('existedTemplateName')
+            showTemplateNameError(EXISTED_TEMPLATE_NAME)
             return
         }
         if (!selectedFiltersTemplate && !trimmedNewTemplateName) {
-            showTemplateNameError('newTemplateName')
+            showTemplateNameError(NEW_TEMPLATE_NAME)
             return
         }
 
@@ -471,7 +492,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const ExistingFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
-            name='existedTemplateName'
+            name={EXISTED_TEMPLATE_NAME}
             label={TemplateLabel}
             labelCol={LABEL_COL_PROPS}
             initialValue={get(selectedFiltersTemplate, 'name')}
@@ -484,7 +505,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const NewFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
-            name='newTemplateName'
+            name={NEW_TEMPLATE_NAME}
             label={NewTemplateLabel}
             labelCol={LABEL_COL_PROPS}
             rules={NewFiltersTemplateNameInputRules}
@@ -499,12 +520,17 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         await handleSubmit(values)
     }, [form, handleSubmit])
 
+    const handleResetButtonClick = useCallback(() => {
+        setSelectedFiltersTemplate(null)
+        handleResetFilters()
+    }, [handleResetFilters])
+
     const modalFooter = useMemo(() => [
         <Row key='footer' justify='space-between' gutter={[0, 10]}>
             <Col>
                 <ResetFiltersModalButton
                     key='reset'
-                    handleReset={handleResetFilters}
+                    handleReset={handleResetButtonClick}
                 />
             </Col>
             <Col>
@@ -548,7 +574,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                 </Row>
             </Col>
         </Row>,
-    ], [handleResetFilters, selectedFiltersTemplate, DeleteTitle, DeleteMessage, DeleteLabel, handleDeleteFiltersTemplate, handleSaveFiltersTemplate, SaveTemplateMessage, handleSubmitButtonClick, ApplyMessage])
+    ], [handleResetButtonClick, selectedFiltersTemplate, DeleteTitle, DeleteMessage, DeleteLabel, handleDeleteFiltersTemplate, handleSaveFiltersTemplate, SaveTemplateMessage, handleSubmitButtonClick, ApplyMessage])
 
     const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false),
         [setIsMultipleFiltersModalVisible])
@@ -592,6 +618,22 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             </Col>
         )
     }, [modalComponents])
+
+    useDeepCompareEffect(() => {
+        // This is necessary to synchronize filters if filters was changed in dropdown filters or reset by button outside modal filter
+        const formValues = convertFormValuesToFiltersView(form.getFieldsValue())
+        const isEqualFiltersAndForm = isEqual(filters, formValues)
+        const isEmptyFilters = isEmpty(filters)
+        const isEmptyForm = isEmpty(formValues)
+        if (!isEqualFiltersAndForm && !isEmptyFilters && !isEmptyForm) {
+            setSelectedFiltersTemplate(null)
+            form.setFieldsValue(filters)
+        }
+        if (isEmptyFilters && !isEmptyForm) {
+            setSelectedFiltersTemplate(null)
+            handleResetFilters()
+        }
+    }, [filters, form])
 
     return (
         <DefaultModal

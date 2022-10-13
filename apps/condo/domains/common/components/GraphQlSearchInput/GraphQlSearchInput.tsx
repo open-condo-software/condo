@@ -70,7 +70,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         infinityScroll,
         disabled,
         placeholder: initialPlaceholder,
-        value: initialSelectedValues,
+        value,
         eventName: propEventName,
         eventProperties = {},
         ...restProps
@@ -100,8 +100,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         [allData, isInitialLoading, isMoreLoading, isSearchLoading])
     const placeholder = useMemo(() => needShowLoadingMessage ? LoadingMessage : initialPlaceholder,
         [LoadingMessage, initialPlaceholder, needShowLoadingMessage])
-    const selectedValue = useMemo(() => needShowLoadingMessage ? [] : initialSelectedValues,
-        [initialSelectedValues, needShowLoadingMessage])
+    const selectedValue = useMemo(() => needShowLoadingMessage ? [] : value,
+        [value, needShowLoadingMessage])
     const isDisabled = useMemo(() => disabled || needShowLoadingMessage,
         [disabled, needShowLoadingMessage])
 
@@ -142,15 +142,16 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     }, [renderOptions, options, renderOption, isMoreLoading])
 
     const loadInitialOptions = useCallback(async () => {
-        const values = initialValue || initialSelectedValues
+        const values = initialValue || value
         if (!isEmpty(values)) {
+            seInitialLoading(true)
             const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(values) : { id_in: values }
             const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
             const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
             setInitialData(prevData => uniqBy([...initialOptions, ...prevData], 'value'))
             seInitialLoading(false)
         }
-    }, [initialValue, initialSelectedValues, getInitialValueQuery, initialValueSearch, search, client])
+    }, [initialValue, value, getInitialValueQuery, initialValueSearch, search, client])
 
     const debounceSearch = useMemo(() => debounce(async (searchingValue) => {
         setIsAllDataLoaded(false)

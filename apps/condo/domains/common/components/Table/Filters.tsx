@@ -121,31 +121,38 @@ export const getGQLSelectFilterDropdown = (
     mode?: ComponentProps<typeof GraphQlSearchInput>['mode'],
     containerStyles?: CSSProperties
 ) => {
-    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+    return ({ setSelectedKeys, selectedKeys, confirm, clearFilters, visible }) => {
         const handleClear = useCallback(() => {
             isFunction(clearFilters) && clearFilters()
             setSelectedKeys('')
             confirm({ closeDropdown: true })
-        }, [clearFilters])
+        }, [clearFilters, confirm, setSelectedKeys])
+
+        const handleChange = useCallback((e) => {
+            setSelectedKeys(e)
+            confirm({ closeDropdown: false })
+        }, [confirm, setSelectedKeys])
+
         return (
-            <SelectFilterContainer
-                clearFilters={handleClear}
-                showClearButton={selectedKeys && selectedKeys.length > 0}
-                style={containerStyles}
-            >
-                <GraphQlSearchInput
-                    style={GRAPHQL_SEARCH_INPUT_STYLE}
-                    search={search}
-                    showArrow
-                    mode={mode}
-                    value={selectedKeys}
-                    onChange={(e) => {
-                        setSelectedKeys(e)
-                        confirm({ closeDropdown: false })
-                    }}
-                    {...props}
-                />
-            </SelectFilterContainer>
+            // it need for loading all data if values was changed in modal filter
+            visible &&
+                (
+                    <SelectFilterContainer
+                        clearFilters={handleClear}
+                        showClearButton={selectedKeys && selectedKeys.length > 0}
+                        style={containerStyles}
+                    >
+                        <GraphQlSearchInput
+                            style={GRAPHQL_SEARCH_INPUT_STYLE}
+                            search={search}
+                            showArrow
+                            mode={mode}
+                            value={selectedKeys}
+                            onChange={handleChange}
+                            {...props}
+                        />
+                    </SelectFilterContainer>
+                )
         )
     }
 }
