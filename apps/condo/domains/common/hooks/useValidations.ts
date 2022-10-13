@@ -2,6 +2,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@condo/next/intl'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
+import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 
 type ValidatorTypes = {
     changeMessage: (rule: Rule, message: string) => Rule
@@ -70,7 +71,7 @@ export const useValidations: UseValidations = (settings = {}) => {
     const specCharValidator: Rule = {
         validator: (_, value) => {
             if (value) {
-                const invalidCharRegex = /[~!@#±$"№%^&*()_+=[\]{}|\\;’:”,./<>?£]/
+                const invalidCharRegex = SPECIAL_CHAR_REGEXP
                 if (invalidCharRegex.test(value)) return Promise.reject()
             } else {
                 return Promise.reject()
