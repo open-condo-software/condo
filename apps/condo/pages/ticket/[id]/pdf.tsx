@@ -186,7 +186,7 @@ const PdfView = () => {
                         {isPaid && (<Typography.Title style={ticketLabelStyle} level={2}>{PaidMessage.toLowerCase()}</Typography.Title>)}
                         {statusReopenedCounter > 0 && (
                             <Typography.Title style={ticketLabelStyle} level={2}>
-                                {`${ReturnedMessage.toLowerCase()} ${statusReopenedCounter > 1 ? statusReopenedCounter : ''}`}
+                                {`${ReturnedMessage.toLowerCase()} ${statusReopenedCounter > 1 ? `(${statusReopenedCounter})` : ''}`}
                             </Typography.Title>
                         )}
                     </Col>
