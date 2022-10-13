@@ -9,6 +9,7 @@ type ValidatorTypes = {
     phoneValidator: Rule
     emailValidator: Rule
     trimValidator: Rule
+    specCharValidator: Rule
     minLengthValidator: (length: number) => Rule
     maxLengthValidator: (length: number) => Rule
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
@@ -62,6 +63,18 @@ export const useValidations: UseValidations = (settings = {}) => {
     const trimValidator: Rule = {
         validator: (_, value) => {
             if (!value || value.trim().length === 0) return Promise.reject(ThisFieldIsRequiredMessage)
+            return Promise.resolve()
+        },
+    }
+
+    const specCharValidator: Rule = {
+        validator: (_, value) => {
+            if (value) {
+                const invalidCharRegex = /[~!@#±$"№%^&*()_+=[\]{}|\\;’:”,./<>?£]/
+                if (invalidCharRegex.test(value)) return Promise.reject()
+            } else {
+                return Promise.reject()
+            }
             return Promise.resolve()
         },
     }
@@ -140,6 +153,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         phoneValidator,
         emailValidator,
         trimValidator,
+        specCharValidator,
         lessThanValidator,
         greaterThanValidator,
         minLengthValidator,
