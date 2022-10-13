@@ -33,7 +33,6 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 export const PropertyScopeSettingsContent = () => {
     const intl = useIntl()
     const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const CreatePropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.create' })
 
     const userOrganization = useOrganization()
@@ -92,20 +91,6 @@ export const PropertyScopeSettingsContent = () => {
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
                 <Typography.Title level={3}>{PropertyScopeTitle}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <TableFiltersContainer>
-                    <Row>
-                        <Col span={10}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={handleSearch}
-                                value={search}
-                                allowClear
-                            />
-                        </Col>
-                    </Row>
-                </TableFiltersContainer>
             </Col>
             <Col span={24}>
                 <Table

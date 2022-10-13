@@ -52703,6 +52703,7 @@ export type TicketFilter = {
   status?: Maybe<Array<Maybe<Scalars['String']>>>;
   details?: Maybe<Scalars['String']>;
   property?: Maybe<Array<Maybe<Scalars['String']>>>;
+  propertyScope?: Maybe<Array<Maybe<Scalars['String']>>>;
   address?: Maybe<Scalars['String']>;
   clientName?: Maybe<Scalars['String']>;
   executor?: Maybe<Array<Maybe<Scalars['String']>>>;
