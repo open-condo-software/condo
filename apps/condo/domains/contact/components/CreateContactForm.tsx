@@ -75,7 +75,7 @@ export const CreateContactForm: React.FC = () => {
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
 
-    const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator } = useValidations({ allowLandLine: true })
+    const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator, trimValidator } = useValidations({ allowLandLine: true })
     const { addressValidator } = usePropertyValidations()
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator],
@@ -86,7 +86,7 @@ export const CreateContactForm: React.FC = () => {
         ],
         unit: [changeMessage(requiredValidator, UnitErrorMessage)],
         name: [
-            changeMessage(requiredValidator, FullNameRequiredMessage),
+            changeMessage(trimValidator, FullNameRequiredMessage),
             changeMessage(specCharValidator, FullNameInvalidCharMessage),
         ],
     }
@@ -285,7 +285,8 @@ export const CreateContactForm: React.FC = () => {
                                             const { phone, property, unitName, name } = getFieldsValue(['phone', 'property', 'unitName', 'name'])
                                             const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
                                             const hasDuplicateError = Boolean(getFieldError('_NON_FIELD_ERROR_').find((error => error.includes(ContactDuplicateError))))
-                                            const nameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))
+                                            const hasNameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))
+                                            const hasNameTrimValidateError = Boolean(getFieldError('name').find((error => error.includes(FullNameRequiredMessage))))
                                             const hasContactDuplicate = isFieldsChanged ? false : hasDuplicateError
 
                                             return (
@@ -297,7 +298,15 @@ export const CreateContactForm: React.FC = () => {
                                                                 onClick={handleSave}
                                                                 type='sberPrimary'
                                                                 loading={isLoading}
-                                                                disabled={!property || !unitName || !phone || !name || !!propertyMismatchError || hasContactDuplicate || nameSpecCharError}
+                                                                disabled={
+                                                                    !property ||
+                                                                    !unitName ||
+                                                                    !phone ||
+                                                                    hasNameTrimValidateError ||
+                                                                    !!propertyMismatchError ||
+                                                                    hasContactDuplicate ||
+                                                                    hasNameSpecCharError
+                                                                }
                                                                 style={{ marginRight: 24 }}
                                                             >
                                                                 {SubmitButtonLabel}
@@ -309,7 +318,8 @@ export const CreateContactForm: React.FC = () => {
                                                                 name={name}
                                                                 propertyMismatchError={propertyMismatchError}
                                                                 hasContactDuplicate={hasContactDuplicate}
-                                                                nameSpecCharError={nameSpecCharError}
+                                                                hasNameSpecCharError={hasNameSpecCharError}
+                                                                hasNameTrimValidateError={hasNameTrimValidateError}
                                                             />
                                                         </BottomLineWrapper>
                                                     </Col>
