@@ -29,6 +29,7 @@ const {
     makeClientWithRegisteredOrganization,
 } = require('./Organization')
 const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/scope/constants')
+const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -36,6 +37,7 @@ const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 
+const OrganizationEmployeeSpecialization = generateGQLTestUtils(OrganizationEmployeeSpecializationGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -299,6 +301,37 @@ function generateTin(country) {
     }
 }
 
+async function createTestOrganizationEmployeeSpecialization (client, employee, specialization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!employee || !employee.id) throw new Error('no employee.id')
+    if (!specialization || !specialization.id) throw new Error('no specialization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        employee: { connect: { id: employee.id } },
+        specialization: { connect: { id: specialization.id } },
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeSpecialization.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrganizationEmployeeSpecialization (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeSpecialization.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -321,6 +354,7 @@ module.exports = {
     acceptOrRejectOrganizationInviteById,
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
-    generateTin
-/* AUTOGENERATE MARKER <EXPORTS> */
+    generateTin,
+    OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

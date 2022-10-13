@@ -3,7 +3,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
 const guards = require('../utils/serverSchema/guards')
@@ -13,7 +13,6 @@ const { getById } = require('@open-condo/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
-const { SpecializationScope } = require('@condo/domains/scope/utils/serverSchema')
 
 const errors = {
     inviteNewOrganizationEmployee: {
@@ -166,7 +165,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 })
 
                 for (const specializationId of specializations) {
-                    await SpecializationScope.create(context, {
+                    await OrganizationEmployeeSpecialization.create(context, {
                         employee: { connect: { id: employee.id } },
                         specialization: { connect: { id: specializationId } },
                         ...dvSenderData,

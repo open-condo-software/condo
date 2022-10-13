@@ -1,10 +1,11 @@
 import { Typography } from 'antd'
 import { gql } from 'graphql-tag'
 import React from 'react'
+
 import { getEmployeeSpecializationsMessage } from './Renders'
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
-    query selectOrganizationEmployee ($value: String, $organizationId: ID, $first: Int = 100, $skip: Int) {
+    query selectOrganizationEmployee ($value: String, $organizationId: ID, $first: Int = 200, $skip: Int) {
         objs: allOrganizationEmployees(first: $first, skip: $skip, where: {name_contains_i: $value, organization: { id: $organizationId }}) {
             name
             id
@@ -23,9 +24,9 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     }
 `
 
-const GET_ALL_SPECIALIZATION_SCOPE_QUERY = gql`
-    query selectSpecializationScope ($employeeIds: [ID], $first: Int = 100, $skip: Int) {
-        objs: allSpecializationScopes(first: $first, skip: $skip, where: {employee: { id_in: $employeeIds } }) {
+const GET_ALL_ORGANIZATION_EMPLOYEE_SPECIALIZATIONS_QUERY = gql`
+    query selectOrganizationEmployeeSpecializations ($employeeIds: [ID], $first: Int = 100, $skip: Int) {
+        objs: allOrganizationEmployeeSpecializations(first: $first, skip: $skip, where: {employee: { id_in: $employeeIds } }) {
             employee { id }
             specialization { id name }
         }
@@ -48,16 +49,19 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
 
         const employees = data.objs
 
-        const { data: specializationScopes, error: specializationScopesError } = await _search(client, GET_ALL_SPECIALIZATION_SCOPE_QUERY, {
+        const {
+            data: organizationEmployeeSpecializations,
+            error: organizationEmployeeSpecializationsError,
+        } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_SPECIALIZATIONS_QUERY, {
             employeeIds: employees.map(employee => employee.id),
         })
 
-        if (error || specializationScopesError) console.warn(error)
+        if (error || organizationEmployeeSpecializationsError) console.warn(error)
 
         return employees
             .filter(filter || Boolean)
             .map(employee => {
-                const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes.objs)
+                const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations.objs)
                 const EmployeeText = (
                     <Typography.Text>
                         {employee.name} {specializationsMessage && (
@@ -73,7 +77,7 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
     }
 }
 
-export function searchEmployeeUserWithSpecializations (intl, organizationId, specializationScopes, filter) {
+export function searchEmployeeUserWithSpecializations (intl, organizationId, filter) {
     if (!organizationId) return
 
     return async function (client, value, where, first, skip) {

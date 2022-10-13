@@ -227,7 +227,7 @@ export function generateReactHooks<
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
         const typedStopPolling: IStopPollingType = stopPolling
 
-        const fetchAll = get(options, 'fetchAll', false)
+        const fetchAll = options && options.fetchAll
         useEffect(() => {
             if (fetchAll && !loading && typedFetchMore && count > objs.length) {
                 typedFetchMore({

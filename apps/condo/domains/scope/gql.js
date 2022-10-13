@@ -4,11 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/domains/common/utils/codegeneration/generate.gql')
-
 const gql = require('graphql-tag')
 
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+const { generateGqlQueries } = require('@condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
@@ -21,9 +20,6 @@ const PropertyScopeOrganizationEmployee = generateGqlQueries('PropertyScopeOrgan
 const PROPERTY_SCOPE_PROPERTY_FIELDS = `{ propertyScope { id } property { id address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } ${COMMON_FIELDS} }`
 const PropertyScopeProperty = generateGqlQueries('PropertyScopeProperty', PROPERTY_SCOPE_PROPERTY_FIELDS)
 
-const SPECIALIZATION_SCOPE_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
-const SpecializationScope = generateGqlQueries('SpecializationScope', SPECIALIZATION_SCOPE_FIELDS)
-
 const ASSIGNEE_SCOPE_FIELDS = `{ user { id } ticket { id } ${COMMON_FIELDS} }`
 const AssigneeScope = generateGqlQueries('AssigneeScope', ASSIGNEE_SCOPE_FIELDS)
 
@@ -33,7 +29,6 @@ module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
-    SpecializationScope,
     AssigneeScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -1,6 +1,7 @@
 import { Typography } from 'antd'
 import { differenceBy, isEmpty } from 'lodash'
 import React from 'react'
+
 import {
     ASSIGNED_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
@@ -13,7 +14,7 @@ import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/u
  * 2) employees with hasAllSpecialization flag
  * 3) employees without specializations
  */
-export const getEmployeesSortedBySpecializations = (employees, specializationScopes) => {
+export const getEmployeesSortedBySpecializations = (employees, organizationEmployeeSpecializations) => {
     const employeesWithAllSpecializations = []
     const employeeWithSpecificSpecializations = []
     const employeesWithoutSpecializations = []
@@ -22,7 +23,7 @@ export const getEmployeesSortedBySpecializations = (employees, specializationSco
         if (employee.hasAllSpecializations) {
             employeesWithAllSpecializations.push(employee)
         } else {
-            const isEmployeeHasSpecialization = specializationScopes.find(scope => scope.employee.id === employee.id)
+            const isEmployeeHasSpecialization = organizationEmployeeSpecializations.find(scope => scope.employee.id === employee.id)
             if (isEmployeeHasSpecialization) {
                 employeeWithSpecificSpecializations.push(employee)
             } else {
@@ -32,8 +33,8 @@ export const getEmployeesSortedBySpecializations = (employees, specializationSco
     })
 
     const sortedEmployeeWithSpecificSpecializations = employeeWithSpecificSpecializations.sort((firstEmployee, secondEmployee) => {
-        const firstEmployeeSpecializationsCount = specializationScopes.filter(scope => scope.employee.id === firstEmployee.id).length
-        const secondEmployeeSpecializationsCount = specializationScopes.filter(scope => scope.employee.id === secondEmployee.id).length
+        const firstEmployeeSpecializationsCount = organizationEmployeeSpecializations.filter(scope => scope.employee.id === firstEmployee.id).length
+        const secondEmployeeSpecializationsCount = organizationEmployeeSpecializations.filter(scope => scope.employee.id === secondEmployee.id).length
 
         return firstEmployeeSpecializationsCount - secondEmployeeSpecializationsCount
     })
@@ -47,7 +48,7 @@ export const getEmployeesSortedBySpecializations = (employees, specializationSco
  * 2) employees with ASSIGNED_TICKET_VISIBILITY ticketVisibilityType, sorted by specializations
  * 3) employees with other ticketVisibilityType, sorted by specializations
  */
-export const getEmployeesSortedByTicketVisibilityType = (employees, specializationScopes) => {
+export const getEmployeesSortedByTicketVisibilityType = (employees, organizationEmployeeSpecializations) => {
     const employeesWithPropertyAndSpecializationVisibility = employees
         .filter(({ role }) => role.ticketVisibilityType === PROPERTY_AND_SPECIALIZATION_VISIBILITY)
 
@@ -60,20 +61,20 @@ export const getEmployeesSortedByTicketVisibilityType = (employees, specializati
         'id')
 
     return [
-        ...getEmployeesSortedBySpecializations(employeesWithPropertyAndSpecializationVisibility, specializationScopes),
-        ...getEmployeesSortedBySpecializations(employeesWithAssigneeVisibility, specializationScopes),
-        ...getEmployeesSortedBySpecializations(employeesWithOtherVisibility, specializationScopes),
+        ...getEmployeesSortedBySpecializations(employeesWithPropertyAndSpecializationVisibility, organizationEmployeeSpecializations),
+        ...getEmployeesSortedBySpecializations(employeesWithAssigneeVisibility, organizationEmployeeSpecializations),
+        ...getEmployeesSortedBySpecializations(employeesWithOtherVisibility, organizationEmployeeSpecializations),
     ]
 }
 
-export const isEmployeeSpecializationAndPropertyMatchesToScope = (categoryClassifier, specializationScopes, propertyScopes, propertyScopeEmployees) =>
+export const isEmployeeSpecializationAndPropertyMatchesToScope = (categoryClassifier, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees) =>
     employee => {
         const propertyScopesWithAllPropertiesAndEmployees = propertyScopes.filter(scope => scope.hasAllProperties && scope.hasAllEmployees)
 
         const isPropertyMatches = propertyScopesWithAllPropertiesAndEmployees.length > 0 ||
             propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
         const isSpecializationMatches = employee.hasAllSpecializations ||
-            !!specializationScopes.find(scope => scope.employee.id === employee.id && scope.specialization.id === categoryClassifier)
+            !!organizationEmployeeSpecializations.find(scope => scope.employee.id === employee.id && scope.specialization.id === categoryClassifier)
 
         return isPropertyMatches && isSpecializationMatches
     }
@@ -90,9 +91,9 @@ export const getPropertyScopeNameByEmployee = (employee, propertyScopes, propert
     }
 }
 
-export const convertEmployeesToOptions = (employees, intl, specializationScopes) => {
+export const convertEmployeesToOptions = (employees, intl, organizationEmployeeSpecializations) => {
     return employees.map(employee => {
-        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
         const EmployeeText = (
             <Typography.Text>

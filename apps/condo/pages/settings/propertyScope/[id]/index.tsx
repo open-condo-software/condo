@@ -28,8 +28,8 @@ import {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
-    SpecializationScope,
 } from '@condo/domains/scope/utils/clientSchema'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
@@ -81,12 +81,10 @@ const PropertyScopeIdPage = () => {
         fetchAll: true,
     })
     const employees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee), [propertyScopeEmployees])
-    const propertyScopesEmployeeIds = useMemo(() => uniq(employees.map(employee => employee.id)), [employees])
+    const propertyScopesEmployeeIds: string[] = useMemo(() => uniq(employees.map(employee => employee.id)), [employees])
     const {
-        objs: specializationScopes,
-        count: specializationScopesCount,
-        loading: specializationScopesLoading,
-    } = SpecializationScope.useObjects({
+        objs: organizationEmployeeSpecializations,
+    } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id_in: propertyScopesEmployeeIds },
         },
@@ -137,7 +135,7 @@ const PropertyScopeIdPage = () => {
         }
 
         return employees.map(employee => {
-            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, specializationScopes)
+            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
             return (
                 <Typography.Paragraph
@@ -154,7 +152,7 @@ const PropertyScopeIdPage = () => {
                 </Typography.Paragraph>
             )
         })
-    }, [AllEmployeesMessage, employees, intl, propertyScope, specializationScopes])
+    }, [AllEmployeesMessage, employees, intl, propertyScope, organizationEmployeeSpecializations])
 
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction(propertyScope)

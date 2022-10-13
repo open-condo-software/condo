@@ -1,11 +1,14 @@
-import { jsx } from '@emotion/react'
 import { Col, Row, Typography } from 'antd'
 import Head from 'next/head'
-import React from 'react'
+import React, { CSSProperties } from 'react'
+
 import { useIntl } from '@open-condo/next/intl'
+
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
+
+const TITLE_STYLES: CSSProperties = { margin: 0, fontWeight: 'bold' }
 
 export const EmployeeUpdatePage = () => {
     const intl = useIntl()
@@ -22,7 +25,7 @@ export const EmployeeUpdatePage = () => {
                         <Col span={24}>
                             <Typography.Title
                                 level={1}
-                                style={{ margin: 0, fontWeight: 'bold' }}
+                                style={TITLE_STYLES}
                             >
                                 {UpdateEmployeeMessage}
                             </Typography.Title>

@@ -1,6 +1,7 @@
 import { Alert, Col } from 'antd'
 import { isEmpty } from 'lodash'
 import React, { useEffect, useState } from 'react'
+
 import { useAuth } from '@condo/next/auth'
 import { useIntl } from '@condo/next/intl'
 
@@ -22,7 +23,7 @@ export const AutoAssigner = ({
     categoryClassifierId,
     propertyId,
     propertyScopeEmployees,
-    specializationScopes,
+    organizationEmployeeSpecializations,
     propertyScopes,
 }) => {
     const intl = useIntl()
@@ -39,14 +40,14 @@ export const AutoAssigner = ({
                 .map(scope => scope.employee)
                 .filter(
                     isEmployeeSpecializationAndPropertyMatchesToScope(
-                        categoryClassifierId, specializationScopes, propertyScopes, propertyScopeEmployees
+                        categoryClassifierId, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees
                     )
                 )
 
             if (!isEmpty(employeesWithMatchesPropertyAndSpecializationScope)) {
                 const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
                     employeesWithMatchesPropertyAndSpecializationScope,
-                    specializationScopes
+                    organizationEmployeeSpecializations
                 )
 
                 const firstEmployee = sortedEmployees[0]
@@ -68,7 +69,7 @@ export const AutoAssigner = ({
                 })
             }
         }
-    }, [categoryClassifierId, form, propertyId, propertyScopeEmployees, propertyScopes, specializationScopes, user.id])
+    }, [categoryClassifierId, form, propertyId, propertyScopeEmployees, propertyScopes, organizationEmployeeSpecializations, user.id])
 
     return autoAssigneePropertyScopeName ? (
         <Col span={24}>

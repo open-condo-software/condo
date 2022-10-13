@@ -5,20 +5,18 @@
  */
 const get = require('lodash/get')
 
-const { generateServerUtils } = require('@condo/domains/common/utils/codegeneration/generate.server.utils')
 
 const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
-const { SpecializationScope: SpecializationScopeGQL } = require('@condo/domains/scope/gql')
 const { find } = require('@condo/keystone/schema')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
+const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateServerUtils(PropertyScopeGQL)
 const PropertyScopeOrganizationEmployee = generateServerUtils(PropertyScopeOrganizationEmployeeGQL)
 const PropertyScopeProperty = generateServerUtils(PropertyScopePropertyGQL)
-const SpecializationScope = generateServerUtils(SpecializationScopeGQL)
 const AssigneeScope = generateServerUtils(AssigneeScopeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -174,7 +172,6 @@ module.exports = {
     PropertyScope,
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
-    SpecializationScope,
     createDefaultPropertyScopeForNewOrganization,
     mapEmployeeToVisibilityTypeToEmployees,
     getPropertyScopes,

@@ -14,7 +14,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import { useAuth } from '@open-condo/next/auth'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { SpecializationScope } from '@condo/domains/scope/utils/clientSchema'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { Alert } from '@condo/domains/common/components/Alert'
 import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -56,14 +56,14 @@ export const UpdateEmployeeForm = () => {
     const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
     const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
     const updateEmployeeAction = OrganizationEmployee.useUpdate({})
-    const { objs: specializationScopes } = SpecializationScope.useObjects({
+    const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
         where: {
             employee: { id: employeeId },
         },
     })
-    const createSpecializationScopeAction = SpecializationScope.useCreate({})
-    const updateSpecializationScopeAction = SpecializationScope.useUpdate({})
-    const initialSpecializations = specializationScopes.map(scope => scope.specialization)
+    const createOrganizationEmployeeSpecializationAction = OrganizationEmployeeSpecialization.useCreate({})
+    const updateOrganizationEmployeeSpecializationAction = OrganizationEmployeeSpecialization.useUpdate({})
+    const initialSpecializations = organizationEmployeeSpecializations.map(scope => scope.specialization)
 
     const { emailValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -101,16 +101,16 @@ export const UpdateEmployeeForm = () => {
         const deletedSpecializations = difference(initialSpecializationIds, specializations)
         const newSpecializations = difference(specializations, initialSpecializationIds)
 
-        const specializationScopesToDelete = specializationScopes
+        const organizationEmployeeSpecializationsToDelete = organizationEmployeeSpecializations
             .filter(scope => deletedSpecializations.includes(scope.specialization.id))
-        for (const specializationScopeToDelete of specializationScopesToDelete) {
-            await updateSpecializationScopeAction({
+        for (const organizationEmployeeSpecializationToDelete of organizationEmployeeSpecializationsToDelete) {
+            await updateOrganizationEmployeeSpecializationAction({
                 deletedAt: 'true',
-            }, specializationScopeToDelete)
+            }, organizationEmployeeSpecializationToDelete)
         }
 
         for (const newSpecialization of newSpecializations) {
-            await createSpecializationScopeAction({
+            await createOrganizationEmployeeSpecializationAction({
                 employee: { connect: { id: employeeId } },
                 specialization: { connect: { id: newSpecialization } },
             })
@@ -119,8 +119,8 @@ export const UpdateEmployeeForm = () => {
         await updateEmployeeAction(OrganizationEmployee.formValuesProcessor(updateEmployeeFormValues), employee)
 
         await push(`/employee/${employeeId}/`)
-    }, [createSpecializationScopeAction, employee, employeeId, initialSpecializations, push, specializationScopes,
-        updateEmployeeAction, updateSpecializationScopeAction])
+    }, [createOrganizationEmployeeSpecializationAction, employee, employeeId, initialSpecializations, push, organizationEmployeeSpecializations,
+        updateEmployeeAction, updateOrganizationEmployeeSpecializationAction])
 
     const error = employeeError || employeeRolesError
     const loading = employeeLoading || employeeRolesLoading

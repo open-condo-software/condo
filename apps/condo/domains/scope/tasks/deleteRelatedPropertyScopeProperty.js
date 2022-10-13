@@ -1,5 +1,6 @@
 const { getSchemaCtx, find } = require('@condo/keystone/schema')
 const { createTask } = require('@condo/keystone/tasks')
+
 const { PropertyScopeProperty } = require('@condo/domains/scope/utils/serverSchema')
 
 /**

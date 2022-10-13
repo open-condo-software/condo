@@ -90,6 +90,9 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
     }
 `
 
+const ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
+const OrganizationEmployeeSpecialization = generateGqlQueries('OrganizationEmployeeSpecialization', ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -106,5 +109,6 @@ module.exports = {
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
+    OrganizationEmployeeSpecialization,
 }
 /* AUTOGENERATE MARKER <EXPORTS> */
