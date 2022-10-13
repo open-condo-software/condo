@@ -30,6 +30,7 @@ const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { PaymentLinkRouter } = require('@condo/domains/routes/paymentLinkRouter')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -170,6 +171,19 @@ class FeaturesMiddleware {
     }
 }
 
+class PaymentLinkMiddleware {
+    async prepareMiddleware () {
+        const app = express()
+        const router = new PaymentLinkRouter()
+
+        await router.init()
+
+        app.get('/api/payment-link', router.handleRequest.bind(router))
+
+        return app
+    }
+}
+
 module.exports = {
     keystone,
     apps: [
@@ -177,6 +191,7 @@ module.exports = {
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
+        new PaymentLinkMiddleware(),
         new GraphQLApp({
             apollo: {
                 formatError,

@@ -179,9 +179,9 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
             schemaDoc: 'Link to user',
             type: Relationship,
             ref: 'User',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            isRequired: false,
+            knexOptions: { isNotNullable: false }, // Required relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
             hooks: {
                 validateInput: async ({ operation, resolvedData, fieldPath, addFieldValidationError }) => {
                     if (operation === 'create') {

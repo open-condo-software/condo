@@ -36,13 +36,13 @@ const PaymentsFilterTemplate = generateGqlQueries('PaymentsFilterTemplate', PAYM
 
 const REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION = gql`
     mutation registerMultiPaymentForOneReceipt ($data: RegisterMultiPaymentForOneReceiptInput!) {
-        result: registerMultiPaymentForOneReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl }
+        result: registerMultiPaymentForOneReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl anonymousPaymentUrl }
     }
 `
 
 const REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION = gql`
     mutation registerMultiPaymentForVirtualReceipt ($data: RegisterMultiPaymentForVirtualReceiptInput!) {
-        result: registerMultiPaymentForVirtualReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl }
+        result: registerMultiPaymentForVirtualReceipt(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl anonymousPaymentUrl }
     }
 `
 

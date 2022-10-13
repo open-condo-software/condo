@@ -13,7 +13,10 @@ const { MultiPayment: MultiPaymentGQL } = require('@condo/domains/acquiring/gql'
 const { Payment: PaymentGQL } = require('@condo/domains/acquiring/gql')
 const { REGISTER_MULTI_PAYMENT_MUTATION } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL } = require('@condo/domains/acquiring/gql')
-const { REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION } = require('@condo/domains/acquiring/gql')
+const {
+    REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
+    REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
+} = require('@condo/domains/acquiring/gql')
 const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -46,7 +49,20 @@ async function registerMultiPaymentForOneReceipt (context, data) {
         query: REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerMultiPaymentForOneReceipt',
-        dataPath: 'obj',
+        dataPath: 'result',
+    })
+}
+
+async function registerMultiPaymentForVirtualReceipt (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerMultiPaymentForVirtualReceipt',
+        dataPath: 'result',
     })
 }
 
@@ -74,6 +90,7 @@ module.exports = {
     registerMultiPayment,
     PaymentsFilterTemplate,
     registerMultiPaymentForOneReceipt,
+    registerMultiPaymentForVirtualReceipt,
     allPaymentsSum,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

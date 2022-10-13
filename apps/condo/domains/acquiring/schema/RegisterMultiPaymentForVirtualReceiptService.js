@@ -29,6 +29,7 @@ const {
     ACQUIRING_INTEGRATION_IS_DELETED,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
+const { ANONYMOUS_PAYMENT_PATH } = require("../constants/links");
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -100,7 +101,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
         },
         {
             access: true,
-            type: 'type RegisterMultiPaymentForVirtualReceiptOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String! }',
+            type: 'type RegisterMultiPaymentForVirtualReceiptOutput { dv: Int!, multiPaymentId: String!, webViewUrl: String!, feeCalculationUrl: String!, directPaymentUrl: String!, anonymousPaymentUrl: String! }',
         },
     ],
 
@@ -204,12 +205,14 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     serviceFee: Big(payment.serviceFee),
                     implicitFee: Big(payment.implicitFee),
                 }
+
+                const authedItemId = get(context, 'authedItem.id')
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
                     ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
                     currencyCode,
-                    user: { connect: { id: context.authedItem.id } },
+                    ...isNil(authedItemId) ? {} : { user: { connect: { id: authedItemId } } },
                     integration: { connect: { id: acquiringIntegration.id } },
                     payments: { connect: [{ id: payment.id }] },
                     // TODO(DOMA-1574): add correct category
@@ -221,6 +224,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
                     feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
                     directPaymentUrl: `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
+                    anonymousPaymentUrl: `${acquiringIntegration.hostUrl}${ANONYMOUS_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
                 }
             },
         },

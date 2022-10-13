@@ -36855,6 +36855,7 @@ export type RegisterMultiPaymentForOneReceiptOutput = {
   webViewUrl: Scalars['String'];
   feeCalculationUrl: Scalars['String'];
   directPaymentUrl: Scalars['String'];
+  anonymousPaymentUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentForVirtualReceiptInput = {
@@ -36871,6 +36872,7 @@ export type RegisterMultiPaymentForVirtualReceiptOutput = {
   webViewUrl: Scalars['String'];
   feeCalculationUrl: Scalars['String'];
   directPaymentUrl: Scalars['String'];
+  anonymousPaymentUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentInput = {
