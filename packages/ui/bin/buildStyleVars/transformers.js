@@ -3,7 +3,7 @@ const pluralize = require('pluralize')
 
 const RAW_INT_TYPES = ['fontWeight', 'opacity']
 
-const SHRINKABLE_HEX_PATTERN = /^#(([0-9a-f])\2){3}$/gmi
+const SHRINKABLE_HEX_PATTERN = /^#(([0-9a-f])\2){3}$/i
 
 const WEIGHT_TO_INT = {
     light: 300,
