@@ -1338,11 +1338,13 @@ class MapEdit extends MapView {
 
             for (let dataIndex = 0; dataIndex < positiveFloorsCount; dataIndex++) {
                 modifiedSection.floors[dataIndex].index = positiveFloorsCount - dataIndex
+                modifiedSection.floors[dataIndex].name = String(modifiedSection.floors[dataIndex].index)
             }
         } else {
             const needToRenameNextFloor = Object.keys(this.sectionFloorMap).includes(String(floor.index))
             if (needToRenameNextFloor) {
                 modifiedSection.floors[insertIndex - 1].index--
+                modifiedSection.floors[insertIndex - 1].name = String(modifiedSection.floors[insertIndex - 1].index)
             }
         }
 
