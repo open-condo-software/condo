@@ -1,5 +1,7 @@
 const get = require('lodash/get')
 
+const JOINER = '~'
+
 /**
  * @param {NormalizedSuggestion} normalizedSuggestion
  * @returns {string}
@@ -21,8 +23,8 @@ function generateAddressKey (normalizedSuggestion) {
     ]
     return parts
         .filter(Boolean)
-        .map((part) => part.replaceAll(' ', '_'))
-        .join(':')
+        .map((part) => part.replaceAll(/\s/g, '_'))
+        .join(JOINER)
         .toLowerCase()
 }
 
