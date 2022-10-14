@@ -15,9 +15,9 @@ let instance
 class AddressServiceClient {
     /**
      * @param {string} url The address service url (root)
-     * @param {AddressServiceParams?} params Additional parameters
+     * @param {AddressServiceParams?} params Additional parameters. Ability to set query parameters for all queries
      */
-    constructor (url, params) {
+    constructor (url, params = {}) {
         if (!url) {
             throw new Error('The `url` parameter is mandatory')
         }
@@ -26,9 +26,14 @@ class AddressServiceClient {
 
         // The next fields allow to define some query parameters for all queries made by this client instance
         const { geo = null, count = 20, context = null } = params
-        this.geo = geo
-        this.count = count
-        this.context = context
+
+        this.possibleUrlParams = {
+            // Force queries to dadata until other providers will be ready
+            // todo(nas): put the `geo` variable back after other providers be ready
+            geo: 'dadata',
+            count,
+            context,
+        }
     }
 
     /**
@@ -38,8 +43,8 @@ class AddressServiceClient {
      */
     urlifyParams (params) {
         const urlParams = []
-        Object.keys(params).forEach((paramName) => {
-            const paramValue = params[paramName] || this[paramName] || null
+        Object.keys(this.possibleUrlParams).forEach((paramName) => {
+            const paramValue = params[paramName] || this.possibleUrlParams[paramName] || null
             if (paramValue) {
                 urlParams.push(`${paramName}=${paramValue}`)
             }
@@ -83,11 +88,11 @@ class AddressServiceClient {
     /**
      *
      * @param {string} s
-     * @param {AddressServiceParams} params
+     * @param {AddressServiceParams?} params
      * @returns {Promise<*>}
      * @public
      */
-    async search (s, params) {
+    async search (s, params = {}) {
         if (!s) {
             throw new Error('The `s` parameter is mandatory')
         }
