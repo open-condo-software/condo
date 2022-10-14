@@ -63,9 +63,10 @@ class SuggestionKeystoneApp {
             const suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
 
             // 3. Inject some data not presented in provider
-            const normalizedInjectingData = suggestionProvider.getInjections(s)
-            suggestions.push(...(bypass ? suggestionProvider.denormalize(normalizedInjectingData) : normalizedInjectingData))
-
+            if (!bypass) {
+                const normalizedInjectingData = suggestionProvider.getInjections(s)
+                suggestions.push(...normalizedInjectingData)
+            }
             res.json(suggestions)
         })
 

@@ -77,23 +77,13 @@ class AbstractSuggestionProvider {
     }
 
     /**
-     * Denormalizes data to external service's format
-     * @param {NormalizedSuggestion[]} data
-     * @returns {Array}
-     * @abstract
-     * @public
-     */
-    denormalize (data) {
-        throw new Error('Method still not implemented.')
-    }
-
-    /**
      * Returns suggestions that still do not exist in the results of the provider
      * @param {string} s
      * @returns {Array}
      * @public
      */
     getInjections (s) {
+        // todo(nas/*) write some logic to find eligible models
         return []
     }
 }

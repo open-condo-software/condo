@@ -17,10 +17,6 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     normalize (data) {
         return data
     }
-
-    denormalize (data) {
-        return data
-    }
 }
 
 module.exports = { GoogleSuggestionProvider }

@@ -202,15 +202,6 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             },
         }))
     }
-
-    /**
-     *
-     * @param data
-     * @returns {DadataObject[]}
-     */
-    denormalize (data) {
-        return data
-    }
 }
 
 module.exports = { DadataSuggestionProvider }
