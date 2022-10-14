@@ -55,10 +55,9 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
         setSection(null)
     }, [builder, refresh, floor, section, unitsOnFloor, unitType])
 
-    const isSubmitDisabled = useMemo(() => {
-        const sectionFloors = builder.getSectionFloorNames(section)
-        return !(floor && section !== null && unitsOnFloor && !sectionFloors.includes(floor))
-    }, [floor, section, unitsOnFloor])
+    const isSubmitDisabled = useMemo(() =>
+        !(floor && section !== null && unitsOnFloor)
+    , [floor, section, unitsOnFloor])
 
     useEffect(() => {
         if (section !== null) {
