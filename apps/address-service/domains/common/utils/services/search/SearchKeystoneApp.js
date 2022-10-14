@@ -2,6 +2,7 @@ const { generateAddressKey } = require('@address-service/domains/common/utils/ad
 const { SearchProviderDetector } = require('@address-service/domains/common/utils/services/search/SearchProviderDetector')
 const express = require('express')
 const get = require('lodash/get')
+const { Address } = require('@address-service/domains/address/utils/serverSchema')
 
 /**
  * @typedef {Object} AddressSearchResult
@@ -16,7 +17,7 @@ class SearchKeystoneApp {
      * @param params
      * @returns {Express}
      */
-    prepareMiddleware (params) {
+    prepareMiddleware ({ keystone, dev, distDir }) {
         const app = express()
         const searchDetector = new SearchProviderDetector()
 
@@ -31,7 +32,7 @@ class SearchKeystoneApp {
              * Using to detect a proper suggestion provider
              * @type {string}
              */
-            const geo = String(get(req, ['query', 'geo'], null))
+            const geo = String(get(req, ['query', 'geo'], ''))
 
             /**
              * User's search string
@@ -53,7 +54,7 @@ class SearchKeystoneApp {
 
             const searchProvider = searchDetector.getProvider(geo)
 
-            const denormalizedSuggestions = await searchProvider.get({ query: s, context, count: 1 })
+            const denormalizedSuggestions = await searchProvider.get({ query: s, context })
             if (denormalizedSuggestions.length === 0) {
                 res.send(404)
                 return
@@ -62,20 +63,35 @@ class SearchKeystoneApp {
 
             const addressKey = generateAddressKey(searchResult[0])
 
-            //TODO(nas) save model to the database after schema will be created
-            
-            //TODO(nas) search in database by address key
+            const godContext = await keystone.createContext({ skipAccessControl: true })
+
+            const addresses = await Address.getAll(godContext, { key: addressKey })
+
+            let addressItem
+            if (addresses.length === 0) {
+                addressItem = await Address.create(godContext, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'address-service' },
+                    source: s,
+                    address: searchResult[0].value,
+                    key: addressKey,
+                    meta: {
+                        provider: {
+                            name: searchProvider.getProviderName(),
+                            rawData: denormalizedSuggestions[0],
+                        },
+                        data: get(searchResult, [0, 'data'], {}),
+                    },
+                })
+            } else {
+                addressItem = addresses[0]
+            }
 
             res.json({
-                addressSource: s,
-                address: searchResult[0].value,
-                addressKey,
-                addressMeta: {
-                    provider: {
-                        name: searchProvider.getProviderName(),
-                        data: denormalizedSuggestions[0],
-                    },
-                },
+                addressSource: addressItem.source,
+                address: addressItem.address,
+                addressKey: addressItem.key,
+                addressMeta: addressItem.meta, // todo return meta, normalized to dadata format
             })
         })
 
