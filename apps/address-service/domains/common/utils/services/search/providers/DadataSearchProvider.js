@@ -38,18 +38,10 @@ class DadataSearchProvider extends AbstractSearchProvider {
                 city: get(item, ['data', 'city_with_type']),
                 settlement: get(item, ['data', 'settlement_with_type']),
                 street: get(item, ['data', 'street_with_type']),
-                building: String(`${get(item, ['data', 'house_type_full'])} ${get(item, ['data', 'house'])}`).trim(),
-                block: String(`${get(item, ['data', 'block_type_full'])} ${get(item, ['data', 'block'])}`).trim(),
+                building: String(`${get(item, ['data', 'house_type_full']) || ''} ${get(item, ['data', 'house']) || ''}`).trim(),
+                block: String(`${get(item, ['data', 'block_type_full']) || ''} ${get(item, ['data', 'block']) || ''}`).trim(),
             },
         }))
-    }
-
-    /**
-     * @param data
-     * @returns {DadataObject[]}
-     */
-    denormalize (data) {
-        return data
     }
 }
 
