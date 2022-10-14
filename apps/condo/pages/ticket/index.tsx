@@ -135,6 +135,7 @@ export const TicketsPageContent = ({
     sortableProperties,
     useTableColumns,
     showImport = false,
+    baseQueryLoading = false,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -157,7 +158,8 @@ export const TicketsPageContent = ({
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-    const searchTicketsQuery = { ...baseTicketsQuery,  ...filtersToWhere(filters), ...{ deletedAt: null } }
+    const searchTicketsQuery = useMemo(() => ({ ...baseTicketsQuery,  ...filtersToWhere(filters), ...{ deletedAt: null } }),
+        [baseTicketsQuery, filters, filtersToWhere])
     const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
 
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
@@ -227,7 +229,7 @@ export const TicketsPageContent = ({
                 }/>
                 <TablePageContent>
                     {
-                        (!ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0)
+                        (!baseQueryLoading && !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0)
                             ? <EmptyListView
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
