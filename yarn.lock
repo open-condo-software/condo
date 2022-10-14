@@ -1172,6 +1172,7 @@ __metadata:
   dependencies:
     "@ant-design/icons": ^4.7.0
     "@apollo/client": 3.3.20
+    "@condo/codegen": "workspace:^"
     "@condo/config": "workspace:^"
     "@condo/domains": "link:../condo/domains"
     "@condo/keystone": "workspace:^"
