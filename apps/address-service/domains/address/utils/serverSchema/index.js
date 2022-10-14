@@ -4,9 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@address-service/domains/common/utils/codegeneration/generate.server.utils')
-
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
+const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Address = generateServerUtils(AddressGQL)

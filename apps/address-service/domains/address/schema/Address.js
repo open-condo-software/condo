@@ -6,8 +6,8 @@ const { Text } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
-const { dvAndSender } = require('@address-service/domains/common/schema/plugins/dvAndSender')
 const access = require('@address-service/domains/address/access/Address')
+const { dvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 
 const Address = new GQLListSchema('Address', {
     schemaDoc: 'Some specific building',
