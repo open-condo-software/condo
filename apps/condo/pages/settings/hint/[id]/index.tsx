@@ -70,7 +70,7 @@ const TicketPropertyHintIdPage = () => {
             <Typography.Link
                 href={`/property/${get(property, 'id')}`}
             >
-                {property.name ? `\n${property.name}\n` : getAddressRender(property)}
+                {getAddressRender(property)}
             </Typography.Link>
         </Typography.Paragraph>
     )), [properties])
