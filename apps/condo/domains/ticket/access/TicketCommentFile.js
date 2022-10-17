@@ -11,6 +11,7 @@ const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
+const { getTicketAccessForUser } = require('@condo/domains/ticket/utils/accessSchema')
 
 async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -32,14 +33,13 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
         }
     }
 
+    const ticketAccessObj = await getTicketAccessForUser(user)
+
     return {
         OR: [
             {
-                organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                    ],
+                ticket: {
+                    ...ticketAccessObj,
                 },
             },
             { createdBy: { id: user.id } },

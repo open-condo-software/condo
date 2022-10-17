@@ -7,6 +7,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getTicketAccessForUser } = require('@condo/domains/ticket/utils/accessSchema')
 
 
 async function canReadTicketFiles ({ authentication: { item: user } }) {
@@ -17,14 +18,13 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
 
     if (user.type === RESIDENT) return { createdBy: { id: user.id } }
 
+    const ticketAccessObj = await getTicketAccessForUser(user)
+
     return {
         OR: [
             {
-                organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                    ],
+                ticket: {
+                    ...ticketAccessObj,
                 },
             },
             { createdBy: { id: user.id } },
