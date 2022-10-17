@@ -36896,7 +36896,9 @@ export type RegisterMultiPaymentServiceConsumerInput = {
 
 export enum RegisterMultiPaymentVirtualReceiptCurrency {
   Rub = 'RUB',
-  Usd = 'USD'
+  Usd = 'USD',
+  Kzt = 'KZT',
+  Try = 'TRY'
 }
 
 export type RegisterMultiPaymentVirtualReceiptInput = {
@@ -36907,7 +36909,7 @@ export type RegisterMultiPaymentVirtualReceiptInput = {
 };
 
 export type RegisterMultiPaymentVirtualReceiptRecipientInput = {
-  bic: Scalars['String'];
+  routingNumber: Scalars['String'];
   bankAccount: Scalars['String'];
   accountNumber: Scalars['String'];
 };
