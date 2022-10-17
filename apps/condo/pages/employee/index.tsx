@@ -203,7 +203,7 @@ const EmployeesPage = () => {
     const intl = useIntl()
     const translations = intl.messages
 
-    const { organization, link: { role } }  = useOrganization()
+    const { link: { role = {} }, organization }  = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
     const canManageEmployee = get(role, 'canManageEmployees', null)
 

@@ -187,7 +187,7 @@ type PropertiesPageProps = {
 }
 
 export default function PropertiesPage (props: PropertiesPageProps) {
-    const { organization, link: { role } } = useOrganization()
+    const { link: { role = {} }, organization } = useOrganization()
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)

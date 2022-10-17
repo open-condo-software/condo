@@ -20,7 +20,7 @@ const CreateMeterPage: ICreateContactPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'meter.AddMeterReadings' })
 
-    const { organization, link: { role } } = useOrganization()
+    const { link: { role = {} }, organization } = useOrganization()
 
     return (
         <>
