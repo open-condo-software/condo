@@ -1,4 +1,5 @@
 /** @jsx jsx */
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
@@ -50,6 +51,7 @@ import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFun
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
+import { PropertyScope, PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -418,13 +420,49 @@ const TicketsPage: ITicketIndexPage = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const filterMetas = useTicketTableFilters()
-    const baseTicketsQuery = { organization: { id: userOrganizationId } }
+
+    // const employee = get(userOrganization, 'link')
+    //
+    // const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
+    //     where: {
+    //         employee: { id: employee.id },
+    //     },
+    // })
+    // const propertyScopeIds = propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
+    // const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
+    //     where: {
+    //         OR: [
+    //             { id_in: propertyScopeIds },
+    //             { hasAllEmployees: true },
+    //         ],
+    //     },
+    // })
+    // const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
+    //     where: {
+    //         propertyScope: { id_in: propertyScopeIds },
+    //     },
+    // })
+    // const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
+    //     where: {
+    //         employee: { id: employee.id },
+    //     },
+    // })
+    //
+    // const specs = employeeSpecializations.map(empSpec => empSpec.specialization.id)
+    // const properties = propertyScopeProperties.map(scope => scope.property.id)
+    //
+    // const baseQueryLoading = employeesLoading || propertyScopeLoading || propertiesLoading || specializationsLoading
+    const baseTicketsQuery = {
+        organization: { id: userOrganizationId },
+        // classifier: { category: { id_in: specs } },
+        // property: { id_in: properties },
+    }
 
     return (
         <MultipleFilterContextProvider>
             <TicketsPageContent
                 useTableColumns={useTableColumns}
-                baseTicketsQuery={baseTicketsQuery}
+                // baseTicketsQuery={baseTicketsQuery}
                 filterMetas={filterMetas}
                 sortableProperties={SORTABLE_PROPERTIES}
                 showImport
