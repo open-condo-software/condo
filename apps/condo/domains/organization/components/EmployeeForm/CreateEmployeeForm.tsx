@@ -7,9 +7,11 @@ import { useOrganization } from '@condo/next/organization'
 import { useRouter } from 'next/router'
 import { useIntl } from '@condo/next/intl'
 import { useApolloClient } from '@condo/next/apollo'
-import { get, find, isEmpty } from 'lodash'
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+import get from 'lodash/get'
+import find from 'lodash/find'
+import isEmpty from 'lodash/isEmpty'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
+import { normalizeEmail } from '@condo/domains/common/utils/mail'
 import { Button } from '@condo/domains/common/components/Button'
 import {
     OrganizationEmployee,
