@@ -80,5 +80,5 @@ export const AutoAssigner = ({
                 description={AutoAssignAlertMessage.replace('{name}', autoAssigneePropertyScopeName)}
             />
         </Col>
-    ) : <></>
+    ) : null
 }

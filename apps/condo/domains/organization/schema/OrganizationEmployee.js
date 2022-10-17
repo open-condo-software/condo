@@ -144,6 +144,7 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
         afterChange: async ({ context, operation, existingItem, updatedItem }) => {
             const isSoftDeleteOperation = operation === 'update' && !existingItem.deletedAt && Boolean(updatedItem.deletedAt)
 
+            // TODO(DOMA-4440): we need to make a tool for automatic cascading soft deletion of related objects
             if (isSoftDeleteOperation) {
                 await softDeletePropertyScopeOrganizationEmployee(context, updatedItem)
             }

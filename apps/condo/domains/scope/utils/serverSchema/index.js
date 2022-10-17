@@ -14,6 +14,7 @@ const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
 const { EXPORT_PROPERTY_SCOPE_MUTATION } = require('@condo/domains/scope/gql')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+const { PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const PropertyScope = generateServerUtils(PropertyScopeGQL)
@@ -97,6 +98,113 @@ async function getPropertyScopes (employeeIds) {
     })
 }
 
+function filterEmployeePropertyScopes (propertyScopes, employee) {
+    return propertyScopes.filter(scope =>
+        scope.hasAllEmployees && scope.organization === employee.organization ||
+        scope.employees.find(id => id === employee.id)
+    )
+}
+
+function filterEmployeeSpecializations (organizationEmployeeSpecializations, employee) {
+    return organizationEmployeeSpecializations
+        .filter(organizationEmployeeSpecialization => organizationEmployeeSpecialization.employee === employee.id)
+        .map(organizationEmployeeSpecialization => organizationEmployeeSpecialization.specialization)
+}
+
+/**
+ * Calculate and return access queries depends on user employees visibility types
+ */
+async function getTicketVisibilityTypeAccessQueryForUserEmployees (userEmployees) {
+    const userEmployeeRoles = await find('OrganizationEmployeeRole', {
+        id_in: userEmployees.map(employee => employee.role),
+    })
+    const employeeToVisibilityType = userEmployees.map(employee => {
+        const visibilityType = userEmployeeRoles.find(role => role.id === employee.role).ticketVisibilityType
+        return { employee: employee, visibilityType }
+    })
+
+    const organizationTicketVisibilityOrganizationIds = []
+    const propertiesVisibilityPropertyIds = []
+    const propertyAndSpecializationVisibilityAccessQuery = []
+
+    const employeeWithPropertyVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_TICKET_VISIBILITY)
+    const employeeWithPropertyAndSpecializationVisibilityType = mapEmployeeToVisibilityTypeToEmployees(employeeToVisibilityType, PROPERTY_AND_SPECIALIZATION_VISIBILITY)
+
+    const employeeWithPropertyVisibilityIds = [...employeeWithPropertyVisibilityType, ...employeeWithPropertyAndSpecializationVisibilityType].map(employee => employee.id)
+    let propertyScopes = []
+    if (employeeWithPropertyVisibilityIds.length > 0) {
+        propertyScopes = await getPropertyScopes(employeeWithPropertyVisibilityIds)
+    }
+
+    let organizationEmployeeSpecializations = []
+    if (employeeWithPropertyAndSpecializationVisibilityType.length > 0) {
+        organizationEmployeeSpecializations = await find('OrganizationEmployeeSpecialization', {
+            employee: { id_in: employeeWithPropertyAndSpecializationVisibilityType.map(employee => employee.id) },
+            deletedAt: null,
+        })
+    }
+
+    for (const { employee, visibilityType } of employeeToVisibilityType) {
+        switch (visibilityType) {
+            case ORGANIZATION_TICKET_VISIBILITY: {
+                organizationTicketVisibilityOrganizationIds.push(employee.organization)
+
+                break
+            }
+
+            case PROPERTY_TICKET_VISIBILITY: {
+                const employeePropertyScopes = filterEmployeePropertyScopes(propertyScopes, employee)
+                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.hasAllProperties)
+
+                // if employee with property visibility added in property scope which includes all properties
+                // then he can read all tickets in organization (= all properties in organization)
+                if (isEmployeeInDefaultPropertyScope) {
+                    organizationTicketVisibilityOrganizationIds.push(employee.organization)
+
+                    break
+                }
+
+                const properties = employeePropertyScopes.flatMap(scope => scope.properties)
+                propertiesVisibilityPropertyIds.push(...properties)
+
+                break
+            }
+
+            case PROPERTY_AND_SPECIALIZATION_VISIBILITY: {
+                const isEmployeeHasAllSpecializations = employee.hasAllSpecializations
+                const employeePropertyScopes = filterEmployeePropertyScopes(propertyScopes, employee)
+                const isEmployeeInDefaultPropertyScope = employeePropertyScopes.find(scope => scope.hasAllProperties)
+
+                if (isEmployeeHasAllSpecializations && isEmployeeInDefaultPropertyScope) {
+                    organizationTicketVisibilityOrganizationIds.push(employee.organization)
+                } else if (isEmployeeHasAllSpecializations) {
+                    const properties = employeePropertyScopes.flatMap(scope => scope.properties)
+
+                    propertiesVisibilityPropertyIds.push(...properties)
+                } else {
+                    const employeeSpecializations = filterEmployeeSpecializations(organizationEmployeeSpecializations, employee)
+                    const properties = employeePropertyScopes.flatMap(scope => scope.properties)
+
+                    propertyAndSpecializationVisibilityAccessQuery.push({
+                        AND: [
+                            { property: { id_in: properties } },
+                            { classifier: { category: { id_in: employeeSpecializations } } },
+                        ],
+                    })
+                }
+
+                break
+            }
+        }
+    }
+
+    return {
+        organizationTicketVisibilityAccessQuery: { organization: { id_in: organizationTicketVisibilityOrganizationIds } },
+        propertiesTicketVisibilityAccessQuery: { property: { id_in: propertiesVisibilityPropertyIds } },
+        propertyAndSpecializationVisibilityAccessQuery: { OR: propertyAndSpecializationVisibilityAccessQuery },
+    }
+}
+
 /**
  * Checks changes in the current assignee field and another assignee field (for example, assignee and executor in the ticket).
  1) Creates an AssigneeScope if the user is specified in assigneeField and there is no such AssigneeScope yet.
@@ -167,9 +275,7 @@ async function createOrDeleteAssigneeScope ({ assigneeField, otherAssigneeField,
     }
 }
 
-async function manageAssigneeScope ({ context, existingItem, updatedItem }) {
-    const args = { context, existingItem, updatedItem }
-
+async function manageAssigneeScope (args) {
     await createOrDeleteAssigneeScope({
         assigneeField: 'assignee',
         otherAssigneeField: 'executor',
@@ -252,5 +358,6 @@ module.exports = {
     loadPropertyScopePropertiesForExcelExport,
     loadPropertyScopeEmployeesForExcelExport,
     loadOrganizationEmployeeSpecializationsForExcelExport,
+    getTicketVisibilityTypeAccessQueryForUserEmployees,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

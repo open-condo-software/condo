@@ -530,8 +530,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
             const [requestData] = args
 
-            const { context, existingItem, updatedItem } = requestData
-            await manageAssigneeScope({ context, existingItem, updatedItem })
+            await manageAssigneeScope(...args)
 
             /* NOTE: this sends different kinds of notifications on ticket create/update */
             await sendTicketNotifications(requestData)

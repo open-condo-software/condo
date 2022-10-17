@@ -12,10 +12,10 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
+    createdBy contactIsNull reviewValue
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
 
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
@@ -1130,8 +1130,9 @@ describe('Ticket', () => {
                 deletedAt: 'true',
             })
 
-            const tickets = await Ticket.getAll(clientFrom)
-            expect(tickets).toHaveLength(0)
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Ticket.getAll(clientFrom)
+            })
         })
 
         test('blocked user: cannot create "to" tickets', async () => {
@@ -1157,6 +1158,27 @@ describe('Ticket', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicket(clientFrom, organizationTo, propertyTo)
             })
+        })
+
+        test('user: cannot read assigned tickets if he is not organization employee', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization1] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization1)
+            await createTestOrganizationEmployee(admin, organization1, user.user, role)
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                assignee: { connect: { id: user.user.id } },
+            })
+
+            const readTicket = await Ticket.getOne(user, {
+                id: ticket.id,
+            })
+
+            expect(readTicket).toBeUndefined()
         })
     })
 
