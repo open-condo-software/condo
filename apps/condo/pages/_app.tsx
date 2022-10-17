@@ -57,6 +57,7 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsContext'
+import { uniqBy } from 'lodash'
 
 
 const ANT_LOCALES = {
@@ -275,7 +276,7 @@ const skipFirstPaginationFieldPolicy = {
             merged[skip + i] = incoming[i]
         }
 
-        return merged
+        return uniqBy(merged, '__ref')
     },
 }
 

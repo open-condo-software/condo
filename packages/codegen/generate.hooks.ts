@@ -10,9 +10,6 @@ import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
-type UseObjectsQueryHookOptions<TData, TVariables> = QueryHookOptions<TData, TVariables> & {
-    fetchAll?: boolean
-}
 type IUUIDObject = { id: string }
 type IOnCompleteType<GQLObject> = (obj: GQLObject) => void
 type IUseObjectsQueryReturnType<GQLObject> = {
@@ -56,7 +53,9 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
     => IUseUpdateActionType<GQLObject, GQLUpdateInput>
     useSoftDelete: (onComplete?: IOnCompleteType<GQLObject>)
     => IUseSoftDeleteActionType<GQLObject>
-    useObjects: (variables: QueryVariables, options?: UseObjectsQueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
+    useObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
+    => IUseObjectsReturnType<GQLObject, QueryVariables>
+    useAllObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectsReturnType<GQLObject, QueryVariables>
     useObject: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectReturnType<GQLObject, QueryVariables>
@@ -210,7 +209,7 @@ export function generateReactHooks<
         }
     }
 
-    function useObjects (variables: QueryVariables, options?: UseObjectsQueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
+    function useObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const intl = useIntl()
         const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
         const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
@@ -227,17 +226,6 @@ export function generateReactHooks<
         const typedFetchMore: IFetchMoreType<GQLObject, QueryVariables> = fetchMore
         const typedStopPolling: IStopPollingType = stopPolling
 
-        const fetchAll = options && options.fetchAll
-        useEffect(() => {
-            if (fetchAll && !loading && typedFetchMore && count > objs.length) {
-                typedFetchMore({
-                    variables: {
-                        skip: objs.length,
-                    },
-                })
-            }
-        }, [count, fetchAll, loading, objs.length, typedFetchMore])
-
         let readableError
 
         if (error) {
@@ -253,6 +241,30 @@ export function generateReactHooks<
             refetch: typedRefetch,
             fetchMore: typedFetchMore,
             stopPolling: typedStopPolling,
+        }
+    }
+
+    function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
+        const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
+
+        useEffect(() => {
+            if (!loading && fetchMore && count > objs.length) {
+                fetchMore({
+                    variables: {
+                        skip: objs.length,
+                    },
+                })
+            }
+        }, [count, fetchMore, loading, objs.length])
+
+        return {
+            loading,
+            objs,
+            count,
+            error,
+            refetch,
+            fetchMore,
+            stopPolling,
         }
     }
 
@@ -278,5 +290,6 @@ export function generateReactHooks<
         useUpdate,
         useSoftDelete,
         useCount,
+        useAllObjects,
     }
 }

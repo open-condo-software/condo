@@ -17,6 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 } = generateReactHooks<PropertyScopeProperty, PropertyScopePropertyCreateInput, PropertyScopePropertyUpdateInput, QueryAllPropertyScopePropertiesArgs>(PropertyScopePropertyGQL)
 
 export {
@@ -25,4 +26,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 }

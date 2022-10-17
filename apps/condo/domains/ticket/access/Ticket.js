@@ -48,18 +48,8 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
             organizationTicketVisibilityAccessQuery,
             propertiesTicketVisibilityAccessQuery,
             propertyAndSpecializationVisibilityAccessQuery,
-            {
-                AND: [
-                    {
-                        organization: queryOrganizationEmployeeFor(user.id),
-                        OR: [
-                            { assignee: { id: user.id } },
-                            { executor: { id: user.id } },
-                        ],
-                    },
-                ],
-            },
-
+            { assignee: { id: user.id } },
+            { executor: { id: user.id } },
         ],
     }
 }

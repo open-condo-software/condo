@@ -31,7 +31,7 @@ const { Message, MessageOrganizationBlackList, updateTestMessageOrganizationBlac
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
-    createTestOrganizationEmployee,
+    createTestOrganizationEmployee, OrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -60,6 +60,8 @@ const {
     NEW_OR_REOPENED_STATUS_TYPE,
     DEFAULT_DEFERRED_DAYS,
 } = require('@condo/domains/ticket/constants')
+const { Organization } = require('../../organization/utils/testSchema')
+const { createTestPropertyScope, createTestPropertyScopeOrganizationEmployee, createTestPropertyScopeProperty } = require('@condo/domains/scope/utils/testSchema')
 
 describe('Ticket', () => {
     describe('CRUD', () => {
@@ -1160,7 +1162,7 @@ describe('Ticket', () => {
             })
         })
 
-        test('user: cannot read assigned tickets if he is not organization employee', async () => {
+        test('user: can read assigned tickets if he is not organization employee', async () => {
             const admin = await makeLoggedInAdminClient()
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -1178,7 +1180,7 @@ describe('Ticket', () => {
                 id: ticket.id,
             })
 
-            expect(readTicket).toBeUndefined()
+            expect(readTicket).toBeDefined()
         })
     })
 

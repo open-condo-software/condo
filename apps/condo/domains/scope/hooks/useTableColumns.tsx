@@ -31,24 +31,20 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const {
         objs: propertyScopeProperties,
         loading: propertiesLoading,
-    } = PropertyScopeProperty.useObjects({
+    } = PropertyScopeProperty.useAllObjects({
         where: {
             propertyScope: { id_in: propertyScopeIds, deletedAt: null },
             deletedAt: null,
         },
-    }, {
-        fetchAll: true,
     })
 
     const {
         objs: propertyScopeEmployees,
         loading: employeesLoading,
-    } = PropertyScopeOrganizationEmployee.useObjects({
+    } = PropertyScopeOrganizationEmployee.useAllObjects({
         where: {
             propertyScope: { id_in: propertyScopeIds },
         },
-    }, {
-        fetchAll: true,
     })
 
     const propertyScopesEmployeeIds: string[] = uniq(propertyScopeEmployees.map(scope => scope.employee.id))
@@ -56,12 +52,10 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const {
         objs: organizationEmployeeSpecializations,
         loading: organizationEmployeeSpecializationsLoading,
-    } = OrganizationEmployeeSpecialization.useObjects({
+    } = OrganizationEmployeeSpecialization.useAllObjects({
         where: {
             employee: { id_in: propertyScopesEmployeeIds },
         },
-    }, {
-        fetchAll: true,
     })
 
     const router = useRouter()

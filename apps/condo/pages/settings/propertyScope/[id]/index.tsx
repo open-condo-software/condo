@@ -64,32 +64,26 @@ const PropertyScopeIdPage = () => {
 
     const handleDeleteAction = PropertyScope.useSoftDelete(() => router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_SCOPE}`))
 
-    const { objs: propertyScopeProperties } = PropertyScopeProperty.useObjects({
+    const { objs: propertyScopeProperties } = PropertyScopeProperty.useAllObjects({
         where: {
             propertyScope: { id: scopeId, deletedAt: null },
             deletedAt: null,
         },
-    }, {
-        fetchAll: true,
     })
     const properties = useMemo(() => propertyScopeProperties.map(propertyScopeProperty => propertyScopeProperty.property), [propertyScopeProperties])
-    const { objs: propertyScopeEmployees } = PropertyScopeOrganizationEmployee.useObjects({
+    const { objs: propertyScopeEmployees } = PropertyScopeOrganizationEmployee.useAllObjects({
         where: {
             propertyScope: { id: scopeId },
         },
-    }, {
-        fetchAll: true,
     })
     const employees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee), [propertyScopeEmployees])
     const propertyScopesEmployeeIds: string[] = useMemo(() => uniq(employees.map(employee => employee.id)), [employees])
     const {
         objs: organizationEmployeeSpecializations,
-    } = OrganizationEmployeeSpecialization.useObjects({
+    } = OrganizationEmployeeSpecialization.useAllObjects({
         where: {
             employee: { id_in: propertyScopesEmployeeIds },
         },
-    }, {
-        fetchAll: true,
     })
     const propertyScopeName = useMemo(() => {
         const name = get(propertyScope, 'name')
