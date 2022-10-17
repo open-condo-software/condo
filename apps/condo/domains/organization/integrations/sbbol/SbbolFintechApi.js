@@ -2,6 +2,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { SbbolRequestApi } = require('./SbbolRequestApi')
+const get = require('lodash/get')
 const { getAccessTokenForUser } = require('./utils')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
@@ -72,6 +73,73 @@ class SbbolFintechApi extends SbbolRequestApi {
 
     get apiPrefix () {
         return '/fintech/api'
+    }
+
+    /**
+     * Get extended client info request, posted with `getClientInfoRequest`
+     *
+     * @return {Promise<{error: any}|{data: SbbolClientInfo}>}
+     */
+    async getClientInfo () {
+        const { data, statusCode } = await this.request({
+            method: 'GET',
+            path: this.getClientInfoRequestPath,
+        })
+
+        try {
+            const jsonData = JSON.parse(data)
+            const error = get(jsonData, 'error')
+
+            if (error) return logger.error({ msg: 'getClientInfo from SBBOL error', error })
+
+            if (statusCode === 200) {
+                return { data: jsonData }
+            } else {
+                return { error: jsonData, statusCode }
+            }
+        } catch (error) {
+            return logger.error({ msg: 'getClientInfo from SBBOL error', error })
+        }
+    }
+
+    get getClientInfoRequestPath () {
+        return `${this.apiPrefix}/v1/client-info`
+    }
+
+    /**
+     * Get transactions request, posted with `getStatementTransactionsRequest`
+     * @typedef StatementTransactions
+     * @property {accountNumber} SbbolAccount number
+     * @property {statementDate} Date - optional
+     * @property {page} page - optional
+     * @return {Promise<{error: any}|{data: StatementTransactions}>}
+     */
+    async getStatementTransactions (accountNumber, statementDate, page = 1) {
+        const { data, statusCode } = await this.request({
+            method: 'GET',
+            path: this.getStatementTransactionsRequestPath,
+            body: {
+                accountNumber,
+                statementDate,
+                page,
+            },
+        })
+
+        try {
+            const jsonData = JSON.parse(data)
+
+            if (statusCode === 200) {
+                return { data: jsonData }
+            } else {
+                return { error: jsonData, statusCode }
+            }
+        } catch (error) {
+            return logger.error({ msg: 'getStatementTransactions from SBBOL error', error })
+        }
+    }
+
+    get getStatementTransactionsRequestPath () {
+        return `${this.apiPrefix}/v1/statement/transactions`
     }
 }
 
