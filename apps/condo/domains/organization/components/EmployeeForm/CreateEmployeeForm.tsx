@@ -53,6 +53,7 @@ export const CreateEmployeeForm: React.FC = () => {
     const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
     const FullNamePlaceholder = intl.formatMessage({ id: 'field.FullName' })
     const FullNameRequiredMessage = intl.formatMessage({ id: 'employee.FullName.requiredError' })
+    const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
     const EmailLabel = intl.formatMessage({ id: 'Email' })
@@ -78,7 +79,7 @@ export const CreateEmployeeForm: React.FC = () => {
         { where: { organization: { id: get(organization, 'id') } } }
     )
 
-    const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator } = useValidations()
+    const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator, specCharValidator } = useValidations()
     const alreadyRegisteredPhoneValidator = {
         validator: (_, value) => {
             if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
@@ -100,7 +101,10 @@ export const CreateEmployeeForm: React.FC = () => {
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],
         email: [emailValidator, alreadyRegisteredEmailValidator],
-        name: [changeMessage(trimValidator, FullNameRequiredMessage)],
+        name: [
+            changeMessage(trimValidator, FullNameRequiredMessage),
+            changeMessage(specCharValidator, FullNameInvalidCharMessage),
+        ],
     }
 
     const action = useInviteNewOrganizationEmployee({ organization: { id: organization.id } }, () => {
