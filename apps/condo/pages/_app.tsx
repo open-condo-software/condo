@@ -255,7 +255,11 @@ const MyApp = ({ Component, pageProps }) => {
 
 const { publicRuntimeConfig: { defaultLocale  } } = getConfig()
 
-const skipFirstPaginationTypePolicy = {
+/**
+ * To use fetchMore we need to implement field policy for merge cached results
+ * Ref: https://www.apollographql.com/docs/react/pagination/core-api
+ */
+const skipFirstPaginationFieldPolicy = {
     keyArgs: (args, context) => {
         const { where } = args
         const { fieldName } = context
@@ -302,9 +306,9 @@ const apolloCacheConfig = {
         },
         Query: {
             fields: {
-                allPropertyScopeOrganizationEmployees: skipFirstPaginationTypePolicy,
-                allPropertyScopeProperties: skipFirstPaginationTypePolicy,
-                allOrganizationEmployeeSpecializations: skipFirstPaginationTypePolicy,
+                allPropertyScopeOrganizationEmployees: skipFirstPaginationFieldPolicy,
+                allPropertyScopeProperties: skipFirstPaginationFieldPolicy,
+                allOrganizationEmployeeSpecializations: skipFirstPaginationFieldPolicy,
             },
         },
     },

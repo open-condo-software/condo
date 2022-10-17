@@ -65,6 +65,18 @@ ALTER TABLE "OrganizationEmployee" DROP COLUMN if exists "_old_newId";
 ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN if exists "_old_history_id";
 
 --
+-- 20221013121613-0177_assigneescope_assigneescopehistoryrecord_and_more.js: Drop Division_properties_many,
+-- Division_executors_many, Division, DivisionHistoryRecord, OrganizationEmployee_specializations_many tables
+--
+
+DROP TABLE "Division_properties_many" CASCADE;
+DROP TABLE "Division_executors_many" CASCADE;
+DROP TABLE "Division" CASCADE;
+DROP TABLE "DivisionHistoryRecord" CASCADE;
+DROP TABLE "OrganizationEmployee_specializations_many" CASCADE;
+
+
+--
 -- 20221102170215-0184_auto_20221102_1402.js: remove old TokenSet table: we use redis at the moment
 --
 

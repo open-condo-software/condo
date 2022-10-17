@@ -28,7 +28,7 @@ const {
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 } = require('./Organization')
-const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/scope/constants')
+const { ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
