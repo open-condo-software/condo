@@ -15,8 +15,9 @@ const { DEFAULT_ROLES } = require('../constants/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 const { ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestTicket, Ticket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestTicket, Ticket, createTestTicketClassifier, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
+const { TicketComment } = require('../../ticket/utils/testSchema')
 
 describe('OrganizationEmployeeRole', () => {
     describe('defaults', () => {
@@ -238,7 +239,7 @@ describe('OrganizationEmployeeRole', () => {
 
     describe('ticket visibility type', () => {
         describe('organization', () => {
-            it('can read tickets in organization where user is employee', async () => {
+            it('can read tickets and related to ticket objects in organization where user is employee', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -250,13 +251,16 @@ describe('OrganizationEmployeeRole', () => {
 
                 const [property] = await createTestProperty(admin, organization)
                 const [ticket] = await createTestTicket(admin, organization, property)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket, userClient.user)
 
                 const readTicket = await Ticket.getOne(userClient, { id: ticket.id })
-
                 expect(readTicket.id).toMatch(ticket.id)
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment.id).toMatch(ticketComment.id)
             })
 
-            it('cannot read tickets in organization where user is not employee', async () => {
+            it('cannot read tickets and related to ticket objects in organization where user is not employee', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -269,15 +273,18 @@ describe('OrganizationEmployeeRole', () => {
 
                 const [property] = await createTestProperty(admin, organization1)
                 const [ticket] = await createTestTicket(admin, organization1, property)
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
 
                 const readTicket = await Ticket.getOne(userClient, { id: ticket.id })
-
                 expect(readTicket).toBeUndefined()
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment).toBeUndefined()
             })
         })
 
         describe('property', () => {
-            it('can read tickets organization ticket if employee in PropertyScope with hasAllProperties flag', async () => {
+            it('can read all tickets and related to ticket objects in organization if employee in PropertyScope with hasAllProperties flag', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -297,6 +304,7 @@ describe('OrganizationEmployeeRole', () => {
 
                 const [ticket1] = await createTestTicket(admin, organization, property)
                 const [ticket2] = await createTestTicket(admin, organization, property2)
+                const [ticketComment] = await createTestTicketComment(userClient, ticket1, userClient.user)
 
                 const tickets = await Ticket.getAll(userClient, {
                     id_in: [ticket1.id, ticket2.id],
@@ -305,9 +313,12 @@ describe('OrganizationEmployeeRole', () => {
                 expect(tickets).toHaveLength(2)
                 expect(tickets[0].id).toEqual(ticket1.id)
                 expect(tickets[1].id).toEqual(ticket2.id)
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment.id).toMatch(ticketComment.id)
             })
 
-            it('can read tickets in properties from PropertyScope where this employee is', async () => {
+            it('can read tickets and related to ticket objects in properties from PropertyScope where this employee is', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -330,16 +341,20 @@ describe('OrganizationEmployeeRole', () => {
                 const [ticket2] = await createTestTicket(admin, organization, property2)
                 const [ticket3] = await createTestTicket(admin, organization, property3)
 
+                const [ticketComment] = await createTestTicketComment(userClient, ticket1, userClient.user)
+
                 const tickets = await Ticket.getAll(userClient, {
                     id_in: [ticket1.id, ticket2.id, ticket3.id],
                 }, { sortBy: 'createdAt_ASC' })
-
                 expect(tickets).toHaveLength(2)
                 expect(tickets[0].id).toEqual(ticket1.id)
                 expect(tickets[1].id).toEqual(ticket2.id)
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment.id).toMatch(ticketComment.id)
             })
 
-            it('can read tickets where employee is executor or assignee', async () => {
+            it('can read tickets and related to ticket objects where employee is executor or assignee', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -358,15 +373,19 @@ describe('OrganizationEmployeeRole', () => {
                 })
                 const [ticket2] = await createTestTicket(admin, organization, property)
 
+                const [ticketComment] = await createTestTicketComment(userClient, ticket1, userClient.user)
+
                 const readTickets = await Ticket.getAll(userClient, { id_in: [ticket.id, ticket1.id, ticket2.id] },
                     { sortBy: 'createdAt_ASC' })
-
                 expect(readTickets).toHaveLength(2)
                 expect(readTickets[0].id).toEqual(ticket.id)
                 expect(readTickets[1].id).toEqual(ticket1.id)
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment.id).toMatch(ticketComment.id)
             })
 
-            it('cannot read tickets if there no PropertyScope in which employee is', async () => {
+            it('cannot read tickets and related to ticket objects if there no PropertyScope in which employee is', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -378,13 +397,16 @@ describe('OrganizationEmployeeRole', () => {
 
                 const [property] = await createTestProperty(admin, organization)
                 const [ticket] = await createTestTicket(admin, organization, property)
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
 
                 const readTicket = await Ticket.getOne(userClient, { id: ticket.id })
-
                 expect(readTicket).toBeUndefined()
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment).toBeUndefined()
             })
 
-            it('cannot read tickets with properties which are in the PropertyScope where employee is not', async () => {
+            it('cannot read tickets and related to ticket objects with properties which are in the PropertyScope where employee is not', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -399,13 +421,16 @@ describe('OrganizationEmployeeRole', () => {
                 const [propertyScope] = await createTestPropertyScope(admin, organization)
                 await createTestPropertyScopeProperty(admin, propertyScope, property)
 
-                const [ticket1] = await createTestTicket(admin, organization, property)
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
 
                 const readTicketsByClient = await Ticket.getOne(userClient, {
-                    id: ticket1.id,
+                    id: ticket.id,
                 })
-
                 expect(readTicketsByClient).toBeUndefined()
+
+                const readTicketComment = await TicketComment.getOne(userClient, { id: ticketComment.id })
+                expect(readTicketComment).toBeUndefined()
             })
         })
 

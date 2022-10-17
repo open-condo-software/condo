@@ -5,13 +5,12 @@
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 const isEmpty = require('lodash/isEmpty')
-const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { getById, find } = require('@open-condo/keystone/schema')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { getTicketVisibilityTypeAccessQueryForUserEmployees } = require('@condo/domains/scope/utils/serverSchema')
+const { getTicketAccessForUser } = require('@condo/domains/ticket/utils/accessSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -30,28 +29,7 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         }
     }
 
-    const userEmployees = await find('OrganizationEmployee', {
-        user: { id: user.id, deletedAt: null },
-        deletedAt: null,
-    })
-    if (!userEmployees || userEmployees.length === 0) return false
-
-    const {
-        organizationTicketVisibilityAccessQuery,
-        propertiesTicketVisibilityAccessQuery,
-        propertyAndSpecializationVisibilityAccessQuery,
-    } = await getTicketVisibilityTypeAccessQueryForUserEmployees(userEmployees)
-
-    return {
-        OR: [
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
-            organizationTicketVisibilityAccessQuery,
-            propertiesTicketVisibilityAccessQuery,
-            propertyAndSpecializationVisibilityAccessQuery,
-            { assignee: { id: user.id } },
-            { executor: { id: user.id } },
-        ],
-    }
+    return await getTicketAccessForUser(user)
 }
 
 async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
