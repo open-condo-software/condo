@@ -261,22 +261,17 @@ const { publicRuntimeConfig: { defaultLocale  } } = getConfig()
  * Ref: https://www.apollographql.com/docs/react/pagination/core-api
  */
 const skipFirstPaginationFieldPolicy = {
-    keyArgs: (args, context) => {
-        const { where } = args
-        const { fieldName } = context
-
-        const jsonWhere = JSON.stringify(where)
-
-        return fieldName + jsonWhere
+    read (existing, { args: { skip = 0, first } }) {
+        return existing && existing.slice(skip, skip + first)
     },
-    merge (existing, incoming, { args: { skip = 0, first } }) {
+    merge (existing, incoming, { args: { skip = 0 } }) {
         const merged = existing ? existing.slice(0) : []
 
         for (let i = 0; i < incoming.length; ++i) {
             merged[skip + i] = incoming[i]
         }
 
-        return uniqBy(merged, '__ref')
+        return merged
     },
 }
 

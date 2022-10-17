@@ -47,7 +47,11 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
         },
     })
 
-    const propertyScopesEmployeeIds: string[] = uniq(propertyScopeEmployees.map(scope => scope.employee.id))
+    const propertyScopesEmployeeIds: string[] = uniq(
+        propertyScopeEmployees
+            .map(scope => get(scope, ['employee', 'id']))
+            .filter(Boolean)
+    )
 
     const {
         objs: organizationEmployeeSpecializations,
@@ -84,6 +88,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
         const employees = propertyScopeEmployees
             .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id === propertyScope.id)
             .map(propertyScopeEmployee => propertyScopeEmployee.employee)
+            .filter(Boolean)
 
         return getManyEmployeesNameRender(search)(intl, employees, organizationEmployeeSpecializations)
     }, [AllEmployeesMessage, propertyScopeEmployees, search, organizationEmployeeSpecializations])
