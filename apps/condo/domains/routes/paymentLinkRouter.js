@@ -56,7 +56,7 @@ class PaymentLinkRouter {
                 amount,
                 period,
                 recipient: {
-                    bic,
+                    routingNumber: bic,
                     bankAccount,
                     accountNumber,
                 },
