@@ -37,7 +37,6 @@ const logger = getLogger('cache-l1')
 
 const ENABLE_CACHE_LOGGING = !!conf.ENABLE_CACHE_LOGGING
 
-
 class KeystoneCacheMiddleware {
 
     constructor (keystone) {
