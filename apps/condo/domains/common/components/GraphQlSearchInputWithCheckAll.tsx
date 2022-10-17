@@ -53,12 +53,14 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         }
     }, [form, formItemName, isAllChecked])
 
-    const rules = useMemo(() => [], [])
+    const [isRequired, setIsRequired] = useState<boolean>(selectFormItemProps.required)
     useEffect(() => {
-        if (selectFormItemProps.required && !isAllChecked) {
-            rules.push(requiredValidator)
+        if (selectFormItemProps.required) {
+            setIsRequired(!isAllChecked)
         }
-    }, [isAllChecked, requiredValidator, rules, selectFormItemProps.required])
+    }, [isAllChecked, isRequired, selectFormItemProps.required])
+
+    const rules = useMemo(() => isRequired ? [requiredValidator] : [], [isRequired, requiredValidator])
 
     return (
         <Row>

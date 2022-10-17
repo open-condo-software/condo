@@ -29,7 +29,9 @@ async function canReadTickets ({ authentication: { item: user }, context }) {
         }
     }
 
-    return await getTicketAccessForUser(user)
+    const accessObj = await getTicketAccessForUser(user)
+
+    return accessObj
 }
 
 async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
