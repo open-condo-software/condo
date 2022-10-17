@@ -8,7 +8,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { useIntl } from '@condo/next/intl'
 import { PhoneLink } from '@condo/domains/common/components/PhoneLink'
-import { green } from '@ant-design/colors'
 import { MAX_DESCRIPTION_DISPLAY_LENGTH } from '@condo/domains/ticket/constants/restrictions'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import dayjs from 'dayjs'
@@ -17,6 +16,7 @@ import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { BaseType } from 'antd/lib/typography/Base'
 import Link from 'next/link'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
+import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 
 interface ITicketChangeProps {
     ticketChange: TicketChangeType
@@ -32,6 +32,9 @@ enum TicketChangeFieldMessageType {
     From,
     To,
 }
+
+const LINK_STYLE: React.CSSProperties = { color: 'inherit' }
+const DETAILS_TOOLTIP_STYLE: React.CSSProperties = { maxWidth: '80%' }
 
 export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => {
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
@@ -89,6 +92,41 @@ const isAutoCloseTicketChanges = (ticketChange) =>
     isNull(ticketChange.createdBy)
     && ticketChange['statusIdTo'] === STATUS_IDS.CLOSED
 
+type TicketType = 'emergency' | 'paid' | 'warranty'
+
+const formatTicketFlag = (value, ticketType: TicketType) => {
+    return (
+        <Typography.Text>
+            «<Typography.Text style={{ color: TICKET_TYPE_TAG_COLORS[ticketType] }}>{value}</Typography.Text>»
+        </Typography.Text>
+    )
+}
+
+/**
+ * Adding link for ticket change field value
+ *
+ * @param ticketChange
+ * @param fieldId
+ * @param value
+ * @param type
+ * @param hrefTemplate template format `/contact/{id}`
+ */
+const addLink = (ticketChange, fieldId, value, type: TicketChangeFieldMessageType, hrefTemplate) => {
+    const prefix = type === TicketChangeFieldMessageType.From ? 'From' : 'To'
+    const id = ticketChange[`${fieldId}${prefix}`]
+
+    if (!id) return value
+
+    const href = hrefTemplate.replace('{id}', id)
+    return (
+        <Link href={href}>
+            <Typography.Link href={href} style={LINK_STYLE} underline>
+                {value}
+            </Typography.Link>
+        </Link>
+    )
+}
+
 const useChangedFieldMessagesOf = (ticketChange) => {
     const intl = useIntl()
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
@@ -101,6 +139,7 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
     const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
     const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deferredUntil' })
+    const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.source' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
 
     const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
@@ -117,20 +156,21 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const fields = [
         ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
         ['clientPhone', ClientPhoneMessage],
-        ['details', DetailsMessage, { change: 'pages.condo.ticket.TicketChanges.details.change' }],
+        ['details', DetailsMessage],
         ['clientName', ClientNameMessage],
         ['isPaid', IsPaidMessage],
         ['isEmergency', IsEmergencyMessage],
         ['isWarranty', IsWarrantyMessage],
-        ['statusDisplayName', StatusDisplayNameMessage, { change: 'pages.condo.ticket.TicketChanges.status.change' }],
+        ['statusDisplayName', StatusDisplayNameMessage],
         ['propertyDisplayName', AddressMessage],
-        ['assigneeDisplayName', AssigneeMessage],
+        ['assigneeDisplayName', AssigneeMessage, { add: 'pages.condo.ticket.TicketChanges.assignee.add' }],
         ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
         ['deferredUntil', DeferredUntilMessage],
         ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
         ['reviewValue', '', { add: 'pages.condo.ticket.TicketChanges.reviewValue.add', change: 'pages.condo.ticket.TicketChanges.reviewValue.add' }],
+        ['sourceDisplayName', SourceMessage],
     ]
 
     const BooleanToString = {
@@ -161,7 +201,11 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                 const ticketStatusColor = get(ticketStatus, ['colors', 'primary'])
                 const ticketStatusChangeTextStyle = { color: ticketStatusColor }
 
-                return <Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>
+                return (
+                    <Typography.Text>
+                        «<Typography.Text style={ticketStatusChangeTextStyle}>{value}</Typography.Text>»
+                    </Typography.Text>
+                )
             },
             deadline: (field, value) => {
                 return <Typography.Text>{dayjs(value).format('DD MMMM YYYY')}</Typography.Text>
@@ -172,17 +216,17 @@ const useChangedFieldMessagesOf = (ticketChange) => {
             clientPhone: (field, value) => (
                 <PhoneLink value={value} />
             ),
-            details: (field, value) => (
-                value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
+            details: (field, value) => {
+                const formattedValue = value.length > MAX_DESCRIPTION_DISPLAY_LENGTH ? (
                     <Tooltip title={value}
                         placement='top'
-                        overlayStyle={{
-                            maxWidth: '80%',
-                        }}>
+                        overlayStyle={DETAILS_TOOLTIP_STYLE}
+                    >
                         {value.slice(0, MAX_DESCRIPTION_DISPLAY_LENGTH) + '…'}
                     </Tooltip>
                 ) : value
-            ),
+                return <Typography.Text>«{formattedValue}»</Typography.Text>
+            },
             propertyDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
                 const unitNameFrom = ticketChange['unitNameFrom']
                 const unitNameTo = ticketChange['unitNameTo']
@@ -202,19 +246,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     addressChangePostfix = getAddressChangePostfix(sectionNameTo, sectionTypeTo, floorNameTo, unitNameTo, unitTypeTo, intl)
                 }
 
-                return !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value
+                return addLink(ticketChange, 'propertyId', !isEmpty(addressChangePostfix) ? `${value}${addressChangePostfix}` : value,  type,  '/property/{id}')
             },
-            classifierDisplayName: (field, value, type: TicketChangeFieldMessageType) => {
-                let placeClassifierToDisplay
-                
-                if (type === TicketChangeFieldMessageType.From) {
-                    placeClassifierToDisplay = ticketChange['classifierDisplayNameFrom']
-                }
-                else if (type === TicketChangeFieldMessageType.To) {
-                    placeClassifierToDisplay = ticketChange['classifierDisplayNameTo']
-                }
-
-                return placeClassifierToDisplay
+            classifierDisplayName: (field, value) => {
+                return <Typography.Text>«{value}»</Typography.Text>
             },
             reviewValue: (field, value) => {
                 const textTypeByReview: { [key: string]: BaseType } = {
@@ -243,6 +278,13 @@ const useChangedFieldMessagesOf = (ticketChange) => {
                     </Typography.Paragraph>
                 )
             },
+            sourceDisplayName: (field, value) => {
+                return <Typography.Text>«{value}»</Typography.Text>
+            },
+            isEmergency: (field, value) => formatTicketFlag(value, 'emergency'),
+            isPaid: (field, value) => formatTicketFlag(value, 'paid'),
+            isWarranty: (field, value) => formatTicketFlag(value, 'warranty'),
+            clientName: (field, value, type: TicketChangeFieldMessageType) => addLink(ticketChange, 'contactId', value,  type,  '/contact/{id}'),
         }
 
         return has(formatterFor, field)
@@ -253,9 +295,10 @@ const useChangedFieldMessagesOf = (ticketChange) => {
     const formatDiffMessage = (field, message, ticketChange, customMessages: ITicketChangeFieldMessages = {}) => {
         if (typeof ticketChange[`${field}To`] === 'boolean') {
             const valueTo = BooleanToString[field][ticketChange[`${field}To`]]
+            const formattedValueTo = formatField(field, valueTo, TicketChangeFieldMessageType.To)
             const values = {
                 field: message,
-                to: valueTo,
+                to: formattedValueTo,
             }
 
             return (
@@ -415,17 +458,7 @@ const Diff = styled.p`
             }
         }
     }
-    span, del, ins {
-        &, a {
-            color: ${green[6]};
-        }
-    }
     del, ins {
         text-decoration: none;
-    }
-    del, ins {
-        span:hover {
-            background: ${green[6]}
-        }
     }
 `
