@@ -474,7 +474,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }, selectedFiltersTemplate)
 
         setSelectedFiltersTemplate(null)
-    }, [selectedFiltersTemplate, updateFiltersTemplateAction])
+        handleResetFilters()
+    }, [handleResetFilters, selectedFiltersTemplate, updateFiltersTemplateAction])
 
     const handleSubmit = useCallback(async (values) => {
         const { newTemplateName, existedTemplateName, ...otherValues } = values
