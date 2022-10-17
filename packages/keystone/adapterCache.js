@@ -14,8 +14,8 @@ class AdapterCacheMiddleware {
         try {
             const parsedConfig = JSON.parse(config)
             this.enabled = !!get(parsedConfig, 'enable', false)
-            this.redisUrl = get(parsedConfig, 'redis_url')
-            this.excludedTables = get(parsedConfig, 'excluded_tables', [])
+            this.redisUrl = get(parsedConfig, 'redisUrl')
+            this.excludedTables = get(parsedConfig, 'excludedTables', [])
             this.logging = get(parsedConfig, 'logging', false)
         }
         catch (e) {
@@ -24,7 +24,7 @@ class AdapterCacheMiddleware {
         }
     }
 
-    // table_name -> queryKey -> { response, lastUpdate}
+    // table_name -> queryKey -> { response, lastUpdate }
     cache = {}
 
     // Should be saved in Redis! Here only for demonstration purposes!
