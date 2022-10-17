@@ -9,19 +9,16 @@ import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 import { SortPropertyScopesBy } from '@app/condo/schema'
 
-import Input from '@condo/domains/common/components/antd/Input'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
-import { ExportToExcelActionBar } from '../../common/components/ExportToExcelActionBar'
+import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 
@@ -56,7 +53,6 @@ export const PropertyScopeSettingsContent = () => {
     }), [filters, filtersToWhere, userOrganizationId])
 
     const {
-        loading: isPropertyScopesFetching,
         count: total,
         objs: propertyScopes,
     } = PropertyScope.useObjects({

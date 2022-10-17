@@ -76,8 +76,14 @@ const PropertyScopeIdPage = () => {
             propertyScope: { id: scopeId },
         },
     })
-    const employees = useMemo(() => propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.employee), [propertyScopeEmployees])
-    const propertyScopesEmployeeIds: string[] = useMemo(() => uniq(employees.map(employee => employee.id)), [employees])
+    const employees = useMemo(() => propertyScopeEmployees
+        .map(propertyScopeEmployee => propertyScopeEmployee.employee)
+        .filter(Boolean), [propertyScopeEmployees])
+    const propertyScopesEmployeeIds: string[] = useMemo(() => uniq(
+        employees
+            .map(employee => employee.id)
+            .filter(Boolean)
+    ), [employees])
     const {
         objs: organizationEmployeeSpecializations,
     } = OrganizationEmployeeSpecialization.useAllObjects({
@@ -140,7 +146,11 @@ const PropertyScopeIdPage = () => {
                         href={`/employee/${get(employee, 'id')}`}
                     >
                         <Typography.Text>
-                            {employee.name} {specializationsMessage && specializationsMessage}
+                            {employee.name} {specializationsMessage && (
+                                <Typography.Text>
+                                ({specializationsMessage})
+                                </Typography.Text>
+                            )}
                         </Typography.Text>
                     </Typography.Link>
                 </Typography.Paragraph>

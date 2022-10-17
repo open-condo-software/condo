@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
 import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
@@ -246,20 +246,23 @@ export function generateReactHooks<
 
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
+        const [data, setData] = useState(objs)
 
         useEffect(() => {
-            if (!loading && fetchMore && count > objs.length) {
+            if (!loading && fetchMore && count > data.length) {
                 fetchMore({
                     variables: {
-                        skip: objs.length,
+                        skip: data.length,
                     },
                 })
+                    // @ts-ignore
+                    .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
             }
-        }, [count, fetchMore, loading, objs.length])
+        }, [count, fetchMore, loading, objs.length, data.length])
 
         return {
             loading,
-            objs,
+            objs: data,
             count,
             error,
             refetch,
