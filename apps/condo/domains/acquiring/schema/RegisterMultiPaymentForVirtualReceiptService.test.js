@@ -37,7 +37,7 @@ function generateReceipt (billingAccount) {
         amount: '100.45',
         period: '2022-09-01',
         recipient: {
-            bic: '044525256',
+            routingNumber: '044525256',
             bankAccount: '40702810996180000019',
             accountNumber: billingAccount.number,
         },
@@ -177,6 +177,33 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                                 code: 'BAD_USER_INPUT',
                                 type: 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE',
                                 message: 'Cannot pay for Receipt with negative "toPay" value',
+                            },
+                        }])
+                    })
+                })
+            })
+            describe('Cannot pay for Receipt with invalid "toPay" value', () => {
+                const cases = ['100 000', 'Hello world', '100 dollars', '100$']
+                test.each(cases)('ToPay: %p', async (toPay) => {
+                    const {
+                        admin,
+                        acquiringContext,
+                        billingAccount,
+                    } = await makePayer()
+                    const receipt = generateReceipt(billingAccount)
+                    receipt.amount = toPay
+                    const acquiringIntegrationContext = { id: acquiringContext.id }
+                    await catchErrorFrom(async () => {
+                        await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Cannot pay for Receipt with invalid "toPay" value',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPaymentForVirtualReceipt',
+                                code: 'BAD_USER_INPUT',
+                                type: 'RECEIPT_HAVE_INVALID_TO_PAY_VALUE',
+                                message: 'Cannot pay for Receipt with invalid "toPay" value',
                             },
                         }])
                     })
