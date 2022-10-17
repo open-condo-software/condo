@@ -17,6 +17,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 } = generateReactHooks<OrganizationEmployeeSpecialization, OrganizationEmployeeSpecializationCreateInput, OrganizationEmployeeSpecializationUpdateInput, QueryAllOrganizationEmployeeSpecializationsArgs>(OrganizationEmployeeSpecializationGQL)
 
 export {
@@ -25,4 +26,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useAllObjects,
 }

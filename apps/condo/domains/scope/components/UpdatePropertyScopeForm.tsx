@@ -20,20 +20,16 @@ export const UpdatePropertyScopeForm = ({ id }) => {
 
     const { obj: propertyScope, loading: scopeLoading } = PropertyScope.useObject({ where: { id } })
     const propertyScopeId = get(propertyScope, 'id', null)
-    const { objs: propertyScopeProperties, loading: scopePropertiesLoading } = PropertyScopeProperty.useObjects({
+    const { objs: propertyScopeProperties, loading: scopePropertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
             propertyScope: { id: propertyScopeId, deletedAt: null },
             deletedAt: null,
         },
-    }, {
-        fetchAll: true,
     })
-    const { objs: propertyScopeEmployees, loading: scopeEmployeesLoading } = PropertyScopeOrganizationEmployee.useObjects({
+    const { objs: propertyScopeEmployees, loading: scopeEmployeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
         where: {
             propertyScope: { id: propertyScopeId },
         },
-    }, {
-        fetchAll: true,
     })
     const organizationId = useMemo(() => get(propertyScope, ['organization', 'id']), [propertyScope])
 
