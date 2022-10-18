@@ -18,22 +18,23 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import ScrollContainer from 'react-indiana-drag-scroll'
 import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { AddressTopTextContainer } from './BuildingPanelEdit'
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
-interface IBuildingPanelViewProps {
+interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap
 }
 
-export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map }) => {
+export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map, canManageProperties = false }) => {
     const mapView = new MapView(map)
     const [Map, setMap] = useState(mapView)
     // TODO(zuch): Ask for a better solution
     const refresh = () => setMap(cloneDeep(Map))
     return (
-        <PropertyMapView builder={Map} refresh={refresh} />
+        <PropertyMapView builder={Map} refresh={refresh} canManageProperties={canManageProperties} />
     )
 }
 
-interface IPropertyMapViewProps {
+interface IPropertyMapViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     builder: MapView
     refresh(): void
 }
@@ -63,7 +64,7 @@ const UNIT_TYPE_ROW_STYLE: React.CSSProperties = { paddingLeft: '8px' }
 const FULLSCREEN_HEADER_STYLE: React.CSSProperties = { marginBottom: '28px', alignItems: 'center' }
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
-export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh }) => {
+export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh, canManageProperties = false }) => {
     const intl = useIntl()
     const ParkingTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
@@ -135,7 +136,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
                 {
                     builder.isEmpty ?
                         <Col span={24} style={CHESS_COL_STYLE}>
-                            <EmptyBuildingBlock />
+                            <EmptyBuildingBlock canManageProperties={canManageProperties} />
                         </Col>
                         :
                         <Col span={24} style={CHESS_SCROLL_HOLDER_STYLE}>

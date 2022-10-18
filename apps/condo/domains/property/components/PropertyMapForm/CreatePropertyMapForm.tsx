@@ -2,8 +2,9 @@ import React, { useEffect } from 'react'
 import { Form, Space, Typography } from 'antd'
 import { useRouter } from 'next/router'
 import { useIntl } from '@condo/next/intl'
+import get from 'lodash/get'
 import Link from 'next/link'
-import BasePropertyMapForm from '../BasePropertyMapForm'
+import BasePropertyMapForm from '@condo/domains/property/components/BasePropertyMapForm'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@condo/next/organization'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -22,7 +23,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     const CancelChangesLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { push } = useRouter()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
 
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })
     const action = Property.useUpdate({}, () => push(`/property/${id}`))
@@ -33,6 +34,8 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     useEffect(() => {
         refetch()
     }, [refetch])
+
+    const canManageProperties = get(link, 'role.canManageProperties', false)
 
     if (error) {
         return <Typography.Title>{error}</Typography.Title>
@@ -50,6 +53,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
             initialValues={initialValues}
             organization={organization}
             property={property}
+            canManageProperties={canManageProperties}
         >
             {({ handleSave, isLoading }) => {
                 return (
@@ -61,6 +65,7 @@ const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
                                     onClick={handleSave}
                                     type='sberDefaultGradient'
                                     loading={isLoading}
+                                    hidden={!canManageProperties}
                                 >
                                     {ApplyChangesLabel}
                                 </Button>

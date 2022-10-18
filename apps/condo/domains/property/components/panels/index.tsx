@@ -6,10 +6,11 @@ import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Tabs } from 'antd'
 
 import { useIntl } from '@condo/next/intl'
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
 const { TabPane } = Tabs
 
-interface IPropertyPanels {
+interface IPropertyPanels extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap | null
     mode: 'view' | 'edit'
     updateMap?(map: BuildingMap): void
@@ -25,16 +26,20 @@ const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
     padding: 0,
 }
 
-export const PropertyPanels: React.FC<IPropertyPanels> = ({ mode, map }) => {
+export const PropertyPanels: React.FC<IPropertyPanels> = (props) => {
     const intl = useIntl()
     const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
     const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
+
+    const { mode, map, canManageProperties = false } = props
+
     return (
         <Tabs defaultActiveKey='1'>
             <TabPane tab={BuildingTabTitle} key='1'>
                 <FocusContainer style={FOCUS_CONTAINER_STYLE}>
                     <BuildingPanelView
                         map={map}
+                        canManageProperties={canManageProperties}
                     />
                 </FocusContainer>
             </TabPane>

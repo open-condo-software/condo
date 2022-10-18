@@ -47,6 +47,7 @@ import { ParkingUnitForm } from '@condo/domains/property/components/panels/Build
 
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
 import { MapEdit, MapViewMode, MapEditMode } from './MapConstructor'
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
 const DEBOUNCE_TIMEOUT = 800
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
@@ -117,7 +118,7 @@ export const AddressTopTextContainer = styled.div`
   padding: 8px;
 `
 
-interface IBuildingPanelEditProps {
+interface IBuildingPanelEditProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap
     updateMap: (map: BuildingMap) => void
     handleSave(): void
@@ -160,7 +161,7 @@ const UNIT_TYPE_COL_STYLE: React.CSSProperties = {
 }
 const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
-const useHotkeyToSaveProperty = (map, mapEdit, property) => {
+const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }) => {
     const intl = useIntl()
     const ChangesSaved = intl.formatMessage({ id: 'ChangesSaved' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
@@ -177,7 +178,7 @@ const useHotkeyToSaveProperty = (map, mapEdit, property) => {
     const quickSaveCallback = useCallback((event) => {
         event.preventDefault()
 
-        if (mapEdit.validate()) {
+        if (!canManageProperties || mapEdit.validate()) {
             debouncedQuickSave()
             return
         }
@@ -185,9 +186,9 @@ const useHotkeyToSaveProperty = (map, mapEdit, property) => {
             message: MapValidationError,
             placement: 'bottomRight',
         })
-    }, [debouncedQuickSave, mapEdit])
+    }, [debouncedQuickSave, mapEdit, canManageProperties])
 
-    useHotkeys('ctrl+s', quickSaveCallback, [map, property])
+    useHotkeys('ctrl+s', quickSaveCallback, [map, property, canManageProperties])
 }
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
@@ -200,7 +201,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
     const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
 
-    const { mapValidationError, map, updateMap: updateFormField, handleSave, property } = props
+    const { mapValidationError, map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
 
     const { push, query: { id } } = useRouter()
     const [mapEdit, setMapEdit] = useState(new MapEdit(map, updateFormField))
@@ -209,7 +210,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const sections = mapEdit.sections
     const address = get(property, 'address')
 
-    useHotkeyToSaveProperty(map, mapEdit, property)
+    useHotkeyToSaveProperty({ map, mapEdit, property, canManageProperties })
 
     const saveCallback = useCallback(() => {
         if (mapEdit.validate()) {
@@ -371,7 +372,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             key='submit'
                             onClick={saveCallback}
                             type='sberDefaultGradient'
-                            disabled={!address}
+                            disabled={!canManageProperties || !address}
                         >
                             {SaveLabel}
                         </Button>

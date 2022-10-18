@@ -93,6 +93,8 @@ export const PropertyPageContent = ({ property, role }) => {
         ? dayjs(property.yearOfConstruction).format('YYYY')
         : UnknownValueTitle
 
+    const canManageProperties = get(role, 'canManageProperties', false)
+
     return (
         <>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} align='top'>
@@ -131,11 +133,16 @@ export const PropertyPageContent = ({ property, role }) => {
             </Row>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
                 <Col span={24} css={CustomScrollbarCss}>
-                    <PropertyPanels mode='view' map={property.map} address={property.address} />
+                    <PropertyPanels
+                        mode='view'
+                        map={property.map}
+                        address={property.address}
+                        canManageProperties={canManageProperties}
+                    />
                 </Col>
             </Row>
             {
-                role && role.canManageProperties ? (
+                canManageProperties ? (
                     <ActionBar>
                         <Space size={20} wrap style={PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE}>
                             <Link href={`/property/${property.id}/update`}>
