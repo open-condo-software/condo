@@ -1,6 +1,6 @@
 {
   "name": "@condo/address-service-client",
-  "main": "AddressServiceClient.js",
+  "main": "index.js",
   "version": "1.0.0",
   "dependencies": {
     "@condo/config": "workspace:^"

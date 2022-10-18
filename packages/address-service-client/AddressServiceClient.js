@@ -1,7 +1,5 @@
 const fetch = require('node-fetch')
 
-let instance
-
 /**
  * @typedef {Object} AddressServiceParams
  * @property {string?} geo
@@ -28,9 +26,7 @@ class AddressServiceClient {
         const { geo = null, count = 20, context = null } = params
 
         this.possibleUrlParams = {
-            // Force queries to dadata until other providers will be ready
-            // todo(nas): put the `geo` variable back after other providers be ready
-            geo: 'dadata',
+            geo,
             count,
             context,
         }
@@ -103,18 +99,4 @@ class AddressServiceClient {
     }
 }
 
-/**
- * Singleton. Returns the client instance
- * @param {string} url The URL of the address service
- * @param {AddressServiceParams?} params
- * @returns {AddressServiceClient}
- */
-function createInstance (url, params) {
-    if (!instance) {
-        instance = new AddressServiceClient(url, params)
-    }
-
-    return instance
-}
-
-module.exports = { AddressServiceClient, createInstance }
+module.exports = { AddressServiceClient }
