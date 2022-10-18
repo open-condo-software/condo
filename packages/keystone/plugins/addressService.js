@@ -62,6 +62,11 @@ function extractAndDadatifyAddressMeta (addressMeta) {
     let unrestricted_value
 
     switch (providerName) {
+        /**
+         * `test` is the name of provider used in mocked address service client
+         * @see @condo/address-service-client
+         */
+        case 'test':
         case 'dadata':
             data = get(rawData, 'data', {})
             unrestricted_value = String(get(rawData, 'unrestricted_value'))
