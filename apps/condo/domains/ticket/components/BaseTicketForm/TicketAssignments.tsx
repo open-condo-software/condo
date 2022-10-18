@@ -72,10 +72,9 @@ const TicketAssignments = ({
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
     })
-    const employeeIds = propertyScopeEmployees.map(scope => scope.employee.id)
     const { objs: organizationEmployeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useObjects({
         where: {
-            employee: { id_in: employeeIds },
+            employee: { organization: { id: organizationId } },
         },
     })
 
