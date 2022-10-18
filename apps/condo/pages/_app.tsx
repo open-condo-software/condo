@@ -1,5 +1,6 @@
 import '@condo/domains/common/components/wdyr'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
+import get from 'lodash/get'
 
 import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
@@ -66,6 +67,7 @@ interface IMenuItemData {
     path: string,
     icon: React.FC,
     label: string,
+    access?: () => boolean,
 }
 
 const ANT_DEFAULT_LOCALE = enUS
@@ -77,44 +79,50 @@ const MenuItems: React.FC = () => {
     const disabled = !link || (hasSubscriptionFeature && isExpired)
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
+    const role = get(link, 'role', {})
 
-    const menuItemsData: IMenuItemData[] = [{
-        path: 'reports',
-        icon: BarChartIconNew,
-        label: 'menu.Analytics',
-    }, {
-        path: 'ticket',
-        icon: BarTicketIcon,
-        label: 'menu.ControlRoom',
-    }, {
-        path: 'property',
-        icon: BarPropertyIcon,
-        label: 'menu.Property',
-    }, {
-        path: 'contact',
-        icon: BarUserIcon,
-        label: 'menu.Contacts',
-    }, {
-        path: 'employee',
-        icon: BarEmployeeIcon,
-        label: 'menu.Employees',
-    }, {
-        path: 'billing',
-        icon: BarBillingIcon,
-        label: 'menu.Billing',
-    }, {
-        path: 'payments',
-        icon: BarPaymentsIcon,
-        label: 'menu.Payments',
-    }, {
-        path: 'meter',
-        icon: BarMeterIcon,
-        label: 'menu.Meters',
-    }, {
-        path: 'miniapps',
-        icon: BarMiniAppsIcon,
-        label: 'menu.MiniApps',
-    }]
+    const menuItemsData: IMenuItemData[] = useMemo(() => {
+        const itemsConfigs = [{
+            path: 'reports',
+            icon: BarChartIconNew,
+            label: 'menu.Analytics',
+        }, {
+            path: 'ticket',
+            icon: BarTicketIcon,
+            label: 'menu.ControlRoom',
+        }, {
+            path: 'property',
+            icon: BarPropertyIcon,
+            label: 'menu.Property',
+        }, {
+            path: 'contact',
+            icon: BarUserIcon,
+            label: 'menu.Contacts',
+        }, {
+            path: 'employee',
+            icon: BarEmployeeIcon,
+            label: 'menu.Employees',
+        }, {
+            path: 'billing',
+            icon: BarBillingIcon,
+            label: 'menu.Billing',
+            access: () => get(role, 'canReadBillingReceipts', false ),
+        }, {
+            path: 'payments',
+            icon: BarPaymentsIcon,
+            label: 'menu.Payments',
+            access: () => get(role, 'canReadPayments', false ),
+        }, {
+            path: 'meter',
+            icon: BarMeterIcon,
+            label: 'menu.Meters',
+        }, {
+            path: 'miniapps',
+            icon: BarMiniAppsIcon,
+            label: 'menu.MiniApps',
+        }]
+        return itemsConfigs.filter((item) => get(item, 'access', () => true)())
+    }, [link])
 
     return (
         <>
