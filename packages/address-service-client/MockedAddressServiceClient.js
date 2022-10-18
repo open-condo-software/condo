@@ -25,7 +25,7 @@ class MockedAddressServiceClient {
                     settlement: null,
                 },
                 provider: {
-                    name: 'test',
+                    name: 'dadata',
                     rawData: {
                         data: {
                             qc: null,
