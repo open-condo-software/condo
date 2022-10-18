@@ -83,7 +83,7 @@ class AbstractSuggestionProvider {
      * @public
      */
     getInjections (s) {
-        // todo(nas/*) write some logic to find eligible models
+        // todo(nas/*): write some logic to find eligible models
         return []
     }
 }

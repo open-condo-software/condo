@@ -91,7 +91,7 @@ class SearchKeystoneApp {
                 addressSource: addressItem.source,
                 address: addressItem.address,
                 addressKey: addressItem.key,
-                addressMeta: addressItem.meta, // todo return meta, normalized to dadata format
+                addressMeta: addressItem.meta,
             })
         })
 
