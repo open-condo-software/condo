@@ -15,7 +15,10 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useDateRangeSearch } from '@condo/domains/common/hooks/useDateRangeSearch'
-import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import {
+    MultipleFilterContextProvider,
+    useMultipleFiltersModal,
+} from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -96,7 +99,7 @@ function usePaymentsSum (whereQuery) {
     return { data, error, loading }
 }
 
-const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
+const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, contextsLoading }): JSX.Element => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
@@ -322,8 +325,16 @@ const PaymentsTable: React.FC<IPaymentsTableProps> = ({ billingContext, contexts
                 </Typography.Text>
             </Modal>
 
-            {MultipleFiltersModal}
+            <MultipleFiltersModal />
         </>
+    )
+}
+
+const PaymentsTable: React.FC<IPaymentsTableProps> = (props) => {
+    return (
+        <MultipleFilterContextProvider>
+            <PaymentsTableContent {...props} />
+        </MultipleFilterContextProvider>
     )
 }
 

@@ -1,5 +1,5 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
-import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
+import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
 import {
     Col,
@@ -52,6 +52,8 @@ import {
     updateQuery,
 } from '../utils/filters.utils'
 import { Ticket } from '@app/condo/schema'
+import { has, isNil, omitBy } from 'lodash'
+import isEqual from 'lodash/isEqual'
 
 interface IFilterComponentProps<T> {
     name: string
@@ -298,6 +300,29 @@ function getModalComponents <T> (filters: IFilters, filterMetas: Array<FiltersMe
     })
 }
 
+interface IFilterContext {
+    selectedFiltersTemplate: undefined
+    setSelectedFiltersTemplate: React.Dispatch<(prevState: undefined) => undefined>
+}
+
+const FilterContext = createContext<IFilterContext>(null)
+
+export const useMultipleFilterContext = (): IFilterContext => useContext<IFilterContext>(FilterContext)
+
+export const MultipleFilterContextProvider: React.FC = ({ children }) => {
+    const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState()
+
+    return (
+        <FilterContext.Provider
+            children={children}
+            value={{
+                selectedFiltersTemplate,
+                setSelectedFiltersTemplate,
+            }}
+        />
+    )
+}
+
 const MODAL_PROPS: ModalProps = { width: 978 }
 const CLEAR_ALL_MESSAGE_STYLE: CSSProperties = { fontSize: '12px' }
 const FILTER_WRAPPERS_GUTTER: [Gutter, Gutter] = [24, 12]
@@ -317,14 +342,16 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const intl = useIntl()
     const ClearAllFiltersMessage = intl.formatMessage({ id: 'ClearAllFilters' })
     const router = useRouter()
+    const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
         await updateQuery(router, {})
+        setSelectedFiltersTemplate(null)
 
         if (isFunction(handleResetFromProps)) {
             await handleResetFromProps()
         }
-    }, [handleResetFromProps, router])
+    }, [handleResetFromProps, router, setSelectedFiltersTemplate])
 
     return (
         <Button
@@ -354,6 +381,13 @@ type MultipleFiltersModalProps = {
     filtersSchemaGql?
 }
 
+const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
+    const templateFilters = get(selectedFiltersTemplate, 'fields', null)
+    if (!templateFilters) return false
+    if (has(templateFilters, '__typename')) delete templateFilters['__typename']
+    return isEqual(omitBy(templateFilters, isNil), filters)
+}
+
 const Modal: React.FC<MultipleFiltersModalProps> = ({
     isMultipleFiltersModalVisible,
     setIsMultipleFiltersModalVisible,
@@ -374,8 +408,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const SaveTemplateMessage = intl.formatMessage({ id: 'filters.SaveTemplate' })
     const FieldRequiredMessage = intl.formatMessage({ id: 'field.required' })
 
-    const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState()
-
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const { link } = useOrganization()
@@ -383,6 +415,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const handleSaveRef = useRef(null)
     const [form] = Form.useForm()
+
+    const { selectedFiltersTemplate, setSelectedFiltersTemplate } = useMultipleFilterContext()
+    const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState(
+        isEqualSelectedFiltersTemplateAndFilters(selectedFiltersTemplate, filters) ? selectedFiltersTemplate : null
+    )
 
     const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         sortBy: 'createdAt_ASC',
@@ -400,7 +437,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         employee: { connect: { id: link.id } },
     }, refetch)
 
-    const handleResetFilters = useCallback(() => {
+    const resetFilters = useCallback(() => {
         const keys = Object.keys(form.getFieldsValue())
         const emptyFields = keys.reduce((acc, key) => {
             acc[key] = undefined
@@ -420,11 +457,11 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const filtersValue = pickBy(otherValues)
         const trimmedNewTemplateName = newTemplateName && newTemplateName.trim()
         const trimmedExistedTemplateName = existedTemplateName && existedTemplateName.trim()
-        if (selectedFiltersTemplate && !trimmedExistedTemplateName) {
+        if (openedFiltersTemplate && !trimmedExistedTemplateName) {
             showTemplateNameError('existedTemplateName')
             return
         }
-        if (!selectedFiltersTemplate && !trimmedNewTemplateName) {
+        if (!openedFiltersTemplate && !trimmedNewTemplateName) {
             showTemplateNameError('newTemplateName')
             return
         }
@@ -438,22 +475,25 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }
 
         if (trimmedExistedTemplateName) {
-            await updateFiltersTemplateAction({
+            const updatedFilter = await updateFiltersTemplateAction({
                 name: trimmedExistedTemplateName,
                 fields: filtersValue,
-            }, selectedFiltersTemplate)
+            }, openedFiltersTemplate)
+            setSelectedFiltersTemplate(updatedFilter || null)
         }
 
         await handleSaveRef.current()
-    }, [createFiltersTemplateAction, form, selectedFiltersTemplate, showTemplateNameError, updateFiltersTemplateAction])
+    }, [createFiltersTemplateAction, form, openedFiltersTemplate, setSelectedFiltersTemplate, showTemplateNameError, updateFiltersTemplateAction])
 
     const handleDeleteFiltersTemplate = useCallback(async () => {
         await updateFiltersTemplateAction({
             deletedAt: new Date().toDateString(),
-        }, selectedFiltersTemplate)
+        }, openedFiltersTemplate)
 
+        resetFilters()
         setSelectedFiltersTemplate(null)
-    }, [selectedFiltersTemplate, updateFiltersTemplateAction])
+        setOpenedFiltersTemplate(null)
+    }, [updateFiltersTemplateAction, openedFiltersTemplate, resetFilters, setSelectedFiltersTemplate])
 
     const handleSubmit = useCallback(async (values) => {
         const { newTemplateName, existedTemplateName, ...otherValues } = values
@@ -474,13 +514,13 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             name='existedTemplateName'
             label={TemplateLabel}
             labelCol={LABEL_COL_PROPS}
-            initialValue={get(selectedFiltersTemplate, 'name')}
+            initialValue={get(openedFiltersTemplate, 'name')}
             required
             rules={ExistingFiltersTemplateNameInputRules}
         >
             <Input placeholder={NewTemplatePlaceholder} />
         </Form.Item>
-    ), [ExistingFiltersTemplateNameInputRules, NewTemplatePlaceholder, TemplateLabel, selectedFiltersTemplate])
+    ), [ExistingFiltersTemplateNameInputRules, NewTemplatePlaceholder, TemplateLabel, openedFiltersTemplate])
 
     const NewFiltersTemplateNameInput = useCallback(() => (
         <Form.Item
@@ -497,20 +537,27 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         const values = form.getFieldsValue()
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         await handleSubmit(values)
-    }, [form, handleSubmit])
+        setSelectedFiltersTemplate(openedFiltersTemplate)
+    }, [form, handleSubmit, openedFiltersTemplate, setSelectedFiltersTemplate])
+
+    const handleResetButtonClick = useCallback(() => {
+        setOpenedFiltersTemplate(null)
+        setSelectedFiltersTemplate(null)
+        resetFilters()
+    }, [resetFilters, setSelectedFiltersTemplate])
 
     const modalFooter = useMemo(() => [
         <Row key='footer' justify='space-between' gutter={[0, 10]}>
             <Col>
                 <ResetFiltersModalButton
                     key='reset'
-                    handleReset={handleResetFilters}
+                    handleReset={handleResetButtonClick}
                 />
             </Col>
             <Col>
                 <Row gutter={[20, 10]}>
                     {
-                        selectedFiltersTemplate && (
+                        openedFiltersTemplate && (
                             <Col>
                                 <DeleteButtonWithConfirmModal
                                     key='delete'
@@ -548,28 +595,27 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                 </Row>
             </Col>
         </Row>,
-    ], [handleResetFilters, selectedFiltersTemplate, DeleteTitle, DeleteMessage, DeleteLabel, handleDeleteFiltersTemplate, handleSaveFiltersTemplate, SaveTemplateMessage, handleSubmitButtonClick, ApplyMessage])
+    ], [handleResetButtonClick, openedFiltersTemplate, DeleteTitle, DeleteMessage, DeleteLabel, handleDeleteFiltersTemplate, handleSaveFiltersTemplate, SaveTemplateMessage, handleSubmitButtonClick, ApplyMessage])
 
-    const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false),
-        [setIsMultipleFiltersModalVisible])
+    const handleCancelModal = useCallback(() => setIsMultipleFiltersModalVisible(false), [setIsMultipleFiltersModalVisible])
 
     const handleTabChange = useCallback((filtersTemplateId) => {
-        const selectedTemplateId = get(selectedFiltersTemplate, 'id')
+        const openedTemplateId = get(openedFiltersTemplate, 'id')
 
-        if (selectedTemplateId === filtersTemplateId) {
+        if (openedTemplateId === filtersTemplateId) {
             return
         }
 
         if (filtersTemplateId) {
             const filtersTemplate = filtersTemplates.find(filterTemplate => filterTemplate.id === filtersTemplateId)
 
-            setSelectedFiltersTemplate(filtersTemplate)
+            setOpenedFiltersTemplate(filtersTemplate)
         }
 
-        handleResetFilters()
-    }, [filtersTemplates, handleResetFilters, selectedFiltersTemplate])
+        resetFilters()
+    }, [filtersTemplates, resetFilters, openedFiltersTemplate, setOpenedFiltersTemplate])
 
-    const tabsActiveKey = useMemo(() => get(selectedFiltersTemplate, 'id', 'newFilter'), [selectedFiltersTemplate])
+    const tabsActiveKey = useMemo(() => get(openedFiltersTemplate, 'id', 'newFilter'), [openedFiltersTemplate])
 
     const templatesTabs = useMemo(() => filtersTemplates.map((filterTemplate, index) => (
         <TabPane
@@ -580,7 +626,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         </TabPane>
     )), [ExistingFiltersTemplateNameInput, TemplateMessage, filtersTemplates])
 
-    const initialFormValues = useMemo(() => get(selectedFiltersTemplate, 'fields', filters), [filters, selectedFiltersTemplate])
+    const initialFormValues = useMemo(() => get(openedFiltersTemplate, 'fields', filters), [filters, openedFiltersTemplate])
     const modalComponents = useMemo(() => getModalComponents(pickBy(initialFormValues), filterMetas, form, breakpoints), [breakpoints, filterMetas, form, initialFormValues])
 
     const ModalFormItems = useCallback(() => {
@@ -645,7 +691,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
-    const MultipleFiltersModal = useMemo(() => (
+    const MultipleFiltersModal = useCallback(() => (
         <Modal
             isMultipleFiltersModalVisible={isMultipleFiltersModalVisible}
             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
