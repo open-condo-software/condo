@@ -27,6 +27,8 @@ class MockedAddressServiceClient {
                 provider: {
                     name: 'dadata',
                     rawData: {
+                        dv: 1,
+                        address: s,
                         data: {
                             qc: null,
                             area: null,
