@@ -30,7 +30,7 @@ class FixMeterReadingsClients {
             await MeterReading.update(this.context, meterReading.id, {
                 deletedAt: new Date().toDateString(),
                 dv: 1,
-                sender: { dv: 1, fingerprint: 'fixTicketScript' },
+                sender: { dv: 1, fingerprint: 'delete-deleted-meter-readings' },
             })
         }
     }
