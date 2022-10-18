@@ -20,6 +20,9 @@ const PropertyScope = generateServerUtils(PropertyScopeGQL)
 const PropertyScopeOrganizationEmployee = generateServerUtils(PropertyScopeOrganizationEmployeeGQL)
 const PropertyScopeProperty = generateServerUtils(PropertyScopePropertyGQL)
 const AssigneeScope = generateServerUtils(AssigneeScopeGQL)
+/* AUTOGENERATE MARKER <CONST> */
+
+
 async function exportPropertyScope (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
@@ -32,8 +35,6 @@ async function exportPropertyScope (context, data) {
         dataPath: 'obj',
     })
 }
-
-/* AUTOGENERATE MARKER <CONST> */
 
 async function createDefaultPropertyScopeForNewOrganization (context, organization, dvSenderData) {
     await PropertyScope.create(context, {
