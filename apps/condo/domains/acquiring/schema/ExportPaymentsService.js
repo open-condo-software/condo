@@ -10,7 +10,6 @@ const dayjs = require('dayjs')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
-const { exportPayments } = require('@condo/domains/billing/utils/serverSchema')
 const { get } = require('lodash')
 const { getHeadersTranslations, EXPORT_TYPE_PAYMENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { i18n } = require('@condo/locales/loader')
@@ -18,6 +17,8 @@ const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const conf = require('@condo/config')
 const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
@@ -75,7 +76,12 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
                 const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
 
-                const objs = await exportPayments(context, { dv: 1, sender, where, sortBy })
+                const objs = await loadListByChunks({
+                    context,
+                    list: Payment,
+                    where,
+                    sortBy,
+                })
 
                 if (objs.length === 0) {
                     throw new GQLError(errors.NOTHING_TO_EXPORT, context)

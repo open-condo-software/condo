@@ -42,19 +42,6 @@ const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 const BillingCurrency = generateServerUtils(BillingCurrencyGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
 
-async function exportPayments (context, data) {
-    if (!context) throw new Error('no context')
-    if (!data) throw new Error('no data')
-    if (!data.sender) throw new Error('no data.sender')
-
-    return await execGqlWithoutAccess(context, {
-        query: Payment.GET_ALL_OBJS_QUERY,
-        variables: data,
-        errorMessage: '[error] Unable to exportPayments',
-        dataPath: 'objs',
-    })
-}
-
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
 async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
@@ -87,7 +74,6 @@ module.exports = {
     ResidentBillingReceipt,
     BillingCurrency,
     BillingRecipient,
-    exportPayments,
     BillingCategory,
     registerBillingReceipts,
 /* AUTOGENERATE MARKER <EXPORTS> */
