@@ -3,6 +3,7 @@ const { find } = require('@condo/keystone/schema')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { isEmpty } = require('lodash')
+const { prompt } = require('./lib/prompt')
 
 class DeleteMeters {
     constructor (propertyIds) {
@@ -30,19 +31,24 @@ class DeleteMeters {
 
     async deleteMeters () {
         const meters = await this.findMeters()
-
-        console.info(`[INFO] Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]`)
-
-        if (isEmpty(meters)) return
-
-        for (const meter of meters) {
-            await Meter.softDelete(this.context, meter.id, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: 'deleteIncorrectMetersScript' },
-            })
+        if (isEmpty(meters)) {
+            console.info('[INFO] Could not found meters by specified property ids')
+            return
         }
 
-        console.info('[INFO] Meters are deleted...')
+        console.info(`[INFO] Following meters will be deleted: [${meters.map(reading => `'${reading.id}'`).join(', ')}]`)
+        const answer = await prompt('Continue? (Y/N)')
+
+        if (answer === 'Y') {
+            for (const meter of meters) {
+                console.info(`Deleting Meter (id = "${meter.id}")`)
+                await Meter.softDelete(this.context, meter.id, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'delete-meters-by-property-ids' },
+                })
+            }
+            console.info('[INFO] Deleted all Meter records with associated MeterReading')
+        }
     }
 }
 
