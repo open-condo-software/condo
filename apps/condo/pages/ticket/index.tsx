@@ -23,7 +23,11 @@ import { useTicketTableFilters } from '@condo/domains/ticket/hooks/useTicketTabl
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
-import { FiltersTooltip, useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import {
+    MultipleFilterContextProvider,
+    FiltersTooltip,
+    useMultipleFiltersModal,
+} from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
@@ -218,6 +222,10 @@ export const TicketsPageContent = ({
         )
     }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
+    const handleOpenMultipleFilter = useCallback(() => {
+        setIsMultipleFiltersModalVisible(true)
+    }, [setIsMultipleFiltersModalVisible])
+
     return (
         <>
             <Head>
@@ -313,7 +321,7 @@ export const TicketsPageContent = ({
                                                         {
                                                             appliedFiltersCount > 0 ? (
                                                                 <Col>
-                                                                    <ResetFiltersModalButton/>
+                                                                    <ResetFiltersModalButton />
                                                                 </Col>
                                                             ) : null
                                                         }
@@ -326,7 +334,7 @@ export const TicketsPageContent = ({
                                                                     <Button
                                                                         secondary
                                                                         type='sberPrimary'
-                                                                        onClick={() => setIsMultipleFiltersModalVisible(true)}
+                                                                        onClick={handleOpenMultipleFilter}
                                                                         data-cy='ticket__filters-button'
                                                                     >
                                                                         <FilterFilled/>
@@ -355,7 +363,7 @@ export const TicketsPageContent = ({
                                 </Row>
                             )
                     }
-                    {MultipleFiltersModal}
+                    <MultipleFiltersModal />
                 </TablePageContent>
             </PageWrapper>
         </>
@@ -369,13 +377,15 @@ const TicketsPage: ITicketIndexPage = () => {
     const baseTicketsQuery = { organization: { id: userOrganizationId } }
 
     return (
-        <TicketsPageContent
-            useTableColumns={useTableColumns}
-            baseTicketsQuery={baseTicketsQuery}
-            filterMetas={filterMetas}
-            sortableProperties={SORTABLE_PROPERTIES}
-            showImport
-        />
+        <MultipleFilterContextProvider>
+            <TicketsPageContent
+                useTableColumns={useTableColumns}
+                baseTicketsQuery={baseTicketsQuery}
+                filterMetas={filterMetas}
+                sortableProperties={SORTABLE_PROPERTIES}
+                showImport
+            />
+        </MultipleFilterContextProvider>
     )
 }
 

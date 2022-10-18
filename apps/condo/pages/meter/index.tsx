@@ -29,7 +29,10 @@ import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { useUpdateMeterModal } from '@condo/domains/meter/hooks/useUpdateMeterModal'
-import { useMultipleFiltersModal } from '@condo/domains/common/hooks/useMultipleFiltersModal'
+import {
+    MultipleFilterContextProvider,
+    useMultipleFiltersModal,
+} from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -224,7 +227,7 @@ export const MetersPageContent = ({
                         />
                     </Row>
                     <UpdateMeterModal />
-                    {MultipleFiltersModal}
+                    <MultipleFiltersModal />
                 </TablePageContent>
             </PageWrapper>
         </>
@@ -254,14 +257,16 @@ const MetersPage: IMeterIndexPage = () => {
     [filters, filtersToWhere, userOrganizationId])
 
     return (
-        <MetersPageContent
-            tableColumns={tableColumns}
-            searchMeterReadingsQuery={searchMeterReadingsQuery}
-            sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
-            filterMetas={filterMetas}
-            role={role}
-            loading={isLoading}
-        />
+        <MultipleFilterContextProvider>
+            <MetersPageContent
+                tableColumns={tableColumns}
+                searchMeterReadingsQuery={searchMeterReadingsQuery}
+                sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
+                filterMetas={filterMetas}
+                role={role}
+                loading={isLoading}
+            />
+        </MultipleFilterContextProvider>
     )
 }
 
