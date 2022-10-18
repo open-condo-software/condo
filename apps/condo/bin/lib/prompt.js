@@ -10,7 +10,7 @@ const cout = process.stdout
  */
 function prompt (messsage, multiLine, defaultValue = ''){
     return new Promise((resolve) => {
-        cout.write(messsage)
+        cout.write(messsage + ': ')
         cin.setEncoding('utf8')
 
         let buf = []
