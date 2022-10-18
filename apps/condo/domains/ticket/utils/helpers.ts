@@ -364,7 +364,7 @@ function getDeadlineStopPoint (ticket: Ticket) {
     let deadlineStopPoint = dayjs().startOf('day')
 
     if (ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE) {
-        deadlineStopPoint = dayjs(ticketStatusUpdatedAt)
+        deadlineStopPoint = dayjs(ticketStatusUpdatedAt).startOf('day')
     }
 
     return deadlineStopPoint
@@ -457,4 +457,9 @@ export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetti
 
     if (!isNull(addDays)) return convertDurationToDays(addDays)
     return addDays
+}
+
+export function isCompletedTicket (ticket: Ticket): boolean {
+    const ticketStatusType = get(ticket, ['status', 'type'])
+    return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE
 }
