@@ -69,11 +69,11 @@ ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN if exists "_old_hist
 -- Division_executors_many, Division, DivisionHistoryRecord, OrganizationEmployee_specializations_many tables
 --
 
-DROP TABLE "Division_properties_many" CASCADE;
-DROP TABLE "Division_executors_many" CASCADE;
-DROP TABLE "Division" CASCADE;
-DROP TABLE "DivisionHistoryRecord" CASCADE;
-DROP TABLE "OrganizationEmployee_specializations_many" CASCADE;
+DROP TABLE IF EXISTS "Division_properties_many" CASCADE;
+DROP TABLE IF EXISTS "Division_executors_many" CASCADE;
+DROP TABLE IF EXISTS "Division" CASCADE;
+DROP TABLE IF EXISTS "DivisionHistoryRecord" CASCADE;
+DROP TABLE IF EXISTS "OrganizationEmployee_specializations_many" CASCADE;
 
 
 --
