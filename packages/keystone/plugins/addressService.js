@@ -108,9 +108,18 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
     //
     // Modify hooks
     //
-    const newResolveInput = async ({ resolvedData, operation, context }) => {
-        // In the case of empty `addressKey` field we need to get this key from external address service
-        if (!resolvedData[getKeyFieldName(addressFieldName)]) {
+    const newResolveInput = async ({ resolvedData, operation, existingItem, context }) => {
+        // We will call to address service in the following cases:
+        if (
+            // 1. In the case of new property creation
+            (operation === 'create' && !resolvedData[getKeyFieldName(addressFieldName)])
+
+            // 2. In the case of property update and updating property has no address key for some reason
+            || (operation === 'update' && !existingItem[getKeyFieldName(addressFieldName)])
+
+            // 3. In the case of update and if property address has been changed
+            || (operation === 'update' && !!resolvedData[addressFieldName] && existingItem[addressFieldName] !== resolvedData[addressFieldName])
+        ) {
             const client = createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
             const result = await client.search(resolvedData[addressFieldName])
 
