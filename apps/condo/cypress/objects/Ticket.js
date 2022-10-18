@@ -166,12 +166,14 @@ class TicketView {
     }
 
     typeAddressSearchInput (propertyAddress) {
+        cy.wait(['@selectProperty', '@selectDivision', '@getAllTicketClassifiers', '@selectOrganizationEmployee', '@getAllOrganizationEmployees'])
         cy.get('input#property')
             .click()
             .type(propertyAddress.slice(0, 5))
-            .type('{downArrow}')
-            .type('{enter}')
+        cy.wait('@selectProperty')
 
+        cy.get('[data-cy=search-input--option]', { timeout: 5000 })
+            .click()
         cy.get('[data-cy=common__filters-button-submit]').click()
 
         cy.wait('@getAllTickets')

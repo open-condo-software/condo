@@ -5,10 +5,13 @@ import { Select, SelectProps, Typography } from 'antd'
 import get from 'lodash/get'
 import throttle from 'lodash/throttle'
 import isFunction from 'lodash/isFunction'
+import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
+import debounce from 'lodash/debounce'
 
 import { ApolloClient } from '@apollo/client'
 import { useApolloClient } from '@condo/next/apollo'
+import { useIntl } from '@condo/next/intl'
 
 import {
     useTracking,
@@ -16,6 +19,7 @@ import {
     TrackingEventType,
 } from '@condo/domains/common/components/TrackingContext'
 
+import { Loader } from '../Loader'
 import { WhereType } from '../../utils/tables.utils'
 import { isNeedToLoadNewElements } from '../../utils/select.utils'
 
@@ -60,28 +64,51 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         onSelect,
         formatLabel,
         renderOptions,
-        autoClearSearchValue,
+        autoClearSearchValue = true,
         initialValue,
         getInitialValueQuery,
         infinityScroll,
         disabled,
+        placeholder: initialPlaceholder,
+        value,
         eventName: propEventName,
         eventProperties = {},
         ...restProps
     } = props
+
+    const intl = useIntl()
+    const LoadingMessage = intl.formatMessage({ id: 'LoadingInProgress' })
+    const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
+
     const client = useApolloClient()
-    const [selected, setSelected] = useState('')
-    const [isLoading, setLoading] = useState(false)
-    const [data, setData] = useState([])
+    const [isSearchLoading, setSearchLoading] = useState(false)
+    const [isLoadingMore, setLoadingMore] = useState(false)
+    const [isInitialLoading, setInitialLoading] = useState(false)
     const [isAllDataLoaded, setIsAllDataLoaded] = useState(false)
-    const [value, setValue] = useState('')
+    const [initialData, setInitialData] = useState([])
+    const [allData, setAllData] = useState([])
+    const [options, setOptions] = useState([])
+    const [searchData, setSearchData] = useState([])
+    const [searchValue, setSearchValue] = useState('')
 
     const { logEvent, getEventName } = useTracking()
 
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
     const componentProperties = { ...eventProperties }
 
-    const renderOption = (option, index?) => {
+    const needShowLoadingMessage = isInitialLoading || ((isSearchLoading || isLoadingMore) && isEmpty(allData))
+    const placeholder = useMemo(() => needShowLoadingMessage ? LoadingMessage : initialPlaceholder,
+        [LoadingMessage, initialPlaceholder, needShowLoadingMessage])
+    const selectedValue = useMemo(() => needShowLoadingMessage ? [] : value,
+        [value, needShowLoadingMessage])
+    const isDisabled = disabled || needShowLoadingMessage
+
+    const notFoundContent = useMemo(() => isInitialLoading || isSearchLoading || isLoadingMore
+        ? <Loader size='small' delay={0} fill />
+        : NotFoundMessage,
+    [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading])
+
+    const renderOption = useCallback((option, index?) => {
         let optionLabel = option.text
 
         if (formatLabel) {
@@ -90,61 +117,56 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
 
         return (
-            <Select.Option id={index} key={option.key || value} value={value} title={option.text}>
+            <Select.Option id={index} key={option.key || value} value={value} title={option.text} data-cy='search-input--option'>
                 <Typography.Text title={option.text} disabled={disabled}>
                     {optionLabel}
                 </Typography.Text>
             </Select.Option>
         )
-    }
+    }, [disabled, formatLabel])
 
-    const options = renderOptions
-        ? renderOptions(data, renderOption)
-        : data.map((option, index) => renderOption(option, index))
+    const renderedOptions = useMemo(() => {
+        const dataOptions = isFunction(renderOptions)
+            ? renderOptions(options, renderOption)
+            : options.map((option, index) => renderOption(option, index))
+        if (isLoadingMore) {
+            dataOptions.push(
+                <Select.Option key='loader' disabled>
+                    <Loader size='small' delay={0} fill />
+                </Select.Option>
+            )
+        }
+        return dataOptions
+    }, [renderOptions, options, renderOption, isLoadingMore])
 
     const loadInitialOptions = useCallback(async () => {
-        const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(initialValue) : { id_in: initialValue }
-
-        if (Array.isArray(initialValue) && initialValue.length) {
-            setLoading(true)
-
+        const values = initialValue || value
+        if (!isEmpty(values)) {
+            setInitialLoading(true)
+            const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(values) : { id_in: values }
             const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
-            const initialOptions = await searchFn(client, null, initialValueQuery, initialValue.length)
-
-            setData(data => uniqBy([...initialOptions, ...data], 'value'))
-            setLoading(false)
+            const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
+            setInitialData(prevData => uniqBy([...initialOptions, ...prevData], 'value'))
+            setInitialLoading(false)
         }
-    }, [getInitialValueQuery, initialValue, initialValueSearch, client, search])
+    }, [initialValue, value, getInitialValueQuery, initialValueSearch, search, client])
 
-    useEffect(() => {
-        loadInitialOptions()
-            .catch(err => console.error('failed to load initial options', err))
-    }, [loadInitialOptions])
+    const debounceSearch = useMemo(() => debounce(async (searchingValue) => {
+        setIsAllDataLoaded(false)
+        setSearchLoading(true)
+        const data = await search(client, searchingValue)
+        setSearchData(data)
+        setSearchLoading(false)
+    }, DEBOUNCE_TIMEOUT), [client, search])
 
     const handleSearch = useCallback(async searchingValue => {
         if (!search) return
-        setValue(searchingValue)
-
-        setLoading(true)
-        const data = await search(
-            client,
-            searchingValue
-        )
-        setLoading(false)
-
-        if (data.length) setData(data)
-    }, [client, search])
+        setSearchValue(searchingValue)
+        await debounceSearch(searchingValue)
+    }, [debounceSearch, search])
 
     const handleSelect = useCallback(async (value, option) => {
-        setSelected(option.children)
-
-        if (props.mode === 'multiple') {
-            setValue('')
-        }
-
-        if (onSelect) {
-            onSelect(value, option)
-        }
+        if (onSelect) onSelect(value, option)
 
         if (eventName) {
             const componentValue = get(option, 'title')
@@ -160,39 +182,35 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 logEvent({ eventName, eventProperties: componentProperties })
             }
         }
-        handleSearch('')
-    }, [onSelect, props.mode])
-
-    useEffect(() => {
-        handleSearch('')
-    }, [])
-
-    const handleClear = useCallback(() => {
-        setSelected('')
-    }, [])
+        if (autoClearSearchValue) {
+            setSearchValue('')
+            setSearchData([])
+        }
+    }, [onSelect])
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
             if (isAllDataLoaded) return
 
-            setLoading(true)
-            const data = await search(
-                client,
-                value,
-                null,
-                10,
-                skip
-            )
-            setLoading(false)
+            setLoadingMore(true)
+            const data = await search(client, value, null, 10, skip)
 
             if (data.length > 0) {
-                setData(prevData => [...prevData, ...data])
+                const getUniqueData = (prevData) => uniqBy([...prevData, ...data], 'value')
+                const dataHandler = searchValue ? setSearchData : setAllData
+                dataHandler(getUniqueData)
             } else {
                 setIsAllDataLoaded(true)
             }
+
+            setLoadingMore(false)
         },
-        [],
+        [client, isAllDataLoaded, search, searchValue],
     )
+
+    const handleClear = useCallback(() => {
+        setSearchValue('')
+    }, [])
 
     const throttledSearchMore = useMemo(
         () => {
@@ -202,15 +220,27 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     )
 
     const handleScroll = useCallback(async (scrollEvent) => {
-        if (isNeedToLoadNewElements(scrollEvent, isLoading)) {
-            await throttledSearchMore(value, data.length)
+        if (isNeedToLoadNewElements(scrollEvent, isSearchLoading)) {
+            await throttledSearchMore(searchValue, searchValue ? searchData.length : allData.length)
         }
-    }, [data, isLoading, throttledSearchMore, value])
+    }, [isSearchLoading, throttledSearchMore, searchValue, searchData.length, allData.length])
+
+    useEffect(() => {
+        searchMoreSuggestions('', 0)
+        loadInitialOptions()
+            .catch(err => console.error('failed to load initial options', err))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    useEffect(() => {
+        const updatedData = searchValue ? [...searchData] : [...initialData, ...allData]
+        setOptions(uniqBy(updatedData, 'value'))
+    }, [initialData, allData, searchData, searchValue])
 
     return (
         <Select
             showSearch
-            autoClearSearchValue={autoClearSearchValue || false}
+            autoClearSearchValue={autoClearSearchValue}
             allowClear={true}
             optionFilterProp='title'
             defaultActiveFirstOption={false}
@@ -218,13 +248,15 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             onSelect={handleSelect}
             onClear={handleClear}
             onPopupScroll={infinityScroll && handleScroll}
-            searchValue={value}
-            value={value}
-            loading={isLoading}
-            disabled={disabled}
+            searchValue={searchValue}
+            value={selectedValue}
+            placeholder={placeholder}
+            loading={isInitialLoading || isSearchLoading || isSearchLoading}
+            disabled={isDisabled}
+            notFoundContent={notFoundContent}
             {...restProps}
         >
-            {options}
+            {renderedOptions}
         </Select>
     )
 }
