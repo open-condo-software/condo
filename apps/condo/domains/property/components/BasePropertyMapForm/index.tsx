@@ -8,7 +8,7 @@ import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/P
 import { BuildingMap, Property } from '@app/condo/schema'
 import { BuildingPanelEdit } from '../panels/Builder/BuildingPanelEdit'
 
-interface IPropertyMapFormProps {
+export interface IPropertyMapFormProps {
     id: string
     organization: { id: string }
     type: string
@@ -16,6 +16,7 @@ interface IPropertyMapFormProps {
     initialValues?: IPropertyFormState
     action?: (...args) => void
     children: IFormWithActionChildren
+    canManageProperties?: boolean
 }
 
 const PROPERTY_MAP_FORM_STYLES = {
@@ -24,11 +25,13 @@ const PROPERTY_MAP_FORM_STYLES = {
 
 const PROPERTY_FORM_VALIDATION_TRIGGER = ['onBlur', 'onSubmit']
 
-const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialValues, property, children }) => {
+const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
     const intl = useIntl()
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+
+    const { action, initialValues, property, children, canManageProperties = false } = props
 
     const [mapValidationError, setMapValidationError] = useState<string | null>(null)
 
@@ -96,6 +99,7 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = ({ action, initialV
                                         map={map as BuildingMap}
                                         updateMap={map => setFieldsValue({ map })}
                                         property={property}
+                                        canManageProperties={canManageProperties}
                                     />
                                 )
                             }

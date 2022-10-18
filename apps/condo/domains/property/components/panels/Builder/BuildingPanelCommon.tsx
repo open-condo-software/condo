@@ -15,6 +15,7 @@ import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/
 import { BuildingUnitSubType, B2BAppGlobalFeature } from '@app/condo/schema'
 import { MapEdit, MapView, MapViewMode } from './MapConstructor'
 import { FullscreenFooter } from './Fullscreen'
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
 const MESSAGE_DEBOUNCE_TIMEOUT = 2000
 
@@ -65,7 +66,7 @@ export const EmptyFloor: React.FC = () => {
     )
 }
 
-interface IEmptyBuildingBlock {
+interface IEmptyBuildingBlock extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     mode?: 'view' | 'edit'
 }
 
@@ -82,7 +83,7 @@ const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
     marginTop: '20px',
 }
 
-export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view' }) => {
+export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view', canManageProperties = false }) => {
     const intl = useIntl()
     const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
     const MapManualCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
@@ -134,21 +135,25 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
             <Typography.Text style={DESCRIPTION_STYLE}>
                 {EmptyPropertyBuildingDescription}
             </Typography.Text>
-            {mode === 'view' && generatorAppOrigin && (
-                <Button
-                    type='sberDefaultGradient'
-                    style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
-                    onClick={sendGenerateMapRequest}
-                >{MapAutoCreateTitle}</Button>
-            )}
-            {mode === 'view' && (
-                <Button
-                    type='sberDefaultGradient'
-                    style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
-                    secondary
-                    onClick={createMapCallback}
-                >{MapManualCreateTitle}</Button>
+            {canManageProperties && (
+                <>
+                    {mode === 'view' && generatorAppOrigin && (
+                        <Button
+                            type='sberDefaultGradient'
+                            style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
+                            onClick={sendGenerateMapRequest}
+                        >{MapAutoCreateTitle}</Button>
+                    )}
+                    {mode === 'view' && (
+                        <Button
+                            type='sberDefaultGradient'
+                            style={EMPTY_BUILDING_BLOCK_BUTTON_STYLE}
+                            secondary
+                            onClick={createMapCallback}
+                        >{MapManualCreateTitle}</Button>
 
+                    )}
+                </>
             )}
         </BasicEmptyListView>
     )

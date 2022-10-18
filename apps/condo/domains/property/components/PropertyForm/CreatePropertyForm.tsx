@@ -1,8 +1,9 @@
 import React from 'react'
 import { Form } from 'antd'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { useIntl } from '@condo/next/intl'
-import BasePropertyForm from '../BasePropertyForm'
+import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { useOrganization } from '@condo/next/organization'
@@ -19,7 +20,7 @@ export const CreatePropertyForm: React.FC = () => {
     const intl = useIntl()
     const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const router = useRouter()
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const action = Property.useCreate({
         organization: { connect: { id: organization.id } },
         type: DEFAULT_PROPERTY_TYPE,
@@ -29,6 +30,8 @@ export const CreatePropertyForm: React.FC = () => {
         name: '',
         yearOfConstruction: '',
     }
+
+    const canManageProperties = get(link, 'role.canManageProperties', false)
 
     return (
         <BasePropertyForm
@@ -50,7 +53,7 @@ export const CreatePropertyForm: React.FC = () => {
                                         onClick={handleSave}
                                         type='sberDefaultGradient'
                                         loading={isLoading}
-                                        disabled={!address}
+                                        disabled={!canManageProperties || !address}
                                         style={FORM_SUBMIT_BUTTON_STYLES}
                                     >{CreatePropertyMessage}</Button>
                                 )
