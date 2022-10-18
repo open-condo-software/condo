@@ -67,6 +67,7 @@ class SuggestionKeystoneApp {
                 const normalizedInjectingData = suggestionProvider.getInjections(s)
                 suggestions.push(...normalizedInjectingData)
             }
+
             res.json(suggestions)
         })
 
