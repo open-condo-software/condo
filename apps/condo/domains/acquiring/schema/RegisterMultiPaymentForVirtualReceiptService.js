@@ -12,6 +12,7 @@ const {
     WEB_VIEW_PATH,
     DIRECT_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
+const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAcquiringIntegrationContextFormula,
@@ -24,6 +25,7 @@ const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
 const {
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
     RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
+    RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
     ACQUIRING_INTEGRATION_IS_DELETED,
     ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
@@ -74,21 +76,23 @@ const errors = {
         type: RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
         message: 'Cannot pay for Receipt with negative "toPay" value',
     },
+    RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE: {
+        mutation: 'registerMultiPaymentForVirtualReceipt',
+        code: BAD_USER_INPUT,
+        type: RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
+        message: 'Cannot pay for Receipt with invalid "currencyCode" value',
+    },
 }
 
 const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('RegisterMultiPaymentForVirtualReceiptService', {
     types: [
         {
             access: true,
-            type: 'enum RegisterMultiPaymentVirtualReceiptCurrency { RUB, USD, KZT, TRY }',
-        },
-        {
-            access: true,
             type: 'input RegisterMultiPaymentVirtualReceiptRecipientInput { routingNumber: String!, bankAccount: String!, accountNumber: String! }',
         },
         {
             access: true,
-            type: 'input RegisterMultiPaymentVirtualReceiptInput { currencyCode: RegisterMultiPaymentVirtualReceiptCurrency!, amount: String!, period: String!, recipient: RegisterMultiPaymentVirtualReceiptRecipientInput! }',
+            type: 'input RegisterMultiPaymentVirtualReceiptInput { currencyCode: String!, amount: String!, period: String!, recipient: RegisterMultiPaymentVirtualReceiptRecipientInput! }',
         },
         {
             access: true,
@@ -136,6 +140,12 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
 
                 // Stage 2. Check VirtualReceipt
                 const { currencyCode, amount, period, recipient: { routingNumber: bic, bankAccount, accountNumber } } = receipt
+
+                if (!ISO_CODES.includes(currencyCode)) {
+                    throw new GQLError({
+                        ...errors.RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
+                    }, context)
+                }
 
                 // amount is not a number
                 if (isNaN(amount)) {
