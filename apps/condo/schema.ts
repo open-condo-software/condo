@@ -36894,15 +36894,8 @@ export type RegisterMultiPaymentServiceConsumerInput = {
   receipts: Array<BillingReceiptWhereUniqueInput>;
 };
 
-export enum RegisterMultiPaymentVirtualReceiptCurrency {
-  Rub = 'RUB',
-  Usd = 'USD',
-  Kzt = 'KZT',
-  Try = 'TRY'
-}
-
 export type RegisterMultiPaymentVirtualReceiptInput = {
-  currencyCode: RegisterMultiPaymentVirtualReceiptCurrency;
+  currencyCode: Scalars['String'];
   amount: Scalars['String'];
   period: Scalars['String'];
   recipient: RegisterMultiPaymentVirtualReceiptRecipientInput;

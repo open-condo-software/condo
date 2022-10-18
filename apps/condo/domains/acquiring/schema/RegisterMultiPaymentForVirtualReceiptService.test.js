@@ -209,6 +209,33 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                     })
                 })
             })
+            describe('Cannot pay for Receipt with invalid "currencyCode" value', () => {
+                const cases = ['$', 'dollars', 'RU', 'rub']
+                test.each(cases)('ToPay currency: %p', async (currencyCode) => {
+                    const {
+                        admin,
+                        acquiringContext,
+                        billingAccount,
+                    } = await makePayer()
+                    const receipt = generateReceipt(billingAccount)
+                    receipt.currencyCode = currencyCode
+                    const acquiringIntegrationContext = { id: acquiringContext.id }
+                    await catchErrorFrom(async () => {
+                        await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
+                    }, ({ errors }) => {
+                        expect(errors).toMatchObject([{
+                            message: 'Cannot pay for Receipt with invalid "currencyCode" value',
+                            path: ['result'],
+                            extensions: {
+                                mutation: 'registerMultiPaymentForVirtualReceipt',
+                                code: 'BAD_USER_INPUT',
+                                type: 'RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE',
+                                message: 'Cannot pay for Receipt with invalid "currencyCode" value',
+                            },
+                        }])
+                    })
+                })
+            })
         })
         describe('deletedAt check', () => {
             test('Should not be able to pay for consumer with deleted acquiring context', async () => {
