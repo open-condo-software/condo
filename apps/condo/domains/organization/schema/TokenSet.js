@@ -9,7 +9,13 @@ const access = require('@condo/domains/organization/access/TokenSet')
 const { ORGANIZATION_OWNED_FIELD } = require(
     '@condo/domains/organization/schema/fields')
 
-
+/**
+ * There is no reason to use this schema, because for SBBOL integration there is only one useful record for entire table,
+ * that corresponds to our organization record in SBBOL account.
+ * This schema will be kept for sometime and removed after `SbbolSecretStorage` fill be successfully deployed
+ * @deprecated use `SbbolSecretStorage`
+ * @type {GQLListSchema}
+ */
 const TokenSet = new GQLListSchema('TokenSet', {
     schemaDoc: 'Set of oauth tokens from remote systems',
     fields: {
