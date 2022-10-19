@@ -97,8 +97,7 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
 
     const user = await syncUser({ context, userInfo: userData })
     const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
-    await syncTokens({ context, tokenInfoFromOAuth: tokenSet, organization, user })
-
+    await syncTokens(tokenSet)
     await syncSubscriptions()
 
     const organizationEmployee = await getOrganizationEmployee({ context, user, organization })
