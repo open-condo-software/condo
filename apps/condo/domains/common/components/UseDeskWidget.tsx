@@ -3,6 +3,7 @@ import React, { useEffect } from 'react'
 import getConfig from 'next/config'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import { useAuth } from '@condo/next/auth'
 
 const { publicRuntimeConfig:{ UseDeskWidgetId } } = getConfig()
 const useDeskFieldsIdsMap = {
@@ -21,15 +22,20 @@ const getUserIdentify = () => {
 
 const UseDeskWidget: React.FC = () => {
     const { link } = useOrganization()
+    const { user, refetch } = useAuth()
+
+    useEffect(() => {
+        refetch()
+    }, [link])
 
     const userIdentify = getUserIdentify()
 
     useEffect(() => {
         if (UseDeskWidgetId && isFunction(userIdentify)) userIdentify(
             {
-                name: get(link, 'name', null),
-                email: get(link, 'email', null),
-                phone: get(link, 'phone', '').slice(1),
+                name: get(link, 'name', undefined),
+                email: get(user, 'email', undefined),
+                phone: get(user, 'phone', '').slice(1),
                 additional_fields:
                     [
                         {
@@ -43,7 +49,7 @@ const UseDeskWidget: React.FC = () => {
                         },
                     ],
             })
-    }, [link, userIdentify])
+    }, [link, userIdentify, user])
 
     return UseDeskWidgetId ?
         <script async src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}></script> : null
