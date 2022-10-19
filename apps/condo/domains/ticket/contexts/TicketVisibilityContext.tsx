@@ -148,6 +148,7 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const propertyScopeIds = propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
     const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
         where: {
+            organization: { id: organizationId },
             OR: [
                 { id_in: propertyScopeIds },
                 { hasAllEmployees: true },
