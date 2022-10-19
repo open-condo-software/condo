@@ -39,6 +39,12 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
             reCaptchaKey={googleCaptcha && googleCaptcha.SITE_KEY}
             language={intl.locale}
             useRecaptchaNet
+            container={{
+                element: 'ReCaptchaContainer',
+                parameters: {
+                    badge: 'inline',
+                },
+            }}
             scriptProps={{
                 async: true,
                 defer: true,

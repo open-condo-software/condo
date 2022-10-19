@@ -69,6 +69,13 @@ export const PageContent = styled.div<IContentProps>`
   overflow-y: scroll;
 `
 
+export const ReCaptchaContainer = styled.div`
+  position: absolute;
+  visibility: hidden;
+  bottom: 0;
+  z-index: 1000;
+`
+
 export const Layout = styled(AntLayout)`
   background: ${colors.white};
 `
