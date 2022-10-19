@@ -63,7 +63,7 @@ export const CreateContactForm: React.FC = () => {
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const ContactDuplicateError = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
     const router = useRouter()
 
     const [selectedPropertyId, setSelectedPropertyId] = useState(null)
@@ -138,6 +138,8 @@ export const CreateContactForm: React.FC = () => {
         setIsFieldsChanged(false)
         await action(data)
     }
+
+    const canManageContacts = get(link, 'role.canManageContacts', false)
 
     return (
         <FormWithAction
@@ -288,7 +290,14 @@ export const CreateContactForm: React.FC = () => {
                                             const hasNameSpecCharError = Boolean(getFieldError('name').find((error => error.includes(FullNameInvalidCharMessage))))
                                             const hasNameTrimValidateError = Boolean(getFieldError('name').find((error => error.includes(FullNameRequiredMessage))))
                                             const hasContactDuplicate = isFieldsChanged ? false : hasDuplicateError
-                                            const isDisabled = !property || !unitName || !phone || hasNameTrimValidateError || !!propertyMismatchError || hasContactDuplicate || hasNameSpecCharError
+                                            const isDisabled = !property
+                                                || !unitName
+                                                || !phone
+                                                || hasNameTrimValidateError
+                                                || !!propertyMismatchError
+                                                || hasContactDuplicate
+                                                || hasNameSpecCharError
+                                                || !canManageContacts
                                             return (
                                                 <Row gutter={[0, 24]}>
                                                     <Col span={24}>
@@ -296,7 +305,7 @@ export const CreateContactForm: React.FC = () => {
                                                             <Button
                                                                 key='submit'
                                                                 onClick={handleSave}
-                                                                type='sberPrimary'
+                                                                type='sberDefaultGradient'
                                                                 loading={isLoading}
                                                                 disabled={isDisabled}
                                                                 style={{ marginRight: 24 }}
