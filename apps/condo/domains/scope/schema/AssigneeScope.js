@@ -10,11 +10,15 @@ const access = require('@condo/domains/scope/access/AssigneeScope')
 
 
 const AssigneeScope = new GQLListSchema('AssigneeScope', {
-    schemaDoc: 'Ticket where user is assignee or executor',
+    schemaDoc: `Ticket where user is assignee or executor.
+    Records are updated automatically: if the user has been assigned to the ticket, an entry appears.
+    If the user was removed from the assignment to the ticket, the record is marked deletedAt.
+    It is used to track the availability of the ticket for viewing in the technician mobile application.`,
     fields: {
         user: {
             type: Relationship,
             ref: 'User',
+            schemaDoc: 'The user who is assigned to the ticket',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
@@ -23,6 +27,7 @@ const AssigneeScope = new GQLListSchema('AssigneeScope', {
         ticket: {
             type: Relationship,
             ref: 'Ticket',
+            schemaDoc: 'The ticket in which the user is assigned as executor or assignee',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },

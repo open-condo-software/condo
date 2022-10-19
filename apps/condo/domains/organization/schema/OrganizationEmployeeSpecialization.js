@@ -10,7 +10,7 @@ const access = require('@condo/domains/organization/access/OrganizationEmployeeS
 
 
 const OrganizationEmployeeSpecialization = new GQLListSchema('OrganizationEmployeeSpecialization', {
-    schemaDoc: 'A work category, that employee can perform',
+    schemaDoc: 'A work category, that employee can perform. Used to limit the visibility of tickets for employees with "propertyAndSpecialization" ticketVisibilityType',
     fields: {
 
         employee: {
