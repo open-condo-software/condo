@@ -5,27 +5,27 @@ const { createValidRuNumber } = require('@condo/domains/banking/utils/testSchema
 const SPACES = SPACE_SYMBOLS.split('')
 
 const COUNTRY_CODE_RU = 'ru'
-const VALID_BANK_ACCOUNTS = [
+const VALID_NUMBER = [
     {
-        bankAccount: '40647859100000003330',
+        number: '40647859100000003330',
         bic: '040033685',
     },
     {
-        bankAccount: '50300807000000002104',
+        number: '50300807000000002104',
         bic: '044712578',
     },
 ]
-const WRONG_LENGTH_BANK_ACCOUNT = '4064785910000000333043'
-const WRONG_FORMAT_BANK_ACCOUNT = '4064V85910000D003330'
-const INVALID_CONTROL_SUM_BANK_ACCOUNT = {
-    bankAccount: '50300807000003002104',
+const WRONG_LENGTH_NUMBER = '4064785910000000333043'
+const WRONG_FORMAT_NUMBER = '4064V85910000D003330'
+const INVALID_CONTROL_SUM_NUMBER = {
+    number: '50300807000003002104',
     bic: '044712576',
 }
 
 const VALID_RU_BIC = '045809749'
 
 describe('validateBankAccount()', () => {
-    VALID_BANK_ACCOUNTS.forEach(data => {
+    VALID_NUMBER.forEach(data => {
         const { bankAccount, bic } = data
 
         test(`for valid RU BANK ACCOUNT (${bankAccount})`, () => {
@@ -44,12 +44,12 @@ describe('validateBankAccount()', () => {
     })
 
     test('for wrong length number as RU BANK ACCOUNT', () => {
-        const { result, errors } = validateNumber(WRONG_LENGTH_BANK_ACCOUNT, VALID_RU_BIC, COUNTRY_CODE_RU)
+        const { result, errors } = validateNumber(WRONG_LENGTH_NUMBER, VALID_RU_BIC, COUNTRY_CODE_RU)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Number length was expected to be 20, but received 22')
     })
     test('for contains invalid characters as RU BANK ACCOUNT', () => {
-        const { result, errors } = validateNumber(WRONG_FORMAT_BANK_ACCOUNT, VALID_RU_BIC, COUNTRY_CODE_RU)
+        const { result, errors } = validateNumber(WRONG_FORMAT_NUMBER, VALID_RU_BIC, COUNTRY_CODE_RU)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Number can contain only numeric digits')
     })
@@ -59,7 +59,7 @@ describe('validateBankAccount()', () => {
         expect(errors[0]).toBe('Number is empty')
     })
     test('for invalid control sum as RU BANK ACCOUNT', () => {
-        const { bankAccount, bic } = INVALID_CONTROL_SUM_BANK_ACCOUNT
+        const { bankAccount, bic } = INVALID_CONTROL_SUM_NUMBER
         const { result, errors } = validateNumber(bankAccount, bic, COUNTRY_CODE_RU)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Control sum is not valid for number')
@@ -72,8 +72,8 @@ describe('validateBankAccount()', () => {
 })
 
 module.exports = {
-    VALID_BANK_ACCOUNTS,
-    WRONG_LENGTH_BANK_ACCOUNT,
-    WRONG_FORMAT_BANK_ACCOUNT,
-    INVALID_CONTROL_SUM_BANK_ACCOUNT,
+    VALID_NUMBER,
+    WRONG_LENGTH_NUMBER,
+    WRONG_FORMAT_NUMBER,
+    INVALID_CONTROL_SUM_NUMBER,
 }

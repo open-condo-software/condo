@@ -29,7 +29,7 @@ async function canManageBankAccounts ({ authentication: { item: user } }) {
 async function canManageIsApprovedField ({ authentication: { item: user }, originalInput }) {
     if (user.isAdmin || user.isSupport) return true
 
-    // If user is not support, then he only can drop isApproved field
+    // If user is not support and admin, then he only can drop isApproved fields
     if (!get(originalInput, 'approvedAt') && !get(originalInput, 'approvedBy')) {
         return true
     }

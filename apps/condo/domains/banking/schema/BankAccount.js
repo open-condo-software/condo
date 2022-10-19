@@ -20,7 +20,7 @@ const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate
 const { validateNumber } = require('@condo/domains/banking/utils/validate/number.utils')
 
 const BankAccount = new GQLListSchema('BankAccount', {
-    schemaDoc: 'Bank account. We receive all transactions from this account and let the user mark them with a certain set of categories!',
+    schemaDoc: 'Bank account, that will have transactions, pulled from various integrated data sources. Transactions will be marked by categories of incomes and expenses.',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
 
@@ -45,7 +45,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         },
 
         country: {
-            schemaDoc: 'Bank account country',
+            schemaDoc: 'Country where the bank is located',
             isRequired: true,
             type: Select,
             options: Object.keys(COUNTRIES).join(','),
@@ -161,8 +161,6 @@ const BankAccount = new GQLListSchema('BankAccount', {
     },
     hooks: {
         resolveInput: async (args) => {
-
-            console.log(args)
 
             // If recipients is being updated -> drop approvedBy and approvedAt!
             if (args.operation === 'update' && !('approvedAt' in args.resolvedData || 'approvedBy' in args.resolvedData) ) {

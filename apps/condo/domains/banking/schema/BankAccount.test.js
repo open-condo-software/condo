@@ -13,6 +13,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 const { BankAccount, createTestBankAccount, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee, OrganizationEmployeeRole } = require('../../organization/utils/testSchema')
 
 describe('BankAccount', () => {
     describe('CRUD tests', () => {
@@ -101,6 +102,21 @@ describe('BankAccount', () => {
                 expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
             })
 
+            test('user can only for organization it employed in', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [ organization ] = await createTestOrganization(admin)
+                const [ role ] = await createTestOrganizationEmployeeRole(admin, organization)
+                await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
+
+                await createTestBankAccount(admin, organization)
+
+                const readObjects = await BankAccount.getAll(employeeUserClient, {})
+
+                expect(readObjects).toHaveLength(0)
+            })
+
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -112,6 +128,29 @@ describe('BankAccount', () => {
                 const readObjects = await BankAccount.getAll(user, {})
 
                 expect(readObjects).toHaveLength(0)
+            })
+
+            it('can only for organization it employed in', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+                const [role, attrs] = await createTestOrganizationEmployeeRole(admin, organization)
+                const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
+
+                const [anotherOrganization] = await createTestOrganization(admin)
+                await createTestOrganizationEmployeeRole(admin, anotherOrganization)
+
+                const objs = await OrganizationEmployeeRole.getAll(employeeUserClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs).toHaveLength(1)
+                expect(objs[0].id).toMatch(role.id)
+                expect(objs[0].dv).toEqual(1)
+                expect(objs[0].sender).toEqual(attrs.sender)
+                expect(objs[0].v).toEqual(1)
+                expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(objs[0].createdAt).toMatch(role.createdAt)
+                expect(objs[0].updatedAt).toMatch(role.updatedAt)
             })
 
             test('anonymous can\'t', async () => {
@@ -262,25 +301,23 @@ describe('BankAccount', () => {
             )
         })
 
-        test('can create - delete - create new Recipient', async () => {
+        test('can delete and then create another BankAccount with same requisites', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
 
-            const [bankAccount] = await createTestBankAccount(admin, organization)
+            const [firstBankAccount] = await createTestBankAccount(admin, organization)
 
-            const [deletedObj] = await updateTestBankAccount(admin, bankAccount.id, { deletedAt: 'true' })
+            await updateTestBankAccount(admin, firstBankAccount.id, { deletedAt: 'true' })
 
-            const [newBankAccount] = await createTestBankAccount(admin, organization, {
-                tin: bankAccount.tin,
-                routingNumber: bankAccount.routingNumber,
-                number: bankAccount.number,
+            const [secondBankAccount] = await createTestBankAccount(admin, organization, {
+                tin: firstBankAccount.tin,
+                routingNumber: firstBankAccount.routingNumber,
+                number: firstBankAccount.number,
             })
 
-            expect(bankAccount.id).toBeDefined()
-            expect(deletedObj.id).toEqual(bankAccount.id)
-            expect(deletedObj.deletedAt).not.toBeNull()
-            expect(newBankAccount.id).toBeDefined()
-            expect(bankAccount.id).not.toEqual(newBankAccount.id)
+            expect(firstBankAccount.id).toBeDefined()
+            expect(secondBankAccount.id).toBeDefined()
+            expect(firstBankAccount.id).not.toEqual(secondBankAccount.id)
         })
     })
 })
