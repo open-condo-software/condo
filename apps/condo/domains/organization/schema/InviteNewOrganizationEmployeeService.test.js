@@ -1,5 +1,4 @@
 const faker = require('faker')
-const { pick } = require('lodash')
 
 const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 
@@ -43,7 +42,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
                     const extraAttrs = {
-                        specializations: [categoryClassifier1.id, categoryClassifier2.id],
+                        specializations: [{ id: categoryClassifier1.id }, { id: categoryClassifier2.id }],
                     }
                     const client = await makeClientWithRegisteredOrganization()
                     const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, extraAttrs)
@@ -88,7 +87,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: client.userAttrs.phone,
                     }
                     const extraAttrs = {
-                        specializations: [categoryClassifier1.id],
+                        specializations: [{ id: categoryClassifier1.id }],
                     }
                     const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
 
@@ -214,7 +213,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: inviteClient.userAttrs.phone,
                     }
                     const extraAttrs = {
-                        specializations: [categoryClassifier1.id],
+                        specializations: [{ id: categoryClassifier1.id }],
                     }
                     await catchErrorFrom(async () => {
                         await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
