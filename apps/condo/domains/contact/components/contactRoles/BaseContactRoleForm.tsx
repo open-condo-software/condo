@@ -2,13 +2,14 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useIntl } from '@condo/next/intl'
-import { Col, Form, Input, Row, Typography } from 'antd'
+import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback } from 'react'
 import { useExistingContactRoles } from '@condo/domains/contact/components/contactRoles/useExistingContactRoles'
+import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
 
 const LAYOUT = {
     layout: 'horizontal',
@@ -43,9 +44,9 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
     const NamePlaceholderValue = intl.formatMessage({ id: 'ContactRoles.namePlaceholderValue' })
-    const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
-    const ReadyMessage = intl.formatMessage({ id: 'Ready' })
     const ContactRoleIsDuplicateMessage = intl.formatMessage({ id: 'ContactRoles.error.duplicate' })
+
+    const { getSuccessfulChangeNotification } = useNotificationMessages()
 
     const router = useRouter()
 
@@ -87,13 +88,7 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
                 <FormWithAction
                     initialValues={initialValues}
                     action={handleFormSubmit}
-                    OnCompletedMsg={
-                        <>
-                            <Typography.Text strong>{ReadyMessage}</Typography.Text>
-                            <br/>
-                            <Typography.Text>{ChangesSavedMessage}</Typography.Text>
-                        </>
-                    }
+                    OnCompletedMsg={getSuccessfulChangeNotification}
                     {...LAYOUT}
                 >
                     {({ handleSave, isLoading, form }) => (
