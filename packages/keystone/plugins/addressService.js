@@ -3,7 +3,10 @@ const { ADDRESS_META_FIELD } = require('@condo/keystone/plugins/utils/addressMet
 const { composeResolveInputHook } = require('@condo/keystone/plugins/utils')
 const { plugin } = require('@condo/keystone/plugins/utils/typing')
 const { Text } = require('@keystonejs/fields')
-const { createInstance: createAddressServiceClientInstance } = require('@condo/address-service-client')
+const {
+    createInstance: createAddressServiceClientInstance,
+    createTestInstance: createTestAddressServiceClientInstance,
+} = require('@condo/address-service-client')
 const get = require('lodash/get')
 
 const readOnlyAccess = {
@@ -108,7 +111,7 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
     //
     // Modify hooks
     //
-    const newResolveInput = async ({ resolvedData, operation, existingItem, context }) => {
+    const newResolveInput = async ({ resolvedData, operation, existingItem, originalInput, context }) => {
         // We will call to address service in the following cases:
         if (
             // 1. In the case of new property creation
@@ -120,7 +123,9 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
             // 3. In the case of update and if property address has been changed
             || (operation === 'update' && !!resolvedData[addressFieldName] && existingItem[addressFieldName] !== resolvedData[addressFieldName])
         ) {
-            const client = createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
+            const client = conf.NODE_ENV === 'test'
+                ? createTestAddressServiceClientInstance(existingItem || resolvedData)
+                : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
             const result = await client.search(resolvedData[addressFieldName])
 
             resolvedData[getSourceFieldName(addressFieldName)] = resolvedData[addressFieldName]

@@ -20,4 +20,9 @@ function createInstance (url, params) {
     return instance
 }
 
-module.exports = { createInstance }
+function createTestInstance (existingItem = null) {
+    // In the case of testing, we must return a new instance every time because all tests have a unique context.
+    return new MockedAddressServiceClient(existingItem)
+}
+
+module.exports = { createInstance, createTestInstance }
