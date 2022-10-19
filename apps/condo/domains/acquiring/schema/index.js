@@ -13,6 +13,7 @@ const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
+const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { SumPaymentsService } = require('./SumPaymentsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
@@ -27,6 +28,7 @@ module.exports = {
     PaymentsFilterTemplate,
     RegisterMultiPaymentForOneReceiptService,
     RegisterMultiPaymentForVirtualReceiptService,
+    GeneratePaymentLinkService,
     SumPaymentsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

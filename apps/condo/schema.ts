@@ -13352,6 +13352,34 @@ export type ForgotPasswordActionsUpdateInput = {
   data?: Maybe<ForgotPasswordActionUpdateInput>;
 };
 
+export type GeneratePaymentLinkCallbacksInput = {
+  successUrl: Scalars['String'];
+  failureUrl: Scalars['String'];
+};
+
+export type GeneratePaymentLinkInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  receipt?: Maybe<BillingReceiptWhereUniqueInput>;
+  receiptData?: Maybe<GeneratePaymentLinkReceiptDataInput>;
+  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput;
+  callbacks: GeneratePaymentLinkCallbacksInput;
+};
+
+export type GeneratePaymentLinkOutput = {
+  __typename?: 'GeneratePaymentLinkOutput';
+  dv: Scalars['Int'];
+  paymentUrl: Scalars['String'];
+};
+
+export type GeneratePaymentLinkReceiptDataInput = {
+  currencyCode: Scalars['String'];
+  amount: Scalars['String'];
+  periodYear: Scalars['Int'];
+  periodMonth: Scalars['Int'];
+  accountNumber: Scalars['String'];
+};
+
 export type GetExternalReportIframeUrlInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -33079,6 +33107,7 @@ export type Query = {
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
+  generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
   _allPaymentsSum?: Maybe<PaymentsSumOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
   ticketReportWidgetData?: Maybe<TicketReportWidgetOutput>;
@@ -36749,6 +36778,11 @@ export type QueryExportMeterReadingsArgs = {
 
 export type QueryExportPaymentsToExcelArgs = {
   data: ExportPaymentsToExcelInput;
+};
+
+
+export type QueryGeneratePaymentLinkArgs = {
+  data: GeneratePaymentLinkInput;
 };
 
 
