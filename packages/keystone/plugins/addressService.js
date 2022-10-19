@@ -143,7 +143,7 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
             resolvedData[getMetaFieldName(addressFieldName)] = {
                 dv: 1,
                 address: get(result, 'address'),
-                value: get(result, 'address'),
+                value: get(result, ['addressMeta', 'provider', 'rawData', 'value']),
                 unrestricted_value: normalizedMetaFields.unrestricted_value,
                 data: normalizedMetaFields.data,
             }
