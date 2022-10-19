@@ -121,7 +121,7 @@ const syncPaymentRequestsForSubscriptions = async () => {
     logger.info({ msg: 'start syncPaymentRequestsForSubscriptions' })
     const { keystone: context } = await getSchemaCtx('ServiceSubscription')
 
-    const fintechApi = await initSbbolFintechApi(context)
+    const fintechApi = await initSbbolFintechApi()
     if (!fintechApi) return
 
     const today = dayjs()
