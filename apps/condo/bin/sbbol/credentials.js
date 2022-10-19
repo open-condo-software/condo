@@ -26,7 +26,7 @@ const workerJob = async () => {
         let clientId, currentClientSecret, newClientSecret
         [clientId, currentClientSecret, newClientSecret] = process.argv.slice(3)
         if (!clientId && !currentClientSecret && !newClientSecret) {
-            currentClientSecret = sbbolSecretStorage.clientSecret
+            currentClientSecret = await sbbolSecretStorage.getClientSecret()
             clientId = sbbolSecretStorage.clientId
             newClientSecret = getRandomString()
             console.log(`Run with: ${clientId} "${currentClientSecret}" "${newClientSecret}"`)

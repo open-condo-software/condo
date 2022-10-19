@@ -22,7 +22,7 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
     const body = {
         access_token: accessToken,
         client_id: clientId,
-        client_secret: currentClientSecret || sbbolSecretStorage.clientSecret,
+        client_secret: currentClientSecret || await sbbolSecretStorage.getClientSecret(),
         new_client_secret: newClientSecret,
     }
 
@@ -47,7 +47,7 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
                 throw new Error('clientSecretExpiration is missing in response, so, It\'s unknown, when new client secret will be expired')
             }
             const clientSecretExpiresAt = dayjs().add(clientSecretExpiration, 'days').toISOString()
-            sbbolSecretStorage.setClientSecret(newClientSecret, clientSecretExpiresAt)
+            await sbbolSecretStorage.setClientSecret(newClientSecret, clientSecretExpiresAt)
         }
     }
 }
