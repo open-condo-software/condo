@@ -1,3 +1,4 @@
+const faker = require('faker')
 const { normalizeText } = require('./text')
 
 describe('normalizeText()', () => {
@@ -57,5 +58,19 @@ describe('normalizeText()', () => {
         expect(normalizeText('“ 123  «   123  432   »  432   ”')).toEqual('“123 «123 432» 432”')
         expect(normalizeText('« 123  «   123  432   »  432   »')).toEqual('«123 «123 432» 432»')
         expect(normalizeText('“ 123 432 “  432 234   ” ”')).toEqual('“123 432 “432 234””')
+    })
+
+    test('ignore punctuation if it contained at email', () => {
+        const email = faker.internet.email()
+
+        expect(normalizeText(`Client ask to send a bill list to email ${email} `)).toEqual(`Client ask to send a bill list to email ${email}`)
+        expect(normalizeText(`Client with email ${email} ask to send feedback.Please send him reply as fast as you can`)).toEqual(`Client with email ${email} ask to send feedback. Please send him reply as fast as you can`)
+    })
+
+    test('ignore punctuation if it contained at url', () => {
+        const url = faker.internet.url()
+
+        expect(normalizeText(`Client link ${url}. So what do you think.It ok?`)).toEqual(`Client link ${url}. So what do you think. It ok?`)
+        expect(normalizeText(`Client send a link.Here it is - ${url}.`)).toEqual(`Client send a link. Here it is - ${url}.`)
     })
 })
