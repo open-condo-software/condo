@@ -36,11 +36,8 @@ const SBBOL_PAYMENT_STATUS_MAP = {
     'SIGNED': SUBSCRIPTION_PAYMENT_STATUS.PROCESSING,
 }
 
-const REFRESH_TOKEN_TTL = 30 * 24 * 60 * 60 // real TTL is 180 days bit we need to update it earlier
-
 module.exports = {
     dvSenderFields,
     BANK_OPERATION_CODE,
     SBBOL_PAYMENT_STATUS_MAP,
-    REFRESH_TOKEN_TTL,
 }

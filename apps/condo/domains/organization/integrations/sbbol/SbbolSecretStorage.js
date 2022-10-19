@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const { getRedisClient } = require('@condo/keystone/redis')
 
@@ -5,6 +6,9 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
 
 // All keys belonging to SBBOL integration will have this prefix in their names
 const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
+
+// Real TTL is 180 days, but we need to update it earlier
+const REFRESH_TOKEN_TTL_DAYS = 30
 
 /**
  * Replaces `TokenSet` schema for storage of secrets for SBBOL API
@@ -26,32 +30,33 @@ class SbbolSecretStorage {
         return this.getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
     }
 
-    async setClientSecret (value, ttl) {
-        this.setValue('clientSecret', value, ttl)
+    async setClientSecret (value, options) {
+        this.setValue('clientSecret', value, options)
     }
 
     async getAccessToken () {
         return this.getValue('accessToken')
     }
 
-    async setAccessToken (value, ttl) {
-        await this.setValue('accessToken', value, ttl)
+    async setAccessToken (value, options) {
+        await this.setValue('accessToken', value, options)
     }
 
     async isAccessTokenExpired () {
-        return this.keyStorage.ttl(this.scopedKey('accessToken')) <= 0
+        return await this.isExpired('accessToken')
     }
 
     async getRefreshToken () {
         return this.getValue('refreshToken')
     }
 
-    async setRefreshToken (value, ttl) {
-        await this.setValue('refreshToken', value, ttl)
+    async setRefreshToken (value) {
+        const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
+        await this.setValue('refreshToken', value, options)
     }
 
     async isRefreshTokenExpired () {
-        return this.keyStorage.ttl(this.scopedKey('refreshToken')) <= 0
+        return await this.isExpired('refreshToken')
     }
 
     getValue (key) {
@@ -59,12 +64,22 @@ class SbbolSecretStorage {
         return this.keyStorage.get(scopedKey)
     }
 
-    setValue (key, value, ttl) {
+    async setValue (key, value, options = {}) {
+        const { ttl, expiresAt } = options
+        const commands = this.keyStorage.multi()
+        commands.set(this.scopedKey(key), value)
         if (ttl) {
-            this.keyStorage.set(this.scopedKey(key), value, 'EX', ttl)
-        } else {
-            this.keyStorage.set(this.scopedKey(key), value)
+            commands.expire(this.scopedKey(key), ttl)
         }
+        if (expiresAt) {
+            commands.expireat(this.scopedKey(key), expiresAt)
+        }
+        await commands.exec()
+    }
+
+    async isExpired (key) {
+        // NOTE: `TTL` Redis command returns -2 if the key does not exist, -1 if the key exists but has no associated expire
+        return !this.keyStorage.ttl(this.scopedKey(key)) > 0
     }
 
     scopedKey (key) {

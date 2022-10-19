@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const { sbbolSecretStorage } = require('../common')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
-const { getOrganizationAccessToken } = require('./index')
+const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -46,8 +46,7 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
             if (!clientSecretExpiration) {
                 throw new Error('clientSecretExpiration is missing in response, so, It\'s unknown, when new client secret will be expired')
             }
-            const clientSecretExpiresAt = dayjs().add(clientSecretExpiration, 'days').toISOString()
-            await sbbolSecretStorage.setClientSecret(newClientSecret, clientSecretExpiresAt)
+            await sbbolSecretStorage.setClientSecret(newClientSecret, { expiresAt: dayjs().add(clientSecretExpiration, 'days').unix() })
         }
     }
 }

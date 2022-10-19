@@ -1,6 +1,5 @@
 const { sbbolSecretStorage } = require('../common')
 const { SbbolOauth2Api } = require('../oauth2')
-const { REFRESH_TOKEN_TTL } = require('../constants')
 
 /**
  * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual
@@ -29,13 +28,10 @@ async function getOrganizationAccessToken () {
         const clientSecret = await sbbolSecretStorage.getClientSecret()
         const currentRefreshToken = await sbbolSecretStorage.getRefreshToken()
         const oauth2 = new SbbolOauth2Api({ clientSecret })
-        const { access_token, refresh_token, expires_at } = await oauth2.refreshToken(currentRefreshToken)
+        const { access_token, expires_at: expiresAt, refresh_token } = await oauth2.refreshToken(currentRefreshToken)
 
-        const accessTokenExpiresAt = new Date(Number(expires_at) * 1000).toISOString()
-        const refreshTokenExpiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL * 1000).toISOString()
-
-        await sbbolSecretStorage.setRefreshToken(refresh_token, refreshTokenExpiresAt)
-        await sbbolSecretStorage.setAccessToken(access_token, accessTokenExpiresAt)
+        await sbbolSecretStorage.setAccessToken(access_token, { expiresAt })
+        await sbbolSecretStorage.setRefreshToken(refresh_token)
     }
 
     return await sbbolSecretStorage.getAccessToken()
