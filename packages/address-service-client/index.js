@@ -12,9 +12,7 @@ let instance
  */
 function createInstance (url, params) {
     if (!instance) {
-        instance = conf.NODE_ENV === 'test'
-            ? new MockedAddressServiceClient()
-            : new AddressServiceClient(url, params)
+        instance = new AddressServiceClient(url, params)
     }
 
     return instance
