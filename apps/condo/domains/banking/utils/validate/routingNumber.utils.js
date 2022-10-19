@@ -6,6 +6,7 @@
  * 2) Checking for length and format (Consists of 9 digits)
  *
  * For RU routing number:
+ * *** In Russia, number routing is equivalent to BIC***
  * 1) For RU organizations country code (first two digits) is 04
  *
  * Example:
@@ -14,7 +15,7 @@
 
 //GENERAL ERRORS
 const EMPTY = 'Routing number is empty'
-const NOT_NUMERIC = 'Routing number can contain only numeric digits'
+const NOT_NUMERIC = 'Routing number can contain only digits'
 const WRONG_LENGTH = 'Routing number length was expected to be 9, but received '
 
 //RU ERRORS

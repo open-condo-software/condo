@@ -19,11 +19,12 @@ const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate
 
 //GENERAL ERRORS
 const EMPTY = 'Number is empty'
-const NOT_NUMERIC = 'Number can contain only numeric digits'
+const NOT_NUMERIC = 'Number can contain only digits'
 const WRONG_LENGTH = 'Number length was expected to be 20, but received '
 
 //RU ERRORS
 const RU_CONTROL_SUM_FAILED = 'Control sum is not valid for number'
+
 const RU_NUMBER_WEIGHTS = [7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1, 3, 7, 1]
 
 class NumberValidation {

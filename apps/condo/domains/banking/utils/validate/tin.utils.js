@@ -15,11 +15,12 @@
 
 //GENERAL ERRORS
 const EMPTY = 'Tin is empty'
-const NOT_NUMERIC = 'Tin can contain only numeric digits'
+const NOT_NUMERIC = 'Tin can contain only digits'
 
 //RU ERRORS
 const WRONG_LENGTH_RU = 'Ru tin length was expected to be 10 or 12, but received '
 const RU_CONTROL_SUM_FAILED = 'Control sum is not valid for tin'
+
 const RU_TIN_WEIGHTS = [3, 7, 2, 4, 10, 3, 5, 9, 4, 6, 8, 0]
 
 
@@ -27,7 +28,6 @@ function getTinControlSumRU (num) {
     const weights = RU_TIN_WEIGHTS.slice(-num.length)
 
     let controlSum = 0
-
     for (let i = 0; i < num.length; i++)
         controlSum += num[i] * weights[i]
 

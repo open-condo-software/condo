@@ -8,65 +8,65 @@ const COUNTRY_CODE_RU = 'ru'
 const VALID_NUMBER = [
     {
         number: '40647859100000003330',
-        bic: '040033685',
+        routingNumber: '040033685',
     },
     {
         number: '50300807000000002104',
-        bic: '044712578',
+        routingNumber: '044712578',
     },
 ]
 const WRONG_LENGTH_NUMBER = '4064785910000000333043'
 const WRONG_FORMAT_NUMBER = '4064V85910000D003330'
 const INVALID_CONTROL_SUM_NUMBER = {
     number: '50300807000003002104',
-    bic: '044712576',
+    routingNumber: '044712576',
 }
 
-const VALID_RU_BIC = '045809749'
+const VALID_RU_ROUTING_NUMBER = '045809749'
 
-describe('validateBankAccount()', () => {
+describe('validateNumber', () => {
     VALID_NUMBER.forEach(data => {
-        const { bankAccount, bic } = data
+        const { number, routingNumber } = data
 
-        test(`for valid RU BANK ACCOUNT (${bankAccount})`, () => {
-            const { result } = validateNumber(bankAccount, bic, COUNTRY_CODE_RU)
+        test(`for valid RU NUMBER (${number})`, () => {
+            const { result } = validateNumber(number, routingNumber, COUNTRY_CODE_RU)
             expect(result).toBe(true)
         })
 
         SPACES.forEach(spaceSymbol => {
-            test(`for valid RU BANK ACCOUNT (${bankAccount}) with spaces symbol (${SPACE_SYMBOL_LABLES[spaceSymbol] || spaceSymbol})`, () => {
-                const bankAccountValue = `${spaceSymbol}${bankAccount}${spaceSymbol}`
+            test(`for valid RU NUMBER (${number}) with spaces symbol (${SPACE_SYMBOL_LABLES[spaceSymbol] || spaceSymbol})`, () => {
+                const numberValue = `${spaceSymbol}${number}${spaceSymbol}`
 
-                const { result } = validateNumber(bankAccountValue, bic, COUNTRY_CODE_RU)
+                const { result } = validateNumber(numberValue, routingNumber, COUNTRY_CODE_RU)
                 expect(result).toBe(true)
             })
         })
     })
 
-    test('for wrong length number as RU BANK ACCOUNT', () => {
-        const { result, errors } = validateNumber(WRONG_LENGTH_NUMBER, VALID_RU_BIC, COUNTRY_CODE_RU)
+    test('for wrong length number as RU NUMBER', () => {
+        const { result, errors } = validateNumber(WRONG_LENGTH_NUMBER, VALID_RU_ROUTING_NUMBER, COUNTRY_CODE_RU)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Number length was expected to be 20, but received 22')
     })
-    test('for contains invalid characters as RU BANK ACCOUNT', () => {
-        const { result, errors } = validateNumber(WRONG_FORMAT_NUMBER, VALID_RU_BIC, COUNTRY_CODE_RU)
+    test('for contains invalid characters as RU NUMBER', () => {
+        const { result, errors } = validateNumber(WRONG_FORMAT_NUMBER, VALID_RU_ROUTING_NUMBER, COUNTRY_CODE_RU)
         expect(result).toBe(false)
-        expect(errors[0]).toBe('Number can contain only numeric digits')
+        expect(errors[0]).toBe('Number can contain only digits')
     })
-    test('for empty value as RU BANK ACCOUNT', () => {
-        const { result, errors } = validateNumber('', VALID_RU_BIC, COUNTRY_CODE_RU)
+    test('for empty value as RU NUMBER', () => {
+        const { result, errors } = validateNumber('', VALID_RU_ROUTING_NUMBER, COUNTRY_CODE_RU)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Number is empty')
     })
-    test('for invalid control sum as RU BANK ACCOUNT', () => {
-        const { bankAccount, bic } = INVALID_CONTROL_SUM_NUMBER
-        const { result, errors } = validateNumber(bankAccount, bic, COUNTRY_CODE_RU)
+    test('for invalid control sum as RU NUMBER', () => {
+        const { number, routingNumber } = INVALID_CONTROL_SUM_NUMBER
+        const { result, errors } = validateNumber(number, routingNumber, COUNTRY_CODE_RU)
         expect(result).toBe(false)
         expect(errors[0]).toBe('Control sum is not valid for number')
     })
-    test('for create valid RU BANK ACCOUNT', () => {
-        const bankAccount = createValidRuNumber(VALID_RU_BIC)
-        const { result } = validateNumber(bankAccount, VALID_RU_BIC)
+    test('for create valid RU NUMBER', () => {
+        const number = createValidRuNumber(VALID_RU_ROUTING_NUMBER)
+        const { result } = validateNumber(number, VALID_RU_ROUTING_NUMBER)
         expect(result).toBe(true)
     })
 })
