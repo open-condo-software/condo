@@ -1162,7 +1162,7 @@ describe('Ticket', () => {
             })
         })
 
-        test('user: can read assigned tickets if he is not organization employee', async () => {
+        test.skip('user: can read assigned tickets if he is not organization employee', async () => {
             const admin = await makeLoggedInAdminClient()
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 

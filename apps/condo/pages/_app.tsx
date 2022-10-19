@@ -58,6 +58,7 @@ import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApp
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsContext'
 import { uniqBy } from 'lodash'
+import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 
 
 const ANT_LOCALES = {
@@ -228,12 +229,14 @@ const MyApp = ({ Component, pageProps }) => {
                                                 <LayoutContextProvider>
                                                     <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
                                                         <RequiredAccess>
-                                                            <Component {...pageProps} />
-                                                            {
-                                                                isEndTrialSubscriptionReminderPopupVisible && (
-                                                                    <EndTrialSubscriptionReminderPopup/>
-                                                                )
-                                                            }
+                                                            <TicketVisibilityContextProvider>
+                                                                <Component {...pageProps} />
+                                                                {
+                                                                    isEndTrialSubscriptionReminderPopupVisible && (
+                                                                        <EndTrialSubscriptionReminderPopup/>
+                                                                    )
+                                                                }
+                                                            </TicketVisibilityContextProvider>
                                                         </RequiredAccess>
                                                     </LayoutComponent>
                                                 </LayoutContextProvider>

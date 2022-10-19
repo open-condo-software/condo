@@ -33,13 +33,14 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
         }
     }
 
-    const ticketAccessObj = await getTicketAccessForUser(user)
-
     return {
         OR: [
             {
-                ticket: {
-                    ...ticketAccessObj,
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
                 },
             },
             { createdBy: { id: user.id } },
