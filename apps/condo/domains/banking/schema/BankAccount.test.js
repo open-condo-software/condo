@@ -13,7 +13,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 const { BankAccount, createTestBankAccount, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee, OrganizationEmployeeRole } = require('../../organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 describe('BankAccount', () => {
     describe('CRUD tests', () => {
@@ -135,29 +135,6 @@ describe('BankAccount', () => {
                 expect(readObjects).toHaveLength(0)
             })
 
-            it('can only for organization it employed in', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
-                const [role, attrs] = await createTestOrganizationEmployeeRole(admin, organization)
-                const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
-
-                const [anotherOrganization] = await createTestOrganization(admin)
-                await createTestOrganizationEmployeeRole(admin, anotherOrganization)
-
-                const objs = await OrganizationEmployeeRole.getAll(employeeUserClient, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs).toHaveLength(1)
-                expect(objs[0].id).toMatch(role.id)
-                expect(objs[0].dv).toEqual(1)
-                expect(objs[0].sender).toEqual(attrs.sender)
-                expect(objs[0].v).toEqual(1)
-                expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(objs[0].createdAt).toMatch(role.createdAt)
-                expect(objs[0].updatedAt).toMatch(role.updatedAt)
-            })
-
             test('anonymous can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymous = await makeClient()
@@ -189,23 +166,23 @@ describe('BankAccount', () => {
                 const [organization] = await createTestOrganization(admin)
 
                 const [ createdObj ] = await createTestBankAccount(admin, organization)
-                const [ updatedObj ] = await updateTestBankAccount(admin, createdObj.id, { approvedAt: new Date(), approvedBy: 'Admin' })
+                const [ updatedObj ] = await updateTestBankAccount(admin, createdObj.id, { approvedBy: { connect: { id: admin.user.id } } })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
                 expect(createdObj.approvedAt).toBeNull()
                 expect(createdObj.approvedBy).toBeNull()
-                expect(updatedObj.approvedBy).toEqual('Admin')
+                expect(updatedObj.approvedBy.id).toEqual(admin.user.id)
             })
 
             test('when admin updates, approved fields drop', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
 
-                const [ createdObj ] = await createTestBankAccount(admin, organization, { approvedAt: new Date(), approvedBy: 'Admin' })
+                const [ createdObj ] = await createTestBankAccount(admin, organization, { approvedBy: { connect: { id: admin.user.id } } })
                 const [ updatedObj ] = await updateTestBankAccount(admin, createdObj.id, { bankName: 'NewBankName' })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
-                expect(createdObj.approvedBy).toEqual('Admin')
+                expect(createdObj.approvedBy.id).toEqual(admin.user.id)
                 expect(updatedObj.approvedBy).toBeNull()
                 expect(updatedObj.bankName).toEqual('NewBankName')
             })
@@ -226,12 +203,12 @@ describe('BankAccount', () => {
                 const [organization] = await createTestOrganization(support)
 
                 const [ createdObj ] = await createTestBankAccount(support, organization)
-                const [ updatedObj ] = await updateTestBankAccount(support, createdObj.id, { approvedAt: new Date(), approvedBy: 'Support' })
+                const [ updatedObj ] = await updateTestBankAccount(support, createdObj.id, { approvedBy: { connect: { id: support.user.id } } })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
                 expect(createdObj.approvedAt).toBeNull()
                 expect(createdObj.approvedBy).toBeNull()
-                expect(updatedObj.approvedBy).toEqual('Support')
+                expect(updatedObj.approvedBy.id).toEqual(support.user.id)
             })
 
             test('user can\'t', async () => {
@@ -254,7 +231,7 @@ describe('BankAccount', () => {
                 const [ createdObj ] = await createTestBankAccount(admin, organization)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBankAccount(user,
-                    createdObj.id, { approvedAt: new Date(), approvedBy: 'User' })
+                    createdObj.id, { approvedBy: { connect: { id: user.user.id } } })
                 })
             })
 
