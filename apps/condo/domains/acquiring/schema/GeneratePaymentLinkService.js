@@ -236,7 +236,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     }
 
                     // invalid month
-                    if (periodMonth < 1 || periodYear > 12) {
+                    if (periodMonth < 1 || periodMonth > 12) {
                         throw new GQLError({
                             ...errors.RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE,
                         }, context)
