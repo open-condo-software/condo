@@ -11,7 +11,6 @@ const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { getTicketAccessForUser } = require('@condo/domains/ticket/utils/accessSchema')
 
 async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

@@ -10,7 +10,6 @@ const { getById, find } = require('@open-condo/keystone/schema')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-const { getTicketAccessForUser } = require('@condo/domains/ticket/utils/accessSchema')
 
 async function canReadTickets ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()

@@ -25,7 +25,6 @@ const organizationToUserFragment = `
     user {
       id
     }
-    hasAllSpecializations
     role
 `
 
@@ -71,6 +70,7 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
 
     useEffect(() => {
         if (!(initialLinkValue && initialLinkValue.id || cookieOrganizationEmployee)) {
+            console.log('asd')
             setLinkIdState(null)
         }
     }, [initialLinkValue, cookieOrganizationEmployee])
