@@ -58,7 +58,6 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageContacts: { type: Checkbox, defaultValue: false },
         canManageContactRoles: { type: Checkbox, defaultValue: false },
         canManageTicketComments: { type: Checkbox, defaultValue: true },
-        canManageDivisions: { type: Checkbox, defaultValue: false },
         canShareTickets: { type: Checkbox, defaultValue: true },
         canReadBillingReceipts: { type: Checkbox, defaultValue: false },
         canReadPayments: { type: Checkbox, defaultValue: false },
@@ -72,11 +71,6 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             schemaDoc: 'Allows employees with this role to be assigned to tickets as executor',
             type: Checkbox,
             defaultValue: true,
-        },
-        canReadEntitiesOnlyInScopeOfDivision: {
-            schemaDoc: 'Limits the visibility of entities (such as ticket or meter/meterReading) to division',
-            type: Checkbox,
-            defaultValue: false,
         },
         canManageTicketPropertyHints: {
             type: Checkbox,

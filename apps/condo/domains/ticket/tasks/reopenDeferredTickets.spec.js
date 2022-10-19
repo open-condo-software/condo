@@ -47,9 +47,7 @@ describe('reopenDeferredTickets', () => {
     beforeEach(async () => {
         client = await makeClientWithNewRegisteredAndLoggedInUser()
         client2 = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-            canReadEntitiesOnlyInScopeOfDivision: true,
-        })
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
         const [testEmployee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
         employee = testEmployee
         const [testEmployee2] = await createTestOrganizationEmployee(admin, organization, client2.user, role, {})

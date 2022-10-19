@@ -17,6 +17,7 @@ const PropertyScopeOrganizationEmployee = new GQLListSchema('PropertyScopeOrgani
         propertyScope: {
             type: Relationship,
             ref: 'PropertyScope',
+            schemaDoc: 'Property scope which has an employee',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
@@ -25,6 +26,7 @@ const PropertyScopeOrganizationEmployee = new GQLListSchema('PropertyScopeOrgani
         employee: {
             type: Relationship,
             ref: 'OrganizationEmployee',
+            schemaDoc: 'An employee who is in the property scope',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },

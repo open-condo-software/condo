@@ -17,6 +17,7 @@ const PropertyScopeProperty = new GQLListSchema('PropertyScopeProperty', {
         propertyScope: {
             type: Relationship,
             ref: 'PropertyScope',
+            schemaDoc: 'Property scope which has a property',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
@@ -25,6 +26,7 @@ const PropertyScopeProperty = new GQLListSchema('PropertyScopeProperty', {
         property: {
             type: Relationship,
             ref: 'Property',
+            schemaDoc: 'A property which is in the property scope',
             isRequired: true,
             knexOptions: { isNotNullable: true },
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },

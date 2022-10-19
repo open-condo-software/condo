@@ -54,7 +54,7 @@ const mapEmployeesToExcelRow = (employees, employeesSpecializations, locale) => 
         .join(';\n')
 }
 
-const ExportPropertyScopeService = new GQLCustomSchema('ExportPropertyScopeService', {
+const ExportPropertyScopeToExcelService = new GQLCustomSchema('ExportPropertyScopeToExcelService', {
     types: [
         {
             access: true,
@@ -135,5 +135,5 @@ const ExportPropertyScopeService = new GQLCustomSchema('ExportPropertyScopeServi
 })
 
 module.exports = {
-    ExportPropertyScopeService,
+    ExportPropertyScopeToExcelService,
 }
