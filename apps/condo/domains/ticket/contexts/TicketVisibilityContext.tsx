@@ -16,7 +16,6 @@ import {
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     PROPERTY_TICKET_VISIBILITY,
     ASSIGNED_TICKET_VISIBILITY,
-    TICKET_VISIBILITY_OPTIONS,
 } from '@condo/domains/organization/constants/common'
 
 
@@ -39,8 +38,12 @@ const getTicketsQueryByTicketVisibilityType = ({
     employee,
 }) => {
     const assignedTicketFiltersQuery = {
-        assignee: { id: userId },
-        executor: { id: userId },
+        OR: [
+            {
+                assignee: { id: userId },
+                executor: { id: userId },
+            },
+        ],
     }
     const organizationTicketFiltersQuery = {
         organization: { id: organizationId },
@@ -70,6 +73,7 @@ const getTicketsQueryByTicketVisibilityType = ({
             if (isEmployeeInPropertyScopeWithAllProperties && isEmployeeHasAllSpecializations) {
                 return organizationTicketFiltersQuery
             }
+
             if (isEmployeeInPropertyScopeWithAllProperties) {
                 return {
                     OR: [
@@ -111,7 +115,6 @@ const getTicketsQueryByTicketVisibilityType = ({
             }
         }
         case ASSIGNED_TICKET_VISIBILITY: {
-
             return assignedTicketFiltersQuery
         }
 
