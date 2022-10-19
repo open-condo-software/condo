@@ -27,7 +27,7 @@ export const getEmployeeSpecializationsMessage = (intl, employee, organizationEm
                 <Typography.Text>
                     {firstSpecializationMessage}&nbsp;
                     <Typography.Text type='secondary'>
-                        {SpecializationsCountMessage + employeeSpecializations.length}
+                        {SpecializationsCountMessage + (employeeSpecializations.length - 1)}
                     </Typography.Text>
                 </Typography.Text>
             )
