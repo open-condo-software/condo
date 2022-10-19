@@ -1,0 +1,33 @@
+{
+  "name": "@condo/webhooks",
+  "description": "Extension that allows you to connect webhooks to an existing keystone v5 application",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "keystone",
+    "webhooks"
+  ],
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git"
+  },
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "msavelyev@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "exports": {
+    "./*": "./*.js"
+  },
+  "dependencies": {
+    "ajv": "^8.11.0",
+    "lodash": "^4.17.21",
+    "typescript-json-schema": "^0.54.0"
+  },
+  "devDependencies": {
+    "falsey": "^1.0.0",
+    "jest": "^26.6.3"
+  }
+}
