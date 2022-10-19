@@ -37749,7 +37749,7 @@ export type RegisterMultiPaymentVirtualReceiptInput = {
 
 export type RegisterMultiPaymentVirtualReceiptRecipientInput = {
   routingNumber: Scalars['String'];
-  bankAccount: Scalars['String'];
+  number: Scalars['String'];
   accountNumber: Scalars['String'];
 };
 
