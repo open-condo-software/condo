@@ -6,6 +6,9 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
 // All keys belonging to SBBOL integration will have this prefix in their names
 const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 
+/**
+ * Replaces `TokenSet` schema for storage of secrets for SBBOL API
+ */
 class SbbolSecretStorage {
     /**
      *
@@ -53,7 +56,6 @@ class SbbolSecretStorage {
 
     getValue (key) {
         const scopedKey = this.scopedKey(key)
-        console.debug('scopedKey', scopedKey)
         return this.keyStorage.get(scopedKey)
     }
 

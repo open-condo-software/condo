@@ -1,4 +1,5 @@
 const { SbbolSecretStorage } = require('./SbbolSecretStorage')
+
 describe('SbbolSecretStorage', () => {
     it('sets and gets clientSecret', async () => {
         const storage = new SbbolSecretStorage('auth', '12345')
