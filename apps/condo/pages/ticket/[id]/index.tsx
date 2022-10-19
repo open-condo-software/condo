@@ -217,9 +217,8 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const isWarranty = get(ticket, 'isWarranty')
     const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
 
-    const handleTicketStatusChanged = () => {
-        refetchTicket()
-        ticketChangesResult.refetch()
+    const handleTicketStatusChanged = async () => {
+        return Promise.all([refetchTicket(), ticketChangesResult.refetch()])
     }
 
     const ticketPropertyId = get(ticket, ['property', 'id'], null)

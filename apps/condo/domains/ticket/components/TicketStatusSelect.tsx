@@ -30,10 +30,8 @@ const StyledSelect = styled(Select)<IStyledSelect>`
   color: ${({ color }) => color};
   background-color: ${({ backgroundColor }) => backgroundColor};
 
-  &.ant-select-disabled {
-    .ant-select-selection-item {
-      color: ${({ color }) => color};
-    }
+  &.ant-select-disabled .ant-select-selector .ant-select-selection-item {
+    color: ${({ color }) => color};
   }
   
   .ant-select-arrow svg {
@@ -49,8 +47,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
     const intl = useIntl()
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
     const [isUpdating, setUpdating] = useState(false)
-    const handleUpdate = useCallback(() => {
-        if (isFunction(onUpdate)) onUpdate()
+    const handleUpdate = useCallback(async () => {
+        if (isFunction(onUpdate)) await onUpdate()
         setUpdating(false)
     }, [onUpdate, setUpdating])
     const update = Ticket.useUpdate({}, handleUpdate)
