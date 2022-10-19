@@ -645,7 +645,7 @@ __metadata:
     react: ^16.13.1
     react-dom: ^16.13.1
     react-fittext: ^1.0.0
-    react-google-recaptcha-v3: 1.9.8
+    react-google-recaptcha-v3: 1.10.0
     react-hotkeys-hook: 3.4.6
     react-indiana-drag-scroll: ^2.0.1
     react-infinite-scroller: 1.2.6
@@ -34748,15 +34748,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-google-recaptcha-v3@npm:1.9.8":
-  version: 1.9.8
-  resolution: "react-google-recaptcha-v3@npm:1.9.8"
+"react-google-recaptcha-v3@npm:1.10.0":
+  version: 1.10.0
+  resolution: "react-google-recaptcha-v3@npm:1.10.0"
   dependencies:
     hoist-non-react-statics: ^3.3.2
   peerDependencies:
     react: ^17.0 || ^18.0
     react-dom: ^17.0 || ^18.0
-  checksum: 3571954dd6351e32bf2ed8e9d048943ce28cefb193603720a817bc88ca7bab1bc38ee2802779a7b7c917cdcbbf65998578688da95f83224d068916d9fceb853f
+  checksum: 43b19eba4e4ebf96f6d9256fcb5a93aabe69878ce9fe4a6c73a3175d0ec9990abb39302c361ca99d7f20b2401353dce69236f299e64ee23a61fc71633b9107f3
   languageName: node
   linkType: hard
 
