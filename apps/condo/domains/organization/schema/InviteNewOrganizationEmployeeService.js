@@ -88,7 +88,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: [ID], hasAllSpecializations: Boolean }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: [TicketCategoryClassifierWhereUniqueInput], hasAllSpecializations: Boolean }',
         },
         {
             access: true,
@@ -164,10 +164,10 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     ...dvSenderData,
                 })
 
-                for (const specializationId of specializations) {
+                for (const specializationIdObj of specializations) {
                     await OrganizationEmployeeSpecialization.create(context, {
                         employee: { connect: { id: employee.id } },
-                        specialization: { connect: { id: specializationId } },
+                        specialization: { connect: specializationIdObj },
                         ...dvSenderData,
                     })
                 }
