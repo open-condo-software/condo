@@ -9,11 +9,10 @@ const uniq = require('lodash/uniq')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const { checkPermissionInUserOrganizationOrRelatedOrganization, queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RESIDENT_COMMENT_TYPE, COMPLETED_STATUS_TYPE, CANCELED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
-    getTicketAccessForUser,
     getTicketFieldsMatchesResidentFieldsQuery,
 } = require('@condo/domains/ticket/utils/accessSchema')
 
@@ -44,11 +43,14 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         }
     }
 
-    const ticketAccessObj = await getTicketAccessForUser(user)
-
     return {
         ticket: {
-            ...ticketAccessObj,
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                ],
+            },
         },
     }
 }

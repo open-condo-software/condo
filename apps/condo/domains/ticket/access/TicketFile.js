@@ -18,13 +18,14 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
 
     if (user.type === RESIDENT) return { createdBy: { id: user.id } }
 
-    const ticketAccessObj = await getTicketAccessForUser(user)
-
     return {
         OR: [
             {
-                ticket: {
-                    ...ticketAccessObj,
+                organization: {
+                    OR: [
+                        queryOrganizationEmployeeFor(user.id),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    ],
                 },
             },
             { createdBy: { id: user.id } },

@@ -237,7 +237,7 @@ describe('OrganizationEmployeeRole', () => {
         expect(thrownError.errors[0].name).toMatch('ValidationError')
     })
 
-    describe('ticket visibility type', () => {
+    describe.skip('ticket visibility type', () => {
         describe('organization', () => {
             it('can read tickets and related to ticket objects in organization where user is employee', async () => {
                 const admin = await makeLoggedInAdminClient()

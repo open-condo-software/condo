@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
@@ -417,52 +418,16 @@ export const TicketsPageContent = ({
 }
 
 const TicketsPage: ITicketIndexPage = () => {
-    const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const filterMetas = useTicketTableFilters()
 
-    // const employee = get(userOrganization, 'link')
-    //
-    // const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
-    //     where: {
-    //         employee: { id: employee.id },
-    //     },
-    // })
-    // const propertyScopeIds = propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
-    // const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
-    //     where: {
-    //         OR: [
-    //             { id_in: propertyScopeIds },
-    //             { hasAllEmployees: true },
-    //         ],
-    //     },
-    // })
-    // const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
-    //     where: {
-    //         propertyScope: { id_in: propertyScopeIds },
-    //     },
-    // })
-    // const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
-    //     where: {
-    //         employee: { id: employee.id },
-    //     },
-    // })
-    //
-    // const specs = employeeSpecializations.map(empSpec => empSpec.specialization.id)
-    // const properties = propertyScopeProperties.map(scope => scope.property.id)
-    //
-    // const baseQueryLoading = employeesLoading || propertyScopeLoading || propertiesLoading || specializationsLoading
-    const baseTicketsQuery = {
-        organization: { id: userOrganizationId },
-        // classifier: { category: { id_in: specs } },
-        // property: { id_in: properties },
-    }
+    const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()
 
     return (
         <MultipleFilterContextProvider>
             <TicketsPageContent
                 useTableColumns={useTableColumns}
-                // baseTicketsQuery={baseTicketsQuery}
+                baseTicketsQuery={ticketFilterQuery}
+                baseQueryLoading={ticketFilterQueryLoading}
                 filterMetas={filterMetas}
                 sortableProperties={SORTABLE_PROPERTIES}
                 showImport

@@ -25,6 +25,7 @@ const organizationToUserFragment = `
     user {
       id
     }
+    hasAllSpecializations
     role
 `
 
