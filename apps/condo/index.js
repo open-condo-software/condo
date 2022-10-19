@@ -31,6 +31,7 @@ const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
 const { PaymentLinkRouter } = require('@condo/domains/routes/paymentLinkRouter')
+const { PAYMENT_LINK_PATH } = require('@condo/domains/acquiring/constants/links')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -178,7 +179,7 @@ class PaymentLinkMiddleware {
 
         await router.init()
 
-        app.get('/payment-link', router.handleRequest.bind(router))
+        app.get(PAYMENT_LINK_PATH, router.handleRequest.bind(router))
 
         return app
     }
