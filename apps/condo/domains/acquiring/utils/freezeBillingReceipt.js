@@ -16,7 +16,7 @@ async function freezeBillingReceipt (flatReceipt) {
     const context = await getById('BillingIntegrationOrganizationContext', flatReceipt.context)
     const billingIntegration = await getById('BillingIntegration', context.integration)
     const organization = await getById('Organization', context.organization)
-    const receiver = await getById('BillingRecipient', flatReceipt.receiver)
+    const receiver = await getById('BankAccount', flatReceipt.receiver)
     return {
         dv: 1,
         data: {

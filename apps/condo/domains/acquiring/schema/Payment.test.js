@@ -55,14 +55,13 @@ const {
 const dayjs = require('dayjs')
 const Big = require('big.js')
 const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
-const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
         describe('Create', () => {
             test('admin can', async () => {
                 const { admin, billingReceipts, acquiringContext, organization } = await makePayer()
-                const [payment] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                const [ payment ] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
                 expect(payment).toBeDefined()
                 expect(payment).toHaveProperty('id')
                 expect(payment).toHaveProperty(['context', 'id'], acquiringContext.id)
@@ -522,7 +521,7 @@ describe('Payment', () => {
             describe('Cannot update frozen fields', () => {
                 const nonUpdatableFields = ['organization']
                 const relationFields = ['organization', 'context', 'multiPayment', 'receipt']
-                const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber', 'recipientBic', 'recipientBankAccount']
+                const valueFields = ['amount', 'currencyCode', 'period', 'accountNumber', 'recipientRoutingNumber', 'recipientNumber']
                 // NOTE: Cannot transit from other statuses, so checking only this ones
                 const statuses = [PAYMENT_INIT_STATUS, PAYMENT_PROCESSING_STATUS]
                 describe('Value-fields', () => {

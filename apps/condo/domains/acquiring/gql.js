@@ -15,13 +15,13 @@ const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRIN
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
 const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegrationAccessRight', ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name explicitFeeDistributionSchema { recipient percent } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { recipient percent } email reason recipient { bic bankAccount iec tin } }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name explicitFeeDistributionSchema { recipient percent } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { recipient percent } email reason recipient { country currencyCode tin number routingNumber } }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientRoutingNumber recipientNumber }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`

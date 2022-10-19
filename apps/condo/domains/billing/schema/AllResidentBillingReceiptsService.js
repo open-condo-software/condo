@@ -24,19 +24,19 @@ const { GQLCustomSchema, find } = require('@condo/keystone/schema')
  * @param context {Object}
  * @param organizationId {string}
  * @param accountNumber {string}
- * @param bic {string}
- * @param bankAccount {string}
+ * @param routingNumber {string}
+ * @param number {string}
  * @param period {string}
  * @return {Promise<*>}
  */
-const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
+const getPaymentsSum = async (context, organizationId, accountNumber, period, routingNumber, number) => {
     const payments = await  find('Payment', {
         organization: { id: organizationId },
         accountNumber: accountNumber,
         period: period,
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-        recipientBic: bic,
-        recipientBankAccount: bankAccount,
+        recipientRoutingNumber: routingNumber,
+        recipientNumber: number,
     })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
 }
@@ -181,8 +181,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         organizationId,
                         accountNumber,
                         get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
+                        get(receipt, ['recipient', 'routingNumber'], null),
+                        get(receipt, ['recipient', 'number'], null)
                     )
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)

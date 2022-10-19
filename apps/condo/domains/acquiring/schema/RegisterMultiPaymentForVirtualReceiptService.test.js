@@ -38,7 +38,7 @@ function generateReceipt (billingAccount) {
         period: '2022-09-01',
         recipient: {
             routingNumber: '044525256',
-            bankAccount: '40702810996180000019',
+            number: '40702810996180000019',
             accountNumber: billingAccount.number,
         },
     }

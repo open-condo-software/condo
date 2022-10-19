@@ -22,6 +22,7 @@ const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants
 const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { createValidRuNumber, createValidRuRoutingNumber } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
@@ -289,10 +290,11 @@ async function updateTestMultiPayment (client, id, extraAttrs = {}, params = {})
 async function createTestPayment (client, organization, receipt=null, context=null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const amount = receipt ? receipt.toPay : String(Math.round(Math.random() * 100000) / 100 + 100)
-    const recipientBic = get(receipt,  ['recipient', 'bic'], faker.datatype.number().toString())
-    const recipientBankAccount = get(receipt,  ['recipient', 'bankAccount'], faker.datatype.number().toString())
+    const recipientRoutingNumber = get(receipt,  ['recipient', 'routingNumber'], createValidRuRoutingNumber())
+    const recipientNumber = get(receipt,  ['recipient', 'number'], createValidRuNumber(recipientRoutingNumber))
     const explicitFee = String(Math.floor(Math.random() * 100) / 2)
     const implicitFee = String(Math.floor(Math.random() * 100) / 2)
     const period = dayjs().format('YYYY-MM-01')
@@ -313,8 +315,8 @@ async function createTestPayment (client, organization, receipt=null, context=nu
         organization: { connect: { id: organization.id } },
         context: contextId ? { connect: {id: contextId} } : null,
         period,
-        recipientBic,
-        recipientBankAccount,
+        recipientRoutingNumber,
+        recipientNumber,
         ...extraAttrs,
     }
     const obj = await Payment.create(client, attrs)

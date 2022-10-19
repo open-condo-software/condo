@@ -90,7 +90,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentVirtualReceiptRecipientInput { routingNumber: String!, bankAccount: String!, accountNumber: String! }',
+            type: 'input RegisterMultiPaymentVirtualReceiptRecipientInput { routingNumber: String!, number: String!, accountNumber: String! }',
         },
         {
             access: true,
@@ -141,7 +141,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                 }
 
                 // Stage 2. Check VirtualReceipt
-                const { currencyCode, amount, period, recipient: { routingNumber: bic, bankAccount, accountNumber } } = receipt
+                const { currencyCode, amount, period, recipient: { routingNumber: routingNumber, number, accountNumber } } = receipt
 
                 if (!ISO_CODES.includes(currencyCode)) {
                     throw new GQLError({
@@ -193,8 +193,8 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                     period,
                     context: { connect: { id: acquiringContext.id } },
                     organization: { connect: { id: acquiringContext.organization } },
-                    recipientBic: bic,
-                    recipientBankAccount: bankAccount,
+                    recipientRoutingNumber: routingNumber,
+                    recipientNumber: number,
                     ...paymentCommissionFields,
                 })
                 const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }

@@ -139,7 +139,7 @@ const PAYMENT_REQUIRED_FIELDS = {
     [PAYMENT_ERROR_STATUS]: [],
 }
 
-const DEFAULT_PAYMENT_FROZEN_FIELDS = ['amount', 'currencyCode', 'accountNumber', 'period', 'receipt', 'frozenReceipt', 'context', 'organization', 'recipientBic', 'recipientBankAccount']
+const DEFAULT_PAYMENT_FROZEN_FIELDS = ['amount', 'currencyCode', 'accountNumber', 'period', 'receipt', 'frozenReceipt', 'context', 'organization', 'recipientRoutingNumber', 'recipientNumber']
 // LIST OF FIELDS, WHICH CANNOT BE CHANGED DURING PAYMENT STATUS UPDATES
 const PAYMENT_FROZEN_FIELDS = {
     [PAYMENT_INIT_STATUS]: DEFAULT_PAYMENT_FROZEN_FIELDS,

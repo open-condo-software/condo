@@ -192,13 +192,13 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
         },
 
-        recipientBic: {
-            schemaDoc: 'Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
+        recipientRoutingNumber: {
+            schemaDoc: 'Routing number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: Text,
             isRequired: true,
         },
 
-        recipientBankAccount: {
+        recipientNumber: {
             schemaDoc: 'Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address',
             type: Text,
             isRequired: true,
@@ -244,8 +244,8 @@ const Payment = new GQLListSchema('Payment', {
                     if (!acquiringContexts.length) {
                         return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
                     }
-                    if (get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic']
-                        || get(receipt, ['recipient', 'bankAccount']) !== resolvedData['recipientBankAccount']) {
+                    if (get(receipt, ['recipient', 'routingNumber']) !== resolvedData['recipientRoutingNumber']
+                        || get(receipt, ['recipient', 'number']) !== resolvedData['recipientNumber']) {
                         return addValidationError(PAYMENT_RECIPIENT_MISMATCH)
                     }
                 }

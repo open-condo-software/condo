@@ -253,8 +253,8 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                     frozenReceipt,
                     context: { connect: { id: acquiringContext.id } },
                     organization: { connect: { id: acquiringContext.organization } },
-                    recipientBic: billingReceipt.recipient.bic,
-                    recipientBankAccount: billingReceipt.recipient.bankAccount,
+                    recipientRoutingNumber: billingReceipt.recipient.routingNumber,
+                    recipientNumber: billingReceipt.recipient.number,
                     ...paymentCommissionFields,
                 })
                 const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }

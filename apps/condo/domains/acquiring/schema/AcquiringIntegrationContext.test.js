@@ -24,11 +24,12 @@ const {
     expectToThrowGraphQLRequestError,
 } = require('@condo/domains/common/utils/testSchema')
 
-const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
 const dayjs = require('dayjs')
-const { expectToThrowGQLError } = require('../../common/utils/testSchema')
+const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 
 describe('AcquiringIntegrationContext', () => {
     describe('CRUD tests', () => {
@@ -448,16 +449,15 @@ describe('AcquiringIntegrationContext', () => {
             const [organization] = await registerNewOrganization(admin)
             const [billingIntegration] = await createTestBillingIntegration(admin)
             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
-            const recipient = createTestRecipient()
+            const recipient = createValidRuBankAccount()
             const reason = faker.lorem.sentence(1)
             const email = faker.internet.email()
             const [context] = await createTestAcquiringIntegrationContext(admin, organization, integration, { email, reason, recipient })
             expect(context.email).toEqual(normalizeEmail(email))
             expect(context.reason).toEqual(reason)
-            expect(context.recipient.bankAccount).toEqual(recipient.bankAccount)
-            expect(context.recipient.iec).toEqual(recipient.iec)
             expect(context.recipient.tin).toEqual(recipient.tin)
-            expect(context.recipient.bic).toEqual(recipient.bic)
+            expect(context.recipient.number).toEqual(recipient.number)
+            expect(context.recipient.routingNumber).toEqual(recipient.routingNumber)
         })
     })
 })
