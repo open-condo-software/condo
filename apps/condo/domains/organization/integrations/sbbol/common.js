@@ -37,7 +37,7 @@ function getSbbolUserInfoErrors (userInfo) {
     return (ajv.errors) ? ajv.errors.map(x => x.message) : []
 }
 
-const sbbolSecretStorage = new SbbolSecretStorage(SBBOL_AUTH_CONFIG.client_id)
+const sbbolSecretStorage = new SbbolSecretStorage('auth', SBBOL_AUTH_CONFIG.client_id)
 
 module.exports = {
     getSbbolUserInfoErrors,

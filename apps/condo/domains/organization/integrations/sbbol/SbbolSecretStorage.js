@@ -11,12 +11,16 @@ class SbbolSecretStorage {
     // Redis client instance to store values
     #keyStorage
 
+    // SBBOL has many APIs. Instance of this storage is associated for specified API to prevent collisions with other
+    #apiName
+
     // Identifier of our integration (contour) in SBBOL
     #clientId
 
-    constructor (clientId) {
+    constructor (apiName, clientId) {
         this.#keyStorage = getRedisClient('sbbol')
         this.#clientId = clientId
+        this.#apiName = apiName
     }
 
     get clientId () {
@@ -69,7 +73,7 @@ class SbbolSecretStorage {
     }
 
     #scopedKey (key) {
-        return [SBBOL_REDIS_KEY_PREFIX, this.#clientId, key].join(':')
+        return [SBBOL_REDIS_KEY_PREFIX, this.#apiName, this.#clientId, key].join(':')
     }
 }
 
