@@ -12,4 +12,10 @@ describe('SbbolSecretStorage', () => {
         storage.setRefreshToken('abcdefg-1234567')
         expect(await storage.getRefreshToken()).toEqual('abcdefg-1234567')
     })
+
+    it('returns false for isRefreshTokenExpired() for not expired refreshToken', async () => {
+        const storage = new SbbolSecretStorage('auth', '12345')
+        storage.setRefreshToken('abcdefg-1234567', { ttl: 999 })
+        expect(await storage.isRefreshTokenExpired()).toBeFalsy()
+    })
 })
