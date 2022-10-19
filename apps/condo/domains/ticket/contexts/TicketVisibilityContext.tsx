@@ -73,7 +73,6 @@ const getTicketsQueryByTicketVisibilityType = ({
             if (isEmployeeInPropertyScopeWithAllProperties && isEmployeeHasAllSpecializations) {
                 return organizationTicketFiltersQuery
             }
-
             if (isEmployeeInPropertyScopeWithAllProperties) {
                 return {
                     OR: [
@@ -125,10 +124,11 @@ const getTicketsQueryByTicketVisibilityType = ({
 }
 
 const TicketVisibilityContextProvider: React.FC = ({ children }) => {
-    const { user } = useAuth()
+    const { user, isLoading } = useAuth()
     const userId = get(user, 'id', null)
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
+    const userOrganizationLoading = get(userOrganization, 'isLoading')
     const employee = get(userOrganization, 'link')
     const employeeId = get(employee, 'id', null)
     const ticketVisibilityType = get(employee, ['role', 'ticketVisibilityType'])
@@ -149,7 +149,7 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     })
     const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
-            propertyScope: { id_in: propertyScopeIds },
+            propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
     })
     const { objs: employeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
@@ -171,7 +171,8 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         employee,
     })
 
-    const ticketFilterQueryLoading = employeesLoading || propertyScopeLoading || propertiesLoading || specializationsLoading
+    const ticketFilterQueryLoading = isLoading || userOrganizationLoading || employeesLoading ||
+        propertyScopeLoading || propertiesLoading || specializationsLoading
 
     return (
         <TicketVisibilityContext.Provider value={{

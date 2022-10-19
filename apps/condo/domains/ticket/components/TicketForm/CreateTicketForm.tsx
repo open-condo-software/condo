@@ -116,11 +116,6 @@ export const CreateTicketForm: React.FC = () => {
         })
     }, [organization, action])
 
-    const initialValues = useMemo(() => ({
-        assignee: auth.user.id,
-        executor: auth.user.id,
-    }), [auth.user.id])
-
     const getCompletedNotification = useCallback((data) => ({
         message: (
             <Typography.Text strong>
@@ -137,7 +132,7 @@ export const CreateTicketForm: React.FC = () => {
     return useMemo(() => (
         <BaseTicketForm
             action={createAction}
-            initialValues={initialValues}
+            initialValues={{}}
             organization={organization}
             role={link.role}
             autoAssign
@@ -146,5 +141,5 @@ export const CreateTicketForm: React.FC = () => {
         >
             {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
-    ), [createAction, getCompletedNotification, initialValues, link.role, organization])
+    ), [createAction, getCompletedNotification, link.role, organization])
 }
