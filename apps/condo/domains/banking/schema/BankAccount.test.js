@@ -110,11 +110,16 @@ describe('BankAccount', () => {
                 const [ role ] = await createTestOrganizationEmployeeRole(admin, organization)
                 await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
 
-                await createTestBankAccount(admin, organization)
+                const [ createdObj ] = await createTestBankAccount(admin, organization)
 
-                const readObjects = await BankAccount.getAll(employeeUserClient, {})
+                const [ readObj ] = await BankAccount.getAll(employeeUserClient, {})
 
-                expect(readObjects).toHaveLength(0)
+                expect(createdObj.organization.id).toEqual(readObj.organization.id)
+                expect(createdObj.tin).toEqual(readObj.tin)
+                expect(createdObj.country).toEqual(readObj.country)
+                expect(createdObj.routingNumber).toEqual(readObj.routingNumber)
+                expect(createdObj.number).toEqual(readObj.number)
+                expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
             })
 
             test('user can\'t', async () => {
