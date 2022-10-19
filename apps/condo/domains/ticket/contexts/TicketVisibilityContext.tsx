@@ -61,6 +61,7 @@ const getTicketsQueryByTicketVisibilityType = ({
             }
 
             return {
+                ...organizationTicketFiltersQuery,
                 OR: [
                     {
                         property: { id_in: properties },
@@ -75,6 +76,7 @@ const getTicketsQueryByTicketVisibilityType = ({
             }
             if (isEmployeeInPropertyScopeWithAllProperties) {
                 return {
+                    ...organizationTicketFiltersQuery,
                     OR: [
                         {
                             AND: [
@@ -90,6 +92,7 @@ const getTicketsQueryByTicketVisibilityType = ({
             }
             if (isEmployeeHasAllSpecializations) {
                 return {
+                    ...organizationTicketFiltersQuery,
                     OR: [
                         {
                             property: { id_in: properties },
@@ -100,6 +103,7 @@ const getTicketsQueryByTicketVisibilityType = ({
             }
 
             return {
+                ...organizationTicketFiltersQuery,
                 OR: [
                     {
                         AND: [
@@ -114,7 +118,10 @@ const getTicketsQueryByTicketVisibilityType = ({
             }
         }
         case ASSIGNED_TICKET_VISIBILITY: {
-            return assignedTicketFiltersQuery
+            return {
+                ...organizationTicketFiltersQuery,
+                ...assignedTicketFiltersQuery,
+            }
         }
 
         default: {
