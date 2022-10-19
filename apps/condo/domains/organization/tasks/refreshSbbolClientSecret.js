@@ -10,7 +10,7 @@ const { sbbolSecretStorage } = require('../integrations/sbbol/common')
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1 * * *', async () => {
     await changeClientSecret({
         clientId: sbbolSecretStorage.clientId,
-        currentClientSecret: sbbolSecretStorage.clientSecret,
+        currentClientSecret: await sbbolSecretStorage.getClientSecret(),
         newClientSecret: faker.random.alphaNumeric(8),
     })
 })

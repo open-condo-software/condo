@@ -7,73 +7,66 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
 const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 
 class SbbolSecretStorage {
-
-    // Redis client instance to store values
-    #keyStorage
-
-    // SBBOL has many APIs. Instance of this storage is associated for specified API to prevent collisions with other
-    #apiName
-
-    // Identifier of our integration (contour) in SBBOL
-    #clientId
-
+    /**
+     *
+     * @param apiName - SBBOL has many APIs. Instance of this storage is associated for specified API to prevent collisions with other
+     * @param clientId - Identifier of our integration (contour) in SBBOL
+     */
     constructor (apiName, clientId) {
-        this.#keyStorage = getRedisClient('sbbol')
-        this.#clientId = clientId
-        this.#apiName = apiName
+        this.keyStorage = getRedisClient('sbbol')
+        this.clientId = clientId
+        this.apiName = apiName
     }
 
-    get clientId () {
-        return this.#clientId
-    }
-
-    get clientSecret () {
+    async getClientSecret () {
         // When no clientSecret has been stored yet, return a seeded one
-        return this.#getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
+        return this.getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
     }
 
-    setClientSecret (value, ttl) {
-        this.#setValue('clientSecret', value, ttl)
+    async setClientSecret (value, ttl) {
+        this.setValue('clientSecret', value, ttl)
     }
 
-    get accessToken () {
-        return this.#getValue('accessToken')
+    async getAccessToken () {
+        return this.getValue('accessToken')
     }
 
     async setAccessToken (value, ttl) {
-        await this.#setValue('accessToken', value, ttl)
+        await this.setValue('accessToken', value, ttl)
     }
 
-    get isAccessTokenExpired () {
-        return this.#keyStorage.ttl(this.#scopedKey('accessToken')) <= 0
+    async isAccessTokenExpired () {
+        return this.keyStorage.ttl(this.scopedKey('accessToken')) <= 0
     }
 
-    get refreshToken () {
-        return this.#getValue('refreshToken')
+    async getRefreshToken () {
+        return this.getValue('refreshToken')
     }
 
     async setRefreshToken (value, ttl) {
-        await this.#setValue('refreshToken', value, ttl)
+        await this.setValue('refreshToken', value, ttl)
     }
 
-    get isRefreshTokenExpired () {
-        return this.#keyStorage.ttl(this.#scopedKey('refreshToken')) <= 0
+    async isRefreshTokenExpired () {
+        return this.keyStorage.ttl(this.scopedKey('refreshToken')) <= 0
     }
 
-    #getValue (key) {
-        return this.#keyStorage.get(this.#scopedKey(key))
+    getValue (key) {
+        const scopedKey = this.scopedKey(key)
+        console.debug('scopedKey', scopedKey)
+        return this.keyStorage.get(scopedKey)
     }
 
-    #setValue (key, value, ttl) {
+    setValue (key, value, ttl) {
         if (ttl) {
-            this.#keyStorage.set(this.#scopedKey(key), value, 'EX', ttl)
+            this.keyStorage.set(this.scopedKey(key), value, 'EX', ttl)
         } else {
-            this.#keyStorage.set(this.#scopedKey(key), value)
+            this.keyStorage.set(this.scopedKey(key), value)
         }
     }
 
-    #scopedKey (key) {
-        return [SBBOL_REDIS_KEY_PREFIX, this.#apiName, this.#clientId, key].join(':')
+    scopedKey (key) {
+        return [SBBOL_REDIS_KEY_PREFIX, this.apiName, this.clientId, key].join(':')
     }
 }
 
