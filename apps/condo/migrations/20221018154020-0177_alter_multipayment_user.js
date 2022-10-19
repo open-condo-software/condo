@@ -5,6 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+
+--
 -- Alter field user on multipayment
 --
 SET CONSTRAINTS "MultiPayment_user_2d581ca2_fk_User_id" IMMEDIATE; ALTER TABLE "MultiPayment" DROP CONSTRAINT "MultiPayment_user_2d581ca2_fk_User_id";
@@ -18,6 +23,11 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+
 --
 -- Alter field user on multipayment
 --
