@@ -124,7 +124,7 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
             || (operation === 'update' && !!resolvedData[addressFieldName] && existingItem[addressFieldName] !== resolvedData[addressFieldName])
         ) {
             const client = conf.NODE_ENV === 'test'
-                ? createTestAddressServiceClientInstance(existingItem || resolvedData)
+                ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
             const result = await client.search(resolvedData[addressFieldName])
 
