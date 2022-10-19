@@ -16,6 +16,7 @@ import { TicketStatusTypeType } from '@app/condo/schema'
 import { useTicketCancelModal } from '@condo/domains/ticket/hooks/useTicketCancelModal'
 import { useTicketDeferModal } from '@condo/domains/ticket/hooks/useTicketDeferModal'
 import { Dayjs } from 'dayjs'
+import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
 
 interface IStyledSelect {
     color: string
@@ -47,6 +48,9 @@ const StyledSelect = styled(Select)<IStyledSelect>`
 
 export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, loading: parentLoading, ...props }) => {
     const intl = useIntl()
+
+    const { getSuccessfulChangeNotification } = useNotificationMessages()
+
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
     const [isUpdating, setUpdating] = useState(false)
     const handleUpdate = useCallback(() => {
@@ -58,7 +62,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
     const updateTicketStatus = useCallback((variables) => runMutation({
         action:() => update(variables, ticket),
         intl,
-    }), [ticket])
+        OnCompletedMsg: getSuccessfulChangeNotification,
+    }), [getSuccessfulChangeNotification, intl, ticket, update])
 
     const updateTicket = useCallback((value) => {
         setUpdating(true)

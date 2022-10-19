@@ -12,6 +12,7 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { Button } from '@condo/domains/common/components/Button'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
+import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -42,8 +43,8 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
     const EmergencyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.emergencyDeadline.label' })
     const WarrantyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.warrantyDeadline.label' })
     const SelectLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.select.label' })
-    const ChangesSavedLabel = intl.formatMessage({ id: 'ChangesSaved' })
-    const ReadyLabel = intl.formatMessage({ id: 'Ready' })
+
+    const { getSuccessfulChangeNotification } = useNotificationMessages()
 
     const router = useRouter()
 
@@ -77,18 +78,13 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
         })
     }, [OptionCurrentDateLabel, OptionWithoutDeadlineLabel, intl])
 
-    const getCompletedNotification = useCallback(() => ({
-        message: <Typography.Text strong>{ReadyLabel}</Typography.Text>,
-        description: <Typography.Text type='secondary'>{ChangesSavedLabel}</Typography.Text>,
-    }), [ChangesSavedLabel, ReadyLabel])
-
     const settingsForm = useMemo(() => (
         <FormWithAction
             initialValues={initialValues}
             action={updateAction}
             colon={false}
             layout='horizontal'
-            OnCompletedMsg={getCompletedNotification}
+            OnCompletedMsg={getSuccessfulChangeNotification}
         >
             {({ handleSave, isLoading }) => (
                 <Row gutter={BIG_ROW_GUTTERS}>
@@ -193,7 +189,7 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                 </Row>
             )}
         </FormWithAction>
-    ), [DefaultDeadlineLabel, EmergencyDeadlineLabel, PaidDeadlineLabel, SelectLabel, WarrantyDeadlineLabel, getCompletedNotification, initialValues, options, updateAction])
+    ), [DefaultDeadlineLabel, EmergencyDeadlineLabel, PaidDeadlineLabel, SelectLabel, WarrantyDeadlineLabel, getSuccessfulChangeNotification, initialValues, options, updateAction])
 
     if (loading || !ticketSetting) return null
 
