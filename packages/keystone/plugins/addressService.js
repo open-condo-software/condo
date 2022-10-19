@@ -123,7 +123,7 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
             // 3. In the case of update and if property address has been changed
             || (operation === 'update' && !!resolvedData[addressFieldName] && existingItem[addressFieldName] !== resolvedData[addressFieldName])
         ) {
-            const client = conf.NODE_ENV === 'test'
+            const client = conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
                 ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
             const result = await client.search(resolvedData[addressFieldName])
