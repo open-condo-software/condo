@@ -1,6 +1,6 @@
 const { render } = require('@condo/domains/common/schema/json.utils')
 const { BILLING_RECEIPT_RECIPIENT_FIELD_NAME, BILLING_RECEIPT_RECIPIENT_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
-const { RECIPIENT_FIELDS_DEFINITION, RECIPIENT_FIELD: COMMON_RECIPIENT_FIELD, RECIPIENT_QUERY_LIST } = require('@condo/domains/acquiring/schema/fields/Recipient')
+const { RECIPIENT_FIELDS_DEFINITION, RECIPIENT_FIELD: COMMON_RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 
 
 const RECIPIENT_GRAPHQL_TYPES = `
@@ -24,5 +24,4 @@ const RECIPIENT_FIELD = {
 module.exports = {
     RECIPIENT_GRAPHQL_TYPES,
     RECIPIENT_FIELD,
-    RECIPIENT_QUERY_LIST,
 }

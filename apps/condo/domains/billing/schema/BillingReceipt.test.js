@@ -10,11 +10,9 @@ const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     makeResidentClientWithOwnReceipt,
     createReceiptsReader,
-    createTestRecipient,
     createTestBillingProperty,
     createTestBillingAccount,
     updateTestBillingAccount,
-    createTestBillingRecipient,
     BillingReceipt,
     createTestBillingReceipt,
     createTestBillingReceipts,
@@ -40,6 +38,9 @@ const {
 } = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@condo/keystone/test.utils')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
+const { createValidRuBankAccount, createValidRuTin10 } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
+const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('BillingReceipt', () => {
     let admin
@@ -856,44 +857,48 @@ describe('BillingReceipt', () => {
                 const tin = trustedOrganization.tin
                 const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
                 const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
-                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
+                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createValidRuBankAccount({ tin: tin }) })
 
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'isApproved'], true)
+                expect(receipt).toHaveProperty(['receiver', 'approvedBy'], { id: admin.user.id })
             })
             test('Should create recipient and not set receiver.isApproved field automatically if billing integration is not trusted and tin matches', async () => {
                 const { context: trustedBillingContext, organization: trustedOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin( { isTrustedBankAccountSource: false })
                 const tin = trustedOrganization.tin
                 const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
                 const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
-                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
+                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createValidRuBankAccount({ tin: tin }) })
 
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'isApproved'], false)
+                expect(receipt).toHaveProperty(['receiver', 'approvedBy'], null)
             })
             test('Should create recipient and not set receiver.isApproved field automatically if billing integration is trusted and tin do not match', async () => {
-                const { context: trustedBillingContext, organization: trustedOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin( { isTrustedBankAccountSource: true })
-                const tin = trustedOrganization.tin
+                const { context: trustedBillingContext } = await makeContextWithOrganizationAndIntegrationAsAdmin( { isTrustedBankAccountSource: true })
+                const anotherTin = createValidRuTin10()
+
                 const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
                 const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
-                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin + '0' }) })
+                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createValidRuBankAccount({ tin: anotherTin }) })
 
                 expect(attrs).not.toHaveProperty('receiver')
                 expect(attrs).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['recipient', 'tin'])
                 expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'isApproved'], false)
+                expect(receipt).toHaveProperty(['receiver', 'approvedBy'], null)
             })
             test('Should connect to existing recipient, if passed explicitly', async () => {
-                const recipientAttrs = createTestRecipient()
-                const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
-                const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
+                const recipientAttrs = createValidRuBankAccount()
+                const receiptRecipientField = pick(recipientAttrs, ['country', 'currencyCode', 'tin', 'number', 'routingNumber'])
+
+                const [organization] = await createTestOrganization(admin)
+                const [recipient] = await createTestBankAccount(admin, organization, recipientAttrs)
+
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                     recipient: receiptRecipientField,
                     receiver: { connect: { id: recipient.id } },
@@ -903,9 +908,12 @@ describe('BillingReceipt', () => {
                 expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
             })
             test('Should automatically connect to existing recipient, if receiver is not passed', async () => {
-                const recipientAttrs = createTestRecipient()
-                const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
-                const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
+                const recipientAttrs = createValidRuBankAccount()
+                const receiptRecipientField = pick(recipientAttrs, ['country', 'currencyCode', 'tin', 'number', 'routingNumber'])
+
+                const [organization] = await createTestOrganization(admin)
+                const [recipient] = await createTestBankAccount(admin, organization, recipientAttrs)
+
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
                     recipient: receiptRecipientField,
                 })

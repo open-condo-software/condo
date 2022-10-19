@@ -93,7 +93,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         services: SERVICES_FIELD,
 
-        //TODO @DanilovMaxim
         recipient: RECIPIENT_FIELD,
 
         // TODO @toplenboren (Doma-2241) make this not null!
@@ -175,6 +174,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 const integrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
                 const organizationId = get(integrationContext, 'organization')
 
+                const { authedItem: { id = null } = {} } = context
+
                 const createdBankAccount = await BankAccount.create(context, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: fingerprint },
@@ -184,7 +185,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                     routingNumber: get(recipient, 'routingNumber'),
                     number: get(recipient, 'number'),
                     currencyCode: get(recipient, 'currencyCode'),
-                    approvedBy: isTrustedBankAccountSource && tinMatches ? 'GIS' : null,
+                    approvedBy: isTrustedBankAccountSource && tinMatches ? { connect: { id: id } } : null,
                     bankName, territoryCode,
                 })
                 receiverId = createdBankAccount.id

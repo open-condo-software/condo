@@ -3,14 +3,13 @@ const { Json } = require('@condo/keystone/fields')
 const Ajv = require('ajv')
 
 const RECIPIENT_FIELDS_DEFINITION = {
-    name: 'String',
     bankName: 'String',
     territoryCode: 'String',
-    offsettingAccount: 'String',
+    country: 'String!',
+    currencyCode: 'String!',
     tin: 'String!',
-    iec: 'String',
-    bic: 'String!',
-    bankAccount: 'String!',
+    number: 'String!',
+    routingNumber: 'String!',
 }
 
 const RECIPIENT_FIELD_NAME = 'RecipientField'

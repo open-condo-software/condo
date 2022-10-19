@@ -32,6 +32,7 @@ const { registerServiceConsumerByTestClient } = require('@condo/domains/resident
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
+const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BillingIntegration = generateGQLTestUtils(BillingIntegrationGQL)
@@ -468,7 +469,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         period: '2021-12-01',
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
-        recipient: createTestRecipient(),
+        recipient: createValidRuBankAccount(),
         services: [
             {
                 id: faker.datatype.number().toString(),
@@ -515,7 +516,7 @@ async function createTestBillingReceipts (client, contexts, properties, accounts
                 period: '2021-12-01',
                 importId: faker.random.alphaNumeric(8),
                 toPay: (faker.datatype.number() + 50).toString(),
-                recipient: createTestRecipient(),
+                recipient: createValidRuBankAccount(),
                 services: [
                     {
                         id: faker.datatype.number().toString(),
@@ -623,7 +624,8 @@ async function createTestBillingRecipient(client, context, extraAttrs = {}) {
     if (!context.id) throw new Error('no context')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const recipient = createTestRecipient()
+    //TODO(MAXIMDANILOV): clear model billingRecipient
+    //const recipient = createTestRecipient()
     const attrs = {
         dv: 1,
         sender,
@@ -801,23 +803,23 @@ async function makeClientWithPropertyAndBilling({ billingIntegrationContextArgs,
     return { organizationClient: client, integrationClient: integrationClient }
 }
 
-function createTestRecipient (extra = {}) {
-    const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
-    const validRecipient = {
-        name: faker.company.companyName(),
-        tin: faker.datatype.number(range(10)).toString(),
-        iec: faker.datatype.number(range(9)).toString(),
-        bic: faker.finance.bic().toString(),
-        bankAccount: faker.finance.account(12).toString(),
-        bankName: faker.company.companyName(),
-        territoryCode: faker.datatype.number().toString(),
-        offsettingAccount: faker.finance.account(12).toString(),
-    }
-    return {
-        ...validRecipient,
-        ...extra,
-    }
-}
+// function createTestRecipient (extra = {}) {
+//     const range = (length) => ({ min: Math.pow(10,length - 1), max: Math.pow(10,length)-1 })
+//     const validRecipient = {
+//         name: faker.company.companyName(),
+//         tin: faker.datatype.number(range(10)).toString(),
+//         iec: faker.datatype.number(range(9)).toString(),
+//         bic: faker.finance.bic().toString(),
+//         bankAccount: faker.finance.account(12).toString(),
+//         bankName: faker.company.companyName(),
+//         territoryCode: faker.datatype.number().toString(),
+//         offsettingAccount: faker.finance.account(12).toString(),
+//     }
+//     return {
+//         ...validRecipient,
+//         ...extra,
+//     }
+// }
 
 async function makeResidentClientWithOwnReceipt(existingResidentClient) {
 
@@ -894,7 +896,6 @@ module.exports = {
     createReceiptsReader,
     makeClientWithPropertyAndBilling,
     BillingRecipient, createTestBillingRecipient, updateTestBillingRecipient,
-    createTestRecipient,
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
     makeResidentClientWithOwnReceipt,
     makeServiceUserForIntegration,
