@@ -1,0 +1,33 @@
+name: WebHooks
+
+# Checks that WebHook tests are passing when anything in package changes
+# Does not include schema / tasks testing, as this is the responsibility of every application using the package
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-including-and-excluding-paths
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'packages/webhooks/**'
+  push:
+    branches: [ master ]
+    paths:
+      - 'packages/webhooks/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Install packages
+        run: yarn install --immutable
+
+      - name: Test webhooks utils
+        run: yarn workspace @condo/webhooks jest

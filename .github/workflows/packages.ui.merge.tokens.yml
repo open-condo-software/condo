@@ -30,7 +30,7 @@ jobs:
         with:
           token: ${{ secrets.DESIGN_BOT_PAT }}
           branch: figma/promotion
-          labels: 🤖 Automatic PR, 🎨 UI-kit, 👨🏻‍🎨 Request UI-kit review, ✋🙂 Review please
+          labels: 🤖 Automatic PR, 🎨 UI-kit, 👨🏻‍🎨 Request UI-kit review, ✋🙂 Review please, 📦 Packages
           title: '[UI-kit] Update figma tokens'
           assignees: SavelevMatthew
           reviewers: SavelevMatthew
