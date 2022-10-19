@@ -1,8 +1,6 @@
 /** @jsx jsx */
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -67,6 +65,7 @@ const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 const BUTTON_WRAPPER_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
 
 const TicketsTable = ({
+    baseQueryLoading,
     filterMetas,
     sortBy,
     searchTicketsQuery,
@@ -108,7 +107,7 @@ const TicketsTable = ({
 
     const { columns, loading: columnsLoading } = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
 
-    const loading = (isTicketsFetching || columnsLoading) && !isRefetching
+    const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -407,6 +406,7 @@ export const TicketsPageContent = ({
                                         filterMetas={filterMetas}
                                         sortBy={sortBy}
                                         searchTicketsQuery={searchTicketsQuery}
+                                        baseQueryLoading={baseQueryLoading || ticketsWithoutFiltersCountLoading}
                                     />
                                 </Row>
                             )

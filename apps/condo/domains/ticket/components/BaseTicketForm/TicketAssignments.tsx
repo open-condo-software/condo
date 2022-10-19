@@ -41,6 +41,7 @@ const TicketAssignments = ({
     disableUserInteraction,
     categoryClassifier,
     form,
+    autoAssign,
 }: TicketAssignmentsProps) => {
     const intl = useIntl()
     const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
@@ -132,7 +133,7 @@ const TicketAssignments = ({
                 <Col span={isSmall ? 24 : 18}>
                     <Row justify='space-between'>
                         {
-                            !loading && propertyId && categoryClassifier && (
+                            autoAssign && !loading && propertyId && categoryClassifier && (
                                 <AutoAssigner
                                     form={form}
                                     categoryClassifierId={categoryClassifier}

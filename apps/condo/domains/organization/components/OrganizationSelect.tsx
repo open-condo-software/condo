@@ -81,8 +81,7 @@ export const OrganizationSelect: React.FC = () => {
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
 
     const { objs: userOrganizations, loading: organizationLinksLoading } = OrganizationEmployee.useObjects(
-        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} },
-        { fetchPolicy: 'cache-first' }
+        { where: user ? { user: { id: user.id }, isRejected: false, isBlocked: false } : {} }
     )
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
