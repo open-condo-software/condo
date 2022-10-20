@@ -14,6 +14,20 @@ const { Address } = require('@address-service/domains/address/utils/serverSchema
 
 class SearchKeystoneApp {
     /**
+     * Converts the `Address` model to service response
+     * @param addressModel
+     * @returns {{addressSource, address, addressKey, addressMeta}}
+     */
+    createReturnObject (addressModel) {
+        return {
+            addressSource: addressModel.source,
+            address: addressModel.address,
+            addressKey: addressModel.key,
+            addressMeta: addressModel.meta,
+        }
+    }
+
+    /**
      * @param params
      * @returns {Express}
      */
@@ -52,6 +66,16 @@ class SearchKeystoneApp {
                 return
             }
 
+            // Manually created internal context. The first rule is no rules.
+            const godContext = await keystone.createContext({ skipAccessControl: true })
+
+            // We want to return the same result for the same source. This is the address cache, baby!
+            const addressFoundBySource = await Address.getOne(godContext, { source: s })
+            if (addressFoundBySource) {
+                res.json(this.createReturnObject(addressFoundBySource))
+                return
+            }
+
             const searchProvider = searchDetector.getProvider(geo)
 
             const denormalizedSuggestions = await searchProvider.get({ query: s, context })
@@ -61,14 +85,16 @@ class SearchKeystoneApp {
             }
             const searchResult = searchProvider.normalize(denormalizedSuggestions)
 
+            // Use the first result for a while
             const addressKey = generateAddressKey(searchResult[0])
 
-            const godContext = await keystone.createContext({ skipAccessControl: true })
-
-            const addresses = await Address.getAll(godContext, { key: addressKey })
+            const addressFoundByKey = await Address.getOne(godContext, { key: addressKey })
 
             let addressItem
-            if (addresses.length === 0) {
+            if (addressFoundByKey) {
+                // todo(nas): Update existing model or not? That's the question.
+                addressItem = addressFoundByKey
+            } else {
                 addressItem = await Address.create(godContext, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'address-service' },
@@ -83,16 +109,9 @@ class SearchKeystoneApp {
                         data: get(searchResult, [0, 'data'], {}),
                     },
                 })
-            } else {
-                addressItem = addresses[0]
             }
 
-            res.json({
-                addressSource: addressItem.source,
-                address: addressItem.address,
-                addressKey: addressItem.key,
-                addressMeta: addressItem.meta,
-            })
+            res.json(this.createReturnObject(addressItem))
         })
 
         return app
