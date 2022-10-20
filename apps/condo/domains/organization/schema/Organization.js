@@ -8,7 +8,7 @@ const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { Json } = require('@condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted: _softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
@@ -19,6 +19,19 @@ const userAccess = require('@condo/domains/user/access/User')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
+
+const softDeleted = () => (
+    _softDeleted({
+        cascade: [
+            ['OrganizationEmployee', 'organization'],
+            ['Ticket', 'organization'],
+            ['OrganizationLink', 'from'],
+            ['Contact', 'organization'],
+            ['BillingIntegrationOrganizationContext', 'organization'],
+            ['Meter', 'organization'],
+        ],
+    })
+)
 
 const Organization = new GQLListSchema('Organization', {
     schemaDoc: 'B2B customer of the service, a legal entity or an association of legal entities (holding/group)',

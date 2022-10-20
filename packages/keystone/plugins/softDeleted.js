@@ -1,18 +1,23 @@
-const { get, isPlainObject } = require('lodash')
+const { get, isPlainObject, isEmpty } = require('lodash')
 const { getType } = require('@keystonejs/utils')
 
-const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
+const { composeResolveInputHook, evaluateKeystoneAccessResult, composeNonResolveInputHook } = require('./utils')
 const { plugin } = require('./utils/typing')
+const { getSchemaCtx } = require('../schema')
+const { genUpdateGQL, genGetAllGQL } = require('../gen.gql.utils')
+const { getLogger } = require('../logging')
 
-const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
+const logger = getLogger('keystone/plugin/softDelete')
+
+const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId', cascade = [] } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
     // TODO(pahaz):
     //  [x] 1) filter by default deletedAt = null (access.read), how-to change it?!
     //  [x] 2) allow update only for deletedAt = null (access.update)
     //  [x] 3) disallow access to hard delete (access.delete)
     //  [ ] 4) what if some object has FK (Relation) to SoftDeletedList ?
     // TODO(pahaz): WIP
-    //  [x] 1) filter by default newId = null (access.read) --> newId is set deketedAt by default
-    //  [x] 2) allow update only for newId = null (access.update) --> newId is set deketedAt by default
+    //  [x] 1) filter by default newId = null (access.read) --> newId is set deletedAt by default
+    //  [x] 2) allow update only for newId = null (access.update) --> newId is set deletedAt by default
     //  [ ] 3) what if some object has FK (Relation) to mergeable() list ?
     //  [ ] 4) check is newId object have newId (merge merged list)
     //  [ ] 5) check access to newId
@@ -63,6 +68,66 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
 
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
+
+    if (!isEmpty(cascade)) {
+        const afterChangeSoftDeleteHook = async ({ updatedItem, existingItem }) => {
+            if (updatedItem[deletedAtField] && existingItem[deletedAtField] !== updatedItem[deletedAtField]) {
+                for (let cascadeRule of cascade) {
+                    const [ relatedSchemaName, foreignKey, { deletedAtField: relatedDeletedAtField = 'deletedAt', customSoftDelete }] = cascadeRule
+
+                    const { keystone: context } = await getSchemaCtx(relatedSchemaName)
+                    const getAllQuery = genGetAllGQL(relatedSchemaName, `{ id ${relatedDeletedAtField} }`)
+                    const updateQuery = genUpdateGQL(relatedSchemaName, '{ id }')
+
+                    const { data: getAllData, errors } = await context.executeGraphQL({
+                        context: context.createContext({ skipAccessControl: true }),
+                        query: getAllQuery,
+                        variables: {
+                            [foreignKey]: existingItem.id,
+                            [`${relatedDeletedAtField}_is_null`]: true,
+                        },
+                    })
+                    if (errors) {
+                        for (let error of errors) {
+                            logger.error(error)
+                        }
+                        continue
+                    }
+
+                    // TODO(antonal): use worker to delete related objects
+                    const softDeleteRelated = async (obj) => {
+                        const { errors } = await context.executeGraphQL({
+                            context: context.createContext({ skipAccessControl: true }),
+                            query: updateQuery,
+                            variables: {
+                                id: obj.id,
+                                data: {
+                                    [relatedDeletedAtField]: new Date().toISOString(),
+                                },
+                            },
+                        })
+                        if (errors) {
+                            for (let error of errors) {
+                                logger.error(error)
+                            }
+                        }
+                    }
+
+                    if (getAllData && getAllData.objs) {
+                        for (let obj of getAllData.objs) {
+                            if (customSoftDelete) {
+                                customSoftDelete(obj, softDeleteRelated)
+                            } else {
+                                await softDeleteRelated(obj)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        const originalAfterChange = hooks.afterChange
+        hooks.afterChange = composeNonResolveInputHook(originalAfterChange, afterChangeSoftDeleteHook)
+    }
 
     const newAccess = async (args) => {
         const { operation } = args
