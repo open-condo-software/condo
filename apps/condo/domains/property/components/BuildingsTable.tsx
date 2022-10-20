@@ -157,7 +157,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                                             allowClear={true}
                                         />
                                     </Col>
-                                    <Col lg={12} hidden={isSmall}>
+                                    <Col lg={12} hidden={isSmall || !canManageProperties}>
                                         {
                                             downloadLink
                                                 ? (
