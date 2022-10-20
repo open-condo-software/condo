@@ -171,12 +171,23 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             },
         )
 
-        //TODO(nas): add some calls counter (maybe datadog)
+        //TODO?(nas): add some calls counter (maybe datadog)
 
         const status = result.status
         if (status === 200) {
             const response = await result.json()
             return get(response, 'suggestions', [])
+        } else if (status === 403) {
+            /**
+             * See all cases for 403 error
+             * @link https://dadata.ru/api/suggest/address/#return
+             */
+
+            /**
+             * In the case of 403, we may check if our limit exceeded
+             * If yes, we should create a separate token rotator for dadata provider (search & suggest)
+             * @link https://dadata.ru/api/stat/
+             */
         } else {
             //TODO(nas) need to log erroneous status
             return []
