@@ -46,6 +46,12 @@ const REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION = gql`
     }
 `
 
+const GENERATE_PAYMENT_LINK_QUERY = gql`
+    query generatePaymentLink ($data: GeneratePaymentLinkInput!) {
+        result: generatePaymentLink(data: $data) { dv, paymentUrl }
+    }
+`
+
 
 const SUM_PAYMENTS_QUERY = gql`
     query _allPaymentsSum ($where: PaymentWhereInput!) {
@@ -72,6 +78,7 @@ module.exports = {
     PaymentsFilterTemplate,
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
+    GENERATE_PAYMENT_LINK_QUERY,
     SUM_PAYMENTS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
