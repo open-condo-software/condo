@@ -4,6 +4,7 @@
 const conf = require('@condo/config')
 const { isNil } = require('lodash')
 const Big = require('big.js')
+const dayjs = require('dayjs')
 
 const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
 
@@ -87,7 +88,7 @@ const errors = {
         mutation: 'generatePaymentLink',
         code: BAD_USER_INPUT,
         type: RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
-        message: 'Cannot generate payment link with BillingReceipt {id} with negative "toPay" value',
+        message: 'Cannot generate payment link with negative "toPay" value',
     },
     EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES: {
         mutation: 'generatePaymentLink',
@@ -205,7 +206,6 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 } else if (!isNil(receiptData)) {
                     // Stage 2.1: check receipt data
                     const { currencyCode, amount, periodYear, periodMonth, accountNumber } = receiptData
-                    const period = `${periodYear}-${periodMonth}-01`
 
                     // amount is not a number
                     if (isNaN(amount)) {
@@ -241,6 +241,11 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                             ...errors.RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE,
                         }, context)
                     }
+
+                    // assemble period string representation
+                    // periodMonth - 1 since Date objects expects that month number start from 0
+                    const periodDate = new Date(periodYear, periodMonth - 1, 1)
+                    const period = dayjs(periodDate).format('YYYY-MM-DD')
 
                     paymentLinkBaseUrl.searchParams.set('cc', currencyCode)
                     paymentLinkBaseUrl.searchParams.set('a', amount)

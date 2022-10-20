@@ -44,6 +44,7 @@ const {
     REGISTER_MULTI_PAYMENT_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_ONE_RECEIPT_MUTATION,
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
+    GENERATE_PAYMENT_LINK_QUERY,
 } = require('@condo/domains/acquiring/gql')
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY  } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -415,6 +416,24 @@ async function registerMultiPaymentForVirtualReceiptByTestClient(client, receipt
     return [data.result, attrs]
 }
 
+async function generatePaymentLinkByTestClient(client, receipt, receiptData, acquiringIntegrationContext, callbacks, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        receipt,
+        receiptData,
+        acquiringIntegrationContext,
+        callbacks,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GENERATE_PAYMENT_LINK_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 async function sumPaymentsByTestClient(client, where = {}) {
     if (!client) throw new Error('no client')
 
@@ -647,6 +666,7 @@ module.exports = {
     updateTestPaymentsFilterTemplate,
     registerMultiPaymentForOneReceiptByTestClient,
     registerMultiPaymentForVirtualReceiptByTestClient,
+    generatePaymentLinkByTestClient,
     sumPaymentsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
