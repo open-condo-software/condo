@@ -8,7 +8,7 @@ import {
     BankAccountUpdateInput,
     QueryAllBankAccountsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@condo/codegen/generate.hooks'
 import { BankAccount as BankAccountGQL } from '@condo/domains/banking/gql'
 
 const {

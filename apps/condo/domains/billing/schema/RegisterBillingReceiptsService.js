@@ -154,13 +154,14 @@ const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) =
     item.account = { connect: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
 
     item.recipient = {
+        country: item.country,
+        currencyCode: item.currencyCode,
         tin: item.tin,
-        iec: item.iec,
-        bankAccount: item.bankAccount,
-        bic: item.bic,
+        number: item.number,
+        routingNumber: item.routingNumber,
     }
 
-    return omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+    return omit(item, ['country', 'currencyCode', 'tin', 'number', 'routingNumber'])
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
@@ -205,7 +206,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         const receiptKey = getBillingReceiptKey(
             {
                 ...item,
-                ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+                ...{ recipient: { country: item.country, currencyCode: item.currencyCode, tin: item.tin, routingNumber: item.routingNumber, number: item.number } } },
         )
 
         const receiptExists = Reflect.has(receiptsIndex, receiptKey)
@@ -284,9 +285,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                     'category: BillingCategoryWhereUniqueInput! ' +
 
+                    'country: String! ' +
+                    'currencyCode: String! ' +
                     'tin: String! ' +
                     'routingNumber: String! ' +
-                    'bankAccount: String! ' +
+                    'number: String! ' +
 
                     'tinMeta: JSON ' +
                     'routingNumberMeta: JSON ' +
@@ -331,14 +334,10 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
                     const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
-                    const { tin, tinMeta, routingNumber, bankAccount } = receiptsInput[i]
+                    const { country, currencyCode, tin, routingNumber, number } = receiptsInput[i]
 
                     // Todo: (DOMA-2225) migrate it to address service
                     let { normalizedAddress } = receiptsInput[i]
-
-                    // Todo: (DOMA-3252) migrate it to new recipients
-                    const iec = get(tinMeta, 'iec')
-                    const bic = routingNumber
 
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
@@ -409,7 +408,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         }
                     }
 
-                    const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
+                    const receipt = { category, period, property, account, services, recipient: { country, currencyCode, tin, routingNumber, number } }
                     const receiptKey = getBillingReceiptKey(receipt)
                     if (!receiptIndex[receiptKey]) {
                         receiptIndex[receiptKey] = {
@@ -424,10 +423,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             toPay: toPay,
                             services: services,
                             toPayDetails: toPayDetails,
+                            country,
+                            currencyCode,
                             tin,
-                            iec,
-                            bic,
-                            bankAccount,
+                            routingNumber,
+                            number,
                             raw: { ...{ dv: 1 }, ...raw },
                         }
                     }
@@ -453,7 +453,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             },
         },
     ],
-    
+
 })
 
 module.exports = {

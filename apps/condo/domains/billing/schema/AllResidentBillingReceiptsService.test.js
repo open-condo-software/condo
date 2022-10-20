@@ -10,7 +10,8 @@ const {
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 
-const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithPropertyAndBilling } = require('@condo/domains/billing/utils/testSchema')
+const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 
 const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -451,8 +452,8 @@ describe('AllResidentBillingReceiptsService', () => {
                 const MARCH_PERIOD = '2022-03-01'
                 const APRIL_PERIOD = '2022-04-01'
 
-                const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
-                const ELECTRICITY_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
+                const WATER_RECIPIENT = createValidRuBankAccount()
+                const ELECTRICITY_RECIPIENT = createValidRuBankAccount()
 
 
                 // March receipt for water
@@ -520,7 +521,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 const APRIL_PERIOD = '2022-04-01'
                 const MAY_PERIOD = '2022-05-01'
 
-                const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
+                const WATER_RECIPIENT = createValidRuBankAccount()
 
                 // March receipt for water
                 const [marchWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
@@ -612,7 +613,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 const MARCH_PERIOD = '2022-03-01'
 
-                const SINGLE_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
+                const SINGLE_RECIPIENT = createValidRuBankAccount()
 
                 const [marchHousingReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,

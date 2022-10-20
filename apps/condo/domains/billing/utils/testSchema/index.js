@@ -688,6 +688,8 @@ async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}
 }
 
 function createRegisterBillingReceiptsPayload(extraAttrs) {
+    const recipient = createValidRuBankAccount()
+
     return {
         importId: faker.random.alphaNumeric(24),
 
@@ -704,9 +706,11 @@ function createRegisterBillingReceiptsPayload(extraAttrs) {
 
         category: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' },
 
-        tin: faker.random.alphaNumeric(8),
-        routingNumber: faker.random.alphaNumeric(8),
-        bankAccount: faker.random.alphaNumeric(8),
+        country: recipient.country,
+        currencyCode: recipient.currencyCode,
+        tin: recipient.tin,
+        routingNumber: recipient.routingNumber,
+        number: recipient.number,
 
         tinMeta: {
             iec: faker.random.alphaNumeric(8),

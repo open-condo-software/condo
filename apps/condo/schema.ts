@@ -37670,9 +37670,11 @@ export type RegisterBillingReceiptInput = {
   month: Scalars['Int'];
   year: Scalars['Int'];
   category: BillingCategoryWhereUniqueInput;
+  country: Scalars['String'];
+  currencyCode: Scalars['String'];
   tin: Scalars['String'];
   routingNumber: Scalars['String'];
-  bankAccount: Scalars['String'];
+  number: Scalars['String'];
   tinMeta?: Maybe<Scalars['JSON']>;
   routingNumberMeta?: Maybe<Scalars['JSON']>;
   raw?: Maybe<Scalars['JSON']>;
