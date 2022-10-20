@@ -63,7 +63,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         action:() => update(variables, ticket),
         intl,
         OnCompletedMsg: getSuccessfulChangeNotification,
-    }), [getSuccessfulChangeNotification, intl, ticket, update])
+    }), [getSuccessfulChangeNotification, ticket])
 
     const updateTicket = useCallback((value) => {
         setUpdating(true)
