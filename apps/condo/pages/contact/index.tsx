@@ -202,7 +202,7 @@ export const ContactsPageContent = ({
                             />
                         </Col>
                         <ExportToExcelActionBar
-                            hidden={isSmall}
+                            hidden={isSmall || !canManageContacts}
                             searchObjectsQuery={searchContactsQuery}
                             sortBy={sortBy}
                             exportToExcelQuery={EXPORT_CONTACTS_TO_EXCEL}
