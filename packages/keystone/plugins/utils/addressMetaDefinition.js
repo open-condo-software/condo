@@ -176,11 +176,13 @@ const ADDRESS_META_FIELD = {
     isRequired: true,
     kmigratorOptions: { null: false },
     hooks: {
-        validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-            if (!resolvedData.hasOwnProperty(fieldPath)) return addFieldValidationError(`${fieldPath} value is required`)
+        validateInput: ({ resolvedData, fieldPath }) => {
+            if (!resolvedData.hasOwnProperty(fieldPath)) {
+                throw new Error(`${fieldPath} value is required`)
+            }
             const value = resolvedData[fieldPath]
             if (typeof value !== 'object' || value === null) {
-                return addFieldValidationError(`${fieldPath} field type error. We expect JSON Object`)
+                throw new Error(`${fieldPath} field type error. We expect JSON Object`)
             }
             const { dv } = value
             if (dv === 1) {
@@ -188,7 +190,6 @@ const ADDRESS_META_FIELD = {
             } else {
                 // TODO(zuch): Turn on error after finishing add property
                 console.error('Unknown `dv` attr inside JSON Object')
-                // return addFieldValidationError(`${JSON_UNKNOWN_VERSION_ERROR}${fieldPath}] Unknown \`dv\` attr inside JSON Object`)
             }
         },
     },
