@@ -219,13 +219,14 @@ describe('Property', () => {
 
     test('user: can not create Property when same address exist in user organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
-        const [, attrs] = await createTestProperty(client, client.organization)
+        const [property, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
         await catchErrorFrom(async () => {
             await createTestProperty(client, client.organization, { address })
-        }, ({ errors }) => {
+        }, ({ errors, data }) => {
             expect(errors).toHaveLength(1)
-            expect(errors[0].data.messages[0]).toContain(`${UNIQUE_ALREADY_EXISTS_ERROR}address]`)
+            expect(errors[0].message).toMatch(`Property with the same address (id=${property.id}) already exists in current organization`)
+            expect(data).toEqual({ 'obj': null })
         })
     })
 
@@ -338,14 +339,15 @@ describe('Property', () => {
 
     test('user: can not update Property address when another Property with same address present within the organization', async () => {
         const client = await makeClientWithRegisteredOrganization()
-        const [, attrs] = await createTestProperty(client, client.organization)
+        const [firstProperty, attrs] = await createTestProperty(client, client.organization)
         const { address } = attrs
         const [property] = await createTestProperty(client, client.organization)
         await catchErrorFrom(async () => {
             await updateTestProperty(client, property.id, { address })
-        }, ({ errors }) => {
+        }, ({ errors, data }) => {
             expect(errors).toHaveLength(1)
-            expect(errors[0].data.messages[0]).toContain(`${UNIQUE_ALREADY_EXISTS_ERROR}address]`)
+            expect(errors[0].message).toMatch(`Property with the same address (id=${firstProperty.id}) already exists in current organization`)
+            expect(data).toEqual({ 'obj': null })
         })
     })
 

@@ -14,13 +14,11 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { Checkbox } = require('@keystonejs/fields')
 
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
-const { ADDRESS_META_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const {
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_SCHEMA_VALIDATION_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
-    UNIQUE_ALREADY_EXISTS_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
@@ -34,17 +32,29 @@ const {
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
 } = require('../gql')
-const { Property: PropertyAPI } = require('../utils/serverSchema')
-const { normalizePropertyMap } = require('../utils/serverSchema/helpers')
+const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
+const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { addressService } = require('@condo/keystone/plugins/addressService')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { PROPERTY_ALREADY_EXISTS } = require('@condo/domains/property/constants/errors')
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
 
+const errors = {
+    SAME_ADDRESS: (existingPropertyId) => ({
+        query: 'createProperty',
+        code: BAD_USER_INPUT,
+        type: PROPERTY_ALREADY_EXISTS,
+        message: `Property with the same address (id=${existingPropertyId}) already exists in current organization`,
+        messageForUser: 'api.property.create.sameAddressError',
+    }),
+}
+
 const addressFieldHooks = {
-    validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, context, existingItem, operation }) => {
+    validateInput: async ({ resolvedData, fieldPath, context, existingItem, operation }) => {
         const value = resolvedData[fieldPath]
         const isCreate = operation === 'create'
         const isUpdateAddress = operation === 'update' && resolvedData.address !== existingItem.address
@@ -62,7 +72,7 @@ const addressFieldHooks = {
             const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
 
             if (!isEmpty(sameAddressProperties)) {
-                addFieldValidationError(`${UNIQUE_ALREADY_EXISTS_ERROR}${fieldPath}] Property with same address exist in current organization`)
+                throw new GQLError(errors.SAME_ADDRESS(get(sameAddressProperties, [0, 'id'])), context)
             }
         }
     },

@@ -1307,6 +1307,7 @@
   "api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT": "Нет заявок для экспорта",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "Не найдена заявка с id \"{ticketId}\" для текущего пользователя",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "Нет домов для экспорта, которые связаны с данной организацией",
+  "api.property.create.sameAddressError": "Дом с таким адресом уже создан в выбранной организации",
   "api.meter.exportMeterReadings.NOTHING_TO_EXPORT": "Нет показаний ИПУ для экспорта, которые связаны с указанной организацией",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "Не найдено контактов для экспорта",
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD": "Неверный пароль",
