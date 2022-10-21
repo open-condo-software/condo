@@ -93,7 +93,7 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
     ...rest
 }, schemaObj) => {
     if (!addressFieldName) {
-        return { fields, hooks, ...rest }
+        throw new Error('The `addressFieldName` field is not set')
     }
 
     //
