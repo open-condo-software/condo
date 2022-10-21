@@ -4,10 +4,29 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';  
+
+update "OnBoarding" t
+SET "deletedAt" = '2022-10-21T11:11:12Z'
+where t."deletedAt" IS NULL and exists (
+  select 1 from "OnBoarding"
+  where "user" = t."user" and "createdAt" < t."createdAt" and id != t."id" and "deletedAt" IS NULL
+);
+    
 --
 -- Create constraint OnBoarding_unique_user_type on model onboarding
 --
 CREATE UNIQUE INDEX "OnBoarding_unique_user_type" ON "OnBoarding" ("user", "type") WHERE "deletedAt" IS NULL;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
