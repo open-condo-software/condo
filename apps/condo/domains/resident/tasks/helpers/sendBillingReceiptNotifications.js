@@ -9,16 +9,15 @@ const { sendResidentsNoAccountNotifications } = require('./sendResidentsNoAccoun
 
 const logger = getLogger('sendBillingReceiptsAddedNotifications')
 
-const sendBillingReceiptNotifications = async () => {
-    const data = { req: { features: await featureToggleManager.fetchFeatures() } }
-    const isFeatureEnabled = featureToggleManager.isFeatureEnabled( data, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK )
+const sendBillingReceiptNotifications = async (context = null) => {
+    const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK)
 
     // Skip sending notifications if feature is disabled on https://growthbook.doma.ai/features
     // This affects only cron task, notifications still could be sent using scripts in condo/
     if (!isFeatureEnabled) {
-        logger.info({ message: `sendBillingReceiptNotifications cron task skipped due to disabled growthbook feature flag [${SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK}]` })
+        logger.info(`sendBillingReceiptNotifications was skipped due to disabled growthbook feature flag [${SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK}]`)
 
-        return
+        return 'disabled'
     }
 
     await sendBillingReceiptsAddedNotifications()

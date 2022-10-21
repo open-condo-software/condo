@@ -3,9 +3,10 @@ const { get, flatten, uniq } = require('lodash')
 
 const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLocalized } = require('@condo/locales/loader')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
@@ -15,7 +16,6 @@ const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notifi
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLocalized } = require('@condo/locales/loader')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
     return heads.map(head => {

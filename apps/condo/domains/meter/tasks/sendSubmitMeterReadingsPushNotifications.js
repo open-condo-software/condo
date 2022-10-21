@@ -3,9 +3,11 @@ const { get, uniq, isNull } = require('lodash')
 
 const conf = require('@condo/config')
 const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLogger } = require('@condo/keystone/logging')
+const { getLocalized } = require('@condo/locales/loader')
 
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 
 const { Meter, MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
@@ -17,8 +19,6 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
-const { getLocalized } = require('@condo/locales/loader')
-const { getLogger } = require('@condo/keystone/logging')
 
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 

@@ -7,13 +7,13 @@ removeCronTask('sendBillingReceiptNotificationsTaskWorkDays', '17 10-15 * * 1-5'
 removeCronTask('sendBillingReceiptNotificationsTaskWeekends', '17 12-15 * * 0,6')
 
 /** CRON tasks never receive arguments on call */
-function sendBillingReceiptNotificationsWorkDays () {
-    return sendBillingReceiptNotifications()
+async function sendBillingReceiptNotificationsWorkDays () {
+    return await sendBillingReceiptNotifications()
 }
 
 /** CRON tasks never receive arguments on call */
-function sendBillingReceiptNotificationsWeekends () {
-    return sendBillingReceiptNotifications()
+async function sendBillingReceiptNotificationsWeekends () {
+    return await sendBillingReceiptNotifications()
 }
 
 /** PODS work according to UTC, so time in cron-tasks should also be according to UTC too. */

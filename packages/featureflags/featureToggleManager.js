@@ -1,3 +1,4 @@
+const { get } = require('lodash')
 const { GrowthBook } = require('@growthbook/growthbook')
 const conf = require('@condo/config')
 const { getRedisClient } = require('@condo/keystone/redis')
@@ -52,20 +53,22 @@ class FeatureToggleManager {
         }
     }
 
-    isFeatureEnabled (keystoneContext, featureName, featuresContext) {
-        if (!keystoneContext) return false
+    async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
+        const context = get(keystoneContext, 'req', null)
+            ? keystoneContext
+            : { req: { features: await this.fetchFeatures() } }
 
-        const request = keystoneContext.req
+        const request = context.req
+        const headersFeatureFlags = get(request, ['headers', 'feature-flags'])
 
-        if (conf.NODE_ENV === 'test') {
-            return request.headers['feature-flags'] === 'true'
-        }
+        // Here it will stop under tests
+        if (conf.NODE_ENV === 'test') return headersFeatureFlags === 'true'
 
         const growthbook = new GrowthBook()
+
         growthbook.setFeatures(request.features)
-        if (featuresContext) {
-            growthbook.setAttributes(featuresContext)
-        }
+
+        if (featuresContext) growthbook.setAttributes(featuresContext)
 
         return growthbook.isOn(featureName)
     }

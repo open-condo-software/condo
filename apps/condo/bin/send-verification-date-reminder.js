@@ -32,6 +32,8 @@ async function main () {
         searchWindowDaysShift: 30,
         daysCount: 30,
     })
+
+    process.exit(0)
 }
 
 main().catch((e) => {
