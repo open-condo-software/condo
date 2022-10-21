@@ -1,40 +1,33 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
-import {
-    Col,
-    FormInstance,
-    Row,
-    Tabs,
-    Typography,
-    ModalProps,
-} from 'antd'
+import { Col, FormInstance, Row, Tabs, Typography, ModalProps } from 'antd'
+import { FormItemProps } from 'antd/es'
+import { Gutter } from 'antd/es/grid/row'
+import { CloseOutlined } from '@ant-design/icons'
 import { Options } from 'scroll-into-view-if-needed'
+import get from 'lodash/get'
+import has from 'lodash/has'
+import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
+import isFunction from 'lodash/isFunction'
+import isNil from 'lodash/isNil'
+import omitBy from 'lodash/omitBy'
+import pickBy from 'lodash/pickBy'
 
+import { Ticket } from '@app/condo/schema'
+import { useRouter } from 'next/router'
+import { useIntl } from '@condo/next/intl'
 import { Modal as DefaultModal } from '@condo/domains/common/components/Modal'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
-import get from 'lodash/get'
-import { FormItemProps } from 'antd/es'
-import { CloseOutlined } from '@ant-design/icons'
-import { Gutter } from 'antd/es/grid/row'
-import isFunction from 'lodash/isFunction'
-import isEmpty from 'lodash/isEmpty'
-import pickBy from 'lodash/pickBy'
 import { useOrganization } from '@condo/next/organization'
-
-import {
-    OptionType,
-    parseQuery,
-    QueryArgType,
-} from '@condo/domains/common/utils/tables.utils'
+import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
-import { useLayoutContext } from '../components/LayoutContext'
 
+import { useLayoutContext } from '../components/LayoutContext'
 import DatePicker from '../components/Pickers/DatePicker'
 import DateRangePicker from '../components/Pickers/DateRangePicker'
 import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
@@ -51,9 +44,6 @@ import {
     getQueryToValueProcessorByType,
     updateQuery,
 } from '../utils/filters.utils'
-import { Ticket } from '@app/condo/schema'
-import { has, isNil, omitBy } from 'lodash'
-import isEqual from 'lodash/isEqual'
 
 interface IFilterComponentProps<T> {
     name: string
@@ -312,13 +302,15 @@ export const useMultipleFilterContext = (): IFilterContext => useContext<IFilter
 export const MultipleFilterContextProvider: React.FC = ({ children }) => {
     const [selectedFiltersTemplate, setSelectedFiltersTemplate] = useState()
 
+    const filterContextValue: IFilterContext = useMemo(() => ({
+        selectedFiltersTemplate,
+        setSelectedFiltersTemplate,
+    }), [selectedFiltersTemplate])
+
     return (
         <FilterContext.Provider
             children={children}
-            value={{
-                selectedFiltersTemplate,
-                setSelectedFiltersTemplate,
-            }}
+            value={filterContextValue}
         />
     )
 }

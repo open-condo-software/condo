@@ -255,13 +255,14 @@ const MetersPage: IMeterIndexPage = () => {
         ...filtersToWhere(filters),
         organization: { id: userOrganizationId } }),
     [filters, filtersToWhere, userOrganizationId])
+    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
 
     return (
         <MultipleFilterContextProvider>
             <MetersPageContent
                 tableColumns={tableColumns}
                 searchMeterReadingsQuery={searchMeterReadingsQuery}
-                sortBy={sortersToSortBy(sorters) as SortMeterReadingsBy[]}
+                sortBy={sortBy}
                 filterMetas={filterMetas}
                 role={role}
                 loading={isLoading}
