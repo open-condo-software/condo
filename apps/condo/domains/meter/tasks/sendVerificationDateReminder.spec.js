@@ -5,17 +5,23 @@
 const dayjs = require('dayjs')
 
 const { setFakeClientMode } = require('@condo/keystone/test.utils')
-const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
-const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
+
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
+const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
+
+const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
+
 const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
 
 const index = require('@app/condo/index')
+
 const { keystone } = index
 
 const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDate, searchWindowDaysShift = 0 }) => {
     const { user: { id } } = await makeClientWithResidentAndMeter({ verificationDate, nextVerificationDate })
+
     await sendVerificationDateReminder({ date: null, searchWindowDaysShift, daysCount: 30 })
+
     return await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
 }
 
@@ -35,6 +41,15 @@ describe('Meter verification notification', () => {
         const messages = await getNotificationsFromMeter({
             verificationDate: dayjs(now).add('25', 'day').toISOString(),
             nextVerificationDate: dayjs(now).add('25', 'day').toISOString(),
+        })
+        expect(messages).toHaveLength(0)
+    })
+
+    it('should not send messages if verificationDate is set and nextVerificationDate is null', async () => {
+        const now = new Date()
+        const messages = await getNotificationsFromMeter({
+            verificationDate: dayjs(now).add('25', 'day').toISOString(),
+            nextVerificationDate: null,
         })
         expect(messages).toHaveLength(0)
     })
@@ -104,5 +119,4 @@ describe('Meter verification notification', () => {
         const messages = await MessageApi.getAll(keystone, { user: { id }, type: METER_VERIFICATION_DATE_REMINDER_TYPE })
         expect(messages).toHaveLength(2)
     })
-
 })

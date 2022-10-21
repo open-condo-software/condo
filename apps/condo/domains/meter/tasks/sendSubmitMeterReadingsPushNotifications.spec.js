@@ -5,20 +5,23 @@
 const dayjs = require('dayjs')
 
 const { setFakeClientMode } = require('@condo/keystone/test.utils')
-const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
-const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
+
 const {
     METER_SUBMIT_READINGS_REMINDER_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
+    CALL_METER_READING_SOURCE_ID,
 } = require('@condo/domains/notification/constants/constants')
+const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
+
+const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
 const {
     MeterReadingSource,
     makeClientWithResidentAndMeter,
     createTestMeterReading,
 } = require('@condo/domains/meter/utils/testSchema')
-const { CALL_METER_READING_SOURCE_ID } = require('@condo/domains/meter/constants/constants')
 
 const index = require('@app/condo/index')
+
 const { keystone } = index
 
 const prepareUserAndMeter = async ({ nextVerificationDate }) => {
