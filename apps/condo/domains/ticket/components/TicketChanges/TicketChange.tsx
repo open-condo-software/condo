@@ -40,7 +40,7 @@ export const TicketChange: React.FC<ITicketChangeProps> = ({ ticketChange }) => 
     const changedFieldMessages = useChangedFieldMessagesOf(ticketChange)
     const { isSmall } = useLayoutContext()
 
-    const formattedDate = dayjs(ticketChange.createdAt).format('DD.MM.YY')
+    const formattedDate = dayjs(ticketChange.createdAt).format('DD.MM.YYYY')
     const formattedTime = dayjs(ticketChange.createdAt).format('HH:mm')
 
     return (
