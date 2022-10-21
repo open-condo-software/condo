@@ -1307,6 +1307,7 @@
   "api.ticket.exportTicketsToExcel.NOTHING_TO_EXPORT": "No tickets to export",
   "api.ticket.updateResidentTicket.TICKET_NOT_FOUND": "Cannot find Ticket with id \"{ticketId}\" for current user",
   "api.property.exportPropertiesToExcel.NOTHING_TO_EXPORT": "No properties are found to export for current organization",
+  "api.property.create.sameAddressError": "Property with the same address already exists in selected organization",
   "api.meter.exportMeterReadings.NOTHING_TO_EXPORT": "No meter readings to export for specified organization",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "No contacts found for export",
   "api.user.authenticateUserWithPhoneAndPassword.WRONG_PASSWORD": "Wrong password",
