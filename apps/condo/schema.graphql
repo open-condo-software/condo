@@ -41780,6 +41780,1019 @@ input ExternalReportsCreateInput {
   data: ExternalReportCreateInput
 }
 
+enum WebhookHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type WebhookHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookHistoryRecord List config, or
+   3. As an alias to a 'name' field on the WebhookHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  description: String
+  url: String
+  user: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookHistoryRecordWhereInput {
+  AND: [WebhookHistoryRecordWhereInput]
+  OR: [WebhookHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: WebhookHistoryRecordHistoryActionType
+  history_action_not: WebhookHistoryRecordHistoryActionType
+  history_action_in: [WebhookHistoryRecordHistoryActionType]
+  history_action_not_in: [WebhookHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input WebhookHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  url_ASC
+  url_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input WebhookHistoryRecordUpdateInput {
+  name: String
+  description: String
+  url: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookHistoryRecordsUpdateInput {
+  id: ID!
+  data: WebhookHistoryRecordUpdateInput
+}
+
+input WebhookHistoryRecordCreateInput {
+  name: String
+  description: String
+  url: String
+  user: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookHistoryRecordsCreateInput {
+  data: WebhookHistoryRecordCreateInput
+}
+
+""" Webhooks are a way that the APP can send automated web callback with some messages to other apps or system to inform them about any updates. How does it work: 1. When objects are created or changed, we make requests to the GraphQL API to get data on behalf of the specified user; 2. Then we send the data to remote url. Webhook model contains basic configuration of integration, such as external server url, name, encryption parameters and so on. 
+"""
+type Webhook {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the Webhook List config, or
+   2. As an alias to the field set on 'labelField' in the Webhook List config, or
+   3. As an alias to a 'name' field on the Webhook List (if one exists), or
+   4. As an alias to the 'id' field on the Webhook List.
+  """
+  _label_: String
+
+  """ Short name used to distinguish this hook from others. Usually it's the name of the integration 
+  """
+  name: String
+
+  """ Any other details that reveal the purpose of this hook """
+  description: String
+
+  """ Webhook target URL to which requests will be sent """
+  url: String
+
+  """ The user on whose behalf a request is being made to the GraphQL API to prepare webhook data 
+  """
+  user: User
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input WebhookWhereInput {
+  AND: [WebhookWhereInput]
+  OR: [WebhookWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  description: String
+  description_not: String
+  description_contains: String
+  description_not_contains: String
+  description_starts_with: String
+  description_not_starts_with: String
+  description_ends_with: String
+  description_not_ends_with: String
+  description_i: String
+  description_not_i: String
+  description_contains_i: String
+  description_not_contains_i: String
+  description_starts_with_i: String
+  description_not_starts_with_i: String
+  description_ends_with_i: String
+  description_not_ends_with_i: String
+  description_in: [String]
+  description_not_in: [String]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  user: UserWhereInput
+  user_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input WebhookWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhooksBy {
+  name_ASC
+  name_DESC
+  description_ASC
+  description_DESC
+  url_ASC
+  url_DESC
+  user_ASC
+  user_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input WebhookUpdateInput {
+  name: String
+  description: String
+  url: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhooksUpdateInput {
+  id: ID!
+  data: WebhookUpdateInput
+}
+
+input WebhookCreateInput {
+  name: String
+  description: String
+  url: String
+  user: UserRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhooksCreateInput {
+  data: WebhookCreateInput
+}
+
+enum WebhookSubscriptionHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type WebhookSubscriptionHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookSubscriptionHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookSubscriptionHistoryRecord List config, or
+   3. As an alias to a 'name' field on the WebhookSubscriptionHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookSubscriptionHistoryRecord List.
+  """
+  _label_: String
+  webhook: String
+  url: String
+  syncedAt: String
+  model: String
+  fields: String
+  filters: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookSubscriptionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookSubscriptionHistoryRecordWhereInput {
+  AND: [WebhookSubscriptionHistoryRecordWhereInput]
+  OR: [WebhookSubscriptionHistoryRecordWhereInput]
+  webhook: String
+  webhook_not: String
+  webhook_in: [String]
+  webhook_not_in: [String]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  syncedAt: String
+  syncedAt_not: String
+  syncedAt_lt: String
+  syncedAt_lte: String
+  syncedAt_gt: String
+  syncedAt_gte: String
+  syncedAt_in: [String]
+  syncedAt_not_in: [String]
+  model: String
+  model_not: String
+  model_contains: String
+  model_not_contains: String
+  model_starts_with: String
+  model_not_starts_with: String
+  model_ends_with: String
+  model_not_ends_with: String
+  model_i: String
+  model_not_i: String
+  model_contains_i: String
+  model_not_contains_i: String
+  model_starts_with_i: String
+  model_not_starts_with_i: String
+  model_ends_with_i: String
+  model_not_ends_with_i: String
+  model_in: [String]
+  model_not_in: [String]
+  fields: String
+  fields_not: String
+  fields_contains: String
+  fields_not_contains: String
+  fields_starts_with: String
+  fields_not_starts_with: String
+  fields_ends_with: String
+  fields_not_ends_with: String
+  fields_i: String
+  fields_not_i: String
+  fields_contains_i: String
+  fields_not_contains_i: String
+  fields_starts_with_i: String
+  fields_not_starts_with_i: String
+  fields_ends_with_i: String
+  fields_not_ends_with_i: String
+  fields_in: [String]
+  fields_not_in: [String]
+  filters: JSON
+  filters_not: JSON
+  filters_in: [JSON]
+  filters_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: WebhookSubscriptionHistoryRecordHistoryActionType
+  history_action_not: WebhookSubscriptionHistoryRecordHistoryActionType
+  history_action_in: [WebhookSubscriptionHistoryRecordHistoryActionType]
+  history_action_not_in: [WebhookSubscriptionHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input WebhookSubscriptionHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookSubscriptionHistoryRecordsBy {
+  url_ASC
+  url_DESC
+  syncedAt_ASC
+  syncedAt_DESC
+  model_ASC
+  model_DESC
+  fields_ASC
+  fields_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input WebhookSubscriptionHistoryRecordUpdateInput {
+  webhook: String
+  url: String
+  syncedAt: String
+  model: String
+  fields: String
+  filters: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookSubscriptionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookSubscriptionHistoryRecordsUpdateInput {
+  id: ID!
+  data: WebhookSubscriptionHistoryRecordUpdateInput
+}
+
+input WebhookSubscriptionHistoryRecordCreateInput {
+  webhook: String
+  url: String
+  syncedAt: String
+  model: String
+  fields: String
+  filters: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: WebhookSubscriptionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input WebhookSubscriptionHistoryRecordsCreateInput {
+  data: WebhookSubscriptionHistoryRecordCreateInput
+}
+
+input WebhookRelateToOneInput {
+  create: WebhookCreateInput
+  connect: WebhookWhereUniqueInput
+  disconnect: WebhookWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook 
+"""
+type WebhookSubscription {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the WebhookSubscription List config, or
+   2. As an alias to the field set on 'labelField' in the WebhookSubscription List config, or
+   3. As an alias to a 'name' field on the WebhookSubscription List (if one exists), or
+   4. As an alias to the 'id' field on the WebhookSubscription List.
+  """
+  _label_: String
+
+  """ Link to a webhook containing information about integration """
+  webhook: Webhook
+
+  """ Webhook target URL to which requests will be sent. Overrides url from webhook relation. Used in case when you need to send specific model to a separate url 
+  """
+  url: String
+
+  """ The time was the data was last synced. At the next synchronization, only objects that have changed since that time will be sent. 
+  """
+  syncedAt: String
+
+  """ The data model (schema) that the webhook is subscribed to """
+  model: String
+
+  """ String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }" 
+  """
+  fields: String
+
+  """ Filters which is stored in JSON and used to filter models sent by the webhook. Examples of filters can be found in ModelWhereInput GQL type, where Model is name of your model 
+  """
+  filters: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input WebhookSubscriptionWhereInput {
+  AND: [WebhookSubscriptionWhereInput]
+  OR: [WebhookSubscriptionWhereInput]
+  webhook: WebhookWhereInput
+  webhook_is_null: Boolean
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  syncedAt: String
+  syncedAt_not: String
+  syncedAt_lt: String
+  syncedAt_lte: String
+  syncedAt_gt: String
+  syncedAt_gte: String
+  syncedAt_in: [String]
+  syncedAt_not_in: [String]
+  model: String
+  model_not: String
+  model_in: [String]
+  model_not_in: [String]
+  fields: String
+  fields_not: String
+  fields_contains: String
+  fields_not_contains: String
+  fields_starts_with: String
+  fields_not_starts_with: String
+  fields_ends_with: String
+  fields_not_ends_with: String
+  fields_i: String
+  fields_not_i: String
+  fields_contains_i: String
+  fields_not_contains_i: String
+  fields_starts_with_i: String
+  fields_not_starts_with_i: String
+  fields_ends_with_i: String
+  fields_not_ends_with_i: String
+  fields_in: [String]
+  fields_not_in: [String]
+  filters: JSON
+  filters_not: JSON
+  filters_in: [JSON]
+  filters_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input WebhookSubscriptionWhereUniqueInput {
+  id: ID!
+}
+
+enum SortWebhookSubscriptionsBy {
+  webhook_ASC
+  webhook_DESC
+  url_ASC
+  url_DESC
+  syncedAt_ASC
+  syncedAt_DESC
+  model_ASC
+  model_DESC
+  fields_ASC
+  fields_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input WebhookSubscriptionUpdateInput {
+  webhook: WebhookRelateToOneInput
+  url: String
+  syncedAt: String
+  model: String
+  fields: String
+  filters: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookSubscriptionsUpdateInput {
+  id: ID!
+  data: WebhookSubscriptionUpdateInput
+}
+
+input WebhookSubscriptionCreateInput {
+  webhook: WebhookRelateToOneInput
+  url: String
+  syncedAt: String
+  model: String
+  fields: String
+  filters: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input WebhookSubscriptionsCreateInput {
+  data: WebhookSubscriptionCreateInput
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -44967,6 +45980,63 @@ type Query {
   """ Retrieve the meta-data for the ExternalReport list. """
   _ExternalReportsMeta: _ListMeta
 
+  """ Search for all WebhookHistoryRecord items which match the where clause. 
+  """
+  allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
+
+  """ Search for the WebhookHistoryRecord item with the matching ID. """
+  WebhookHistoryRecord(where: WebhookHistoryRecordWhereUniqueInput!): WebhookHistoryRecord
+
+  """ Perform a meta-query on all WebhookHistoryRecord items which match the where clause. 
+  """
+  _allWebhookHistoryRecordsMeta(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookHistoryRecord list. """
+  _WebhookHistoryRecordsMeta: _ListMeta
+
+  """ Search for all Webhook items which match the where clause. """
+  allWebhooks(where: WebhookWhereInput, search: String, sortBy: [SortWebhooksBy!], orderBy: String, first: Int, skip: Int): [Webhook]
+
+  """ Search for the Webhook item with the matching ID. """
+  Webhook(where: WebhookWhereUniqueInput!): Webhook
+
+  """ Perform a meta-query on all Webhook items which match the where clause. 
+  """
+  _allWebhooksMeta(where: WebhookWhereInput, search: String, sortBy: [SortWebhooksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the Webhook list. """
+  _WebhooksMeta: _ListMeta
+
+  """ Search for all WebhookSubscriptionHistoryRecord items which match the where clause. 
+  """
+  allWebhookSubscriptionHistoryRecords(where: WebhookSubscriptionHistoryRecordWhereInput, search: String, sortBy: [SortWebhookSubscriptionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookSubscriptionHistoryRecord]
+
+  """ Search for the WebhookSubscriptionHistoryRecord item with the matching ID. 
+  """
+  WebhookSubscriptionHistoryRecord(where: WebhookSubscriptionHistoryRecordWhereUniqueInput!): WebhookSubscriptionHistoryRecord
+
+  """ Perform a meta-query on all WebhookSubscriptionHistoryRecord items which match the where clause. 
+  """
+  _allWebhookSubscriptionHistoryRecordsMeta(where: WebhookSubscriptionHistoryRecordWhereInput, search: String, sortBy: [SortWebhookSubscriptionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookSubscriptionHistoryRecord list. 
+  """
+  _WebhookSubscriptionHistoryRecordsMeta: _ListMeta
+
+  """ Search for all WebhookSubscription items which match the where clause. 
+  """
+  allWebhookSubscriptions(where: WebhookSubscriptionWhereInput, search: String, sortBy: [SortWebhookSubscriptionsBy!], orderBy: String, first: Int, skip: Int): [WebhookSubscription]
+
+  """ Search for the WebhookSubscription item with the matching ID. """
+  WebhookSubscription(where: WebhookSubscriptionWhereUniqueInput!): WebhookSubscription
+
+  """ Perform a meta-query on all WebhookSubscription items which match the where clause. 
+  """
+  _allWebhookSubscriptionsMeta(where: WebhookSubscriptionWhereInput, search: String, sortBy: [SortWebhookSubscriptionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the WebhookSubscription list. """
+  _WebhookSubscriptionsMeta: _ListMeta
+
   """ Retrieve the meta-data for all lists. """
   _ksListsMeta(where: _ksListsMetaInput): [_ListMeta]
 
@@ -47692,6 +48762,78 @@ type Mutation {
 
   """ Delete multiple ExternalReport items by ID. """
   deleteExternalReports(ids: [ID!]): [ExternalReport]
+
+  """ Create a single WebhookHistoryRecord item. """
+  createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
+
+  """ Create multiple WebhookHistoryRecord items. """
+  createWebhookHistoryRecords(data: [WebhookHistoryRecordsCreateInput]): [WebhookHistoryRecord]
+
+  """ Update a single WebhookHistoryRecord item by ID. """
+  updateWebhookHistoryRecord(id: ID!, data: WebhookHistoryRecordUpdateInput): WebhookHistoryRecord
+
+  """ Update multiple WebhookHistoryRecord items by ID. """
+  updateWebhookHistoryRecords(data: [WebhookHistoryRecordsUpdateInput]): [WebhookHistoryRecord]
+
+  """ Delete a single WebhookHistoryRecord item by ID. """
+  deleteWebhookHistoryRecord(id: ID!): WebhookHistoryRecord
+
+  """ Delete multiple WebhookHistoryRecord items by ID. """
+  deleteWebhookHistoryRecords(ids: [ID!]): [WebhookHistoryRecord]
+
+  """ Create a single Webhook item. """
+  createWebhook(data: WebhookCreateInput): Webhook
+
+  """ Create multiple Webhook items. """
+  createWebhooks(data: [WebhooksCreateInput]): [Webhook]
+
+  """ Update a single Webhook item by ID. """
+  updateWebhook(id: ID!, data: WebhookUpdateInput): Webhook
+
+  """ Update multiple Webhook items by ID. """
+  updateWebhooks(data: [WebhooksUpdateInput]): [Webhook]
+
+  """ Delete a single Webhook item by ID. """
+  deleteWebhook(id: ID!): Webhook
+
+  """ Delete multiple Webhook items by ID. """
+  deleteWebhooks(ids: [ID!]): [Webhook]
+
+  """ Create a single WebhookSubscriptionHistoryRecord item. """
+  createWebhookSubscriptionHistoryRecord(data: WebhookSubscriptionHistoryRecordCreateInput): WebhookSubscriptionHistoryRecord
+
+  """ Create multiple WebhookSubscriptionHistoryRecord items. """
+  createWebhookSubscriptionHistoryRecords(data: [WebhookSubscriptionHistoryRecordsCreateInput]): [WebhookSubscriptionHistoryRecord]
+
+  """ Update a single WebhookSubscriptionHistoryRecord item by ID. """
+  updateWebhookSubscriptionHistoryRecord(id: ID!, data: WebhookSubscriptionHistoryRecordUpdateInput): WebhookSubscriptionHistoryRecord
+
+  """ Update multiple WebhookSubscriptionHistoryRecord items by ID. """
+  updateWebhookSubscriptionHistoryRecords(data: [WebhookSubscriptionHistoryRecordsUpdateInput]): [WebhookSubscriptionHistoryRecord]
+
+  """ Delete a single WebhookSubscriptionHistoryRecord item by ID. """
+  deleteWebhookSubscriptionHistoryRecord(id: ID!): WebhookSubscriptionHistoryRecord
+
+  """ Delete multiple WebhookSubscriptionHistoryRecord items by ID. """
+  deleteWebhookSubscriptionHistoryRecords(ids: [ID!]): [WebhookSubscriptionHistoryRecord]
+
+  """ Create a single WebhookSubscription item. """
+  createWebhookSubscription(data: WebhookSubscriptionCreateInput): WebhookSubscription
+
+  """ Create multiple WebhookSubscription items. """
+  createWebhookSubscriptions(data: [WebhookSubscriptionsCreateInput]): [WebhookSubscription]
+
+  """ Update a single WebhookSubscription item by ID. """
+  updateWebhookSubscription(id: ID!, data: WebhookSubscriptionUpdateInput): WebhookSubscription
+
+  """ Update multiple WebhookSubscription items by ID. """
+  updateWebhookSubscriptions(data: [WebhookSubscriptionsUpdateInput]): [WebhookSubscription]
+
+  """ Delete a single WebhookSubscription item by ID. """
+  deleteWebhookSubscription(id: ID!): WebhookSubscription
+
+  """ Delete multiple WebhookSubscription items by ID. """
+  deleteWebhookSubscriptions(ids: [ID!]): [WebhookSubscription]
 
   """
   Registers new user and sends notification

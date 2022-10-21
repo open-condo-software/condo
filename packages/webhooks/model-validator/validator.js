@@ -1,7 +1,7 @@
 const fs = require('fs')
 const Ajv = require('ajv')
 const get = require('lodash/get')
-const { loadSchema } = require('@graphql-tools/load')
+const { loadSchemaSync } = require('@graphql-tools/load')
 const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')
 const { introspectionFromSchema } = require('graphql')
 const { fromIntrospectionQuery } = require('graphql-2-json-schema')
@@ -23,17 +23,11 @@ class WebHookModelValidator {
         this.filtersAJV = new Ajv()
         this.fieldsValidators = {}
         this.filtersValidators = {}
-    }
 
-    /**
-     * Initialize validator by loading and converting GQL schema
-     * @returns {Promise<void>}
-     */
-    async init () {
-        const gqlSchema = await loadSchema(this.schemaPath, {
+        const gqlSchema = loadSchemaSync(this.schemaPath, {
             loaders: [new GraphQLFileLoader()],
         })
-        const gqlIntrospection = await introspectionFromSchema(gqlSchema)
+        const gqlIntrospection = introspectionFromSchema(gqlSchema)
         const jsonSchema = fromIntrospectionQuery(gqlIntrospection, { nullableArrayItems: false, ignoreInternals: true })
         const { models, filters } = this._extractDefinitionNames(jsonSchema)
 
@@ -166,9 +160,21 @@ class WebHookModelValidator {
                     return this._parseObject(obj.properties.return, objType, onRef)
                 }
 
+                const required = obj.required || []
                 const properties = {}
                 for (const key of Object.keys(obj.properties)) {
-                    properties[key] = this._parseObject(obj.properties[key], objType, onRef)
+                    const property = this._parseObject(obj.properties[key], objType, onRef)
+                    // Nullable filters
+                    if (objType === 'filters' && !required.includes(key) && property['$ref']) {
+                        properties[key] = {
+                            anyOf: [
+                                property,
+                                { type:'null' },
+                            ],
+                        }
+                    } else {
+                        properties[key] = property
+                    }
                 }
 
                 // Add conditions for non-emptiness, only existing fields

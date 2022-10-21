@@ -18,6 +18,9 @@ const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
 const { schemaDocPreprocessor } = require('@condo/keystone/preprocessors/schemaDoc')
 const { escapeSearchPreprocessor } = require('@condo/keystone/preprocessors/escapeSearch')
 
+const { getWebhookModels } = require('@condo/webhooks/schema')
+const { webhookModelValidator } = require('@app/condo/webhooks/validator')
+
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/keystone/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
@@ -107,6 +110,7 @@ registerSchemas(keystone, [
     require('@condo/domains/acquiring/schema'),
     require('@condo/domains/miniapp/schema'),
     require('@condo/domains/analytics/schema'),
+    getWebhookModels(webhookModelValidator),
 ], [schemaDocPreprocessor, escapeSearchPreprocessor])
 
 if (!IS_BUILD_PHASE) {

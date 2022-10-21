@@ -54,26 +54,16 @@ describe('WebHookModelValidator', () => {
     })
     describe('Validator', () => {
         const schemaPath = path.resolve(__dirname, 'test.schema.graphql')
-        test('Must initialize correctly', async () => {
-            const validator = new WebHookModelValidator(schemaPath)
-            expect(validator).toBeDefined()
-
-            await expect(
-                validator.init()
-            ).resolves.not.toThrow()
+        test('Must initialize correctly on valid gql schema', async () => {
+            expect(() => new WebHookModelValidator(schemaPath)).not.toThrow()
         })
         test('Must register models correctly', async () => {
             const validator = new WebHookModelValidator(schemaPath)
-            await validator.init()
-            validator.registerModel('MyModel')
             expect(() => { validator.registerModel('MyModel') }).not.toThrow()
         })
         describe('Validating', () => {
             const validator = new WebHookModelValidator(schemaPath)
-            beforeAll(async () => {
-                await validator.init()
-                validator.registerModel('MyModel')
-            })
+            validator.registerModel('MyModel')
 
             describe('Fields', () => {
                 describe('Must correctly parse fields for registered models', () => {
@@ -145,6 +135,7 @@ describe('WebHookModelValidator', () => {
                             ['Single relation filter', { manyRelation_some: { id_in: ['1234'] } }],
                             ['CreatedBy filter', { createdBy: { id: '1234' } }],
                             ['Modifying time filter', { createdAt_gte: '2022-10-27T12:03:50Z', updatedAt_lt: '2022-10-27T12:03:50Z' }],
+                            ['Nullable field', { stringField: null, stringField_not: null }],
                         ]
                         test.each(cases)('%p', (name, filter) => {
                             const { isValid, errors } = validator.validateFilters('MyModel', filter)
@@ -160,7 +151,6 @@ describe('WebHookModelValidator', () => {
                         ]
                         test.each(cases)('%p', (name, filter) => {
                             const { isValid, errors } = validator.validateFilters('MyModel', filter)
-                            console.log(errors)
                             expect(isValid).toEqual(true)
                             expect(errors).toEqual([])
                         })

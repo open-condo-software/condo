@@ -34,6 +34,7 @@
     "@condo/locales": "workspace:^",
     "@condo/next": "workspace:^",
     "@condo/triggers": "workspace:^",
+    "@condo/webhooks": "workspace:^",
     "@emotion/babel-plugin": "^11.10.0",
     "@emotion/core": "^10.1.1",
     "@emotion/react": "^11.9.3",
