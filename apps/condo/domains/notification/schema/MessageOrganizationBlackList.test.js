@@ -15,7 +15,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, c
 const { MessageOrganizationBlackList, createTestMessageOrganizationBlackList, updateTestMessageOrganizationBlackList, Message, createTestMessageUserBlackList } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
-const { MESSAGE_TYPE_IN_USER_BLACK_LIST, MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('MessageOrganizationBlackList', () => {
@@ -140,6 +140,30 @@ describe('MessageOrganizationBlackList', () => {
             await createTestMessageOrganizationBlackList(admin, {
                 type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
                 organization: { connect: { id: client.organization.id } },
+            })
+
+            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+
+            await waitFor(async () => {
+                const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+                const messages = await Message.getAll(admin, messageWhere)
+
+                expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
+                expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST)
+            })
+        })
+
+        it('dont send notification if all organizaitons added in MessageOrganizationBlackList', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userAttrs = {
+                name: faker.name.firstName(),
+                email: createTestEmail(),
+                phone: createTestPhone(),
+            }
+            const client = await makeClientWithRegisteredOrganization()
+
+            await createTestMessageOrganizationBlackList(admin, {
+                type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
             })
 
             const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
