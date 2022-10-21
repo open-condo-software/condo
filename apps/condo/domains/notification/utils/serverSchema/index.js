@@ -129,7 +129,10 @@ async function checkMessageTypeInBlackList (context, message) {
     if (message.organization) {
         const messageOrganizationBlackListWhere = {
             type: message.type,
-            organization: { id: message.organization.id },
+            OR: [
+                { organization_is_null: true },
+                { organization: { id: message.organization.id } },
+            ],
             deletedAt: null,
         }
         const messageOrganizationBlackListRules = await MessageOrganizationBlackList.getAll(context, messageOrganizationBlackListWhere)
