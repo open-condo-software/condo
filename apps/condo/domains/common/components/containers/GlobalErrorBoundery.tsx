@@ -17,6 +17,7 @@ class GlobalErrorBoundary extends React.Component {
         // You can also log the error to an error reporting service
         // logErrorToMyService(error, errorInfo);
         console.error(error)
+        console.error(errorInfo)
     }
 
     render () {
