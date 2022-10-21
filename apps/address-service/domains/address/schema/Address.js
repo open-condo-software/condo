@@ -20,7 +20,7 @@ const Address = new GQLListSchema('Address', {
         },
 
         address: {
-            schemaDoc: 'The address itself in one string',
+            schemaDoc: 'The normalized address itself in one string',
             type: Text,
             isRequired: true,
         },
