@@ -7,6 +7,18 @@ const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
 } = require('@condo/domains/acquiring/utils/serverSchema')
+const {
+    PAYMENT_LINK_QP: {
+        acquiringIntegrationContextQp,
+        successUrlQp,
+        failureUrlQp,
+        billingReceiptQp,
+        currencyCodeQp,
+        amountQp,
+        periodQp,
+        accountNumberQp,
+    },
+} = require('@condo/domains/acquiring/constants/links')
 
 const sender = { dv: 1, fingerprint: 'payment-link-handler' }
 
@@ -123,10 +135,10 @@ class PaymentLinkRouter {
 
     extractRegularReceiptParams (req) {
         const {
-            aic: acquiringIntegrationContextId,
-            br: billingReceiptId,
-            su: successUrl,
-            fu: failureUrl,
+            [acquiringIntegrationContextQp]: acquiringIntegrationContextId,
+            [billingReceiptQp]: billingReceiptId,
+            [successUrlQp]: successUrl,
+            [failureUrlQp]: failureUrl,
         } = req.query
 
         return {
@@ -139,13 +151,13 @@ class PaymentLinkRouter {
 
     extractVirtualReceiptParams (req) {
         const {
-            aic: acquiringIntegrationContextId,
-            cc: currencyCode,
-            a: amount,
-            p: period,
-            an: accountNumber,
-            su: successUrl,
-            fu: failureUrl,
+            [acquiringIntegrationContextQp]: acquiringIntegrationContextId,
+            [currencyCodeQp]: currencyCode,
+            [amountQp]: amount,
+            [periodQp]: period,
+            [accountNumberQp]: accountNumber,
+            [successUrlQp]: successUrl,
+            [failureUrlQp]: failureUrl,
         } = req.query
 
         return {
