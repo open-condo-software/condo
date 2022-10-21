@@ -108,6 +108,7 @@ shell:
   - "echo 'WORKER_REDIS_URL=undefined' >> /app/.env"
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "echo 'SERVER_URL=http://build.example.com' >> /app/.env"
   - "yarn workspace @app/callcenter next telemetry disable"
   - "yarn workspace @app/callcenter build"
   - "rm -rf /app/.env"
