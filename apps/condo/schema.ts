@@ -11121,6 +11121,8 @@ export type Contact = {
   name?: Maybe<Scalars['String']>;
   /**  The contact's role  */
   role?: Maybe<ContactRole>;
+  /**  Contact verification flag.  */
+  isVerified?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11146,6 +11148,7 @@ export type ContactCreateInput = {
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   role?: Maybe<ContactRoleRelateToOneInput>;
+  isVerified?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11176,6 +11179,7 @@ export type ContactHistoryRecord = {
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
+  isVerified?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -11200,6 +11204,7 @@ export type ContactHistoryRecordCreateInput = {
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
+  isVerified?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11229,6 +11234,7 @@ export type ContactHistoryRecordUpdateInput = {
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   role?: Maybe<Scalars['String']>;
+  isVerified?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11348,6 +11354,8 @@ export type ContactHistoryRecordWhereInput = {
   role_not?: Maybe<Scalars['String']>;
   role_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   role_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isVerified?: Maybe<Scalars['Boolean']>;
+  isVerified_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -11800,6 +11808,7 @@ export type ContactUpdateInput = {
   phone?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   role?: Maybe<ContactRoleRelateToOneInput>;
+  isVerified?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11896,6 +11905,8 @@ export type ContactWhereInput = {
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   role?: Maybe<ContactRoleWhereInput>;
   role_is_null?: Maybe<Scalars['Boolean']>;
+  isVerified?: Maybe<Scalars['Boolean']>;
+  isVerified_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -41187,6 +41198,8 @@ export enum SortContactHistoryRecordsBy {
   PhoneDesc = 'phone_DESC',
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  IsVerifiedAsc = 'isVerified_ASC',
+  IsVerifiedDesc = 'isVerified_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -41266,6 +41279,8 @@ export enum SortContactsBy {
   NameDesc = 'name_DESC',
   RoleAsc = 'role_ASC',
   RoleDesc = 'role_DESC',
+  IsVerifiedAsc = 'isVerified_ASC',
+  IsVerifiedDesc = 'isVerified_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

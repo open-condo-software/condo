@@ -7,7 +7,7 @@ import {
     SortContactsBy,
 } from '@app/condo/schema'
 
-export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
+export interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email' | 'isVerified'> {
     search?: string
     address?: string
 }

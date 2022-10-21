@@ -13,6 +13,7 @@ const { extractReqLocale } = require('@condo/locales/extractReqLocale')
 const conf = require('@condo/config')
 const get = require('lodash/get')
 const { ContactRole } = require('@condo/domains/contact/utils/serverSchema')
+const isEmpty = require('lodash/isEmpty')
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -65,7 +66,10 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                 const excelRows = contacts.map(contact => {
                     const unitType = contact.unitName ? i18n(`field.UnitType.${contact.unitType}`, { locale }) : ''
                     const roleId = get(contact, 'role', null)
+                    const isVerified = !isEmpty(contact.isVerified) ? i18n('pages.condo.contact.Verified', { locale }) : ''
                     return {
+                        isVerified: i18n(`pages.condo.contact.${
+                            get(contact, 'isVerified', false) ? 'Verified' : 'NotVerified'}`, { locale }),
                         name: contact.name,
                         address: contact.property,
                         unitName: contact.unitName,

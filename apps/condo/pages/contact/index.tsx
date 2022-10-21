@@ -1,5 +1,6 @@
 import { DiffOutlined } from '@ant-design/icons'
 import { EXPORT_CONTACTS_TO_EXCEL } from '@app/condo/domains/contact/gql'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { Button } from '@condo/domains/common/components/Button'
 
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
@@ -8,6 +9,7 @@ import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
@@ -15,6 +17,7 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
+import { useVerifiedSearch } from "@condo/domains/contact/hooks/useVerifiedSearch";
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, getPageIndexFromQuery, IFilters } from '@condo/domains/contact/utils/helpers'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -26,15 +29,19 @@ import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import isEmpty from 'lodash/isEmpty'
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
+const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
+const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 const ROW_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [10, 0]
+const CHECKBOX_GUTTERS: [Gutter, Gutter] = [8, 16]
+const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const ContactsPageContent = ({
     tableColumns,
@@ -51,11 +58,13 @@ export const ContactsPageContent = ({
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
     const ContactsMessage = intl.formatMessage({ id: 'menu.Contacts' })
     const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
+    const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
 
     const router = useRouter()
     const offsetFromQuery = getPageIndexFromQuery(router.query)
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
     const { isSmall } = useLayoutContext()
+    const [isVerified, handleIsVerifiedChange] = useVerifiedSearch<IFilters>(false)
 
     const canManageContacts = get(role, 'canManageContacts', false)
 
@@ -128,63 +137,85 @@ export const ContactsPageContent = ({
                     <Row gutter={ROW_VERTICAL_GUTTERS} align='middle' justify='start' hidden={isNoContactsData}>
                         <Col span={24}>
                             <TableFiltersContainer>
-                                <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
-                                    <Col xs={24} lg={6}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={(e) => {
-                                                handleSearchChange(e.target.value)
-                                            }}
-                                            value={search}
-                                            allowClear
-                                        />
+                                <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
+                                    <Col flex='auto'>
+                                        <Row
+                                            gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
+                                            align='middle'
+                                            justify='start'
+                                        >
+                                            <Col xs={24} md={8}>
+                                                <Input
+                                                    placeholder={SearchPlaceholder}
+                                                    onChange={(e) => {
+                                                        handleSearchChange(e.target.value)
+                                                    }}
+                                                    value={search}
+                                                    allowClear
+                                                />
+                                            </Col>
+                                            <Col xs={24} md={16}>
+                                                <Row gutter={CHECKBOX_GUTTERS}>
+                                                    <Col>
+                                                        <Checkbox
+                                                            onChange={handleIsVerifiedChange}
+                                                            checked={isVerified}
+                                                            style={CHECKBOX_STYLE}
+                                                            eventName='TicketFilterCheckboxIsVerified'
+                                                        >
+                                                            {Verified}
+                                                        </Checkbox>
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                        </Row>
                                     </Col>
                                     <Col>
-                                        <Row
-                                            gutter={ROW_HORIZONTAL_GUTTERS}
-                                            align='middle'
-                                            justify='center'
-                                        >
-                                            <Col hidden={isSmall}>
-                                                {
-                                                    canManageContacts && (
-                                                        <ImportWrapper
-                                                            objectsName={ContactsMessage}
-                                                            accessCheck={canManageContacts}
-                                                            onFinish={refetch}
-                                                            columns={columns}
-                                                            maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                                EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                                DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                            }
-                                                            rowNormalizer={contactNormalizer}
-                                                            rowValidator={contactValidator}
-                                                            objectCreator={contactCreator}
-                                                            domainTranslate={ContactTitle}
-                                                            exampleTemplateLink='/contact-import-example.xlsx'
-                                                        >
-                                                            <Button
-                                                                type='sberPrimary'
-                                                                icon={<DiffOutlined/>}
-                                                                secondary
-                                                            />
-                                                        </ImportWrapper>
-                                                    )
-                                                }
-                                            </Col>
+                                        <Row justify='end' align='middle'>
                                             <Col>
-                                                {
-                                                    canManageContacts && (
-                                                        <Button
-                                                            block={!isSmall}
-                                                            key='left'
-                                                            type='sberPrimary'
-                                                            onClick={() => router.push(ADD_CONTACT_ROUTE)}
-                                                        >
-                                                            {CreateContact}
-                                                        </Button>
-                                                    )
-                                                }
+                                                <Row gutter={ROW_HORIZONTAL_GUTTERS}>
+                                                    <Col>
+                                                        {
+                                                            canManageContacts && (
+                                                                <ImportWrapper
+                                                                    objectsName={ContactsMessage}
+                                                                    accessCheck={canManageContacts}
+                                                                    onFinish={refetch}
+                                                                    columns={columns}
+                                                                    maxTableLength={hasFeature('bigger_limit_for_import') ?
+                                                                        EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
+                                                                        DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+                                                                    }
+                                                                    rowNormalizer={contactNormalizer}
+                                                                    rowValidator={contactValidator}
+                                                                    objectCreator={contactCreator}
+                                                                    domainTranslate={ContactTitle}
+                                                                    exampleTemplateLink='/contact-import-example.xlsx'
+                                                                >
+                                                                    <Button
+                                                                        type='sberPrimary'
+                                                                        icon={<DiffOutlined/>}
+                                                                        secondary
+                                                                    />
+                                                                </ImportWrapper>
+                                                            )
+                                                        }
+                                                    </Col>
+                                                    <Col>
+                                                        {
+                                                            canManageContacts && (
+                                                                <Button
+                                                                    block={!isSmall}
+                                                                    key='left'
+                                                                    type='sberPrimary'
+                                                                    onClick={() => router.push(ADD_CONTACT_ROUTE)}
+                                                                >
+                                                                    {CreateContact}
+                                                                </Button>
+                                                            )
+                                                        }
+                                                    </Col>
+                                                </Row>
                                             </Col>
                                         </Row>
                                     </Col>

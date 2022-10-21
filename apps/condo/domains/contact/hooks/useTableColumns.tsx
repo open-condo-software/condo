@@ -11,8 +11,10 @@ import {
     getTableCellRenderer,
     getUnitNameRender,
 } from '@condo/domains/common/components/Table/Renders'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { getSorterMap, OptionType, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getIsVerifiedRender } from '@condo/domains/contact/utils/clientSchema/Renders'
 
 import { IFilters } from '../utils/helpers'
 import { Contact } from '@app/condo/schema'
@@ -26,6 +28,16 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const RoleMessage = intl.formatMessage({ id: 'ContactRole' })
+    const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const NotVerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.NotVerified' })
+    const StatusMessage = intl.formatMessage({ id: 'Status' })
+
+    const verifiedOptions: OptionType[] = useMemo(() => {
+        return [
+            { label: VerifiedMessage, value: 'isVerified' },
+            { label: NotVerifiedMessage, value: 'isVerified_not' },
+        ]
+    }, [])
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -42,8 +54,30 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const render = useMemo(() => getTableCellRenderer(search), [search])
 
+    const renderVerifiedOptionsFilterDropdown = ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
+        const filterProps = {
+            setSelectedKeys,
+            selectedKeys,
+            confirm,
+            clearFilters,
+        }
+        return getOptionFilterDropdown(verifiedOptions, false)(filterProps)
+    }
+
     return useMemo(() => {
         return [
+            {
+                title: StatusMessage,
+                ellipsis: true,
+                sortOrder: get(sorterMap, 'isVerified'),
+                filteredValue: getFilteredValue<IFilters>(filters, 'isVerified'),
+                dataIndex: 'isVerified',
+                key: 'isVerified',
+                width: '20%',
+                filterDropdown: renderVerifiedOptionsFilterDropdown,
+                filterIcon: getFilterIcon,
+                render: getIsVerifiedRender(intl, search),
+            },
             {
                 title: NameMessage,
                 sortOrder: get(sorterMap, 'name'),
@@ -64,7 +98,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: ['property', 'address'],
                 key: 'address',
                 sorter: false,
-                width: '35%',
+                width: '30%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
                 render: renderAddress,
@@ -77,7 +111,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 dataIndex: 'role',
                 key: 'role',
                 sorter: true,
-                width: '20%',
+                width: '15%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'role'),
                 filterIcon: getFilterIcon,
                 render: (role) => render(get(role, 'name')),
@@ -120,5 +154,5 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render,
             },
         ]
-    }, [AddressMessage, EmailMessage, NameMessage, PhoneMessage, RoleMessage, filterMetas, filters, render, renderAddress, sorterMap, renderUnitName])
+    }, [StatusMessage, AddressMessage, EmailMessage, NameMessage, PhoneMessage, RoleMessage, filterMetas, filters, render, renderAddress, sorterMap, renderUnitName, getIsVerifiedRender])
 }

@@ -17,7 +17,7 @@ const ContactRole = generateServerUtils(ContactRoleGQL)
 const loadContactsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const contactsLoader = new GqlWithKnexLoadList({
         listKey: 'Contact',
-        fields: 'id name phone email unitName unitType createdAt updatedAt role',
+        fields: 'id name phone email unitName unitType createdAt updatedAt role, isVerified',
         singleRelations: [
             ['Organization', 'organization', 'name'],
             ['Property', 'property', 'address'],

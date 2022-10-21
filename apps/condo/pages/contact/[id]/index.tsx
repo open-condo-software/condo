@@ -1,4 +1,5 @@
-import React, { useCallback } from 'react'
+import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@condo/next/intl'
 import { EditFilled } from '@ant-design/icons'
@@ -7,6 +8,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
+import { CONTACT_IS_VERIFIED_TAGS_COLORS } from '@condo/domains/contact/constants/constants'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -39,6 +41,11 @@ const FieldPairRow = (props) => {
     )
 }
 
+const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
+const TAGS_STYLE: CSSProperties = { padding: '3px 10px 3px 10px' }
+const TAGS_TITLE_LEVEL = 5
+const TITLE_STYLE: CSSProperties = { margin: '8px 0 0', fontWeight: 400 }
+
 export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
@@ -51,6 +58,8 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
+    const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+    const NotVerified = intl.formatMessage({ id: 'pages.condo.contact.NotVerified' })
 
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
@@ -62,6 +71,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
         : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')
+    const isVerified = get(contact, 'isVerified')
 
     const { isSmall } = useLayoutContext()
 
@@ -91,10 +101,17 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                         </Typography.Title>
                                         <Typography.Title
                                             level={2}
-                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
+                                            style={TITLE_STYLE}
                                         >
                                             {ContactLabel}
                                         </Typography.Title>
+                                        <Row justify='space-between' align='middle' style={TAGS_ROW_STYLE}>
+                                            <TicketTag
+                                                style={TAGS_STYLE}
+                                                color={ CONTACT_IS_VERIFIED_TAGS_COLORS[`${isVerified ? 'verified' : 'notVerified' }`]}>
+                                                {isVerified ? <Typography.Title level={TAGS_TITLE_LEVEL}>{Verified}</Typography.Title> : <Typography.Title level={TAGS_TITLE_LEVEL}>{NotVerified}</Typography.Title>}
+                                            </TicketTag>
+                                        </Row>
                                     </Col>
                                     <Col span={24}>
                                         <FrontLayerContainer>
