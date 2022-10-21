@@ -15,6 +15,12 @@ SET statement_timeout = '1500s';
 SET CONSTRAINTS "MultiPayment_user_2d581ca2_fk_User_id" IMMEDIATE; ALTER TABLE "MultiPayment" DROP CONSTRAINT "MultiPayment_user_2d581ca2_fk_User_id";
 ALTER TABLE "MultiPayment" ALTER COLUMN "user" DROP NOT NULL;
 ALTER TABLE "MultiPayment" ADD CONSTRAINT "MultiPayment_user_2d581ca2_fk_User_id" FOREIGN KEY ("user") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
