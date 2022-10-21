@@ -20434,6 +20434,54 @@ export type Mutation = {
   deleteExternalReport?: Maybe<ExternalReport>;
   /**  Delete multiple ExternalReport items by ID.  */
   deleteExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
+  /**  Create a single WebhookHistoryRecord item.  */
+  createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
+  /**  Create multiple WebhookHistoryRecord items.  */
+  createWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
+  /**  Update a single WebhookHistoryRecord item by ID.  */
+  updateWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
+  /**  Update multiple WebhookHistoryRecord items by ID.  */
+  updateWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
+  /**  Delete a single WebhookHistoryRecord item by ID.  */
+  deleteWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
+  /**  Delete multiple WebhookHistoryRecord items by ID.  */
+  deleteWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
+  /**  Create a single Webhook item.  */
+  createWebhook?: Maybe<Webhook>;
+  /**  Create multiple Webhook items.  */
+  createWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+  /**  Update a single Webhook item by ID.  */
+  updateWebhook?: Maybe<Webhook>;
+  /**  Update multiple Webhook items by ID.  */
+  updateWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+  /**  Delete a single Webhook item by ID.  */
+  deleteWebhook?: Maybe<Webhook>;
+  /**  Delete multiple Webhook items by ID.  */
+  deleteWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+  /**  Create a single WebhookSubscriptionHistoryRecord item.  */
+  createWebhookSubscriptionHistoryRecord?: Maybe<WebhookSubscriptionHistoryRecord>;
+  /**  Create multiple WebhookSubscriptionHistoryRecord items.  */
+  createWebhookSubscriptionHistoryRecords?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecord>>>;
+  /**  Update a single WebhookSubscriptionHistoryRecord item by ID.  */
+  updateWebhookSubscriptionHistoryRecord?: Maybe<WebhookSubscriptionHistoryRecord>;
+  /**  Update multiple WebhookSubscriptionHistoryRecord items by ID.  */
+  updateWebhookSubscriptionHistoryRecords?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecord>>>;
+  /**  Delete a single WebhookSubscriptionHistoryRecord item by ID.  */
+  deleteWebhookSubscriptionHistoryRecord?: Maybe<WebhookSubscriptionHistoryRecord>;
+  /**  Delete multiple WebhookSubscriptionHistoryRecord items by ID.  */
+  deleteWebhookSubscriptionHistoryRecords?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecord>>>;
+  /**  Create a single WebhookSubscription item.  */
+  createWebhookSubscription?: Maybe<WebhookSubscription>;
+  /**  Create multiple WebhookSubscription items.  */
+  createWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
+  /**  Update a single WebhookSubscription item by ID.  */
+  updateWebhookSubscription?: Maybe<WebhookSubscription>;
+  /**  Update multiple WebhookSubscription items by ID.  */
+  updateWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
+  /**  Delete a single WebhookSubscription item by ID.  */
+  deleteWebhookSubscription?: Maybe<WebhookSubscription>;
+  /**  Delete multiple WebhookSubscription items by ID.  */
+  deleteWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
   /**
    * Registers new user and sends notification
    *
@@ -26457,6 +26505,130 @@ export type MutationDeleteExternalReportArgs = {
 
 
 export type MutationDeleteExternalReportsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateWebhookHistoryRecordArgs = {
+  data?: Maybe<WebhookHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateWebhookHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<WebhookHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateWebhookHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateWebhookHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<WebhookHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteWebhookHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteWebhookHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateWebhookArgs = {
+  data?: Maybe<WebhookCreateInput>;
+};
+
+
+export type MutationCreateWebhooksArgs = {
+  data?: Maybe<Array<Maybe<WebhooksCreateInput>>>;
+};
+
+
+export type MutationUpdateWebhookArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookUpdateInput>;
+};
+
+
+export type MutationUpdateWebhooksArgs = {
+  data?: Maybe<Array<Maybe<WebhooksUpdateInput>>>;
+};
+
+
+export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteWebhooksArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateWebhookSubscriptionHistoryRecordArgs = {
+  data?: Maybe<WebhookSubscriptionHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateWebhookSubscriptionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateWebhookSubscriptionHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookSubscriptionHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateWebhookSubscriptionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteWebhookSubscriptionHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteWebhookSubscriptionHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateWebhookSubscriptionArgs = {
+  data?: Maybe<WebhookSubscriptionCreateInput>;
+};
+
+
+export type MutationCreateWebhookSubscriptionsArgs = {
+  data?: Maybe<Array<Maybe<WebhookSubscriptionsCreateInput>>>;
+};
+
+
+export type MutationUpdateWebhookSubscriptionArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookSubscriptionUpdateInput>;
+};
+
+
+export type MutationUpdateWebhookSubscriptionsArgs = {
+  data?: Maybe<Array<Maybe<WebhookSubscriptionsUpdateInput>>>;
+};
+
+
+export type MutationDeleteWebhookSubscriptionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteWebhookSubscriptionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -33037,6 +33209,38 @@ export type Query = {
   _allExternalReportsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ExternalReport list.  */
   _ExternalReportsMeta?: Maybe<_ListMeta>;
+  /**  Search for all WebhookHistoryRecord items which match the where clause.  */
+  allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
+  /**  Search for the WebhookHistoryRecord item with the matching ID.  */
+  WebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
+  /**  Perform a meta-query on all WebhookHistoryRecord items which match the where clause.  */
+  _allWebhookHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the WebhookHistoryRecord list.  */
+  _WebhookHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all Webhook items which match the where clause.  */
+  allWebhooks?: Maybe<Array<Maybe<Webhook>>>;
+  /**  Search for the Webhook item with the matching ID.  */
+  Webhook?: Maybe<Webhook>;
+  /**  Perform a meta-query on all Webhook items which match the where clause.  */
+  _allWebhooksMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the Webhook list.  */
+  _WebhooksMeta?: Maybe<_ListMeta>;
+  /**  Search for all WebhookSubscriptionHistoryRecord items which match the where clause.  */
+  allWebhookSubscriptionHistoryRecords?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecord>>>;
+  /**  Search for the WebhookSubscriptionHistoryRecord item with the matching ID.  */
+  WebhookSubscriptionHistoryRecord?: Maybe<WebhookSubscriptionHistoryRecord>;
+  /**  Perform a meta-query on all WebhookSubscriptionHistoryRecord items which match the where clause.  */
+  _allWebhookSubscriptionHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the WebhookSubscriptionHistoryRecord list.  */
+  _WebhookSubscriptionHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all WebhookSubscription items which match the where clause.  */
+  allWebhookSubscriptions?: Maybe<Array<Maybe<WebhookSubscription>>>;
+  /**  Search for the WebhookSubscription item with the matching ID.  */
+  WebhookSubscription?: Maybe<WebhookSubscription>;
+  /**  Perform a meta-query on all WebhookSubscription items which match the where clause.  */
+  _allWebhookSubscriptionsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the WebhookSubscription list.  */
+  _WebhookSubscriptionsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /**
@@ -36741,6 +36945,106 @@ export type Query_AllExternalReportsMetaArgs = {
   where?: Maybe<ExternalReportWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortExternalReportsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllWebhookHistoryRecordsArgs = {
+  where?: Maybe<WebhookHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhookHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryWebhookHistoryRecordArgs = {
+  where: WebhookHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllWebhookHistoryRecordsMetaArgs = {
+  where?: Maybe<WebhookHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhookHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllWebhooksArgs = {
+  where?: Maybe<WebhookWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhooksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryWebhookArgs = {
+  where: WebhookWhereUniqueInput;
+};
+
+
+export type Query_AllWebhooksMetaArgs = {
+  where?: Maybe<WebhookWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhooksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllWebhookSubscriptionHistoryRecordsArgs = {
+  where?: Maybe<WebhookSubscriptionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhookSubscriptionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryWebhookSubscriptionHistoryRecordArgs = {
+  where: WebhookSubscriptionHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllWebhookSubscriptionHistoryRecordsMetaArgs = {
+  where?: Maybe<WebhookSubscriptionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhookSubscriptionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllWebhookSubscriptionsArgs = {
+  where?: Maybe<WebhookSubscriptionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhookSubscriptionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryWebhookSubscriptionArgs = {
+  where: WebhookSubscriptionWhereUniqueInput;
+};
+
+
+export type Query_AllWebhookSubscriptionsMetaArgs = {
+  where?: Maybe<WebhookSubscriptionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortWebhookSubscriptionsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -44480,6 +44784,114 @@ export enum SortUsersBy {
   ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortWebhookHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  UrlAsc = 'url_ASC',
+  UrlDesc = 'url_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortWebhookSubscriptionHistoryRecordsBy {
+  UrlAsc = 'url_ASC',
+  UrlDesc = 'url_DESC',
+  SyncedAtAsc = 'syncedAt_ASC',
+  SyncedAtDesc = 'syncedAt_DESC',
+  ModelAsc = 'model_ASC',
+  ModelDesc = 'model_DESC',
+  FieldsAsc = 'fields_ASC',
+  FieldsDesc = 'fields_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortWebhookSubscriptionsBy {
+  WebhookAsc = 'webhook_ASC',
+  WebhookDesc = 'webhook_DESC',
+  UrlAsc = 'url_ASC',
+  UrlDesc = 'url_DESC',
+  SyncedAtAsc = 'syncedAt_ASC',
+  SyncedAtDesc = 'syncedAt_DESC',
+  ModelAsc = 'model_ASC',
+  ModelDesc = 'model_DESC',
+  FieldsAsc = 'fields_ASC',
+  FieldsDesc = 'fields_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortWebhooksBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  UrlAsc = 'url_ASC',
+  UrlDesc = 'url_DESC',
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -54592,6 +55004,883 @@ export type VillageMap = {
 export enum VillageMapType {
   Village = 'village'
 }
+
+/**  Webhooks are a way that the APP can send automated web callback with some messages to other apps or system to inform them about any updates. How does it work: 1. When objects are created or changed, we make requests to the GraphQL API to get data on behalf of the specified user; 2. Then we send the data to remote url. Webhook model contains basic configuration of integration, such as external server url, name, encryption parameters and so on.  */
+export type Webhook = {
+  __typename?: 'Webhook';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the Webhook List config, or
+   *  2. As an alias to the field set on 'labelField' in the Webhook List config, or
+   *  3. As an alias to a 'name' field on the Webhook List (if one exists), or
+   *  4. As an alias to the 'id' field on the Webhook List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Short name used to distinguish this hook from others. Usually it's the name of the integration  */
+  name?: Maybe<Scalars['String']>;
+  /**  Any other details that reveal the purpose of this hook  */
+  description?: Maybe<Scalars['String']>;
+  /**  Webhook target URL to which requests will be sent  */
+  url?: Maybe<Scalars['String']>;
+  /**  The user on whose behalf a request is being made to the GraphQL API to prepare webhook data  */
+  user?: Maybe<User>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type WebhookCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type WebhookHistoryRecord = {
+  __typename?: 'WebhookHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the WebhookHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the WebhookHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the WebhookHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the WebhookHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<WebhookHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type WebhookHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<WebhookHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum WebhookHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type WebhookHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<WebhookHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type WebhookHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<WebhookHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<WebhookHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url?: Maybe<Scalars['String']>;
+  url_not?: Maybe<Scalars['String']>;
+  url_contains?: Maybe<Scalars['String']>;
+  url_not_contains?: Maybe<Scalars['String']>;
+  url_starts_with?: Maybe<Scalars['String']>;
+  url_not_starts_with?: Maybe<Scalars['String']>;
+  url_ends_with?: Maybe<Scalars['String']>;
+  url_not_ends_with?: Maybe<Scalars['String']>;
+  url_i?: Maybe<Scalars['String']>;
+  url_not_i?: Maybe<Scalars['String']>;
+  url_contains_i?: Maybe<Scalars['String']>;
+  url_not_contains_i?: Maybe<Scalars['String']>;
+  url_starts_with_i?: Maybe<Scalars['String']>;
+  url_not_starts_with_i?: Maybe<Scalars['String']>;
+  url_ends_with_i?: Maybe<Scalars['String']>;
+  url_not_ends_with_i?: Maybe<Scalars['String']>;
+  url_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<WebhookHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<WebhookHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<WebhookHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<WebhookHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type WebhookHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type WebhookHistoryRecordsCreateInput = {
+  data?: Maybe<WebhookHistoryRecordCreateInput>;
+};
+
+export type WebhookHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookHistoryRecordUpdateInput>;
+};
+
+export type WebhookRelateToOneInput = {
+  create?: Maybe<WebhookCreateInput>;
+  connect?: Maybe<WebhookWhereUniqueInput>;
+  disconnect?: Maybe<WebhookWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+/**  Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook  */
+export type WebhookSubscription = {
+  __typename?: 'WebhookSubscription';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the WebhookSubscription List config, or
+   *  2. As an alias to the field set on 'labelField' in the WebhookSubscription List config, or
+   *  3. As an alias to a 'name' field on the WebhookSubscription List (if one exists), or
+   *  4. As an alias to the 'id' field on the WebhookSubscription List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to a webhook containing information about integration  */
+  webhook?: Maybe<Webhook>;
+  /**  Webhook target URL to which requests will be sent. Overrides url from webhook relation. Used in case when you need to send specific model to a separate url  */
+  url?: Maybe<Scalars['String']>;
+  /**  The time was the data was last synced. At the next synchronization, only objects that have changed since that time will be sent.  */
+  syncedAt?: Maybe<Scalars['String']>;
+  /**  The data model (schema) that the webhook is subscribed to  */
+  model?: Maybe<Scalars['String']>;
+  /**  String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }"  */
+  fields?: Maybe<Scalars['String']>;
+  /**  Filters which is stored in JSON and used to filter models sent by the webhook. Examples of filters can be found in ModelWhereInput GQL type, where Model is name of your model  */
+  filters?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type WebhookSubscriptionCreateInput = {
+  webhook?: Maybe<WebhookRelateToOneInput>;
+  url?: Maybe<Scalars['String']>;
+  syncedAt?: Maybe<Scalars['String']>;
+  model?: Maybe<Scalars['String']>;
+  fields?: Maybe<Scalars['String']>;
+  filters?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type WebhookSubscriptionHistoryRecord = {
+  __typename?: 'WebhookSubscriptionHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the WebhookSubscriptionHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the WebhookSubscriptionHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the WebhookSubscriptionHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the WebhookSubscriptionHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  webhook?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  syncedAt?: Maybe<Scalars['String']>;
+  model?: Maybe<Scalars['String']>;
+  fields?: Maybe<Scalars['String']>;
+  filters?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type WebhookSubscriptionHistoryRecordCreateInput = {
+  webhook?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  syncedAt?: Maybe<Scalars['String']>;
+  model?: Maybe<Scalars['String']>;
+  fields?: Maybe<Scalars['String']>;
+  filters?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum WebhookSubscriptionHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type WebhookSubscriptionHistoryRecordUpdateInput = {
+  webhook?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  syncedAt?: Maybe<Scalars['String']>;
+  model?: Maybe<Scalars['String']>;
+  fields?: Maybe<Scalars['String']>;
+  filters?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type WebhookSubscriptionHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecordWhereInput>>>;
+  webhook?: Maybe<Scalars['String']>;
+  webhook_not?: Maybe<Scalars['String']>;
+  webhook_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  webhook_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url?: Maybe<Scalars['String']>;
+  url_not?: Maybe<Scalars['String']>;
+  url_contains?: Maybe<Scalars['String']>;
+  url_not_contains?: Maybe<Scalars['String']>;
+  url_starts_with?: Maybe<Scalars['String']>;
+  url_not_starts_with?: Maybe<Scalars['String']>;
+  url_ends_with?: Maybe<Scalars['String']>;
+  url_not_ends_with?: Maybe<Scalars['String']>;
+  url_i?: Maybe<Scalars['String']>;
+  url_not_i?: Maybe<Scalars['String']>;
+  url_contains_i?: Maybe<Scalars['String']>;
+  url_not_contains_i?: Maybe<Scalars['String']>;
+  url_starts_with_i?: Maybe<Scalars['String']>;
+  url_not_starts_with_i?: Maybe<Scalars['String']>;
+  url_ends_with_i?: Maybe<Scalars['String']>;
+  url_not_ends_with_i?: Maybe<Scalars['String']>;
+  url_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  syncedAt?: Maybe<Scalars['String']>;
+  syncedAt_not?: Maybe<Scalars['String']>;
+  syncedAt_lt?: Maybe<Scalars['String']>;
+  syncedAt_lte?: Maybe<Scalars['String']>;
+  syncedAt_gt?: Maybe<Scalars['String']>;
+  syncedAt_gte?: Maybe<Scalars['String']>;
+  syncedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  syncedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  model?: Maybe<Scalars['String']>;
+  model_not?: Maybe<Scalars['String']>;
+  model_contains?: Maybe<Scalars['String']>;
+  model_not_contains?: Maybe<Scalars['String']>;
+  model_starts_with?: Maybe<Scalars['String']>;
+  model_not_starts_with?: Maybe<Scalars['String']>;
+  model_ends_with?: Maybe<Scalars['String']>;
+  model_not_ends_with?: Maybe<Scalars['String']>;
+  model_i?: Maybe<Scalars['String']>;
+  model_not_i?: Maybe<Scalars['String']>;
+  model_contains_i?: Maybe<Scalars['String']>;
+  model_not_contains_i?: Maybe<Scalars['String']>;
+  model_starts_with_i?: Maybe<Scalars['String']>;
+  model_not_starts_with_i?: Maybe<Scalars['String']>;
+  model_ends_with_i?: Maybe<Scalars['String']>;
+  model_not_ends_with_i?: Maybe<Scalars['String']>;
+  model_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  model_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fields?: Maybe<Scalars['String']>;
+  fields_not?: Maybe<Scalars['String']>;
+  fields_contains?: Maybe<Scalars['String']>;
+  fields_not_contains?: Maybe<Scalars['String']>;
+  fields_starts_with?: Maybe<Scalars['String']>;
+  fields_not_starts_with?: Maybe<Scalars['String']>;
+  fields_ends_with?: Maybe<Scalars['String']>;
+  fields_not_ends_with?: Maybe<Scalars['String']>;
+  fields_i?: Maybe<Scalars['String']>;
+  fields_not_i?: Maybe<Scalars['String']>;
+  fields_contains_i?: Maybe<Scalars['String']>;
+  fields_not_contains_i?: Maybe<Scalars['String']>;
+  fields_starts_with_i?: Maybe<Scalars['String']>;
+  fields_not_starts_with_i?: Maybe<Scalars['String']>;
+  fields_ends_with_i?: Maybe<Scalars['String']>;
+  fields_not_ends_with_i?: Maybe<Scalars['String']>;
+  fields_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fields_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  filters?: Maybe<Scalars['JSON']>;
+  filters_not?: Maybe<Scalars['JSON']>;
+  filters_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  filters_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<WebhookSubscriptionHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type WebhookSubscriptionHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type WebhookSubscriptionHistoryRecordsCreateInput = {
+  data?: Maybe<WebhookSubscriptionHistoryRecordCreateInput>;
+};
+
+export type WebhookSubscriptionHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookSubscriptionHistoryRecordUpdateInput>;
+};
+
+export type WebhookSubscriptionUpdateInput = {
+  webhook?: Maybe<WebhookRelateToOneInput>;
+  url?: Maybe<Scalars['String']>;
+  syncedAt?: Maybe<Scalars['String']>;
+  model?: Maybe<Scalars['String']>;
+  fields?: Maybe<Scalars['String']>;
+  filters?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type WebhookSubscriptionWhereInput = {
+  AND?: Maybe<Array<Maybe<WebhookSubscriptionWhereInput>>>;
+  OR?: Maybe<Array<Maybe<WebhookSubscriptionWhereInput>>>;
+  webhook?: Maybe<WebhookWhereInput>;
+  webhook_is_null?: Maybe<Scalars['Boolean']>;
+  url?: Maybe<Scalars['String']>;
+  url_not?: Maybe<Scalars['String']>;
+  url_contains?: Maybe<Scalars['String']>;
+  url_not_contains?: Maybe<Scalars['String']>;
+  url_starts_with?: Maybe<Scalars['String']>;
+  url_not_starts_with?: Maybe<Scalars['String']>;
+  url_ends_with?: Maybe<Scalars['String']>;
+  url_not_ends_with?: Maybe<Scalars['String']>;
+  url_i?: Maybe<Scalars['String']>;
+  url_not_i?: Maybe<Scalars['String']>;
+  url_contains_i?: Maybe<Scalars['String']>;
+  url_not_contains_i?: Maybe<Scalars['String']>;
+  url_starts_with_i?: Maybe<Scalars['String']>;
+  url_not_starts_with_i?: Maybe<Scalars['String']>;
+  url_ends_with_i?: Maybe<Scalars['String']>;
+  url_not_ends_with_i?: Maybe<Scalars['String']>;
+  url_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  syncedAt?: Maybe<Scalars['String']>;
+  syncedAt_not?: Maybe<Scalars['String']>;
+  syncedAt_lt?: Maybe<Scalars['String']>;
+  syncedAt_lte?: Maybe<Scalars['String']>;
+  syncedAt_gt?: Maybe<Scalars['String']>;
+  syncedAt_gte?: Maybe<Scalars['String']>;
+  syncedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  syncedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  model?: Maybe<Scalars['String']>;
+  model_not?: Maybe<Scalars['String']>;
+  model_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  model_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fields?: Maybe<Scalars['String']>;
+  fields_not?: Maybe<Scalars['String']>;
+  fields_contains?: Maybe<Scalars['String']>;
+  fields_not_contains?: Maybe<Scalars['String']>;
+  fields_starts_with?: Maybe<Scalars['String']>;
+  fields_not_starts_with?: Maybe<Scalars['String']>;
+  fields_ends_with?: Maybe<Scalars['String']>;
+  fields_not_ends_with?: Maybe<Scalars['String']>;
+  fields_i?: Maybe<Scalars['String']>;
+  fields_not_i?: Maybe<Scalars['String']>;
+  fields_contains_i?: Maybe<Scalars['String']>;
+  fields_not_contains_i?: Maybe<Scalars['String']>;
+  fields_starts_with_i?: Maybe<Scalars['String']>;
+  fields_not_starts_with_i?: Maybe<Scalars['String']>;
+  fields_ends_with_i?: Maybe<Scalars['String']>;
+  fields_not_ends_with_i?: Maybe<Scalars['String']>;
+  fields_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  fields_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  filters?: Maybe<Scalars['JSON']>;
+  filters_not?: Maybe<Scalars['JSON']>;
+  filters_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  filters_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type WebhookSubscriptionWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type WebhookSubscriptionsCreateInput = {
+  data?: Maybe<WebhookSubscriptionCreateInput>;
+};
+
+export type WebhookSubscriptionsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookSubscriptionUpdateInput>;
+};
+
+export type WebhookUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  description?: Maybe<Scalars['String']>;
+  url?: Maybe<Scalars['String']>;
+  user?: Maybe<UserRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type WebhookWhereInput = {
+  AND?: Maybe<Array<Maybe<WebhookWhereInput>>>;
+  OR?: Maybe<Array<Maybe<WebhookWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description?: Maybe<Scalars['String']>;
+  description_not?: Maybe<Scalars['String']>;
+  description_contains?: Maybe<Scalars['String']>;
+  description_not_contains?: Maybe<Scalars['String']>;
+  description_starts_with?: Maybe<Scalars['String']>;
+  description_not_starts_with?: Maybe<Scalars['String']>;
+  description_ends_with?: Maybe<Scalars['String']>;
+  description_not_ends_with?: Maybe<Scalars['String']>;
+  description_i?: Maybe<Scalars['String']>;
+  description_not_i?: Maybe<Scalars['String']>;
+  description_contains_i?: Maybe<Scalars['String']>;
+  description_not_contains_i?: Maybe<Scalars['String']>;
+  description_starts_with_i?: Maybe<Scalars['String']>;
+  description_not_starts_with_i?: Maybe<Scalars['String']>;
+  description_ends_with_i?: Maybe<Scalars['String']>;
+  description_not_ends_with_i?: Maybe<Scalars['String']>;
+  description_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url?: Maybe<Scalars['String']>;
+  url_not?: Maybe<Scalars['String']>;
+  url_contains?: Maybe<Scalars['String']>;
+  url_not_contains?: Maybe<Scalars['String']>;
+  url_starts_with?: Maybe<Scalars['String']>;
+  url_not_starts_with?: Maybe<Scalars['String']>;
+  url_ends_with?: Maybe<Scalars['String']>;
+  url_not_ends_with?: Maybe<Scalars['String']>;
+  url_i?: Maybe<Scalars['String']>;
+  url_not_i?: Maybe<Scalars['String']>;
+  url_contains_i?: Maybe<Scalars['String']>;
+  url_not_contains_i?: Maybe<Scalars['String']>;
+  url_starts_with_i?: Maybe<Scalars['String']>;
+  url_not_starts_with_i?: Maybe<Scalars['String']>;
+  url_ends_with_i?: Maybe<Scalars['String']>;
+  url_not_ends_with_i?: Maybe<Scalars['String']>;
+  url_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  url_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type WebhookWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type WebhooksCreateInput = {
+  data?: Maybe<WebhookCreateInput>;
+};
+
+export type WebhooksUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<WebhookUpdateInput>;
+};
 
 export type _ListAccess = {
   __typename?: '_ListAccess';

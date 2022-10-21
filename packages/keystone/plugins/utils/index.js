@@ -7,13 +7,15 @@ const composeResolveInputHook = (originalHook, newHook) => async params => {
     if (originalHook) {
         resolvedData = await originalHook(params)
     }
-    return newHook({ ...params, resolvedData })
+    // NOTE(SavelevMatthew): plugin hooks can be async too
+    return await newHook({ ...params, resolvedData })
 }
 
 const composeNonResolveInputHook = (originalHook, newHook) => async params => {
     // NOTE(pahaz): validateInput, beforeChange, afterChange and others hooks should ignore return value!
     if (originalHook) await originalHook(params)
-    return newHook({ ...params })
+    // NOTE(SavelevMatthew): plugin hooks can be async too
+    return await newHook({ ...params })
 }
 
 function isValidDate (date) {
