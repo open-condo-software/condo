@@ -57,7 +57,7 @@ class TicketGenerator {
         const dayStart = dayjs().startOf('year')
         const dayEnd = dayjs()
         let current = dayStart.add(6, 'hours')
-        let maxTickets = 10000
+        let maxTickets = 100
         let counter = 0
         do {
             const arr = Array(faker.datatype.number(this.ticketsByDay)).fill('')
@@ -95,7 +95,7 @@ class TicketGenerator {
             organization: { connect: { id: this.organization.id } },
             property:  { connect: { id: this.property.id } },
             status: { connect: { id: status.id } },
-            deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().subtract(2, 'week').toISOString()).toISOString(),
+            deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().add(2, 'week').toISOString()).toISOString(),
         }
         if (status.type === DEFERRED_STATUS_TYPE) {
             data.deferredUntil = dayjs().add(1, 'day').toISOString()
