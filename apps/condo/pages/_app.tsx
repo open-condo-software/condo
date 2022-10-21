@@ -292,7 +292,7 @@ const apolloClientConfig = {
 export default (
     withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
         withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
-            withAuth({ ssr: true, USER_QUERY: USER_QUERY })(
+            withAuth({ ssr: true, USER_QUERY })(
                 withOrganization({
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
