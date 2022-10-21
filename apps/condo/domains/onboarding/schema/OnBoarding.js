@@ -42,6 +42,16 @@ const OnBoarding = new GQLListSchema('OnBoarding', {
             isRequired: true,
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['user', 'type'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'OnBoarding_unique_user_type',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadOnBoardings,
