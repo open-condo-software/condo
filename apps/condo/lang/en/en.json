@@ -351,6 +351,7 @@
   "pages.condo.error.NotFoundDescription": "Page removed or never existed",
   "pages.condo.contact.PageTitle": "Contacts",
   "pages.condo.contact.ImportTitle": "contacts",
+  "pages.condo.contact.Verified": "Verified",
   "pages.condo.payments.noAcquiringLabel": "Residents can't pay their bills using mobile application yet",
   "pages.condo.payments.noAcquiringMessage": "For this opportunity to appear, you need to submit an application for connecting the service 'Settlement Bank'",
   "pages.condo.payments.createAcquiringLabel": "Go to the application",
