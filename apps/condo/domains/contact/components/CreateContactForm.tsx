@@ -18,9 +18,11 @@ import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } from '@condo/domains/user/constants/errors'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import { fontSizes } from '@condo/domains/common/constants/style'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -42,6 +44,7 @@ const BottomLineWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
 `
+const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const CreateContactForm: React.FC = () => {
     const intl = useIntl()
@@ -63,6 +66,8 @@ export const CreateContactForm: React.FC = () => {
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const ContactDuplicateError = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
+    const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
+
     const { organization, link } = useOrganization()
     const router = useRouter()
 
@@ -276,6 +281,20 @@ export const CreateContactForm: React.FC = () => {
                                                     <ContactRoleSelect roles={roles}/>
                                                 )
                                             }
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign='left'
+                                            name='isVerified'
+                                            label={Verified}
+                                            valuePropName='checked'
+                                        >
+                                            <Checkbox
+                                                style={CHECKBOX_STYLE}
+                                                eventName='ContactIsVerifiedCheckbox'
+                                            />
                                         </Form.Item>
                                     </Col>
                                 </Row>

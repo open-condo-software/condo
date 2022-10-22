@@ -16,7 +16,9 @@ import { Col, Form, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { CSSProperties } from 'react'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {
@@ -30,6 +32,7 @@ const INPUT_LAYOUT_PROPS = {
 }
 
 const GUTTER_0_40: [Gutter, Gutter] = [0, 40]
+const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const EditContactForm: React.FC = () => {
     const intl = useIntl()
@@ -48,6 +51,7 @@ export const EditContactForm: React.FC = () => {
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
     const NoPermissionMessage = intl.formatMessage({ id: 'EditingContactNoPermission' })
     const RoleLabel = intl.formatMessage({ id: 'ContactRole' })
+    const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
 
     const { isSmall } = useLayoutContext()
     const { query, push } = useRouter()
@@ -118,6 +122,7 @@ export const EditContactForm: React.FC = () => {
         phone: get(contact, 'phone'),
         email: get(contact, 'email'),
         role: get(contact, ['role', 'id']),
+        isVerified: get(contact, 'isVerified'),
     }
 
     return (
@@ -198,6 +203,20 @@ export const EditContactForm: React.FC = () => {
                                                 label={RoleLabel}
                                             >
                                                 <ContactRoleSelect roles={roles}/>
+                                            </Form.Item>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item
+                                                {...INPUT_LAYOUT_PROPS}
+                                                labelAlign='left'
+                                                name='isVerified'
+                                                label={Verified}
+                                                valuePropName='checked'
+                                            >
+                                                <Checkbox
+                                                    style={CHECKBOX_STYLE}
+                                                    eventName='ContactIsVerifiedCheckbox'
+                                                />
                                             </Form.Item>
                                         </Col>
                                         <Space size={40} style={{ paddingTop: '36px' }}>

@@ -1,4 +1,6 @@
-import React, { useCallback } from 'react'
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import { useIntl } from '@condo/next/intl'
 import { EditFilled } from '@ant-design/icons'
@@ -39,6 +41,9 @@ const FieldPairRow = (props) => {
     )
 }
 
+const TITLE_STYLE: CSSProperties = { margin: '8px 0 0', fontWeight: 400 }
+const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
+
 export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
@@ -51,6 +56,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'contact.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'contact.ConfirmDeleteMessage' })
     const ContactRoleTitle = intl.formatMessage({ id: 'ContactRole' })
+    const VerifiedMessage = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
 
     const contactId = get(contact, 'id', null)
     const contactName = get(contact, 'name')
@@ -62,6 +68,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
         : ''
     const contactAddress = `${get(contact, ['property', 'address'], DeletedMessage)} ${unitSuffix}`
     const contactRole = get(contact, 'role')
+    const isVerified = get(contact, 'isVerified')
 
     const { isSmall } = useLayoutContext()
 
@@ -91,7 +98,7 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                         </Typography.Title>
                                         <Typography.Title
                                             level={2}
-                                            style={{ margin: '8px 0 0', fontWeight: 400 }}
+                                            style={TITLE_STYLE}
                                         >
                                             {ContactLabel}
                                         </Typography.Title>
@@ -117,6 +124,20 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
                                                     fieldTitle={ContactRoleTitle}
                                                     fieldValue={get(contactRole, 'name', '—')}
                                                 />
+                                                <>
+                                                    <Col span={8}>
+                                                        <Typography.Text type='secondary'>
+                                                            {VerifiedMessage}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col span={16}>
+                                                        <Checkbox
+                                                            checked={isVerified}
+                                                            disabled={!isVerified}
+                                                            style={CHECKBOX_STYLE}
+                                                        />
+                                                    </Col>
+                                                </>
                                             </Row>
                                         </FrontLayerContainer>
                                     </Col>
