@@ -103,6 +103,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
             value: contact[prop],
             item: contact,
             children: null,
+            key: contact.id,
         }))
     , [contacts])
 
