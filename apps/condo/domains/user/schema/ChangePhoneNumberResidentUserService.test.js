@@ -4,7 +4,7 @@ const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/u
 const { createTestUser, createTestConfirmPhoneAction, UserAdmin, makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 const { changePhoneNumberResidentUserByTestClient } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/keystone/test.utils')
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {

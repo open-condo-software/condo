@@ -24,7 +24,7 @@ const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
     catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,

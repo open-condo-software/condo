@@ -8,7 +8,7 @@ const {
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
 
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/keystone/test.utils')
 
 describe('SendMessageService', () => {
     describe('sendMessage', () => {

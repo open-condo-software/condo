@@ -3,7 +3,7 @@
  */
 
 const { makeClient } = require('@condo/keystone/test.utils')
-const { expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationError } = require('@condo/keystone/test.utils')
 
 const { predictTicketClassificationByTestClient } = require('@condo/domains/ticket/utils/testSchema')
  

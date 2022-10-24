@@ -9,7 +9,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@cond
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowInternalError, expectToThrowValidationFailureError,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const { MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList, Message } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')

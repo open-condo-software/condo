@@ -12,7 +12,7 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowInternalError,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')

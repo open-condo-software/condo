@@ -27,7 +27,7 @@ const {
     expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { makeClient } = require('@condo/keystone/test.utils')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 

@@ -14,7 +14,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 describe('BillingIntegrationLog', () => {
     test('admin: create BillingIntegrationLog', async () => {

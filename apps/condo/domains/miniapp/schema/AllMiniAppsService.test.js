@@ -3,7 +3,7 @@
  */
 
 const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@condo/keystone/test.utils')
 const { createTestOrganization, makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
 const { allMiniAppsByTestClient, createTestB2BApp, createTestB2BAppContext, updateTestB2BAppContext, updateTestB2BApp } = require('@condo/domains/miniapp/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')

@@ -16,7 +16,7 @@ const { createTestProperty } = require('@condo/domains/property/utils/testSchema
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const path = require('path')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/keystone/test.utils')
 const faker = require('faker')
 
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'

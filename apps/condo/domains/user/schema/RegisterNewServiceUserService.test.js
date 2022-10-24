@@ -8,7 +8,7 @@ const {
     makeLoggedInClient,
     makeClientWithSupportUser, User,
 } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@condo/keystone/test.utils')
 const { EMAIL_ALREADY_REGISTERED_ERROR } = require('@condo/domains/user/constants/errors')
 const { GET_MY_USERINFO } = require('@condo/domains/user/gql')
 const { SERVICE } = require('@condo/domains/user/constants/common')

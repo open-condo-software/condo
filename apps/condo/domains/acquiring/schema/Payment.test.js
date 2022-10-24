@@ -29,7 +29,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError, catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const {
     PAYMENT_ERROR_STATUS,
     PAYMENT_INIT_STATUS,
@@ -54,7 +54,7 @@ const {
 } = require('@condo/domains/acquiring/constants/errors')
 const dayjs = require('dayjs')
 const Big = require('big.js')
-const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGQLError } = require('@condo/keystone/test.utils')
 const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {

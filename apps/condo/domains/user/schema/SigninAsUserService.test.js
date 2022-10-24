@@ -4,10 +4,10 @@
 
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError } = require('@condo/keystone/test.utils')
 const { signinAsUserByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { GET_MY_USERINFO } = require('@condo/domains/user/gql')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/keystone/test.utils')
 
 describe('SigninAsUserService', () => {
     describe('Support', () => {

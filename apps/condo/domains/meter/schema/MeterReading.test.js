@@ -13,7 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 const {
     createTestBillingProperty,
