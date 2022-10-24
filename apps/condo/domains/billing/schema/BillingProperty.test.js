@@ -25,7 +25,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 const { makeClient } = require('@condo/keystone/test.utils')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 

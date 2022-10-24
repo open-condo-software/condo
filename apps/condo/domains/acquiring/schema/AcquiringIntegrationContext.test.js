@@ -22,7 +22,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')

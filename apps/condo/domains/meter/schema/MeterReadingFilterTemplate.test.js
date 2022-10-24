@@ -11,7 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,

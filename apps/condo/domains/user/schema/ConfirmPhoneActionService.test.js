@@ -15,7 +15,7 @@ const {
     TOO_MANY_REQUESTS,
 } = require('@condo/domains/user/constants/errors')
 const { CONFIRM_PHONE_SMS_MAX_RETRIES } = require('@condo/domains/user/constants/common')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { completeConfirmPhoneActionByTestClient } = require('../utils/testSchema')
 
 const captcha = () => {

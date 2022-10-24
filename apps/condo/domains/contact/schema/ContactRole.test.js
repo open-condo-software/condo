@@ -9,7 +9,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 
 const {
     makeClientWithNewRegisteredAndLoggedInUser,

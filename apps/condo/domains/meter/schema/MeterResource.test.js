@@ -3,7 +3,7 @@
  */
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { MeterResource } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
 const { createTestMeterResource, updateTestMeterResource } = require('@condo/domains/meter/utils/testSchema')

@@ -4,7 +4,7 @@
 import {
     catchErrorFrom,
     expectToThrowGraphQLRequestError,
-} from '@condo/keystone/test.utils'
+} from '@condo/domains/common/utils/testSchema'
 
 const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 
@@ -16,7 +16,7 @@ const {
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 
 const {
     BillingRecipient,

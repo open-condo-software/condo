@@ -5,7 +5,7 @@ const faker = require('faker')
 const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@condo/keystone/test.utils')
 
 const { TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketPropertyHint } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@condo/domains/common/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee, createTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 

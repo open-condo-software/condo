@@ -5,7 +5,7 @@
 const faker = require('faker')
 const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
 const { makeClient } = require('@condo/keystone/test.utils')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -14,7 +14,7 @@ const {
     makeClientWithSupportUser,
     UserAdmin,
 } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithRegisteredOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
 

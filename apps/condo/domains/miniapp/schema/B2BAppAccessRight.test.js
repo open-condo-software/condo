@@ -21,7 +21,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
 
 describe('B2BAppAccessRight', () => {

@@ -3,7 +3,7 @@
  */
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { checkPropertyWithAddressExistByTestClient } = require('@condo/domains/property/utils/testSchema')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 
 describe('CheckPropertyWithAddressExistService', () => {
     test('user finds result', async () => {

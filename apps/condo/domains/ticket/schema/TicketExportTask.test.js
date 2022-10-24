@@ -10,7 +10,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = r
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {

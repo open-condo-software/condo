@@ -4,14 +4,14 @@
 const {
     catchErrorFrom,
     expectToThrowGQLError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 
 const faker = require('faker')
 
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
-const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
     makeServiceUserForIntegration,

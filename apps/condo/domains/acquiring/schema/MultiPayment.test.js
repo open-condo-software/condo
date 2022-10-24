@@ -26,7 +26,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 const {
     MULTIPAYMENT_INIT_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
@@ -66,7 +66,7 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 const omit = require('lodash/omit')
 const get = require('lodash/get')
-const { expectToThrowGQLError } = require('@condo/keystone/test.utils')
+const { expectToThrowGQLError } = require('@condo/domains/common/utils/testSchema')
 
 describe('MultiPayment', () => {
     describe('CRUD tests', () => {

@@ -8,9 +8,9 @@ const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.ut
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { UUID_RE } = require('@condo/keystone/test.utils')
 const faker = require('faker')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 describe('CreateResidentTicketService', () => {
 

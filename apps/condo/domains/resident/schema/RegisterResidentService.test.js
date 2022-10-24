@@ -8,7 +8,7 @@ const sample = require('lodash/sample')
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@condo/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@condo/domains/common/utils/testSchema')
 
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 

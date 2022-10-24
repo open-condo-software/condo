@@ -18,7 +18,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@condo/domains/common/utils/testSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingAccountMeterReading', () => {

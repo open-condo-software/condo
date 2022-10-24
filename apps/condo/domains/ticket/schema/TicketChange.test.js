@@ -8,7 +8,7 @@ const { createTestOrganizationWithAccessToAnotherOrganization } = require('@cond
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const { updateTestTicket } = require('../utils/testSchema')
 
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
 
 const { createTestTicket } = require('../utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
