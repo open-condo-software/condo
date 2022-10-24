@@ -3,7 +3,7 @@
  */
 const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
 
-const { expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGraphQLRequestError } = require('@condo/keystone/test.utils')
 
 const {
     disconnectUserFromRemoteClientByTestClient,

@@ -8,7 +8,7 @@ const { ServiceSubscriptionPayment, createTestServiceSubscriptionPayment, update
 } = require('@condo/domains/subscription/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('../constants')

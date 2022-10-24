@@ -16,7 +16,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,

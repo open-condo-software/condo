@@ -3,7 +3,7 @@ const { pick } = require('lodash')
 
 const { makeLoggedInAdminClient, makeClient, waitFor } = require('@condo/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/keystone/test.utils')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
