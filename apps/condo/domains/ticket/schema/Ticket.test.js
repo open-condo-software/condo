@@ -1005,6 +1005,28 @@ describe('Ticket', () => {
                 await Ticket.delete(client, objCreated.id)
             })
         })
+
+        test('should auto generating statusUpdatedAt when update status', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const [openTicket] = await createTestTicket(admin, userClient.organization, userClient.property, {
+                status: { connect: { id: STATUS_IDS.OPEN } },
+            })
+
+            const [inProgressTicket] = await updateTestTicket(admin, openTicket.id, {
+                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+            })
+
+            expect(dayjs(inProgressTicket.statusUpdatedAt).isValid()).toBe(true)
+            expect(dayjs(inProgressTicket.statusUpdatedAt).diff(openTicket.createdAt)).toBeGreaterThanOrEqual(0)
+
+            const [completedTicket] = await updateTestTicket(admin, openTicket.id, {
+                status: { connect: { id: STATUS_IDS.COMPLETED } },
+            })
+
+            expect(dayjs(completedTicket.statusUpdatedAt).isValid()).toBe(true)
+            expect(dayjs(completedTicket.statusUpdatedAt).diff(inProgressTicket.statusUpdatedAt)).toBeGreaterThanOrEqual(0)
+        })
     })
 
     describe('Permissions', () => {
