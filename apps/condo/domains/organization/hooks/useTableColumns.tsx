@@ -18,6 +18,8 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
 
+const TEXT_STYLES = { margin: 0 }
+
 export const useTableColumns = (
     filterMetas,
     organizationId: string,
@@ -60,7 +62,7 @@ export const useTableColumns = (
         const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
         return (
-            <Typography.Paragraph key={employee.id} style={{ margin: 0 }}>
+            <Typography.Paragraph key={employee.id} style={TEXT_STYLES}>
                 {specializationsMessage && specializationsMessage}
             </Typography.Paragraph>
         )

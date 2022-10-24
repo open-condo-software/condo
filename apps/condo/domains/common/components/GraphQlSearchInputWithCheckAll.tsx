@@ -35,6 +35,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const CheckedAllMessage = intl.formatMessage({ id: 'CheckedAll' })
 
     const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)
+    const [isRequired, setIsRequired] = useState<boolean>(selectFormItemProps.required)
     const { requiredValidator } = useValidations()
 
     const handleCheckboxChange = useCallback((event) => {
@@ -46,21 +47,20 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         }
     }, [onCheckBoxChange])
 
-    const formItemName = useMemo(() => String(selectFormItemProps.name), [selectFormItemProps.name])
+    const formItemName = String(selectFormItemProps.name)
     useEffect(() => {
         if (isAllChecked) {
             form.setFieldsValue({ [formItemName]: [] })
         }
     }, [form, formItemName, isAllChecked])
 
-    const [isRequired, setIsRequired] = useState<boolean>(selectFormItemProps.required)
     useEffect(() => {
         if (selectFormItemProps.required) {
             setIsRequired(!isAllChecked)
         }
     }, [isAllChecked, isRequired, selectFormItemProps.required])
 
-    const rules = useMemo(() => isRequired ? [requiredValidator] : [], [isRequired, requiredValidator])
+    const rules = isRequired ? [requiredValidator] : []
 
     return (
         <Row>
