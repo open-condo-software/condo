@@ -204,7 +204,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             allowClear
             id={props.id}
             value={isInitialValueFetching ? LoadingMessage : searchValue}
-            disabled={Boolean(isInitialValueFetching)}
+            disabled={props.disabled || Boolean(isInitialValueFetching)}
             onFocus={loadInitialOptions}
             onSearch={debouncedSearch}
             onSelect={handleSelect}
@@ -225,6 +225,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
             style={style}
             eventName={eventName}
             eventProperties={eventProperties}
+            loading={loading}
         >
             {options}
         </Select>

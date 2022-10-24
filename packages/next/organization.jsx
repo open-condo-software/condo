@@ -129,11 +129,13 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
 
     if (DEBUG_RERENDERS) console.log('OrganizationProvider()', link, 'loading', linkLoading, 'skip', (auth.isLoading || !auth.user || !linkIdState))
 
+    const isLoading = auth.isLoading || linkLoading
+
     return (
         <OrganizationContext.Provider
             value={{
                 selectLink: handleSelectItem,
-                isLoading: (!auth.user || !linkIdState) ? false : linkLoading,
+                isLoading: (!auth.user || !linkIdState) ? false : isLoading,
                 link: (link && link.id) ? link : null,
                 organization: (link && link.organization) ? link.organization : null,
             }}
