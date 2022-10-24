@@ -20,6 +20,7 @@ const {
         accountNumberQp,
     },
 } = require('@condo/domains/acquiring/constants/links')
+const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 
 const sender = { dv: 1, fingerprint: 'payment-link-handler' }
 
@@ -94,7 +95,7 @@ class PaymentLinkRouter {
     }
 
     async handleRequest (req, res) {
-        const isEnabled = await featureToggleManager.isFeatureEnabled(this.context, 'payment_link')
+        const isEnabled = await featureToggleManager.isFeatureEnabled(this.context, PAYMENT_LINK)
 
         if (!isEnabled) {
             return res.redirect('/404')
