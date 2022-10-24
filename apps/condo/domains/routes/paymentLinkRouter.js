@@ -3,6 +3,7 @@ const { isNil } = require('lodash')
 const { getLogger } = require('@condo/keystone/logging')
 const logger = getLogger('payment/linkHandler')
 const { getSchemaCtx, getById } = require('@condo/keystone/schema')
+const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
@@ -93,6 +94,12 @@ class PaymentLinkRouter {
     }
 
     async handleRequest (req, res) {
+        const isEnabled = await featureToggleManager.isFeatureEnabled(this.context, 'payment_link')
+
+        if (!isEnabled) {
+            return res.redirect('/404')
+        }
+
         // first step is determinate is this request for virtual receipt or for regular one
         const isVirtual = this.isVirtualReceipt(req)
 
