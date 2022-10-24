@@ -6,17 +6,21 @@ const { updateTestOrganizationEmployee } = require('@condo/domains/organization/
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
-const { makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
+const {
+    makeClient,
+    UUID_RE,
+    DATETIME_RE,
+    makeLoggedInAdminClient,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+} = require('@condo/keystone/test.utils')
 const { 
     TicketFile, 
     createTestTicketFile, 
     updateTestTicketFile,
     makeClientWithTicket,
 } = require('@condo/domains/ticket/utils/testSchema')
-
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('../../common/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketFile', () => {

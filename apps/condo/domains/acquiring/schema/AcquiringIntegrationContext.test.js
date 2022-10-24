@@ -22,13 +22,13 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
+    expectToThrowGQLError,
 } = require('@condo/keystone/test.utils')
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 
 const dayjs = require('dayjs')
-const { expectToThrowGQLError } = require('../../common/utils/testSchema')
 
 describe('AcquiringIntegrationContext', () => {
     describe('CRUD tests', () => {

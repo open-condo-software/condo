@@ -1,5 +1,5 @@
 import { setLocaleForKeystoneContext } from './setLocaleForKeystoneContext'
-import { catchErrorFrom } from '../testSchema'
+import { catchErrorFrom } from '@condo/keystone/test.utils'
 
 describe('setLocaleForKeystoneContext', () => {
     it('sets only supported locale to "context.req"', async () => {
