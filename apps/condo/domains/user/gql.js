@@ -19,23 +19,12 @@ const REGISTER_NEW_USER_MUTATION = gql`
         user: registerNewUser(data: $data) ${USER_FIELDS}
     }
 `
-const userFragment = `
-  id
-  name
-  avatar {
-    publicUrl
-  }
-  phone
-  email
-  isAdmin
-  isSupport
-`
+
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport }'
 
 const USER_QUERY = gql`
     query {
-        authenticatedUser {
-            ${userFragment}
-        }
+        authenticatedUser ${OWN_USER_FIELDS}
     }
 `
 

@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const { setFakeClientMode } = require('@condo/keystone/test.utils')
 
 const sendVerificationDateReminderTask = require('@condo/domains/meter/tasks/sendVerificationDateReminderTask')

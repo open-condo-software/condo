@@ -1,8 +1,4 @@
 const falsey = require('falsey')
-import { TextEncoder, TextDecoder } from 'util'
-
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
 
 const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)
 

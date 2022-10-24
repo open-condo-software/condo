@@ -32,7 +32,7 @@ export const TicketDeadlinePreview: React.FC = () => {
         <PreviewWrapper>
             <ImageWrapper>
                 <Image
-                    src='/ticketDeadlinePreview.png'
+                    src='/ticketDeadlinePreview_ru.png'
                     alt='ticketDeadlinePreview'
                 />
             </ImageWrapper>

@@ -1,3 +1,7 @@
+/**
+ * @jest-environment node
+ */
+
 const faker = require('faker')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
