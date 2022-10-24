@@ -53,21 +53,23 @@ class FeatureToggleManager {
         }
     }
 
-    async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
-        const context = get(keystoneContext, 'req', null)
-            ? keystoneContext
-            : { req: { features: await this.fetchFeatures() } }
+    async isFeatureEnabled (context, featureName, featuresContext) {
+        const req = get(context, 'req')
+        let features = get(req, 'features')
 
-        const request = context.req
-        const headersFeatureFlags = get(request, ['headers', 'feature-flags'])
+        // Note: fetch features if needed! And save it in `req` if in request context
+        if (!features) {
+            features = await this.fetchFeatures()
+            if (req) req.features = features
+        }
 
-        // Here it will stop under tests
-        if (conf.NODE_ENV === 'test') return headersFeatureFlags === 'true'
+        // Note: if you want to override the flag value by tests you cen set the `feature-flags` header! (TESTS ONLY)
+        if (conf.NODE_ENV === 'test') {
+            return get(req, ['headers', 'feature-flags']) === 'true'
+        }
 
         const growthbook = new GrowthBook()
-
-        growthbook.setFeatures(request.features)
-
+        growthbook.setFeatures(features)
         if (featuresContext) growthbook.setAttributes(featuresContext)
 
         return growthbook.isOn(featureName)

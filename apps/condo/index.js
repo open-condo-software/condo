@@ -164,10 +164,8 @@ class FeaturesMiddleware {
         const app = express()
         app.get('/api/features', async (req, res) => {
             const features = await featureToggleManager.fetchFeatures()
-
             res.status(200).json(features)
         })
-
         return app
     }
 }
@@ -256,19 +254,5 @@ module.exports = {
             }
             next()
         })
-
-        app.use('/admin/api', async (req, res, next) => {
-            req.features = await featureToggleManager.fetchFeatures()
-
-            // try-catch must be strictly before error handler
-            try {
-                return next()
-            } catch (err) {
-                return next(err)
-            }
-        })
-
-        // The next middleware must be the last one
-        app.use(expressErrorHandler)
     },
 }
