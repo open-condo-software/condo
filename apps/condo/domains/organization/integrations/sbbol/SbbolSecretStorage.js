@@ -59,6 +59,10 @@ class SbbolSecretStorage {
         return await this.isExpired('refreshToken')
     }
 
+    async setOrganization (id) {
+        await this.setValue('organization', id)
+    }
+
     getValue (key) {
         const scopedKey = this.scopedKey(key)
         return this.keyStorage.get(scopedKey)
