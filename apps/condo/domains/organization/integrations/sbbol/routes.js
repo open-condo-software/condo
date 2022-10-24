@@ -80,9 +80,9 @@ class SbbolRoutes {
 
             const { finished } = await getOnBoardingStatus(user)
 
-            if (!finished) return res.redirect('/onboarding')
+            logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id, data: { finished } })
 
-            return res.redirect('/')
+            return res.redirect(finished ? '/' : '/onboarding')
         } catch (error) {
             logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
             return next(error)
