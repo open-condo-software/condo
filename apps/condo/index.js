@@ -21,7 +21,7 @@ const { escapeSearchPreprocessor } = require('@condo/keystone/preprocessors/esca
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 const { formatError } = require('@condo/keystone/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { SbbolRoutes } = require('@condo/domains/organization/integrations/sbbol/routes')
+const { SbbolMiddleware } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { KeystoneCacheMiddleware } = require('@condo/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
@@ -134,18 +134,6 @@ const authStrategy = keystone.createAuthStrategy({
     },
 })
 
-class SberBuisnessOnlineMiddleware {
-    async prepareMiddleware () {
-        const Auth = new SbbolRoutes()
-        const app = express()
-        // TODO(zuch): find a way to remove bind
-        app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
-        app.use(expressErrorHandler)
-        return app
-    }
-}
-
 class VersioningMiddleware {
     async prepareMiddleware () {
         const app = express()
@@ -203,7 +191,7 @@ module.exports = {
             },
         }),
         FileAdapter.makeFileAdapterMiddleware(),
-        new SberBuisnessOnlineMiddleware(),
+        new SbbolMiddleware(),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),

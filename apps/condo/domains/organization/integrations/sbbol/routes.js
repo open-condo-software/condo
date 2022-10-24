@@ -1,16 +1,17 @@
+const express = require('express')
 const { isObject } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
 const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLogger } = require('@condo/keystone/logging')
+const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 
 const { getSbbolUserInfoErrors, SBBOL_SESSION_KEY } = require('./common')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { initializeSbbolAuthApi } = require('./utils')
-const { getLogger } = require('@condo/keystone/logging')
 
 const logger = getLogger('sbbol/routes')
-
 
 class SbbolRoutes {
 
@@ -40,15 +41,30 @@ class SbbolRoutes {
             }
 
             // This is NOT a `TokenSet` record from our schema
-            const tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
-            const { keystone } = await getSchemaCtx('User')
-            const { access_token } = tokenSet
-            const userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
+            let tokenSet, userInfo
+
+            try {
+                tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
+            } catch (err) {
+                logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
+                throw err
+            }
+
+            try {
+                const { access_token } = tokenSet
+                userInfo = await sbbolAuthApi.fetchUserInfo(access_token)
+            } catch (err) {
+                logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
+                throw err
+            }
+
             const errors = getSbbolUserInfoErrors(userInfo)
             if (errors.length) {
                 logger.info({ msg: 'SBBOL invalid userinfo', data: { userInfo, errors }, reqId })
                 return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
+
+            const { keystone } = await getSchemaCtx('User')
             const {
                 user,
                 organizationEmployeeId,
@@ -64,14 +80,27 @@ class SbbolRoutes {
             const { finished } = await getOnBoardingStatus(user)
 
             if (!finished) return res.redirect('/onboarding')
-            
+
             return res.redirect('/')
         } catch (error) {
+            logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
             return next(error)
         }
     }
 }
 
+class SbbolMiddleware {
+    async prepareMiddleware () {
+        const Auth = new SbbolRoutes()
+        const app = express()
+        // TODO(zuch): find a way to remove bind
+        app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
+        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
+        app.use(expressErrorHandler)
+        return app
+    }
+}
+
 module.exports = {
-    SbbolRoutes,
+    SbbolMiddleware,
 }
