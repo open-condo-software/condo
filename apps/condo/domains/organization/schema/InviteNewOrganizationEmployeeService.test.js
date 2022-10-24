@@ -23,6 +23,8 @@ const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/ut
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToObj } = require('@condo/keystone/test.utils')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {
@@ -258,6 +260,46 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs, {})
+                })
+            })
+        })
+        describe('user: create invite employee', () => {
+            it('can with granted "canInviteNewOrganizationEmployees" permission', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canInviteNewOrganizationEmployees: true,
+                })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
+                const employeeUserAttrs = {
+                    name: inviteClient.user.name,
+                    email: createTestEmail(),
+                    phone: createTestPhone(),
+                }
+
+                await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, {})
+            })
+            it('cannot without granted "canInviteNewOrganizationEmployees" permission', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const inviteClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canInviteNewOrganizationEmployees: false,
+                })
+                const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
+                const employeeUserAttrs = {
+                    name: inviteClient.user.name,
+                    email: createTestEmail(),
+                    phone: createTestPhone(),
+                }
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, {})
                 })
             })
         })

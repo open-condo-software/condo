@@ -277,7 +277,7 @@ export const EmployeeInfoPage = () => {
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
 
-    const isEmployeeEditable = canManageEmployee(link, employee)
+    const isEmployeeEditable = get(link, ['role', 'canInviteNewOrganizationEmployees'], null)
     const isEmployeeReinvitable = canReinviteEmployee(link, employee)
 
     if (error || loading) {

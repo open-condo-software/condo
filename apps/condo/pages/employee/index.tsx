@@ -205,7 +205,7 @@ const EmployeesPage = () => {
 
     const { link: { role = {} }, organization }  = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
-    const canManageEmployee = get(role, 'canManageEmployees', null)
+    const canManageEmployee = get(role, 'canInviteNewOrganizationEmployees', null)
 
     const [filtersApplied, setFiltersApplied] = useState(false)
     const tableColumns = useTableColumns(userOrganizationId, sortFromQuery, filtersFromQuery, setFiltersApplied)
