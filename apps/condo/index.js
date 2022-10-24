@@ -150,14 +150,17 @@ class VersioningMiddleware {
 
 class PaymentLinkMiddleware {
     async prepareMiddleware () {
-        const app = express()
-        const router = new PaymentLinkRouter()
+        const features = await featureToggleManager.fetchFeatures()
 
-        await router.init()
+        if (get(features, 'payment_link.defaultValue')) {
+            const app = express()
 
-        app.get(PAYMENT_LINK_PATH, router.handleRequest.bind(router))
+            const router = new PaymentLinkRouter()
+            await router.init()
+            app.get(PAYMENT_LINK_PATH, router.handleRequest.bind(router))
 
-        return app
+            return app
+        }
     }
 }
 
