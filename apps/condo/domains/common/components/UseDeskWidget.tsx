@@ -22,11 +22,7 @@ const getUserIdentify = () => {
 
 const UseDeskWidget: React.FC = () => {
     const { link } = useOrganization()
-    const { user, refetch } = useAuth()
-
-    useEffect(() => {
-        refetch()
-    }, [link])
+    const { user } = useAuth()
 
     const userIdentify = getUserIdentify()
 

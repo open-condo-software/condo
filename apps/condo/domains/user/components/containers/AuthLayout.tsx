@@ -20,6 +20,36 @@ interface IAuthLayoutProps {
     headerAction: React.ReactElement
     children: JSX.Element
 }
+interface IGoogleReCaptchaContainer {
+    element: string | HTMLElement;
+    parameters: {
+        badge?: 'inline' | 'bottomleft' | 'bottomright';
+        theme?: 'dark' | 'light';
+        tabindex?: number;
+        callback?: () => void;
+        expiredCallback?: () => void;
+        errorCallback?: () => void;
+    }
+}
+interface IGoogleReCaptchaScriptProps {
+    nonce?: string;
+    defer?: boolean;
+    async?: boolean;
+    appendTo?: 'head' | 'body';
+    id?: string;
+    onLoadCallbackName?: string;
+}
+const GOOGLE_RECAPTCHA_CONTAINER: IGoogleReCaptchaContainer = {
+    element: 'ReCaptchaContainer',
+    parameters: {
+        badge: 'inline',
+    },
+}
+const GOOGLE_RECAPTCHA_SCRIPT_PROPS: IGoogleReCaptchaScriptProps = {
+    async: true,
+    defer: true,
+    appendTo: 'body',
+}
 
 const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     const intl = useIntl()
@@ -39,17 +69,8 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
             reCaptchaKey={googleCaptcha && googleCaptcha.SITE_KEY}
             language={intl.locale}
             useRecaptchaNet
-            container={{
-                element: 'ReCaptchaContainer',
-                parameters: {
-                    badge: 'inline',
-                },
-            }}
-            scriptProps={{
-                async: true,
-                defer: true,
-                appendTo: 'body',
-            }}>
+            container={GOOGLE_RECAPTCHA_CONTAINER}
+            scriptProps={GOOGLE_RECAPTCHA_SCRIPT_PROPS}>
             <Global styles={FROM_INPUT_CSS}/>
             <PosterLayout {...otherProps}>
                 <AuthLayoutContextProvider>

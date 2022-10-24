@@ -1,3 +1,4 @@
+import getConfig from 'next/config'
 import React, { useContext, useEffect, useState, createContext } from 'react'
 import Router, { useRouter } from 'next/router'
 import { ServiceSubscription, SortServiceSubscriptionsBy } from '@app/condo/schema'
@@ -10,7 +11,6 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
 import { Button } from '@condo/domains/common/components/Button'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { SUPPORT_EMAIL } from '@condo/domains/common/constants/requisites'
 import { useOrganization } from '@condo/next/organization'
 import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { get } from 'lodash'
@@ -58,6 +58,10 @@ const useServiceSubscriptionLoader = (): ISubscriptionContext => {
     }
 }
 
+const {
+    publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null } },
+} = getConfig()
+
 const ExpiredModal: React.FC = () => {
     const intl = useIntl()
     const ExpiredTitleMessage = intl.formatMessage({ id: 'subscription.modal.expired.title' })
@@ -77,7 +81,7 @@ const ExpiredModal: React.FC = () => {
                 </Button>,
             ]}
         >
-            <Typography.Paragraph>
+            {SUPPORT_EMAIL && <Typography.Paragraph>
                 {ExpiredDescriptionPromptMessage}<br/>
                 <a href={`mailto:${SUPPORT_EMAIL}`}>
                     {SUPPORT_EMAIL}
@@ -86,7 +90,7 @@ const ExpiredModal: React.FC = () => {
                 <a href={`tel:${ExpiredDescriptionPhoneMessage.replace(' ', '')}`}>
                     {ExpiredDescriptionPhoneMessage}
                 </a>
-            </Typography.Paragraph>
+            </Typography.Paragraph>}
         </Modal>
     )
 }
