@@ -6,8 +6,8 @@ const { GQLCustomSchema } = require('@condo/keystone/schema')
 const access = require('@condo/domains/user/access/SendMessageToSupportService')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { MESSAGE_FORWARDED_TO_SUPPORT_TYPE } = require('@condo/domains/notification/constants/constants')
-const { SUPPORT_EMAIL_MOBILE } = require('@condo/domains/common/constants/requisites')
 const { get } = require('lodash')
+const conf = require('@condo/config')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
@@ -17,6 +17,8 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
+const SUPPORT_EMAIL_MOBILE = conf['HELP_REQUISITES'] && get(JSON.parse(conf['HELP_REQUISITES']), 'support_email_mobile', null)
+if (SUPPORT_EMAIL_MOBILE === null) throw new Error('support_email_mobile variable not found. help_requisites must be specified in .env')
 const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
 
