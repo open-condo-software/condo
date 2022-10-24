@@ -17,12 +17,12 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
+    expectToThrowGQLError,
 } = require('@condo/keystone/test.utils')
 const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
-const { expectToThrowGQLError } = require('../../common/utils/testSchema')
 
 describe('AcquiringIntegrationAccessRight', () => {
     describe('CRUD tests', () => {
