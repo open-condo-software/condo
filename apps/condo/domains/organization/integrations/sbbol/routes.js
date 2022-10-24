@@ -67,12 +67,13 @@ class SbbolRoutes {
             const { keystone } = await getSchemaCtx('User')
             const {
                 user,
-                organizationEmployeeId,
+                organization,
+                organizationEmployee,
             } = await sync({ keystone, userInfo, tokenSet, reqId })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
-            if (organizationEmployeeId) {
-                res.cookie('organizationLinkId', organizationEmployeeId)
+            if (organizationEmployee) {
+                res.cookie('organizationLinkId', organizationEmployee.id)
             }
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()

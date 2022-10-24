@@ -1,5 +1,6 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 
+/** @deprecated don't use getItems use ServerSide utils */
 const getOrganizationEmployee = async ({ context, user, organization }) => {
     const [link] = await getItems({
         ...context,
@@ -11,7 +12,7 @@ const getOrganizationEmployee = async ({ context, user, organization }) => {
         returnFields: 'id',
     })
 
-    return link.id
+    return link
 }
 
 module.exports = {
