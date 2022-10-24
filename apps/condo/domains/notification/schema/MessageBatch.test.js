@@ -16,7 +16,7 @@ const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const {
     JSON_EXPECT_ARRAY_ERROR,
     JSON_EXPECT_OBJECT_ERROR,
@@ -381,7 +381,7 @@ describe('MessageBatch', () => {
             await waitFor(async () => {
                 const messages = await Message.getAll(admin, messagesWhere, messagesSort)
 
-                expect(messages.length).toEqual(0)
+                expect(messages).toHaveLength(0)
             })
         })
 

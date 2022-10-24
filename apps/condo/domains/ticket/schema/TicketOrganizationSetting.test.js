@@ -8,7 +8,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError, catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const {
     TicketOrganizationSetting,

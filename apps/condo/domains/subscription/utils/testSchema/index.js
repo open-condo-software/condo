@@ -9,7 +9,7 @@ const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 const dayjs = require('dayjs')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/keystone/test.utils')
 const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('../../constants')
 const { SUBSCRIPTION_TYPE } = require('../../constants')

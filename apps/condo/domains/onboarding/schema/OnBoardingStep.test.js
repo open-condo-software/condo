@@ -4,7 +4,7 @@
 const { makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
 
 const { OnBoardingStep, createTestOnBoardingStep, createTestOnBoarding, updateTestOnBoardingStep } = require('@condo/domains/onboarding/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('OnBoardingStep', () => {

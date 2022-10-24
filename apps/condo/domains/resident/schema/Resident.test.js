@@ -27,7 +27,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 

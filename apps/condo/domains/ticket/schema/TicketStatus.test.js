@@ -16,7 +16,7 @@ const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style'
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
 const { getTranslations, getAvailableLocales } = require('@condo/locales/loader')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 

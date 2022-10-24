@@ -6,7 +6,7 @@ const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.ut
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const faker = require('faker')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/keystone/test.utils')
 
 const testIfConfigExists = process.env.METABASE_CONFIG ? test : test.skip
 

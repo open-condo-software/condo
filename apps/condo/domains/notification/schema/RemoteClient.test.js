@@ -14,7 +14,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
     expectToThrowInternalError,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 const { RemoteClient, createTestRemoteClient, updateTestRemoteClient } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')

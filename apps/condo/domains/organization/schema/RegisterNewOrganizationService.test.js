@@ -9,7 +9,7 @@ const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/tes
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 
 const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
 const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
 
 const EXCLUDE_CHECK_FIELDS = ['name', 'description']

@@ -6,7 +6,7 @@ const faker = require('faker')
 
 const { makeLoggedInAdminClient, makeClient, DATETIME_RE, UUID_RE } = require('@condo/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowInternalError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowInternalError } = require('@condo/keystone/test.utils')
 
 const { createTestPhone, createTestEmail, updateTestUser, makeClientWithNewRegisteredAndLoggedInUser, UserAdmin } = require('@condo/domains/user/utils/testSchema')
 const { acceptOrRejectOrganizationInviteById, inviteNewOrganizationEmployee, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')

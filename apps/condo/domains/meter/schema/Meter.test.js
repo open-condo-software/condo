@@ -14,7 +14,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 const {
     createTestBillingAccount,

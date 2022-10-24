@@ -8,7 +8,7 @@ const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const {
     catchErrorFrom,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const {
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')

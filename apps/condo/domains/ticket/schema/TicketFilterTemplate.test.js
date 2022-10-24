@@ -7,18 +7,18 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@condo/keyston
 
 const { TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFilterTemplate } = require('@condo/domains/ticket/utils/testSchema')
 const {
+    catchErrorFrom,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowMutationError } = require('@condo/domains/common/utils/testSchema')
 
 describe('TicketFilterTemplate', () => {
     describe('Create', () => {
@@ -76,13 +76,17 @@ describe('TicketFilterTemplate', () => {
                 number: wrongFieldValue,
             }
 
-            await expectToThrowMutationError(
-                async () => await createTestTicketFilterTemplate(user, employee, {
+            await catchErrorFrom(async () => {
+                await createTestTicketFilterTemplate(user, employee, {
                     fields: wrongFilters,
-                }),
-                'Int cannot represent non-integer value',
-                ['obj', 'fields', 'number']
-            )
+                })
+            }, ({ errors }) => {
+                expect(errors[0]).toMatchObject({
+                    message: expect.stringContaining('Int cannot represent non-integer value'),
+                    name: 'GraphQLError',
+                    path: ['obj', 'fields', 'number'],
+                })
+            })
         })
 
         test('deleted employee: cannot create TicketFilterTemplate', async () => {

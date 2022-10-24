@@ -13,7 +13,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 describe('MeterReadingSource', () => {
     const createPayload = {

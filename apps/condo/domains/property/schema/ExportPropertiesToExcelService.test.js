@@ -5,7 +5,7 @@
 const { makeClient } = require('@condo/keystone/test.utils')
 const { exportPropertiesToExcelByTestClient } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError, catchErrorFrom } = require('@condo/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 

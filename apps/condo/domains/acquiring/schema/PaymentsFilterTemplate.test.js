@@ -10,14 +10,14 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowGraphQLRequestError } = require('@condo/domains/common/utils/testSchema')
+const { expectToThrowGraphQLRequestError } = require('@condo/keystone/test.utils')
 
 describe('PaymentsFilterTemplate', () => {
     describe('Create', () => {

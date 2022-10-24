@@ -8,7 +8,7 @@ const { makeClient } = require('@condo/keystone/test.utils')
 const { createTestMeter, createTestMeterReading, MeterReadingSource, MeterResource, exportMeterReadingsByTestClient } = require('../utils/testSchema')
 const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
-const { catchErrorFrom } = require('@condo/domains/common/utils/testSchema')
+const { catchErrorFrom } = require('@condo/keystone/test.utils')
 
 describe('ExportMeterReadingsService', () => {
     describe('Employee with "canManageMeters"', () => {
