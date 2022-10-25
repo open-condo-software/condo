@@ -7,7 +7,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
-} = require('@address-service/domains/common/utils/testSchema')
+} = require('@condo/keystone/test.utils')
 
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
