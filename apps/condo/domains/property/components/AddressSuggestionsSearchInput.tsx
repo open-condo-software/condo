@@ -32,10 +32,11 @@ const BaseSearchInputWrapper = styled.div`
 
 interface AddressSearchInputProps extends SelectProps<string> {
     setAddressValidatorError?: Dispatch<SetStateAction<string>>
+    addressValidatorError?: string
 }
 
 export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = (props) => {
-    const { setAddressValidatorError } = props
+    const { setAddressValidatorError, addressValidatorError } = props
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
@@ -44,7 +45,12 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     useEffect(() => {
         const isAddressNotSelected = get(props, 'setAddressValidatorError') && !isMatchSelectedProperty
-        setAddressValidatorError(isAddressNotSelected ? AddressNotSelected : null)
+        if (isAddressNotSelected) {
+            setAddressValidatorError(addressValidatorError)
+        }
+        else if (addressValidatorError === AddressNotSelected){
+            setAddressValidatorError(null)
+        }
     }, [isMatchSelectedProperty, setAddressValidatorError])
 
     const { addressApi } = useAddressApi()
