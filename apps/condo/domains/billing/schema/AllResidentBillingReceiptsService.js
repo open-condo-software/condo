@@ -190,8 +190,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     let fee = '0'
                     if (acquiringContextId) {
                         const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
-                        const feeCalculator = new FeeDistribution(formula)
-                        const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2), { billingCategory })
+                        const feeCalculator = new FeeDistribution(formula, billingCategory)
+                        const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2))
                         fee = String(explicitFee)
                     }
                     receiptsWithPayments.push(({
