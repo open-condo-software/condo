@@ -10,6 +10,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
 const { SearchKeystoneApp } = require('@address-service/domains/common/utils/services/search/SearchKeystoneApp')
 const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
+const { formatError } = require('@condo/keystone/apolloErrorFormatter')
 
 const keystone = new Keystone({
     onConnect: async () => {
@@ -46,7 +47,7 @@ module.exports = {
     keystone,
     apps: [
         new OIDCKeystoneApp(),
-        new GraphQLApp({ apollo: { debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
+        new GraphQLApp({ apollo: { formatError, debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: access.userIsAdmin,
