@@ -634,7 +634,7 @@
   "pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil": "Истекла дата, до которой отложили заявку — {deferredUntil}",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee": "Автоматически сбросился ответственный ({assignee})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor": "Автоматически сбросился исполнитель ({executor})",
-  "pages.condo.ticket.TicketChanges.autoReopenTicket.status": "Статус заявки стал «{status}»",
+  "pages.condo.ticket.TicketChanges.autoReopenTicket.status": "Статус заявки стал {status}",
   "pages.condo.ticket.TicketChanges.fetchMore": "Показать ещё {count}",
   "pages.condo.ticket.TicketFileList.downloadFileError": "Не удалось скачать файл",
   "pages.condo.ticket.MobileAppInstalled": "Моб. приложение жителя установлено",

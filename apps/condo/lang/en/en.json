@@ -634,7 +634,7 @@
   "pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil": "The date until which the ticket was postponed has expired — {deferredUntil}",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee": "Was reset automatically assignee ({assignee})",
   "pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor": "Was reset automatically executor ({executor})",
-  "pages.condo.ticket.TicketChanges.autoReopenTicket.status": "Ticket status changed to «{status}»",
+  "pages.condo.ticket.TicketChanges.autoReopenTicket.status": "Ticket status changed to {status}",
   "pages.condo.ticket.TicketChanges.fetchMore": "Show more {count}",
   "pages.condo.ticket.TicketFileList.downloadFileError": "Failed to download file",
   "pages.condo.ticket.MobileAppInstalled": "Mob. resident app installed",
