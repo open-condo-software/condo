@@ -22,10 +22,19 @@ function generateAddressKey (normalizedSuggestion) {
         get(data, 'block'),
     ]
     return parts
+        .map(
+            (part) => (
+                String(part)
+                    .split(/\s/)
+                    .map((word) => word.trim())
+                    .filter(Boolean)
+                    .join(' ')
+                    .replaceAll(/\s/g, '_')
+            ),
+        )
         .filter(Boolean)
-        .map((part) => part.replaceAll(/\s/g, '_'))
         .join(JOINER)
         .toLowerCase()
 }
 
-module.exports = { generateAddressKey }
+module.exports = { generateAddressKey, JOINER }
