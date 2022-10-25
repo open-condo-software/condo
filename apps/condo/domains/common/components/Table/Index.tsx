@@ -73,9 +73,26 @@ export const Table: React.FC<ITableProps> = ({
 
     const tableScrollConfig = useMemo(() => shouldTableScroll ? TABLE_SCROlL_CONFIG : {}, [shouldTableScroll])
 
+    const setQuery = useMemo(() => debounce((...props) => {
+        const [newFilters, newOffset, newSorters] = props
+        const queryParams = {
+            filters: JSON.stringify(newFilters),
+            offset: newOffset,
+            sort: newSorters,
+        }
+        if (applyQuery) {
+            return applyQuery(queryParams)
+        }
+        else {
+            // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
+            // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
+            return updateQuery(router, newFilters, newSorters, newOffset)
+        }
+    }, 0), [applyQuery, router])
+
     // Triggered, when table pagination/filters/sorting changes
     // Modifies the query to match the state of the table
-    const handleChange = debounce((...tableChangeArguments) => {
+    const handleChange = useCallback((...tableChangeArguments) => {
         const [
             nextPagination,
             nextFilters,
@@ -117,20 +134,8 @@ export const Table: React.FC<ITableProps> = ({
 
         const newOffset = shouldResetOffset ? 0 : (current - 1) * rowsPerPage
 
-        const queryParams = {
-            filters: JSON.stringify(newFilters),
-            offset: newOffset,
-            sort: newSorters,
-        }
-        if (applyQuery) {
-            return applyQuery(queryParams)
-        }
-        else {
-            // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
-            // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
-            return updateQuery(router, newFilters, newSorters, newOffset)
-        }
-    }, 400)
+        setQuery(newFilters, newOffset, newSorters)
+    }, [filters, rowsPerPage, setQuery, sorters])
 
     return (
         <DefaultTable
