@@ -9,6 +9,16 @@
 */
 
 /*
+    Differences between service fee and commission
+    Commission:
+        1. Is calculated based on the billingReceipt amount. For $1000 with commission 1.2% - commission will be $12
+        2. Can have minimum and maximum amount
+    Service fee:
+        1. Is calculated based on formula ↑. Because, acquiring get commission based on total payment (billingReceipt + serviceFee)
+        For $1000 with serviceFee 0.4% and acquiring fee 0.8% - additional amount will be (0.008 + 0.004) ⋅ $1000 / (1 - 0.008) = $12.10
+*/
+
+/*
     Service Fee settings
 
     Acquiring can have explicitFeeDistributionSchema
@@ -24,20 +34,28 @@
 /*
     Commission settings
 
-    [{"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050"},{"recipient":"commission","percent":"0.72","min":"3.6","max":"450"}]
-
-    or in case for implicit fee
-
-    [{"recipient":"organization","percent":"0.9"},{"recipient":"commission","percent":"0.9"}]
-
-    we can have different settings for different billing categories
-    in this case explicit commissions on overhaul billing category and implicit on housing category
     [
-        {"recipient":"organization","percent":"0.9","category":"housing"},{"recipient":"commission","percent":"0.9","category":"housing"},
-        {"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050","category":"overhaul"},{"recipient":"commission","percent":"0.72","min":"3.6","max":"450","category":"overhaul"}
+        {"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050"},
+        {"recipient":"commission","percent":"0.72","min":"3.6","max":"450"}
     ]
 
+    or in case for implicit commission
 
+    [
+        {"recipient":"organization","percent":"0.9"},
+        {"recipient":"commission","percent":"0.9"}
+    ]
+
+    we can have different settings for different billing categories:
+
+    for example, explicit commissions on overhaul billingCategory and implicit on housing billingCategory
+    [
+        {"recipient":"organization","percent":"0.9","category":"housing"},
+        {"recipient":"commission","percent":"0.9","category":"housing"},
+
+        {"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050","category":"overhaul"},
+        {"recipient":"commission","percent":"0.72","min":"3.6","max":"450","category":"overhaul"}
+    ]
  */
 
 const { Logger } = require('@condo/domains/common/utils/logger.js')
@@ -58,6 +76,7 @@ class FeeDistribution extends Logger {
 
     formula = {}
     type = 'unknown' // can be service or commission
+
     minCommission = Big(0)
     maxCommission = Big(0)
 
@@ -139,8 +158,11 @@ class FeeDistribution extends Logger {
             toPay.fromReceiptAmountFee = toPay.implicitFee.minus(toPay.fromTotalAmountFee)
             toPay.recipientSum = summa.minus(toPay.implicitFee)
         } else {
+            // explicit
             const totalCommission = this.formula.fromTotalAmountFee.plus(this.formula.fromReceiptAmountFee)
-            let overSum = this.type === 'service' ? summa.mul(totalCommission).div(Big(1).minus(this.formula.fromTotalAmountFee)) : summa.mul(totalCommission)
+            let overSum = this.type === 'service' ?
+                summa.mul(totalCommission).div(Big(1).minus(this.formula.fromTotalAmountFee)) :
+                summa.mul(totalCommission)
             if (!this.minCommission.eq(0)) {
                 overSum = Big(Math.max(Number(this.minCommission), Number(overSum)))
             }
@@ -172,7 +194,7 @@ const compactDistributionSettings  = (settings = []) => {
             allDistributions[distribution.category][recipient] = { percent, min, max }
         } else {
             const { recipient, ...settings } = distribution
-            allDistributions[distribution.recipient] = settings
+            allDistributions[recipient] = settings
         }
         return allDistributions
     }, {})
@@ -180,13 +202,15 @@ const compactDistributionSettings  = (settings = []) => {
 
 
 const getAcquiringIntegrationContextFormula = async (context, acquiringContextId) => {
-    let { integration: { acquiringDistributionSchema },  implicitFeeDistributionSchema: contextDistributionSchema } = await AcquiringIntegrationContextApi.getOne(context, { id: acquiringContextId })
-    // TODO(zuch): DOMA-2499 Refactoring for distribution schema
-    // explicitFeeDistributionSchema is a required field
+    let {
+        integration: {
+            explicitFeeDistributionSchema: acquiringDistributionSchema,
+        },
+        implicitFeeDistributionSchema: contextDistributionSchema,
+    } = await AcquiringIntegrationContextApi.getOne(context, { id: acquiringContextId })
     if (!Array.isArray(acquiringDistributionSchema)) {
         acquiringDistributionSchema = []
     }
-    // implicitFeeDistributionSchema can be null
     if (!Array.isArray(contextDistributionSchema)) {
         contextDistributionSchema = []
     }

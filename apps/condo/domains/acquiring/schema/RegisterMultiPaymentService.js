@@ -378,12 +378,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const serviceConsumer = consumersByIds[group.serviceConsumer.id]
                     const acquiringContext = acquiringContextsByIds[serviceConsumer.acquiringIntegrationContext]
                     const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
-                    const feeCalculator = new FeeDistribution(formula)
                     for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
                         const billingCategory = get(receipt, 'category')
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
+                        const feeCalculator = new FeeDistribution(formula, billingCategory)
                         const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(receipt.toPay, { billingCategory })
                         const paymentCommissionFields = {
                             ...type === 'service' ? {
