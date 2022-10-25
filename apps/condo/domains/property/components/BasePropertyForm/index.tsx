@@ -168,7 +168,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                                 if (!validHouseTypes.includes(address.data.house_type_full)) {
                                                     setAddressValidatorError(AddressValidationErrorMsg)
                                                 }
-                                                else if (AddressValidationErrorMsg) setAddressValidatorError(null)
+                                                else setAddressValidatorError(null)
                                             }} />
                                     </Form.Item>
                                     <Form.Item
