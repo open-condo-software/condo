@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 
 const conf = require('@condo/config')
 const {
-    catchErrorFrom,
+    catchErrorFrom, expectToThrowAccessDeniedError,
 } = require('@condo/keystone/test.utils')
 const {
     updateTestBillingReceipt,
@@ -49,7 +49,7 @@ const receiptData = () => ({
 
 describe('GeneratePaymentLinkService', () => {
     describe('Execute', () => {
-        describe('Anonymous user', () => {
+        describe('Resident user', () => {
             test('From receipt', async () => {
                 const {
                     billingReceipts,
@@ -59,7 +59,33 @@ describe('GeneratePaymentLinkService', () => {
                 const receipt = { id: billingReceipts[0].id }
                 const acquiringIntegrationContext = { id: acquiringContext.id }
                 const callbackUrls = callbacks()
-                const [result] = await generatePaymentLinkByTestClient(client, receipt, null, acquiringIntegrationContext, callbackUrls)
+                await expectToThrowAccessDeniedError(async () => {
+                    await generatePaymentLinkByTestClient(client, receipt, null, acquiringIntegrationContext, callbackUrls)
+                }, 'result')
+            })
+            test('From receipt data', async () => {
+                const {
+                    acquiringContext,
+                    client,
+                } = await makePayer()
+                const acquiringIntegrationContext = { id: acquiringContext.id }
+                const receipt = receiptData()
+                await expectToThrowAccessDeniedError(async () => {
+                    await generatePaymentLinkByTestClient(client, null, receipt, acquiringIntegrationContext, callbacks())
+                }, 'result')
+            })
+        })
+        describe('Admin user', () => {
+            test('From receipt', async () => {
+                const {
+                    billingReceipts,
+                    acquiringContext,
+                    admin,
+                } = await makePayer()
+                const receipt = { id: billingReceipts[0].id }
+                const acquiringIntegrationContext = { id: acquiringContext.id }
+                const callbackUrls = callbacks()
+                const [result] = await generatePaymentLinkByTestClient(admin, receipt, null, acquiringIntegrationContext, callbackUrls)
 
                 const paymentLink = new URL(`${hostUrl}${PAYMENT_LINK_PATH}`)
                 paymentLink.searchParams.set(acquiringIntegrationContextQp, acquiringIntegrationContext.id)
@@ -74,12 +100,12 @@ describe('GeneratePaymentLinkService', () => {
             test('From receipt data', async () => {
                 const {
                     acquiringContext,
-                    client,
+                    admin,
                 } = await makePayer()
                 const acquiringIntegrationContext = { id: acquiringContext.id }
                 const callbackUrls = callbacks()
                 const receipt = receiptData()
-                const [result] = await generatePaymentLinkByTestClient(client, null, receipt, acquiringIntegrationContext, callbacks())
+                const [result] = await generatePaymentLinkByTestClient(admin, null, receipt, acquiringIntegrationContext, callbacks())
 
                 const paymentLink = new URL(`${hostUrl}${PAYMENT_LINK_PATH}`)
                 paymentLink.searchParams.set(acquiringIntegrationContextQp, acquiringIntegrationContext.id)
