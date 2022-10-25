@@ -8,17 +8,40 @@
     γ - commission from initial amount of payment, 0.004 ( 0.4 %)
 */
 
-/*  Fee settings
+/*
+    Service Fee settings
+
     Acquiring can have explicitFeeDistributionSchema
+
     [{"recipient":"acquiring","percent":"0.8"},{"recipient":"service","percent":"0.4"}]
     "acquiring" recipient = includes all technical fees to complete payment
-    formula needs to have service or commission recipient
 
     AcquiringIntegrationContext can have implicitFeeDistributionSchema
+
     [{"recipient":"organization","percent":"1.7"}] - 1.2 ... 1.7 depends on contract, or it can be 0
+*/
+
+/*
+    Commission settings
+
+    [{"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050"},{"recipient":"commission","percent":"0.72","min":"3.6","max":"450"}]
+
+    or in case for implicit fee
+
+    [{"recipient":"organization","percent":"0.9"},{"recipient":"commission","percent":"0.9"}]
+
+    we can have different settings for different billing categories
+    in this case explicit commissions on overhaul billing category and implicit on housing category
+    [
+        {"recipient":"organization","percent":"0.9","category":"housing"},{"recipient":"commission","percent":"0.9","category":"housing"},
+        {"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050","category":"overhaul"},{"recipient":"commission","percent":"0.72","min":"3.6","max":"450","category":"overhaul"}
+    ]
+
+
  */
 
 const { Logger } = require('@condo/domains/common/utils/logger.js')
+const { get } = require('lodash')
 const {
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
@@ -29,34 +52,45 @@ const {
     AcquiringIntegrationContext: AcquiringIntegrationContextApi,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 
-
 const Big = require('big.js')
 
 class FeeDistribution extends Logger {
 
     formula = {}
     type = 'unknown' // can be service or commission
+    minCommission = Big(0)
+    maxCommission = Big(0)
 
-    constructor (initialFormula) {
+    constructor (formula, category = '') {
         super('acquiring-commission')
-        const { service = 0, commission = 0, acquiring = 0, organization = 0 } = initialFormula
-        const formula = { organization }
+        const initialFormula = category && (category in formula) ? formula[category] : formula
+        const { service, commission, acquiring, organization = 0 } = initialFormula
+        const resultFormula = { organization: get(organization, 'percent', 0) || organization }
         if (service) {
             this.type = 'service'
-            formula.fromReceiptAmountFee = service
+            resultFormula.fromReceiptAmountFee = get(service, 'percent', 0) || service
+            resultFormula.fromTotalAmountFee = get(acquiring, 'percent', 0) || acquiring
         }
         if (commission) {
             this.type = 'commission'
-            formula.fromReceiptAmountFee = commission
+            resultFormula.fromTotalAmountFee = Big('0').toFixed(2) // Commission is only from receipt amount
+            resultFormula.fromReceiptAmountFee = Big(get(commission, 'percent', 0)).add(Big(get(acquiring, 'percent', 0))).toFixed(2)
+            this.minCommission = Big(get(commission, 'min', '0')).add(Big(get(acquiring, 'min', '0')))
+            this.maxCommission = Big(get(commission, 'max', '0')).add(Big(get(acquiring, 'max', '0')))
         }
-        formula.fromTotalAmountFee = acquiring
-        this.formula = Object.fromEntries(
-            Object.entries(formula)
-                .map(([recipient, percent]) => ([recipient, Big(percent).mul(Big('0.01'))]))
-        )
+        try {
+            this.formula = Object.fromEntries(
+                Object.entries(resultFormula)
+                    .map(([recipient, percent]) => ([recipient, Big(percent).mul(Big('0.01'))]))
+            )
+        } catch (error) {
+            console.log(resultFormula)
+            console.log(error)
+        }
+
     }
 
-    validateFormula (formula) {
+    validateFormula () {
         if (this.type === 'unknown') {
             throw new Error(`${FEE_DISTRIBUTION_INCOMPLETE_FORMULA}] needs to have service or commission recipient`)
         }
@@ -105,9 +139,14 @@ class FeeDistribution extends Logger {
             toPay.fromReceiptAmountFee = toPay.implicitFee.minus(toPay.fromTotalAmountFee)
             toPay.recipientSum = summa.minus(toPay.implicitFee)
         } else {
-            // explicit
             const totalCommission = this.formula.fromTotalAmountFee.plus(this.formula.fromReceiptAmountFee)
-            const overSum = summa.mul(totalCommission).div(Big(1).minus(this.formula.fromTotalAmountFee))
+            let overSum = this.type === 'service' ? summa.mul(totalCommission).div(Big(1).minus(this.formula.fromTotalAmountFee)) : summa.mul(totalCommission)
+            if (!this.minCommission.eq(0)) {
+                overSum = Big(Math.max(Number(this.minCommission), Number(overSum)))
+            }
+            if (!this.maxCommission.eq(0)) {
+                overSum = Big(Math.min(Number(this.maxCommission), Number(overSum)))
+            }
             toPay.explicitFee = overSum
             toPay.summa = summa.plus(overSum)
             toPay.fromTotalAmountFee = toPay.summa.mul(this.formula.fromTotalAmountFee)
@@ -123,25 +162,39 @@ class FeeDistribution extends Logger {
 
 }
 
+const compactDistributionSettings  = (settings = []) => {
+    return settings.reduce((allDistributions, distribution) => {
+        if (distribution.category) {
+            if (!allDistributions[distribution.category]) {
+                allDistributions[distribution.category] = {}
+            }
+            const { recipient, percent = 0, min = '0', max = '0' } = distribution
+            allDistributions[distribution.category][recipient] = { percent, min, max }
+        } else {
+            const { recipient, ...settings } = distribution
+            allDistributions[distribution.recipient] = settings
+        }
+        return allDistributions
+    }, {})
+}
+
+
 const getAcquiringIntegrationContextFormula = async (context, acquiringContextId) => {
-    let [{ integration: { explicitFeeDistributionSchema },  implicitFeeDistributionSchema } ] = await AcquiringIntegrationContextApi.getAll(context, { id: acquiringContextId })
+    let { integration: { acquiringDistributionSchema },  implicitFeeDistributionSchema: contextDistributionSchema } = await AcquiringIntegrationContextApi.getOne(context, { id: acquiringContextId })
     // TODO(zuch): DOMA-2499 Refactoring for distribution schema
     // explicitFeeDistributionSchema is a required field
-    if (!Array.isArray(explicitFeeDistributionSchema)) {
-        explicitFeeDistributionSchema = []
+    if (!Array.isArray(acquiringDistributionSchema)) {
+        acquiringDistributionSchema = []
     }
     // implicitFeeDistributionSchema can be null
-    if (!Array.isArray(implicitFeeDistributionSchema)) {
-        implicitFeeDistributionSchema = []
+    if (!Array.isArray(contextDistributionSchema)) {
+        contextDistributionSchema = []
     }
-    return Object.fromEntries(
-        explicitFeeDistributionSchema
-            .concat(implicitFeeDistributionSchema)
-            .map(({ recipient, percent }) => ([recipient, percent]))
-    )
+    return compactDistributionSettings(acquiringDistributionSchema.concat(contextDistributionSchema))
 }
 
 module.exports = {
     FeeDistribution,
     getAcquiringIntegrationContextFormula,
+    compactDistributionSettings,
 }
