@@ -130,7 +130,7 @@
   "filters.Template": "Шаблон",
   "filters.NewTemplateLabel": "Заполните это поле, если хотите сохранить шаблон на будущее",
   "filters.TemplateLabel": "Название шаблона",
-  "filters.NewTemplatePlaceholder": "Например, мой набор фильтров",
+  "filters.NewTemplatePlaceholder": "Например: Мой набор фильтров",
   "filters.DeleteTitle": "Удалить шаблон фильтра?",
   "filters.DeleteMessage": "Восстановить будет невозможно, только создать заново и сохранить",
   "filters.SaveTemplate": "Сохранить шаблон и применить",
