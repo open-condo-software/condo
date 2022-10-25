@@ -138,21 +138,32 @@ CREATE UNIQUE INDEX "assignee_scope_unique_user_and_ticket" ON "AssigneeScope" (
 --
 INSERT INTO "OrganizationEmployeeSpecialization" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "employee", "specialization")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), specs."OrganizationEmployee_left_id", specs."TicketCategoryClassifier_right_id"
-FROM "OrganizationEmployee_specializations_many" as specs;
+FROM "OrganizationEmployee_specializations_many" as specs
+JOIN "OrganizationEmployee" ON "specs"."OrganizationEmployee_left_id" = "OrganizationEmployee".id
+JOIN "TicketCategoryClassifier" ON "specs"."TicketCategoryClassifier_right_id" = "TicketCategoryClassifier".id
+WHERE "OrganizationEmployee"."deletedAt" IS NULL
+AND "TicketCategoryClassifier"."deletedAt"IS NULL;
 
 --
 -- [CUSTOM] Move data from Division to PropertyScope
 --
 INSERT INTO "PropertyScope" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", "hasAllProperties", "hasAllEmployees")
 SELECT "id", "dv", "v", "sender", "createdAt", "updatedAt", "createdBy", "updatedBy", "deletedAt", "name", "organization", false, false
-FROM "Division" WHERE id NOT IN (SELECT id FROM "PropertyScope");
+FROM "Division" 
+WHERE "deletedAt" IS NULL 
+AND id NOT IN (SELECT id FROM "PropertyScope");
 
 --
 -- [CUSTOM] Move data from Division_properties_many to PropertyScopeProperty
 --
 INSERT INTO "PropertyScopeProperty" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "property")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division_left_id", "Property_right_id"
-FROM "Division_properties_many" WHERE (SELECT count(*) FROM "PropertyScopeProperty" WHERE "propertyScope" = "Division_left_id" AND "property" = "Property_right_id") = 0;
+FROM "Division_properties_many"
+JOIN "Division" ON "Division_properties_many"."Division_left_id" = "Division".id
+JOIN "Property" ON "Division_properties_many"."Property_right_id" = "Property".id
+WHERE "Division"."deletedAt" IS NULL
+AND "Property"."deletedAt" IS NULL
+AND (SELECT count(*) FROM "PropertyScopeProperty" WHERE "propertyScope" = "Division_left_id" AND "property" = "Property_right_id") = 0;
 
 --
 -- [CUSTOM] Move data from Division_executors_many (not responsible employees) to PropertyScopeOrganizationEmployee
@@ -161,7 +172,11 @@ INSERT INTO "PropertyScopeOrganizationEmployee" ("id", "dv", "v", "sender", "cre
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), t."Division_left_id", t."OrganizationEmployee_right_id"
 FROM (
     SELECT * FROM "Division_executors_many"
-    WHERE "OrganizationEmployee_right_id" NOT IN (SELECT "responsible" FROM "Division")
+    JOIN "Division" ON "Division_executors_many"."Division_left_id" = "Division".id
+    JOIN "OrganizationEmployee" ON "Division_executors_many"."OrganizationEmployee_right_id" = "OrganizationEmployee".id
+    WHERE "Division"."deletedAt" IS NULL
+    AND "OrganizationEmployee"."deletedAt" IS NULL
+    AND "OrganizationEmployee_right_id" NOT IN (SELECT "responsible" FROM "Division" WHERE "Division".id = "Division_left_id")
     AND (SELECT count(*) FROM "PropertyScopeOrganizationEmployee" WHERE "propertyScope" = "Division_left_id" AND "employee" = "OrganizationEmployee_right_id") = 0
     ) as t;
 
@@ -170,7 +185,11 @@ FROM (
 --
 INSERT INTO "PropertyScopeOrganizationEmployee" ("id", "dv", "v", "sender", "createdAt", "updatedAt", "propertyScope", "employee")
 SELECT gen_random_uuid(), 1, 1, '{"dv": 1, "fingerprint": "migration"}'::json, now(), now(), "Division"."id",  "Division"."responsible"
-FROM "Division" WHERE (SELECT count(*) FROM "PropertyScopeOrganizationEmployee" WHERE "propertyScope" = "Division".id AND "employee" = "responsible") = 0;
+FROM "Division"
+    JOIN "OrganizationEmployee" ON "Division"."responsible" = "OrganizationEmployee".id
+    WHERE "Division"."deletedAt" IS NULL
+    AND "OrganizationEmployee"."deletedAt" IS NULL
+    AND (SELECT count(*) FROM "PropertyScopeOrganizationEmployee" WHERE "propertyScope" = "Division".id AND "employee" = "responsible") = 0;
 
 --
 -- Delete model organizationemployee_specializations_many
@@ -372,23 +391,23 @@ exports.down = async (knex) => {
 --
 -- Delete model divisionhistoryrecord
 --
-CREATE TABLE "DivisionHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "name" text NULL, "organization" uuid NULL, "responsible" uuid NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "DivisionHistoryRecord" ("dv" integer NULL, "sender" jsonb NULL, "name" text NULL, "organization" uuid NULL, "responsible" uuid NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "createdBy" uuid NULL, "updatedBy" uuid NULL, "deletedAt" timestamp with time zone NULL, "newId" jsonb NULL, "history_date" timestamp with time zone NOT NULL, "history_action" varchar(50) NOT NULL, "history_id" uuid NOT NULL);
 --
 -- Delete model division
 --
-CREATE TABLE "Division" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "organization" uuid NOT NULL, "responsible" uuid NOT NULL, "updatedBy" uuid NULL);
+CREATE TABLE IF NOT EXISTS "Division" ("dv" integer NOT NULL, "sender" jsonb NOT NULL, "name" text NOT NULL, "id" uuid NOT NULL PRIMARY KEY, "v" integer NOT NULL, "createdAt" timestamp with time zone NULL, "updatedAt" timestamp with time zone NULL, "deletedAt" timestamp with time zone NULL, "newId" uuid NULL, "createdBy" uuid NULL, "organization" uuid NOT NULL, "responsible" uuid NOT NULL, "updatedBy" uuid NULL);
 --
 -- Delete model division_executors_many
 --
-CREATE TABLE "Division_executors_many" ("id" integer NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "Division_left_id" uuid NOT NULL, "OrganizationEmployee_right_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "Division_executors_many" ("id" integer NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "Division_left_id" uuid NOT NULL, "OrganizationEmployee_right_id" uuid NOT NULL);
 --
 -- Delete model division_properties_many
 --
-CREATE TABLE "Division_properties_many" ("id" integer NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "Division_left_id" uuid NOT NULL, "Property_right_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "Division_properties_many" ("id" integer NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "Division_left_id" uuid NOT NULL, "Property_right_id" uuid NOT NULL);
 --
 -- Delete model organizationemployee_specializations_many
 --
-CREATE TABLE "OrganizationEmployee_specializations_many" ("id" integer NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "OrganizationEmployee_left_id" uuid NOT NULL, "TicketCategoryClassifier_right_id" uuid NOT NULL);
+CREATE TABLE IF NOT EXISTS "OrganizationEmployee_specializations_many" ("id" integer NOT NULL PRIMARY KEY GENERATED BY DEFAULT AS IDENTITY, "OrganizationEmployee_left_id" uuid NOT NULL, "TicketCategoryClassifier_right_id" uuid NOT NULL);
 --
 -- Create constraint assignee_scope_unique_user_and_ticket on model assigneescope
 --
@@ -464,11 +483,11 @@ ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" ADD COLUMN "canManageDivisio
 --
 -- Remove field canReadEntitiesOnlyInScopeOfDivision from organizationemployeerole
 --
-ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canReadEntitiesOnlyInScopeOfDivision" boolean NOT NULL;
+ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canReadEntitiesOnlyInScopeOfDivision" boolean NULL;
 --
 -- Remove field canManageDivisions from organizationemployeerole
 --
-ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canManageDivisions" boolean NOT NULL;
+ALTER TABLE "OrganizationEmployeeRole" ADD COLUMN "canManageDivisions" boolean NULL;
 --
 -- Create model propertyscopepropertyhistoryrecord
 --
@@ -509,30 +528,40 @@ DROP TABLE "AssigneeScopeHistoryRecord" CASCADE;
 -- Create model assigneescope
 --
 DROP TABLE "AssigneeScope" CASCADE;
-CREATE INDEX "DivisionHistoryRecord_history_id_1aa20471" ON "DivisionHistoryRecord" ("history_id");
+CREATE INDEX IF NOT EXISTS "DivisionHistoryRecord_history_id_1aa20471" ON "DivisionHistoryRecord" ("history_id");
+ALTER TABLE "Division" DROP CONSTRAINT IF EXISTS "Division_createdBy_1de184f0_fk_User_id";
 ALTER TABLE "Division" ADD CONSTRAINT "Division_createdBy_1de184f0_fk_User_id" FOREIGN KEY ("createdBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "Division" DROP CONSTRAINT IF EXISTS "Division_organization_12c63234_fk_Organization_id";
 ALTER TABLE "Division" ADD CONSTRAINT "Division_organization_12c63234_fk_Organization_id" FOREIGN KEY ("organization") REFERENCES "Organization" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "Division" DROP CONSTRAINT IF EXISTS "Division_responsible_eed68a68_fk_OrganizationEmployee_id";
 ALTER TABLE "Division" ADD CONSTRAINT "Division_responsible_eed68a68_fk_OrganizationEmployee_id" FOREIGN KEY ("responsible") REFERENCES "OrganizationEmployee" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "Division" DROP CONSTRAINT IF EXISTS "Division_updatedBy_6ebd4c94_fk_User_id";
 ALTER TABLE "Division" ADD CONSTRAINT "Division_updatedBy_6ebd4c94_fk_User_id" FOREIGN KEY ("updatedBy") REFERENCES "User" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "Division_createdAt_e7ed3456" ON "Division" ("createdAt");
-CREATE INDEX "Division_updatedAt_2af80235" ON "Division" ("updatedAt");
-CREATE INDEX "Division_deletedAt_a5c80e2a" ON "Division" ("deletedAt");
-CREATE INDEX "Division_createdBy_1de184f0" ON "Division" ("createdBy");
-CREATE INDEX "Division_organization_12c63234" ON "Division" ("organization");
-CREATE INDEX "Division_responsible_eed68a68" ON "Division" ("responsible");
-CREATE INDEX "Division_updatedBy_6ebd4c94" ON "Division" ("updatedBy");
+CREATE INDEX IF NOT EXISTS "Division_createdAt_e7ed3456" ON "Division" ("createdAt");
+CREATE INDEX IF NOT EXISTS "Division_updatedAt_2af80235" ON "Division" ("updatedAt");
+CREATE INDEX IF NOT EXISTS "Division_deletedAt_a5c80e2a" ON "Division" ("deletedAt");
+CREATE INDEX IF NOT EXISTS "Division_createdBy_1de184f0" ON "Division" ("createdBy");
+CREATE INDEX IF NOT EXISTS "Division_organization_12c63234" ON "Division" ("organization");
+CREATE INDEX IF NOT EXISTS "Division_responsible_eed68a68" ON "Division" ("responsible");
+CREATE INDEX IF NOT EXISTS "Division_updatedBy_6ebd4c94" ON "Division" ("updatedBy");
+ALTER TABLE "Division_executors_many" DROP CONSTRAINT IF EXISTS "Division_executors_m_Division_left_id_b50a2677_fk_Division_";
 ALTER TABLE "Division_executors_many" ADD CONSTRAINT "Division_executors_m_Division_left_id_b50a2677_fk_Division_" FOREIGN KEY ("Division_left_id") REFERENCES "Division" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "Division_executors_many" DROP CONSTRAINT IF EXISTS "Division_executors_m_OrganizationEmployee_67cbc5c6_fk_Organizat";
 ALTER TABLE "Division_executors_many" ADD CONSTRAINT "Division_executors_m_OrganizationEmployee_67cbc5c6_fk_Organizat" FOREIGN KEY ("OrganizationEmployee_right_id") REFERENCES "OrganizationEmployee" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "Division_executors_many_Division_left_id_b50a2677" ON "Division_executors_many" ("Division_left_id");
-CREATE INDEX "Division_executors_many_OrganizationEmployee_right_id_67cbc5c6" ON "Division_executors_many" ("OrganizationEmployee_right_id");
+CREATE INDEX IF NOT EXISTS "Division_executors_many_Division_left_id_b50a2677" ON "Division_executors_many" ("Division_left_id");
+CREATE INDEX IF NOT EXISTS "Division_executors_many_OrganizationEmployee_right_id_67cbc5c6" ON "Division_executors_many" ("OrganizationEmployee_right_id");
+ALTER TABLE "Division_properties_many" DROP CONSTRAINT IF EXISTS "Division_properties__Division_left_id_32c0aab5_fk_Division_";
 ALTER TABLE "Division_properties_many" ADD CONSTRAINT "Division_properties__Division_left_id_32c0aab5_fk_Division_" FOREIGN KEY ("Division_left_id") REFERENCES "Division" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "Division_properties_many" DROP CONSTRAINT IF EXISTS "Division_properties__Property_right_id_9e298cb9_fk_Property_";
 ALTER TABLE "Division_properties_many" ADD CONSTRAINT "Division_properties__Property_right_id_9e298cb9_fk_Property_" FOREIGN KEY ("Property_right_id") REFERENCES "Property" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "Division_properties_many_Division_left_id_32c0aab5" ON "Division_properties_many" ("Division_left_id");
-CREATE INDEX "Division_properties_many_Property_right_id_9e298cb9" ON "Division_properties_many" ("Property_right_id");
+CREATE INDEX IF NOT EXISTS "Division_properties_many_Division_left_id_32c0aab5" ON "Division_properties_many" ("Division_left_id");
+CREATE INDEX IF NOT EXISTS "Division_properties_many_Property_right_id_9e298cb9" ON "Division_properties_many" ("Property_right_id");
+ALTER TABLE "OrganizationEmployee_specializations_many" DROP CONSTRAINT IF EXISTS "OrganizationEmployee_OrganizationEmployee_cb80e37b_fk_Organizat";
 ALTER TABLE "OrganizationEmployee_specializations_many" ADD CONSTRAINT "OrganizationEmployee_OrganizationEmployee_cb80e37b_fk_Organizat" FOREIGN KEY ("OrganizationEmployee_left_id") REFERENCES "OrganizationEmployee" ("id") DEFERRABLE INITIALLY DEFERRED;
+ALTER TABLE "OrganizationEmployee_specializations_many" DROP CONSTRAINT IF EXISTS "OrganizationEmployee_TicketCategoryClassi_ee1eb7bd_fk_TicketCat";
 ALTER TABLE "OrganizationEmployee_specializations_many" ADD CONSTRAINT "OrganizationEmployee_TicketCategoryClassi_ee1eb7bd_fk_TicketCat" FOREIGN KEY ("TicketCategoryClassifier_right_id") REFERENCES "TicketCategoryClassifier" ("id") DEFERRABLE INITIALLY DEFERRED;
-CREATE INDEX "OrganizationEmployee_speci_OrganizationEmployee_left__cb80e37b" ON "OrganizationEmployee_specializations_many" ("OrganizationEmployee_left_id");
-CREATE INDEX "OrganizationEmployee_speci_TicketCategoryClassifier_r_ee1eb7bd" ON "OrganizationEmployee_specializations_many" ("TicketCategoryClassifier_right_id");
+CREATE INDEX IF NOT EXISTS "OrganizationEmployee_speci_OrganizationEmployee_left__cb80e37b" ON "OrganizationEmployee_specializations_many" ("OrganizationEmployee_left_id");
+CREATE INDEX IF NOT EXISTS "OrganizationEmployee_speci_TicketCategoryClassifier_r_ee1eb7bd" ON "OrganizationEmployee_specializations_many" ("TicketCategoryClassifier_right_id");
 COMMIT;
 
     `)
