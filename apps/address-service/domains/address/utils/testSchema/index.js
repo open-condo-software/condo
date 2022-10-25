@@ -5,9 +5,9 @@
  */
 const faker = require('faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@address-service/domains/common/utils/codegeneration/generate.server.utils')
-
-const { generateGQLTestUtils, throwIfError } = require('@address-service/domains/common/utils/codegeneration/generate.test.utils')
+const {
+    generateGQLTestUtils,
+} = require('@condo/codegen/generate.test.utils')
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
