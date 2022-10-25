@@ -381,9 +381,10 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const feeCalculator = new FeeDistribution(formula)
                     for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
+                        const billingCategory = get(receipt, 'category')
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
-                        const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(receipt.toPay)
+                        const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(receipt.toPay, { billingCategory })
                         const paymentCommissionFields = {
                             ...type === 'service' ? {
                                 explicitServiceCharge: String(explicitFee),
