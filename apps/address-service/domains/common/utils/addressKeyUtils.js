@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 
 const JOINER = '~'
+const SPACE_REPLACER = '_'
 
 /**
  * @param {NormalizedSuggestion} normalizedSuggestion
@@ -22,6 +23,9 @@ function generateAddressKey (normalizedSuggestion) {
         get(data, 'block'),
     ]
     return parts
+        // Remove empty parts
+        .filter(Boolean)
+        // Keep single space between words
         .map(
             (part) => (
                 String(part)
@@ -29,12 +33,13 @@ function generateAddressKey (normalizedSuggestion) {
                     .map((word) => word.trim())
                     .filter(Boolean)
                     .join(' ')
-                    .replaceAll(/\s/g, '_')
+                    .replaceAll(/\s/g, SPACE_REPLACER)
             ),
         )
+        // Remove newly appeared empty parts
         .filter(Boolean)
         .join(JOINER)
         .toLowerCase()
 }
 
-module.exports = { generateAddressKey, JOINER }
+module.exports = { generateAddressKey, JOINER, SPACE_REPLACER }
