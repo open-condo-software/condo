@@ -6,15 +6,15 @@ name: RUN ADDRESS SERVICE TESTS
 on:
   workflow_dispatch:
     branches:
-      - *
+      - '*'
   push:
     branches: [ master ]
     paths:
-      - apps/address-service/**
+      - 'apps/address-service/**'
   pull_request:
     branches: [ master ]
     paths:
-      - apps/address-service/**
+      - 'apps/address-service/**'
 
 jobs:
   build:
