@@ -40,8 +40,8 @@ const buildReviewValuesTranslationsFrom = (locale) => ({
     [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
 })
 
-const renderComment = (comment, locale) => {
-    const createdAt = dayjs(comment.createdAt).format(COMMENT_DATE_FORMAT)
+const renderComment = (comment, locale, timeZone) => {
+    const createdAt = dayjs(comment.createdAt).tz(timeZone).format(COMMENT_DATE_FORMAT)
     const createdBy = comment.userName
     const userType = comment.userType === RESIDENT ? i18n('Contact', { locale }) : i18n('Employee', { locale })
     const content = comment.content
@@ -70,10 +70,10 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     comments.forEach((comment) => {
         switch (comment.type) {
             case ORGANIZATION_COMMENT_TYPE:
-                renderedOrganizationComments.push(renderComment(comment, locale))
+                renderedOrganizationComments.push(renderComment(comment, locale, timeZone))
                 break
             case RESIDENT_COMMENT_TYPE:
-                renderedResidentComments.push(renderComment(comment, locale))
+                renderedResidentComments.push(renderComment(comment, locale, timeZone))
                 break
         }
     })
