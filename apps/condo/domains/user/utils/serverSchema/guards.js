@@ -5,7 +5,12 @@ const conf = require('@condo/config')
 const { GQLError } = require('@condo/keystone/errors')
 const { getRedisClient } = require('@condo/keystone/redis')
 
-const { MAX_SMS_FOR_IP_BY_DAY, MAX_SMS_FOR_PHONE_BY_DAY } = require('@condo/domains/user/constants/common')
+const {
+    MAX_SMS_FOR_IP_BY_DAY,
+    MAX_SMS_FOR_PHONE_BY_DAY,
+    PAYMENT_LINK_WINDOW_SIZE,
+    MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
+} = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 dayjs.extend(utc)
@@ -37,6 +42,30 @@ class RedisGuard {
         }
     }
 
+    async checkPaymentLinkLimitCounters (rawIp) {
+        const ip = rawIp.split(':').pop()
+        await this.checkCustomLimitCounters(
+            ip,
+            PAYMENT_LINK_WINDOW_SIZE,
+            'second',
+            MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
+        )
+    }
+
+    async checkCustomLimitCounters (variable, windowSize, windowSizeUnit, counterLimit) {
+        const expiryAnchorDate = dayjs().add(windowSize, windowSizeUnit)
+        const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
+        if (counter > counterLimit) {
+            const secondsRemaining = await this.counterTimeRemain(variable)
+            throw new GQLError({
+                ...GQL_ERRORS.TOO_MANY_REQUESTS,
+                messageInterpolation: {
+                    secondsRemaining,
+                },
+            })
+        }
+    }
+
     async checkSMSDayLimitCounters (phone, rawIp) {
         const ip = rawIp.split(':').pop()
         const byPhoneCounter = await this.incrementDayCounter(phone)
@@ -49,17 +78,32 @@ class RedisGuard {
         }
     }
 
+    async incrementDayCounter (variable) {
+        return this.incrementCustomCounter(variable, dayjs().endOf('day'))
+    }
+
     // Counter will reset at the start of a day ( or after redis restart )
     // Example usage = only 100 attempts to confirm phone from single IP
-    async incrementDayCounter (variable) {
+    async incrementCustomCounter (variable, date) {
         // if variable not exists - it will be set to 1
         let afterIncrement = await this.redis.incr(`${this.counterPrefix}${variable}`)
         afterIncrement = Number(afterIncrement)
         if (afterIncrement === 1) {
-            await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${dayjs().endOf('day') / 1000}`))
+            await this.redis.expireat(`${this.counterPrefix}${variable}`, parseInt(`${date / 1000}`))
         }
         return afterIncrement
     }
+
+    // Counter
+    // 1. Set variable to reddis with TTL
+    // 2. Check if counter exists
+    // 3. Get counter remain time
+    async counterTimeRemain (variable) {
+        const time = await this.redis.ttl(`${this.counterPrefix}${variable}`)
+        // -1: no ttl on variable, -2: key not exists
+        return Math.max(time, 0)
+    }
+
 
     // Lock
     // 1. Set variable to reddis with TTL
