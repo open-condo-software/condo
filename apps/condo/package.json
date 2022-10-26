@@ -68,7 +68,7 @@
     "ajv": "8.11.0",
     "ajv-formats": "^2.1.0",
     "amplitude-js": "^8.18.1",
-    "antd": "^4.8.2",
+    "antd": "4.23.6",
     "antd-mask-input": "^0.1.15",
     "axios": "^0.26.0",
     "big.js": "^6.1.1",
