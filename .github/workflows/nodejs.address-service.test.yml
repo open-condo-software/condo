@@ -64,7 +64,8 @@ jobs:
 
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/address-service migrate
 
-          yarn workspace @app/address-service dev 2>&1 > address-service.dev.log & bash ./.github/workflows/waitForLocalhostApiReady.sh
+          yarn workspace @app/address-service dev 2>&1 > address-service.dev.log &
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
 
           # check migrations
           yarn workspace @app/address-service makemigrations --check &> /dev/null
