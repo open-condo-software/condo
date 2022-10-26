@@ -24,7 +24,7 @@ jobs:
     strategy:
       matrix:
         node-version: [ 14.x ]
-        database: [ "postgresql://postgres:postgres@127.0.0.1/address-service" ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
       - name: Checkout code with submodules
@@ -37,7 +37,6 @@ jobs:
       - name: Docker compose up databases
         run: |
           cp .env.example .env
-          echo "DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/address-service" >> apps/address-service/.env
           docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
