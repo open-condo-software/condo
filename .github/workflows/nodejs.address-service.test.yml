@@ -54,6 +54,7 @@ jobs:
         run: |
           set -x
           cp .env.example .env
+          echo 'DADATA_SUGGESTIONS={"url": "https://suggestions.dadata.ru/it-does-not-matter-here", "token": "blah-blah-test"}' >> .env
           export NODE_ENV=test
           export DISABLE_LOGGING=false
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
