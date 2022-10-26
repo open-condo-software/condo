@@ -145,7 +145,9 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
             employee: { id: employeeId },
         },
     })
-    const propertyScopeIds = propertyScopeEmployees.map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
+    const propertyScopeIds = propertyScopeEmployees
+        .filter(propertyScopeEmployee => propertyScopeEmployee.propertyScope && propertyScopeEmployee.employee)
+        .map(propertyScopeEmployee => propertyScopeEmployee.propertyScope.id)
     const { objs: propertyScopes, loading: propertyScopeLoading } = PropertyScope.useAllObjects({
         where: {
             organization: { id: organizationId },
@@ -166,8 +168,12 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
         },
     })
 
-    const specializations = employeeSpecializations.map(empSpec => empSpec.specialization.id)
-    const properties = propertyScopeProperties.map(scope => scope.property.id)
+    const specializations = employeeSpecializations
+        .filter(empSpec => empSpec.specialization && empSpec.employee)
+        .map(empSpec => empSpec.specialization.id)
+    const properties = propertyScopeProperties
+        .filter(empSpec => empSpec.propertyScope && empSpec.property)
+        .map(scope => scope.property.id)
 
     const ticketFilterQuery = getTicketsQueryByTicketVisibilityType({
         ticketVisibilityType,

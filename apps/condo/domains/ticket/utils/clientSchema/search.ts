@@ -99,7 +99,12 @@ async function _search (client, query, variables) {
 }
 
 export async function searchProperty (client, where, orderBy, first = 10, skip = 0) {
-    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, {
+        where,
+        orderBy,
+        first,
+        skip,
+    })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
 
@@ -107,7 +112,12 @@ export async function searchProperty (client, where, orderBy, first = 10, skip =
 }
 
 export async function searchPropertyWithMap (client, where, orderBy, first = 10, skip = 0) {
-    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY, { where, orderBy, first, skip })
+    const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY, {
+        where,
+        orderBy,
+        first,
+        skip,
+    })
     if (error) console.warn(error)
     if (data) return data.objs.map(x => ({ address: x.address, id: x.id, map: x.map }))
 
@@ -125,7 +135,12 @@ export function searchOrganizationProperty (organizationId) {
             ...query,
         }
         const orderBy = 'address_ASC'
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, {
+            where,
+            orderBy,
+            first,
+            skip,
+        })
         if (error) console.warn(error)
 
         return data.objs.map(({ address, id }) => ({ text: address, value: id }))
@@ -139,15 +154,7 @@ export function searchAllOrganizationProperties (initialProperties) {
             const where = {
                 OR: [
                     {
-                        AND: [
-                            {
-                                id_in: initialProperties,
-                                OR: [
-                                    { deletedAt: null },
-                                    { deletedAt_not: null },
-                                ],
-                            },
-                        ],
+                        id_in: initialProperties,
                     },
                     {
                         AND: [
@@ -157,14 +164,18 @@ export function searchAllOrganizationProperties (initialProperties) {
                                 },
                                 ...!isEmpty(searchText) ? { address_contains_i: searchText } : {},
                                 ...query,
-                                deletedAt: null,
                             },
                         ],
                     },
                 ],
             }
             const orderBy = 'address_ASC'
-            const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+            const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, {
+                where,
+                orderBy,
+                first,
+                skip,
+            })
 
             if (error) console.warn(error)
 
@@ -185,7 +196,12 @@ export function searchOrganizationPropertyWithoutPropertyHint (organizationId, o
             ...query,
         }
         const orderBy = 'address_ASC'
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+        const { data = [], error } = await _search(client, GET_ALL_PROPERTIES_BY_VALUE_QUERY, {
+            where,
+            orderBy,
+            first,
+            skip,
+        })
         if (error) console.warn(error)
 
         return data.objs.map(({ address, id }) => ({ text: address, value: id }))
@@ -255,13 +271,20 @@ export function searchEmployee (organizationId, filter) {
 
 export function getEmployeeWithEmail (organizationId) {
     return async function (client, value) {
-        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL, { value, organizationId })
+        const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY_WITH_EMAIL, {
+            value,
+            organizationId,
+        })
 
         if (error) console.warn(error)
 
         const result = data.objs.map(object => {
             if (object.user) {
-                return ({ text: object.name, id: object.id, value: { id: object.user.id, hasEmail: !isEmpty(object.email) } })
+                return ({
+                    text: object.name,
+                    id: object.id,
+                    value: { id: object.user.id, hasEmail: !isEmpty(object.email) },
+                })
             }
         }).filter(Boolean)
 
