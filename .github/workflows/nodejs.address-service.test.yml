@@ -1,0 +1,109 @@
+# This workflow will do a clean installation of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: RUN ADDRESS SERVICE TESTS
+
+on:
+  workflow_dispatch:
+    branches:
+      - *
+  push:
+    branches: [ master ]
+    paths:
+      - apps/address-service/**
+  pull_request:
+    branches: [ master ]
+    paths:
+      - apps/address-service/**
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/address-service" ]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          echo "DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/address-service" >> apps/address-service/.env
+          docker-compose up -d postgresdb redis
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: install packages
+        run: |
+          yarn install --immutable
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: run tests for ${{ matrix.database }}
+        run: |
+          set -x
+          cp .env.example .env
+          export NODE_ENV=test
+          export DISABLE_LOGGING=false
+          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+          export NOTIFICATION__DISABLE_LOGGING=true
+          export FAKE_ADDRESS_SUGGESTIONS=true
+          export TESTS_LOG_REQUEST_RESPONSE=true
+          export WORKER_CONCURRENCY=50
+          export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
+
+          node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
+
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/address-service migrate
+
+          yarn workspace @app/address-service dev 2>&1 > address-service.dev.log &
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
+
+          # check migrations
+          yarn workspace @app/address-service makemigrations --check &> /dev/null
+          
+          source bin/validate-db-schema-ts-to-match-graphql-api.sh
+
+          # And check background processes!
+          [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
+          sleep 3
+
+          # TESTS
+          yarn workspace @app/address-service test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail 2>&1 > address-service.test.log
+          
+          # Note: we need to stop background worker! because packages tests use the same redis queue
+          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
+          killall node || echo 'no node processes'
+
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
+
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          dest: './docker-logs'
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: logs
+          path: |
+            *.log
+            ./docker-logs
+          retention-days: 2
