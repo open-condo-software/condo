@@ -62,6 +62,8 @@ shell:
   - "echo 'NODE_ENV=production' >> /app/.env"
   - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
   - "echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> /app/.env"
+  - >
+    echo 'HELP_REQUISITES={"support_email_mobile": "example@expl.com"}' >> /app/.env
   - "yarn workspace @app/condo next telemetry disable"
   - "yarn workspace @app/condo build:static"
   - "yarn workspace @app/condo build"
