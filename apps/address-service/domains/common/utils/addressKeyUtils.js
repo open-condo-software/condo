@@ -4,7 +4,7 @@ const JOINER = '~'
 const SPACE_REPLACER = '_'
 
 /**
- * @param {NormalizedSuggestion} normalizedSuggestion
+ * @param {NormalizedBuilding} normalizedSuggestion
  * @returns {string}
  */
 function generateAddressKey (normalizedSuggestion) {

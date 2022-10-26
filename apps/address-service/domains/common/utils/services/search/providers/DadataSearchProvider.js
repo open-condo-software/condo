@@ -26,7 +26,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
 
     /**
      * @param {DadataObject[]} data
-     * @returns {NormalizedSuggestion[]}
+     * @returns {NormalizedBuilding[]}
      */
     normalize (data) {
         return data.map((item) => ({
