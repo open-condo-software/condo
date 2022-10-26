@@ -34,7 +34,7 @@ const keystone = new Keystone({
 })
 
 registerSchemas(keystone, [
-    require('@address-service/domains/User/schema'),
+    require('@address-service/domains/user/schema'),
     require('@address-service/domains/address/schema'),
 ])
 
