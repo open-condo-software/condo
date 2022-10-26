@@ -44,7 +44,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: install packages
-        working-directory: ./apps/address-service
         run: |
           yarn install --immutable
           pip3 install django
