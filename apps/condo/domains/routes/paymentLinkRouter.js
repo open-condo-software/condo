@@ -21,8 +21,10 @@ const {
     },
 } = require('@condo/domains/acquiring/constants/links')
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
 const sender = { dv: 1, fingerprint: 'payment-link-handler' }
+const redisGuard = new RedisGuard()
 
 class PaymentLinkRouter {
     async init () {
@@ -105,6 +107,8 @@ class PaymentLinkRouter {
         const isVirtual = this.isVirtualReceipt(req)
 
         try {
+            await this.checkLimits(req)
+
             if (isVirtual) {
                 const params = await this.extractVirtualReceiptParams(req)
                 return await this.handlePaymentLink(
@@ -133,6 +137,11 @@ class PaymentLinkRouter {
             // in case if any exception appears, we have to redirect to some sort of error page
             return res.redirect('/500-error.html')
         }
+    }
+
+    async checkLimits (req) {
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+        await redisGuard.checkPaymentLinkLimitCounters(ip)
     }
 
     isVirtualReceipt (req) {
