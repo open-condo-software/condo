@@ -22,6 +22,7 @@ function generateAddressKey (normalizedSuggestion) {
         get(data, 'building'),
         get(data, 'block'),
     ]
+
     return parts
         // Remove empty parts
         .filter(Boolean)
@@ -30,10 +31,9 @@ function generateAddressKey (normalizedSuggestion) {
             (part) => (
                 String(part)
                     .split(/\s/)
-                    .map((word) => word.trim())
-                    .filter(Boolean)
+                    .filter((word) => Boolean(word.trim()))
                     .join(' ')
-                    .replaceAll(/\s/g, SPACE_REPLACER)
+                    .replace(/\s/g, SPACE_REPLACER)
             ),
         )
         // Remove newly appeared empty parts
