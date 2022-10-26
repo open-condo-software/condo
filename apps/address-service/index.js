@@ -11,6 +11,7 @@ const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils
 const { SearchKeystoneApp } = require('@address-service/domains/common/utils/services/search/SearchKeystoneApp')
 const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
 const { formatError } = require('@condo/keystone/apolloErrorFormatter')
+const identity = require('lodash/identity')
 
 const keystone = new Keystone({
     onConnect: async () => {
@@ -56,5 +57,5 @@ module.exports = {
         }),
         new SuggestionKeystoneApp(),
         new SearchKeystoneApp(),
-    ],
+    ].filter(identity),
 }
