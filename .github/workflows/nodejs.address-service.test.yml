@@ -31,7 +31,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Docker compose up databases
