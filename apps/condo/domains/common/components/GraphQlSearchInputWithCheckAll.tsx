@@ -1,7 +1,7 @@
 import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import { isFunction } from 'lodash'
 
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 import { useIntl } from '@condo/next/intl'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
@@ -34,6 +34,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const intl = useIntl()
     const CheckedAllMessage = intl.formatMessage({ id: 'CheckedAll' })
 
+    const [allDataLength, setAllDataLength] = useState<number>()
     const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)
     const [isRequired, setIsRequired] = useState<boolean>(selectFormItemProps.required)
     const { requiredValidator } = useValidations()
@@ -46,13 +47,21 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
             onCheckBoxChange(value)
         }
     }, [onCheckBoxChange])
+    const handleOnDataLoaded = useCallback((data) => setAllDataLength(data.length), [])
+    const handleOnChange = useCallback((data) => {
+        const selectedDataLength = data.length
+
+        if (selectedDataLength === allDataLength) {
+            setIsAllChecked(true)
+        }
+    }, [allDataLength])
 
     const formItemName = String(selectFormItemProps.name)
     useEffect(() => {
         if (isAllChecked) {
-            form.setFieldsValue({ [formItemName]: [] })
+            form.setFieldsValue({ [formItemName]: [], [checkAllFieldName]: true })
         }
-    }, [form, formItemName, isAllChecked])
+    }, [checkAllFieldName, form, formItemName, isAllChecked])
 
     useEffect(() => {
         if (selectFormItemProps.required) {
@@ -75,6 +84,8 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                         mode='multiple'
                         placeholder={isAllChecked && CheckedAllMessage || selectProps.placeholder}
                         disabled={selectProps.disabled || isAllChecked}
+                        onDataLoaded={handleOnDataLoaded}
+                        onChange={handleOnChange}
                     />
                 </Form.Item>
             </Col>

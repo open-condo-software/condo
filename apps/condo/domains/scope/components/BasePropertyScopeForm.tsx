@@ -8,9 +8,8 @@ import { useIntl } from '@condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {
-    searchAllOrganizationProperties,
     searchOrganizationProperty,
-} from '@condo/domains/ticket/utils/clientSchema/search'
+} from '@condo/domains/scope/utils/clientSchema/search'
 import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
 import { PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
 import {
@@ -138,10 +137,6 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         initialProperties, propertyScopeEmployees, propertyScopeProperties, router, softDeletePropertyScopeEmployeeAction, softDeletePropertyScopePropertyAction,
     ])
 
-    const searchPropertiesFn = useMemo(() => initialValues.id ?
-        searchAllOrganizationProperties(initialProperties) : searchOrganizationProperty,
-    [initialProperties, initialValues.id])
-
     const propertiesFormItemProps = useMemo(() => ({
         name: 'properties',
         label: PropertiesMessage,
@@ -149,10 +144,10 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     }), [PropertiesMessage])
     const propertiesSelectProps = useMemo(() => ({
         initialValue: initialProperties,
-        search: searchPropertiesFn(organizationId),
+        search: searchOrganizationProperty(organizationId),
         disabled: !organizationId,
         ...BASE_SELECT_PROPS,
-    }), [initialProperties, organizationId, searchPropertiesFn])
+    }), [initialProperties, organizationId])
     const employeesFormItemProps = useMemo(() => ({
         name: 'employees',
         label: EmployeesMessage,
