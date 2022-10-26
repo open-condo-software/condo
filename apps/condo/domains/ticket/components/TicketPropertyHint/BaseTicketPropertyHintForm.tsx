@@ -48,7 +48,6 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
     const AlertContent = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.content' })
     const ShowHintsMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.showHints' })
 
-    const router = useRouter()
     const queryFilters = useMemo(() => hintFilters ? { filters: hintFilters } : {}, [hintFilters])
     const query = useMemo(() => qs.stringify(
         {
@@ -169,7 +168,11 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
     const propertiesWithTicketPropertyHint = useMemo(() => organizationTicketPropertyHintProperties.map(ticketPropertyHintProperty => ticketPropertyHintProperty.property),
         [organizationTicketPropertyHintProperties])
 
-    const propertiesWithTicketPropertyHintIds = useMemo(() => propertiesWithTicketPropertyHint.map(property => property.id), [propertiesWithTicketPropertyHint])
+    const propertiesWithTicketPropertyHintIds = useMemo(() => {
+        return propertiesWithTicketPropertyHint
+            .filter(property => !initialPropertyIds.includes(property.id))
+            .map(property => property.id)
+    }, [initialPropertyIds, propertiesWithTicketPropertyHint])
 
     const handleEditorChange = useCallback((newValue, form) => {
         setEditorValue(newValue)
