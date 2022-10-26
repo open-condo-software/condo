@@ -74,7 +74,7 @@ jobs:
           # source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
           # And check background processes!
-          [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
+          [[ $(jobs | wc -l | tr -d ' ') != '1' ]] && exit 2
           sleep 3
 
           # TESTS
