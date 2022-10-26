@@ -67,7 +67,7 @@
     "@zeit/next-less": "^1.0.1",
     "ajv": "8.11.0",
     "ajv-formats": "^2.1.0",
-    "amplitude-js": "^8.18.1",
+    "amplitude-js": "8.21.2",
     "antd": "^4.8.2",
     "antd-mask-input": "^0.1.15",
     "axios": "^0.26.0",
