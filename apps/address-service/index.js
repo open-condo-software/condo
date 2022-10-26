@@ -46,7 +46,7 @@ const authStrategy = keystone.createAuthStrategy({
 module.exports = {
     keystone,
     apps: [
-        new OIDCKeystoneApp(),
+        conf.NODE_ENV === 'test' ? undefined : new OIDCKeystoneApp(),
         new GraphQLApp({ apollo: { formatError, debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
         new AdminUIApp({
             adminPath: '/admin',
