@@ -37,7 +37,8 @@ export interface ISearchInputProps extends SelectProps<string> {
     search: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
     initialValueSearch?: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
     onSelect?: (...args: Array<unknown>) => void
-    onChange?: (...args: Array<unknown>) => void
+    onChange?: (args: Array<unknown>) => void
+    onDataLoaded?: (data: Array<unknown>) => void,
     mode?: 'multiple' | 'tags'
     value?: string | string[]
     placeholder?: string
@@ -75,6 +76,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         eventName: propEventName,
         eventProperties = {},
         keyField = 'value',
+        onDataLoaded,
         ...restProps
     } = props
 
@@ -152,8 +154,12 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
             setInitialData(prevData => uniqBy([...initialOptions, ...prevData], keyField))
             setInitialLoading(false)
+
+            if (isFunction(onDataLoaded)) {
+                onDataLoaded(data)
+            }
         }
-    }, [initialValue, value, getInitialValueQuery, initialValueSearch, search, client, keyField])
+    }, [onDataLoaded, initialValue, value, getInitialValueQuery, initialValueSearch, search, client, keyField])
 
     const debounceSearch = useMemo(() => debounce(async (searchingValue) => {
         setIsAllDataLoaded(false)
@@ -161,7 +167,11 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         const data = await search(client, searchingValue)
         setSearchData(data)
         setSearchLoading(false)
-    }, DEBOUNCE_TIMEOUT), [client, search])
+
+        if (isFunction(onDataLoaded)) {
+            onDataLoaded(data)
+        }
+    }, DEBOUNCE_TIMEOUT), [onDataLoaded, client, search])
 
     const handleSearch = useCallback(async searchingValue => {
         if (!search) return
@@ -203,13 +213,17 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
                 const getUniqueData = (prevData) => uniqBy([...prevData, ...data], keyField)
                 const dataHandler = searchValue ? setSearchData : setAllData
                 dataHandler(getUniqueData)
+
+                if (isFunction(onDataLoaded)) {
+                    onDataLoaded(data)
+                }
             } else {
                 setIsAllDataLoaded(true)
             }
 
             setLoadingMore(false)
         },
-        [client, isAllDataLoaded, keyField, search, searchValue],
+        [onDataLoaded, keyField, client, isAllDataLoaded, search, searchValue],
     )
 
     const handleClear = useCallback(() => {
