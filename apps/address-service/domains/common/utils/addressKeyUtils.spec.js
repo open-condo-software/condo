@@ -5,14 +5,14 @@ describe('Address key utils', () => {
         const cases = [
             [
                 {
-                    country: 'Some  country',
-                    region: 'far \r\n\t    region',
-                    area: '',
-                    city: 'The N\nCity',
+                    country: 'Some  country ',
+                    region: 'far \r  \n\t    region',
+                    area: '\t',
+                    city: 'The \t N\nCity',
                     settlement: '',
-                    street: 'Straight\tstreet',
+                    street: '  Straight\tstreet',
                     building: 42,
-                    block: '',
+                    block: ' ',
                 },
                 `some${SPACE_REPLACER}country${JOINER}far${SPACE_REPLACER}region${JOINER}the${SPACE_REPLACER}n${SPACE_REPLACER}city${JOINER}straight${SPACE_REPLACER}street${JOINER}42`,
             ],
