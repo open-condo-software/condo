@@ -1,23 +1,3 @@
-/**
- * @typedef {Object} NormalizedSuggestionData
- * @property {string} country "Russia"
- * @property {string?} region "Sverdlovsk region"
- * @property {string?} area "Невьянский"
- * @property {string} city "Yekaterinburg"
- * @property {string?} settlement "Шурала"
- * @property {string?} street "Lenina"
- * @property {string} building "66", "66a"
- * @property {string?} block "литера 23"
- * @property {string?} unitType "room", "flat", "box"
- * @property {string?} unitName "428", "42/8"
- */
-
-/**
- * @typedef {Object} NormalizedSuggestion
- * @property {string} value "Russia, Sverdlovsk region, Yekaterinburg, Lenina, 66"
- * @property {NormalizedSuggestionData} data
- */
-
 const { suggestionContexts } = require('@address-service/domains/common/constants/contexts')
 const get = require('lodash/get')
 
@@ -68,7 +48,7 @@ class AbstractSuggestionProvider {
     /**
      * Normalizes data got from external service
      * @param {Array} data
-     * @returns {NormalizedSuggestion[]}
+     * @returns {NormalizedBuilding[]}
      * @abstract
      * @public
      */

@@ -196,7 +196,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
 
     /**
      * @param {DadataObject[]} data
-     * @returns {NormalizedSuggestion[]}
+     * @returns {NormalizedBuilding[]}
      */
     normalize (data) {
         return data.map((item) => ({
