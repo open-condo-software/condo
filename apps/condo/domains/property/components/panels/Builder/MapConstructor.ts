@@ -1421,25 +1421,6 @@ class MapEdit extends MapView {
             sectionNameNumber++
         })
 
-        if (typeof this.map.sections[removedIndex] !== 'undefined') {
-            if (removedIndex === 0) {
-                // Rename from first unit
-                const firstSectionUnit = get(
-                    last(this.map.sections[removedIndex].floors.filter(floor => floor.index > 0)), 'units.0'
-                )
-                if (firstSectionUnit && renameNextUnits) {
-                    firstSectionUnit.label = '1'
-                    firstSectionUnit.index = 1
-                    this.updateUnitNumbers(firstSectionUnit)
-                }
-            } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
-                // Rename from last unit at section - 1 of sectionIndex
-                const lastFloorUnits = get(this.map.sections[removedIndex - 1], 'floors.0.units')
-                if (lastFloorUnits && renameNextUnits) {
-                    this.updateUnitNumbers(last(lastFloorUnits))
-                }
-            }
-        }
     }
 
     private updateParkingNumbers (removedIndex: number, renameNextUnits = true): void {
@@ -1451,24 +1432,6 @@ class MapEdit extends MapView {
             parkingSection.name = String(index + 1)
             parkingSection.index = index
         })
-
-        if (typeof this.map.parking[removedIndex] !== 'undefined') {
-            if (removedIndex === 0) {
-                // Rename from first unit
-                const firstSectionUnit = get(last(this.map.parking[removedIndex].floors.filter(floor => floor.index > 0)), 'units.0')
-                if (firstSectionUnit) {
-                    firstSectionUnit.label = '1'
-                    firstSectionUnit.index = '1'
-                    this.updateParkingUnitNumbers(firstSectionUnit)
-                }
-            } else if (typeof this.map.sections[removedIndex - 1] !== 'undefined') {
-                // Rename from last unit at section - 1 of sectionIndex
-                const lastFloorUnits = get(this.map.parking[removedIndex - 1], 'floors.0.units')
-                if (lastFloorUnits && renameNextUnits) {
-                    this.updateParkingUnitNumbers(last(lastFloorUnits))
-                }
-            }
-        }
     }
 
 }
