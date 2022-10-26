@@ -46,6 +46,21 @@ async function createDefaultPropertyScopeForNewOrganization (context, organizati
     })
 }
 
+async function softDeletePropertyScopeProperties (context, updatedItem) {
+    const { dv, sender, id } = updatedItem
+
+    const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
+        property: { id },
+    })
+
+    for (const propertyScopeProperty of propertyScopeProperties) {
+        await PropertyScopeProperty.update(context, propertyScopeProperty.id, {
+            deletedAt: 'true',
+            dv, sender,
+        })
+    }
+}
+
 async function softDeletePropertyScopeOrganizationEmployee (context, updatedItem) {
     const { dv, sender, id } = updatedItem
 
@@ -239,6 +254,7 @@ module.exports = {
     createDefaultPropertyScopeForNewOrganization,
     getPropertyScopes,
     manageAssigneeScope,
+    softDeletePropertyScopeProperties,
     softDeletePropertyScopeOrganizationEmployee,
     AssigneeScope,
     exportPropertyScope,
