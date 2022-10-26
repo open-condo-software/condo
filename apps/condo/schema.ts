@@ -12939,11 +12939,17 @@ export type FeeDistributionField = {
   __typename?: 'FeeDistributionField';
   recipient: Scalars['String'];
   percent: Scalars['String'];
+  min?: Maybe<Scalars['String']>;
+  max?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
 };
 
 export type FeeDistributionFieldInput = {
   recipient: Scalars['String'];
   percent: Scalars['String'];
+  min?: Maybe<Scalars['String']>;
+  max?: Maybe<Scalars['String']>;
+  category?: Maybe<Scalars['String']>;
 };
 
 export type File = {

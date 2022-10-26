@@ -11,6 +11,9 @@ const Ajv = require('ajv')
 const FeeDistributionFields = {
     recipient: 'String!',
     percent: 'String!',
+    min: 'String',
+    max: 'String',
+    category: 'String',
 }
 
 const FEE_DISTRIBUTION_GRAPHQL_TYPES = `
@@ -28,6 +31,9 @@ const FeeDistributionJsonSchema = {
     properties: {
         recipient: { type: 'string' },
         percent: { type: 'string' },
+        min: { type: 'string' },
+        max: { type: 'string' },
+        category: { type: 'string' },
     },
     additionalProperties: false,
     required: ['recipient', 'percent'],
