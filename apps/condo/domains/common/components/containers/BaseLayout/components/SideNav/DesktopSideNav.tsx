@@ -61,7 +61,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                         icon={isCollapsed ? <RightOutlined style={{ fontSize: '13px' }} /> : <LeftOutlined style={{ fontSize: '13px' }}/>}
                     />
                 </LayoutTriggerWrapper>
-                <ActionsContainer minified={isCollapsed}>
+                <ActionsContainer minified={isCollapsed} className='test'>
                     <ResidentActions minified={isCollapsed}/>
                 </ActionsContainer>
                 <MenuItemsContainer>
