@@ -8,6 +8,27 @@ const { get } = require('lodash')
 let totalRequests = 0
 let cacheHits = 0
 
+
+function simpleStringify (object){
+    // stringify an object, avoiding circular structures
+    // https://stackoverflow.com/a/31557814
+    var simpleObject = {}
+    for (var prop in object ){
+        if (!object.hasOwnProperty(prop)){
+            continue;
+        }
+        if (typeof(object[prop]) == 'object'){
+            continue;
+        }
+        if (typeof(object[prop]) == 'function'){
+            continue;
+        }
+        simpleObject[prop] = object[prop]
+    }
+    return JSON.stringify(simpleObject) // returns cleaned up JSON
+};
+
+
 class AdapterCacheMiddleware {
 
     constructor (config) {
@@ -62,7 +83,7 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables)
 
             totalRequests++
 
-            const key = JSON.stringify(args) + '_' + get(opts, 'from.fromId') + '_' + get(opts, 'from.fromField') + '_' + get(opts, 'meta')
+            const key = JSON.stringify(args) + '_' + simpleStringify(opts)
 
             let response = []
             const cached = cache[listName][key]
@@ -72,7 +93,7 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables)
                 const cacheLastUpdate = cached.lastUpdate
                 if (cacheLastUpdate && cacheLastUpdate === tableLastUpdate) {
                     cacheHits++
-                    if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: HIT :: ${JSON.stringify(cached.response)}`) }
+                    if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: HIT :: ${JSON.stringify(cached.response)} :: CACHE :: ${JSON.stringify(cache['BillingReceipt'])}`) }
                     return cached.response
                 }
             }
@@ -83,7 +104,7 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables)
                 response: response,
             }
 
-            if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: MISS :: ${JSON.stringify(response)}`) }
+            if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: MISS :: ${JSON.stringify(response)} :: CACHE :: ${JSON.stringify(cache['BillingReceipt'])}`) }
             return response
         }
 
