@@ -94,8 +94,8 @@ class FeeDistribution extends Logger {
             this.type = 'commission'
             resultFormula.fromTotalAmountFee = Big('0').toFixed(2) // Commission is only from receipt amount
             resultFormula.fromReceiptAmountFee = Big(get(commission, 'percent', 0)).add(Big(get(acquiring, 'percent', 0))).toFixed(2)
-            this.minCommission = Big(get(commission, 'min', '0')).add(Big(get(acquiring, 'min', '0')))
-            this.maxCommission = Big(get(commission, 'max', '0')).add(Big(get(acquiring, 'max', '0')))
+            this.minCommission = Big(get(commission, 'min') || '0').add(Big(get(acquiring, 'min') || '0'))
+            this.maxCommission = Big(get(commission, 'max') || '0').add(Big(get(acquiring, 'max') || '0'))
         }
         try {
             this.formula = Object.fromEntries(
