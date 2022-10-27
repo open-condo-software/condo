@@ -147,7 +147,6 @@ class PaymentLinkRouter {
         await redisGuard.checkCustomLimitCounters(
             ip,
             PAYMENT_LINK_WINDOW_SIZE,
-            'second',
             MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
         )
     }

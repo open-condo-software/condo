@@ -31,8 +31,8 @@ class RedisGuard {
         }
     }
 
-    async checkCustomLimitCounters (variable, windowSize, windowSizeUnit, counterLimit) {
-        const expiryAnchorDate = dayjs().add(windowSize, windowSizeUnit)
+    async checkCustomLimitCounters (variable, windowSize, counterLimit) {
+        const expiryAnchorDate = dayjs().add(windowSize, 'second')
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
         if (counter > counterLimit) {
             const secondsRemaining = await this.counterTimeRemain(variable)
