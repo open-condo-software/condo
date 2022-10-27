@@ -1,22 +1,11 @@
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
-const conf = require('@condo/config')
 const { GQLError } = require('@condo/keystone/errors')
 const { getRedisClient } = require('@condo/keystone/redis')
-
-const {
-    MAX_SMS_FOR_IP_BY_DAY,
-    MAX_SMS_FOR_PHONE_BY_DAY,
-    PAYMENT_LINK_WINDOW_SIZE,
-    MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
-} = require('@condo/domains/user/constants/common')
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 dayjs.extend(utc)
-
-const phoneWhiteList = Object.keys(conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {})
-const ipWhiteList = conf.IP_WHITE_LIST ? JSON.parse(conf.IP_WHITE_LIST) : []
 
 class RedisGuard {
     get redis () {
@@ -42,16 +31,6 @@ class RedisGuard {
         }
     }
 
-    async checkPaymentLinkLimitCounters (rawIp) {
-        const ip = rawIp.split(':').pop()
-        await this.checkCustomLimitCounters(
-            ip,
-            PAYMENT_LINK_WINDOW_SIZE,
-            'second',
-            MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
-        )
-    }
-
     async checkCustomLimitCounters (variable, windowSize, windowSizeUnit, counterLimit) {
         const expiryAnchorDate = dayjs().add(windowSize, windowSizeUnit)
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
@@ -63,18 +42,6 @@ class RedisGuard {
                     secondsRemaining,
                 },
             })
-        }
-    }
-
-    async checkSMSDayLimitCounters (phone, rawIp) {
-        const ip = rawIp.split(':').pop()
-        const byPhoneCounter = await this.incrementDayCounter(phone)
-        if (byPhoneCounter > MAX_SMS_FOR_PHONE_BY_DAY && !phoneWhiteList.includes(phone)) {
-            throw new GQLError(GQL_ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED)
-        }
-        const byIpCounter = await this.incrementDayCounter(ip)
-        if (byIpCounter > MAX_SMS_FOR_IP_BY_DAY && !ipWhiteList.includes(ip)) {
-            throw new GQLError(GQL_ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED)
         }
     }
 

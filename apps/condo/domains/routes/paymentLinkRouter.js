@@ -23,6 +23,9 @@ const {
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+const PAYMENT_LINK_WINDOW_SIZE = 60 // seconds
+const MAX_PAYMENT_LINK_REQUEST_BY_WINDOW = 5
+
 const sender = { dv: 1, fingerprint: 'payment-link-handler' }
 const redisGuard = new RedisGuard()
 
@@ -140,7 +143,13 @@ class PaymentLinkRouter {
     }
 
     async checkLimits (req) {
-        await redisGuard.checkPaymentLinkLimitCounters(req.ip)
+        const ip = req.ip.split(':').pop()
+        await redisGuard.checkCustomLimitCounters(
+            ip,
+            PAYMENT_LINK_WINDOW_SIZE,
+            'second',
+            MAX_PAYMENT_LINK_REQUEST_BY_WINDOW,
+        )
     }
 
     isVirtualReceipt (req) {
