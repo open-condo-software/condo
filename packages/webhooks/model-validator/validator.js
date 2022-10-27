@@ -1,7 +1,10 @@
 const fs = require('fs')
-const tjs = require('typescript-json-schema')
 const Ajv = require('ajv')
 const get = require('lodash/get')
+const { loadSchema } = require('@graphql-tools/load')
+const { GraphQLFileLoader } = require('@graphql-tools/graphql-file-loader')
+const { introspectionFromSchema } = require('graphql')
+const { fromIntrospectionQuery } = require('graphql-2-json-schema')
 
 /**
  * Consumes path of generated schema.ts file and creates schema-generator from it
@@ -9,16 +12,191 @@ const get = require('lodash/get')
  */
 class WebHookModelValidator {
     constructor (schemaPath) {
-        if (typeof schemaPath !== 'string' || schemaPath.split('.').pop() !== 'ts') {
-            throw new Error('Schema file type is not supported. For now only .ts files are supported.')
+        if (typeof schemaPath !== 'string' || schemaPath.split('.').pop() !== 'graphql') {
+            throw new Error('Schema file type is not supported. For now only .graphql files are supported.')
         } else if (!fs.existsSync(schemaPath)) {
             throw new Error('Schema file does not exist!')
         }
-        const program = tjs.getProgramFromFiles([schemaPath])
-        this.generator = tjs.buildGenerator(program, { noExtraProps: true })
+        this.schemaPath = schemaPath
         this.models = []
-        this.filterValidators = {}
+        this.fieldsAJV = new Ajv()
+        this.filtersAJV = new Ajv()
         this.fieldsValidators = {}
+        this.filtersValidators = {}
+    }
+
+    /**
+     * Initialize validator by loading and converting GQL schema
+     * @returns {Promise<void>}
+     */
+    async init () {
+        const gqlSchema = await loadSchema(this.schemaPath, {
+            loaders: [new GraphQLFileLoader()],
+        })
+        const gqlIntrospection = await introspectionFromSchema(gqlSchema)
+        const jsonSchema = fromIntrospectionQuery(gqlIntrospection, { nullableArrayItems: false, ignoreInternals: true })
+        const { models, filters } = this._extractDefinitionNames(jsonSchema)
+
+        const fieldsSchema = this._processSchema(jsonSchema, models, 'fields')
+        this.fieldsAJV.validateSchema(fieldsSchema)
+        if (this.fieldsAJV.errors) {
+            throw new Error('Schema for fields validation is not valid!')
+        }
+        this.fieldsAJV.addSchema(fieldsSchema)
+
+        const filtersSchema = this._processSchema(jsonSchema, filters, 'filters')
+        this.filtersAJV.validateSchema(filtersSchema)
+        if (this.filtersAJV.errors) {
+            throw new Error('Schema for filters validation is not valid!')
+        }
+        this.filtersAJV.addSchema(filtersSchema)
+    }
+
+    /**
+     * Build schema from specified definitions by using _parseObject recursively
+     * @param schema source schema containing redundant types
+     * @param definitions list of definitions to build a new schema from
+     * @param type "filters" | "fields"
+     * @returns {any}
+     * @private
+     */
+    _processSchema (schema, definitions, type = 'filters') {
+        const result = {
+            definitions: {
+                ID: type === 'filters' ? { type: 'string' } : { type: 'boolean' },
+            },
+        }
+
+        const processed = ['ID']
+        const to_process = [...definitions]
+        const onRef = (defName) => {
+            to_process.push(defName)
+        }
+        while (to_process.length) {
+            const defName = to_process.pop()
+            if (!processed.includes(defName) && schema.definitions[defName]) {
+                result.definitions[defName] = this._parseObject(schema.definitions[defName], type, onRef)
+            }
+
+            processed.push(defName)
+        }
+
+        return result
+    }
+
+    /**
+     * Extracts all filters names by selecting strings with "WhereInput" endings.
+     * Then forms model name by dropping that ending: "MyModelWhereInput" -> "MyModel"
+     * @param schema
+     * @returns {{models: string[], filters: string[]}}
+     * @private
+     */
+    _extractDefinitionNames (schema) {
+        const defs = get(schema, 'definitions', {})
+        const filters = Object.keys(defs).filter(key => key.endsWith('WhereInput'))
+        const models = filters.map(key => key.slice(0, -10))
+
+        return { filters, models }
+    }
+
+    /**
+     * Parses sub-schema obj and does the following:
+     * 1. Drops all redundant properties from sub-schema object to reduce schema size
+     * 2. Convert primitive types to boolean for "fields" objType, or pass it "as is" for "filters"
+     * 3. Flattens array wrapping for "fields" objType, or pass it "as is" for "filters"
+     * 4. Merges all enums options into single enum list
+     * 5. Flattens "return" wrapper which is added by 'graphql-2-json-schema' converter
+     * 6. Adds non-emptiness and no-additional-properties for objects
+     * @param obj sub-schema
+     * @param objType "filters" | "fields"
+     * @param onRef callback to process nested definitions
+     * @returns {any}
+     * @private
+     */
+    _parseObject (obj, objType, onRef) {
+        // oneOf, anyOf and ref case
+        if (!obj.type) {
+            if (obj['$ref']) {
+                // Register ref
+                onRef(obj['$ref'].substring(14))
+                return { '$ref': obj['$ref'] }
+            }
+            if (obj.anyOf) {
+                return {
+                    anyOf: obj.anyOf.map(element => this._parseObject(element, objType, onRef)),
+                }
+            }
+            if (obj.allOf) {
+                return {
+                    allOf: obj.allOf.map(element => this._parseObject(element, objType, onRef)),
+                }
+            }
+
+            return obj
+        }
+        // remove description
+        if (['number', 'boolean', 'null'].includes(obj.type)) {
+            return objType === 'fields' ? { type: 'boolean' } : { type: obj.type }
+        }
+        // remove description, squash options
+        if (obj.type === 'string') {
+            if (objType === 'fields') {
+                return { type: 'boolean' }
+            }
+            const result = { type: 'string' }
+            if (obj.anyOf) {
+                const stringEnum = []
+                for (const option of obj.anyOf) {
+                    if (option.enum) {
+                        stringEnum.push(...option.enum)
+                    }
+                }
+                if (stringEnum.length) {
+                    result.enum = stringEnum
+                }
+            }
+
+            return result
+        }
+
+        if (obj.type === 'object') {
+            if (obj.properties) {
+                // GQL Output Type added by converter
+                if (obj.properties.return) {
+                    return this._parseObject(obj.properties.return, objType, onRef)
+                }
+
+                const properties = {}
+                for (const key of Object.keys(obj.properties)) {
+                    properties[key] = this._parseObject(obj.properties[key], objType, onRef)
+                }
+
+                // Add conditions for non-emptiness, only existing fields
+                return {
+                    type: 'object',
+                    properties,
+                    // Empty filters are acceptable
+                    minProperties: objType === 'filters' ? 0 : 1,
+                    additionalProperties: false,
+                }
+            } else {
+                return objType === 'fields' ? { type: 'boolean' } :  { type: 'object' }
+            }
+        }
+
+        if (obj.type === 'array') {
+            // Escape arrays on fields: [MyType] -> MyType
+            if (objType === 'fields') {
+                return this._parseObject(obj.items, objType, onRef)
+            }
+            // No escape on filters
+            return {
+                type: 'array',
+                items: this._parseObject(obj.items, objType, onRef),
+            }
+        }
+
+        return obj
     }
 
     /**
@@ -28,28 +206,16 @@ class WebHookModelValidator {
      */
     registerModel (modelName) {
         if (this.models.includes(modelName)) return
+        this.fieldsValidators[modelName] = this.fieldsAJV.getSchema(`#/definitions/${modelName}`)
+        this.filtersValidators[modelName] = this.filtersAJV.getSchema(`#/definitions/${modelName}WhereInput`)
+        if (!this.fieldsValidators[modelName]) {
+            throw new Error(`Sub-schema for  #/definitions/${modelName} was not found!`)
+        }
+        if (!this.filtersValidators[modelName]) {
+            throw new Error(`Sub-schema for #/definitions/${modelName}WhereInput was not found!`)
+        }
 
         this.models.push(modelName)
-
-        const modelFilterSchema = this.generator.getSchemaForSymbol(`${modelName}WhereInput`)
-        const ajv = new Ajv({ strict: true, allErrors: true })
-        ajv.validateSchema(modelFilterSchema)
-        if (ajv.errors) {
-            throw new Error(`Schema for class ${modelName}WhereInput is not valid!`)
-        }
-        this.filterValidators[modelName] = ajv.compile(modelFilterSchema)
-
-        const modelSchema = this.generator.getSchemaForSymbol(modelName)
-        ajv.validateSchema(modelSchema)
-        if (ajv.errors) {
-            throw new Error(`Schema for class ${modelName} is not valid!`)
-        }
-        const maskedSchema = WebHookModelValidator._maskSchemaTypes(modelSchema)
-        ajv.validateSchema(maskedSchema)
-        if (ajv.errors) {
-            throw new Error(`Masked schema for class ${modelName} is not valid!`)
-        }
-        this.fieldsValidators[modelName] = ajv.compile(maskedSchema)
     }
 
     /**
@@ -62,7 +228,7 @@ class WebHookModelValidator {
         if (!this.models.includes(modelName)) {
             throw new Error(`Unregistered model name: ${modelName}`)
         }
-        const validator = this.filterValidators[modelName]
+        const validator = this.filtersValidators[modelName]
         const isValid = validator(filters)
         if (isValid) {
             return { isValid, errors: [] }
@@ -119,46 +285,6 @@ class WebHookModelValidator {
         }
 
         return expandedChars.join('').trim().split(/\s+/).join(' ')
-    }
-
-    /**
-     * Accepts generated JSON-schema and moves every property types to boolean
-     * Also flattens arrays types and adds minimal amount of specified properties to schema
-     * @param {any} schema
-     * @returns {any}
-     * @private
-     */
-    static _maskSchemaTypes (schema) {
-        if (typeof schema !== 'object') {
-            return schema
-        }
-
-        // NOTE: Deep cloning JSON object
-        const newSchema = JSON.parse(JSON.stringify(schema))
-
-        const type = get(newSchema, 'type')
-        if (type) {
-            if (type === 'object') {
-                for (const key of Object.keys(newSchema.properties)) {
-                    newSchema.properties[key] = WebHookModelValidator._maskSchemaTypes(newSchema.properties[key])
-                    newSchema.minProperties = 1
-                }
-
-                return newSchema
-            } else if (type === 'array') {
-                return WebHookModelValidator._maskSchemaTypes(newSchema.items)
-            } else {
-                return {
-                    type: 'boolean',
-                }
-            }
-        } else {
-            for (const key of Object.keys(newSchema)) {
-                newSchema[key] = WebHookModelValidator._maskSchemaTypes(newSchema[key])
-            }
-
-            return newSchema
-        }
     }
 
     /**

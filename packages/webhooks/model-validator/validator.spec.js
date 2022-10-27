@@ -1,5 +1,4 @@
 const path = require('path')
-const get = require('lodash/get')
 const { WebHookModelValidator } = require('./validator')
 
 describe('WebHookModelValidator', () => {
@@ -52,53 +51,30 @@ describe('WebHookModelValidator', () => {
                 })
             })
         })
-        describe('_maskSchemaTypes', () => {
-            const shortcut = ['definitions', 'MyModel', 'properties']
-            const originalSchema = require(path.join(__dirname, 'test.schema.json'))
-            const maskedSchema = WebHookModelValidator._maskSchemaTypes(originalSchema)
-
-            describe('Must replace primitive types with boolean', () => {
-                test('Enum', () => {
-                    expect(get(originalSchema, [...shortcut, '__typename', 'enum'])).toBeDefined()
-                    expect(get(maskedSchema, [...shortcut, '__typename'])).toEqual({ type: 'boolean' })
-                })
-                test('String', () => {
-                    expect(get(originalSchema, [...shortcut, 'stringField', 'type'])).toEqual('string')
-                    expect(get(maskedSchema, [...shortcut, 'stringField'])).toEqual({ type: 'boolean' })
-                })
-                test('Number', () => {
-                    expect(get(originalSchema, [...shortcut, 'intField', 'type'])).toEqual('number')
-                    expect(get(maskedSchema, [...shortcut, 'intField'])).toEqual({ type: 'boolean' })
-                })
-            })
-            test('Must replace nested types', () => {
-                expect(get(originalSchema, [...shortcut, 'fileField', 'properties', 'id', 'type'])).toEqual('string')
-                expect(get(maskedSchema, [...shortcut, 'fileField', 'properties', 'id'])).toEqual({ type: 'boolean' })
-            })
-            test('Must replace arrays with items', () => {
-                expect(get(originalSchema, [...shortcut, 'manyRelationField', 'type'])).toEqual('array')
-                const originalRef = get(originalSchema, [...shortcut, 'manyRelationField', 'items', '$ref'])
-                expect(originalRef).toBeDefined()
-                expect(get(maskedSchema, [...shortcut, 'manyRelationField', '$ref'])).toEqual(originalRef)
-            })
-            test('Must add non-empty subfields criteria', () => {
-                expect(originalSchema).not.toHaveProperty(['definitions', 'MyModel', 'minProperties'])
-                expect(maskedSchema).toHaveProperty(['definitions', 'MyModel', 'minProperties'], 1)
-            })
-            test('Must add no custom properties criteria', () => {
-                expect(maskedSchema).toHaveProperty(['definitions', 'MyModel', 'additionalProperties'], false)
-            })
-        })
     })
     describe('Validator', () => {
-        const schemaPath = path.resolve(__dirname, 'test.schema.ts')
-        test('Must be created correctly', () => {
+        const schemaPath = path.resolve(__dirname, 'test.schema.graphql')
+        test('Must initialize correctly', async () => {
             const validator = new WebHookModelValidator(schemaPath)
             expect(validator).toBeDefined()
+
+            await expect(
+                validator.init()
+            ).resolves.not.toThrow()
+        })
+        test('Must register models correctly', async () => {
+            const validator = new WebHookModelValidator(schemaPath)
+            await validator.init()
+            validator.registerModel('MyModel')
+            expect(() => { validator.registerModel('MyModel') }).not.toThrow()
         })
         describe('Validating', () => {
             const validator = new WebHookModelValidator(schemaPath)
-            validator.registerModel('MyModel')
+            beforeAll(async () => {
+                await validator.init()
+                validator.registerModel('MyModel')
+            })
+
             describe('Fields', () => {
                 describe('Must correctly parse fields for registered models', () => {
                     describe('Correct cases', () => {
@@ -110,10 +86,10 @@ describe('WebHookModelValidator', () => {
                                 ['Single number', '{ intField }'],
                                 ['Single ID field', '{ id }'],
                                 ['Single with subfields', '{ fileField { publicUrl } }'],
-                                ['Single typed field', '{ typedField { substring } }'],
+                                ['Single typed field', '{ typedField { subfield } }'],
                                 ['Multiple fields 1', '{ stringField manyEnumField }'],
                                 ['Multiple fields 2', '{ boolField id manyEnumField }'],
-                                ['Multiple with subfields', '{ fileField { publicUrl } typedField { substring } }'],
+                                ['Multiple with subfields', '{ fileField { publicUrl } typedField { subfield } }'],
                             ]
                             test.each(cases)('%p', (name, fieldString) => {
                                 const { isValid, errors } = validator.validateFields('MyModel', fieldString)
@@ -123,8 +99,8 @@ describe('WebHookModelValidator', () => {
                         })
                         describe('Relations', () => {
                             const cases = [
-                                ['Simple relation', '{ manyRelationField { id } }'],
-                                ['Nested relation', '{ manyRelationField { myModel { stringField } __typename } }'],
+                                ['Simple relation', '{ manyRelation { id } }'],
+                                ['Nested relation', '{ manyRelation { model { stringField } } }'],
                             ]
                             test.each(cases)('%p', (name, fieldString) => {
                                 const { isValid, errors } = validator.validateFields('MyModel', fieldString)
@@ -133,7 +109,7 @@ describe('WebHookModelValidator', () => {
                             })
                         })
                         test('All together', () => {
-                            const fieldString = '{ stringField typedField { dv } manyRelationField { myModel { stringField fileField { publicUrl } } id } }'
+                            const fieldString = '{ stringField typedField { dv } manyRelation { model { stringField fileField { publicUrl } } id } }'
                             const { isValid, errors } = validator.validateFields('MyModel', fieldString)
                             expect(isValid).toEqual(true)
                             expect(errors).toEqual([])
@@ -143,10 +119,10 @@ describe('WebHookModelValidator', () => {
                         const cases = [
                             ['Empty string', ''],
                             ['Empty wrapped string', '{ }'],
-                            ['No subfields 1', '{ manyRelationField }'],
+                            ['No subfields 1', '{ manyRelation }'],
                             ['No subfields 2', '{ fileField }'],
                             ['Empty subfields 1', '{ fileField {} }'],
-                            ['Empty relation subfields 2', '{ manyRelationField { } }'],
+                            ['Empty relation subfields 2', '{ manyRelation { } }'],
                             ['Non-existing fields', '{ myNonExistingField }'],
                             ['Non-existing subfields 1', '{ fileField { coolness } }'],
                             ['Non-existing subfields 2', '{ stringField { coolness } }'],
@@ -166,7 +142,9 @@ describe('WebHookModelValidator', () => {
                             ['Explicitly empty filter', {}],
                             ['Single string filter', { stringField_contains_i: 'Name' }],
                             ['Single enum filter', { manyEnumField: ['EnumValue'] }],
-                            ['Single relation filter', { manyRelationField_some: { id_in: ['1234'] } }],
+                            ['Single relation filter', { manyRelation_some: { id_in: ['1234'] } }],
+                            ['CreatedBy filter', { createdBy: { id: '1234' } }],
+                            ['Modifying time filter', { createdAt_gte: '2022-10-27T12:03:50Z', updatedAt_lt: '2022-10-27T12:03:50Z' }],
                         ]
                         test.each(cases)('%p', (name, filter) => {
                             const { isValid, errors } = validator.validateFilters('MyModel', filter)
@@ -178,10 +156,11 @@ describe('WebHookModelValidator', () => {
                         const cases = [
                             ['AND', { AND: [{ boolField: true }, { intField_gte: 2 }] }],
                             ['OR', { OR: [{ boolField: true }, { stringField: 'value' }] }],
-                            ['Both', { AND: [{ boolField: true }, { OR: [{ stringField_i: 'value' }, { manyRelationField_some: { myModel: { typedField: { dv: 1 } } } }] }] }],
+                            ['Both', { AND: [{ boolField: true }, { OR: [{ stringField_i: 'value' }, { manyRelation_some: { model: { intField: 1 } } }] }] }],
                         ]
                         test.each(cases)('%p', (name, filter) => {
                             const { isValid, errors } = validator.validateFilters('MyModel', filter)
+                            console.log(errors)
                             expect(isValid).toEqual(true)
                             expect(errors).toEqual([])
                         })
