@@ -140,8 +140,7 @@ class PaymentLinkRouter {
     }
 
     async checkLimits (req) {
-        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-        await redisGuard.checkPaymentLinkLimitCounters(ip)
+        await redisGuard.checkPaymentLinkLimitCounters(req.ip)
     }
 
     isVirtualReceipt (req) {
