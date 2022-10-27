@@ -17,8 +17,9 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
+const scriptLifecycleName = process.env.npm_lifecycle_event
 const SUPPORT_EMAIL_MOBILE = conf['HELP_REQUISITES'] && get(JSON.parse(conf['HELP_REQUISITES']), 'support_email_mobile', null)
-if (!SUPPORT_EMAIL_MOBILE) throw new Error('support_email_mobile variable not found. help_requisites must be specified in .env')
+if (scriptLifecycleName !== 'build:static' && scriptLifecycleName !== 'build' && !SUPPORT_EMAIL_MOBILE) throw new Error('support_email_mobile variable not found. help_requisites must be specified in .env')
 const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
 

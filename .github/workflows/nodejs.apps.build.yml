@@ -43,7 +43,6 @@ jobs:
           echo 'NODE_ENV=production' >> .env
           echo 'FILE_FIELD_ADAPTER=local' >> .env
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
-          echo 'HELP_REQUISITES={"support_email_mobile": "helpmobile@doma.ai"}' >> .env
 
       - name: test app/condo
         run: |
