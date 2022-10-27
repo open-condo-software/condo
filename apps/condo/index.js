@@ -30,6 +30,7 @@ const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { FeaturesMiddleware } = require('@condo/featureflags/FeaturesMiddleware')
 const { PaymentLinkRouter } = require('@condo/domains/routes/paymentLinkRouter')
 const { PAYMENT_LINK_PATH } = require('@condo/domains/acquiring/constants/links')
 
@@ -141,19 +142,6 @@ class VersioningMiddleware {
             res.status(200).json({
                 build: get(process.env, 'WERF_COMMIT_HASH', packageJson.version),
             })
-        })
-
-        return app
-    }
-}
-
-class FeaturesMiddleware {
-    async prepareMiddleware () {
-        const app = express()
-        app.get('/api/features', async (req, res) => {
-            const features = await featureToggleManager.fetchFeatures()
-
-            res.status(200).json(features)
         })
 
         return app
