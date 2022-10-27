@@ -27,12 +27,11 @@ const { KeystoneCacheMiddleware } = require('@condo/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { GraphQLLoggerPlugin } = require('@condo/keystone/logging')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
+const { FeaturesMiddleware } = require('@condo/featureflags/FeaturesMiddleware')
 
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
-const { FeaturesMiddleware } = require('@condo/featureflags/FeaturesMiddleware')
-const { PaymentLinkRouter } = require('@condo/domains/acquiring/routes/paymentLinkRouter')
-const { PAYMENT_LINK_PATH } = require('@condo/domains/acquiring/constants/links')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -143,18 +142,6 @@ class VersioningMiddleware {
                 build: get(process.env, 'WERF_COMMIT_HASH', packageJson.version),
             })
         })
-
-        return app
-    }
-}
-
-class PaymentLinkMiddleware {
-    async prepareMiddleware () {
-        const app = express()
-
-        const router = new PaymentLinkRouter()
-        await router.init()
-        app.get(PAYMENT_LINK_PATH, router.handleRequest.bind(router))
 
         return app
     }
