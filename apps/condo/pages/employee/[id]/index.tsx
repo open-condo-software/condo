@@ -5,7 +5,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { canManageEmployee, canReinviteEmployee } from '@condo/domains/organization/permissions'
+import { canReinviteEmployee } from '@condo/domains/organization/permissions'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'

@@ -8,7 +8,6 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { canManageContacts } from '@condo/domains/organization/permissions'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
@@ -108,7 +107,7 @@ export const EditContactForm: React.FC = () => {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
     }
 
-    const isContactEditable = canManageContacts(link, contact)
+    const isContactEditable = get(link, ['role', 'canManageContacts'], null)
 
     if (!isContactEditable) {
         return <LoadingOrErrorPage title={ProfileUpdateTitle} loading={false} error={NoPermissionMessage}/>

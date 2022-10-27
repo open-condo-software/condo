@@ -18,7 +18,6 @@ import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { Button } from '@condo/domains/common/components/Button'
 import { useOrganization } from '@condo/next/organization'
 import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
-import { canManageContacts } from '@condo/domains/organization/permissions'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { BuildingUnitSubType } from '@app/condo/schema'
 
@@ -213,7 +212,7 @@ const ContactInfoPage = () => {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
     }
 
-    const isContactEditable = canManageContacts(link, contact)
+    const isContactEditable = get(link, ['role', 'canManageContacts'], null)
 
     return (
         <ContactPageContent
