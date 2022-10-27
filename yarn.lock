@@ -630,7 +630,7 @@ __metadata:
     nunjucks: ^3.2.2
     oidc-provider: ^7.10.6
     openid-client: 4.7.4
-    phone: 3.1.25
+    phone: 3.1.29
     pino: ^6.13.3
     pino-std-serializers: ^4.0.0
     pluralize: ^8.0.0
@@ -31873,10 +31873,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"phone@npm:3.1.25":
-  version: 3.1.25
-  resolution: "phone@npm:3.1.25"
-  checksum: 151f1f00d6bf28cc14ffc16acb0aa05393075a9e67774607a8b84aa0b3bf943d10ba9ffb7755bcaa1cd8aa3a5cb3c8785c8882b5a5c42c58479f2198b02a8bcf
+"phone@npm:3.1.29":
+  version: 3.1.29
+  resolution: "phone@npm:3.1.29"
+  checksum: 7477a7965b5cd15ffa9c9ebeb3ffc6551ae58d45bc63297e8ee6d09482cfd6e6c303bbed5b69b1be628a24a2bb9dfd1b05e6565808ae290ca256c68fce57d5fe
   languageName: node
   linkType: hard
 

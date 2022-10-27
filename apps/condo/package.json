@@ -118,7 +118,7 @@
     "nunjucks": "^3.2.2",
     "oidc-provider": "^7.10.6",
     "openid-client": "4.7.4",
-    "phone": "3.1.25",
+    "phone": "3.1.29",
     "pino": "^6.13.3",
     "pino-std-serializers": "^4.0.0",
     "prop-types": "^15.7.2",
