@@ -28,22 +28,13 @@ export const ResidentAppealDropDownMenuItemWrapperProps = {
 
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }
 
-const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsMouseOnDropdown, setIsSearchByPhoneModalVisible }) => {
-    const handleMouseEnter = useCallback(() => {
-        setIsMouseOnDropdown(true)
-    }, [setIsMouseOnDropdown])
-    const handleMouseLeave = useCallback(() => {
-        setIsMouseOnDropdown(false)
-    }, [setIsMouseOnDropdown])
+const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchByPhoneModalVisible }) => {
     const handleButtonClick = useCallback(() => {
         setIsSearchByPhoneModalVisible(true)
     }, [setIsSearchByPhoneModalVisible])
 
     return (
-        <StyledMenu
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-        >
+        <StyledMenu>
             <MenuItem
                 onClick={handleButtonClick}
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
@@ -74,23 +65,12 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsMouseOnD
     )
 }
 
-const ResidentAppealButton = ({ minified, setIsMouseOnButton }) => {
+const ResidentAppealButton = ({ minified }) => {
     const intl = useIntl()
     const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
 
-    const handleMouseEnter = useCallback(() => {
-        setIsMouseOnButton(true)
-    }, [setIsMouseOnButton])
-    const handleMouseLeave = useCallback(() => {
-        setTimeout(() => {
-            setIsMouseOnButton(false)
-        }, 500)
-    }, [setIsMouseOnButton])
-
     return (
         <Button
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
             type='sberGradient'
             icon={<PlusOutlined />}
         >
@@ -108,42 +88,43 @@ interface IResidentActionsProps {
 }
 
 export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
+    const intl = useIntl()
+    const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
+
     const { minified } = props
     const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal()
     const { isMobile } = useLayoutContext()
 
-    const [isDropdownVisible, setIsDropdownVisible] = useState<boolean>()
-    const [isMouseOnDropdown, setIsMouseOnDropdown] = useState<boolean>()
-    const [isMouseOnButton, setIsMouseOnButton] = useState<boolean>()
-
-    useEffect(() => {
-        setIsDropdownVisible(isMouseOnDropdown || isMouseOnButton)
-    }, [isMouseOnButton, isMouseOnDropdown])
-
-    const Overlay = useMemo(() => (
-        <ResidentAppealDropdownOverlay
-            setIsMouseOnDropdown={setIsMouseOnDropdown}
-            setIsSearchByPhoneModalVisible={setIsSearchByPhoneModalVisible}
-        />
-    ), [setIsSearchByPhoneModalVisible])
+    const trigger = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
 
     const { link } = useOrganization()
     const role = get(link, 'role', {})
     const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
 
+    const Overlay = useMemo(() => (
+        <ResidentAppealDropdownOverlay
+            setIsSearchByPhoneModalVisible={setIsSearchByPhoneModalVisible}
+            isAssignedVisibilityType={isAssignedVisibilityType}
+        />
+    ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType])
+
     return (
         <div id='test'>
             <Dropdown
-                overlay={() => <ResidentAppealDropdownOverlay isAssignedVisibilityType={isAssignedVisibilityType}/>}
+                overlay={Overlay}
                 placement={minified ? 'bottomRight' : 'bottomCenter'}
-                // visible={isDropdownVisible}
                 getPopupContainer={getPopupContainer}
-                trigger={['click', 'hover']}
+                trigger={trigger}
             >
-                <ResidentAppealButton
-                    minified={minified}
-                    setIsMouseOnButton={setIsMouseOnButton}
-                />
+                {
+                    minified
+                        ? (<Button type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
+                        : (
+                            <Button type='sberGradient' icon={<PlusOutlined />}>
+                                {ResidentAppealMessage}
+                            </Button>
+                        )
+                }
             </Dropdown>
             {SearchByPhoneModal}
         </div>
