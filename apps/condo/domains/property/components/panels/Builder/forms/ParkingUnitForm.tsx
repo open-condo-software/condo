@@ -120,19 +120,16 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [floor, section, label, builder, mode])
 
     const applyChanges = useCallback(() => {
-        setIsValidationErrorVisible(!isUnitUnique)
-        if (isUnitUnique) {
-            const mapUnit = builder.getSelectedParkingUnit()
-            if (mapUnit) {
-                builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
-            } else {
-                builder.removePreviewParkingUnit()
-                builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
-                resetForm()
-            }
-            refresh()
+        const mapUnit = builder.getSelectedParkingUnit()
+        if (mapUnit) {
+            builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
+        } else {
+            builder.removePreviewParkingUnit()
+            builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
+            resetForm()
         }
-    }, [builder, refresh, resetForm, label, floor, section, isUnitUnique])
+        refresh()
+    }, [builder, refresh, resetForm, label, floor, section])
 
     const deleteUnit = useCallback(() => {
         const mapUnit = builder.getSelectedParkingUnit()
