@@ -556,7 +556,7 @@ __metadata:
     "@tinymce/tinymce-react": ^4.1.0
     "@types/echarts": 4.9.15
     "@types/jest": 26.0.24
-    "@types/lodash": 4.14.182
+    "@types/lodash": 4.14.186
     "@types/node": ^14.18.21
     "@types/react": 16.9.17
     "@types/react-infinite-scroller": ^1.2.3
@@ -11276,6 +11276,13 @@ __metadata:
   version: 4.14.182
   resolution: "@types/lodash@npm:4.14.182"
   checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:4.14.186":
+  version: 4.14.186
+  resolution: "@types/lodash@npm:4.14.186"
+  checksum: ee0c1368a8100bb6efb88335107473a41928fc307ff1ef4ff1278868ccddba9c04c68c36d1ffe3a0392ef4a956e1955f7de3203ec09df4f1655dd1b88485c549
   languageName: node
   linkType: hard
 
