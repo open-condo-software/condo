@@ -5,7 +5,6 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { canReinviteEmployee } from '@condo/domains/organization/permissions'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
@@ -278,7 +277,7 @@ export const EmployeeInfoPage = () => {
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
 
     const isEmployeeEditable = get(link, ['role', 'canInviteNewOrganizationEmployees'], null)
-    const isEmployeeReinvitable = canReinviteEmployee(link, employee)
+    const isEmployeeReinvitable = get(link, ['role', 'canManageEmployees'], null) && !get(employee, 'isAccepted')
 
     if (error || loading) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>

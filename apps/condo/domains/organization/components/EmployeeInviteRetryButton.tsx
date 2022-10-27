@@ -7,7 +7,6 @@ import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
 import { useOrganization } from '@condo/next/organization'
 import { OrganizationEmployee } from '@app/condo/schema'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { canReinviteEmployee } from '../permissions'
 import { useMutation } from '@condo/next/apollo'
 import { REINVITE_ORGANIZATION_EMPLOYEE_MUTATION } from '@condo/domains/organization/gql'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -24,7 +23,7 @@ export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps
 
     const { employee } = props
 
-    const isEmployeeReinvitable = canReinviteEmployee(link, employee)
+    const isEmployeeReinvitable = get(link, ['role', 'canManageEmployees'], null) && !get(employee, 'isAccepted')
     const [reInviteEmployeeMutation] = useMutation(REINVITE_ORGANIZATION_EMPLOYEE_MUTATION)
     const reInviteEmployee = useCallback(() => {
         const sender = getClientSideSenderInfo()
