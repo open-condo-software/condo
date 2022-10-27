@@ -1,31 +1,35 @@
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
+import React, { CSSProperties } from 'react'
 import get from 'lodash/get'
-import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { SearchByPhoneMenuItem } from './SearchByPhoneMenuItem'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { useOrganization } from '@open-condo/next/organization'
 
 export const StyledMenu = styled(Menu)`
-  width: 225px;
   box-sizing: border-box;
   border-radius: 8px;
 `
 
-const ResidentAppealDropDownMenuItemWrapperProps = {
+export const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
     padding: '16px',
 }
 
+const DIVIDER_STYLES: CSSProperties = { margin: 0 }
+
 const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType }) => {
     return (
         <StyledMenu>
+            <SearchByPhoneMenuItem />
+            <Divider style={DIVIDER_STYLES}/>
             <MenuItem
                 menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                 path='/ticket/create'
@@ -35,7 +39,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType }) => {
             {
                 !isAssignedVisibilityType && (
                     <>
-                        <Divider style={{ margin: 0 }}/>
+                        <Divider style={DIVIDER_STYLES}/>
                         <MenuItem
                             menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
                             path='/meter/create'

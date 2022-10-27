@@ -63,13 +63,14 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
 `
 
 interface IMenuItemProps {
-    path: string
+    path?: string
     icon: React.ElementType
     label: string
     disabled?: boolean
     hideInMenu?: boolean
     menuItemWrapperProps?: IMenuItemWrapperProps
     isCollapsed?: boolean
+    onClick?: () => void
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
@@ -100,6 +101,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         menuItemWrapperProps,
         isCollapsed,
         toolTipDecorator = null,
+        onClick,
     } = props
     const { route } = useRouter()
     const intl = useIntl()
@@ -140,13 +142,12 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         )
 
     const menuItem = (
-        <MenuItemWrapper className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
+        <MenuItemWrapper onClick={onClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
             {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
         </MenuItemWrapper>
-
     )
 
-    const nextjsLink = disabled ? menuItem : makeLink(menuItem, path)
+    const nextjsLink = !path || disabled ? menuItem : makeLink(menuItem, path)
 
     return toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink
 }
