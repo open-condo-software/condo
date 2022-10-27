@@ -31,7 +31,7 @@ const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
 const { FeaturesMiddleware } = require('@condo/featureflags/FeaturesMiddleware')
-const { PaymentLinkRouter } = require('@condo/domains/routes/paymentLinkRouter')
+const { PaymentLinkRouter } = require('@condo/domains/acquiring/routes/paymentLinkRouter')
 const { PAYMENT_LINK_PATH } = require('@condo/domains/acquiring/constants/links')
 
 
