@@ -2,7 +2,7 @@
 * Client side permission functions (similar to accessors) which will be used to avoid illegal user interactions
 * */
 import get from 'lodash/get'
-import { Organization, OrganizationEmployee, User, Contact } from '@app/condo/schema'
+import { Organization, OrganizationEmployee, User } from '@app/condo/schema'
 
 //TODO(Dimitreee): use from scheema.d.ts when OrganizationToUserLink will be included
 interface OrganizationToUserLink {
@@ -12,6 +12,7 @@ interface OrganizationToUserLink {
     role: string
 }
 
+/** @deprecated */
 export const canManageEmployee = (organizationLink?: OrganizationToUserLink, employee?: OrganizationEmployee): boolean => {
     if (!organizationLink || !employee) {
         return false
@@ -26,6 +27,7 @@ export const canManageEmployee = (organizationLink?: OrganizationToUserLink, emp
     return false
 }
 
+/** @deprecated */
 export const canReinviteEmployee = (organizationLink?: OrganizationToUserLink, employee?: OrganizationEmployee): boolean => {
     const isEmployeeManageable = canManageEmployee(organizationLink, employee)
 
@@ -33,16 +35,5 @@ export const canReinviteEmployee = (organizationLink?: OrganizationToUserLink, e
         return !employee.isAccepted
     }
 
-    return false
-}
-
-export const canManageContacts = (organizationLink?: OrganizationToUserLink, contact?: Contact): boolean => {
-    if (!organizationLink || !contact) {
-        return false
-    }
-    const isOrganizationEqual = get(organizationLink, ['organization', 'id']) === get(contact, ['organization', 'id'])
-    if (isOrganizationEqual) {
-        return get(organizationLink, ['role', 'canManageContacts'])
-    }
     return false
 }
