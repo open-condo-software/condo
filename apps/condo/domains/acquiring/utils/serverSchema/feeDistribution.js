@@ -97,16 +97,10 @@ class FeeDistribution extends Logger {
             this.minCommission = Big(get(commission, 'min') || '0').add(Big(get(acquiring, 'min') || '0'))
             this.maxCommission = Big(get(commission, 'max') || '0').add(Big(get(acquiring, 'max') || '0'))
         }
-        try {
-            this.formula = Object.fromEntries(
-                Object.entries(resultFormula)
-                    .map(([recipient, percent]) => ([recipient, Big(percent).mul(Big('0.01'))]))
-            )
-        } catch (error) {
-            console.log(resultFormula)
-            console.log(error)
-        }
-
+        this.formula = Object.fromEntries(
+            Object.entries(resultFormula)
+                .map(([recipient, percent]) => ([recipient, Big(percent).mul(Big('0.01'))]))
+        )
     }
 
     validateFormula () {
