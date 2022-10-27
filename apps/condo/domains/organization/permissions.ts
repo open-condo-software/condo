@@ -26,14 +26,3 @@ export const canManageEmployee = (organizationLink?: OrganizationToUserLink, emp
 
     return false
 }
-
-/** @deprecated */
-export const canReinviteEmployee = (organizationLink?: OrganizationToUserLink, employee?: OrganizationEmployee): boolean => {
-    const isEmployeeManageable = canManageEmployee(organizationLink, employee)
-
-    if (isEmployeeManageable) {
-        return !employee.isAccepted
-    }
-
-    return false
-}
