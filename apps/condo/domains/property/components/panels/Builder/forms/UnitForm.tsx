@@ -120,20 +120,16 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     }, [floor, section, label, unitType, builder, mode])
 
     const applyChanges = useCallback(() => {
-        setIsValidationErrorVisible(!isUnitUnique)
-
-        if (isUnitUnique) {
-            const mapUnit = builder.getSelectedUnit()
-            if (mapUnit) {
-                builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
-            } else {
-                builder.removePreviewUnit()
-                builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
-                resetForm()
-            }
-            refresh()
+        const mapUnit = builder.getSelectedUnit()
+        if (mapUnit) {
+            builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
+        } else {
+            builder.removePreviewUnit()
+            builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
+            resetForm()
         }
-    }, [builder, refresh, resetForm, label, floor, section, unitType, isUnitUnique])
+        refresh()
+    }, [builder, refresh, resetForm, label, floor, section, unitType])
 
     const onLabelChange = useCallback((e) => {
         isValidationErrorVisible && setIsValidationErrorVisible(false)
