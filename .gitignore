@@ -16,7 +16,9 @@ __generated__
 __media
 _example.js
 codegen.yaml
+
 schema.graphql
+!apps/condo/schema.graphql
 
 # yarn + npm
 yarn-error.log
