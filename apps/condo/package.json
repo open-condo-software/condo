@@ -157,7 +157,7 @@
   "devDependencies": {
     "@graphql-codegen/cli": "1.21.8",
     "@testing-library/react": "^11.2.5",
-    "@types/echarts": "4.9.15",
+    "@types/echarts": "4.9.16",
     "@types/jest": "26.0.24",
     "@types/node": "^14.18.21",
     "@types/react": "16.9.17",
