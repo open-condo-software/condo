@@ -12,6 +12,16 @@ const {
 
 const TEST_CASES = [
     {
+        title: 'Settings for commission with null fields',
+        settings: [
+            { recipient:'acquiring', percent:'1', min:null, max:null, category: null },
+            { recipient:'commission', percent:'1', min:null, max:null },
+        ],
+        cases: [
+            { amount: 1, category: 'housing', expected: { type: 'commission', summa: 1.02, recipientSum: 1, explicitFee: 0.02 } },
+        ],
+    },
+    {
         title: 'Settings for commission without categories',
         settings: [
             { recipient:'acquiring', percent:'1.68', min:'8.4', max:'1050' },
