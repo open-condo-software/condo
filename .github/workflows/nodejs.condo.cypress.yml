@@ -51,7 +51,6 @@ jobs:
           echo 'WORKER_REDIS_URL=undefined' >> .env
           echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
           echo 'NODE_ENV=development' >> .env
-          echo 'HELP_REQUISITES={"support_email_mobile": "helpmobile@doma.ai"}' >> .env
           export NODE_ENV=development
 
           yarn workspace @app/condo build
