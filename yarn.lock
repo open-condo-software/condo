@@ -554,7 +554,7 @@ __metadata:
     "@keystonejs/utils": ^6.1.0
     "@testing-library/react": ^11.2.5
     "@tinymce/tinymce-react": ^4.1.0
-    "@types/echarts": 4.9.15
+    "@types/echarts": 4.9.16
     "@types/jest": 26.0.24
     "@types/lodash": 4.14.186
     "@types/node": ^14.18.21
@@ -10976,16 +10976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/echarts@npm:4.9.15":
-  version: 4.9.15
-  resolution: "@types/echarts@npm:4.9.15"
-  dependencies:
-    "@types/zrender": "*"
-  checksum: f8016d0a30e51474a4cf0ba6e97e7c22d691fc176e456ffb9f6ee8ca996bfddc463308816e12f528bea41f0f14414a1583de3d775e97aca37b2a6c8d42d15804
-  languageName: node
-  linkType: hard
-
-"@types/echarts@npm:^4.9.9":
+"@types/echarts@npm:4.9.16, @types/echarts@npm:^4.9.9":
   version: 4.9.16
   resolution: "@types/echarts@npm:4.9.16"
   dependencies:
