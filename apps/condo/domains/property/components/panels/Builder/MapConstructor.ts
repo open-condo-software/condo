@@ -1120,7 +1120,7 @@ class MapEdit extends MapView {
             this.removeParkingUnit(unit.id, renameNextUnits)
             this.addParkingUnit(unit, renameNextUnits)
         } else {
-            this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
+            this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].name = isNaN(Number(unit.label)) ? unit.label : undefined
             this.map.parking[unitIndex.parking].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
             if (renameNextUnits) this.updateParkingUnitNumbers(unit)
         }
@@ -1142,7 +1142,7 @@ class MapEdit extends MapView {
             this.addUnit(unit, renameNextUnits)
         } else {
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].unitType = unit.unitType
-            this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = unit.label
+            this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].name = isNaN(Number(unit.label)) ? unit.label : undefined
             this.map.sections[unitIndex.section].floors[unitIndex.floor].units[unitIndex.unit].label = unit.label
             if (renameNextUnits) this.updateUnitNumbers(unit)
         }
