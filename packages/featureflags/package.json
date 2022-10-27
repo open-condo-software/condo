@@ -5,7 +5,8 @@
     "@condo/config": "workspace:^",
     "@condo/keystone": "workspace:^",
     "@growthbook/growthbook": "^0.18.1",
-    "@growthbook/growthbook-react": "^0.9.1"
+    "@growthbook/growthbook-react": "^0.9.1",
+    "express": "^4.17.1"
   },
   "peerDependencies": {
     "next": ">=9.5.5",
