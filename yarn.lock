@@ -576,7 +576,7 @@ __metadata:
     carbone: 3.2.3
     classnames: ^2.2.6
     cross-env: ^7.0.3
-    css-loader: 1.0.0
+    css-loader: 1.0.1
     csv-stringify: ^6.2.0
     cuid: ^2.1.8
     cypress: 9.7.0
@@ -1030,7 +1030,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     babel-jest: ^26.6.3
     classnames: 2.2.6
-    css-loader: 1.0.0
+    css-loader: 1.0.1
     dayjs: ^1.10.6
     emotion: ^10.0.27
     emotion-server: ^10.0.27
@@ -17621,6 +17621,28 @@ __metadata:
   peerDependencies:
     webpack: ^4.0.0
   checksum: 74b8bcfd0d4d32a68ca424e05796d480092a11fc85db31e24363fdbdac1062d61a58299ac7af5f0f48ee4c19cd2a531552907691c7da198644ab5dc934aee9e7
+  languageName: node
+  linkType: hard
+
+"css-loader@npm:1.0.1":
+  version: 1.0.1
+  resolution: "css-loader@npm:1.0.1"
+  dependencies:
+    babel-code-frame: ^6.26.0
+    css-selector-tokenizer: ^0.7.0
+    icss-utils: ^2.1.0
+    loader-utils: ^1.0.2
+    lodash: ^4.17.11
+    postcss: ^6.0.23
+    postcss-modules-extract-imports: ^1.2.0
+    postcss-modules-local-by-default: ^1.2.0
+    postcss-modules-scope: ^1.1.0
+    postcss-modules-values: ^1.3.0
+    postcss-value-parser: ^3.3.0
+    source-list-map: ^2.0.0
+  peerDependencies:
+    webpack: ^4.0.0
+  checksum: 548a4cdc427a104f269273343727a8eb88c4f0a16efc24222992839662bc1e36141bdf037c0a16c64ea59bee78bd6d24e8b44c0068b5abe63f8ab27cc747ac64
   languageName: node
   linkType: hard
 
