@@ -80,9 +80,9 @@ class FeeDistribution extends Logger {
     minCommission = Big(0)
     maxCommission = Big(0)
 
-    constructor (formula, category = '') {
+    constructor (formula, categoryId = '') {
         super('acquiring-commission')
-        const initialFormula = category && (category in formula) ? formula[category] : formula
+        const initialFormula = categoryId && (categoryId in formula) ? formula[categoryId] : formula
         const { service, commission, acquiring, organization = 0 } = initialFormula
         const resultFormula = { organization: get(organization, 'percent', 0) || organization }
         if (service) {

@@ -176,7 +176,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 for (const receipt of processedReceipts) {
                     const organizationId = get(receipt.serviceConsumer, ['organization'])
                     const accountNumber = get(receipt.serviceConsumer, ['accountNumber'])
-                    const billingCategory = get(receipt, ['category'])
+                    const billingCategory = get(receipt, ['category']) || {}
                     const paid = await getPaymentsSum(
                         context,
                         organizationId,
@@ -190,7 +190,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     let fee = '0'
                     if (acquiringContextId) {
                         const formula = await getAcquiringIntegrationContextFormula(context, acquiringContextId)
-                        const feeCalculator = new FeeDistribution(formula, billingCategory)
+                        const feeCalculator = new FeeDistribution(formula, billingCategory.id)
                         const { explicitFee } = feeCalculator.calculate(Big(toPay).minus(Big(paid)).toFixed(2))
                         fee = String(explicitFee)
                     }
