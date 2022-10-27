@@ -1,4 +1,8 @@
 import '@condo/domains/common/components/wdyr'
+import {
+    useSearchByPhone,
+    withSearchByPhone,
+} from '@condo/domains/common/components/ResidentActions/SearchByPhoneContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -228,6 +232,10 @@ const MyApp = ({ Component, pageProps }) => {
         isEndTrialSubscriptionReminderPopupVisible,
     } = useEndTrialSubscriptionReminderPopup()
 
+    const { isSearchByPhoneModalVisible } = useSearchByPhone()
+
+    console.log('isSearchByPhoneModalVisible', isSearchByPhoneModalVisible)
+
     return (
         <>
             <Head>
@@ -324,7 +332,9 @@ export default (
                     ssr: true,
                     GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
                 })(
-                    MyApp
+                    withSearchByPhone(
+                        MyApp
+                    )
                 )
             )
         )
