@@ -88,8 +88,8 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '7',
-        name: 'Твердые отходы',
-        active: false,
+        name: 'ТКО',
+        active: true,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
