@@ -12,21 +12,26 @@ let cacheHits = 0
 function simpleStringify (object){
     // stringify an object, avoiding circular structures
     // https://stackoverflow.com/a/31557814
-    var simpleObject = {}
-    for (var prop in object ){
+    const simpleObject = {}
+    for (const prop in object ){
         if (!object.hasOwnProperty(prop)){
-            continue;
+            continue
         }
         if (typeof(object[prop]) == 'object'){
-            continue;
+            continue
         }
         if (typeof(object[prop]) == 'function'){
-            continue;
+            continue
         }
         simpleObject[prop] = object[prop]
     }
     return JSON.stringify(simpleObject) // returns cleaned up JSON
-};
+}
+
+function getCurrentStackTrace () {
+    const err = new Error()
+    return err.stack
+}
 
 
 class AdapterCacheMiddleware {
@@ -83,7 +88,9 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables)
 
             totalRequests++
 
-            const key = JSON.stringify(args) + '_' + simpleStringify(opts)
+            //const stackTrace = getCurrentStackTrace()
+
+            const key = JSON.stringify(args) + '_' + simpleStringify(opts) + '_'// + stackTrace
 
             let response = []
             const cached = cache[listName][key]
