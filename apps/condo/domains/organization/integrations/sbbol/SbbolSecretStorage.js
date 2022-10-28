@@ -23,7 +23,7 @@ class SbbolSecretStorage {
      * @param clientId - Identifier of our integration (contour) in SBBOL
      */
     constructor (apiName, clientId) {
-        this.keyStorage = getRedisClient('sbbol')
+        this.keyStorage = getRedisClient()
         this.clientId = clientId
         this.apiName = apiName
     }
