@@ -3,7 +3,7 @@ FROM buildpack-deps:buster AS base
 # https://github.com/nodejs/docker-node/blob/6e7d6511aba22da645ec21bd157a369a78794e6c/14/buster/Dockerfile
 # https://hub.docker.com/_/python
 # https://github.com/docker-library/python/blob/3897bb4660fe97fc202f50431dd3e6cdc0dedd4a/3.8/buster/Dockerfile
-COPY --from=python:3.8-buster /usr/local/ /usr/local/
+COPY --from=python:3.11-buster /usr/local/ /usr/local/
 COPY --from=node:14-buster /usr/local/ /usr/local/
 COPY --from=node:14-buster /opt/ /opt/
 # http://bugs.python.org/issue19846
