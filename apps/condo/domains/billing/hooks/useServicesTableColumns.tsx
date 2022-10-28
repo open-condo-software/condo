@@ -3,13 +3,11 @@ import { useIntl } from '@condo/next/intl'
 import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 
 type AlignType = 'right' | 'left' | 'center'
 
 const DETAILED_COLUMNS_AMOUNT = 9
 const BASE_COLUMNS_AMOUNT = 2
-const DEFAULT_VOLUME_MAX_DECIMALS = 4
 
 
 const textRender = getTextRender()
@@ -20,21 +18,6 @@ const getExpandTextRender = (detailed: boolean) => {
                 children: text,
                 props: {
                     colSpan: detailed ? DETAILED_COLUMNS_AMOUNT : BASE_COLUMNS_AMOUNT,
-                },
-            }
-        }
-        return {
-            children: textRender(text),
-        }
-    }
-}
-
-const getHideCellTextRender = () => {
-    return function render (text: string, record: TableRecord) {
-        if (get(record, ['children', 'length'])) {
-            return {
-                props: {
-                    colSpan: 0,
                 },
             }
         }
@@ -57,30 +40,6 @@ const getAdvancedMoneyRender = (intl, currencyCode: string) => {
     }
 }
 
-const getVolumeRender = (decimals: number) => {
-    return function render (text: string, record: TableRecord) {
-        if (get(record, ['children', 'length'])) {
-            return {
-                props: {
-                    colSpan: 0,
-                },
-            }
-        }
-        if (!text) return textRender(text)
-        const volume = parseFloat(text)
-        const scaleRate = Math.pow(10, decimals)
-        const roundedVolume = Math.round((volume + Number.EPSILON) * scaleRate) / scaleRate
-        if (roundedVolume === volume) {
-            return (
-                <Tooltip title={text}>{roundedVolume}</Tooltip>
-            )
-        }
-        return (
-            <Tooltip title={text}>{roundedVolume}…</Tooltip>
-        )
-    }
-}
-
 export const useServicesTableColumns = (detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
@@ -98,8 +57,6 @@ export const useServicesTableColumns = (detailed: boolean, currencyCode: string)
     const moneyAlign: AlignType = 'right'
     return useMemo(() => {
         const expandTextRender = getExpandTextRender(detailed)
-        const hideTextRender = getHideCellTextRender()
-        const volumeRender = getVolumeRender(DEFAULT_VOLUME_MAX_DECIMALS)
         const columns = {
             name: {
                 title: ServiceTitle,
@@ -120,28 +77,6 @@ export const useServicesTableColumns = (detailed: boolean, currencyCode: string)
                 title: ChargeTitle,
                 key: 'serviceCharge',
                 dataIndex: ['toPayDetails', 'charge'],
-                width: '10%',
-                align: moneyAlign,
-                render: moneyRender,
-            },
-            volume: {
-                title: VolumeTitle,
-                key: 'serviceVolume',
-                dataIndex: ['toPayDetails', 'volume'],
-                width: '10%',
-                render: volumeRender,
-            },
-            units: {
-                title: UnitsTitle,
-                key: 'serviceMeasure',
-                dataIndex: ['toPayDetails', 'measure'],
-                width: '10%',
-                render: hideTextRender,
-            },
-            tariff: {
-                title: TariffTitle,
-                key: 'serviceTariff',
-                dataIndex: ['toPayDetails', 'tariff'],
                 width: '10%',
                 align: moneyAlign,
                 render: moneyRender,
@@ -175,9 +110,6 @@ export const useServicesTableColumns = (detailed: boolean, currencyCode: string)
         return detailed
             ? [
                 columns.name,
-                columns.volume,
-                columns.units,
-                columns.tariff,
                 columns.privileges,
                 columns.recalculation,
                 columns.penalty,
