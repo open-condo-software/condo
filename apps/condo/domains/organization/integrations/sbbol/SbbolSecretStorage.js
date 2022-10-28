@@ -1,6 +1,7 @@
 const dayjs = require('dayjs')
 const conf = require('@condo/config')
 const { getRedisClient } = require('@condo/keystone/redis')
+const { getLogger } = require('@condo/keystone/logging')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
@@ -9,6 +10,8 @@ const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 
 // Real TTL is 180 days, but we need to update it earlier
 const REFRESH_TOKEN_TTL_DAYS = 30
+
+const logger = getLogger('sbbol/SbbolSecretStorage')
 
 /**
  * Replaces `TokenSet` schema for storage of secrets for SBBOL API
@@ -81,7 +84,12 @@ class SbbolSecretStorage {
         if (expiresAt) {
             commands.expireat(this.scopedKey(key), expiresAt)
         }
-        await commands.exec()
+        return commands.exec()
+            .then(() => {
+                logger.info({ msg: `Set ${key}`, value })
+            }).catch(() => {
+                logger.error({ msg: `Error set ${key}`, value })
+            })
     }
 
     async isExpired (key) {
