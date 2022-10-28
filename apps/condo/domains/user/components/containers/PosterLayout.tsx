@@ -66,7 +66,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                                 >
                                     {SUPPORT_EMAIL}
                                 </Typography.Link>
-                                {', '}
+                                ,&nbsp;
                                 <Typography.Link
                                     href={`tel:${SUPPORT_PHONE}`}
                                     style={TYPOGRAPHY_CONTACT_STYLE}
