@@ -144,7 +144,7 @@ class SbbolFintechApi extends SbbolRequestApi {
             return []
         }
         if (!Array.isArray(result)) {
-            logger.error('Cannot parse advanceAcceptances')
+            logger.error({ msg: 'Cannot parse advanceAcceptances' })
             return []
         }
         return result
