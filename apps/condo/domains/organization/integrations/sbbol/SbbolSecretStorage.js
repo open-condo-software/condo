@@ -31,7 +31,8 @@ class SbbolSecretStorage {
     }
 
     async setClientSecret (value, options) {
-        this.setValue('clientSecret', value, options)
+        await this.setValue('clientSecret', value, options)
+        await this.setValue('clientSecret:updatedAt', dayjs().toISOString())
     }
 
     async getAccessToken () {
@@ -40,6 +41,7 @@ class SbbolSecretStorage {
 
     async setAccessToken (value, options) {
         await this.setValue('accessToken', value, options)
+        await this.setValue('accessToken:updatedAt', dayjs().toISOString())
     }
 
     async isAccessTokenExpired () {
@@ -53,6 +55,7 @@ class SbbolSecretStorage {
     async setRefreshToken (value) {
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
         await this.setValue('refreshToken', value, options)
+        await this.setValue('refreshToken:updatedAt', dayjs().toISOString())
     }
 
     async isRefreshTokenExpired () {
