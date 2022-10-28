@@ -136,6 +136,7 @@ export const TicketsPageContent = ({
     useTableColumns,
     showImport = false,
     baseQueryLoading = false,
+    forceTimeZone = null,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -152,7 +153,7 @@ export const TicketsPageContent = ({
     const TicketsMessage = intl.formatMessage({ id: 'menu.Tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
 
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+    const timeZone = forceTimeZone || intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
 

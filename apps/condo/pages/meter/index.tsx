@@ -52,6 +52,7 @@ export const MetersPageContent = ({
     filterMetas,
     role,
     loading,
+    forceTimeZone = null,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
@@ -224,6 +225,7 @@ export const MetersPageContent = ({
                             searchObjectsQuery={searchMeterReadingsQuery}
                             exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                             sortBy={sortBy}
+                            forceTimeZone={forceTimeZone}
                         />
                     </Row>
                     <UpdateMeterModal />
