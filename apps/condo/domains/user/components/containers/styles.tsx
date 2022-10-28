@@ -71,6 +71,7 @@ export const PageContent = styled.div<IContentProps>`
 
 export const ReCaptchaContainer = styled.div`
   visibility: hidden;
+  position: absolute;
 `
 
 export const Layout = styled(AntLayout)`
