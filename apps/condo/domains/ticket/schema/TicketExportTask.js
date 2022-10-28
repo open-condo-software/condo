@@ -143,8 +143,8 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             isRequired: true,
             hooks: {
                 resolveInput: async ({ resolvedData }) => {
-                    const { timeZoneFromUser } = resolvedData
-                    return normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
+                    const { timeZone } = resolvedData
+                    return normalizeTimeZone(timeZone) || DEFAULT_ORGANIZATION_TIMEZONE
                 },
             },
             access: {
