@@ -31,3 +31,5 @@ Can have custom GraphQL data types for input and output.
   - should be used in:
     - mutations to resolve results
     - in access control queries to look up for records, not exposed to public API
+- `context.executeGraphQL` can execute any kind of GraphQL query and mutation with skipping access control
+  - useful in cases when we deviate from the conventional approach with with fixed set of fields and need only some of them
