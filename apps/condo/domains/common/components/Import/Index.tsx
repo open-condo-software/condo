@@ -66,7 +66,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
         [exampleTemplateLink],
     )
 
-    const fieldsString = columns.filter(({ required }) => required).map(column => column.label).join(', ')
+    const fieldsString = columns.filter(({ required }) => required).map(column => `"${column.label}"`).join(', ')
 
     return (
         <Space direction='vertical' size={10} style={{ maxWidth: 300 }}>
