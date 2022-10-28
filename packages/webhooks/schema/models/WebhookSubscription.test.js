@@ -116,7 +116,7 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
                 await softDeleteTestWebhook(actors.admin, webhook.id)
             })
         })
-        describe('Hooks', () => {
+        describe('Schema hooks', () => {
             let hook
             beforeAll(async () => {
                 [hook] = await createTestWebhook(actors.admin, actors.admin.user)
@@ -221,6 +221,51 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
     })
 }
 
+const WebhookSubscriptionModelSwitchTests = (appName, actorsInitializer, secondModel) => {
+    describe(`WebhookSubscription additional tests for ${appName} app (#1)`, () => {
+        let actors
+        beforeAll(async () => {
+            actors = await actorsInitializer()
+        })
+        test('Must revalidate fields and filters if model was changed', async () => {
+            const [hook] = await createTestWebhook(actors.admin, actors.admin.user)
+            const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                model: secondModel.name,
+                fields: secondModel.fields,
+                filters: secondModel.filters,
+            })
+            expect(subscription).toBeDefined()
+            expect(subscription).toHaveProperty('id')
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    model: 'User',
+                })
+            }, 'Invalid fields for model "User"')
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    model: 'User',
+                    fields: 'id',
+                })
+            }, 'Invalid filters for model "User"')
+            const [updatedToUser] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                model: 'User',
+                fields: 'id',
+                filters: {},
+            })
+            expect(updatedToUser).toBeDefined()
+            expect(updatedToUser).toHaveProperty('model', 'User')
+            const [updatedBack] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                model: secondModel.name,
+            })
+            expect(updatedBack).toBeDefined()
+            expect(updatedBack).toHaveProperty('model', secondModel.name)
+
+            await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+        })
+    })
+}
+
 module.exports = {
     WebhookSubscriptionTests,
+    WebhookSubscriptionModelSwitchTests,
 }

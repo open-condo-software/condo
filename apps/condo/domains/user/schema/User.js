@@ -16,7 +16,6 @@ const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
 const { webHooked } = require('@condo/webhooks/plugins')
-const { webhookModelValidator } = require('@app/condo/webhooks/validator')
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
@@ -214,7 +213,7 @@ const User = new GQLListSchema('User', {
         softDeleted(),
         dvAndSender(),
         historical(),
-        webHooked(webhookModelValidator),
+        webHooked(),
     ],
     access: {
         read: access.canReadUsers,

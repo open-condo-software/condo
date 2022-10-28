@@ -2,7 +2,7 @@ const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.ut
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { WebhookTests } = require('@condo/webhooks/schema/models/Webhook.test')
-const { WebhookSubscriptionTests } = require('@condo/webhooks/schema/models/WebhookSubscription.test')
+const { WebhookSubscriptionTests, WebhookSubscriptionModelSwitchTests } = require('@condo/webhooks/schema/models/WebhookSubscription.test')
 
 async function initializeActors () {
     const admin = await makeLoggedInAdminClient()
@@ -17,10 +17,19 @@ async function initializeActors () {
     }
 }
 
+const secondModel = {
+    name: 'Organization',
+    fields: 'tin',
+    filters: { tin_in: ['123'] },
+}
+
 // NOTE 1: Functions with describe inside will be destructured as separate test set
 // NOTE 2: Passing init function for actors, since their creation may differ from app to app
-// NOTE 3: Testing on User model (for now / by default) since it's a common model across all apps
+// NOTE 3: Testing on User (for now / by default) since it's a common model across all apps
+// NOTE 4: Testing of model switch is optional, for it's correct work second model must be uuided
+// and its fields / filters must not intersect with User ones (see sample above)
 describe('External webhook tests', () => {
     WebhookTests('Condo', initializeActors)
     WebhookSubscriptionTests('Condo', initializeActors)
+    WebhookSubscriptionModelSwitchTests('Condo', initializeActors, secondModel)
 })

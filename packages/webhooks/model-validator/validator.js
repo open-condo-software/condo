@@ -14,10 +14,12 @@ class WebHookModelValidator {
     constructor (schemaPath) {
         if (typeof schemaPath !== 'string' || schemaPath.split('.').pop() !== 'graphql') {
             throw new Error('Schema file type is not supported. For now only .graphql files are supported.')
-        } else if (!fs.existsSync(schemaPath)) {
+        }
+        const resolvedPath = require.resolve(schemaPath)
+        if (!fs.existsSync(resolvedPath)) {
             throw new Error('Schema file does not exist!')
         }
-        this.schemaPath = schemaPath
+        this.schemaPath = resolvedPath
         this.models = []
         this.fieldsAJV = new Ajv()
         this.filtersAJV = new Ajv()

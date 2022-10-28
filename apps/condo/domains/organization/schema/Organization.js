@@ -9,6 +9,7 @@ const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { Json } = require('@condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { webHooked } = require('@condo/webhooks/plugins')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
@@ -138,7 +139,7 @@ const Organization = new GQLListSchema('Organization', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadOrganizations,
         create: access.canManageOrganizations,

@@ -6,7 +6,6 @@ module.exports = {
             testMatch: [
                 `${__dirname}/schema/**/*.test.js`,
                 `${__dirname}/domains/**/schema/*.test.js`,
-                `${__dirname}/webhooks/*.test.js`,
             ],
             setupFilesAfterEnv: [`${__dirname}/jest.setupTest.js`],
         },
@@ -20,7 +19,6 @@ module.exports = {
                 '/dist/',
                 '/.kmigrator/',
                 '/schema/',
-                '/webhooks/',
             ],
             transform: {
                 '\\.[jt]sx?$': 'babel-jest',
