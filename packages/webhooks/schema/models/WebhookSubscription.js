@@ -3,9 +3,49 @@ const { Json } = require('@condo/keystone/fields')
 const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@condo/keystone/plugins')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const access = require('@condo/webhooks/schema/access/WebhookSubscription')
-const { WebHookModelValidator } = require('@condo/webhooks/model-validator')
+const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@condo/webhooks/model-validator')
 
-function getWebhookSubscriptionModel (modelValidator) {
+function getWebhookSubscriptionModel (schemaPath) {
+    if (!getModelValidator()) {
+        setModelValidator(new WebHookModelValidator(schemaPath))
+    }
+
+    const validator = getModelValidator()
+
+    const validateFields = ({ resolvedData, existingItem, addFieldValidationError }) => {
+        const newItem = { ...existingItem, ...resolvedData }
+
+        if (!validator) {
+            return addFieldValidationError(`Invalid fields for model "${newItem.model}" was provided. Details: ["Validator for this model is not specified!"]`)
+        }
+
+        const { isValid, errors } = validator.validateFields(newItem.model, newItem['fields'])
+        if (!isValid) {
+            const errorMessage = errors.map(error => {
+                if (typeof error === 'string') {
+                    return `"${error}"`
+                } else {
+                    return JSON.stringify(error)
+                }
+            }).join(', ')
+            return addFieldValidationError(`Invalid fields for model "${newItem.model}" was provided. Details: [${errorMessage}]`)
+        }
+    }
+
+    const validateFilters = ({ resolvedData, existingItem, addFieldValidationError }) => {
+        const newItem = { ...existingItem, ...resolvedData }
+
+        if (!validator) {
+            return addFieldValidationError(`Invalid filters for model "${newItem.model}" was provided. Details: ["Validator for this model is not specified!"]`)
+        }
+
+        const { isValid, errors } = validator.validateFilters(newItem.model, newItem['filters'])
+        if (!isValid) {
+            return addFieldValidationError(`Invalid filters for model "${newItem.model}" was provided. Details: ${JSON.stringify(errors)}`)
+        }
+    }
+
+
     return new GQLListSchema('WebhookSubscription', {
         schemaDoc: 'Determines which models the WebHook will be subscribed to. When model changes subscription task will be triggered to resolve changed data and send a webhook',
         fields: {
@@ -33,7 +73,13 @@ function getWebhookSubscriptionModel (modelValidator) {
                 type: Select,
                 dataType: 'string',
                 isRequired: true,
-                options: modelValidator.models,
+                options: validator.models,
+                hooks: {
+                    validateInput: (args) => {
+                        validateFields(args)
+                        validateFilters(args)
+                    },
+                },
             },
             fields: {
                 schemaDoc: 'String representing list of model fields in graphql-query format. ' +
@@ -46,20 +92,7 @@ function getWebhookSubscriptionModel (modelValidator) {
                         if (!resolvedData[fieldPath]) return resolvedData[fieldPath]
                         return WebHookModelValidator.normalizeFieldsString(resolvedData[fieldPath])
                     },
-                    validateInput: ({ resolvedData, fieldPath, existingItem, addFieldValidationError }) => {
-                        const newItem = { ...existingItem, ...resolvedData }
-                        const { isValid, errors } = modelValidator.validateFields(newItem.model, resolvedData[fieldPath])
-                        if (!isValid) {
-                            const errorMessage = errors.map(error => {
-                                if (typeof error === 'string') {
-                                    return `"${error}"`
-                                } else {
-                                    return JSON.stringify(error)
-                                }
-                            }).join(', ')
-                            return addFieldValidationError(`Invalid fields for model "${newItem.model}" was provided. Details: [${errorMessage}]`)
-                        }
-                    },
+                    validateInput: validateFields,
                 },
             },
             filters: {
@@ -70,13 +103,7 @@ function getWebhookSubscriptionModel (modelValidator) {
                 isRequired: true,
                 kmigratorOptions: { null: false },
                 hooks: {
-                    validateInput: ({ resolvedData, fieldPath, existingItem, addFieldValidationError }) => {
-                        const newItem = { ...existingItem, ...resolvedData }
-                        const { isValid, errors } = modelValidator.validateFilters(newItem.model, resolvedData[fieldPath])
-                        if (!isValid) {
-                            return addFieldValidationError(`Invalid filters for model "${newItem.model}" was provided. Details: ${JSON.stringify(errors)}`)
-                        }
-                    },
+                    validateInput: validateFilters,
                 },
             },
         },

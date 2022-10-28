@@ -1,10 +1,10 @@
 const { Webhook } = require('@condo/webhooks/schema/models/Webhook')
 const { getWebhookSubscriptionModel } = require('@condo/webhooks/schema/models/WebhookSubscription')
 
-function getWebhookModels (modelValidator) {
+function getWebhookModels (schemaPath) {
     return {
         Webhook,
-        WebhookSubscription: getWebhookSubscriptionModel(modelValidator),
+        WebhookSubscription: getWebhookSubscriptionModel(schemaPath),
     }
 }
 
