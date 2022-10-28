@@ -20,7 +20,7 @@ const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const EMAIL_NOT_FOUND_ERROR = 'support_email_mobile variable not found. help_requisites must be specified in .env'
 const scriptLifecycleName = process.env.npm_lifecycle_event
 const SUPPORT_EMAIL_MOBILE = conf['HELP_REQUISITES'] && get(JSON.parse(conf['HELP_REQUISITES']), 'support_email_mobile', null)
-if (scriptLifecycleName === 'start' && !SUPPORT_EMAIL_MOBILE) throw new Error(EMAIL_NOT_FOUND_ERROR)
+if (scriptLifecycleName === 'start' && !SUPPORT_EMAIL_MOBILE) console.error(EMAIL_NOT_FOUND_ERROR)
 if (scriptLifecycleName === 'dev' && !SUPPORT_EMAIL_MOBILE) console.error(EMAIL_NOT_FOUND_ERROR)
 const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
