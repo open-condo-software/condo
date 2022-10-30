@@ -841,6 +841,23 @@ describe('BillingReceipt', () => {
             expect(updatedReceipt).toEqual(expect.objectContaining(payload))
         })
     })
+    describe('Cache tests', () => {
+        test('Multiple updates are working', async () => {
+            const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
+            await updateTestBillingReceipt(admin, billingReceipt.id, {
+                toPay: '250.00',
+            })
+            await updateTestBillingReceipt(admin, billingReceipt.id, {
+                toPay: '550.00',
+            })
+            const updatedReceipt = await BillingReceipt.getOne(admin, { id: billingReceipt.id })
+            expect(updatedReceipt.id).toEqual(billingReceipt.id)
+            expect(updatedReceipt.period).toEqual(billingReceipt.period)
+            expect(updatedReceipt.account.id).toEqual(billingReceipt.account.id)
+            expect(updatedReceipt.property.id).toEqual(billingReceipt.property.id)
+            expect(updatedReceipt.toPay).toEqual('550.00000000')
+        })
+    })
     describe('Hooks', () => {
         describe('receiver field', () => {
             test('Should create recipient and set receiver field automatically', async () => {
