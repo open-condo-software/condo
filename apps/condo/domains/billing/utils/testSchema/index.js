@@ -464,7 +464,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         property: { connect: { id: property.id } },
         account: { connect: { id: account.id } },
         raw: { foo: faker.lorem.words() },
-        period: '2021-12-01',
+        period: '2020-12-01',
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
         recipient: createTestRecipient(),
