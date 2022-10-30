@@ -5,8 +5,7 @@
 
 const { get } = require('lodash')
 
-let totalRequests = 0
-let cacheHits = 0
+const UPDATED_AT = 'updatedAt'
 
 
 function simpleStringify (object){
@@ -36,20 +35,6 @@ function getCurrentStackTrace () {
 
 class AdapterCacheMiddleware {
 
-    constructor (config) {
-        try {
-            const parsedConfig = JSON.parse(config)
-            this.enabled = !!get(parsedConfig, 'enable', false)
-            this.redisUrl = get(parsedConfig, 'redisUrl')
-            this.excludedTables = get(parsedConfig, 'excludedTables', [])
-            this.logging = get(parsedConfig, 'logging', false)
-        }
-        catch (e) {
-            this.enabled = false
-            console.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
-        }
-    }
-
     // table_name -> queryKey -> { response, lastUpdate }
     cache = {}
 
@@ -57,9 +42,63 @@ class AdapterCacheMiddleware {
     // table_name -> lastUpdate (of this table)
     state = {}
 
+    constructor (config) {
+        try {
+            const parsedConfig = JSON.parse(config)
+            this.enabled = !!get(parsedConfig, 'enable', false)
+            this.redisUrl = get(parsedConfig, 'redisUrl')
+            this.excludedTables = get(parsedConfig, 'excludedTables', [])
+            this.logging = get(parsedConfig, 'logging', false)
+            this.debugMode = !!get(parsedConfig, 'debug', false)
+            this.cacheHistory = {}
+            this.totalRequests = 0
+            this.cacheHits = 0
+
+            if (this.debugMode) {
+                console.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON_LOCAL ENVIRONMENT, OR WITH RUNNING BIG TESTSUITES')
+            }
+
+        }
+        catch (e) {
+            this.enabled = false
+            console.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
+        }
+    }
+
+    writeChangeToHistory ({ cache, event, table }) {
+        if (!this.debugMode) { return }
+        if (!this.cacheHistory[table]) {
+            this.cacheHistory[table] = []
+        }
+        this.cacheHistory[table].push({
+            cache: JSON.parse(JSON.stringify(cache)),
+            event: event,
+            dateTime: new Date().toLocaleString(),
+            number: this.totalRequests,
+        })
+        this.cacheHistory.lastTableUpdated = table
+    }
+
+    logEvent ({ event }) {
+        if (!this.logging) { return }
+        console.info(event)
+    }
+
+    getCacheEvent ({ type, key, result, stackTrace }) {
+        return (
+            `
+        🔴 STAT: ${this.cacheHits}/${this.totalRequests}\r\n
+        🔴 RKEY: ${key}\r\n
+        🔴 TYPE: ${type}\r\n
+        🔴 RESP: ${result}\r\n
+        🔴 STCK ${stackTrace}`
+            // 🔴 LCCH :: ${cache}\r\n
+        )
+    }
+
     async prepareMiddleware ({ keystone, dev, distDir }) {
         if (this.enabled) {
-            await initAdapterCache(keystone, this.cache, this.state, this.logging, this.excludedTables, this.redisUrl)
+            await initAdapterCache(keystone, this)
             console.info('ADAPTER_CACHE: Adapter level cache ENABLED')
         } else {
             console.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
@@ -67,10 +106,15 @@ class AdapterCacheMiddleware {
     }
 }
 
-const UPDATED_AT = 'updatedAt'
 
-const initAdapterCache = async (keystone, state, cache, logging, excludedTables) => {
+
+const initAdapterCache = async (keystone, middleware) => {
     const keystoneAdapter = keystone.adapter
+
+    const cache = middleware.cache
+    const state = middleware.state
+    const logging = middleware.logging
+    const excludedTables = middleware.excludedTables
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
@@ -86,11 +130,16 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables)
         const originalItemsQuery = listAdapter._itemsQuery
         listAdapter._itemsQuery = async ( args, opts ) => {
 
-            totalRequests++
+            middleware.totalRequests++
+            const stackTrace = getCurrentStackTrace()
 
-            //const stackTrace = getCurrentStackTrace()
+            let key = null
 
-            const key = JSON.stringify(args) + '_' + simpleStringify(opts) + '_'// + stackTrace
+            const argsJson = JSON.stringify(args)
+
+            if (argsJson !== '{}') {
+                key = listName + '_' + JSON.stringify(args) + '_' + simpleStringify(opts)  // '_' + stackTrace
+            }
 
             let response = []
             const cached = cache[listName][key]
@@ -99,19 +148,47 @@ const initAdapterCache = async (keystone, state, cache, logging, excludedTables)
             if (cached) {
                 const cacheLastUpdate = cached.lastUpdate
                 if (cacheLastUpdate && cacheLastUpdate === tableLastUpdate) {
-                    cacheHits++
-                    if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: HIT :: ${JSON.stringify(cached.response)} :: CACHE :: ${JSON.stringify(cache['BillingReceipt'])}`) }
+                    middleware.cacheHits++
+                    const cacheEvent = middleware.getCacheEvent({
+                        type: 'HIT',
+                        key,
+                        stackTrace,
+                        result: JSON.stringify(cached.response),
+                    })
+                    middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
+                    middleware.logEvent({ event: cacheEvent })
                     return cached.response
                 }
             }
 
             response = await originalItemsQuery.apply(listAdapter, [args, opts] )
-            cache[listName][key] = {
-                lastUpdate: tableLastUpdate,
-                response: response,
+
+            let copiedResponse = response
+
+            if (Array.isArray(response)) {
+                const newResponse = []
+                for (const obj of response) {
+                    newResponse.push(Object.assign({}, obj))
+                }
+                copiedResponse = newResponse
+            } else {
+                copiedResponse = Object.assign({}, response)
             }
 
-            if (logging) { console.info(`ADAPTER CACHE: ${cacheHits}/${totalRequests} :: KEY: ${key} :: MISS :: ${JSON.stringify(response)} :: CACHE :: ${JSON.stringify(cache['BillingReceipt'])}`) }
+            cache[listName][key] = {
+                lastUpdate: tableLastUpdate,
+                response: copiedResponse,
+            }
+
+            const cacheEvent = middleware.getCacheEvent({
+                type: 'MISS',
+                key,
+                stackTrace,
+                result: JSON.stringify(copiedResponse),
+            })
+            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
+            middleware.logEvent({ event: cacheEvent })
+
             return response
         }
 
