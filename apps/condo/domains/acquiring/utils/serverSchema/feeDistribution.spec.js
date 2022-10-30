@@ -14,8 +14,8 @@ const TEST_CASES = [
     {
         title: 'Settings for commission with null fields',
         settings: [
-            { recipient:'acquiring', percent:'1', min:null, max:null, category: null },
-            { recipient:'commission', percent:'1', min:null, max:null },
+            { recipient:'acquiring', percent:'1', minAmount:null, maxAmount:null, category: null },
+            { recipient:'commission', percent:'1', minAmount:null, maxAmount:null },
         ],
         cases: [
             { amount: 1, category: 'housing', expected: { type: 'commission', summa: 1.02, recipientSum: 1, explicitFee: 0.02 } },
@@ -24,8 +24,8 @@ const TEST_CASES = [
     {
         title: 'Settings for commission without categories',
         settings: [
-            { recipient:'acquiring', percent:'1.68', min:'8.4', max:'1050' },
-            { recipient:'commission', percent:'0.72', min:'3.6', max:'450' },
+            { recipient:'acquiring', percent:'1.68', minAmount:'8.4', maxAmount:'1050' },
+            { recipient:'commission', percent:'0.72', minAmount:'3.6', maxAmount:'450' },
         ],
         cases: [
             { amount: 1, category: 'housing', expected: { type: 'commission', summa: 13, recipientSum: 1, explicitFee: 12 } },
@@ -40,8 +40,8 @@ const TEST_CASES = [
             { recipient:'acquiring', percent:'2' },
             { recipient:'commission', percent:'0.1' },
             { recipient:'organization', percent: '2.1' },
-            { recipient:'acquiring', percent:'1.68', min:'8.4', max:'1050', category: 'overhaul' },
-            { recipient:'commission', percent:'0.72', min:'3.6', max:'450', category: 'overhaul' },
+            { recipient:'acquiring', percent:'1.68', minAmount:'8.4', maxAmount:'1050', category: 'overhaul' },
+            { recipient:'commission', percent:'0.72', minAmount:'3.6', maxAmount:'450', category: 'overhaul' },
             { recipient:'acquiring', percent:'0', category: 'penny' },
             { recipient:'commission', percent:'0', category: 'penny' },
         ],

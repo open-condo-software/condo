@@ -35,8 +35,8 @@
     Commission settings
 
     [
-        {"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050"},
-        {"recipient":"commission","percent":"0.72","min":"3.6","max":"450"}
+        {"recipient":"acquiring","percent":"1.68","minAmount":"8.4","maxAmount":"1050"},
+        {"recipient":"commission","percent":"0.72","minAmount":"3.6","maxAmount":"450"}
     ]
 
     or in case for implicit commission
@@ -53,8 +53,8 @@
         {"recipient":"organization","percent":"0.9","category":"housing"},
         {"recipient":"commission","percent":"0.9","category":"housing"},
 
-        {"recipient":"acquiring","percent":"1.68","min":"8.4","max":"1050","category":"overhaul"},
-        {"recipient":"commission","percent":"0.72","min":"3.6","max":"450","category":"overhaul"}
+        {"recipient":"acquiring","percent":"1.68","minAmount":"8.4","maxAmount":"1050","category":"overhaul"},
+        {"recipient":"commission","percent":"0.72","minAmount":"3.6","maxAmount":"450","category":"overhaul"}
     ]
  */
 
@@ -94,8 +94,8 @@ class FeeDistribution extends Logger {
             this.type = 'commission'
             resultFormula.fromTotalAmountFee = Big('0').toFixed(2) // Commission is only from receipt amount
             resultFormula.fromReceiptAmountFee = Big(get(commission, 'percent', 0)).add(Big(get(acquiring, 'percent', 0))).toFixed(2)
-            this.minCommission = Big(get(commission, 'min') || '0').add(Big(get(acquiring, 'min') || '0'))
-            this.maxCommission = Big(get(commission, 'max') || '0').add(Big(get(acquiring, 'max') || '0'))
+            this.minCommission = Big(get(commission, 'minAmount') || '0').add(Big(get(acquiring, 'minAmount') || '0'))
+            this.maxCommission = Big(get(commission, 'maxAmount') || '0').add(Big(get(acquiring, 'maxAmount') || '0'))
         }
         this.formula = Object.fromEntries(
             Object.entries(resultFormula)
@@ -184,8 +184,8 @@ const compactDistributionSettings  = (settings = []) => {
             if (!allDistributions[distribution.category]) {
                 allDistributions[distribution.category] = {}
             }
-            const { recipient, percent = 0, min = '0', max = '0' } = distribution
-            allDistributions[distribution.category][recipient] = { percent, min, max }
+            const { recipient, percent = 0, minAmount = '0', maxAmount = '0' } = distribution
+            allDistributions[distribution.category][recipient] = { percent, minAmount, maxAmount }
         } else {
             const { recipient, ...settings } = distribution
             allDistributions[recipient] = settings

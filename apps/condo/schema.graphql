@@ -34202,11 +34202,17 @@ input BillingIntegrationRelateToManyInput {
 type FeeDistributionField {
   recipient: String!
   percent: String!
+  minAmount: String
+  maxAmount: String
+  category: String
 }
 
 input FeeDistributionFieldInput {
   recipient: String!
   percent: String!
+  minAmount: String
+  maxAmount: String
+  category: String
 }
 
 """ Information about `acquiring component` which will generate `billing receipts` and `payments` 
