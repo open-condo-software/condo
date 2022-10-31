@@ -3,7 +3,7 @@
  *
  */
 
-const { get } = require('lodash')
+const { get, cloneDeep } = require('lodash')
 
 const UPDATED_AT = 'updatedAt'
 
@@ -51,6 +51,7 @@ class AdapterCacheMiddleware {
             this.logging = get(parsedConfig, 'logging', false)
             this.debugMode = !!get(parsedConfig, 'debug', false)
             this.cacheHistory = {}
+            this.cacheCallHistory = []
             this.totalRequests = 0
             this.cacheHits = 0
 
@@ -70,9 +71,18 @@ class AdapterCacheMiddleware {
         if (!this.cacheHistory[table]) {
             this.cacheHistory[table] = []
         }
+        const copiedCache = cloneDeep(cache)
         this.cacheHistory[table].push({
-            cache: JSON.parse(JSON.stringify(cache)),
+            cache: copiedCache,
+            cacheByTable: copiedCache[table],
+            type: event.type,
             event: event,
+            dateTime: new Date().toLocaleString(),
+            number: this.totalRequests,
+        })
+        this.cacheCallHistory.push({
+            name: table,
+            eventType: event.type,
             dateTime: new Date().toLocaleString(),
             number: this.totalRequests,
         })
@@ -81,19 +91,20 @@ class AdapterCacheMiddleware {
 
     logEvent ({ event }) {
         if (!this.logging) { return }
-        console.info(event)
+        console.info(event.string)
     }
 
-    getCacheEvent ({ type, key, result, stackTrace }) {
-        return (
-            `
-        🔴 STAT: ${this.cacheHits}/${this.totalRequests}\r\n
-        🔴 RKEY: ${key}\r\n
-        🔴 TYPE: ${type}\r\n
-        🔴 RESP: ${result}\r\n
-        🔴 STCK ${stackTrace}`
-            // 🔴 LCCH :: ${cache}\r\n
-        )
+    getCacheEvent ({ type, key, table, result, stackTrace }) {
+        return ({
+            type: type,
+            table: table,
+            string: `
+            🔴 STAT: ${this.cacheHits}/${this.totalRequests}\r\n
+            🔴 RKEY: ${key}\r\n
+            🔴 TYPE: ${type}\r\n
+            🔴 RESP: ${result}\r\n
+            🔴 STCK ${stackTrace}`,
+        })
     }
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
@@ -151,6 +162,7 @@ const initAdapterCache = async (keystone, middleware) => {
                     middleware.cacheHits++
                     const cacheEvent = middleware.getCacheEvent({
                         type: 'HIT',
+                        table: listName,
                         key,
                         stackTrace,
                         result: JSON.stringify(cached.response),
@@ -163,17 +175,7 @@ const initAdapterCache = async (keystone, middleware) => {
 
             response = await originalItemsQuery.apply(listAdapter, [args, opts] )
 
-            let copiedResponse = response
-
-            if (Array.isArray(response)) {
-                const newResponse = []
-                for (const obj of response) {
-                    newResponse.push(Object.assign({}, obj))
-                }
-                copiedResponse = newResponse
-            } else {
-                copiedResponse = Object.assign({}, response)
-            }
+            let copiedResponse = cloneDeep(response)
 
             cache[listName][key] = {
                 lastUpdate: tableLastUpdate,
@@ -183,6 +185,7 @@ const initAdapterCache = async (keystone, middleware) => {
             const cacheEvent = middleware.getCacheEvent({
                 type: 'MISS',
                 key,
+                table: listName,
                 stackTrace,
                 result: JSON.stringify(copiedResponse),
             })
@@ -196,6 +199,13 @@ const initAdapterCache = async (keystone, middleware) => {
         listAdapter._update = async ( id, data ) => {
             const updateResult = await originalUpdate.apply(listAdapter, [id, data] )
             state[listName] = updateResult[UPDATED_AT]
+
+            const cacheEvent = middleware.getCacheEvent({
+                type: 'UPDATE',
+                table: listName,
+            })
+            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
+
             if (logging) { console.info(`UPDATE: ${updateResult}`) }
             return updateResult
         }
@@ -204,6 +214,13 @@ const initAdapterCache = async (keystone, middleware) => {
         listAdapter._create = async ( data ) => {
             const createResult = await originalCreate.apply(listAdapter, [data] )
             state[listName] = createResult[UPDATED_AT]
+
+            const cacheEvent = middleware.getCacheEvent({
+                type: 'CREATE',
+                table: listName,
+            })
+            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
+
             if (logging) { console.info(`CREATE: ${createResult}`) }
             return createResult
         }
@@ -212,6 +229,13 @@ const initAdapterCache = async (keystone, middleware) => {
         listAdapter._delete = async ( id ) => {
             const deleteResult = await originalDelete.apply(listAdapter, [id])
             state[listName] = deleteResult[UPDATED_AT]
+
+            const cacheEvent = middleware.getCacheEvent({
+                type: 'DELETE',
+                table: listName,
+            })
+            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
+
             if (logging) { console.info(`DELETE: ${deleteResult}`) }
             return deleteResult
         }
