@@ -199,5 +199,6 @@ module.exports = {
     TicketPropertyHintProperty,
     TicketExportTask,
     TicketOrganizationSetting,
+    TICKET_PROPERTY_FIELDS,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
