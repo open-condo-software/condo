@@ -28,11 +28,16 @@ jobs:
 
     steps:
       - name: Checkout code with submodules
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 14
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
 
       - name: Docker compose up databases
         run: |
