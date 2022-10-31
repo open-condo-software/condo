@@ -20,6 +20,16 @@ export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (data
                     return { [`${wrappedDataIndex}_gt`]: 0 }
                 }
 
+                if (wrappedDataIndex === 'isRegular') {
+                    return {
+                        AND: [{
+                            'isWarranty': false,
+                            'isEmergency': false,
+                            'isPaid': false,
+                        }],
+                    }
+                }
+
                 return {
                     [wrappedDataIndex]: true,
                 }

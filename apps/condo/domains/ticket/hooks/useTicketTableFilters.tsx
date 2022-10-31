@@ -24,7 +24,7 @@ import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/com
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 import { get } from 'lodash'
-import React, { useCallback, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
@@ -53,7 +53,7 @@ const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
@@ -73,6 +73,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
+    const RegularMessage = intl.formatMessage({ id: 'Regular' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
@@ -121,11 +122,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
 
     const attributeOptions = useMemo(() => [
+        { label: RegularMessage, value: 'isRegular' },
         { label: PaidMessage, value: 'isPaid' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
         { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
-    ], [EmergencyMessage, PaidMessage, ReturnedMessage, WarrantyMessage])
+    ], [EmergencyMessage, PaidMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
     const reviewValueOptions = useMemo(() => [
         { label: GoodReviewMessage, value: REVIEW_VALUES.GOOD },
         { label: BadReviewMessage, value: REVIEW_VALUES.BAD },
