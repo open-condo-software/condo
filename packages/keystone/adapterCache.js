@@ -84,7 +84,7 @@ class AdapterCacheMiddleware {
             name: table,
             eventType: event.type,
             dateTime: new Date().toLocaleString(),
-            number: this.totalRequests,
+            number: cloneDeep(this.totalRequests),
         })
         this.cacheHistory.lastTableUpdated = table
     }
@@ -176,6 +176,13 @@ const initAdapterCache = async (keystone, middleware) => {
             response = await originalItemsQuery.apply(listAdapter, [args, opts] )
 
             let copiedResponse = cloneDeep(response)
+            if (listName === 'BillingReceipt' && Array.isArray(response)) {
+                for (let i = 0; i < response.length; ++i) {
+                    if (response.period) {
+                        copiedResponse.period = new Date(response.period.getTime())
+                    }
+                }
+            }
 
             cache[listName][key] = {
                 lastUpdate: tableLastUpdate,
