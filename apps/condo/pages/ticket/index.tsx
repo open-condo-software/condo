@@ -29,18 +29,13 @@ import {
     useMultipleFiltersModal,
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
-import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
-import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
 import { useAuth } from '@condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
@@ -53,7 +48,7 @@ import {
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
-import { useRegularSearch } from '@condo/domains/ticket/hooks/useRegularSearch'
+import { useAttributeSearch } from '@condo/domains/ticket/hooks/useAttributeSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -173,11 +168,11 @@ export const TicketsPageContent = ({
     const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
 
     const [search, handleSearchChange] = useSearch<IFilters>(false)
-    const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(false)
-    const [regular, handleRegularChange] = useRegularSearch<IFilters>(false)
-    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(false)
-    const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(false)
-    const [paid, handlePaidChange] = usePaidSearch<IFilters>(false)
+    const [emergency, handleEmergencyChange] = useAttributeSearch<IFilters>('isEmergency')
+    const [regular, handleRegularChange] = useAttributeSearch<IFilters>('isRegular')
+    const [warranty, handleWarrantyChange] = useAttributeSearch<IFilters>('isWarranty')
+    const [returned, handleReturnedChange] = useAttributeSearch<IFilters>('statusReopenedCounter')
+    const [paid, handlePaidChange] = useAttributeSearch<IFilters>('isPaid')
 
     const { TaskLauncher } = useTicketExportTask({
         where: searchTicketsQuery,

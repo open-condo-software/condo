@@ -7,22 +7,21 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
-export const usePaidSearch = <F>(loading: boolean): [boolean, (e: CheckboxChangeEvent) => void] => {
+type UseAttributeSearchOutputType = [boolean, (e: CheckboxChangeEvent) => void]
+
+export const useAttributeSearch = <F>(attributeName: string): UseAttributeSearchOutputType => {
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<F>(router.query)
 
     const attributes = get(filtersFromQuery, 'attributes', [])
-    const isPaid = attributes.includes('isPaid')
+    const isIncluded = attributes.includes(attributeName)
 
-    const setIsPaid = useCallback(debounce(async (isPaid) => {
-        const queryAttributes = isPaid ? [...attributes, 'isPaid'] : attributes.filter(attr => attr !== 'isPaid')
+    const setIsReturned = useCallback(debounce(async (e: CheckboxChangeEvent) => {
+        const isIncluded = get(e, ['target', 'checked'])
+        const queryAttributes = isIncluded ? [...attributes, attributeName] : attributes.filter(attr => attr !== attributeName)
 
         await updateQuery(router, { ...filtersFromQuery, attributes: queryAttributes })
-    }, 400), [loading, isPaid, attributes])
+    }, 400), [isIncluded, attributes])
 
-    const handleIsPaidChange = (e: CheckboxChangeEvent): void => {
-        setIsPaid(e.target.checked)
-    }
-
-    return [isPaid, handleIsPaidChange]
+    return [isIncluded, setIsReturned]
 }
