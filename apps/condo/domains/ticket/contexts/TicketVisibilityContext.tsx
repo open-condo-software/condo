@@ -1,7 +1,7 @@
 import get from 'lodash/get'
 import { createContext, useContext } from 'react'
 
-import { TicketWhereInput } from '@app/condo/schema'
+import { Ticket, TicketWhereInput } from '@app/condo/schema'
 import { useOrganization } from '@condo/next/organization'
 import { useAuth } from '@condo/next/auth'
 
@@ -21,7 +21,8 @@ import {
 
 interface ITicketVisibilityContext {
     ticketFilterQuery: TicketWhereInput,
-    ticketFilterQueryLoading: boolean
+    ticketFilterQueryLoading: boolean,
+    canEmployeeReadTicket: (ticket: Ticket) => boolean
 }
 
 const TicketVisibilityContext = createContext<ITicketVisibilityContext>(null)
@@ -131,6 +132,69 @@ const getTicketsQueryByTicketVisibilityType = ({
     }
 }
 
+const isEmployeeCanReadTicket = ({
+    ticket,
+    ticketVisibilityType,
+    organizationId,
+    userId,
+    specializations,
+    properties,
+    propertyScopes,
+    employee,
+}) => {
+    const isUserIsTicketAssigneeOrExecutor = get(ticket, ['assignee', 'id']) === userId || get(ticket, ['executor', 'id']) === userId
+    const isEmployeeOrganizationMatchToTicketOrganization = get(ticket, ['organization', 'id']) === organizationId
+    const isTicketPropertyInPropertyScopes = !!properties.find(propertyId => propertyId === get(ticket, ['property', 'id']))
+    const isTicketClassifierInSpecializations = !!specializations.find(specId => specId === get(ticket, ['classifier', 'category', 'id']))
+
+    const isEmployeeInPropertyScopeWithAllProperties = !!propertyScopes.find(scope => scope.hasAllProperties)
+    const isEmployeeHasAllSpecializations = get(employee, 'hasAllSpecializations')
+
+    switch (ticketVisibilityType) {
+        case ORGANIZATION_TICKET_VISIBILITY: {
+            return isEmployeeOrganizationMatchToTicketOrganization
+        }
+        case PROPERTY_TICKET_VISIBILITY: {
+            if (isEmployeeInPropertyScopeWithAllProperties) {
+                return isEmployeeOrganizationMatchToTicketOrganization
+            }
+
+            return isEmployeeOrganizationMatchToTicketOrganization && (
+                isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
+            )
+        }
+        case PROPERTY_AND_SPECIALIZATION_VISIBILITY: {
+            if (isEmployeeInPropertyScopeWithAllProperties && isEmployeeHasAllSpecializations) {
+                return isEmployeeOrganizationMatchToTicketOrganization
+            }
+
+            if (isEmployeeInPropertyScopeWithAllProperties) {
+                return isEmployeeOrganizationMatchToTicketOrganization && (
+                    isUserIsTicketAssigneeOrExecutor || isTicketClassifierInSpecializations
+                )
+            }
+            if (isEmployeeHasAllSpecializations) {
+                return isEmployeeOrganizationMatchToTicketOrganization && get(ticket, 'classifier') && (
+                    isTicketPropertyInPropertyScopes || isUserIsTicketAssigneeOrExecutor
+                )
+            }
+
+            return isEmployeeOrganizationMatchToTicketOrganization && (
+                isUserIsTicketAssigneeOrExecutor || (
+                    isTicketPropertyInPropertyScopes && isTicketClassifierInSpecializations
+                )
+            )
+        }
+        case ASSIGNED_TICKET_VISIBILITY: {
+            return isEmployeeOrganizationMatchToTicketOrganization && isUserIsTicketAssigneeOrExecutor
+        }
+
+        default: {
+            return isEmployeeOrganizationMatchToTicketOrganization
+        }
+    }
+}
+
 const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const { user, isLoading } = useAuth()
     const userId = get(user, 'id', null)
@@ -189,10 +253,22 @@ const TicketVisibilityContextProvider: React.FC = ({ children }) => {
     const ticketFilterQueryLoading = isLoading || userOrganizationLoading || employeesLoading ||
         propertyScopeLoading || propertiesLoading || specializationsLoading
 
+    const canEmployeeReadTicket = (ticket) => isEmployeeCanReadTicket({
+        ticket,
+        ticketVisibilityType,
+        organizationId,
+        userId,
+        specializations,
+        properties,
+        propertyScopes,
+        employee,
+    })
+
     return (
         <TicketVisibilityContext.Provider value={{
             ticketFilterQuery,
             ticketFilterQueryLoading,
+            canEmployeeReadTicket,
         }}>
             {children}
         </TicketVisibilityContext.Provider>

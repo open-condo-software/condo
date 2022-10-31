@@ -1,7 +1,7 @@
 import { Col, FormInstance, Row, Select, Typography } from 'antd'
 import { differenceBy } from 'lodash'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -54,12 +54,12 @@ const TicketAssignments = ({
 
     const { isSmall } = useLayoutContext()
 
-    const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useObjects({
+    const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
             property: { id: propertyId },
         },
     })
-    const { objs: propertyScopes, loading: scopesLoading } = PropertyScope.useObjects({
+    const { objs: propertyScopes, loading: scopesLoading } = PropertyScope.useAllObjects({
         where: {
             organization: { id: organizationId },
             OR: [
@@ -68,36 +68,42 @@ const TicketAssignments = ({
             ],
         },
     })
-    const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useObjects({
+    const { objs: propertyScopeEmployees, loading: employeesLoading } = PropertyScopeOrganizationEmployee.useAllObjects({
         where: {
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
     })
-    const { objs: organizationEmployeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useObjects({
+    const { objs: organizationEmployeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
         where: {
             employee: { organization: { id: organizationId } },
         },
     })
 
+    const [matchedEmployees, setMatchedEmployees] = useState([])
+
     const renderOptionGroups = useCallback((employeeOptions, renderOption) => {
         const result = []
+        const employees = employeeOptions.map(option => option.employee)
 
-        const employeesWithMatchesPropertyAndSpecializationScope = employeeOptions.filter(
+        const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
             isEmployeeSpecializationAndPropertyMatchesToScope(
                 categoryClassifier, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees
             )
         )
 
-        const otherEmployees = differenceBy(employeeOptions, employeesWithMatchesPropertyAndSpecializationScope, 'id')
+        const otherEmployees = differenceBy(employees, employeesWithMatchesPropertyAndSpecializationScope, 'id')
 
         if (employeesWithMatchesPropertyAndSpecializationScope.length > 0) {
             const sortedEmployees = getEmployeesSortedByTicketVisibilityType(employeesWithMatchesPropertyAndSpecializationScope, organizationEmployeeSpecializations)
+            setMatchedEmployees(sortedEmployees)
 
             result.push(
                 <Select.OptGroup label={EmployeesOnPropertyMessage} key={EmployeesOnPropertyMessage}>
                     {convertEmployeesToOptions(sortedEmployees, intl, organizationEmployeeSpecializations).map(renderOption)}
                 </Select.OptGroup>
             )
+        } else {
+            setMatchedEmployees([])
         }
 
         if (otherEmployees.length > 0) {
@@ -138,8 +144,8 @@ const TicketAssignments = ({
                                     form={form}
                                     categoryClassifierId={categoryClassifier}
                                     propertyId={propertyId}
+                                    matchedEmployees={matchedEmployees}
                                     propertyScopeEmployees={propertyScopeEmployees}
-                                    organizationEmployeeSpecializations={organizationEmployeeSpecializations}
                                     propertyScopes={propertyScopes}
                                 />
                             )
@@ -157,6 +163,7 @@ const TicketAssignments = ({
                                             disabled={disableUserInteraction}
                                             renderOptions={renderOptionGroups}
                                             search={search}
+                                            searchMoreFirst={300}
                                         />
                                     )
                                 }
@@ -176,6 +183,7 @@ const TicketAssignments = ({
                                             disabled={disableUserInteraction}
                                             renderOptions={renderOptionGroups}
                                             search={search}
+                                            searchMoreFirst={300}
                                         />
                                     )
                                 }

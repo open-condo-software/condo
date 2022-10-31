@@ -10,6 +10,8 @@ import { css, jsx } from '@emotion/react'
 import { useIntl } from '@open-condo/next/intl'
 import { colors, gradients } from '@condo/domains/common/constants/style'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
+import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
+import { useRouter } from 'next/router'
 
 const blackSelectCss = css`
   width: 200px;
@@ -76,6 +78,7 @@ export const OrganizationSelect: React.FC = () => {
     const EmptyMessage = intl.formatMessage({ id: 'Select' })
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
+    const router = useRouter()
     const { user } = useAuth()
     const selectRef = useRef(null)
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
@@ -117,6 +120,12 @@ export const OrganizationSelect: React.FC = () => {
             }
         }
     }, [userOrganizations, organizationLinksLoading, user, link])
+
+    useEffect(() => {
+        if (get(link, ['role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY && !router.route.includes('ticket')) {
+            router.push('/ticket')
+        }
+    }, [link, router])
 
     const chooseOrganizationByLinkId = React.useCallback((value) => {
         selectLink({ id: value })

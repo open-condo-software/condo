@@ -9,12 +9,10 @@ import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
 import { SortPropertyScopesBy } from '@app/condo/schema'
 
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Button } from '@condo/domains/common/components/Button'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
 import { PropertyScope } from '@condo/domains/scope/utils/clientSchema'
@@ -63,7 +61,6 @@ export const PropertyScopeSettingsContent = () => {
     })
 
     const canManagePropertyScopes = useMemo(() => get(userOrganization, ['link', 'role', 'canManagePropertyScopes']), [userOrganization])
-    const [search, handleSearchChange] = useSearch<IFilters>(false)
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -76,10 +73,6 @@ export const PropertyScopeSettingsContent = () => {
     const handleAddHintButtonClick = useCallback(async () => {
         await router.push('/settings/propertyScope/create')
     }, [router])
-
-    const handleSearch = useCallback(e => {
-        handleSearchChange(e.target.value)
-    }, [handleSearchChange])
 
     const { columns: tableColumns, loading: tableColumnsLoading } = usePropertyScopeColumns(filtersMeta, propertyScopes)
 

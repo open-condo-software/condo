@@ -91,11 +91,7 @@ const PropertyScopeIdPage = () => {
             employee: { id_in: propertyScopesEmployeeIds },
         },
     })
-    const propertyScopeName = useMemo(() => {
-        const name = get(propertyScope, 'name')
-
-        return name && intl.formatMessage({ id: name }) || name
-    }, [intl, propertyScope])
+    const propertyScopeName = useMemo(() => get(propertyScope, 'name'), [propertyScope])
 
     const renderPropertyScopeProperties = useMemo(() => {
         if (get(propertyScope, 'hasAllProperties')) {

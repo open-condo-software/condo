@@ -7,6 +7,7 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import Checkbox from './antd/Checkbox'
 import { GraphQlSearchInput } from './GraphQlSearchInput'
+import styled from '@emotion/styled'
 
 type InputWithCheckAllProps = {
     onCheckBoxChange?: (value: boolean) => void
@@ -18,6 +19,12 @@ type InputWithCheckAllProps = {
     checkBoxOffset?: number
     form: FormInstance
 }
+
+const CheckAllCheckboxFormItem = styled(Form.Item)`
+    & .ant-form-item-control-input {
+      min-height: initial;
+    }
+`
 
 export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = (
     {
@@ -72,7 +79,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const rules = isRequired ? [requiredValidator] : []
 
     return (
-        <Row>
+        <Row gutter={[0, 20]}>
             <Col span={24}>
                 <Form.Item
                     labelAlign='left'
@@ -84,13 +91,13 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                         mode='multiple'
                         placeholder={isAllChecked && CheckedAllMessage || selectProps.placeholder}
                         disabled={selectProps.disabled || isAllChecked}
-                        onDataLoaded={handleOnDataLoaded}
                         onChange={handleOnChange}
+                        onAllDataLoading={handleOnDataLoaded}
                     />
                 </Form.Item>
             </Col>
             <Col span={14} offset={checkBoxOffset}>
-                <Form.Item
+                <CheckAllCheckboxFormItem
                     name={checkAllFieldName}
                     valuePropName='checked'
                 >
@@ -99,7 +106,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                     >
                         {CheckAllMessage}
                     </Checkbox>
-                </Form.Item>
+                </CheckAllCheckboxFormItem>
             </Col>
         </Row>
     )

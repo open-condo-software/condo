@@ -110,7 +110,7 @@ export function useTableColumns <T> (
         loading: userTicketCommentReadTimesLoading,
     } = UserTicketCommentReadTime.useObjects({
         where: {
-            user: { id: user.id },
+            user: { id: get(user, 'id', null) },
             ticket: {
                 id_in: ticketIds,
             },

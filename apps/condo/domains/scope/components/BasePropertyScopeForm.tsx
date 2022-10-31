@@ -19,6 +19,8 @@ import {
 import { Loader } from '@condo/domains/common/components/Loader'
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
 
 import { FormHintAlert } from './FormHintAlert'
 
@@ -27,7 +29,7 @@ const INPUT_LAYOUT_PROPS = {
         sm: 6,
     },
     wrapperCol: {
-        sm: 14,
+        sm: 18,
     },
 }
 
@@ -41,7 +43,7 @@ const PROPERTY_SCOPE_NAME_FIELD_PROPS = {
         sm: 6,
     },
     wrapperCol:{
-        sm: 8,
+        sm: 9,
     },
 }
 const BASE_FORM_ITEM_PROPS = {
@@ -71,13 +73,16 @@ type BasePropertyScopeFormProps = {
 
 export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ children, action, organizationId, initialValues = {}, loading }) => {
     const intl = useIntl()
-    const PropertyScopeNameMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertyScopeName' })
+    const PropertyScopeNameMessage = intl.formatMessage({ id: 'field.Name' })
     const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
     const CheckAllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
     const CheckAllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllEmployees' })
 
     const router = useRouter()
+
+    const { maxLengthValidator, trimValidator } = useValidations()
+    const nameValidations = useMemo(() => [trimValidator, maxLengthValidator(MAX_NAME_LENGTH)], [maxLengthValidator, trimValidator])
 
     const createPropertyScopePropertyAction = PropertyScopeProperty.useCreate({})
     const softDeletePropertyScopePropertyAction = PropertyScopeProperty.useSoftDelete()
@@ -184,6 +189,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                     name='name'
                                     label={PropertyScopeNameMessage}
                                     labelAlign='left'
+                                    required
+                                    rules={nameValidations}
                                     {...PROPERTY_SCOPE_NAME_FIELD_PROPS}
                                 >
                                     <Input disabled={!organizationId} />
@@ -214,7 +221,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                             </Col>
                             {
                                 showHintAlert && (
-                                    <Col offset={6}>
+                                    <Col offset={6} span={12}>
                                         <FormHintAlert />
                                     </Col>
                                 )

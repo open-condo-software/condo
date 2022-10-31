@@ -66,6 +66,11 @@ const SettingsPage: React.FC = () => {
                 content: <TicketPropertyHintSettings/>,
             },
             {
+                key: SETTINGS_TAB_PROPERTY_SCOPE,
+                title: PropertyScopeTitle,
+                content: <PropertyScopeSettingsContent/>,
+            },
+            {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
                 title: DetailsTitle,
                 content: <RecipientSettingsContent/>,
@@ -74,11 +79,6 @@ const SettingsPage: React.FC = () => {
                 key: SETTINGS_TAB_CONTACT_ROLES,
                 title: RolesTitle,
                 content: <ContactRolesSettingsContent/>,
-            },
-            {
-                key: SETTINGS_TAB_PROPERTY_SCOPE,
-                title: PropertyScopeTitle,
-                content: <PropertyScopeSettingsContent/>,
             },
             {
                 key: SETTINGS_TAB_CONTROL_ROOM,

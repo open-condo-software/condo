@@ -1,15 +1,14 @@
 import { Alert, Col } from 'antd'
 import { isEmpty } from 'lodash'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { useAuth } from '@condo/next/auth'
 import { useIntl } from '@condo/next/intl'
 
 import {
-    getEmployeesSortedByTicketVisibilityType,
-    isEmployeeSpecializationAndPropertyMatchesToScope,
     getPropertyScopeNameByEmployee,
 } from '@condo/domains/scope/utils/clientSchema/utils'
+import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
 
 /**
  * Sets the employee user in the assignee and executor fields after selecting ticket category classifier.
@@ -22,8 +21,8 @@ export const AutoAssigner = ({
     form,
     categoryClassifierId,
     propertyId,
+    matchedEmployees,
     propertyScopeEmployees,
-    organizationEmployeeSpecializations,
     propertyScopes,
 }) => {
     const intl = useIntl()
@@ -34,23 +33,10 @@ export const AutoAssigner = ({
 
     const [autoAssigneePropertyScopeName, setAutoAssigneePropertyScopeName] = useState<string>()
 
-    useEffect(() => {
+    useDeepCompareEffect(() => {
         if (categoryClassifierId && propertyId) {
-            const employeesWithMatchesPropertyAndSpecializationScope = propertyScopeEmployees
-                .map(scope => scope.employee)
-                .filter(
-                    isEmployeeSpecializationAndPropertyMatchesToScope(
-                        categoryClassifierId, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees
-                    )
-                )
-
-            if (!isEmpty(employeesWithMatchesPropertyAndSpecializationScope)) {
-                const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
-                    employeesWithMatchesPropertyAndSpecializationScope,
-                    organizationEmployeeSpecializations
-                )
-
-                const firstEmployee = sortedEmployees[0]
+            if (!isEmpty(matchedEmployees)) {
+                const firstEmployee = matchedEmployees[0]
                 const firstEmployeeUserId = firstEmployee.user.id
 
                 form.setFieldsValue({
@@ -69,7 +55,9 @@ export const AutoAssigner = ({
                 })
             }
         }
-    }, [categoryClassifierId, form, propertyId, propertyScopeEmployees, propertyScopes, organizationEmployeeSpecializations, user.id])
+    }, [
+        categoryClassifierId, propertyId, propertyScopes, propertyScopeEmployees, matchedEmployees,
+    ])
 
     return autoAssigneePropertyScopeName ? (
         <Col span={24}>

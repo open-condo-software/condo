@@ -16,7 +16,7 @@ import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
-import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
+import { getEmployeeSpecializationsMessage, renderPhone } from '@condo/domains/organization/utils/clientSchema/Renders'
 
 const TEXT_STYLES = { margin: 0 }
 
@@ -119,7 +119,7 @@ export const useTableColumns = (
                 width: '15%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'phone'),
                 filterIcon: getFilterIcon,
-                render,
+                render: renderPhone,
             },
         ]
     }, [NameMessage, PhoneMessage, PositionMessage, RoleMessage, SpecializationsMessage, filterMetas, filters, render, renderCheckboxFilterDropdown, renderSpecializations])

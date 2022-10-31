@@ -3,7 +3,7 @@
  */
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
-const { createTestOrganizationWithAccessToAnotherOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization, createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClient, UUID_RE, DATETIME_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { Property, createTestProperty, updateTestProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
@@ -13,6 +13,8 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const faker = require('faker')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { createTestPropertyScope, createTestPropertyScopeProperty, createTestPropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/testSchema')
+const { Organization } = require('../../organization/utils/testSchema')
 
 const emptyParkingValueCases = [null, undefined]
 
@@ -465,6 +467,31 @@ describe('Property', () => {
             const objs = await Property.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toEqual(property.id)
+        })
+
+        it.skip('test', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const organization = await Organization.getOne(admin, { id: '8e8b0882-5301-498a-aa34-9e47a8939598' })
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+
+            for (let i = 0; i < 4; i++) {
+                const [propertyScope] = await createTestPropertyScope(admin, organization)
+
+                for (let j = 0; j < 25; j++) {
+                    const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role, {
+                        name: user.userAttrs.name,
+                    })
+                    await createTestPropertyScopeOrganizationEmployee(admin, propertyScope, employee)
+                }
+
+                for (let j = 0; j < 250; j++) {
+                    const [property] = await createTestProperty(admin, organization)
+                    const [propertyScopeProperty] = await createTestPropertyScopeProperty(admin, propertyScope, property)
+                    const [ticket] = await createTestTicket(admin, organization, property)
+                }
+            }
         })
     })
 })

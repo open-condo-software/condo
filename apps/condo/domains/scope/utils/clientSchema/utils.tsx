@@ -1,5 +1,5 @@
 import { Typography } from 'antd'
-import { differenceBy, isEmpty } from 'lodash'
+import { differenceBy, get, isEmpty } from 'lodash'
 import React from 'react'
 
 import {
@@ -85,9 +85,9 @@ export const getPropertyScopeNameByEmployee = (employee, propertyScopes, propert
     if (!isEmpty(propertyScopesWithAllEmployees)) {
         return propertyScopesWithAllEmployees[0].name
     } else {
-        const propertyScope = propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
+        const propertyScopeEmployee = propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
 
-        return propertyScope.name
+        return get(propertyScopeEmployee, ['propertyScope', 'name'])
     }
 }
 
