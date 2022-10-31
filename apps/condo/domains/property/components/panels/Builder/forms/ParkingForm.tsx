@@ -197,7 +197,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, parkingSection])
 
     const updateParkingSection = useCallback(() => {
-        builder.updateParking({ ...parkingSection, name: parkingName })
+        builder.updateParking({ ...parkingSection, name: parkingName }, renameNextUnits.current)
         refresh()
     }, [builder, refresh, parkingName, parkingSection])
 
