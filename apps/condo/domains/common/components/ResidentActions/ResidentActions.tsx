@@ -1,8 +1,8 @@
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
-import React, { CSSProperties, useCallback, useMemo, useState, useEffect } from 'react'
-import get from 'lodash/get'
+import { get } from 'lodash'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -12,9 +12,7 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { SearchByPhoneMenuItem } from './SearchByPhoneMenuItem'
-import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
-import { useOrganization } from '@open-condo/next/organization'
+import { useOrganization } from '@condo/next/organization'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;
@@ -65,20 +63,6 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
     )
 }
 
-const ResidentAppealButton = ({ minified }) => {
-    const intl = useIntl()
-    const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
-
-    return (
-        <Button
-            type='sberGradient'
-            icon={<PlusOutlined />}
-        >
-            {!minified && ResidentAppealMessage}
-        </Button>
-    )
-}
-
 function getPopupContainer (): HTMLElement {
     return document.getElementById('test')
 }
@@ -92,7 +76,9 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
 
     const { minified } = props
-    const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal()
+    const { organization } = useOrganization()
+    const baseSearchByPhoneQuery = useMemo(() => ({ organization: { id: get(organization, 'id', null) } }), [organization])
+    const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal(baseSearchByPhoneQuery)
     const { isMobile } = useLayoutContext()
 
     const trigger = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
@@ -107,6 +93,8 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
             isAssignedVisibilityType={isAssignedVisibilityType}
         />
     ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType])
+
+    const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
 
     return (
         <div id='test'>
