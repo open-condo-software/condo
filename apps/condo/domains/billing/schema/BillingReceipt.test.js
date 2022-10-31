@@ -842,6 +842,29 @@ describe('BillingReceipt', () => {
         })
     })
     describe('Cache tests', () => {
+        test('Time value is always ready to be parsed', async () => {
+            const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingReceipt(admin, billingReceipt.id, {
+                    account: { connect: { id: anotherAccount.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingReceipt(admin, billingReceipt.id, {
+                    property: { connect: { id: anotherProperty.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingReceipt(admin, billingReceipt.id, {
+                    account: { connect: { id: anotherAccount.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:account:context] Context is not equal to account.context`)
+            await expectToThrowValidationFailureError(async () => {
+                await updateTestBillingReceipt(admin, billingReceipt.id, {
+                    property: { connect: { id: anotherProperty.id } },
+                })
+            }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
+        })
         test('Multiple updates are working', async () => {
             const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
             await updateTestBillingReceipt(admin, billingReceipt.id, {
