@@ -13,8 +13,7 @@ interface IPosterLayoutProps {
     layoutBgColor?: string
     layoutBgImage?: { poster: string, placeholder: string }
 }
-const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.textSecondary }
-const TYPOGRAPHY_GOOGLE_CONTACTS_STYLE: React.CSSProperties = { color: colors.black }
+const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.black }
 const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
 const FOOTER_ROW_STYLE = { width: '45%', justifyContent: 'stretch' }
 
@@ -60,19 +59,21 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     <Footer isSmall={isSmall} >
                         <Row style={FOOTER_ROW_STYLE}>
                             {SUPPORT_EMAIL && SUPPORT_PHONE && <Row>
-                                <Typography.Link
-                                    href={`mailto:${SUPPORT_EMAIL}`}
-                                    style={TYPOGRAPHY_CONTACT_STYLE}
-                                >
-                                    {SUPPORT_EMAIL}
-                                </Typography.Link>
-                                ,&nbsp;
-                                <Typography.Link
-                                    href={`tel:${SUPPORT_PHONE}`}
-                                    style={TYPOGRAPHY_CONTACT_STYLE}
-                                >
-                                    {SUPPORT_PHONE}
-                                </Typography.Link>
+                                <Typography.Paragraph type='secondary' >
+                                    <Typography.Link
+                                        href={`mailto:${SUPPORT_EMAIL}`}
+                                        style={TYPOGRAPHY_CONTACT_STYLE}
+                                    >
+                                        {SUPPORT_EMAIL}
+                                    </Typography.Link>
+                                    ,&nbsp;
+                                    <Typography.Link
+                                        href={`tel:${SUPPORT_PHONE}`}
+                                        style={TYPOGRAPHY_CONTACT_STYLE}
+                                    >
+                                        {SUPPORT_PHONE}
+                                    </Typography.Link>
+                                </Typography.Paragraph>
                             </Row>}
                             <Typography.Paragraph type='secondary' >
                                 <FormattedMessage
@@ -80,7 +81,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                                     values={{
                                         PrivacyPolicy: (
                                             <Typography.Link
-                                                style={TYPOGRAPHY_GOOGLE_CONTACTS_STYLE}
+                                                style={TYPOGRAPHY_CONTACT_STYLE}
                                                 target='_blank'
                                                 href='//policies.google.com/privacy'
                                                 rel='noreferrer'>
@@ -89,7 +90,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                                         ),
                                         TermsOfService: (
                                             <Typography.Link
-                                                style={TYPOGRAPHY_GOOGLE_CONTACTS_STYLE}
+                                                style={TYPOGRAPHY_CONTACT_STYLE}
                                                 target='_blank'
                                                 href='//policies.google.com/terms'
                                                 rel='noreferrer'>
