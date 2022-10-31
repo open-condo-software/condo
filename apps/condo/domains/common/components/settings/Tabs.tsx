@@ -23,19 +23,27 @@ export const SettingsTabs = styled(Tabs)`
     border-radius: 8px;
     box-shadow: ${shadows.main};
 
-    & > .ant-tabs-nav-wrap > .ant-tabs-nav-list > .ant-tabs-tab {
-      background-color: transparent;
-      border: 1px solid ${colors.inputBorderGrey};
-      border-radius: 8px;
-      padding: 17px;
-      font-size: ${fontSizes.label};
+    & > .ant-tabs-nav-wrap {
+      word-break: break-word;
+      white-space: inherit;
+      
+      & > .ant-tabs-nav-list > .ant-tabs-tab {
+        background-color: transparent;
+        border: 1px solid ${colors.inputBorderGrey};
+        border-radius: 8px;
+        padding: 17px;
+        font-size: ${fontSizes.label};
+        text-align: inherit;
 
-      &.ant-tabs-tab-active {
-        border: 1px solid ${colors.black};
-        background-color: ${colors.black};
+        &.ant-tabs-tab-active {
+          border: 1px solid ${colors.black};
+          background-color: ${colors.black};
+          font-weight: 600;
+          transition: 0s;
 
-        .ant-tabs-tab-btn {
-          color: ${colors.white};
+          .ant-tabs-tab-btn {
+            color: ${colors.white};
+          }
         }
       }
     }

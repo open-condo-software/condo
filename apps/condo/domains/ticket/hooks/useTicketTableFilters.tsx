@@ -24,8 +24,10 @@ import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/com
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { get } from 'lodash'
-import React, { useCallback, useMemo } from 'react'
-import { searchOrganizationPropertyScope } from '../../scope/utils/clientSchema/search'
+import React, { useMemo } from 'react'
+import {
+    searchOrganizationPropertyScope,
+} from '@condo/domains/scope/utils/clientSchema/search'
 
 import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
 import {
@@ -33,7 +35,7 @@ import {
     searchOrganizationProperty,
 } from '../utils/clientSchema/search'
 import {
-    getIsResidentContactFilter,
+    getIsResidentContactFilter, getPropertyScopeFilter,
     getTicketAttributesFilter,
 } from '../utils/tables.utils'
 import {
@@ -71,6 +73,7 @@ const filterCategoryClassifierSearch = getStringContainsFilter(['classifier', 'c
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
+const filterPropertyScope = getPropertyScopeFilter()
 
 export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  {
     const intl = useIntl()
@@ -231,11 +234,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
             },
             {
                 keyword: 'propertyScope',
-                filters: [filterProperty],
-                queryToWhereProcessor: (propertyScopeProperties) => {
-                    return propertyScopeProperties && propertyScopeProperties
-                        .map(property => property.split(',')).flat(1)
-                },
+                filters: [filterPropertyScope],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
@@ -243,6 +242,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: SelectMessage,
+                        keyField: 'key',
                     },
                     modalFilterComponentWrapper: {
                         label: PropertyScopeMessage,
@@ -570,5 +570,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, DivisionLabel, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }

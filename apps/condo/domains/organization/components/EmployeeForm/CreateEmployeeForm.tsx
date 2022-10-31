@@ -40,12 +40,6 @@ const INPUT_LAYOUT_PROPS = {
     },
 }
 
-const CardCss = css`
-  width: 300px;
-  height: fit-content;
-  box-shadow: ${shadows.elevated};
-`
-
 export const CreateEmployeeForm: React.FC = () => {
     const intl = useIntl()
 
@@ -173,7 +167,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                 <Col lg={14} xs={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
-                                            <Row gutter={[0, 24]}>
+                                            <Row gutter={[0, 40]}>
                                                 <Col span={24}>
                                                     <Form.Item name='role' label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign='left' >
                                                         <EmployeeRoleSelect
@@ -263,7 +257,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Alert
                                                         type='info'
                                                         showIcon
-                                                        message={role.name}
+                                                        message={intl.formatMessage({ id: 'employee.Role.whoIs' }, { roleName: role.name.toLowerCase() })}
                                                         description={role.description}
                                                     />
                                                 )

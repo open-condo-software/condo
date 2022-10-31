@@ -6,20 +6,42 @@ const { Text, Checkbox } = require('@keystonejs/fields')
 
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
 
 const access = require('@condo/domains/scope/access/PropertyScope')
 const { deleteRelatedPropertyScopeOrganizationEmployee, deleteRelatedPropertyScopeProperty } = require('@condo/domains/scope/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { LocalizedText } = require('@condo/keystone/fields')
+const { MAX_NAME_LENGTH_ERROR } = require('@condo/domains/scope/constants/errors')
+const { MAX_NAME_LENGTH } = require('@condo/domains/scope/constants/index')
 
+const errors = {
+    MAX_NAME_LENGTH: {
+        code: BAD_USER_INPUT,
+        type: MAX_NAME_LENGTH_ERROR,
+        message: `Maximum size of PropertyScope name exceeded (${MAX_NAME_LENGTH} characters)`,
+        messageForUser: 'api.propertyScope.MAX_NAME_LENGTH_ERROR',
+        messageInterpolation: {
+            max: MAX_NAME_LENGTH,
+        },
+    },
+}
 
 const PropertyScope = new GQLListSchema('PropertyScope', {
     schemaDoc: 'A set of properties that limits the visibility of the organization\'s objects to the specified employees',
     fields: {
-
         name: {
             schemaDoc: 'The name of the zone that limits the visibility of employees by properties',
-            type: Text,
+            type: LocalizedText,
             isRequired: true,
+            template: 'pages.condo.settings.propertyScope.default.name',
+            hooks: {
+                validateInput: ({ resolvedData, fieldPath, context }) => {
+                    if (resolvedData[fieldPath] && resolvedData[fieldPath].length > MAX_NAME_LENGTH) {
+                        throw new GQLError(errors.MAX_NAME_LENGTH, context)
+                    }
+                },
+            },
         },
 
         organization: ORGANIZATION_OWNED_FIELD,

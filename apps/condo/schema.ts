@@ -1776,6 +1776,318 @@ export enum AppType {
   B2B = 'B2B'
 }
 
+/**
+ *  Ticket where user is assignee or executor.
+ * Records are updated automatically: if the user has been assigned to the ticket, an entry appears.
+ * If the user was removed from the assignment to the ticket, the record is marked deletedAt.
+ * It is used to track the availability of the ticket for viewing in the technician mobile application.
+ */
+export type AssigneeScope = {
+  __typename?: 'AssigneeScope';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AssigneeScope List config, or
+   *  2. As an alias to the field set on 'labelField' in the AssigneeScope List config, or
+   *  3. As an alias to a 'name' field on the AssigneeScope List (if one exists), or
+   *  4. As an alias to the 'id' field on the AssigneeScope List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The user who is assigned to the ticket  */
+  user?: Maybe<User>;
+  /**  The ticket in which the user is assigned as executor or assignee  */
+  ticket?: Maybe<Ticket>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type AssigneeScopeCreateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  ticket?: Maybe<TicketRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type AssigneeScopeHistoryRecord = {
+  __typename?: 'AssigneeScopeHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AssigneeScopeHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the AssigneeScopeHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the AssigneeScopeHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the AssigneeScopeHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AssigneeScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AssigneeScopeHistoryRecordCreateInput = {
+  user?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AssigneeScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum AssigneeScopeHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type AssigneeScopeHistoryRecordUpdateInput = {
+  user?: Maybe<Scalars['String']>;
+  ticket?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AssigneeScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AssigneeScopeHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<AssigneeScopeHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AssigneeScopeHistoryRecordWhereInput>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket?: Maybe<Scalars['String']>;
+  ticket_not?: Maybe<Scalars['String']>;
+  ticket_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticket_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<AssigneeScopeHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<AssigneeScopeHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<AssigneeScopeHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<AssigneeScopeHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type AssigneeScopeHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AssigneeScopeHistoryRecordsCreateInput = {
+  data?: Maybe<AssigneeScopeHistoryRecordCreateInput>;
+};
+
+export type AssigneeScopeHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AssigneeScopeHistoryRecordUpdateInput>;
+};
+
+export type AssigneeScopeUpdateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  ticket?: Maybe<TicketRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type AssigneeScopeWhereInput = {
+  AND?: Maybe<Array<Maybe<AssigneeScopeWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AssigneeScopeWhereInput>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  ticket?: Maybe<TicketWhereInput>;
+  ticket_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type AssigneeScopeWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AssigneeScopesCreateInput = {
+  data?: Maybe<AssigneeScopeCreateInput>;
+};
+
+export type AssigneeScopesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AssigneeScopeUpdateInput>;
+};
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
   phone: Scalars['String'];
   password: Scalars['String'];
@@ -21504,6 +21816,30 @@ export type Mutation = {
   deleteOrganizationLink?: Maybe<OrganizationLink>;
   /**  Delete multiple OrganizationLink items by ID.  */
   deleteOrganizationLinks?: Maybe<Array<Maybe<OrganizationLink>>>;
+  /**  Create a single OrganizationEmployeeSpecializationHistoryRecord item.  */
+  createOrganizationEmployeeSpecializationHistoryRecord?: Maybe<OrganizationEmployeeSpecializationHistoryRecord>;
+  /**  Create multiple OrganizationEmployeeSpecializationHistoryRecord items.  */
+  createOrganizationEmployeeSpecializationHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecord>>>;
+  /**  Update a single OrganizationEmployeeSpecializationHistoryRecord item by ID.  */
+  updateOrganizationEmployeeSpecializationHistoryRecord?: Maybe<OrganizationEmployeeSpecializationHistoryRecord>;
+  /**  Update multiple OrganizationEmployeeSpecializationHistoryRecord items by ID.  */
+  updateOrganizationEmployeeSpecializationHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecord>>>;
+  /**  Delete a single OrganizationEmployeeSpecializationHistoryRecord item by ID.  */
+  deleteOrganizationEmployeeSpecializationHistoryRecord?: Maybe<OrganizationEmployeeSpecializationHistoryRecord>;
+  /**  Delete multiple OrganizationEmployeeSpecializationHistoryRecord items by ID.  */
+  deleteOrganizationEmployeeSpecializationHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecord>>>;
+  /**  Create a single OrganizationEmployeeSpecialization item.  */
+  createOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
+  /**  Create multiple OrganizationEmployeeSpecialization items.  */
+  createOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
+  /**  Update a single OrganizationEmployeeSpecialization item by ID.  */
+  updateOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
+  /**  Update multiple OrganizationEmployeeSpecialization items by ID.  */
+  updateOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
+  /**  Delete a single OrganizationEmployeeSpecialization item by ID.  */
+  deleteOrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
+  /**  Delete multiple OrganizationEmployeeSpecialization items by ID.  */
+  deleteOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
   /**  Create a single PropertyHistoryRecord item.  */
   createPropertyHistoryRecord?: Maybe<PropertyHistoryRecord>;
   /**  Create multiple PropertyHistoryRecord items.  */
@@ -23136,6 +23472,102 @@ export type Mutation = {
   deleteExternalReport?: Maybe<ExternalReport>;
   /**  Delete multiple ExternalReport items by ID.  */
   deleteExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
+  /**  Create a single PropertyScopeHistoryRecord item.  */
+  createPropertyScopeHistoryRecord?: Maybe<PropertyScopeHistoryRecord>;
+  /**  Create multiple PropertyScopeHistoryRecord items.  */
+  createPropertyScopeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeHistoryRecord>>>;
+  /**  Update a single PropertyScopeHistoryRecord item by ID.  */
+  updatePropertyScopeHistoryRecord?: Maybe<PropertyScopeHistoryRecord>;
+  /**  Update multiple PropertyScopeHistoryRecord items by ID.  */
+  updatePropertyScopeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeHistoryRecord>>>;
+  /**  Delete a single PropertyScopeHistoryRecord item by ID.  */
+  deletePropertyScopeHistoryRecord?: Maybe<PropertyScopeHistoryRecord>;
+  /**  Delete multiple PropertyScopeHistoryRecord items by ID.  */
+  deletePropertyScopeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeHistoryRecord>>>;
+  /**  Create a single PropertyScope item.  */
+  createPropertyScope?: Maybe<PropertyScope>;
+  /**  Create multiple PropertyScope items.  */
+  createPropertyScopes?: Maybe<Array<Maybe<PropertyScope>>>;
+  /**  Update a single PropertyScope item by ID.  */
+  updatePropertyScope?: Maybe<PropertyScope>;
+  /**  Update multiple PropertyScope items by ID.  */
+  updatePropertyScopes?: Maybe<Array<Maybe<PropertyScope>>>;
+  /**  Delete a single PropertyScope item by ID.  */
+  deletePropertyScope?: Maybe<PropertyScope>;
+  /**  Delete multiple PropertyScope items by ID.  */
+  deletePropertyScopes?: Maybe<Array<Maybe<PropertyScope>>>;
+  /**  Create a single PropertyScopeOrganizationEmployeeHistoryRecord item.  */
+  createPropertyScopeOrganizationEmployeeHistoryRecord?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>;
+  /**  Create multiple PropertyScopeOrganizationEmployeeHistoryRecord items.  */
+  createPropertyScopeOrganizationEmployeeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>>>;
+  /**  Update a single PropertyScopeOrganizationEmployeeHistoryRecord item by ID.  */
+  updatePropertyScopeOrganizationEmployeeHistoryRecord?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>;
+  /**  Update multiple PropertyScopeOrganizationEmployeeHistoryRecord items by ID.  */
+  updatePropertyScopeOrganizationEmployeeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>>>;
+  /**  Delete a single PropertyScopeOrganizationEmployeeHistoryRecord item by ID.  */
+  deletePropertyScopeOrganizationEmployeeHistoryRecord?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>;
+  /**  Delete multiple PropertyScopeOrganizationEmployeeHistoryRecord items by ID.  */
+  deletePropertyScopeOrganizationEmployeeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>>>;
+  /**  Create a single PropertyScopeOrganizationEmployee item.  */
+  createPropertyScopeOrganizationEmployee?: Maybe<PropertyScopeOrganizationEmployee>;
+  /**  Create multiple PropertyScopeOrganizationEmployee items.  */
+  createPropertyScopeOrganizationEmployees?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployee>>>;
+  /**  Update a single PropertyScopeOrganizationEmployee item by ID.  */
+  updatePropertyScopeOrganizationEmployee?: Maybe<PropertyScopeOrganizationEmployee>;
+  /**  Update multiple PropertyScopeOrganizationEmployee items by ID.  */
+  updatePropertyScopeOrganizationEmployees?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployee>>>;
+  /**  Delete a single PropertyScopeOrganizationEmployee item by ID.  */
+  deletePropertyScopeOrganizationEmployee?: Maybe<PropertyScopeOrganizationEmployee>;
+  /**  Delete multiple PropertyScopeOrganizationEmployee items by ID.  */
+  deletePropertyScopeOrganizationEmployees?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployee>>>;
+  /**  Create a single PropertyScopePropertyHistoryRecord item.  */
+  createPropertyScopePropertyHistoryRecord?: Maybe<PropertyScopePropertyHistoryRecord>;
+  /**  Create multiple PropertyScopePropertyHistoryRecord items.  */
+  createPropertyScopePropertyHistoryRecords?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecord>>>;
+  /**  Update a single PropertyScopePropertyHistoryRecord item by ID.  */
+  updatePropertyScopePropertyHistoryRecord?: Maybe<PropertyScopePropertyHistoryRecord>;
+  /**  Update multiple PropertyScopePropertyHistoryRecord items by ID.  */
+  updatePropertyScopePropertyHistoryRecords?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecord>>>;
+  /**  Delete a single PropertyScopePropertyHistoryRecord item by ID.  */
+  deletePropertyScopePropertyHistoryRecord?: Maybe<PropertyScopePropertyHistoryRecord>;
+  /**  Delete multiple PropertyScopePropertyHistoryRecord items by ID.  */
+  deletePropertyScopePropertyHistoryRecords?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecord>>>;
+  /**  Create a single PropertyScopeProperty item.  */
+  createPropertyScopeProperty?: Maybe<PropertyScopeProperty>;
+  /**  Create multiple PropertyScopeProperty items.  */
+  createPropertyScopeProperties?: Maybe<Array<Maybe<PropertyScopeProperty>>>;
+  /**  Update a single PropertyScopeProperty item by ID.  */
+  updatePropertyScopeProperty?: Maybe<PropertyScopeProperty>;
+  /**  Update multiple PropertyScopeProperty items by ID.  */
+  updatePropertyScopeProperties?: Maybe<Array<Maybe<PropertyScopeProperty>>>;
+  /**  Delete a single PropertyScopeProperty item by ID.  */
+  deletePropertyScopeProperty?: Maybe<PropertyScopeProperty>;
+  /**  Delete multiple PropertyScopeProperty items by ID.  */
+  deletePropertyScopeProperties?: Maybe<Array<Maybe<PropertyScopeProperty>>>;
+  /**  Create a single AssigneeScopeHistoryRecord item.  */
+  createAssigneeScopeHistoryRecord?: Maybe<AssigneeScopeHistoryRecord>;
+  /**  Create multiple AssigneeScopeHistoryRecord items.  */
+  createAssigneeScopeHistoryRecords?: Maybe<Array<Maybe<AssigneeScopeHistoryRecord>>>;
+  /**  Update a single AssigneeScopeHistoryRecord item by ID.  */
+  updateAssigneeScopeHistoryRecord?: Maybe<AssigneeScopeHistoryRecord>;
+  /**  Update multiple AssigneeScopeHistoryRecord items by ID.  */
+  updateAssigneeScopeHistoryRecords?: Maybe<Array<Maybe<AssigneeScopeHistoryRecord>>>;
+  /**  Delete a single AssigneeScopeHistoryRecord item by ID.  */
+  deleteAssigneeScopeHistoryRecord?: Maybe<AssigneeScopeHistoryRecord>;
+  /**  Delete multiple AssigneeScopeHistoryRecord items by ID.  */
+  deleteAssigneeScopeHistoryRecords?: Maybe<Array<Maybe<AssigneeScopeHistoryRecord>>>;
+  /**  Create a single AssigneeScope item.  */
+  createAssigneeScope?: Maybe<AssigneeScope>;
+  /**  Create multiple AssigneeScope items.  */
+  createAssigneeScopes?: Maybe<Array<Maybe<AssigneeScope>>>;
+  /**  Update a single AssigneeScope item by ID.  */
+  updateAssigneeScope?: Maybe<AssigneeScope>;
+  /**  Update multiple AssigneeScope items by ID.  */
+  updateAssigneeScopes?: Maybe<Array<Maybe<AssigneeScope>>>;
+  /**  Delete a single AssigneeScope item by ID.  */
+  deleteAssigneeScope?: Maybe<AssigneeScope>;
+  /**  Delete multiple AssigneeScope items by ID.  */
+  deleteAssigneeScopes?: Maybe<Array<Maybe<AssigneeScope>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -25189,6 +25621,68 @@ export type MutationDeleteOrganizationLinkArgs = {
 
 
 export type MutationDeleteOrganizationLinksArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateOrganizationEmployeeSpecializationHistoryRecordArgs = {
+  data?: Maybe<OrganizationEmployeeSpecializationHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateOrganizationEmployeeSpecializationHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeSpecializationHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeSpecializationHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeSpecializationHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteOrganizationEmployeeSpecializationHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteOrganizationEmployeeSpecializationHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateOrganizationEmployeeSpecializationArgs = {
+  data?: Maybe<OrganizationEmployeeSpecializationCreateInput>;
+};
+
+
+export type MutationCreateOrganizationEmployeeSpecializationsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationsCreateInput>>>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeSpecializationArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeSpecializationUpdateInput>;
+};
+
+
+export type MutationUpdateOrganizationEmployeeSpecializationsArgs = {
+  data?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationsUpdateInput>>>;
+};
+
+
+export type MutationDeleteOrganizationEmployeeSpecializationArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteOrganizationEmployeeSpecializationsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -29409,6 +29903,254 @@ export type MutationDeleteExternalReportsArgs = {
 };
 
 
+export type MutationCreatePropertyScopeHistoryRecordArgs = {
+  data?: Maybe<PropertyScopeHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreatePropertyScopeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopeHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyScopeHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyScopeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopeHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyScopeHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyScopeHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyScopeArgs = {
+  data?: Maybe<PropertyScopeCreateInput>;
+};
+
+
+export type MutationCreatePropertyScopesArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopesCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyScopeArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyScopesArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopesUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyScopeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyScopesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyScopeOrganizationEmployeeHistoryRecordArgs = {
+  data?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreatePropertyScopeOrganizationEmployeeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyScopeOrganizationEmployeeHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyScopeOrganizationEmployeeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyScopeOrganizationEmployeeHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyScopeOrganizationEmployeeHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyScopeOrganizationEmployeeArgs = {
+  data?: Maybe<PropertyScopeOrganizationEmployeeCreateInput>;
+};
+
+
+export type MutationCreatePropertyScopeOrganizationEmployeesArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeesCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyScopeOrganizationEmployeeArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeOrganizationEmployeeUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyScopeOrganizationEmployeesArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeesUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyScopeOrganizationEmployeeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyScopeOrganizationEmployeesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyScopePropertyHistoryRecordArgs = {
+  data?: Maybe<PropertyScopePropertyHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreatePropertyScopePropertyHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyScopePropertyHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopePropertyHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyScopePropertyHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyScopePropertyHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyScopePropertyHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreatePropertyScopePropertyArgs = {
+  data?: Maybe<PropertyScopePropertyCreateInput>;
+};
+
+
+export type MutationCreatePropertyScopePropertiesArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopePropertiesCreateInput>>>;
+};
+
+
+export type MutationUpdatePropertyScopePropertyArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopePropertyUpdateInput>;
+};
+
+
+export type MutationUpdatePropertyScopePropertiesArgs = {
+  data?: Maybe<Array<Maybe<PropertyScopePropertiesUpdateInput>>>;
+};
+
+
+export type MutationDeletePropertyScopePropertyArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeletePropertyScopePropertiesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAssigneeScopeHistoryRecordArgs = {
+  data?: Maybe<AssigneeScopeHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateAssigneeScopeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AssigneeScopeHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateAssigneeScopeHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AssigneeScopeHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateAssigneeScopeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AssigneeScopeHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAssigneeScopeHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAssigneeScopeHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAssigneeScopeArgs = {
+  data?: Maybe<AssigneeScopeCreateInput>;
+};
+
+
+export type MutationCreateAssigneeScopesArgs = {
+  data?: Maybe<Array<Maybe<AssigneeScopesCreateInput>>>;
+};
+
+
+export type MutationUpdateAssigneeScopeArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AssigneeScopeUpdateInput>;
+};
+
+
+export type MutationUpdateAssigneeScopesArgs = {
+  data?: Maybe<Array<Maybe<AssigneeScopesUpdateInput>>>;
+};
+
+
+export type MutationDeleteAssigneeScopeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAssigneeScopesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateWebhookHistoryRecordArgs = {
   data?: Maybe<WebhookHistoryRecordCreateInput>;
 };
@@ -31190,6 +31932,8 @@ export type OrganizationEmployee = {
   isRejected?: Maybe<Scalars['Boolean']>;
   /**  Employee is blocked status, used in permissions functions, isBlocked has Free-form description of the employee's position over all permissions  */
   isBlocked?: Maybe<Scalars['Boolean']>;
+  /**  True if employee has all specializations  */
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -31241,6 +31985,7 @@ export type OrganizationEmployeeCreateInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31274,6 +32019,7 @@ export type OrganizationEmployeeHistoryRecord = {
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -31301,6 +32047,7 @@ export type OrganizationEmployeeHistoryRecordCreateInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31333,6 +32080,7 @@ export type OrganizationEmployeeHistoryRecordUpdateInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31444,6 +32192,8 @@ export type OrganizationEmployeeHistoryRecordWhereInput = {
   isRejected_not?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
   isBlocked_not?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -31579,7 +32329,6 @@ export type OrganizationEmployeeRole = {
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
@@ -31588,8 +32337,6 @@ export type OrganizationEmployeeRole = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
-  /**  Limits the visibility of entities (such as ticket or meter/meterReading) to division  */
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -31621,14 +32368,12 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -31666,14 +32411,12 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -31705,14 +32448,12 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -31749,14 +32490,12 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -31840,8 +32579,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageContactRoles_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
-  canManageDivisions_not?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
@@ -31854,8 +32591,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canBeAssignedAsResponsible_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -31961,14 +32696,12 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -32043,8 +32776,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageContactRoles_not?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canManageTicketComments_not?: Maybe<Scalars['Boolean']>;
-  canManageDivisions?: Maybe<Scalars['Boolean']>;
-  canManageDivisions_not?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
@@ -32057,8 +32788,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   canBeAssignedAsResponsible_not?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
-  canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -32122,6 +32851,312 @@ export type OrganizationEmployeeRolesUpdateInput = {
   data?: Maybe<OrganizationEmployeeRoleUpdateInput>;
 };
 
+/**  A work category, that employee can perform. Used to limit the visibility of tickets for employees with "propertyAndSpecialization" ticketVisibilityType  */
+export type OrganizationEmployeeSpecialization = {
+  __typename?: 'OrganizationEmployeeSpecialization';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the OrganizationEmployeeSpecialization List config, or
+   *  2. As an alias to the field set on 'labelField' in the OrganizationEmployeeSpecialization List config, or
+   *  3. As an alias to a 'name' field on the OrganizationEmployeeSpecialization List (if one exists), or
+   *  4. As an alias to the 'id' field on the OrganizationEmployeeSpecialization List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  employee?: Maybe<OrganizationEmployee>;
+  /**  Specific work category, that this employee can perform  */
+  specialization?: Maybe<TicketCategoryClassifier>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type OrganizationEmployeeSpecializationCreateInput = {
+  employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  specialization?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type OrganizationEmployeeSpecializationHistoryRecord = {
+  __typename?: 'OrganizationEmployeeSpecializationHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the OrganizationEmployeeSpecializationHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the OrganizationEmployeeSpecializationHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the OrganizationEmployeeSpecializationHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the OrganizationEmployeeSpecializationHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  employee?: Maybe<Scalars['String']>;
+  specialization?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type OrganizationEmployeeSpecializationHistoryRecordCreateInput = {
+  employee?: Maybe<Scalars['String']>;
+  specialization?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum OrganizationEmployeeSpecializationHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type OrganizationEmployeeSpecializationHistoryRecordUpdateInput = {
+  employee?: Maybe<Scalars['String']>;
+  specialization?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type OrganizationEmployeeSpecializationHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecordWhereInput>>>;
+  employee?: Maybe<Scalars['String']>;
+  employee_not?: Maybe<Scalars['String']>;
+  employee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  employee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  specialization?: Maybe<Scalars['String']>;
+  specialization_not?: Maybe<Scalars['String']>;
+  specialization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  specialization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type OrganizationEmployeeSpecializationHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type OrganizationEmployeeSpecializationHistoryRecordsCreateInput = {
+  data?: Maybe<OrganizationEmployeeSpecializationHistoryRecordCreateInput>;
+};
+
+export type OrganizationEmployeeSpecializationHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeSpecializationHistoryRecordUpdateInput>;
+};
+
+export type OrganizationEmployeeSpecializationUpdateInput = {
+  employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  specialization?: Maybe<TicketCategoryClassifierRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type OrganizationEmployeeSpecializationWhereInput = {
+  AND?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationWhereInput>>>;
+  OR?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationWhereInput>>>;
+  employee?: Maybe<OrganizationEmployeeWhereInput>;
+  employee_is_null?: Maybe<Scalars['Boolean']>;
+  specialization?: Maybe<TicketCategoryClassifierWhereInput>;
+  specialization_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type OrganizationEmployeeSpecializationWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type OrganizationEmployeeSpecializationsCreateInput = {
+  data?: Maybe<OrganizationEmployeeSpecializationCreateInput>;
+};
+
+export type OrganizationEmployeeSpecializationsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<OrganizationEmployeeSpecializationUpdateInput>;
+};
+
 export type OrganizationEmployeeUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
@@ -32135,6 +33170,7 @@ export type OrganizationEmployeeUpdateInput = {
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -32243,6 +33279,8 @@ export type OrganizationEmployeeWhereInput = {
   isRejected_not?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
   isBlocked_not?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
+  hasAllSpecializations_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -34805,6 +35843,987 @@ export type PropertyRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+/**  A set of properties that limits the visibility of the organization's objects to the specified employees  */
+export type PropertyScope = {
+  __typename?: 'PropertyScope';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyScope List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyScope List config, or
+   *  3. As an alias to a 'name' field on the PropertyScope List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyScope List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The name of the zone that limits the visibility of employees by properties  */
+  name?: Maybe<Scalars['String']>;
+  nameNonLocalized?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  True if PropertyScope includes all properties in organization  */
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  /**  True if PropertyScope includes all employees in organization  */
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type PropertyScopeCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type PropertyScopeHistoryRecord = {
+  __typename?: 'PropertyScopeHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyScopeHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyScopeHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the PropertyScopeHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyScopeHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyScopeHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum PropertyScopeHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type PropertyScopeHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyScopeHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyScopeHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyScopeHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllProperties_not?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<PropertyScopeHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<PropertyScopeHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<PropertyScopeHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<PropertyScopeHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type PropertyScopeHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyScopeHistoryRecordsCreateInput = {
+  data?: Maybe<PropertyScopeHistoryRecordCreateInput>;
+};
+
+export type PropertyScopeHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeHistoryRecordUpdateInput>;
+};
+
+/**  Many-to-many relationship between PropertyScope and OrganizationEmployee  */
+export type PropertyScopeOrganizationEmployee = {
+  __typename?: 'PropertyScopeOrganizationEmployee';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyScopeOrganizationEmployee List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyScopeOrganizationEmployee List config, or
+   *  3. As an alias to a 'name' field on the PropertyScopeOrganizationEmployee List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyScopeOrganizationEmployee List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Property scope which has an employee  */
+  propertyScope?: Maybe<PropertyScope>;
+  /**  An employee who is in the property scope  */
+  employee?: Maybe<OrganizationEmployee>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type PropertyScopeOrganizationEmployeeCreateInput = {
+  propertyScope?: Maybe<PropertyScopeRelateToOneInput>;
+  employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type PropertyScopeOrganizationEmployeeHistoryRecord = {
+  __typename?: 'PropertyScopeOrganizationEmployeeHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyScopeOrganizationEmployeeHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyScopeOrganizationEmployeeHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the PropertyScopeOrganizationEmployeeHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyScopeOrganizationEmployeeHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  propertyScope?: Maybe<Scalars['String']>;
+  employee?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyScopeOrganizationEmployeeHistoryRecordCreateInput = {
+  propertyScope?: Maybe<Scalars['String']>;
+  employee?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type PropertyScopeOrganizationEmployeeHistoryRecordUpdateInput = {
+  propertyScope?: Maybe<Scalars['String']>;
+  employee?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyScopeOrganizationEmployeeHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecordWhereInput>>>;
+  propertyScope?: Maybe<Scalars['String']>;
+  propertyScope_not?: Maybe<Scalars['String']>;
+  propertyScope_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  propertyScope_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  employee?: Maybe<Scalars['String']>;
+  employee_not?: Maybe<Scalars['String']>;
+  employee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  employee_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type PropertyScopeOrganizationEmployeeHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyScopeOrganizationEmployeeHistoryRecordsCreateInput = {
+  data?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordCreateInput>;
+};
+
+export type PropertyScopeOrganizationEmployeeHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordUpdateInput>;
+};
+
+export type PropertyScopeOrganizationEmployeeUpdateInput = {
+  propertyScope?: Maybe<PropertyScopeRelateToOneInput>;
+  employee?: Maybe<OrganizationEmployeeRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type PropertyScopeOrganizationEmployeeWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeWhereInput>>>;
+  propertyScope?: Maybe<PropertyScopeWhereInput>;
+  propertyScope_is_null?: Maybe<Scalars['Boolean']>;
+  employee?: Maybe<OrganizationEmployeeWhereInput>;
+  employee_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type PropertyScopeOrganizationEmployeeWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyScopeOrganizationEmployeesCreateInput = {
+  data?: Maybe<PropertyScopeOrganizationEmployeeCreateInput>;
+};
+
+export type PropertyScopeOrganizationEmployeesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeOrganizationEmployeeUpdateInput>;
+};
+
+export type PropertyScopePropertiesCreateInput = {
+  data?: Maybe<PropertyScopePropertyCreateInput>;
+};
+
+export type PropertyScopePropertiesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopePropertyUpdateInput>;
+};
+
+/**  Many-to-many relationship between PropertyScope and Property  */
+export type PropertyScopeProperty = {
+  __typename?: 'PropertyScopeProperty';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyScopeProperty List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyScopeProperty List config, or
+   *  3. As an alias to a 'name' field on the PropertyScopeProperty List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyScopeProperty List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Property scope which has a property  */
+  propertyScope?: Maybe<PropertyScope>;
+  /**  A property which is in the property scope  */
+  property?: Maybe<Property>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type PropertyScopePropertyCreateInput = {
+  propertyScope?: Maybe<PropertyScopeRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type PropertyScopePropertyHistoryRecord = {
+  __typename?: 'PropertyScopePropertyHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the PropertyScopePropertyHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the PropertyScopePropertyHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the PropertyScopePropertyHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the PropertyScopePropertyHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  propertyScope?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyScopePropertyHistoryRecordCreateInput = {
+  propertyScope?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum PropertyScopePropertyHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type PropertyScopePropertyHistoryRecordUpdateInput = {
+  propertyScope?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type PropertyScopePropertyHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecordWhereInput>>>;
+  propertyScope?: Maybe<Scalars['String']>;
+  propertyScope_not?: Maybe<Scalars['String']>;
+  propertyScope_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  propertyScope_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type PropertyScopePropertyHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyScopePropertyHistoryRecordsCreateInput = {
+  data?: Maybe<PropertyScopePropertyHistoryRecordCreateInput>;
+};
+
+export type PropertyScopePropertyHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopePropertyHistoryRecordUpdateInput>;
+};
+
+export type PropertyScopePropertyUpdateInput = {
+  propertyScope?: Maybe<PropertyScopeRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type PropertyScopePropertyWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyScopePropertyWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyScopePropertyWhereInput>>>;
+  propertyScope?: Maybe<PropertyScopeWhereInput>;
+  propertyScope_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type PropertyScopePropertyWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyScopeRelateToOneInput = {
+  create?: Maybe<PropertyScopeCreateInput>;
+  connect?: Maybe<PropertyScopeWhereUniqueInput>;
+  disconnect?: Maybe<PropertyScopeWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type PropertyScopeUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type PropertyScopeWhereInput = {
+  AND?: Maybe<Array<Maybe<PropertyScopeWhereInput>>>;
+  OR?: Maybe<Array<Maybe<PropertyScopeWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  hasAllProperties?: Maybe<Scalars['Boolean']>;
+  hasAllProperties_not?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees?: Maybe<Scalars['Boolean']>;
+  hasAllEmployees_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type PropertyScopeWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type PropertyScopesCreateInput = {
+  data?: Maybe<PropertyScopeCreateInput>;
+};
+
+export type PropertyScopesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<PropertyScopeUpdateInput>;
+};
+
 export enum PropertyTypeType {
   Building = 'building',
   Village = 'village'
@@ -35147,6 +37166,22 @@ export type Query = {
   _allOrganizationLinksMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OrganizationLink list.  */
   _OrganizationLinksMeta?: Maybe<_ListMeta>;
+  /**  Search for all OrganizationEmployeeSpecializationHistoryRecord items which match the where clause.  */
+  allOrganizationEmployeeSpecializationHistoryRecords?: Maybe<Array<Maybe<OrganizationEmployeeSpecializationHistoryRecord>>>;
+  /**  Search for the OrganizationEmployeeSpecializationHistoryRecord item with the matching ID.  */
+  OrganizationEmployeeSpecializationHistoryRecord?: Maybe<OrganizationEmployeeSpecializationHistoryRecord>;
+  /**  Perform a meta-query on all OrganizationEmployeeSpecializationHistoryRecord items which match the where clause.  */
+  _allOrganizationEmployeeSpecializationHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the OrganizationEmployeeSpecializationHistoryRecord list.  */
+  _OrganizationEmployeeSpecializationHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all OrganizationEmployeeSpecialization items which match the where clause.  */
+  allOrganizationEmployeeSpecializations?: Maybe<Array<Maybe<OrganizationEmployeeSpecialization>>>;
+  /**  Search for the OrganizationEmployeeSpecialization item with the matching ID.  */
+  OrganizationEmployeeSpecialization?: Maybe<OrganizationEmployeeSpecialization>;
+  /**  Perform a meta-query on all OrganizationEmployeeSpecialization items which match the where clause.  */
+  _allOrganizationEmployeeSpecializationsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the OrganizationEmployeeSpecialization list.  */
+  _OrganizationEmployeeSpecializationsMeta?: Maybe<_ListMeta>;
   /**  Search for all PropertyHistoryRecord items which match the where clause.  */
   allPropertyHistoryRecords?: Maybe<Array<Maybe<PropertyHistoryRecord>>>;
   /**  Search for the PropertyHistoryRecord item with the matching ID.  */
@@ -36235,6 +38270,70 @@ export type Query = {
   _allExternalReportsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ExternalReport list.  */
   _ExternalReportsMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyScopeHistoryRecord items which match the where clause.  */
+  allPropertyScopeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeHistoryRecord>>>;
+  /**  Search for the PropertyScopeHistoryRecord item with the matching ID.  */
+  PropertyScopeHistoryRecord?: Maybe<PropertyScopeHistoryRecord>;
+  /**  Perform a meta-query on all PropertyScopeHistoryRecord items which match the where clause.  */
+  _allPropertyScopeHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyScopeHistoryRecord list.  */
+  _PropertyScopeHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyScope items which match the where clause.  */
+  allPropertyScopes?: Maybe<Array<Maybe<PropertyScope>>>;
+  /**  Search for the PropertyScope item with the matching ID.  */
+  PropertyScope?: Maybe<PropertyScope>;
+  /**  Perform a meta-query on all PropertyScope items which match the where clause.  */
+  _allPropertyScopesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyScope list.  */
+  _PropertyScopesMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyScopeOrganizationEmployeeHistoryRecord items which match the where clause.  */
+  allPropertyScopeOrganizationEmployeeHistoryRecords?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>>>;
+  /**  Search for the PropertyScopeOrganizationEmployeeHistoryRecord item with the matching ID.  */
+  PropertyScopeOrganizationEmployeeHistoryRecord?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecord>;
+  /**  Perform a meta-query on all PropertyScopeOrganizationEmployeeHistoryRecord items which match the where clause.  */
+  _allPropertyScopeOrganizationEmployeeHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyScopeOrganizationEmployeeHistoryRecord list.  */
+  _PropertyScopeOrganizationEmployeeHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyScopeOrganizationEmployee items which match the where clause.  */
+  allPropertyScopeOrganizationEmployees?: Maybe<Array<Maybe<PropertyScopeOrganizationEmployee>>>;
+  /**  Search for the PropertyScopeOrganizationEmployee item with the matching ID.  */
+  PropertyScopeOrganizationEmployee?: Maybe<PropertyScopeOrganizationEmployee>;
+  /**  Perform a meta-query on all PropertyScopeOrganizationEmployee items which match the where clause.  */
+  _allPropertyScopeOrganizationEmployeesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyScopeOrganizationEmployee list.  */
+  _PropertyScopeOrganizationEmployeesMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyScopePropertyHistoryRecord items which match the where clause.  */
+  allPropertyScopePropertyHistoryRecords?: Maybe<Array<Maybe<PropertyScopePropertyHistoryRecord>>>;
+  /**  Search for the PropertyScopePropertyHistoryRecord item with the matching ID.  */
+  PropertyScopePropertyHistoryRecord?: Maybe<PropertyScopePropertyHistoryRecord>;
+  /**  Perform a meta-query on all PropertyScopePropertyHistoryRecord items which match the where clause.  */
+  _allPropertyScopePropertyHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyScopePropertyHistoryRecord list.  */
+  _PropertyScopePropertyHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all PropertyScopeProperty items which match the where clause.  */
+  allPropertyScopeProperties?: Maybe<Array<Maybe<PropertyScopeProperty>>>;
+  /**  Search for the PropertyScopeProperty item with the matching ID.  */
+  PropertyScopeProperty?: Maybe<PropertyScopeProperty>;
+  /**  Perform a meta-query on all PropertyScopeProperty items which match the where clause.  */
+  _allPropertyScopePropertiesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the PropertyScopeProperty list.  */
+  _PropertyScopePropertiesMeta?: Maybe<_ListMeta>;
+  /**  Search for all AssigneeScopeHistoryRecord items which match the where clause.  */
+  allAssigneeScopeHistoryRecords?: Maybe<Array<Maybe<AssigneeScopeHistoryRecord>>>;
+  /**  Search for the AssigneeScopeHistoryRecord item with the matching ID.  */
+  AssigneeScopeHistoryRecord?: Maybe<AssigneeScopeHistoryRecord>;
+  /**  Perform a meta-query on all AssigneeScopeHistoryRecord items which match the where clause.  */
+  _allAssigneeScopeHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AssigneeScopeHistoryRecord list.  */
+  _AssigneeScopeHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all AssigneeScope items which match the where clause.  */
+  allAssigneeScopes?: Maybe<Array<Maybe<AssigneeScope>>>;
+  /**  Search for the AssigneeScope item with the matching ID.  */
+  AssigneeScope?: Maybe<AssigneeScope>;
+  /**  Perform a meta-query on all AssigneeScope items which match the where clause.  */
+  _allAssigneeScopesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AssigneeScope list.  */
+  _AssigneeScopesMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -36771,6 +38870,56 @@ export type Query_AllOrganizationLinksMetaArgs = {
   where?: Maybe<OrganizationLinkWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOrganizationLinksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllOrganizationEmployeeSpecializationHistoryRecordsArgs = {
+  where?: Maybe<OrganizationEmployeeSpecializationHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryOrganizationEmployeeSpecializationHistoryRecordArgs = {
+  where: OrganizationEmployeeSpecializationHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllOrganizationEmployeeSpecializationHistoryRecordsMetaArgs = {
+  where?: Maybe<OrganizationEmployeeSpecializationHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllOrganizationEmployeeSpecializationsArgs = {
+  where?: Maybe<OrganizationEmployeeSpecializationWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryOrganizationEmployeeSpecializationArgs = {
+  where: OrganizationEmployeeSpecializationWhereUniqueInput;
+};
+
+
+export type Query_AllOrganizationEmployeeSpecializationsMetaArgs = {
+  where?: Maybe<OrganizationEmployeeSpecializationWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortOrganizationEmployeeSpecializationsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -40171,6 +42320,206 @@ export type Query_AllExternalReportsMetaArgs = {
   where?: Maybe<ExternalReportWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortExternalReportsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyScopeHistoryRecordsArgs = {
+  where?: Maybe<PropertyScopeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyScopeHistoryRecordArgs = {
+  where: PropertyScopeHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyScopeHistoryRecordsMetaArgs = {
+  where?: Maybe<PropertyScopeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyScopesArgs = {
+  where?: Maybe<PropertyScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyScopeArgs = {
+  where: PropertyScopeWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyScopesMetaArgs = {
+  where?: Maybe<PropertyScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyScopeOrganizationEmployeeHistoryRecordsArgs = {
+  where?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopeOrganizationEmployeeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyScopeOrganizationEmployeeHistoryRecordArgs = {
+  where: PropertyScopeOrganizationEmployeeHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyScopeOrganizationEmployeeHistoryRecordsMetaArgs = {
+  where?: Maybe<PropertyScopeOrganizationEmployeeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopeOrganizationEmployeeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyScopeOrganizationEmployeesArgs = {
+  where?: Maybe<PropertyScopeOrganizationEmployeeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopeOrganizationEmployeesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyScopeOrganizationEmployeeArgs = {
+  where: PropertyScopeOrganizationEmployeeWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyScopeOrganizationEmployeesMetaArgs = {
+  where?: Maybe<PropertyScopeOrganizationEmployeeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopeOrganizationEmployeesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyScopePropertyHistoryRecordsArgs = {
+  where?: Maybe<PropertyScopePropertyHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopePropertyHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyScopePropertyHistoryRecordArgs = {
+  where: PropertyScopePropertyHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyScopePropertyHistoryRecordsMetaArgs = {
+  where?: Maybe<PropertyScopePropertyHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopePropertyHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllPropertyScopePropertiesArgs = {
+  where?: Maybe<PropertyScopePropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopePropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryPropertyScopePropertyArgs = {
+  where: PropertyScopePropertyWhereUniqueInput;
+};
+
+
+export type Query_AllPropertyScopePropertiesMetaArgs = {
+  where?: Maybe<PropertyScopePropertyWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortPropertyScopePropertiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllAssigneeScopeHistoryRecordsArgs = {
+  where?: Maybe<AssigneeScopeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAssigneeScopeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAssigneeScopeHistoryRecordArgs = {
+  where: AssigneeScopeHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllAssigneeScopeHistoryRecordsMetaArgs = {
+  where?: Maybe<AssigneeScopeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAssigneeScopeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllAssigneeScopesArgs = {
+  where?: Maybe<AssigneeScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAssigneeScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAssigneeScopeArgs = {
+  where: AssigneeScopeWhereUniqueInput;
+};
+
+
+export type Query_AllAssigneeScopesMetaArgs = {
+  where?: Maybe<AssigneeScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAssigneeScopesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -43612,6 +45961,48 @@ export enum SortAcquiringIntegrationsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortAssigneeScopeHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortAssigneeScopesBy {
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  TicketAsc = 'ticket_ASC',
+  TicketDesc = 'ticket_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortB2BAppAccessRightHistoryRecordsBy {
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
@@ -46134,6 +48525,8 @@ export enum SortOrganizationEmployeeHistoryRecordsBy {
   IsRejectedDesc = 'isRejected_DESC',
   IsBlockedAsc = 'isBlocked_ASC',
   IsBlockedDesc = 'isBlocked_DESC',
+  HasAllSpecializationsAsc = 'hasAllSpecializations_ASC',
+  HasAllSpecializationsDesc = 'hasAllSpecializations_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -46179,8 +48572,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageContactRolesDesc = 'canManageContactRoles_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
-  CanManageDivisionsAsc = 'canManageDivisions_ASC',
-  CanManageDivisionsDesc = 'canManageDivisions_DESC',
   CanShareTicketsAsc = 'canShareTickets_ASC',
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
@@ -46193,8 +48584,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanBeAssignedAsResponsibleDesc = 'canBeAssignedAsResponsible_DESC',
   CanBeAssignedAsExecutorAsc = 'canBeAssignedAsExecutor_ASC',
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
-  CanReadEntitiesOnlyInScopeOfDivisionAsc = 'canReadEntitiesOnlyInScopeOfDivision_ASC',
-  CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
   CanManageTicketPropertyHintsAsc = 'canManageTicketPropertyHints_ASC',
   CanManageTicketPropertyHintsDesc = 'canManageTicketPropertyHints_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
@@ -46244,8 +48633,6 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageContactRolesDesc = 'canManageContactRoles_DESC',
   CanManageTicketCommentsAsc = 'canManageTicketComments_ASC',
   CanManageTicketCommentsDesc = 'canManageTicketComments_DESC',
-  CanManageDivisionsAsc = 'canManageDivisions_ASC',
-  CanManageDivisionsDesc = 'canManageDivisions_DESC',
   CanShareTicketsAsc = 'canShareTickets_ASC',
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
@@ -46258,8 +48645,6 @@ export enum SortOrganizationEmployeeRolesBy {
   CanBeAssignedAsResponsibleDesc = 'canBeAssignedAsResponsible_DESC',
   CanBeAssignedAsExecutorAsc = 'canBeAssignedAsExecutor_ASC',
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
-  CanReadEntitiesOnlyInScopeOfDivisionAsc = 'canReadEntitiesOnlyInScopeOfDivision_ASC',
-  CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
   CanManageTicketPropertyHintsAsc = 'canManageTicketPropertyHints_ASC',
   CanManageTicketPropertyHintsDesc = 'canManageTicketPropertyHints_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
@@ -46276,6 +48661,48 @@ export enum SortOrganizationEmployeeRolesBy {
   CreatedByDesc = 'createdBy_DESC',
   UpdatedByAsc = 'updatedBy_ASC',
   UpdatedByDesc = 'updatedBy_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortOrganizationEmployeeSpecializationHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortOrganizationEmployeeSpecializationsBy {
+  EmployeeAsc = 'employee_ASC',
+  EmployeeDesc = 'employee_DESC',
+  SpecializationAsc = 'specialization_ASC',
+  SpecializationDesc = 'specialization_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
 }
@@ -46305,6 +48732,8 @@ export enum SortOrganizationEmployeesBy {
   IsRejectedDesc = 'isRejected_DESC',
   IsBlockedAsc = 'isBlocked_ASC',
   IsBlockedDesc = 'isBlocked_DESC',
+  HasAllSpecializationsAsc = 'hasAllSpecializations_ASC',
+  HasAllSpecializationsDesc = 'hasAllSpecializations_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -46653,6 +49082,142 @@ export enum SortPropertyHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortPropertyScopeHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  HasAllPropertiesAsc = 'hasAllProperties_ASC',
+  HasAllPropertiesDesc = 'hasAllProperties_DESC',
+  HasAllEmployeesAsc = 'hasAllEmployees_ASC',
+  HasAllEmployeesDesc = 'hasAllEmployees_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortPropertyScopeOrganizationEmployeeHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortPropertyScopeOrganizationEmployeesBy {
+  PropertyScopeAsc = 'propertyScope_ASC',
+  PropertyScopeDesc = 'propertyScope_DESC',
+  EmployeeAsc = 'employee_ASC',
+  EmployeeDesc = 'employee_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortPropertyScopePropertiesBy {
+  PropertyScopeAsc = 'propertyScope_ASC',
+  PropertyScopeDesc = 'propertyScope_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortPropertyScopePropertyHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortPropertyScopesBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  HasAllPropertiesAsc = 'hasAllProperties_ASC',
+  HasAllPropertiesDesc = 'hasAllProperties_DESC',
+  HasAllEmployeesAsc = 'hasAllEmployees_ASC',
+  HasAllEmployeesDesc = 'hasAllEmployees_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortRemoteClientHistoryRecordsBy {

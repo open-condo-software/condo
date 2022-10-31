@@ -1,5 +1,8 @@
 /** @jsx jsx */
 import { EditFilled, FilePdfFilled } from '@ant-design/icons'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
+import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { jsx } from '@emotion/react'
 import { Affix, Col, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -93,9 +96,8 @@ const TAGS_ROW_STYLE: CSSProperties = { marginTop: '1.6em ' }
 const TAGS_ROW_GUTTER: [Gutter, Gutter] = [0, 10]
 const HINT_CARD_STYLE = { maxHeight: '3em ' }
 
-export const TicketPageContent = ({ organization, employee, TicketContent }) => {
+export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
     const PrintMessage = intl.formatMessage({ id: 'Print' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
@@ -112,19 +114,12 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
 
-    const router = useRouter()
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
     const { isSmall } = useLayoutContext()
 
-    // NOTE: cast `string | string[]` to `string`
-    const { query: { id } } = router as { query: { [key: string]: string } }
+    const id = get(ticket, 'id')
 
-    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
-        where: { id },
-    }, {
-        fetchPolicy: 'network-only',
-    })
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
     const ticketChangesResult = TicketChange.useObjects({
         where: { ticket: { id } },
@@ -186,6 +181,7 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
     }, () => refetchUserTicketCommentReadTime())
 
     const canShareTickets = get(employee, 'role.canShareTickets')
+    const ticketVisibilityType = get(employee, 'role.ticketVisibilityType')
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
@@ -249,12 +245,6 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 
         return timeSinceCreation.join(' ')
     }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, statusUpdatedAt])
-
-    if (!ticket) {
-        return (
-            <LoadingOrErrorPage title={TicketTitleMessage} loading={loading} error={error ? ServerErrorMessage : null}/>
-        )
-    }
 
     return (
         <>
@@ -367,12 +357,16 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
                                     </Row>
                                 </Col>
                                 <TicketContent ticket={ticket}/>
-                                <Col span={24}>
-                                    <TicketPropertyHintCard
-                                        propertyId={ticketPropertyId}
-                                        hintContentStyle={HINT_CARD_STYLE}
-                                    />
-                                </Col>
+                                {
+                                    ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
+                                        <Col span={24}>
+                                            <TicketPropertyHintCard
+                                                propertyId={ticketPropertyId}
+                                                hintContentStyle={HINT_CARD_STYLE}
+                                            />
+                                        </Col>
+                                    )
+                                }
                                 <ActionBar>
                                     <Link href={`/ticket/${ticket.id}/update`}>
                                         <Button
@@ -447,9 +441,52 @@ export const TicketPageContent = ({ organization, employee, TicketContent }) => 
 }
 
 const TicketIdPage = () => {
+    const intl = useIntl()
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const NoPermissionToPageMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+
     const { link, organization } = useOrganization()
 
-    return <TicketPageContent organization={organization} employee={link} TicketContent={TicketContent} />
+    const router = useRouter()
+
+    // NOTE: cast `string | string[]` to `string`
+    const { query: { id } } = router as { query: { [key: string]: string } }
+
+    const { refetch: refetchTicket, loading, obj: ticket, error } = Ticket.useObject({
+        where: { id },
+    }, {
+        fetchPolicy: 'network-only',
+    })
+
+    const { canEmployeeReadTicket, ticketFilterQueryLoading } = useTicketVisibility()
+    const isEmployeeReadTicket = canEmployeeReadTicket(ticket)
+
+    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
+
+    if (!ticket || !isEmployeeReadTicket) {
+        if (ticket && !ticketFilterQueryLoading && get(link, ['role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY) {
+            return (
+                <AccessDeniedPage title={TicketTitleMessage} />
+            )
+        }
+
+        return (
+            <LoadingOrErrorPage
+                title={TicketTitleMessage}
+                loading={loading || ticketFilterQueryLoading}
+                error={error && ServerErrorMessage}
+            />
+        )
+    }
+
+    return <TicketPageContent
+        ticket={ticket}
+        loading={loading}
+        refetchTicket={refetchTicket}
+        organization={organization}
+        employee={link}
+        TicketContent={TicketContent}
+    />
 }
 
 TicketIdPage.requiredAccess = OrganizationRequired

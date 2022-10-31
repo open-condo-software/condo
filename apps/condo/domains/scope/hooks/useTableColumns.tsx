@@ -105,11 +105,10 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 width: '33%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'name'),
                 filterIcon: getFilterIcon,
-                render: (name) => render(intl.formatMessage({ id: name }) || name),
+                render,
             },
             {
                 title: PropertiesMessage,
-                ellipsis: true,
                 key: 'properties',
                 render: (_, propertyScope) => renderPropertyScopeProperties(intl, propertyScope),
                 width: '33%',
@@ -121,5 +120,5 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
                 width: '33%',
             },
         ],
-    }), [PropertiesMessage, PropertyScopeNameMessage, filterMetas, filters, intl, propertiesLoading, render, renderPropertyScopeProperties])
+    }), [EmployeesMessage, PropertiesMessage, PropertyScopeNameMessage, employeesLoading, filterMetas, filters, intl, organizationEmployeeSpecializationsLoading, propertiesLoading, render, renderPropertyScopeEmployees, renderPropertyScopeProperties])
 }

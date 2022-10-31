@@ -1,5 +1,6 @@
 /** @jsx jsx */
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+import { get } from 'lodash'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'

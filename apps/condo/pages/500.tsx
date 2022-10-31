@@ -38,3 +38,4 @@ export default function Custom500 (): React.ReactElement {
 export const ErrorLayout = (props): React.ReactElement => <PosterLayout {...props} layoutBgImage={Src500} />
 
 Custom500.container = ErrorLayout
+Custom500.isError = true

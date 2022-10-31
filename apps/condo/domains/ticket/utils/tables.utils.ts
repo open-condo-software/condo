@@ -48,14 +48,23 @@ export const getIsResidentContactFilter = () => {
     }
 }
 
-export const divisionFilterQueryToWhereProcessor = (queryDivisions) => {
-    try {
-        if (queryDivisions) {
-            return queryDivisions
-                .map(option => JSON.parse(option).value)
-                .flat(1)
+export const getPropertyScopeFilter = () => {
+    return function getWhereQuery (options) {
+        if (isEmpty(options)) return
+
+        try {
+            if (options) {
+                const propertyScopes = options.map(option => JSON.parse(option))
+                if (propertyScopes.find(propertyScope => propertyScope.hasAllProperties)) {
+                    return {}
+                }
+
+                return {
+                    property: { id_in: propertyScopes.map(scope => scope.value).flat(1) },
+                }
+            }
+        } catch (e) {
+            console.error(e)
         }
-    } catch (e) {
-        console.error(e)
     }
 }

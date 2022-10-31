@@ -1,6 +1,11 @@
 import { EditFilled } from '@ant-design/icons'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'

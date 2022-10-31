@@ -51,6 +51,7 @@ async function softDeletePropertyScopeProperties (context, updatedItem) {
 
     const propertyScopeProperties = await PropertyScopeProperty.getAll(context, {
         property: { id },
+        deletedAt: null,
     })
 
     for (const propertyScopeProperty of propertyScopeProperties) {

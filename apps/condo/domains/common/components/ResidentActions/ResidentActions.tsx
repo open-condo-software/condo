@@ -1,6 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
+import get from 'lodash/get'
 import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
@@ -8,6 +9,8 @@ import { AppealIcon } from '@condo/domains/common/components/icons/AppealIcon'
 import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import { useOrganization } from '@condo/next/organization'
 
 export const StyledMenu = styled(Menu)`
   width: 225px;
@@ -20,7 +23,7 @@ const ResidentAppealDropDownMenuItemWrapperProps = {
     padding: '16px',
 }
 
-const ResidentAppealDropdownOverlay = () => {
+const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType }) => {
     return (
         <StyledMenu>
             <MenuItem
@@ -29,13 +32,19 @@ const ResidentAppealDropdownOverlay = () => {
                 icon={AppealIcon}
                 label='CreateAppeal'
             />
-            <Divider style={{ margin: 0 }}/>
-            <MenuItem
-                menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                path='/meter/create'
-                icon={MeterIcon}
-                label='CreateMeterReading'
-            />
+            {
+                !isAssignedVisibilityType && (
+                    <>
+                        <Divider style={{ margin: 0 }}/>
+                        <MenuItem
+                            menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
+                            path='/meter/create'
+                            icon={MeterIcon}
+                            label='CreateMeterReading'
+                        />
+                    </>
+                )
+            }
         </StyledMenu>
     )
 }
@@ -51,9 +60,13 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const { minified } = props
     const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
 
+    const { link } = useOrganization()
+    const role = get(link, 'role', {})
+    const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
+
     return (
         <Dropdown
-            overlay={ResidentAppealDropdownOverlay}
+            overlay={() => <ResidentAppealDropdownOverlay isAssignedVisibilityType={isAssignedVisibilityType}/>}
             placement={minified ? 'bottomRight' : 'bottomCenter'}
             trigger={RESIDENT_ACTIONS_OPEN_DROPDOWN_TRIGGERS}
         >

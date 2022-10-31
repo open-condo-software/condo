@@ -59,6 +59,8 @@ import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/Gl
 import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsContext'
 import { uniqBy } from 'lodash'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
+import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
 
 
 const ANT_LOCALES = {
@@ -83,12 +85,14 @@ const MenuItems: React.FC = () => {
     const { isCollapsed } = useLayoutContext()
     const { wrapElementIntoNoOrganizationToolTip } = useNoOrganizationToolTip()
     const role = get(link, 'role', {})
+    const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
 
     const menuItemsData: IMenuItemData[] = useMemo(() => {
         const itemsConfigs = [{
             path: 'reports',
             icon: BarChartIconNew,
             label: 'menu.Analytics',
+            access: () => !isAssignedVisibilityType,
         }, {
             path: 'ticket',
             icon: BarTicketIcon,
@@ -97,48 +101,62 @@ const MenuItems: React.FC = () => {
             path: 'property',
             icon: BarPropertyIcon,
             label: 'menu.Property',
+            access: () => !isAssignedVisibilityType,
         }, {
             path: 'contact',
             icon: BarUserIcon,
             label: 'menu.Contacts',
+            access: () => !isAssignedVisibilityType,
         }, {
             path: 'employee',
             icon: BarEmployeeIcon,
             label: 'menu.Employees',
+            access: () => !isAssignedVisibilityType,
         }, {
             path: 'billing',
             icon: BarBillingIcon,
             label: 'menu.Billing',
-            access: () => get(role, 'canReadBillingReceipts', false ),
+            access: () => get(role, 'canReadBillingReceipts', false ) && !isAssignedVisibilityType,
         }, {
             path: 'payments',
             icon: BarPaymentsIcon,
             label: 'menu.Payments',
-            access: () => get(role, 'canReadPayments', false ),
+            access: () => get(role, 'canReadPayments', false ) && !isAssignedVisibilityType,
         }, {
             path: 'meter',
             icon: BarMeterIcon,
             label: 'menu.Meters',
+            access: () => !isAssignedVisibilityType,
         }, {
             path: 'miniapps',
             icon: BarMiniAppsIcon,
             label: 'menu.MiniApps',
+            access: () => !isAssignedVisibilityType,
+        }, {
+            path: 'settings',
+            icon: BarSettingIcon,
+            label: 'menu.Settings',
+            access: () => !isAssignedVisibilityType,
         }]
         return itemsConfigs.filter((item) => get(item, 'access', () => true)())
     }, [link])
 
     return (
         <>
-            <FocusElement>
-                <OnBoardingProgressIconContainer>
-                    <MenuItem
-                        path='/onboarding'
-                        icon={OnBoardingProgress}
-                        label='menu.OnBoarding'
-                        isCollapsed={isCollapsed}
-                    />
-                </OnBoardingProgressIconContainer>
-            </FocusElement>
+            {
+                !isAssignedVisibilityType && (
+                    <FocusElement>
+                        <OnBoardingProgressIconContainer>
+                            <MenuItem
+                                path='/onboarding'
+                                icon={OnBoardingProgress}
+                                label='menu.OnBoarding'
+                                isCollapsed={isCollapsed}
+                            />
+                        </OnBoardingProgressIconContainer>
+                    </FocusElement>
+                )
+            }
             <div>
                 {menuItemsData.map((menuItemData) => (
                     <MenuItem
@@ -151,14 +169,6 @@ const MenuItems: React.FC = () => {
                         toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
                     />
                 ))}
-                <MenuItem
-                    key='menu-item-settings'
-                    path='/settings'
-                    icon={BarSettingIcon}
-                    label='menu.Settings'
-                    disabled={!link}
-                    isCollapsed={isCollapsed}
-                />
             </div>
         </>
     )
@@ -200,7 +210,14 @@ const MyApp = ({ Component, pageProps }) => {
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
     const HeaderAction = Component.headerAction
-    const RequiredAccess = Component.requiredAccess || React.Fragment
+    let RequiredAccess: React.FC = React.Fragment
+
+    const organization = useOrganization()
+    if (!Component.isError && get(organization, ['link', 'role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY) {
+        RequiredAccess = OnlyTicketPagesAccess
+    } else if (Component.requiredAccess) {
+        RequiredAccess = Component.requiredAccess
+    }
 
     const {
         EndTrialSubscriptionReminderPopup,
@@ -259,32 +276,6 @@ const MyApp = ({ Component, pageProps }) => {
 
 const { publicRuntimeConfig: { defaultLocale  } } = getConfig()
 
-/**
- * To use fetchMore we need to implement field policy for merge cached results
- * Ref: https://www.apollographql.com/docs/react/pagination/core-api
- */
-const skipFirstPaginationFieldPolicy = {
-    keyArgs: (args, context) => {
-        const { where } = args
-        const { fieldName } = context
-        const jsonWhere = JSON.stringify(where)
-
-        return fieldName + jsonWhere
-    },
-    read (existing, { args: { skip = 0, first } }) {
-        return existing && existing.slice(skip, skip + first)
-    },
-    merge (existing, incoming, { args: { skip = 0 } }) {
-        const merged = existing ? existing.slice(0) : []
-
-        for (let i = 0; i < incoming.length; ++i) {
-            merged[skip + i] = incoming[i]
-        }
-
-        return merged
-    },
-}
-
 /*
     Configuration for `InMemoryCache` of Apollo
     Add fields, related to pagination strategies of Apollo.
@@ -309,13 +300,6 @@ const apolloCacheConfig = {
         },
         BuildingUnit: {
             keyFields: false,
-        },
-        Query: {
-            fields: {
-                allPropertyScopeOrganizationEmployees: skipFirstPaginationFieldPolicy,
-                allPropertyScopeProperties: skipFirstPaginationFieldPolicy,
-                allOrganizationEmployeeSpecializations: skipFirstPaginationFieldPolicy,
-            },
         },
     },
 }

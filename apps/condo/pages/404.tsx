@@ -55,3 +55,4 @@ export default function Custom404 (): React.ReactElement {
 export const ErrorLayout = (props): React.ReactElement => <PosterLayout {...props} layoutBgImage={Src404}/>
 
 Custom404.container = ErrorLayout
+Custom404.isError = true

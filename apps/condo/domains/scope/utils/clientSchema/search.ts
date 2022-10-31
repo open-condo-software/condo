@@ -20,8 +20,8 @@ const GET_ALL_PROPERTY_SCOPES_BY_VALUE_QUERY = gql`
 `
 
 const GET_ALL_PROPERTY_SCOPE_PROPERTIES_QUERY = gql`
-    query selectPropertyScopeProperty ($where: PropertyScopePropertyWhereInput, $orderBy: String) {
-        objs: allPropertyScopeProperties(where: $where, orderBy: $orderBy) {
+    query selectPropertyScopeProperty ($where: PropertyScopePropertyWhereInput, $first: Int) {
+        objs: allPropertyScopeProperties(where: $where, first: $first) {
             id
             propertyScope { id }
             property { id }
@@ -49,31 +49,37 @@ export function searchOrganizationPropertyScope (organizationId: string) {
             name_contains_i: value,
         }
         const orderBy = 'name_ASC'
-        const { data = [], error } = await _search(client, GET_ALL_PROPERTY_SCOPES_BY_VALUE_QUERY, { where, orderBy })
+        const { data: propertyScopes = [], error } = await _search(client, GET_ALL_PROPERTY_SCOPES_BY_VALUE_QUERY, { where, orderBy })
 
         if (error) console.warn(error)
 
-        const propertyScopes = data.objs
-        const { data: propertyScopePropertiesData = [], error: propertyScopePropertiesError } = await _search(
-            client,
-            GET_ALL_PROPERTY_SCOPE_PROPERTIES_QUERY,
-            {
-                where: {
-                    propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
-                },
+
+        const propertyScopeProperties = []
+        for (const scope of propertyScopes.objs) {
+            const { data } = await _search(
+                client,
+                GET_ALL_PROPERTY_SCOPE_PROPERTIES_QUERY,
+                {
+                    where: {
+                        propertyScope: { id: scope.id },
+                    },
+                    first: 300,
+                }
+            )
+
+            propertyScopeProperties.push(...data.objs)
+        }
+
+        return propertyScopes.objs.map(({ id, name, hasAllProperties }) => {
+            if (hasAllProperties) {
+                return { text: name, key: id, value: [], hasAllProperties }
             }
-        )
 
-        if (propertyScopePropertiesError) console.warn(propertyScopePropertiesError)
-
-        const propertyScopeProperties = propertyScopePropertiesData.objs.filter(scope => !scope.hasAllProperties)
-
-        return propertyScopes.map(({ id, name }) => {
-            const properties = propertyScopeProperties
+            const propertyIds = propertyScopeProperties
                 .filter(scope => scope.property && scope.propertyScope && scope.propertyScope.id === id)
                 .map(scope => scope.property.id)
 
-            return { text: name, value: String(properties) }
+            return { text: name, key: id, value: propertyIds }
         })
     }
 }
