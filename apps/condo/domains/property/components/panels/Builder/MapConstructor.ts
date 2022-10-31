@@ -836,11 +836,12 @@ class MapEdit extends MapView {
         this.notifyUpdater()
     }
 
-    public updateSection (section: BuildingSection): void {
+    public updateSection (section: BuildingSection, renameNextUnits = true): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => section.id === mapSection.id)
         if (sectionIndex !== -1) {
             this.map.sections[sectionIndex].name = section.name
         }
+        if (renameNextUnits) this.updateSectionNumbers(sectionIndex, renameNextUnits)
         this.editMode = null
         this.notifyUpdater()
     }
@@ -848,17 +849,18 @@ class MapEdit extends MapView {
     public removeSection (id: string, renameNextUnits = true): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
-        if (renameNextUnits) this.updateSectionNumbers(sectionIndex)
+        if (renameNextUnits) this.updateSectionNumbers((sectionIndex - 1), renameNextUnits)
 
         this.editMode = 'addSection'
         this.notifyUpdater()
     }
 
-    public updateParking (parking: BuildingSection): void {
+    public updateParking (parking: BuildingSection, renameNextUnits = true): void {
         const parkingIndex = this.map.parking.findIndex(parkingSection => parkingSection.id === parking.id)
         if (parkingIndex !== -1) {
             this.map.parking[parkingIndex].name = parking.name
         }
+        if (renameNextUnits) this.updateParkingNumbers(parkingIndex, renameNextUnits)
         this.editMode = null
         this.notifyUpdater()
     }
@@ -866,7 +868,7 @@ class MapEdit extends MapView {
     public removeParking (id: string, renameNextUnits = true): void {
         const parkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === id)
         this.map.parking.splice(parkingIndex, 1)
-        this.updateParkingNumbers(parkingIndex, renameNextUnits)
+        if (renameNextUnits) this.updateParkingNumbers((parkingIndex - 1), renameNextUnits)
 
         this.editMode = 'addParking'
         this.notifyUpdater()
@@ -1414,11 +1416,15 @@ class MapEdit extends MapView {
         if (removedIndex === this.map.sections.length) {
             return
         }
-        let sectionNameNumber = parseInt(get(this.map.sections, '0.name', '1'))
+        let sectionNameNumber = parseInt(get(this.map.sections, `${removedIndex}.name`))
+        let sectionIndex = removedIndex
         this.map.sections.forEach((section, index) => {
-            section.name = String(sectionNameNumber)
-            section.index = index
-            sectionNameNumber++
+            if (index >= removedIndex) {
+                section.name = String(sectionNameNumber)
+                section.index = sectionIndex
+                sectionNameNumber++
+                sectionIndex++
+            }
         })
 
     }
@@ -1427,10 +1433,15 @@ class MapEdit extends MapView {
         if (removedIndex === this.map.parking.length) {
             return
         }
-
+        let parkingNameNumber = parseInt(get(this.map.parking, `${removedIndex}.name`))
+        let parkingIndex = removedIndex
         this.map.parking.forEach((parkingSection, index) => {
-            parkingSection.name = String(index + 1)
-            parkingSection.index = index
+            if (index >= removedIndex) {
+                parkingSection.name = String(parkingNameNumber)
+                parkingSection.index = parkingIndex
+                parkingNameNumber++
+                parkingIndex++
+            }
         })
     }
 

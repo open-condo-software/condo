@@ -220,7 +220,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const toggleRenameNextUnits = useCallback((event) => { renameNextUnits.current = event.target.checked }, [])
 
     const updateSection = useCallback(() => {
-        builder.updateSection({ ...section, name })
+        builder.updateSection({ ...section, name }, renameNextUnits.current)
         refresh()
     }, [builder, refresh, name, section])
 
