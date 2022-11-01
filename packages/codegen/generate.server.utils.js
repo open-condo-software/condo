@@ -80,7 +80,15 @@ function _checkOptions (options) {
     }
 }
 
-async function execGqlAsUser (context, user, { query, variables, errorMessage = '[error] Internal Exec as user GQL Error', authedListKey = 'User', dataPath = 'obj', errorMapping = null }) {
+async function execGqlAsUser (context, user, {
+    query,
+    variables,
+    errorMessage = '[error] Internal Exec as user GQL Error',
+    authedListKey = 'User',
+    dataPath = 'obj',
+    errorMapping = null,
+    deleted = false,
+}) {
     if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
@@ -91,7 +99,14 @@ async function execGqlAsUser (context, user, { query, variables, errorMessage = 
     if (!item) throw new Error('unknown user id')
     const { errors, data } = await context.executeGraphQL({
         context: {
-            req: context.req,
+            req: {
+                ...context.req,
+                query: {
+                    query,
+                    variables,
+                    deleted,
+                },
+            },
             ...context.createContext({
                 authentication: { item, listKey: authedListKey },
                 skipAccessControl: false,

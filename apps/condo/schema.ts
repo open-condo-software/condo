@@ -44612,6 +44612,8 @@ export enum SortWebhookSubscriptionHistoryRecordsBy {
   SyncedAtDesc = 'syncedAt_DESC',
   SyncedAmountAsc = 'syncedAmount_ASC',
   SyncedAmountDesc = 'syncedAmount_DESC',
+  FailuresCountAsc = 'failuresCount_ASC',
+  FailuresCountDesc = 'failuresCount_DESC',
   ModelAsc = 'model_ASC',
   ModelDesc = 'model_DESC',
   FieldsAsc = 'fields_ASC',
@@ -44645,6 +44647,8 @@ export enum SortWebhookSubscriptionsBy {
   SyncedAtDesc = 'syncedAt_DESC',
   SyncedAmountAsc = 'syncedAmount_ASC',
   SyncedAmountDesc = 'syncedAmount_DESC',
+  FailuresCountAsc = 'failuresCount_ASC',
+  FailuresCountDesc = 'failuresCount_DESC',
   ModelAsc = 'model_ASC',
   ModelDesc = 'model_DESC',
   FieldsAsc = 'fields_ASC',
@@ -54546,6 +54550,8 @@ export type WebhookSubscription = {
   syncedAt?: Maybe<Scalars['String']>;
   /**  The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.  */
   syncedAmount?: Maybe<Scalars['Int']>;
+  /**  The number of consecutive failures to send webhooks to a remote server. Field value is automatically incremented when the specified url is unavailable or the server response was not ok, but no more than once per hour. Field value is automatically reset to 0 when the remote server is successfully reached (syncedAt or syncedAmount changed), or can be manually reset by support. As soon as the counter reaches the value 10, which is interpreted as the unavailability of the external service for at least 10 hours, the webhook will stop being sent to this url. In this case, you will need to manually reset the counter via support to resume sending.  */
+  failuresCount?: Maybe<Scalars['Int']>;
   /**  The data model (schema) that the webhook is subscribed to  */
   model?: Maybe<Scalars['String']>;
   /**  String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }"  */
@@ -54575,6 +54581,7 @@ export type WebhookSubscriptionCreateInput = {
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
   syncedAmount?: Maybe<Scalars['Int']>;
+  failuresCount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
@@ -54605,6 +54612,7 @@ export type WebhookSubscriptionHistoryRecord = {
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
   syncedAmount?: Maybe<Scalars['Int']>;
+  failuresCount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
@@ -54629,6 +54637,7 @@ export type WebhookSubscriptionHistoryRecordCreateInput = {
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
   syncedAmount?: Maybe<Scalars['Int']>;
+  failuresCount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
@@ -54658,6 +54667,7 @@ export type WebhookSubscriptionHistoryRecordUpdateInput = {
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
   syncedAmount?: Maybe<Scalars['Int']>;
+  failuresCount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
@@ -54717,6 +54727,14 @@ export type WebhookSubscriptionHistoryRecordWhereInput = {
   syncedAmount_gte?: Maybe<Scalars['Int']>;
   syncedAmount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   syncedAmount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  failuresCount?: Maybe<Scalars['Int']>;
+  failuresCount_not?: Maybe<Scalars['Int']>;
+  failuresCount_lt?: Maybe<Scalars['Int']>;
+  failuresCount_lte?: Maybe<Scalars['Int']>;
+  failuresCount_gt?: Maybe<Scalars['Int']>;
+  failuresCount_gte?: Maybe<Scalars['Int']>;
+  failuresCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  failuresCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   model?: Maybe<Scalars['String']>;
   model_not?: Maybe<Scalars['String']>;
   model_contains?: Maybe<Scalars['String']>;
@@ -54861,6 +54879,7 @@ export type WebhookSubscriptionUpdateInput = {
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
   syncedAmount?: Maybe<Scalars['Int']>;
+  failuresCount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
@@ -54915,6 +54934,14 @@ export type WebhookSubscriptionWhereInput = {
   syncedAmount_gte?: Maybe<Scalars['Int']>;
   syncedAmount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   syncedAmount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  failuresCount?: Maybe<Scalars['Int']>;
+  failuresCount_not?: Maybe<Scalars['Int']>;
+  failuresCount_lt?: Maybe<Scalars['Int']>;
+  failuresCount_lte?: Maybe<Scalars['Int']>;
+  failuresCount_gt?: Maybe<Scalars['Int']>;
+  failuresCount_gte?: Maybe<Scalars['Int']>;
+  failuresCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  failuresCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   model?: Maybe<Scalars['String']>;
   model_not?: Maybe<Scalars['String']>;
   model_in?: Maybe<Array<Maybe<Scalars['String']>>>;
