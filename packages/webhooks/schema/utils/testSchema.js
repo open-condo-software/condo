@@ -59,6 +59,7 @@ async function createTestWebhookSubscription (client, webhook, extraAttrs = {}) 
         sender,
         webhook: { connect: { id: webhook.id } },
         syncedAt: dayjs().toISOString(),
+        syncedAmount: 0,
         model: 'User',
         fields: 'id',
         filters: {},

@@ -42286,9 +42286,11 @@ type WebhookSubscriptionHistoryRecord {
   webhook: String
   url: String
   syncedAt: String
+  syncedAmount: Int
   model: String
   fields: String
   filters: JSON
+  maxPackSize: Int
   id: ID!
   v: Int
   createdAt: String
@@ -42337,6 +42339,14 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   syncedAt_gte: String
   syncedAt_in: [String]
   syncedAt_not_in: [String]
+  syncedAmount: Int
+  syncedAmount_not: Int
+  syncedAmount_lt: Int
+  syncedAmount_lte: Int
+  syncedAmount_gt: Int
+  syncedAmount_gte: Int
+  syncedAmount_in: [Int]
+  syncedAmount_not_in: [Int]
   model: String
   model_not: String
   model_contains: String
@@ -42377,6 +42387,14 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   filters_not: JSON
   filters_in: [JSON]
   filters_not_in: [JSON]
+  maxPackSize: Int
+  maxPackSize_not: Int
+  maxPackSize_lt: Int
+  maxPackSize_lte: Int
+  maxPackSize_gt: Int
+  maxPackSize_gte: Int
+  maxPackSize_in: [Int]
+  maxPackSize_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -42464,10 +42482,14 @@ enum SortWebhookSubscriptionHistoryRecordsBy {
   url_DESC
   syncedAt_ASC
   syncedAt_DESC
+  syncedAmount_ASC
+  syncedAmount_DESC
   model_ASC
   model_DESC
   fields_ASC
   fields_DESC
+  maxPackSize_ASC
+  maxPackSize_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -42490,9 +42512,11 @@ input WebhookSubscriptionHistoryRecordUpdateInput {
   webhook: String
   url: String
   syncedAt: String
+  syncedAmount: Int
   model: String
   fields: String
   filters: JSON
+  maxPackSize: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -42516,9 +42540,11 @@ input WebhookSubscriptionHistoryRecordCreateInput {
   webhook: String
   url: String
   syncedAt: String
+  syncedAmount: Int
   model: String
   fields: String
   filters: JSON
+  maxPackSize: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -42567,6 +42593,10 @@ type WebhookSubscription {
   """
   syncedAt: String
 
+  """ The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects. 
+  """
+  syncedAmount: Int
+
   """ The data model (schema) that the webhook is subscribed to """
   model: String
 
@@ -42577,6 +42607,10 @@ type WebhookSubscription {
   """ Filters which is stored in JSON and used to filter models sent by the webhook. Examples of filters can be found in ModelWhereInput GQL type, where Model is name of your model 
   """
   filters: JSON
+
+  """ The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks. 
+  """
+  maxPackSize: Int
   id: ID!
   v: Int
   createdAt: String
@@ -42631,6 +42665,14 @@ input WebhookSubscriptionWhereInput {
   syncedAt_gte: String
   syncedAt_in: [String]
   syncedAt_not_in: [String]
+  syncedAmount: Int
+  syncedAmount_not: Int
+  syncedAmount_lt: Int
+  syncedAmount_lte: Int
+  syncedAmount_gt: Int
+  syncedAmount_gte: Int
+  syncedAmount_in: [Int]
+  syncedAmount_not_in: [Int]
   model: String
   model_not: String
   model_in: [String]
@@ -42657,6 +42699,14 @@ input WebhookSubscriptionWhereInput {
   filters_not: JSON
   filters_in: [JSON]
   filters_not_in: [JSON]
+  maxPackSize: Int
+  maxPackSize_not: Int
+  maxPackSize_lt: Int
+  maxPackSize_lte: Int
+  maxPackSize_gt: Int
+  maxPackSize_gte: Int
+  maxPackSize_in: [Int]
+  maxPackSize_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -42726,10 +42776,14 @@ enum SortWebhookSubscriptionsBy {
   url_DESC
   syncedAt_ASC
   syncedAt_DESC
+  syncedAmount_ASC
+  syncedAmount_DESC
   model_ASC
   model_DESC
   fields_ASC
   fields_DESC
+  maxPackSize_ASC
+  maxPackSize_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -42752,9 +42806,11 @@ input WebhookSubscriptionUpdateInput {
   webhook: WebhookRelateToOneInput
   url: String
   syncedAt: String
+  syncedAmount: Int
   model: String
   fields: String
   filters: JSON
+  maxPackSize: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -42775,9 +42831,11 @@ input WebhookSubscriptionCreateInput {
   webhook: WebhookRelateToOneInput
   url: String
   syncedAt: String
+  syncedAmount: Int
   model: String
   fields: String
   filters: JSON
+  maxPackSize: Int
   v: Int
   createdAt: String
   updatedAt: String

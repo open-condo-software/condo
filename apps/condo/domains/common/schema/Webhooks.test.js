@@ -2,7 +2,7 @@ const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.ut
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { WebhookTests } = require('@condo/webhooks/schema/models/Webhook.test')
-const { WebhookSubscriptionTests, WebhookSubscriptionModelSwitchTests } = require('@condo/webhooks/schema/models/WebhookSubscription.test')
+const { WebhookSubscriptionBasicTests, WebhookSubscriptionModelSwitchTests } = require('@condo/webhooks/schema/models/WebhookSubscription.test')
 
 async function initializeActors () {
     const admin = await makeLoggedInAdminClient()
@@ -30,6 +30,6 @@ const secondModel = {
 // and its fields / filters must not intersect with User ones (see sample above)
 describe('External webhook tests', () => {
     WebhookTests('Condo', initializeActors)
-    WebhookSubscriptionTests('Condo', initializeActors)
+    WebhookSubscriptionBasicTests('Condo', initializeActors)
     WebhookSubscriptionModelSwitchTests('Condo', initializeActors, secondModel)
 })

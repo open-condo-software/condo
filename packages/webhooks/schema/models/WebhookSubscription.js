@@ -1,9 +1,10 @@
-const { Relationship, DateTimeUtc, Select, Text } = require('@keystonejs/fields')
+const { Relationship, DateTimeUtc, Select, Text, Integer } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@condo/keystone/plugins')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const access = require('@condo/webhooks/schema/access/WebhookSubscription')
 const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@condo/webhooks/model-validator')
+const { DEFAULT_MAX_PACK_SIZE } = require('@condo/webhooks/constants')
 
 function getWebhookSubscriptionModel (schemaPath) {
     if (!getModelValidator()) {
@@ -68,6 +69,23 @@ function getWebhookSubscriptionModel (schemaPath) {
                 type: DateTimeUtc,
                 isRequired: true,
             },
+            syncedAmount: {
+                schemaDoc: 'The number of objects successfully delivered by webhooks. ' +
+                    'On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. ' +
+                    'If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.',
+                type: Integer,
+                isRequired: true,
+                defaultValue: 0,
+                hooks: {
+                    resolveInput: ({ resolvedData, fieldPath }) => {
+                        if (resolvedData['syncedAt'] && !resolvedData[fieldPath]) {
+                            return 0
+                        } else {
+                            return resolvedData[fieldPath]
+                        }
+                    },
+                },
+            },
             model: {
                 schemaDoc: 'The data model (schema) that the webhook is subscribed to',
                 type: Select,
@@ -104,6 +122,22 @@ function getWebhookSubscriptionModel (schemaPath) {
                 kmigratorOptions: { null: false },
                 hooks: {
                     validateInput: validateFilters,
+                },
+            },
+            maxPackSize: {
+                schemaDoc: 'The maximum number of objects that the server can send in one request. ' +
+                    `The default is ${DEFAULT_MAX_PACK_SIZE}, and maxPackSize cannot be set beyond this value. ` +
+                    'In most cases, you do not need to override this field, but it is recommended to lower this value ' +
+                    'for requests with a large number of related fields ' +
+                    'or in case of external restrictions of the server accepting webhooks.',
+                type: Integer,
+                isRequired: false,
+                hooks: {
+                    validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                        if (resolvedData[fieldPath] <= 0 || resolvedData[fieldPath] > DEFAULT_MAX_PACK_SIZE) {
+                            return addFieldValidationError(`Invalid maxPackSize value. The correct value must be in the range [1; ${DEFAULT_MAX_PACK_SIZE}]`)
+                        }
+                    },
                 },
             },
         },

@@ -44832,10 +44832,14 @@ export enum SortWebhookSubscriptionHistoryRecordsBy {
   UrlDesc = 'url_DESC',
   SyncedAtAsc = 'syncedAt_ASC',
   SyncedAtDesc = 'syncedAt_DESC',
+  SyncedAmountAsc = 'syncedAmount_ASC',
+  SyncedAmountDesc = 'syncedAmount_DESC',
   ModelAsc = 'model_ASC',
   ModelDesc = 'model_DESC',
   FieldsAsc = 'fields_ASC',
   FieldsDesc = 'fields_DESC',
+  MaxPackSizeAsc = 'maxPackSize_ASC',
+  MaxPackSizeDesc = 'maxPackSize_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -44861,10 +44865,14 @@ export enum SortWebhookSubscriptionsBy {
   UrlDesc = 'url_DESC',
   SyncedAtAsc = 'syncedAt_ASC',
   SyncedAtDesc = 'syncedAt_DESC',
+  SyncedAmountAsc = 'syncedAmount_ASC',
+  SyncedAmountDesc = 'syncedAmount_DESC',
   ModelAsc = 'model_ASC',
   ModelDesc = 'model_DESC',
   FieldsAsc = 'fields_ASC',
   FieldsDesc = 'fields_DESC',
+  MaxPackSizeAsc = 'maxPackSize_ASC',
+  MaxPackSizeDesc = 'maxPackSize_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -55306,12 +55314,16 @@ export type WebhookSubscription = {
   url?: Maybe<Scalars['String']>;
   /**  The time was the data was last synced. At the next synchronization, only objects that have changed since that time will be sent.  */
   syncedAt?: Maybe<Scalars['String']>;
+  /**  The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects.  */
+  syncedAmount?: Maybe<Scalars['Int']>;
   /**  The data model (schema) that the webhook is subscribed to  */
   model?: Maybe<Scalars['String']>;
   /**  String representing list of model fields in graphql-query format. Exactly the fields specified here will be sent by the webhook. Correct examples: "field1 field2 { subfield }", "{ field1 relation { subfield } }"  */
   fields?: Maybe<Scalars['String']>;
   /**  Filters which is stored in JSON and used to filter models sent by the webhook. Examples of filters can be found in ModelWhereInput GQL type, where Model is name of your model  */
   filters?: Maybe<Scalars['JSON']>;
+  /**  The maximum number of objects that the server can send in one request. The default is 100, and maxPackSize cannot be set beyond this value. In most cases, you do not need to override this field, but it is recommended to lower this value for requests with a large number of related fields or in case of external restrictions of the server accepting webhooks.  */
+  maxPackSize?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -55332,9 +55344,11 @@ export type WebhookSubscriptionCreateInput = {
   webhook?: Maybe<WebhookRelateToOneInput>;
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
+  syncedAmount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
+  maxPackSize?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -55360,9 +55374,11 @@ export type WebhookSubscriptionHistoryRecord = {
   webhook?: Maybe<Scalars['String']>;
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
+  syncedAmount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
+  maxPackSize?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -55382,9 +55398,11 @@ export type WebhookSubscriptionHistoryRecordCreateInput = {
   webhook?: Maybe<Scalars['String']>;
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
+  syncedAmount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
+  maxPackSize?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -55409,9 +55427,11 @@ export type WebhookSubscriptionHistoryRecordUpdateInput = {
   webhook?: Maybe<Scalars['String']>;
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
+  syncedAmount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
+  maxPackSize?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -55459,6 +55479,14 @@ export type WebhookSubscriptionHistoryRecordWhereInput = {
   syncedAt_gte?: Maybe<Scalars['String']>;
   syncedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   syncedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  syncedAmount?: Maybe<Scalars['Int']>;
+  syncedAmount_not?: Maybe<Scalars['Int']>;
+  syncedAmount_lt?: Maybe<Scalars['Int']>;
+  syncedAmount_lte?: Maybe<Scalars['Int']>;
+  syncedAmount_gt?: Maybe<Scalars['Int']>;
+  syncedAmount_gte?: Maybe<Scalars['Int']>;
+  syncedAmount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  syncedAmount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   model?: Maybe<Scalars['String']>;
   model_not?: Maybe<Scalars['String']>;
   model_contains?: Maybe<Scalars['String']>;
@@ -55499,6 +55527,14 @@ export type WebhookSubscriptionHistoryRecordWhereInput = {
   filters_not?: Maybe<Scalars['JSON']>;
   filters_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   filters_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  maxPackSize?: Maybe<Scalars['Int']>;
+  maxPackSize_not?: Maybe<Scalars['Int']>;
+  maxPackSize_lt?: Maybe<Scalars['Int']>;
+  maxPackSize_lte?: Maybe<Scalars['Int']>;
+  maxPackSize_gt?: Maybe<Scalars['Int']>;
+  maxPackSize_gte?: Maybe<Scalars['Int']>;
+  maxPackSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  maxPackSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -55594,9 +55630,11 @@ export type WebhookSubscriptionUpdateInput = {
   webhook?: Maybe<WebhookRelateToOneInput>;
   url?: Maybe<Scalars['String']>;
   syncedAt?: Maybe<Scalars['String']>;
+  syncedAmount?: Maybe<Scalars['Int']>;
   model?: Maybe<Scalars['String']>;
   fields?: Maybe<Scalars['String']>;
   filters?: Maybe<Scalars['JSON']>;
+  maxPackSize?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -55639,6 +55677,14 @@ export type WebhookSubscriptionWhereInput = {
   syncedAt_gte?: Maybe<Scalars['String']>;
   syncedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   syncedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  syncedAmount?: Maybe<Scalars['Int']>;
+  syncedAmount_not?: Maybe<Scalars['Int']>;
+  syncedAmount_lt?: Maybe<Scalars['Int']>;
+  syncedAmount_lte?: Maybe<Scalars['Int']>;
+  syncedAmount_gt?: Maybe<Scalars['Int']>;
+  syncedAmount_gte?: Maybe<Scalars['Int']>;
+  syncedAmount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  syncedAmount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   model?: Maybe<Scalars['String']>;
   model_not?: Maybe<Scalars['String']>;
   model_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -55665,6 +55711,14 @@ export type WebhookSubscriptionWhereInput = {
   filters_not?: Maybe<Scalars['JSON']>;
   filters_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   filters_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  maxPackSize?: Maybe<Scalars['Int']>;
+  maxPackSize_not?: Maybe<Scalars['Int']>;
+  maxPackSize_lt?: Maybe<Scalars['Int']>;
+  maxPackSize_lte?: Maybe<Scalars['Int']>;
+  maxPackSize_gt?: Maybe<Scalars['Int']>;
+  maxPackSize_gte?: Maybe<Scalars['Int']>;
+  maxPackSize_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  maxPackSize_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
