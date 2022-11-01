@@ -4,9 +4,9 @@ const { generators } = require('openid-client') // certified openid client will 
 
 const { getSchemaCtx } = require('@condo/keystone/schema')
 const { getLogger } = require('@condo/keystone/logging')
+const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
-
-const { getSbbolUserInfoErrors, SBBOL_SESSION_KEY } = require('./common')
+const { SBBOL_SESSION_KEY } = require('./constants')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { initializeSbbolAuthApi } = require('./utils')

@@ -8,7 +8,7 @@ const { execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
 const { OrganizationEmployeeRole } = require('./index')
 const { Organization, OrganizationEmployee } = require('../../gql')
 const { DEFAULT_ROLES } = require('../../constants/common')
-const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/common')
+const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/constants')
 const { getLogger } = require('@condo/keystone/logging')
 
 const logger = getLogger('sales_crm')

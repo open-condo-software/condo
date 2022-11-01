@@ -1,4 +1,4 @@
-const { getSbbolUserInfoErrors } = require('./common')
+const { getSbbolUserInfoErrors } = require('./getSbbolUserInfoErrors')
 
 const DEFAULT_SEED = {
     sub: 'bed57d21ef9922d8b835a99ca6e22f321af3a6064ce',

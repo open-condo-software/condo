@@ -16,7 +16,7 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 import { WelcomePopup } from '@condo/domains/onboarding/components/WelcomePopup'
 import { useOrganization } from '@condo/next/organization'
-import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/common'
+import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
