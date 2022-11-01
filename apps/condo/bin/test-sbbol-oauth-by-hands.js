@@ -3,8 +3,7 @@ const readline = require('readline')
 const path = require('path')
 
 const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
-const { initializeSbbolAuthApi } = require('@condo/domains/organization/integrations/sbbol/utils')
-const { getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/common')
+const { initializeSbbolAuthApi, getSbbolUserInfoErrors } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 function askQuestion (query) {
     const rl = readline.createInterface({

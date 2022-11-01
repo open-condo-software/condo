@@ -1,6 +1,6 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
-const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/common')
+const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries.js')
 const { generateTin } = require('@condo/domains/organization/utils/testSchema')
 

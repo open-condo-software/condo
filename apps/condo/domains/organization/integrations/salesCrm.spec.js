@@ -16,7 +16,7 @@ const { createTestOrganization } = require('../utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 const { syncOrganization } = require('./sbbol/sync/syncOrganization')
 const { MockSbbolResponses } = require('./sbbol/sync/MockSbbolResponses')
-const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/common')
+const { SBBOL_FINGERPRINT_NAME } = require('./sbbol/constants')
 
 const index = require('@app/condo/index')
 const { keystone } = index

@@ -1,5 +1,8 @@
-const { SBBOL_FINGERPRINT_NAME } = require('./common')
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('@condo/domains/subscription/constants')
+
+const SBBOL_IMPORT_NAME = 'sbbol'
+const SBBOL_FINGERPRINT_NAME = 'import-sbbol'
+const SBBOL_SESSION_KEY = 'sbbol'
 
 const dvSenderFields = {
     dv: 1,
@@ -36,8 +39,35 @@ const SBBOL_PAYMENT_STATUS_MAP = {
     'SIGNED': SUBSCRIPTION_PAYMENT_STATUS.PROCESSING,
 }
 
+const SbbolUserInfoSchema = {
+    type: 'object',
+    properties: {
+        // Organization's field
+        OrgName: { type: 'string' },
+        HashOrgId: { type: 'string' },
+        orgOgrn: { type: 'string' },
+        orgLawFormShort: { type: 'string' },
+        // Organization's meta fields
+        inn: { type: 'string' },
+        orgKpp: { type: 'string' },
+        orgJuridicalAddress: { type: 'string' },
+        orgFullName: { type: 'string' },
+        terBank: { type: 'string' },
+        // Organization's admin user fields
+        userGuid: { type: 'string' },
+        email: { type: 'string' },
+        phone_number: { type: 'string' },
+    },
+    required: ['inn', 'OrgName', 'userGuid', 'phone_number', 'HashOrgId'],
+    additionalProperties: true,
+}
+
 module.exports = {
+    SBBOL_IMPORT_NAME,
+    SBBOL_FINGERPRINT_NAME,
+    SBBOL_SESSION_KEY,
     dvSenderFields,
     BANK_OPERATION_CODE,
     SBBOL_PAYMENT_STATUS_MAP,
+    SbbolUserInfoSchema,
 }
