@@ -169,7 +169,7 @@ const initAdapterCache = async (keystone, middleware) => {
                     })
                     middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
                     middleware.logEvent({ event: cacheEvent })
-                    return cached.response
+                    return cloneDeep(cached.response)
                 }
             }
 
