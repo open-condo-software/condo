@@ -1,4 +1,5 @@
 const faker = require('faker')
+const dayjs = require('dayjs')
 const {
     createTestWebhook,
     softDeleteTestWebhook,
@@ -14,8 +15,9 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
 } = require('@condo/keystone/test.utils')
+const { DEFAULT_MAX_PACK_SIZE } = require('@condo/webhooks/constants')
 
-const WebhookSubscriptionTests = (appName, actorsInitializer) => {
+const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
     describe(`WebhookSubscription tests for ${appName} app`, () => {
         let actors
         beforeAll(async () => {
@@ -31,13 +33,13 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
                 const [webhook] = await createTestWebhook(actor, actor.user)
                 expect(webhook).toHaveProperty('id')
                 const url = faker.internet.url()
-                const [createdSubscriptoin, attrs] = await createTestWebhookSubscription(actor, webhook, {
+                const [createdSubscription, attrs] = await createTestWebhookSubscription(actor, webhook, {
                     url,
                 })
-                expect(createdSubscriptoin).toBeDefined()
-                expect(createdSubscriptoin).toHaveProperty('id')
+                expect(createdSubscription).toBeDefined()
+                expect(createdSubscription).toHaveProperty('id')
 
-                const subscriptions = await WebhookSubscription.getAll(actor, { id: createdSubscriptoin.id })
+                const subscriptions = await WebhookSubscription.getAll(actor, { id: createdSubscription.id })
                 expect(subscriptions).toBeDefined()
                 expect(subscriptions).toHaveLength(1)
                 const subscription = subscriptions[0]
@@ -124,7 +126,7 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
             afterAll(async () => {
                 await softDeleteTestWebhook(actors.admin, hook.id)
             })
-            describe('ResolveInput must normalize fields field', () => {
+            describe('ResolveInput must normalize "fields" field', () => {
                 let subscription
                 beforeAll(async () => {
                     [subscription] = await createTestWebhookSubscription(actors.admin, hook)
@@ -145,7 +147,7 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
                     expect(object).toHaveProperty('fields', WebHookModelValidator.normalizeFieldsString(fields))
                 })
             })
-            describe('"Fields" field', () => {
+            describe('"fields" field', () => {
                 describe('Must throw validation error on wrong fields', () => {
                     const cases = [
                         ['No fields', ''],
@@ -177,10 +179,11 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
                         })
                         expect(subscription).toBeDefined()
                         expect(subscription).toHaveProperty('fields', WebHookModelValidator.normalizeFieldsString(fields))
+                        await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
                     })
                 })
             })
-            describe('"Filters" field', () => {
+            describe('"filters" field', () => {
                 describe('Must throw validation error on wrong filters', () => {
                     const cases = [
                         ['Non-existing filter', { name_not_begins_with: 'Theo' }],
@@ -216,6 +219,57 @@ const WebhookSubscriptionTests = (appName, actorsInitializer) => {
                         await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
                     })
                 })
+            })
+            describe('maxPackSize must be in valid range',  () => {
+                describe('Must throw validation error on invalid values', () => {
+                    const cases = [
+                        ['Negative values: small', -1],
+                        ['Negative values: big', -500000],
+                        ['Positive values: big', 500],
+                        ['Zero', 0],
+                    ]
+                    test.each(cases)('%p', async (name, maxPackSize) => {
+                        await expectToThrowValidationFailureError(async () => {
+                            await createTestWebhookSubscription(actors.admin, hook, {
+                                maxPackSize,
+                            })
+                        }, 'Invalid maxPackSize value')
+                    })
+                })
+                describe('Must pass with correct values', async () => {
+                    const cases = [
+                        ['Positive values: small', 20],
+                        ['Single record', 1],
+                        ['Default max', DEFAULT_MAX_PACK_SIZE],
+                    ]
+                    test.each(cases)('%p', async (name, maxPackSize) => {
+                        const [subscription] = await createTestWebhookSubscription(actors.admin, hook, {
+                            maxPackSize,
+                        })
+                        expect(subscription).toBeDefined()
+                        expect(subscription).toHaveProperty('maxPackSize', maxPackSize)
+                        await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+                    })
+                })
+            })
+            test('syncedAmount should be reset on syncedAt update', async () => {
+                const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
+                expect(subscription).toBeDefined()
+                expect(subscription).toHaveProperty('syncedAmount', 0)
+                const [onlyAmountUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAmount: 100,
+                })
+                expect(onlyAmountUpdate).toHaveProperty('syncedAmount', 100)
+                const [onlyTimeUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAt: dayjs().toISOString(),
+                })
+                expect(onlyTimeUpdate).toHaveProperty('syncedAmount', 0)
+                const [bothUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAt: dayjs().toISOString(),
+                    syncedAmount: 7,
+                })
+                expect(bothUpdate).toHaveProperty('syncedAmount', 7)
+                await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             })
         })
     })
@@ -266,6 +320,6 @@ const WebhookSubscriptionModelSwitchTests = (appName, actorsInitializer, secondM
 }
 
 module.exports = {
-    WebhookSubscriptionTests,
+    WebhookSubscriptionBasicTests,
     WebhookSubscriptionModelSwitchTests,
 }
