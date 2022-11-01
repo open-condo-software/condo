@@ -1,7 +1,7 @@
 const faker = require('faker')
 const { createCronTask } = require('@condo/keystone/tasks')
 const { changeClientSecret } = require('../integrations/sbbol/utils')
-const { sbbolSecretStorage } = require('../integrations/sbbol/common')
+const { sbbolSecretStorage } = require('../integrations/sbbol/singletons')
 
 /**
  * Changing of a client secret is performed daily for security reasons

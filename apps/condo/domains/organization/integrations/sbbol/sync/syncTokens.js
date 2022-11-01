@@ -1,4 +1,4 @@
-const { sbbolSecretStorage } = require('../common')
+const { sbbolSecretStorage } = require('../singletons')
 
 /**
  *
