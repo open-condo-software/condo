@@ -19,7 +19,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     const DateTitle = intl.formatMessage({ id: 'Date' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const UnitNameTitle = intl.formatMessage({ id: 'field.FlatNumber' })
-    const TypeTitle = intl.formatMessage({ id: 'PaymentType' })
     const TransactionTitle = intl.formatMessage({ id: 'Transaction' })
     const PaymentAmountTitle = intl.formatMessage({ id: 'PaymentAmount' })
     const PaymentOrderColumnTitle = intl.formatMessage({ id: 'PaymentOrderShort' })
@@ -71,12 +70,6 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
                     get(obj, ['frozenReceipt', 'data', 'account', 'unitName'], null),
                 )),
             },
-            type: {
-                title: TypeTitle,
-                key: 'type',
-                dataIndex: ['context', 'integration', 'name'],
-                render: stringSearch,
-            },
             transaction: {
                 title: TransactionTitle,
                 key: 'transaction',
@@ -109,7 +102,7 @@ export function usePaymentsTableColumns (currencyCode: string, openStatusDescMod
     }, [
         filters, DateTitle, intl,
         AccountTitle, AddressTitle,
-        UnitNameTitle, TypeTitle,
+        UnitNameTitle,
         TransactionTitle, StatusTitle,
         openStatusDescModal,
         PaymentOrderColumnTitle,

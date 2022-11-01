@@ -1333,7 +1333,6 @@
   "excelExport.headers.payments.account": "Account",
   "excelExport.headers.payments.address": "Address",
   "excelExport.headers.payments.unitName": "Unit name",
-  "excelExport.headers.payments.type": "Type",
   "excelExport.headers.payments.transaction": "Transaction",
   "excelExport.headers.payments.status": "Status",
   "excelExport.headers.payments.order": "P/O",

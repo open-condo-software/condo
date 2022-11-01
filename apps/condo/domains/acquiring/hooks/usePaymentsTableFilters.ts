@@ -1,5 +1,5 @@
 import { BillingIntegrationOrganizationContext, PaymentWhereInput } from '@app/condo/schema'
-import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
+import { searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
 import {
     ComponentType,
     convertToOptions,
@@ -17,7 +17,6 @@ const typeFilter = getStringContainsFilter(['context', 'integration', 'name'])
 const transactionFilter = getStringContainsFilter(['multiPayment', 'transactionId'])
 const dateFilter = getDayRangeFilter('advancedAt')
 const propertyFilter = getFilter(['receipt', 'property', 'id'], 'array', 'string', 'in')
-const acquiringContextFilter = getFilter(['context', 'id'], 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
 const orderFilter = getFilter('order', 'array', 'string', 'in')
 
@@ -34,8 +33,6 @@ export function usePaymentsTableFilters (
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const AddressMessage = intl.formatMessage({ id: 'pages.condo.payments.billingAddress' })
     const EnterAddressMessage = intl.formatMessage({ id: 'pages.condo.payments.enterBillingAddress' })
-    const TypeMessage = intl.formatMessage({ id: 'pages.condo.payments.type' })
-    const EnterTypeMessage = intl.formatMessage({ id: 'pages.condo.payments.enterType' })
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
     const EnterStatusMessage = intl.formatMessage({ id: 'pages.condo.payments.enterStatus' })
@@ -97,24 +94,6 @@ export function usePaymentsTableFilters (
                 },
             },
             {
-                keyword: 'type',
-                filters: [acquiringContextFilter],
-                component: {
-                    type: ComponentType.GQLSelect,
-                    props: {
-                        search: searchAcquiringIntegration(organizationId),
-                        mode: 'multiple',
-                        showArrow: true,
-                        placeholder: EnterTypeMessage,
-                        infinityScroll: true,
-                    },
-                    modalFilterComponentWrapper: {
-                        label: TypeMessage,
-                        size: FilterComponentSize.Large,
-                    },
-                },
-            },
-            {
                 keyword: 'order',
                 filters: [orderFilter],
                 component: {
@@ -147,9 +126,9 @@ export function usePaymentsTableFilters (
         AccountTitle, AddressMessage,
         DateMessage, EndDateMessage,
         EnterAddressMessage, EnterStatusMessage,
-        EnterTypeMessage, PaymentOrderTitle,
+        PaymentOrderTitle,
         StartDateMessage, StatusTitle,
-        TypeMessage, billingContext,
+        billingContext,
         organizationId, statusOptions,
     ])
 

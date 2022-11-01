@@ -1333,7 +1333,6 @@
   "excelExport.headers.payments.account": "ЛС",
   "excelExport.headers.payments.address": "Адрес",
   "excelExport.headers.payments.unitName": "Помещение",
-  "excelExport.headers.payments.type": "Тип",
   "excelExport.headers.payments.transaction": "Транзакция",
   "excelExport.headers.payments.status": "Статус",
   "excelExport.headers.payments.order": "П/П",
