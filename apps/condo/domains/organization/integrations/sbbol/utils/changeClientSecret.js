@@ -1,15 +1,16 @@
 const querystring = require('querystring')
 const dayjs = require('dayjs')
 const conf = require('@condo/config')
-const { sbbolSecretStorage } = require('../singletons')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
+const { getSbbolSecretStorage } = require('./index')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
 async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
     const accessToken = await getOrganizationAccessToken()
+    const sbbolSecretStorage = getSbbolSecretStorage()
 
     const requestApi = new SbbolRequestApi({
         accessToken,

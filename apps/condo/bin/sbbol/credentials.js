@@ -9,8 +9,7 @@
  */
 const { values } = require('lodash')
 const { getRandomString } = require('@condo/keystone/test.utils')
-const { changeClientSecret } = require('@condo/domains/organization/integrations/sbbol/utils')
-const { sbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/singletons')
+const { changeClientSecret, getSbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const COMMAND = {
     CHANGE_CLIENT_SECRET: 'change-client-secret',
@@ -23,6 +22,7 @@ const workerJob = async () => {
     }
 
     if (command === COMMAND.CHANGE_CLIENT_SECRET) {
+        const sbbolSecretStorage = getSbbolSecretStorage()
         let clientId, currentClientSecret, newClientSecret
         [clientId, currentClientSecret, newClientSecret] = process.argv.slice(3)
         if (!clientId && !currentClientSecret && !newClientSecret) {
