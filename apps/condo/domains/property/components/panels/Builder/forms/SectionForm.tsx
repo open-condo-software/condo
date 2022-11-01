@@ -205,7 +205,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
 
     const [name, setName] = useState<string>('')
     const renameNextUnits = useRef(true)

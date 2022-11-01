@@ -184,7 +184,7 @@ const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
+    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParking' })
 
     const [parkingName, setParkingName] = useState<string>('')
     const renameNextUnits = useRef(true)
