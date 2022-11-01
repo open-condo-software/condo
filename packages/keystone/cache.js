@@ -71,9 +71,15 @@ class KeystoneCacheMiddleware {
     }
 }
 
-const generateRequestKey = (gqlName, args) => (
-    `${gqlName}-${JSON.stringify(args)}`
-)
+const generateRequestKey = (gqlName, args, fromId) => {
+    let key = `${gqlName}-${JSON.stringify(args)}`
+
+    if (fromId) {
+        key += `-${fromId}`
+    }
+
+    return key
+}
 
 const getRequestIdFromContext = (context) => {
     return get(context, ['req', 'headers', 'x-request-id'], null)
@@ -94,7 +100,6 @@ const patchMutation = (mutationContext, mutation, isUpdateMutation, cacheMiddlew
 
 const patchQuery = (queryContext, query, cacheMiddleware) => {
     return async function (args, context, gqlName, info, from) {
-
         cacheMiddleware.requests++
 
         let key = null
@@ -103,7 +108,8 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
         if (requestId) {
             cacheMiddleware.hasRequestId++
 
-            key = generateRequestKey(gqlName, args)
+            const fromId = get(from, 'fromId')
+            key = generateRequestKey(gqlName, args, fromId)
 
             if (!(requestId in cacheMiddleware.cache)) {
                 cacheMiddleware.cache[requestId] = {}
@@ -111,7 +117,7 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
 
             // Drop the key, if the operation type is mutation
             const operationType = get(info, ['operation', 'operation'])
-            if (operationType !== 'query' && get(cacheMiddleware.cache, [requestId, key])) {
+            if ((operationType !== 'query') && get(cacheMiddleware.cache, [requestId, key])) {
 
                 if (ENABLE_CACHE_LOGGING) {
                     logger.info(`DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`)
