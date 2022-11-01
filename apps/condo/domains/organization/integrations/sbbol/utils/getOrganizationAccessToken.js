@@ -1,5 +1,5 @@
-const { sbbolSecretStorage } = require('../singletons')
 const { SbbolOauth2Api } = require('../oauth2')
+const { getSbbolSecretStorage } = require('./index')
 
 /**
  * Each route handler here in each application instance needs an instance of `SbbolOauth2Api` with actual
@@ -7,6 +7,7 @@ const { SbbolOauth2Api } = require('../oauth2')
  * @return {Promise<SbbolOauth2Api>}
  */
 async function initializeSbbolAuthApi () {
+    const sbbolSecretStorage = getSbbolSecretStorage()
     return new SbbolOauth2Api({
         clientSecret: await sbbolSecretStorage.getClientSecret(),
     })
@@ -19,6 +20,7 @@ async function initializeSbbolAuthApi () {
  * @return {Promise<string|*>}
  */
 async function getOrganizationAccessToken () {
+    const sbbolSecretStorage = getSbbolSecretStorage()
     if (await sbbolSecretStorage.isRefreshTokenExpired()) {
         const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
         throw new Error(`refreshToken is expired for clientId = ${sbbolSecretStorage.clientId}. ${instructionsMessage}`)
