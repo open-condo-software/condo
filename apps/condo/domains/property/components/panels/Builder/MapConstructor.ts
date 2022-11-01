@@ -849,7 +849,8 @@ class MapEdit extends MapView {
     public removeSection (id: string, renameNextUnits = true): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
         this.map.sections.splice(sectionIndex, 1)
-        if (renameNextUnits) this.updateSectionNumbers((sectionIndex - 1), renameNextUnits)
+        const removeSectionIndex = (sectionIndex - 1) >= 0 ? sectionIndex - 1 : sectionIndex
+        if (renameNextUnits) this.updateSectionNumbers(removeSectionIndex, renameNextUnits)
 
         this.editMode = 'addSection'
         this.notifyUpdater()
@@ -868,7 +869,8 @@ class MapEdit extends MapView {
     public removeParking (id: string, renameNextUnits = true): void {
         const parkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === id)
         this.map.parking.splice(parkingIndex, 1)
-        if (renameNextUnits) this.updateParkingNumbers((parkingIndex - 1), renameNextUnits)
+        const removeParkingIndex = (parkingIndex - 1) >= 0 ? parkingIndex - 1 : parkingIndex
+        if (renameNextUnits) this.updateParkingNumbers(removeParkingIndex, renameNextUnits)
 
         this.editMode = 'addParking'
         this.notifyUpdater()
@@ -1417,6 +1419,7 @@ class MapEdit extends MapView {
             return
         }
         let sectionNameNumber = parseInt(get(this.map.sections, `${removedIndex}.name`))
+        if (removedIndex === 0) sectionNameNumber = 1
         let sectionIndex = removedIndex
         this.map.sections.forEach((section, index) => {
             if (index >= removedIndex) {
@@ -1435,6 +1438,7 @@ class MapEdit extends MapView {
         }
         let parkingNameNumber = parseInt(get(this.map.parking, `${removedIndex}.name`))
         let parkingIndex = removedIndex
+        if (removedIndex === 0) parkingNameNumber = 1
         this.map.parking.forEach((parkingSection, index) => {
             if (index >= removedIndex) {
                 parkingSection.name = String(parkingNameNumber)
