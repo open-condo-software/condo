@@ -852,7 +852,7 @@ class MapEdit extends MapView {
         const removeSectionIndex = (sectionIndex - 1) >= 0 ? sectionIndex - 1 : sectionIndex
         if (renameNextUnits) this.updateSectionNumbers(removeSectionIndex, renameNextUnits)
 
-        this.editMode = 'addSection'
+        this.editMode = null
         this.notifyUpdater()
     }
 
@@ -872,7 +872,7 @@ class MapEdit extends MapView {
         const removeParkingIndex = (parkingIndex - 1) >= 0 ? parkingIndex - 1 : parkingIndex
         if (renameNextUnits) this.updateParkingNumbers(removeParkingIndex, renameNextUnits)
 
-        this.editMode = 'addParking'
+        this.editMode = null
         this.notifyUpdater()
     }
 
@@ -1083,7 +1083,7 @@ class MapEdit extends MapView {
         }
 
         this.selectedUnit = null
-        this.editMode = 'addUnit'
+        this.editMode = null
         this.notifyUpdater()
     }
 
@@ -1108,7 +1108,7 @@ class MapEdit extends MapView {
         }
 
         this.selectedParkingUnit = null
-        this.editMode = 'addParkingUnit'
+        this.editMode = null
         this.notifyUpdater()
     }
 
