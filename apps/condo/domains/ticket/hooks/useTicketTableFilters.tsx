@@ -32,7 +32,11 @@ import {
     searchOrganizationDivision,
     searchOrganizationProperty,
 } from '../utils/clientSchema/search'
-import { getIsResidentContactFilter, getTicketAttributesFilter } from '../utils/tables.utils'
+import {
+    divisionFilterQueryToWhereProcessor,
+    getIsResidentContactFilter,
+    getTicketAttributesFilter,
+} from '../utils/tables.utils'
 import {
     FilterModalCategoryClassifierSelect,
     FilterModalPlaceClassifierSelect,
@@ -229,11 +233,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
             {
                 keyword: 'division',
                 filters: [filterProperty],
-                queryToWhereProcessor: (queryDivisions) => {
-                    // We define single division in the browser query as "propertyId1, propertyId2" ->
-                    // in GQLWhere we need ["propertyId1", "propertyId2"]
-                    return queryDivisions?.map(queryDivision => queryDivision.split(',')).flat(1)
-                },
+                queryToWhereProcessor: divisionFilterQueryToWhereProcessor,
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
@@ -241,6 +241,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: SelectMessage,
+                        keyField: 'key',
                     },
                     modalFilterComponentWrapper: {
                         label: DivisionLabel,

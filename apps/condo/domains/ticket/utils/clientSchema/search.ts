@@ -180,7 +180,8 @@ export function searchOrganizationDivision (organizationId: string) {
 
         if (error) console.warn(error)
 
-        return data.objs.map(({ name, properties }) => ({ text: name, value: String(properties.map(property => property.id)) }))
+        return data.objs
+            .map(({ name, id, properties }) => ({ text: name, key: id, value: properties.map(property => property.id) }))
     }
 }
 
