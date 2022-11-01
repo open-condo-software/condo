@@ -10,7 +10,7 @@
 const { values } = require('lodash')
 const { getRandomString } = require('@condo/keystone/test.utils')
 const { changeClientSecret } = require('@condo/domains/organization/integrations/sbbol/utils')
-const { sbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/common')
+const { sbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/singletons')
 
 const COMMAND = {
     CHANGE_CLIENT_SECRET: 'change-client-secret',

@@ -1,8 +1,4 @@
 const Ajv = require('ajv')
-const { SbbolSecretStorage } = require('./SbbolSecretStorage')
-const conf = require('@condo/config')
-
-const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
 const SBBOL_IMPORT_NAME = 'sbbol'
 const SBBOL_FINGERPRINT_NAME = 'import-sbbol'
@@ -37,12 +33,9 @@ function getSbbolUserInfoErrors (userInfo) {
     return (ajv.errors) ? ajv.errors.map(x => x.message) : []
 }
 
-const sbbolSecretStorage = new SbbolSecretStorage('auth', SBBOL_AUTH_CONFIG.client_id)
-
 module.exports = {
     getSbbolUserInfoErrors,
     SBBOL_IMPORT_NAME,
     SBBOL_SESSION_KEY,
     SBBOL_FINGERPRINT_NAME,
-    sbbolSecretStorage,
 }
