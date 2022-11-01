@@ -29,7 +29,11 @@
     "ajv": "^8.11.0",
     "graphql": "^15.6.1",
     "graphql-2-json-schema": "^0.9.1",
-    "lodash": "^4.17.21"
+    "graphql-tag": "^2.12.6",
+    "lodash": "^4.17.21",
+    "node-fetch": "^2.6.7",
+    "pluralize": "^8",
+    "redlock": "^5.0.0-beta.2"
   },
   "devDependencies": {
     "dayjs": "^1.11.6",

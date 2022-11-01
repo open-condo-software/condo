@@ -271,6 +271,31 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                 expect(bothUpdate).toHaveProperty('syncedAmount', 7)
                 await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             })
+            test('failuresCount should be reset on "synced" fields update', async () => {
+                const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
+                expect(subscription).toBeDefined()
+                expect(subscription).toHaveProperty('failuresCount', 0)
+                const [failuresUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    failuresCount: 1,
+                })
+                expect(failuresUpdate).toHaveProperty('failuresCount', 1)
+                const [batchSentUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAmount: 30,
+                })
+                expect(batchSentUpdate).toHaveProperty('failuresCount', 0)
+                const [newFailuresUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    failuresCount: 1,
+                })
+                expect(newFailuresUpdate).toHaveProperty('failuresCount', 1)
+                expect(newFailuresUpdate).toHaveProperty('syncedAmount', 30)
+
+                const [allSentUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAt: dayjs().toISOString(),
+                })
+                expect(allSentUpdate).toHaveProperty('syncedAmount', 0)
+                expect(allSentUpdate).toHaveProperty('failuresCount', 0)
+                await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            })
         })
     })
 }
