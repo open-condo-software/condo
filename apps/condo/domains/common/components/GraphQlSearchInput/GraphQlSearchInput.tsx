@@ -53,6 +53,7 @@ export interface ISearchInputProps extends SelectProps<string> {
     infinityScroll?: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
+    keyField?: string
 }
 
 const DEBOUNCE_TIMEOUT = 800
@@ -73,6 +74,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         value,
         eventName: propEventName,
         eventProperties = {},
+        keyField = 'value',
         ...restProps
     } = props
 
@@ -115,15 +117,16 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             optionLabel = formatLabel(option)
         }
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
+        const key = keyField === 'value' ? value : option[keyField]
 
         return (
-            <Select.Option id={index} key={option.key || value} value={value} title={option.text} data-cy='search-input--option'>
+            <Select.Option id={index} key={option.key || key} value={value} title={option.text} data-cy='search-input--option'>
                 <Typography.Text title={option.text} disabled={disabled}>
                     {optionLabel}
                 </Typography.Text>
             </Select.Option>
         )
-    }, [disabled, formatLabel])
+    }, [disabled, formatLabel, keyField])
 
     const renderedOptions = useMemo(() => {
         const dataOptions = isFunction(renderOptions)
@@ -146,10 +149,10 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(values) : { id_in: values }
             const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
             const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
-            setInitialData(prevData => uniqBy([...initialOptions, ...prevData], 'value'))
+            setInitialData(prevData => uniqBy([...initialOptions, ...prevData], keyField))
             setInitialLoading(false)
         }
-    }, [initialValue, value, getInitialValueQuery, initialValueSearch, search, client])
+    }, [initialValue, value, getInitialValueQuery, initialValueSearch, search, client, keyField])
 
     const debounceSearch = useMemo(() => debounce(async (searchingValue) => {
         setIsAllDataLoaded(false)
@@ -196,7 +199,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             const data = await search(client, value, null, 10, skip)
 
             if (data.length > 0) {
-                const getUniqueData = (prevData) => uniqBy([...prevData, ...data], 'value')
+                const getUniqueData = (prevData) => uniqBy([...prevData, ...data], keyField)
                 const dataHandler = searchValue ? setSearchData : setAllData
                 dataHandler(getUniqueData)
             } else {
@@ -205,7 +208,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
             setLoadingMore(false)
         },
-        [client, isAllDataLoaded, search, searchValue],
+        [client, isAllDataLoaded, keyField, search, searchValue],
     )
 
     const handleClear = useCallback(() => {
@@ -234,8 +237,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     useEffect(() => {
         const updatedData = searchValue ? [...searchData] : [...initialData, ...allData]
-        setOptions(uniqBy(updatedData, 'value'))
-    }, [initialData, allData, searchData, searchValue])
+        setOptions(uniqBy(updatedData, keyField))
+    }, [initialData, allData, searchData, searchValue, keyField])
 
     return (
         <Select

@@ -47,3 +47,15 @@ export const getIsResidentContactFilter = () => {
         }
     }
 }
+
+export const divisionFilterQueryToWhereProcessor = (queryDivisions) => {
+    try {
+        if (queryDivisions) {
+            return queryDivisions
+                .map(option => JSON.parse(option).value)
+                .flat(1)
+        }
+    } catch (e) {
+        console.error(e)
+    }
+}

@@ -117,7 +117,7 @@ const patchQuery = (queryContext, query, cacheMiddleware) => {
 
             // Drop the key, if the operation type is mutation
             const operationType = get(info, ['operation', 'operation'])
-            if ((operationType !== 'query') && get(cacheMiddleware.cache, [requestId, key])) {
+            if (operationType !== 'query' && get(cacheMiddleware.cache, [requestId, key])) {
 
                 if (ENABLE_CACHE_LOGGING) {
                     logger.info(`DELETE: ${requestId}\r\n${gqlName} ${JSON.stringify(args)}`)
