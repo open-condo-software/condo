@@ -70,7 +70,7 @@ const DEFAULT_ROLES = {
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
         'canReadPayments': false,
-        'canReadBillingReceipts': false,
+        'canReadBillingReceipts': true,
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': false,
     },
