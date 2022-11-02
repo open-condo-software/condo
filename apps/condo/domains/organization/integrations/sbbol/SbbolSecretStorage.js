@@ -30,59 +30,59 @@ class SbbolSecretStorage {
 
     async getClientSecret () {
         // When no clientSecret has been stored yet, return a seeded one
-        return this.getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
+        return this.#getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
     }
 
     async setClientSecret (value, options) {
-        await this.setValue('clientSecret', value, options)
-        await this.setValue('clientSecret:updatedAt', dayjs().toISOString())
+        await this.#setValue('clientSecret', value, options)
+        await this.#setValue('clientSecret:updatedAt', dayjs().toISOString())
     }
 
     async getAccessToken () {
-        return this.getValue('accessToken')
+        return this.#getValue('accessToken')
     }
 
     async setAccessToken (value, options) {
-        await this.setValue('accessToken', value, options)
-        await this.setValue('accessToken:updatedAt', dayjs().toISOString())
+        await this.#setValue('accessToken', value, options)
+        await this.#setValue('accessToken:updatedAt', dayjs().toISOString())
     }
 
     async isAccessTokenExpired () {
-        return await this.isExpired('accessToken')
+        return await this.#isExpired('accessToken')
     }
 
     async getRefreshToken () {
-        return this.getValue('refreshToken')
+        return this.#getValue('refreshToken')
     }
 
     async setRefreshToken (value) {
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
-        await this.setValue('refreshToken', value, options)
-        await this.setValue('refreshToken:updatedAt', dayjs().toISOString())
+        await this.#setValue('refreshToken', value, options)
+        await this.#setValue('refreshToken:updatedAt', dayjs().toISOString())
     }
 
     async isRefreshTokenExpired () {
-        return await this.isExpired('refreshToken')
+        return await this.#isExpired('refreshToken')
     }
 
     async setOrganization (id) {
-        await this.setValue('organization', id)
+        await this.#setValue('organization', id)
     }
 
-    getValue (key) {
-        const scopedKey = this.scopedKey(key)
+    #getValue (key) {
+        const scopedKey = this.#scopedKey(key)
         return this.keyStorage.get(scopedKey)
     }
 
-    async setValue (key, value, options = {}) {
+    async #setValue (key, value, options = {}) {
         const { ttl, expiresAt } = options
         const commands = this.keyStorage.multi()
-        commands.set(this.scopedKey(key), value)
+        commands.set(this.#scopedKey(key), value)
         if (ttl) {
-            commands.expire(this.scopedKey(key), ttl)
+            commands.expire(this.#scopedKey(key), ttl)
         }
         if (expiresAt) {
-            commands.expireat(this.scopedKey(key), expiresAt)
+            commands.expireat(this.#scopedKey(key), expiresAt)
         }
         return commands.exec()
             .then(() => {
@@ -92,12 +92,12 @@ class SbbolSecretStorage {
             })
     }
 
-    async isExpired (key) {
+    async #isExpired (key) {
         // NOTE: `TTL` Redis command returns -2 if the key does not exist, -1 if the key exists but has no associated expire
-        return !this.keyStorage.ttl(this.scopedKey(key)) > 0
+        return !this.keyStorage.ttl(this.#scopedKey(key)) > 0
     }
 
-    scopedKey (key) {
+    #scopedKey (key) {
         return [SBBOL_REDIS_KEY_PREFIX, this.apiName, this.clientId, key].join(':')
     }
 }
