@@ -64,6 +64,9 @@ ALTER TABLE "OrganizationEmployee" DROP COLUMN if exists "_old_id";
 ALTER TABLE "OrganizationEmployee" DROP COLUMN if exists "_old_newId";
 ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN if exists "_old_history_id";
 
+DROP TABLE "TokenSet" CASCADE;
+DROP TABLE "TokenSetHistoryRecord" CASCADE;
+
 COMMIT;
     `))
 }
