@@ -103,7 +103,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         [LoadingMessage, initialPlaceholder, needShowLoadingMessage])
     const selectedValue = useMemo(() => needShowLoadingMessage ? [] : value,
         [value, needShowLoadingMessage])
-    const isDisabled = disabled || needShowLoadingMessage
+    const isDisabled = disabled || needShowLoadingMessage || !search
 
     const notFoundContent = useMemo(() => isInitialLoading || isSearchLoading || isLoadingMore
         ? <Loader size='small' delay={0} fill />
@@ -145,9 +145,10 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const loadInitialOptions = useCallback(async () => {
         const values = initialValue || value
         if (!isEmpty(values)) {
-            setInitialLoading(true)
             const initialValueQuery = isFunction(getInitialValueQuery) ? getInitialValueQuery(values) : { id_in: values }
             const searchFn = isFunction(initialValueSearch) ? initialValueSearch : search
+            if (!searchFn) return
+            setInitialLoading(true)
             const initialOptions = await searchFn(client, null, initialValueQuery, values.length)
             setInitialData(prevData => uniqBy([...initialOptions, ...prevData], keyField))
             setInitialLoading(false)
@@ -193,7 +194,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const searchMoreSuggestions = useCallback(
         async (value, skip) => {
-            if (isAllDataLoaded) return
+            if (!search || isAllDataLoaded) return
 
             setLoadingMore(true)
             const data = await search(client, value, null, 10, skip)
