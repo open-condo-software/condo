@@ -36,6 +36,7 @@ const createOnboarding = async ({ keystone, user }) => {
  * @param context - Keystone context
  */
 const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToExclude, context }) => {
+    if (!email) throw new Error('email argument is not specified')
     const [ existingUser ] = await getItems({
         ...context,
         listKey: 'User',
@@ -92,7 +93,9 @@ const syncUser = async ({ context, userInfo }) => {
         throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
     }
     if (existingUsers.length === 0) {
-        await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, context })
+        if (userInfo.email) {
+            await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, context })
+        }
 
         const user = await createItem({
             listKey: 'User',
