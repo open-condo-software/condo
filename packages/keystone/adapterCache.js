@@ -207,6 +207,14 @@ const initAdapterCache = async (keystone, middleware) => {
             const updateResult = await originalUpdate.apply(listAdapter, [id, data] )
             state[listName] = updateResult[UPDATED_AT]
 
+            if (listName === 'MultiPayment') {
+                state.Payment = updateResult[UPDATED_AT]
+            }
+
+            if (listName === 'Payment') {
+                state.MultiPayment = updateResult[UPDATED_AT]
+            }
+
             const cacheEvent = middleware.getCacheEvent({
                 type: 'UPDATE',
                 table: listName,
@@ -221,6 +229,14 @@ const initAdapterCache = async (keystone, middleware) => {
         listAdapter._create = async ( data ) => {
             const createResult = await originalCreate.apply(listAdapter, [data] )
             state[listName] = createResult[UPDATED_AT]
+
+            if (listName === 'MultiPayment') {
+                state.Payment = createResult[UPDATED_AT]
+            }
+
+            if (listName === 'Payment') {
+                state.MultiPayment = createResult[UPDATED_AT]
+            }
 
             const cacheEvent = middleware.getCacheEvent({
                 type: 'CREATE',
