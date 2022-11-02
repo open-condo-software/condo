@@ -98,6 +98,7 @@ const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 const COUNTER_STYLES = { float: 'right' }
 const UPLOAD_COMPONENT_WRAPPER_STYLES = { paddingTop: '24px' }
 const SPAN_STYLES = { 'color': colors.brightRed }
+const TICKET_INFO_FRONT_LAYOUT_CONTAINER_STYLE = { paddingBottom: 0 }
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -162,7 +163,6 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                         <InputWithCounter
                                             onBlur={handleInputBlur}
                                             placeholder={DescriptionPlaceholder}
-                                            disabled={disableUserInteraction}
                                             style={INPUT_WITH_COUNTER_STYLE}
                                             data-cy='ticket__description-input'
                                         />
@@ -178,83 +178,89 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                         </Col>
                     </Row>
                 </Col>
-                <Col span={24}>
-                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <Col span={24}>
-                            <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                <Col span={24}>
-                                    <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
-                                </Col>
-                                <Col span={classifierColSpan}>
-                                    <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
-                                </Col>
-                            </Row>
-                        </Col>
-                        <Col span={24}>
-                            <Row gutter={MEDIUM_HORIZONTAL_GUTTER}>
-                                <Col span={24} lg={6}>
-                                    <Form.Item name='isEmergency' valuePropName='checked'>
-                                        <Checkbox
-                                            disabled={disableUserInteraction}
-                                            eventName='TicketCreateCheckboxEmergency'
-                                            onChange={handleChangeType}
-                                        >
-                                            {EmergencyLabel}
-                                        </Checkbox>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24} lg={6}>
-                                    <Form.Item name='isPaid' valuePropName='checked'>
-                                        <Checkbox
-                                            disabled={disableUserInteraction}
-                                            eventName='TicketCreateCheckboxIsPaid'
-                                            onChange={handleChangeType}
-                                        >
-                                            {PaidLabel}
-                                        </Checkbox>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24} lg={6}>
-                                    <Form.Item name='isWarranty' valuePropName='checked'>
-                                        <Checkbox
-                                            disabled={disableUserInteraction}
-                                            eventName='TicketCreateCheckboxIsWarranty'
-                                            onChange={handleChangeType}
-                                        >
-                                            {WarrantyLabel}
-                                        </Checkbox>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={deadlineColSpan}>
-                    <Row gutter={SMALL_VERTICAL_GUTTER}>
-                        <Col span={24}>
-                            <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
-                        </Col>
-                        <Col span={24}>
-                            <TicketDeadlineField
-                                initialValues={initialValues}
-                                form={form}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-                {
-                    initialValues.statusType === TicketStatusTypeType.Deferred &&
-                    <Col span={deadlineColSpan}>
-                        <Row gutter={SMALL_VERTICAL_GUTTER}>
+                <Col>
+                    <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false} style={TICKET_INFO_FRONT_LAYOUT_CONTAINER_STYLE}>
+                        <Row gutter={BIG_VERTICAL_GUTTER}>
                             <Col span={24}>
-                                <Typography.Title level={3}>{TicketDeferredDeadlineLabel}</Typography.Title>
+                                <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                    <Col span={24}>
+                                        <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                            <Col span={24}>
+                                                <Typography.Title level={3}>{ClassifierLabel}</Typography.Title>
+                                            </Col>
+                                            <Col span={classifierColSpan}>
+                                                <ClassifiersEditorComponent form={form} disabled={disableUserInteraction}/>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Row gutter={MEDIUM_HORIZONTAL_GUTTER}>
+                                            <Col span={24} lg={6}>
+                                                <Form.Item name='isEmergency' valuePropName='checked'>
+                                                    <Checkbox
+                                                        disabled={disableUserInteraction}
+                                                        eventName='TicketCreateCheckboxEmergency'
+                                                        onChange={handleChangeType}
+                                                    >
+                                                        {EmergencyLabel}
+                                                    </Checkbox>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24} lg={6}>
+                                                <Form.Item name='isPaid' valuePropName='checked'>
+                                                    <Checkbox
+                                                        disabled={disableUserInteraction}
+                                                        eventName='TicketCreateCheckboxIsPaid'
+                                                        onChange={handleChangeType}
+                                                    >
+                                                        {PaidLabel}
+                                                    </Checkbox>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24} lg={6}>
+                                                <Form.Item name='isWarranty' valuePropName='checked'>
+                                                    <Checkbox
+                                                        disabled={disableUserInteraction}
+                                                        eventName='TicketCreateCheckboxIsWarranty'
+                                                        onChange={handleChangeType}
+                                                    >
+                                                        {WarrantyLabel}
+                                                    </Checkbox>
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                </Row>
                             </Col>
-                            <Col span={24}>
-                                <TicketDeferredDateField />
+                            <Col span={deadlineColSpan}>
+                                <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                    <Col span={24}>
+                                        <Typography.Title level={3}>{TicketDeadlineLabel}</Typography.Title>
+                                    </Col>
+                                    <Col span={24}>
+                                        <TicketDeadlineField
+                                            initialValues={initialValues}
+                                            form={form}
+                                        />
+                                    </Col>
+                                </Row>
                             </Col>
+                            {
+                                initialValues.statusType === TicketStatusTypeType.Deferred &&
+                                <Col span={deadlineColSpan}>
+                                    <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                        <Col span={24}>
+                                            <Typography.Title level={3}>{TicketDeferredDeadlineLabel}</Typography.Title>
+                                        </Col>
+                                        <Col span={24}>
+                                            <TicketDeferredDateField />
+                                        </Col>
+                                    </Row>
+                                </Col>
+                            }
                         </Row>
-                    </Col>
-                }
+                    </FrontLayerContainer>
+                </Col>
             </Row>
         </Col>
     )
@@ -616,40 +622,44 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 const disableUserInteraction = !property
 
                                                 return (
-                                                    <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                        <Row gutter={BIG_VERTICAL_GUTTER}>
-                                                            <TicketInfo
-                                                                form={form}
-                                                                UploadComponent={UploadComponent}
-                                                                validations={validations}
-                                                                initialValues={initialValues}
-                                                                disableUserInteraction={disableUserInteraction}
-                                                            />
-                                                            <TicketAssignments
-                                                                disableUserInteraction={disableUserInteraction}
-                                                                validations={validations}
-                                                                organizationId={get(organization, 'id')}
-                                                                propertyId={selectedPropertyId}
-                                                                autoAssign={autoAssign}
-                                                                categoryClassifier={categoryClassifier}
-                                                                form={form}
-                                                            />
-                                                            {
-                                                                !isResidentTicket && (
-                                                                    <Col span={24}>
-                                                                        <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                            <Checkbox
-                                                                                disabled={disableUserInteraction}
-                                                                                eventName='TicketCreateCheckboxCanReadByResident'
-                                                                            >
-                                                                                {CanReadByResidentMessage}
-                                                                            </Checkbox>
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                )
-                                                            }
-                                                        </Row>
-                                                    </FrontLayerContainer>
+                                                    <Row gutter={BIG_VERTICAL_GUTTER}>
+                                                        <TicketInfo
+                                                            form={form}
+                                                            UploadComponent={UploadComponent}
+                                                            validations={validations}
+                                                            initialValues={initialValues}
+                                                            disableUserInteraction={disableUserInteraction}
+                                                        />
+                                                        <Col>
+                                                            <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
+                                                                <Row gutter={BIG_VERTICAL_GUTTER}>
+                                                                    <TicketAssignments
+                                                                        disableUserInteraction={disableUserInteraction}
+                                                                        validations={validations}
+                                                                        organizationId={get(organization, 'id')}
+                                                                        propertyId={selectedPropertyId}
+                                                                        autoAssign={autoAssign}
+                                                                        categoryClassifier={categoryClassifier}
+                                                                        form={form}
+                                                                    />
+                                                                    {
+                                                                        !isResidentTicket && (
+                                                                            <Col span={24}>
+                                                                                <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                                    <Checkbox
+                                                                                        disabled={disableUserInteraction}
+                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                    >
+                                                                                        {CanReadByResidentMessage}
+                                                                                    </Checkbox>
+                                                                                </Form.Item>
+                                                                            </Col>
+                                                                        )
+                                                                    }
+                                                                </Row>
+                                                            </FrontLayerContainer>
+                                                        </Col>
+                                                    </Row>
                                                 )
                                             }
                                         }
