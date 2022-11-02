@@ -67,12 +67,20 @@ const TicketsTable = ({
     sortBy,
     searchTicketsQuery,
     useTableColumns,
+    forceTimeZone,
 }) => {
+    const intl = useIntl()
+    const timeZone = forceTimeZone || intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+
     const router = useRouter()
     const [isRefetching, setIsRefetching] = useState(false)
 
+    const auth = useAuth() as { user: { id: string } }
+
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
     const {
         loading: isTicketsFetching,
@@ -86,8 +94,18 @@ const TicketsTable = ({
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const loading = isTicketsFetching && !isRefetching
-    const tableColumns = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
+    const { TaskLauncher } = useTicketExportTask({
+        where: searchTicketsQuery,
+        sortBy,
+        format: EXCEL,
+        locale: intl.locale,
+        timeZone,
+        user: auth.user,
+    })
+
+    const { columns, loading: columnsLoading } = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
+
+    const loading = (isTicketsFetching || columnsLoading) && !isRefetching
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -114,15 +132,18 @@ const TicketsTable = ({
     }), [tooltipData, filters, tickets, total])
 
     return (
-        <Table
-            totalRows={total}
-            loading={loading}
-            dataSource={tickets}
-            columns={tableColumns}
-            onRow={handleRowAction}
-            components={tableComponents}
-            data-cy='ticket__table'
-        />
+        <>
+            <Table
+                totalRows={total}
+                loading={loading}
+                dataSource={tickets}
+                columns={columns}
+                onRow={handleRowAction}
+                components={tableComponents}
+                data-cy='ticket__table'
+            />
+            <TaskLauncher hidden={loading} disabled={ticketsWithFiltersCount === 0}/>
+        </>
     )
 }
 
@@ -153,10 +174,6 @@ export const TicketsPageContent = ({
     const TicketsMessage = intl.formatMessage({ id: 'menu.Tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
 
-    const timeZone = forceTimeZone || intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const auth = useAuth() as { user: { id: string } }
-
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
@@ -175,20 +192,10 @@ export const TicketsPageContent = ({
     const [returned, handleReturnedChange] = useAttributeSearch<IFilters>('statusReopenedCounter')
     const [paid, handlePaidChange] = useAttributeSearch<IFilters>('isPaid')
 
-    const { TaskLauncher } = useTicketExportTask({
-        where: searchTicketsQuery,
-        sortBy,
-        format: EXCEL,
-        locale: intl.locale,
-        timeZone,
-        user: auth.user,
-    })
-
     const {
         count: ticketsWithoutFiltersCount,
         loading: ticketsWithoutFiltersCountLoading,
     } = Ticket.useCount({ where: baseTicketsQuery })
-    const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
 
     const { useFlag } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
@@ -353,8 +360,6 @@ export const TicketsPageContent = ({
                                                                     </Button>
                                                                 </Col>
                                                             </Row>
-
-
                                                         </Col>
                                                     </Row>
                                                 </Col>
@@ -363,13 +368,13 @@ export const TicketsPageContent = ({
                                     </Col>
                                     <Col span={24}>
                                         <TicketsTable
+                                            forceTimeZone={forceTimeZone}
                                             useTableColumns={useTableColumns}
                                             filterMetas={filterMetas}
                                             sortBy={sortBy}
                                             searchTicketsQuery={searchTicketsQuery}
                                         />
                                     </Col>
-                                    <TaskLauncher disabled={ticketsWithFiltersCount === 0}/>
                                 </Row>
                             )
                     }
