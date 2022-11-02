@@ -413,6 +413,7 @@ const isMongo = () => {
  * @return {Promise<*>}
  */
 const catchErrorFrom = async (testFunc, inspect) => {
+    console.debug('>>> catchErrorFrom testFunc.constructor.name', testFunc.constructor.name)
     if (testFunc.constructor.name !== 'AsyncFunction') throw new Error('catchErrorFrom( testFunc ) testFunc is not an AsyncFunction!')
     if (!isFunction(inspect)) throw new Error('catchErrorFrom( inspect ) inspect is not a function!')
     let thrownError = null
