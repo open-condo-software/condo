@@ -4676,8 +4676,6 @@ type PropertyHistoryRecord {
   _label_: String
   organization: String
   name: String
-  address: String
-  addressMeta: JSON
   type: String
   map: JSON
   unitsCount: Int
@@ -4688,6 +4686,10 @@ type PropertyHistoryRecord {
   yearOfConstruction: String
   area: String
   id: ID!
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -4727,28 +4729,6 @@ input PropertyHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  address: String
-  address_not: String
-  address_contains: String
-  address_not_contains: String
-  address_starts_with: String
-  address_not_starts_with: String
-  address_ends_with: String
-  address_not_ends_with: String
-  address_i: String
-  address_not_i: String
-  address_contains_i: String
-  address_not_contains_i: String
-  address_starts_with_i: String
-  address_not_starts_with_i: String
-  address_ends_with_i: String
-  address_not_ends_with_i: String
-  address_in: [String]
-  address_not_in: [String]
-  addressMeta: JSON
-  addressMeta_not: JSON
-  addressMeta_in: [JSON]
-  addressMeta_not_in: [JSON]
   type: String
   type_not: String
   type_contains: String
@@ -4817,6 +4797,64 @@ input PropertyHistoryRecordWhereInput {
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressSource: String
+  addressSource_not: String
+  addressSource_contains: String
+  addressSource_not_contains: String
+  addressSource_starts_with: String
+  addressSource_not_starts_with: String
+  addressSource_ends_with: String
+  addressSource_not_ends_with: String
+  addressSource_i: String
+  addressSource_not_i: String
+  addressSource_contains_i: String
+  addressSource_not_contains_i: String
+  addressSource_starts_with_i: String
+  addressSource_not_starts_with_i: String
+  addressSource_ends_with_i: String
+  addressSource_not_ends_with_i: String
+  addressSource_in: [String]
+  addressSource_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -4898,8 +4936,6 @@ input PropertyHistoryRecordWhereUniqueInput {
 enum SortPropertyHistoryRecordsBy {
   name_ASC
   name_DESC
-  address_ASC
-  address_DESC
   type_ASC
   type_DESC
   unitsCount_ASC
@@ -4914,6 +4950,12 @@ enum SortPropertyHistoryRecordsBy {
   area_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressSource_ASC
+  addressSource_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -4933,8 +4975,6 @@ enum SortPropertyHistoryRecordsBy {
 input PropertyHistoryRecordUpdateInput {
   organization: String
   name: String
-  address: String
-  addressMeta: JSON
   type: String
   map: JSON
   unitsCount: Int
@@ -4944,6 +4984,10 @@ input PropertyHistoryRecordUpdateInput {
   isApproved: Boolean
   yearOfConstruction: String
   area: String
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -4966,8 +5010,6 @@ input PropertyHistoryRecordsUpdateInput {
 input PropertyHistoryRecordCreateInput {
   organization: String
   name: String
-  address: String
-  addressMeta: JSON
   type: String
   map: JSON
   unitsCount: Int
@@ -4977,6 +5019,10 @@ input PropertyHistoryRecordCreateInput {
   isApproved: Boolean
   yearOfConstruction: String
   area: String
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -4994,6 +5040,93 @@ input PropertyHistoryRecordCreateInput {
 input PropertyHistoryRecordsCreateInput {
   data: PropertyHistoryRecordCreateInput
 }
+
+enum PropertyTypeType {
+  building
+  village
+}
+
+enum BuildingMapEntityType {
+  building
+  section
+  floor
+  unit
+  village
+}
+
+enum BuildingMapType {
+  building
+}
+
+enum BuildingSectionType {
+  section
+}
+
+enum BuildingFloorType {
+  floor
+}
+
+enum BuildingUnitType {
+  unit
+}
+
+enum BuildingUnitSubType {
+  parking
+  flat
+  apartment
+  commercial
+  warehouse
+}
+
+type BuildingUnit {
+  id: String!
+  type: BuildingUnitType!
+  unitType: BuildingUnitSubType
+  name: String
+  label: String!
+  preview: Boolean
+}
+
+type BuildingFloor {
+  id: String!
+  type: BuildingFloorType!
+  index: Int!
+  name: String!
+  units: [BuildingUnit]!
+}
+
+type BuildingSection {
+  id: String!
+  type: BuildingSectionType!
+  index: Int!
+  name: String!
+  floors: [BuildingFloor]!
+  preview: Boolean
+}
+
+"""
+Technical map of the 'building' type Property object. We assume that there will be different maps for different property types. 
+"""
+type BuildingMap {
+  dv: Int!
+  sections: [BuildingSection]
+  parking: [BuildingSection]
+  type: BuildingMapType
+}
+
+enum VillageMapType {
+  village
+}
+
+"""
+Technical map of the 'village' type Property object. We assume that there will be different maps for different property types. 
+"""
+type VillageMap {
+  dv: Int!
+  type: VillageMapType
+}
+
+union PropertyMap = BuildingMap | VillageMap
 
 type AddressMetaDataMetroField {
   name: String
@@ -5195,93 +5328,6 @@ input AddressMetaFieldInput {
   data: AddressMetaDataFieldInput!
 }
 
-enum PropertyTypeType {
-  building
-  village
-}
-
-enum BuildingMapEntityType {
-  building
-  section
-  floor
-  unit
-  village
-}
-
-enum BuildingMapType {
-  building
-}
-
-enum BuildingSectionType {
-  section
-}
-
-enum BuildingFloorType {
-  floor
-}
-
-enum BuildingUnitType {
-  unit
-}
-
-enum BuildingUnitSubType {
-  parking
-  flat
-  apartment
-  commercial
-  warehouse
-}
-
-type BuildingUnit {
-  id: String!
-  type: BuildingUnitType!
-  unitType: BuildingUnitSubType
-  name: String
-  label: String!
-  preview: Boolean
-}
-
-type BuildingFloor {
-  id: String!
-  type: BuildingFloorType!
-  index: Int!
-  name: String!
-  units: [BuildingUnit]!
-}
-
-type BuildingSection {
-  id: String!
-  type: BuildingSectionType!
-  index: Int!
-  name: String!
-  floors: [BuildingFloor]!
-  preview: Boolean
-}
-
-"""
-Technical map of the 'building' type Property object. We assume that there will be different maps for different property types. 
-"""
-type BuildingMap {
-  dv: Int!
-  sections: [BuildingSection]
-  parking: [BuildingSection]
-  type: BuildingMapType
-}
-
-enum VillageMapType {
-  village
-}
-
-"""
-Technical map of the 'village' type Property object. We assume that there will be different maps for different property types. 
-"""
-type VillageMap {
-  dv: Int!
-  type: VillageMapType
-}
-
-union PropertyMap = BuildingMap | VillageMap
-
 """ Common property. The property is divided into separate `unit` parts, each of which can be owned by an independent owner. Community farm, residential buildings, or a cottage settlement 
 """
 type Property {
@@ -5301,12 +5347,6 @@ type Property {
   """ Client understandable Property name. A well-known property name for the client 
   """
   name: String
-
-  """ Normalized address """
-  address: String
-
-  """ Property address components """
-  addressMeta: AddressMetaField
 
   """ Common property type """
   type: PropertyTypeType
@@ -5338,6 +5378,19 @@ type Property {
   """ Property area in square meters """
   area: String
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The origin of the address (some string which may looks like real address or some id) 
+  """
+  addressSource: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
   v: Int
   createdAt: String
   updatedAt: String
@@ -5383,28 +5436,6 @@ input PropertyWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
-  address: String
-  address_not: String
-  address_contains: String
-  address_not_contains: String
-  address_starts_with: String
-  address_not_starts_with: String
-  address_ends_with: String
-  address_not_ends_with: String
-  address_i: String
-  address_not_i: String
-  address_contains_i: String
-  address_not_contains_i: String
-  address_starts_with_i: String
-  address_not_starts_with_i: String
-  address_ends_with_i: String
-  address_not_ends_with_i: String
-  address_in: [String]
-  address_not_in: [String]
-  addressMeta: JSON
-  addressMeta_not: JSON
-  addressMeta_in: [JSON]
-  addressMeta_not_in: [JSON]
   type: PropertyTypeType
   type_not: PropertyTypeType
   type_in: [PropertyTypeType]
@@ -5451,6 +5482,64 @@ input PropertyWhereInput {
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressSource: String
+  addressSource_not: String
+  addressSource_contains: String
+  addressSource_not_contains: String
+  addressSource_starts_with: String
+  addressSource_not_starts_with: String
+  addressSource_ends_with: String
+  addressSource_not_ends_with: String
+  addressSource_i: String
+  addressSource_not_i: String
+  addressSource_contains_i: String
+  addressSource_not_contains_i: String
+  addressSource_starts_with_i: String
+  addressSource_not_starts_with_i: String
+  addressSource_ends_with_i: String
+  addressSource_not_ends_with_i: String
+  addressSource_in: [String]
+  addressSource_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -5514,8 +5603,6 @@ enum SortPropertiesBy {
   organization_DESC
   name_ASC
   name_DESC
-  address_ASC
-  address_DESC
   type_ASC
   type_DESC
   unitsCount_ASC
@@ -5530,6 +5617,12 @@ enum SortPropertiesBy {
   area_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressSource_ASC
+  addressSource_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -5549,8 +5642,6 @@ enum SortPropertiesBy {
 input PropertyUpdateInput {
   organization: OrganizationRelateToOneInput
   name: String
-  address: String
-  addressMeta: JSON
   type: PropertyTypeType
   map: JSON
   unitsCount: Int
@@ -5558,6 +5649,10 @@ input PropertyUpdateInput {
   isApproved: Boolean
   yearOfConstruction: String
   area: String
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -5577,8 +5672,6 @@ input PropertiesUpdateInput {
 input PropertyCreateInput {
   organization: OrganizationRelateToOneInput
   name: String
-  address: String
-  addressMeta: JSON
   type: PropertyTypeType
   map: JSON
   unitsCount: Int
@@ -5586,6 +5679,10 @@ input PropertyCreateInput {
   isApproved: Boolean
   yearOfConstruction: String
   area: String
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -28899,12 +28996,14 @@ type ResidentHistoryRecord {
   residentProperty: JSON
   organizationFeatures: JSON
   paymentCategories: JSON
-  address: String
-  addressMeta: JSON
   unitName: String
   unitType: String
   organization: String
   id: ID!
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -28946,28 +29045,6 @@ input ResidentHistoryRecordWhereInput {
   paymentCategories_not: JSON
   paymentCategories_in: [JSON]
   paymentCategories_not_in: [JSON]
-  address: String
-  address_not: String
-  address_contains: String
-  address_not_contains: String
-  address_starts_with: String
-  address_not_starts_with: String
-  address_ends_with: String
-  address_not_ends_with: String
-  address_i: String
-  address_not_i: String
-  address_contains_i: String
-  address_not_contains_i: String
-  address_starts_with_i: String
-  address_not_starts_with_i: String
-  address_ends_with_i: String
-  address_not_ends_with_i: String
-  address_in: [String]
-  address_not_in: [String]
-  addressMeta: JSON
-  addressMeta_not: JSON
-  addressMeta_in: [JSON]
-  addressMeta_not_in: [JSON]
   unitName: String
   unitName_not: String
   unitName_contains: String
@@ -29012,6 +29089,64 @@ input ResidentHistoryRecordWhereInput {
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressSource: String
+  addressSource_not: String
+  addressSource_contains: String
+  addressSource_not_contains: String
+  addressSource_starts_with: String
+  addressSource_not_starts_with: String
+  addressSource_ends_with: String
+  addressSource_not_ends_with: String
+  addressSource_i: String
+  addressSource_not_i: String
+  addressSource_contains_i: String
+  addressSource_not_contains_i: String
+  addressSource_starts_with_i: String
+  addressSource_not_starts_with_i: String
+  addressSource_ends_with_i: String
+  addressSource_not_ends_with_i: String
+  addressSource_in: [String]
+  addressSource_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -29091,14 +29226,18 @@ input ResidentHistoryRecordWhereUniqueInput {
 }
 
 enum SortResidentHistoryRecordsBy {
-  address_ASC
-  address_DESC
   unitName_ASC
   unitName_DESC
   unitType_ASC
   unitType_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressSource_ASC
+  addressSource_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -29122,11 +29261,13 @@ input ResidentHistoryRecordUpdateInput {
   residentProperty: JSON
   organizationFeatures: JSON
   paymentCategories: JSON
-  address: String
-  addressMeta: JSON
   unitName: String
   unitType: String
   organization: String
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29153,11 +29294,13 @@ input ResidentHistoryRecordCreateInput {
   residentProperty: JSON
   organizationFeatures: JSON
   paymentCategories: JSON
-  address: String
-  addressMeta: JSON
   unitName: String
   unitType: String
   organization: String
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29234,12 +29377,6 @@ type Resident {
   """
   paymentCategories: [PaymentCategory]
 
-  """ Normalized address """
-  address: String
-
-  """ Property address components """
-  addressMeta: AddressMetaField
-
   """ Unit of the property, in which this person resides """
   unitName: String
 
@@ -29250,6 +29387,19 @@ type Resident {
   """
   organization: Organization
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The origin of the address (some string which may looks like real address or some id) 
+  """
+  addressSource: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
   v: Int
   createdAt: String
   updatedAt: String
@@ -29279,28 +29429,6 @@ input ResidentWhereInput {
   user_is_null: Boolean
   property: PropertyWhereInput
   property_is_null: Boolean
-  address: String
-  address_not: String
-  address_contains: String
-  address_not_contains: String
-  address_starts_with: String
-  address_not_starts_with: String
-  address_ends_with: String
-  address_not_ends_with: String
-  address_i: String
-  address_not_i: String
-  address_contains_i: String
-  address_not_contains_i: String
-  address_starts_with_i: String
-  address_not_starts_with_i: String
-  address_ends_with_i: String
-  address_not_ends_with_i: String
-  address_in: [String]
-  address_not_in: [String]
-  addressMeta: JSON
-  addressMeta_not: JSON
-  addressMeta_in: [JSON]
-  addressMeta_not_in: [JSON]
   unitName: String
   unitName_not: String
   unitName_contains: String
@@ -29329,6 +29457,64 @@ input ResidentWhereInput {
   id_not: ID
   id_in: [ID]
   id_not_in: [ID]
+  address: String
+  address_not: String
+  address_contains: String
+  address_not_contains: String
+  address_starts_with: String
+  address_not_starts_with: String
+  address_ends_with: String
+  address_not_ends_with: String
+  address_i: String
+  address_not_i: String
+  address_contains_i: String
+  address_not_contains_i: String
+  address_starts_with_i: String
+  address_not_starts_with_i: String
+  address_ends_with_i: String
+  address_not_ends_with_i: String
+  address_in: [String]
+  address_not_in: [String]
+  addressSource: String
+  addressSource_not: String
+  addressSource_contains: String
+  addressSource_not_contains: String
+  addressSource_starts_with: String
+  addressSource_not_starts_with: String
+  addressSource_ends_with: String
+  addressSource_not_ends_with: String
+  addressSource_i: String
+  addressSource_not_i: String
+  addressSource_contains_i: String
+  addressSource_not_contains_i: String
+  addressSource_starts_with_i: String
+  addressSource_not_starts_with_i: String
+  addressSource_ends_with_i: String
+  addressSource_not_ends_with_i: String
+  addressSource_in: [String]
+  addressSource_not_in: [String]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -29392,8 +29578,6 @@ enum SortResidentsBy {
   user_DESC
   property_ASC
   property_DESC
-  address_ASC
-  address_DESC
   unitName_ASC
   unitName_DESC
   unitType_ASC
@@ -29402,6 +29586,12 @@ enum SortResidentsBy {
   organization_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressSource_ASC
+  addressSource_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -29421,11 +29611,13 @@ enum SortResidentsBy {
 input ResidentUpdateInput {
   user: UserRelateToOneInput
   property: PropertyRelateToOneInput
-  address: String
-  addressMeta: JSON
   unitName: String
   unitType: String
   organization: OrganizationRelateToOneInput
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29445,11 +29637,13 @@ input ResidentsUpdateInput {
 input ResidentCreateInput {
   user: UserRelateToOneInput
   property: PropertyRelateToOneInput
-  address: String
-  addressMeta: JSON
   unitName: String
   unitType: String
   organization: OrganizationRelateToOneInput
+  address: String
+  addressSource: String
+  addressKey: String
+  addressMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
