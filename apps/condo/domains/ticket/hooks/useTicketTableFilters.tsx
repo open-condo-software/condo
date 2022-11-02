@@ -18,6 +18,7 @@ import {
     getFilter,
     getNumberFilter,
     getStringContainsFilter,
+    getStringSimpleContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
@@ -52,7 +53,7 @@ const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentA
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
-const filterAddress = getStringContainsFilter(['property', 'address'])
+const filterAddress = getStringSimpleContainsFilter(['property', 'address'])
 const filterClientName = getStringContainsFilter('clientName')
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
