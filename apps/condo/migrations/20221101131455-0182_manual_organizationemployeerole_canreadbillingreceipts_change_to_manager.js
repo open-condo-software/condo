@@ -1,3 +1,5 @@
+// KMIGRATOR:0182_manual_organizationemployeerole_canreadbillingreceipts_change_to_manager
+
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
