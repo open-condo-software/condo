@@ -4,9 +4,9 @@ exports.up = async (knex) => {
 --
 -- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
 --
-SET statement_timeout = '1500s'; 
+SET statement_timeout = '1500s';  
 UPDATE "OrganizationEmployeeRole"
-SET "canReadBillingReceipts" = true
+SET "canReadPayments" = true
 WHERE "name" = 'employee.role.Manager.name';
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
@@ -23,14 +23,15 @@ exports.down = async (knex) => {
 --
 -- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
 --
-SET statement_timeout = '1500s'; 
+SET statement_timeout = '1500s';  
 UPDATE "OrganizationEmployeeRole"
-SET "canReadBillingReceipts" = false
+SET "canReadPayments" = false
 WHERE "name" = 'employee.role.Manager.name';
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
 SET statement_timeout = '10s';
+
 COMMIT;
 
     `)

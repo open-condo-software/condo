@@ -69,7 +69,7 @@ const DEFAULT_ROLES = {
         'canShareTickets': true,
         'canBeAssignedAsResponsible': true,
         'canBeAssignedAsExecutor': true,
-        'canReadPayments': false,
+        'canReadPayments': true,
         'canReadBillingReceipts': true,
         'canReadEntitiesOnlyInScopeOfDivision': false,
         'canManageTicketPropertyHints': false,
