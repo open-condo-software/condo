@@ -24,6 +24,7 @@ async function createTestBankCategory (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await BankCategory.create(client, attrs)

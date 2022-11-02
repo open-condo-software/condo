@@ -17,13 +17,10 @@ describe('BankCategory', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 1) prepare data
                 const admin = await makeLoggedInAdminClient()
 
-                // 2) action
                 const [obj, attrs] = await createTestBankCategory(admin)
 
-                // 3) check
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -34,7 +31,7 @@ describe('BankCategory', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
-                // TODO(codegen): write others fields here! provide as match fields as you can here!
+                expect(obj.name).toMatch(attrs.name)
             })
 
             // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
