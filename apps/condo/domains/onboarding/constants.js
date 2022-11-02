@@ -48,7 +48,7 @@ const DEFAULT_ADMINISTRATOR_ONBOADRING_STEPS = [
     {
         icon: 'billing',
         action: 'create',
-        entity: 'BillingAccount',
+        entity: 'Billing',
         order: 6,
     },
     {
@@ -63,12 +63,16 @@ const DEFAULT_ADMINISTRATOR_STEPS_TRANSITION = {
     'create.Organization': [
         'create.Property',
         'create.OrganizationEmployee',
+        'create.Billing',
+        'create.Acquiring',
     ],
     'create.Property': [],
     'create.OrganizationEmployee': [
         'create.Division',
     ],
     'create.Division': [],
+    'create.Billing': [],
+    'create.Acquiring': [],
 }
 
 const ONBOARDING_STEPS = {
