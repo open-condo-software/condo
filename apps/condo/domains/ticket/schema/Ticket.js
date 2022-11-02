@@ -320,7 +320,6 @@ const Ticket = new GQLListSchema('Ticket', {
                 delete: false,
             },
         },
-        //TODO(nas): Create an ability to override some fields for addressMeta field
         propertyAddressMeta: {
             ...ADDRESS_META_FIELD,
             schemaDoc: 'Address meta of property, which synced with property and used to form view of address, if property is deleted',

@@ -6,7 +6,7 @@ const { Text } = require('@keystonejs/fields')
 const {
     createInstance: createAddressServiceClientInstance,
     createTestInstance: createTestAddressServiceClientInstance,
-} = require('@condo/address-service-client')
+} = require('@condo/keystone/plugins/utils/address-service-client')
 const get = require('lodash/get')
 
 const readOnlyAccess = {
