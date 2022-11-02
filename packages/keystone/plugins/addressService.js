@@ -114,13 +114,13 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
     const newResolveInput = async ({ resolvedData, operation, existingItem, originalInput, context }) => {
         // We will call to address service in the following cases:
         if (
-            // 1. In the case of new property creation
+            // 1. In the case of new property/resident creation
             (operation === 'create' && !resolvedData[getKeyFieldName(addressFieldName)])
 
-            // 2. In the case of property update and updating property has no address key for some reason
+            // 2. In the case of property/resident update and updating property/resident has no address key for some reason
             || (operation === 'update' && !existingItem[getKeyFieldName(addressFieldName)])
 
-            // 3. In the case of update and if property address has been changed
+            // 3. In the case of update and if property/resident address has been changed
             || (operation === 'update' && !!resolvedData[addressFieldName] && existingItem[addressFieldName] !== resolvedData[addressFieldName])
         ) {
             const client = conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'

@@ -7,7 +7,7 @@ const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
-const { ADDRESS_META_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 
 const access = require('@condo/domains/resident/access/Resident')
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
@@ -28,7 +28,19 @@ const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { manageResidentToTicketClientConnections } = require('../tasks')
 const { addOrganizationFieldPlugin } = require(
     '@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
-const { RESIDENT_PROPERTY_FIELDS, ORGANIZATION_FEATURES_FIELDS, PAYMENT_CATEGORIES_FIELDS } = require('@condo/domains/resident/gql')
+const {
+    RESIDENT_PROPERTY_FIELDS,
+    ORGANIZATION_FEATURES_FIELDS,
+    PAYMENT_CATEGORIES_FIELDS,
+} = require('@condo/domains/resident/gql')
+const { addressService } = require('@condo/keystone/plugins/addressService')
+
+const addressFieldHooks = {
+    resolveInput: async ({ resolvedData: { address, addressMeta } }) => {
+        const newAddress = getAddressUpToBuildingFrom(addressMeta)
+        return newAddress || address
+    },
+}
 
 const Resident = new GQLListSchema('Resident', {
     schemaDoc: 'Person, that resides in a specified property and unit',
@@ -138,14 +150,14 @@ const Resident = new GQLListSchema('Resident', {
 
                         if (category.canGetBillingFromOrganization && item.organization) {
                             const [billingCtx] = await BillingIntegrationOrganizationContext.getAll(
-                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null }
+                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null },
                             )
                             billingName = get(billingCtx, ['integration', 'name'], DEFAULT_BILLING_INTEGRATION_NAME)
                         }
 
                         if (category.canGetAcquiringFromOrganization && item.organization) {
                             const [acquiringCtx] = await AcquiringIntegrationContext.getAll(
-                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null }
+                                context, { organization: { id: item.organization, deletedAt: null }, deletedAt: null },
                             )
                             acquiringName = get(acquiringCtx, ['integration', 'name'], DEFAULT_ACQUIRING_INTEGRATION_NAME)
                         }
@@ -160,20 +172,6 @@ const Resident = new GQLListSchema('Resident', {
             },
         },
 
-        address: {
-            schemaDoc: 'Normalized address',
-            type: Text,
-            isRequired: true,
-            hooks: {
-                resolveInput: async ({ resolvedData: { address, addressMeta } }) => {
-                    const newAddress = getAddressUpToBuildingFrom(addressMeta)
-                    return newAddress || address
-                },
-            },
-        },
-
-        addressMeta: ADDRESS_META_FIELD,
-
         unitName: {
             schemaDoc: 'Unit of the property, in which this person resides',
             type: Text,
@@ -187,6 +185,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [
         addOrganizationFieldPlugin({ fromField: 'property' }),
         uuided(),
+        addressService('address', { address: addressFieldHooks }),
         versioned(),
         tracked(),
         softDeleted(),
