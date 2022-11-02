@@ -75,7 +75,7 @@ export function useTableColumns <T> (
     const search = getFilteredValue(filters, 'search')
     const { breakpoints } = useLayoutContext()
 
-    const { loading, objs: ticketStatuses } = TicketStatus.useObjects({})
+    const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
         const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
@@ -86,8 +86,8 @@ export function useTableColumns <T> (
             clearFilters,
         }
 
-        return getOptionFilterDropdown(adaptedStatuses, loading)(filterProps)
-    }, [loading, ticketStatuses])
+        return getOptionFilterDropdown(adaptedStatuses, statusesLoading)(filterProps)
+    }, [statusesLoading, ticketStatuses])
 
     const renderAddress = useCallback(
         (property) => getAddressRender(property, DeletedMessage, search),
@@ -104,7 +104,11 @@ export function useTableColumns <T> (
     const { user } = useAuth()
 
     const ticketIds = useMemo(() => map(tickets, 'id'), [tickets])
-    const { objs: userTicketsCommentReadTime, refetch: refetchUserTicketsCommentReadTime } = UserTicketCommentReadTime.useObjects({
+    const {
+        objs: userTicketCommentReadTimes,
+        refetch: refetchUserTicketCommentReadTimes,
+        loading: userTicketCommentReadTimesLoading,
+    } = UserTicketCommentReadTime.useObjects({
         where: {
             user: { id: user.id },
             ticket: {
@@ -112,7 +116,11 @@ export function useTableColumns <T> (
             },
         },
     })
-    const { objs: ticketsCommentsTime, refetch: refetchTicketsCommentsTime } = TicketCommentsTime.useObjects({
+    const {
+        objs: ticketsCommentTimes,
+        refetch: refetchTicketsCommentsTimes,
+        loading: ticketCommentTimesLoading,
+    } = TicketCommentsTime.useObjects({
         where: {
             ticket: {
                 id_in: ticketIds,
@@ -131,9 +139,9 @@ export function useTableColumns <T> (
 
     const refetch = useCallback(async () => {
         await refetchTickets()
-        await refetchUserTicketsCommentReadTime()
-        await refetchTicketsCommentsTime()
-    }, [refetchTickets, refetchTicketsCommentsTime, refetchUserTicketsCommentReadTime])
+        await refetchUserTicketCommentReadTimes()
+        await refetchTicketsCommentsTimes()
+    }, [refetchTickets, refetchTicketsCommentsTimes, refetchUserTicketCommentReadTimes])
 
     useEffect(() => {
         if (isRefetchTicketsFeatureEnabled) {
@@ -148,8 +156,8 @@ export function useTableColumns <T> (
         }
     }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
 
-    return useMemo(() => {
-        return [
+    return useMemo(() => ({
+        columns: [
             {
                 title: NumberMessage,
                 sortOrder: get(sorterMap, 'number'),
@@ -160,7 +168,7 @@ export function useTableColumns <T> (
                 width: COLUMNS_WIDTH.number,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: getTicketNumberRender(intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search),
+                render: getTicketNumberRender(intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search),
                 align: 'center',
             },
             {
@@ -272,6 +280,7 @@ export function useTableColumns <T> (
                 filterIcon: getFilterIcon,
                 ellipsis: true,
             },
-        ]
-    }, [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketsCommentReadTime, ticketsCommentsTime, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee])
+        ],
+        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
+    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
 }
