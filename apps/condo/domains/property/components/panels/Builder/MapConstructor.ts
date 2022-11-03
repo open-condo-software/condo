@@ -714,8 +714,10 @@ class MapEdit extends MapView {
 
     public removePreviewSection (): void {
         if (this.previewSectionId) {
-            this.removeSection(this.previewSectionId)
+            const sectionPreviewIndex = this.map.sections.findIndex(mapSection => mapSection.id === this.previewSectionId)
+            this.map.sections.splice(sectionPreviewIndex, 1)
             this.previewSectionId = null
+            this.notifyUpdater()
         }
     }
 
@@ -751,8 +753,12 @@ class MapEdit extends MapView {
     public addSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType = BuildingUnitSubType.Flat): void {
         const newSection = this.generateSection(section, unitType)
         this.map.sections.push(newSection)
+        this.removePreviewUnit()
+        this.viewMode = MapViewMode.section
+        this.selectedUnit = null
+        this.selectedSection = null
+        this.mode = null
         this.notifyUpdater()
-        this.editMode = 'addSection'
     }
 
     public addPreviewSectionFloor (floor: BuildingFloorArg): void {
@@ -881,7 +887,8 @@ class MapEdit extends MapView {
 
     public removePreviewParking (): void {
         if (this.previewParkingId) {
-            this.removeParking(this.previewParkingId, false)
+            const previewParkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === this.previewParkingId)
+            this.map.parking.splice(previewParkingIndex, 1)
             this.previewParkingId = null
         }
     }
@@ -901,8 +908,13 @@ class MapEdit extends MapView {
     public addParking (parking: Partial<BuildingSectionArg>): void {
         const newParking = this.generateSingleParking(parking)
         this.map.parking.push(newParking)
+        this.viewMode = MapViewMode.parking
+        this.removePreviewUnit()
+        this.removePreviewSection()
+        this.selectedUnit = null
+        this.selectedSection = null
+        this.mode = null
         this.notifyUpdater()
-        this.editMode = 'addParking'
     }
 
     public addPreviewCopyParking (parkingId: string): void {
@@ -1031,7 +1043,10 @@ class MapEdit extends MapView {
 
         if (renameNextUnits) this.updateParkingUnitNumbers(newUnit)
 
-        this.editMode = 'addParkingUnit'
+        this.removePreviewParkingUnit()
+        this.removePreviewParking()
+        this.selectedParkingUnit = null
+        this.mode = null
         this.notifyUpdater()
     }
 
@@ -1060,7 +1075,11 @@ class MapEdit extends MapView {
 
         if (renameNextUnits) this.updateUnitNumbers(newUnit)
 
-        this.editMode = 'addUnit'
+        this.removePreviewSection()
+        this.viewMode = MapViewMode.section
+        this.selectedSection = null
+        this.selectedUnit = null
+        this.mode = null
         this.notifyUpdater()
     }
 
@@ -1085,9 +1104,6 @@ class MapEdit extends MapView {
             this.removeSection(this.map.sections[unitIndex.section].id, renameNextUnits)
         }
 
-        this.selectedUnit = null
-        this.selectedSection = null
-        this.mode = null
         this.notifyUpdater()
     }
 
@@ -1111,8 +1127,6 @@ class MapEdit extends MapView {
             this.removeParking(this.map.parking[unitIndex.parking].id, renameNextUnits)
         }
 
-        this.selectedParkingUnit = null
-        this.editMode = null
         this.notifyUpdater()
     }
 
