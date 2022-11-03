@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
@@ -8,13 +8,13 @@ import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
 export const useSearch = <F> (loading: boolean): [string, (search: string) => void] => {
     const router = useRouter()
-    const filtersFromQuery = getFiltersFromQuery<F>(router.query)
+    const filtersFromQuery = useMemo(() => getFiltersFromQuery<F>(router.query), [router.query])
     const searchValueFromQuery = get(filtersFromQuery, 'search')
     const [search, setSearch] = useState(searchValueFromQuery)
 
-    const searchChange = useCallback(debounce(async (searchString) => {
+    const searchChange = useMemo(() => debounce(async (searchString) => {
         await updateQuery(router, { ...filtersFromQuery, search: searchString })
-    }, 400), [loading, filtersFromQuery])
+    }, 400), [router, filtersFromQuery])
 
     const handleSearchChange = (value: string): void => {
         setSearch(value)
