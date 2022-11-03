@@ -16,6 +16,7 @@ import compact from 'lodash/compact'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import isEmpty from 'lodash/isEmpty'
 import isObjectEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
 import last from 'lodash/last'
@@ -848,9 +849,9 @@ class MapEdit extends MapView {
 
     public removeSection (id: string, renameNextUnits = true): void {
         const sectionIndex = this.map.sections.findIndex(mapSection => mapSection.id === id)
+        const removedSection = { ...this.map.sections[sectionIndex] }
         this.map.sections.splice(sectionIndex, 1)
-        const removeSectionIndex = (sectionIndex - 1) >= 0 ? sectionIndex - 1 : sectionIndex
-        if (renameNextUnits) this.updateSectionNumbers(removeSectionIndex, renameNextUnits)
+        if (renameNextUnits) this.updateSectionNumbers(sectionIndex, renameNextUnits, removedSection)
 
         this.selectedSection = null
         this.mode = null
@@ -869,9 +870,9 @@ class MapEdit extends MapView {
 
     public removeParking (id: string, renameNextUnits = true): void {
         const parkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === id)
+        const removedParking = { ...this.map.parking[parkingIndex] }
         this.map.parking.splice(parkingIndex, 1)
-        const removeParkingIndex = (parkingIndex - 1) >= 0 ? parkingIndex - 1 : parkingIndex
-        if (renameNextUnits) this.updateParkingNumbers(removeParkingIndex, renameNextUnits)
+        if (renameNextUnits) this.updateParkingNumbers(parkingIndex, renameNextUnits, removedParking)
 
         this.selectedParking = null
         this.mode = null
@@ -1085,7 +1086,8 @@ class MapEdit extends MapView {
         }
 
         this.selectedUnit = null
-        this.editMode = null
+        this.selectedSection = null
+        this.mode = null
         this.notifyUpdater()
     }
 
@@ -1416,15 +1418,15 @@ class MapEdit extends MapView {
         }
     }
 
-    private updateSectionNumbers (removedIndex: number, renameNextUnits = true): void {
-        if (removedIndex === this.map.sections.length) {
+    private updateSectionNumbers (updatedIndex: number, renameNextUnits = true, removedSection = {}): void {
+        if (updatedIndex === this.map.sections.length) {
             return
         }
-        let sectionNameNumber = parseInt(get(this.map.sections, `${removedIndex}.name`))
-        if (removedIndex === 0) sectionNameNumber = 1
-        let sectionIndex = removedIndex
+        let sectionNameNumber = parseInt(get(this.map.sections, `${updatedIndex}.name`))
+        if (!isEmpty(removedSection)) sectionNameNumber = get(removedSection, 'name', 1)
+        let sectionIndex = !isEmpty(removedSection) ? get(removedSection, 'index', 0) : updatedIndex
         this.map.sections.forEach((section, index) => {
-            if (index >= removedIndex) {
+            if (index >= updatedIndex) {
                 section.name = String(sectionNameNumber)
                 section.index = sectionIndex
                 sectionNameNumber++
@@ -1434,15 +1436,15 @@ class MapEdit extends MapView {
 
     }
 
-    private updateParkingNumbers (removedIndex: number, renameNextUnits = true): void {
-        if (removedIndex === this.map.parking.length) {
+    private updateParkingNumbers (updatedIndex: number, renameNextUnits = true, removedParking = {}): void {
+        if (updatedIndex === this.map.parking.length) {
             return
         }
-        let parkingNameNumber = parseInt(get(this.map.parking, `${removedIndex}.name`))
-        let parkingIndex = removedIndex
-        if (removedIndex === 0) parkingNameNumber = 1
+        let parkingNameNumber = parseInt(get(this.map.parking, `${updatedIndex}.name`))
+        if (!isEmpty(removedParking)) parkingNameNumber = get(removedParking, 'name', 1)
+        let parkingIndex = !isEmpty(removedParking) ? get(removedParking, 'index', 0) : updatedIndex
         this.map.parking.forEach((parkingSection, index) => {
-            if (index >= removedIndex) {
+            if (index >= updatedIndex) {
                 parkingSection.name = String(parkingNameNumber)
                 parkingSection.index = parkingIndex
                 parkingNameNumber++
