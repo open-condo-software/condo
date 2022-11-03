@@ -118,12 +118,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
 
     const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = convertToOptions<TicketStatusType>(statuses, 'name', 'id')
+    const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'id'), [statuses])
 
     const { objs: sources } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES },
     })
-    const sourceOptions = convertToOptions<TicketSourceType>(sources, 'name', 'id')
+    const sourceOptions = useMemo(() => convertToOptions<TicketSourceType>(sources, 'name', 'id'), [sources])
 
     const attributeOptions = useMemo(() => [
         { label: RegularMessage, value: 'isRegular' },
@@ -148,7 +148,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
         { label: IsNotResidentContactMessage, value: 'true' },
     ], [IsNotResidentContactMessage, IsResidentContactMessage])
     const { objs: categoryClassifiers } = TicketCategoryClassifier.useObjects({})
-    const categoryClassifiersOptions = convertToOptions<TicketCategoryClassifierType>(categoryClassifiers, 'name', 'id')
+    const categoryClassifiersOptions = useMemo(() => convertToOptions<TicketCategoryClassifierType>(categoryClassifiers, 'name', 'id'), [categoryClassifiers])
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
@@ -569,5 +569,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterTicketContact],
             },
         ]
-    }, [statuses, sources, categoryClassifiers])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, DivisionLabel, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }
