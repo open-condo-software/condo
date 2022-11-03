@@ -31,6 +31,8 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 const { Message, MessageOrganizationBlackList, updateTestMessageOrganizationBlackList } = require('@condo/domains/notification/utils/testSchema')
 
+const { DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
+
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -126,6 +128,24 @@ describe('Ticket', () => {
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await createTestTicket(userClient, userClient.organization, userClient.property)
             })
+        })
+
+        test('resident: can create ticket without deadline and set deadline from TicketOrganizationSetting', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithResidentAccessAndProperty()
+            const unitName = faker.random.alphaNumeric(5)
+            await createTestResident(admin, userClient.user, userClient.property, {
+                unitName,
+            })
+
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                unitName,
+            })
+
+            const durationAsMs = dayjs.duration(DEFAULT_TICKET_DEADLINE_DURATION).asMilliseconds()
+            const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            expect(ticket.deadline).not.toBeNull()
+            expect(dayjs(ticket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
         })
 
         test('resident: can create Ticket and client info save in new ticket', async () => {
