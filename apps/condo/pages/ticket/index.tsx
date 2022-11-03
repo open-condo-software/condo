@@ -29,18 +29,13 @@ import {
     useMultipleFiltersModal,
 } from '@condo/domains/common/hooks/useMultipleFiltersModal'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { useTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
-import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
-import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
 import { useAuth } from '@condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
@@ -53,6 +48,10 @@ import {
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
+import { useEmergencySearch } from '@condo/domains/ticket/hooks/useEmergencySearch'
+import { useWarrantySearch } from '@condo/domains/ticket/hooks/useWarrantySearch'
+import { useReturnedSearch } from '@condo/domains/ticket/hooks/useReturnedSearch'
+import { usePaidSearch } from '@condo/domains/ticket/hooks/usePaidSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -137,15 +136,17 @@ const TicketsTable = ({
 
     return (
         <>
-            <Table
-                totalRows={total}
-                loading={loading}
-                dataSource={tickets}
-                columns={columns}
-                onRow={handleRowAction}
-                components={tableComponents}
-                data-cy='ticket__table'
-            />
+            <Col span={24}>
+                <Table
+                    totalRows={total}
+                    loading={loading}
+                    dataSource={tickets}
+                    columns={columns}
+                    onRow={handleRowAction}
+                    components={tableComponents}
+                    data-cy='ticket__table'
+                />
+            </Col>
             <TaskLauncher hidden={loading} disabled={ticketsWithFiltersCount === 0}/>
         </>
     )
@@ -153,6 +154,140 @@ const TicketsTable = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
+
+const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
+    const intl = useIntl()
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
+    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
+    const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
+    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+
+    const router = useRouter()
+    const { filters } = parseQuery(router.query)
+
+    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
+    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+
+    const [search, handleSearchChange] = useSearch<IFilters>(false)
+    const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(false)
+    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(false)
+    const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(false)
+    const [paid, handlePaidChange] = usePaidSearch<IFilters>(false)
+
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
+
+    const handleOpenMultipleFilter = useCallback(() => {
+        setIsMultipleFiltersModalVisible(true)
+    }, [setIsMultipleFiltersModalVisible])
+
+    return (
+        <>
+            <TableFiltersContainer>
+                <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
+                    <Col flex='auto'>
+                        <Row
+                            gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
+                            align='middle'
+                            justify='start'
+                        >
+                            <Col xs={24} md={8}>
+                                <Input
+                                    placeholder={SearchPlaceholder}
+                                    onChange={(e) => {
+                                        handleSearchChange(e.target.value)
+                                    }}
+                                    value={search}
+                                    allowClear={true}
+                                />
+                            </Col>
+                            <Col xs={24} md={16}>
+                                <Row gutter={[8, 16]}>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleEmergencyChange}
+                                            checked={emergency}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxEmergency'
+                                            data-cy='ticket__filter-isEmergency'
+                                        >
+                                            {EmergenciesLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handlePaidChange}
+                                            checked={paid}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxPaid'
+                                            data-cy='ticket__filter-isPaid'
+                                        >
+                                            {PaidLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleWarrantyChange}
+                                            checked={warranty}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxWarranty'
+                                            data-cy='ticket__filter-isWarranty'
+                                        >
+                                            {WarrantiesLabel}
+                                        </Checkbox>
+                                    </Col>
+                                    <Col>
+                                        <Checkbox
+                                            onChange={handleReturnedChange}
+                                            checked={returned}
+                                            style={CHECKBOX_STYLE}
+                                            eventName='TicketFilterCheckboxReturned'
+                                            data-cy='ticket__filter-isReturned'
+                                        >
+                                            {ReturnedLabel}
+                                        </Checkbox>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col>
+                        <Row justify='end' align='middle'>
+                            {
+                                appliedFiltersCount > 0 ? (
+                                    <Col>
+                                        <ResetFiltersModalButton />
+                                    </Col>
+                                ) : null
+                            }
+                            <Col>
+                                <Row gutter={BUTTON_WRAPPER_ROW_GUTTER}>
+                                    <Col>
+                                        {TicketImportButton}
+                                    </Col>
+                                    <Col>
+                                        <Button
+                                            secondary
+                                            type='sberPrimary'
+                                            onClick={handleOpenMultipleFilter}
+                                            data-cy='ticket__filters-button'
+                                        >
+                                            <FilterFilled/>
+                                            {FiltersButtonLabel}
+                                            {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
+                                        </Button>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    </Col>
+                </Row>
+            </TableFiltersContainer>
+            <MultipleFiltersModal />
+        </>
+    )
+}
 
 export const TicketsPageContent = ({
     baseTicketsQuery,
@@ -165,15 +300,9 @@ export const TicketsPageContent = ({
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
-    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
-    const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
-    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
     const TicketsMessage = intl.formatMessage({ id: 'menu.Tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
 
@@ -183,16 +312,6 @@ export const TicketsPageContent = ({
     const searchTicketsQuery = useMemo(() => ({ ...baseTicketsQuery,  ...filtersToWhere(filters), ...{ deletedAt: null } }),
         [baseTicketsQuery, filters, filtersToWhere])
     const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
-
-    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
-    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
-
-    const [search, handleSearchChange] = useSearch<IFilters>(false)
-    const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(false)
-    const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(false)
-    const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(false)
-    const [paid, handlePaidChange] = usePaidSearch<IFilters>(false)
 
     const {
         count: ticketsWithoutFiltersCount,
@@ -230,10 +349,6 @@ export const TicketsPageContent = ({
         )
     }, [TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator])
 
-    const handleOpenMultipleFilter = useCallback(() => {
-        setIsMultipleFiltersModalVisible(true)
-    }, [setIsMultipleFiltersModalVisible])
-
     return (
         <>
             <Head>
@@ -256,120 +371,21 @@ export const TicketsPageContent = ({
                             : (
                                 <Row gutter={ROW_GUTTER} align='middle' justify='center'>
                                     <Col span={24}>
-                                        <TableFiltersContainer>
-                                            <Row justify='end' gutter={TAP_BAR_ROW_GUTTER}>
-                                                <Col flex='auto'>
-                                                    <Row
-                                                        gutter={TOP_BAR_FIRST_COLUMN_GUTTER}
-                                                        align='middle'
-                                                        justify='start'
-                                                    >
-                                                        <Col xs={24} md={8}>
-                                                            <Input
-                                                                placeholder={SearchPlaceholder}
-                                                                onChange={(e) => {
-                                                                    handleSearchChange(e.target.value)
-                                                                }}
-                                                                value={search}
-                                                                allowClear={true}
-                                                            />
-                                                        </Col>
-                                                        <Col xs={24} md={16}>
-                                                            <Row gutter={[8, 16]}>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleEmergencyChange}
-                                                                        checked={emergency}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxEmergency'
-                                                                        data-cy='ticket__filter-isEmergency'
-                                                                    >
-                                                                        {EmergenciesLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handlePaidChange}
-                                                                        checked={paid}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxPaid'
-                                                                        data-cy='ticket__filter-isPaid'
-                                                                    >
-                                                                        {PaidLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleWarrantyChange}
-                                                                        checked={warranty}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxWarranty'
-                                                                        data-cy='ticket__filter-isWarranty'
-                                                                    >
-                                                                        {WarrantiesLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleReturnedChange}
-                                                                        checked={returned}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxReturned'
-                                                                        data-cy='ticket__filter-isReturned'
-                                                                    >
-                                                                        {ReturnedLabel}
-                                                                    </Checkbox>
-                                                                </Col>
-                                                            </Row>
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                                <Col>
-                                                    <Row justify='end' align='middle'>
-                                                        {
-                                                            appliedFiltersCount > 0 ? (
-                                                                <Col>
-                                                                    <ResetFiltersModalButton />
-                                                                </Col>
-                                                            ) : null
-                                                        }
-                                                        <Col>
-                                                            <Row gutter={BUTTON_WRAPPER_ROW_GUTTER}>
-                                                                <Col>
-                                                                    {TicketImportButton}
-                                                                </Col>
-                                                                <Col>
-                                                                    <Button
-                                                                        secondary
-                                                                        type='sberPrimary'
-                                                                        onClick={handleOpenMultipleFilter}
-                                                                        data-cy='ticket__filters-button'
-                                                                    >
-                                                                        <FilterFilled/>
-                                                                        {FiltersButtonLabel}
-                                                                        {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
-                                                                    </Button>
-                                                                </Col>
-                                                            </Row>
-                                                        </Col>
-                                                    </Row>
-                                                </Col>
-                                            </Row>
-                                        </TableFiltersContainer>
-                                    </Col>
-                                    <Col span={24}>
-                                        <TicketsTable
-                                            forceTimeZone={forceTimeZone}
-                                            useTableColumns={useTableColumns}
+                                        <FiltersContainer
+                                            TicketImportButton={TicketImportButton}
                                             filterMetas={filterMetas}
-                                            sortBy={sortBy}
-                                            searchTicketsQuery={searchTicketsQuery}
                                         />
                                     </Col>
+                                    <TicketsTable
+                                        forceTimeZone={forceTimeZone}
+                                        useTableColumns={useTableColumns}
+                                        filterMetas={filterMetas}
+                                        sortBy={sortBy}
+                                        searchTicketsQuery={searchTicketsQuery}
+                                    />
                                 </Row>
                             )
                     }
-                    <MultipleFiltersModal />
                 </TablePageContent>
             </PageWrapper>
         </>
