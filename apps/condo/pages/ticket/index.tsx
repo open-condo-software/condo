@@ -53,7 +53,6 @@ import {
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
-import { useRegularSearch } from '@condo/domains/ticket/hooks/useRegularSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -172,7 +171,6 @@ export const TicketsPageContent = ({
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
-    const RegularLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.RegularLabel' })
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
     const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
@@ -192,7 +190,6 @@ export const TicketsPageContent = ({
 
     const [search, handleSearchChange] = useSearch<IFilters>(false)
     const [emergency, handleEmergencyChange] = useEmergencySearch<IFilters>(false)
-    const [regular, handleRegularChange] = useRegularSearch<IFilters>(false)
     const [warranty, handleWarrantyChange] = useWarrantySearch<IFilters>(false)
     const [returned, handleReturnedChange] = useReturnedSearch<IFilters>(false)
     const [paid, handlePaidChange] = usePaidSearch<IFilters>(false)
@@ -279,17 +276,6 @@ export const TicketsPageContent = ({
                                                         </Col>
                                                         <Col xs={24} md={16}>
                                                             <Row gutter={[8, 16]}>
-                                                                <Col>
-                                                                    <Checkbox
-                                                                        onChange={handleRegularChange}
-                                                                        checked={regular}
-                                                                        style={CHECKBOX_STYLE}
-                                                                        eventName='TicketFilterCheckboxRegular'
-                                                                        data-cy='ticket__filter-isRegular'
-                                                                    >
-                                                                        {RegularLabel}
-                                                                    </Checkbox>
-                                                                </Col>
                                                                 <Col>
                                                                     <Checkbox
                                                                         onChange={handleEmergencyChange}
