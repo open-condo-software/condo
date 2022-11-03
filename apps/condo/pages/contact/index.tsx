@@ -81,7 +81,7 @@ export const ContactsPageContent = ({
         }
     }, [])
 
-    const [search, handleSearchChange] = useSearch<IFilters>(contactsLoading)
+    const [search, handleSearchChange] = useSearch<IFilters>()
     const [columns, contactNormalizer, contactValidator, contactCreator] = useImporterFunctions()
     const isNoContactsData = isEmpty(contacts) && isEmpty(filtersFromQuery) && !contactsLoading && !loading
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoContactsData ? 'flex' : 'none' }

@@ -136,7 +136,7 @@
   "filters.DeleteMessage": "It would be impossible to restore filters settings set. Instead you can create new one and save it.",
   "filters.SaveTemplate": "Save template and apply",
   "filters.FindWord": "Find word",
-  "filters.FullSearch": "Search by any field of the application",
+  "filters.FullSearch": "Search",
   "filters.Reset": "Reset Filters",
   "filters.UserName": "Full Name",
   "FooterText": "Have any questions? Please email us at {email}\nor call {phone}",

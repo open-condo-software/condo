@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { DiffOutlined, FilterFilled } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
@@ -48,7 +49,7 @@ import {
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
-import { useAttributeSearch } from '@condo/domains/ticket/hooks/useAttributeSearch'
+import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -151,6 +152,8 @@ const TicketsTable = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
+const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPaid']
+const CHECKBOX_WRAPPER_GUTTERS: [Gutter, Gutter] = [8, 16]
 
 const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
     const intl = useIntl()
@@ -168,18 +171,29 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
     const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
     const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
 
-    const [search, handleSearchChange] = useSearch<IFilters>(false)
-    const [emergency, handleEmergencyChange] = useAttributeSearch<IFilters>('isEmergency')
-    const [regular, handleRegularChange] = useAttributeSearch<IFilters>('isRegular')
-    const [warranty, handleWarrantyChange] = useAttributeSearch<IFilters>('isWarranty')
-    const [returned, handleReturnedChange] = useAttributeSearch<IFilters>('statusReopenedCounter')
-    const [paid, handlePaidChange] = useAttributeSearch<IFilters>('isPaid')
+    const [search, changeSearch, handleResetSearch] = useSearch<IFilters>()
+    const [attributes, handleChangeAttribute, handleResetAllAttributes, handleChangeAllAttributes] = useBooleanAttributesSearch(ATTRIBUTE_NAMES_To_FILTERS)
+    const { isEmergency: emergency, isRegular: regular, isWarranty: warranty, statusReopenedCounter: returned, isPaid: paid } = attributes
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate)
+    const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
+        const isChecked = get(e, ['target', 'checked'])
+        handleChangeAttribute(isChecked, attributeName)
+    }, [handleChangeAttribute])
+
+    const handleResetFilters = useCallback(() => {
+        handleResetAllAttributes()
+        handleResetSearch()
+    }, [handleResetAllAttributes, handleResetSearch])
+
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate, handleResetFilters, handleChangeAllAttributes)
 
     const handleOpenMultipleFilter = useCallback(() => {
         setIsMultipleFiltersModalVisible(true)
     }, [setIsMultipleFiltersModalVisible])
+
+    const handleSearchChange = useCallback((e) => {
+        changeSearch(e.target.value)
+    }, [changeSearch])
 
     return (
         <>
@@ -194,18 +208,16 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
                             <Col xs={24} md={8}>
                                 <Input
                                     placeholder={SearchPlaceholder}
-                                    onChange={(e) => {
-                                        handleSearchChange(e.target.value)
-                                    }}
+                                    onChange={handleSearchChange}
                                     value={search}
                                     allowClear={true}
                                 />
                             </Col>
                             <Col xs={24} md={16}>
-                                <Row gutter={[8, 16]}>
+                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS}>
                                     <Col>
                                         <Checkbox
-                                            onChange={handleRegularChange}
+                                            onChange={handleAttributeCheckboxChange('isRegular')}
                                             checked={regular}
                                             style={CHECKBOX_STYLE}
                                             eventName='TicketFilterCheckboxRegular'
@@ -216,7 +228,7 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
                                     </Col>
                                     <Col>
                                         <Checkbox
-                                            onChange={handleEmergencyChange}
+                                            onChange={handleAttributeCheckboxChange('isEmergency')}
                                             checked={emergency}
                                             style={CHECKBOX_STYLE}
                                             eventName='TicketFilterCheckboxEmergency'
@@ -227,7 +239,7 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
                                     </Col>
                                     <Col>
                                         <Checkbox
-                                            onChange={handlePaidChange}
+                                            onChange={handleAttributeCheckboxChange('isPaid')}
                                             checked={paid}
                                             style={CHECKBOX_STYLE}
                                             eventName='TicketFilterCheckboxPaid'
@@ -238,7 +250,7 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
                                     </Col>
                                     <Col>
                                         <Checkbox
-                                            onChange={handleWarrantyChange}
+                                            onChange={handleAttributeCheckboxChange('isWarranty')}
                                             checked={warranty}
                                             style={CHECKBOX_STYLE}
                                             eventName='TicketFilterCheckboxWarranty'
@@ -249,7 +261,7 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
                                     </Col>
                                     <Col>
                                         <Checkbox
-                                            onChange={handleReturnedChange}
+                                            onChange={handleAttributeCheckboxChange('statusReopenedCounter')}
                                             checked={returned}
                                             style={CHECKBOX_STYLE}
                                             eventName='TicketFilterCheckboxReturned'
@@ -365,9 +377,9 @@ export const TicketsPageContent = ({
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
-                <PageHeader title={
-                    <Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>
-                }/>
+                <PageHeader
+                    title={<Typography.Title style={PAGE_HEADER_TITLE_STYLES}>{PageTitleMessage}</Typography.Title>}
+                />
                 <TablePageContent>
                     {
                         (!baseQueryLoading && !ticketsWithoutFiltersCountLoading && ticketsWithoutFiltersCount === 0)

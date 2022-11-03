@@ -1,0 +1,43 @@
+import { useCallback, useMemo, useState } from 'react'
+import { useRouter } from 'next/router'
+import get from 'lodash/get'
+import debounce from 'lodash/debounce'
+
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
+
+type UseBooleanAttributesSearchOutputType = [{ [key: string]: boolean }, (isChecked: boolean, attributeName: string) => void, () => void, (filters) => void]
+
+const getInitialState = (attributeNames, attributesFromQuery) =>
+    Object.fromEntries(attributeNames.map(attribute => [attribute, attributesFromQuery.includes(attribute)]))
+
+export const useBooleanAttributesSearch = <F> (attributeNames: string[]): UseBooleanAttributesSearchOutputType => {
+    const router = useRouter()
+    const filtersFromQuery = useMemo(() => getFiltersFromQuery<F>(router.query), [router.query])
+    const attributesFromQuery = useMemo<string[]>(() => get(filtersFromQuery, 'attributes', []), [filtersFromQuery])
+    const [attributes, setAttributes] = useState<{ [key: string]: boolean }>(getInitialState(attributeNames, attributesFromQuery))
+
+    const changeQuery = useMemo(() => debounce(async (newAttributes: { [key: string]: boolean }) => {
+        const includedAttributes = Object.entries(newAttributes).filter(([_, isChecked]) => isChecked).map(([attributeName]) => attributeName)
+        await updateQuery(router, { ...filtersFromQuery, attributes: includedAttributes })
+    }, 400), [filtersFromQuery, router])
+
+    const handleChangeAttribute = useCallback(async (isChecked: boolean, attributeName: string) => {
+        const newState = { ...attributes, [attributeName]: isChecked }
+        setAttributes(newState)
+        await changeQuery(newState)
+    }, [attributes, changeQuery])
+
+    const handleChangeAllAttributesWithoutUpdateQuery = useCallback((filters) => {
+        const attributes = get(filters, 'attributes', [])
+        setAttributes(getInitialState(attributeNames, attributes))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    const handleResetAllWithoutUpdateQuery = useCallback(() => {
+        setAttributes(getInitialState(attributeNames, []))
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    return [attributes, handleChangeAttribute, handleResetAllWithoutUpdateQuery, handleChangeAllAttributesWithoutUpdateQuery]
+}

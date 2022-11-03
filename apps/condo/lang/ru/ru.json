@@ -136,7 +136,7 @@
   "filters.DeleteMessage": "Восстановить будет невозможно, только создать заново и сохранить",
   "filters.SaveTemplate": "Сохранить шаблон и применить",
   "filters.FindWord": "Найти слово",
-  "filters.FullSearch": "Поиск по любому полю таблицы",
+  "filters.FullSearch": "Поиск",
   "filters.Reset": "Сбросить фильтр",
   "filters.UserName": "Фамилия Имя Отчество",
   "FooterText": "Возникли вопросы? Напишите на {email} или позвоните по телефону {phone}",

@@ -371,6 +371,8 @@ type MultipleFiltersModalProps = {
     setIsMultipleFiltersModalVisible: React.Dispatch<React.SetStateAction<boolean>>
     filterMetas: Array<FiltersMeta<unknown>>
     filtersSchemaGql?
+    onReset?: () => void
+    onSubmit?: (filters) => void
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
@@ -385,6 +387,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     setIsMultipleFiltersModalVisible,
     filterMetas,
     filtersSchemaGql,
+    onReset,
+    onSubmit,
 }) => {
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
@@ -402,6 +406,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
+    const searchFilter = get(filters, 'search', null)
     const { link } = useOrganization()
     const { breakpoints } = useLayoutContext()
 
@@ -490,10 +495,16 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSubmit = useCallback(async (values) => {
         const { newTemplateName, existedTemplateName, ...otherValues } = values
         const filtersValue = pickBy(otherValues)
+        if (searchFilter) {
+            filtersValue.search = searchFilter
+        }
+        if (isFunction(onSubmit)) {
+            onSubmit(filtersValue)
+        }
 
         await updateQuery(router, filtersValue)
         setIsMultipleFiltersModalVisible(false)
-    }, [router, setIsMultipleFiltersModalVisible])
+    }, [searchFilter, onSubmit, router, setIsMultipleFiltersModalVisible])
 
     const ExistingFiltersTemplateNameInputRules = useMemo(
         () => [{ required: true, message: FieldRequiredMessage, whitespace: true }], [FieldRequiredMessage])
@@ -536,7 +547,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         setOpenedFiltersTemplate(null)
         setSelectedFiltersTemplate(null)
         resetFilters()
-    }, [resetFilters, setSelectedFiltersTemplate])
+        isFunction(onReset) && onReset()
+    }, [onReset, resetFilters, setSelectedFiltersTemplate])
 
     const modalFooter = useMemo(() => [
         <Row key='footer' justify='space-between' gutter={[0, 10]}>
@@ -680,7 +692,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
-export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql) {
+export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
     const MultipleFiltersModal = useCallback(() => (
@@ -689,8 +701,14 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
             setIsMultipleFiltersModalVisible={setIsMultipleFiltersModalVisible}
             filterMetas={filterMetas}
             filtersSchemaGql={filtersSchemaGql}
+            onReset={onReset}
+            onSubmit={onSubmit}
         />
-    ), [filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible])
+    ), [filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit])
 
-    return { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible }
+    const ResetFilterButton = useCallback(() => (
+        <ResetFiltersModalButton handleReset={onReset} />
+    ), [onReset])
+
+    return { MultipleFiltersModal, ResetFiltersModalButton: ResetFilterButton, setIsMultipleFiltersModalVisible }
 }

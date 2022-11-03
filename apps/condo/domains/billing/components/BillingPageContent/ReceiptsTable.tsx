@@ -65,7 +65,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const [search, handleSearchChange] = useSearch(loading)
+    const [search, handleSearchChange] = useSearch()
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)

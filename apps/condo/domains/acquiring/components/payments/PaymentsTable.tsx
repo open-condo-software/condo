@@ -146,12 +146,6 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     const organizationId = get(userOrganization, ['organization', 'id'], '')
     const queryMetas = usePaymentsTableFilters(billingContext, organizationId)
 
-    const {
-        MultipleFiltersModal,
-        ResetFiltersModalButton,
-        setIsMultipleFiltersModalVisible,
-    } = useMultipleFiltersModal(queryMetas, PaymentsFilterTemplate)
-
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
 
@@ -181,8 +175,13 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_WITHDRAWN_STATUS })
     const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery })
 
-    const [search, handleSearchChange] = useSearch<IFilters>(loading)
+    const [search, handleSearchChange, handleResetSearch] = useSearch<IFilters>()
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
+    const {
+        MultipleFiltersModal,
+        ResetFiltersModalButton,
+        setIsMultipleFiltersModalVisible,
+    } = useMultipleFiltersModal(queryMetas, PaymentsFilterTemplate, handleResetSearch)
 
     /**
      * We need to check if default filters should be applied only at first render
@@ -234,7 +233,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                                     {
                                         appliedFiltersCount > 0 && (
                                             <Col>
-                                                <ResetFiltersModalButton/>
+                                                <ResetFiltersModalButton />
                                             </Col>
                                         )
                                     }

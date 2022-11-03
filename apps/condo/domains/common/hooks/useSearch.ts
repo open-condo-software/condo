@@ -6,7 +6,9 @@ import debounce from 'lodash/debounce'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 
-export const useSearch = <F> (loading: boolean): [string, (search: string) => void] => {
+type UseSearchOutputType = [string, (search: string) => void, () => void]
+
+export const useSearch = <F> (): UseSearchOutputType => {
     const router = useRouter()
     const filtersFromQuery = useMemo(() => getFiltersFromQuery<F>(router.query), [router.query])
     const searchValueFromQuery = get(filtersFromQuery, 'search')
@@ -16,10 +18,14 @@ export const useSearch = <F> (loading: boolean): [string, (search: string) => vo
         await updateQuery(router, { ...filtersFromQuery, search: searchString })
     }, 400), [router, filtersFromQuery])
 
-    const handleSearchChange = (value: string): void => {
+    const handleSearchChange = useCallback((value: string): void => {
         setSearch(value)
         searchChange(value)
-    }
+    }, [searchChange])
 
-    return [search, handleSearchChange]
+    const handleResetSearch = useCallback(() => {
+        setSearch('')
+    }, [])
+
+    return [search, handleSearchChange, handleResetSearch]
 }
