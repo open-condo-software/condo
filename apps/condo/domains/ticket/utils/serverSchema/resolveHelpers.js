@@ -233,6 +233,26 @@ async function connectContactToTicket (context, resolvedData, existingItem) {
     }
 }
 
+async function setDeadline (resolvedData) {
+    const organizationId = get(resolvedData, 'organization')
+    const deadline = get(resolvedData, 'deadline')
+    if (organizationId && !deadline) {
+        const ticketOrganizationSetting = await getByCondition('TicketOrganizationSetting', {
+            organization: { id: organizationId },
+        })
+        if (ticketOrganizationSetting) {
+            const defaultDeadlineDuration = get(ticketOrganizationSetting, 'defaultDeadlineDuration', null)
+            if (defaultDeadlineDuration) {
+                const durationAsMs = dayjs.duration(defaultDeadlineDuration).asMilliseconds()
+                resolvedData.deadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            } else {
+                resolvedData.deadline = null
+            }
+        }
+    }
+}
+
+
 module.exports = {
     calculateReopenedCounter,
     calculateTicketOrder,
@@ -247,4 +267,5 @@ module.exports = {
     connectContactToTicket,
     calculateDeferredUntil,
     calculateDefaultDeferredUntil,
+    setDeadline,
 }

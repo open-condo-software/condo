@@ -41,6 +41,7 @@ const {
     calculateDefaultDeferredUntil,
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
+    setDeadline,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
@@ -424,6 +425,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 overrideTicketFieldsForResidentUserType(context, resolvedData)
                 await setSectionAndFloorFieldsByDataFromPropertyMap(context, resolvedData)
                 setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
+                await setDeadline(resolvedData)
             }
 
             await connectContactToTicket(context, resolvedData, existingItem)
