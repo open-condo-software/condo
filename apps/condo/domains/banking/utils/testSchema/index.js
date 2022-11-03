@@ -41,6 +41,7 @@ async function updateTestBankCategory (client, id, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await BankCategory.update(client, id, attrs)

@@ -11,22 +11,13 @@ async function canReadBankCategories ({ authentication: { item: user } }) {
 
     if (user.isAdmin) return {}
 
-    // TODO(codegen): write canReadBankCategories logic for user!
-    return false
+    return {}
 }
 
 async function canManageBankCategories ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
-
-    if (operation === 'create') {
-        // TODO(codegen): write canManageBankCategories create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageBankCategories update logic!
-        return false
-    }
 
     return false
 }

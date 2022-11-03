@@ -5,7 +5,7 @@
 const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File, Url } = require('@keystonejs/fields')
 const { Json, LocalizedText } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@condo/domains/banking/access/BankCategory')
 
 
@@ -14,7 +14,7 @@ const BankCategory = new GQLListSchema('BankCategory', {
     fields: {
 
         name: {
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Key for i18n',
             type: LocalizedText,
             isRequired: true,
             template: 'banking.category.*.name',
