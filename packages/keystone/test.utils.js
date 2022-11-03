@@ -448,7 +448,7 @@ const catchErrorFrom = async (testFunc, inspect) => {
  * @return {Promise<void>}
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
-    if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
+    if (!path) throw new Error('path is not specified')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -499,7 +499,7 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
  * @return {Promise<void>}
  */
 const expectToThrowAuthenticationError = async (testFunc, path) => {
-    if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
+    if (!path) throw new Error('path argument is not specified')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
