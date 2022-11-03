@@ -4,6 +4,8 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const nextCookie = require('next-cookies')
 const get = require('lodash/get')
+const dayjs = require('dayjs')
+const duration = require('dayjs/plugin/duration')
 
 const { Keystone } = require('@keystonejs/keystone')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
@@ -34,6 +36,8 @@ const { FeaturesMiddleware } = require('@condo/featureflags/FeaturesMiddleware')
 
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+
+dayjs.extend(duration)
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
