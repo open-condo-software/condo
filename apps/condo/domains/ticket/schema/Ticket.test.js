@@ -3,9 +3,9 @@
  */
 const faker = require('faker')
 const dayjs = require('dayjs')
+const { get } = require('lodash')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor, setIsFeatureFlagsEnabled } = require('@condo/keystone/test.utils')
-
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -13,11 +13,8 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@condo/keystone/test.utils')
-
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
-
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
@@ -25,14 +22,14 @@ const {
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
-    MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
     TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-const { Message, MessageOrganizationBlackList, updateTestMessageOrganizationBlackList } = require('@condo/domains/notification/utils/testSchema')
-
-const { DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
-
+const {
+    Message,
+    MessageOrganizationBlackList,
+    updateTestMessageOrganizationBlackList,
+} = require('@condo/domains/notification/utils/testSchema')
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -41,31 +38,36 @@ const {
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithProperty,
     createTestProperty,
     updateTestProperty,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
-
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-
-const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestEmail, createTestPhone, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { STATUS_IDS } = require('../constants/statusTransitions')
+const {
+    Ticket,
+    createTestTicket,
+    updateTestTicket,
+    TicketOrganizationSetting,
+    updateTestTicketOrganizationSetting,
+} = require('@condo/domains/ticket/utils/testSchema')
+const {
+    makeClientWithResidentUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestPhone,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
+const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
     REVIEW_VALUES,
     DEFERRED_STATUS_TYPE,
     CANCELED_STATUS_TYPE,
     NEW_OR_REOPENED_STATUS_TYPE,
     DEFAULT_DEFERRED_DAYS,
-} = require('../constants')
-const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
-const { get } = require('lodash')
+} = require('@condo/domains/ticket/constants')
 
 describe('Ticket', () => {
     describe('CRUD', () => {
@@ -130,22 +132,151 @@ describe('Ticket', () => {
             })
         })
 
-        test('resident: can create ticket without deadline and set deadline from TicketOrganizationSetting', async () => {
+        test('resident: can create ticket without deadline and set default deadline', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
             })
-
             const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
                 unitName,
             })
-
-            const durationAsMs = dayjs.duration(DEFAULT_TICKET_DEADLINE_DURATION).asMilliseconds()
+            const ticketSetting = await TicketOrganizationSetting.getOne(admin, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.defaultDeadlineDuration).asMilliseconds()
             const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
             expect(ticket.deadline).not.toBeNull()
             expect(dayjs(ticket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
+        })
+
+        test('user: can create ticket without deadline and set default deadline', async () => {
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.defaultDeadlineDuration).asMilliseconds()
+            const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            expect(ticket.deadline).not.toBeNull()
+            expect(dayjs(ticket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
+        })
+
+        test('user: can create paid ticket without deadline and set default paid deadline', async () => {
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                isPaid: true,
+            })
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.paidDeadlineDuration).asMilliseconds()
+            const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            expect(ticket.deadline).not.toBeNull()
+            expect(dayjs(ticket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
+        })
+
+        test('user: can create ticket with deadline and reset deadline if it are prohibited', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            await updateTestTicketOrganizationSetting(admin, ticketSetting.id, {
+                defaultDeadlineDuration: null,
+            })
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                deadline: dayjs().add(1, 'day').toISOString(),
+            })
+            expect(ticket.deadline).toBeNull()
+        })
+
+        test('user: can create ticket and set default deadline if deadline from payload invalid', async () => {
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                deadline: dayjs().subtract(8, 'day').toISOString(),
+            })
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.defaultDeadlineDuration).asMilliseconds()
+            const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            expect(ticket.deadline).not.toBeNull()
+            expect(dayjs(ticket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
+        })
+
+        test('user: can create ticket with valid deadline', async () => {
+            const userClient = await makeClientWithProperty()
+            const deadline = dayjs().add(5, 'day').toISOString()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                deadline,
+            })
+            expect(ticket.deadline).not.toBeNull()
+            expect(dayjs(ticket.deadline).diff(deadline, 'days')).toEqual(0)
+        })
+
+        test('user: can update ticket with deadline in payload and reset deadline if it are prohibited ', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                deadline: dayjs().add(1, 'day').toISOString(),
+            })
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            await updateTestTicketOrganizationSetting(admin, ticketSetting.id, {
+                defaultDeadlineDuration: null,
+            })
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                deadline: dayjs().add(2, 'day').toISOString(),
+            })
+            expect(ticket.deadline).not.toBeNull()
+            expect(updatedTicket.deadline).toBeNull()
+        })
+
+        test('user: can update ticket with null deadline in payload and set default deadline', async () => {
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                deadline: dayjs().add(1, 'day').toISOString(),
+            })
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                deadline: null,
+            })
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.defaultDeadlineDuration).asMilliseconds()
+            const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            expect(updatedTicket.deadline).not.toBeNull()
+            expect(dayjs(updatedTicket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
+        })
+
+        test('user: can update ticket and set default deadline if deadline from payload invalid', async () => {
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
+                deadline: dayjs().add(1, 'day').toISOString(),
+            })
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                deadline: dayjs().subtract(5, 'day').toISOString(),
+            })
+            const ticketSetting = await TicketOrganizationSetting.getOne(userClient, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.defaultDeadlineDuration).asMilliseconds()
+            const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            expect(updatedTicket.deadline).not.toBeNull()
+            expect(dayjs(updatedTicket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
+        })
+
+        test('user: can update ticket without deadline in payload and deadline don\'t change', async () => {
+            const userClient = await makeClientWithProperty()
+            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
+            const [updatedTicket] = await updateTestTicket(userClient, ticket.id, {
+                details: faker.random.alphaNumeric(5),
+            })
+            expect(ticket.deadline).not.toBeNull()
+            expect(ticket.deadline).toEqual(updatedTicket.deadline)
         })
 
         test('resident: can create Ticket and client info save in new ticket', async () => {

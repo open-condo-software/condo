@@ -1,5 +1,6 @@
-const { isUndefined, isEmpty, get } = require('lodash')
+const { isUndefined, isEmpty, get, isNull } = require('lodash')
 const dayjs = require('dayjs')
+
 const { find } = require('@condo/keystone/schema')
 const { getById, getByCondition } = require('@condo/keystone/schema')
 
@@ -12,6 +13,7 @@ const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/co
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
+import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 
 const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, ['user', 'id'], null) === id)
 
@@ -82,7 +84,7 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
     }
 }
 
-function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus, originalInput) {
+function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus) {
     if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
         resolvedData.deferredUntil = null
     }
@@ -233,21 +235,46 @@ async function connectContactToTicket (context, resolvedData, existingItem) {
     }
 }
 
-async function setDeadline (resolvedData) {
-    const organizationId = get(resolvedData, 'organization')
-    const deadline = get(resolvedData, 'deadline')
-    if (organizationId && !deadline) {
-        const ticketOrganizationSetting = await getByCondition('TicketOrganizationSetting', {
-            organization: { id: organizationId },
-        })
-        if (ticketOrganizationSetting) {
-            const defaultDeadlineDuration = get(ticketOrganizationSetting, 'defaultDeadlineDuration', null)
-            if (defaultDeadlineDuration) {
-                const durationAsMs = dayjs.duration(defaultDeadlineDuration).asMilliseconds()
-                resolvedData.deadline = dayjs().add(durationAsMs, 'ms').toISOString()
-            } else {
-                resolvedData.deadline = null
-            }
+function getDeadlineDurationAsMs (ticketSetting, { isPaid, isEmergency, isWarranty }) {
+    let deadlineDuration = DEFAULT_TICKET_DEADLINE_DURATION
+    if (ticketSetting) {
+        deadlineDuration = get(ticketSetting, 'defaultDeadlineDuration', null)
+        if (isWarranty) deadlineDuration = get(ticketSetting, 'warrantyDeadlineDuration', null)
+        if (isPaid) deadlineDuration = get(ticketSetting, 'paidDeadlineDuration', null)
+        if (isEmergency) deadlineDuration = get(ticketSetting, 'emergencyDeadlineDuration', null)
+    }
+
+    if (!isNull(deadlineDuration)) return dayjs.duration(deadlineDuration).asMilliseconds()
+    return deadlineDuration
+}
+
+function lessCurrentDate (deadlineAsISO) {
+    const now = dayjs()
+    const deadline = dayjs(deadlineAsISO)
+    return deadline.diff(now, 'day') >= 0
+}
+
+async function calculateDeadline (operation, resolvedData, existingItem) {
+    const newItem = { ...existingItem, ...resolvedData }
+    const organizationId = get(newItem, 'organization')
+    const resolveDeadline = get(resolvedData, 'deadline')
+
+    const ticketSetting = await getByCondition('TicketOrganizationSetting', {
+        organization: { id: organizationId },
+    })
+    const isPaid = get(newItem, 'isPaid')
+    const isEmergency = get(newItem, 'isEmergency')
+    const isWarranty = get(newItem, 'isWarranty')
+    const deadlineDurationAsMs = getDeadlineDurationAsMs(ticketSetting, { isPaid, isEmergency, isWarranty })
+    const defaultDeadline = dayjs().add(deadlineDurationAsMs, 'ms').toISOString()
+
+    if (operation === 'create' || operation === 'update' && !isUndefined(resolveDeadline)) {
+        if (isNull(deadlineDurationAsMs)) {
+            resolvedData.deadline = null
+        } else if (!resolveDeadline) {
+            resolvedData.deadline = defaultDeadline
+        } else if (!lessCurrentDate(resolveDeadline)) {
+            resolvedData.deadline = defaultDeadline
         }
     }
 }
@@ -267,5 +294,5 @@ module.exports = {
     connectContactToTicket,
     calculateDeferredUntil,
     calculateDefaultDeferredUntil,
-    setDeadline,
+    calculateDeadline,
 }
