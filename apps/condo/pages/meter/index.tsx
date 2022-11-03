@@ -86,9 +86,9 @@ export const MetersPageContent = ({
     })
 
     const { isSmall } = useLayoutContext()
-    const [ search, handleSearchChange ] = useSearch(metersLoading)
+    const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate)
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate, handleSearchReset)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
     const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters) && !metersLoading && !loading
 

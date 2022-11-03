@@ -5,7 +5,7 @@ import { Gutter } from 'antd/es/grid/row'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@condo/next/intl'
 import { useOrganization } from '@condo/next/organization'
@@ -48,7 +48,7 @@ export const SettingsContent = () => {
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
     const canManageTicketPropertyHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketPropertyHints']), [userOrganization])
 
-    const [search, handleSearchChange] = useSearch<IFilters>(false)
+    const [search, handleSearchChange] = useSearch<IFilters>()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

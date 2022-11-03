@@ -71,7 +71,7 @@ export default function DivisionTable (props: BuildingTableProps) {
         }
     }
 
-    const [search, handleSearchChange] = useSearch<IFilters>(divisionsLoading)
+    const [search, handleSearchChange] = useSearch<IFilters>()
     const isNoDivisionsData = !divisions.length && isEmpty(filters) && !divisionsLoading && !loading
     const canManageProperties = get(role, 'canManageProperties', false)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoDivisionsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }

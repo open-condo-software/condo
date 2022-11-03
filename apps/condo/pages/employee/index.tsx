@@ -100,7 +100,7 @@ export const EmployeesPageContent = ({
         }
     }, 400), [employeesLoading])
 
-    const [search, handleSearchChange] = useSearch<IFilters>(employeesLoading)
+    const [search, handleSearchChange] = useSearch<IFilters>()
 
     const handleAddEmployee = () => router.push(ADD_EMPLOYEE_ROUTE)
 
