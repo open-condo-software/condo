@@ -127,7 +127,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     ), [BuildingUnitSubType])
 
     return (
-        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss} data-cy='property-map__add-section-form'>
             <Col span={24}>
                 <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptySections}>
                     <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
@@ -143,19 +143,28 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                         onChange={setSectionNameValue}
                         style={INPUT_STYLE}
                         type='number'
+                        data-cy='property-map__add-section-form__section-name'
                     />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{FloorCountLabel}</Typography.Text>
-                    <InputNumber value={floorCount} onChange={setFloorCountValue} min={1} max={MAX_PROPERTY_FLOORS_COUNT} style={INPUT_STYLE} type='number' />
+                    <InputNumber
+                        value={floorCount}
+                        onChange={setFloorCountValue}
+                        min={1}
+                        max={MAX_PROPERTY_FLOORS_COUNT}
+                        style={INPUT_STYLE}
+                        type='number'
+                        data-cy='property-map__add-section-form__floor-count'
+                    />
                 </Space>
             </Col>
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{UnitTypeLabel}</Typography.Text>
-                    <Select value={unitType} onSelect={setUnitType}>
+                    <Select value={unitType} onSelect={setUnitType} data-cy='property-map__add-section-form__unit-type'>
                         {unitTypeOptions}
                     </Select>
                 </Space>
@@ -181,7 +190,15 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             <Col span={24} hidden={isCreateColumnsHidden}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{UnitsOnFloorLabel}</Typography.Text>
-                    <InputNumber min={1} max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR} value={unitsOnFloor} onChange={setUnitsOnFloor} style={INPUT_STYLE} type='number'/>
+                    <InputNumber
+                        min={1}
+                        max={MAX_PROPERTY_UNITS_COUNT_PER_FLOOR}
+                        value={unitsOnFloor}
+                        onChange={setUnitsOnFloor}
+                        style={INPUT_STYLE}
+                        type='number'
+                        data-cy='property-map__add-section-form__units-on-floor'
+                    />
                 </Space>
             </Col>
             <Col span={24}>
@@ -192,6 +209,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
                     type='sberDefaultGradient'
                     style={MODAL_FORM_BUTTON_STYLE}
                     disabled={isSubmitDisabled}
+                    data-cy='property-map__section-form__submit-button'
                 > {AddLabel} </Button>
             </Col>
         </Row>
@@ -230,7 +248,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     }, [builder, refresh, section])
 
     return (
-        <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss}>
+        <Row gutter={MODAL_FORM_EDIT_GUTTER} css={FormModalCss} data-cy='property-map__edit-section-form'>
             <Col span={24}>
                 <Space direction='vertical' size={8}>
                     <Typography.Text type='secondary'>{NameLabel}</Typography.Text>
@@ -253,6 +271,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         onClick={updateSection}
                         type='sberDefaultGradient'
                         disabled={isEmpty(name)}
+                        data-cy='property-map__update-section-button'
                     >{SaveLabel}</Button>
                 </Col>
                 <Col span={24}>
@@ -262,6 +281,7 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                         type='sberDangerGhost'
                         icon={<DeleteFilled />}
                         style={FULL_SIZE_UNIT_STYLE}
+                        data-cy='property-map__remove-section-button'
                     >{DeleteLabel}</Button>
                 </Col>
             </Row>

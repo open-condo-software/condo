@@ -611,6 +611,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
                 preview={section.preview}
                 onClick={chooseSection}
                 selected={isSectionSelected}
+                data-cy='property-map__section-button'
             >{SectionTitle}</UnitButton>
         </MapSectionContainer>
     )
@@ -681,6 +682,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             preview={unit.preview}
             selected={isUnitSelected}
             unitType={unit.unitType}
+            data-cy='property-map__unit-button'
         >{unit.label}</UnitButton>
     )
 }

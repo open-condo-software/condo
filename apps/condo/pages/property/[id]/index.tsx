@@ -163,6 +163,7 @@ export const PropertyPageContent = ({ property, role }) => {
                                             type='sberDefaultGradient'
                                             secondary
                                             size='large'
+                                            data-cy='property-map__update-button'
                                         >
                                             {EditPropertyMapTitle}
                                         </Button>
