@@ -83,9 +83,9 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const addSectionFloorDisabled = mapEdit.isEmptySections || !hasFeature('add_section_floor')
 
     const menuOverlay = useMemo(() => (
-        <Menu css={MenuCss} onClick={menuClick}>
+        <Menu css={MenuCss} onClick={menuClick} data-cy='property-map__edit-menu-container'>
             <Menu.Item key='addSection'>
-                <Button type='sberDefaultGradient' secondary icon={<SectionIcon />}>
+                <Button type='sberDefaultGradient' data-cy='property-map__edit-menu__add-section-button' secondary icon={<SectionIcon />}>
                     {AddSection}
                 </Button>
             </Menu.Item>
@@ -129,7 +129,13 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
             css={DropdownCss}
             mouseEnterDelay={0}
         >
-            <Button type='sberDefaultGradient' secondary>{AddElementTitle}<span>...</span></Button>
+            <Button
+                type='sberDefaultGradient'
+                secondary
+                data-cy='property-map__edit-menu-dropdown'
+            >
+                {AddElementTitle}<span>...</span>
+            </Button>
         </Dropdown>
     )
 }
