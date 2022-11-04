@@ -233,6 +233,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         onRow={handleRowAction}
                         columns={tableColumns}
                         pageSize={PROPERTY_PAGE_SIZE}
+                        data-cy='property__table'
                     />
                 </Col>
             </Row>
