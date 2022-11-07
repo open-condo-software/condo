@@ -110,6 +110,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             <Select.Option
                 key={`copy-${section.id}`}
                 value={section.id}
+                data-cy='property-map__add-section-form__section-mode-select__copy-option'
             >
                 {CopyLabel}{section.name}
             </Select.Option>
@@ -129,7 +130,12 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     return (
         <Row gutter={MODAL_FORM_ROW_GUTTER} css={FormModalCss} data-cy='property-map__add-section-form'>
             <Col span={24}>
-                <Select value={copyId} onSelect={setCopyId} disabled={builder.isEmptySections}>
+                <Select
+                    value={copyId}
+                    onSelect={setCopyId}
+                    disabled={builder.isEmptySections}
+                    data-cy='property-map__add-section-form__section-mode-select'
+                >
                     <Select.Option key='create' value={null}>{CreateNewLabel}</Select.Option>
                     {sectionOptions}
                 </Select>
