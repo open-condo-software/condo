@@ -20,27 +20,6 @@ const CONNECTED_TABLES = {
     'Property': ['Division'],
 }
 
-/**
- * Stringifies complex objects with circular dependencies
- * @param obj
- * @returns {string}
- */
-function stringifyComplexObj (obj){
-    const result = {}
-    for (const prop in obj ){
-        if (!obj.hasOwnProperty(prop)) { continue }
-        if (typeof(obj[prop]) == 'object') { continue }
-        if (typeof(obj[prop]) == 'function') { continue }
-        result[prop] = obj[prop]
-    }
-    return JSON.stringify(result)
-}
-
-function getCurrentStackTrace () {
-    const err = new Error()
-    return err.stack
-}
-
 
 class AdapterCacheMiddleware {
 
@@ -126,9 +105,13 @@ class AdapterCacheMiddleware {
     }
 }
 
-
-
-const initAdapterCache = async (keystone, middleware) => {
+/**
+ * Patches an internal keystone adapter adding cache functionality
+ * @param keystone
+ * @param {AdapterCacheMiddleware} middleware
+ * @returns {Promise<void>}
+ */
+async function initAdapterCache (keystone, middleware) {
     const keystoneAdapter = keystone.adapter
 
     const cache = middleware.cache
@@ -158,7 +141,7 @@ const initAdapterCache = async (keystone, middleware) => {
             const argsJson = JSON.stringify(args)
 
             if (argsJson !== '{}') {
-                key = listName + '_' + JSON.stringify(args) + '_' + stringifyComplexObj(opts)  // '_' + stackTrace
+                key = listName + '_' + JSON.stringify(args) + '_' + stringifyComplexObj(opts)
             }
 
             let response = []
@@ -185,13 +168,6 @@ const initAdapterCache = async (keystone, middleware) => {
             response = await originalItemsQuery.apply(listAdapter, [args, opts] )
 
             let copiedResponse = cloneDeep(response)
-            if (listName === 'BillingReceipt' && Array.isArray(response)) {
-                for (let i = 0; i < response.length; ++i) {
-                    if (response.period) {
-                        copiedResponse.period = new Date(response.period.getTime())
-                    }
-                }
-            }
 
             cache[listName][key] = {
                 lastUpdate: tableLastUpdate,
@@ -275,6 +251,31 @@ const initAdapterCache = async (keystone, middleware) => {
             return deleteResult
         }
     }
+}
+
+/**
+ * Stringifies complex objects with circular dependencies
+ * @param obj
+ * @returns {string}
+ */
+function stringifyComplexObj (obj){
+    const result = {}
+    for (const prop in obj ){
+        if (!obj.hasOwnProperty(prop)) { continue }
+        if (typeof(obj[prop]) == 'object') { continue }
+        if (typeof(obj[prop]) == 'function') { continue }
+        result[prop] = obj[prop]
+    }
+    return JSON.stringify(result)
+}
+
+/**
+ * Returns current stacktrace
+ * @returns {string}
+ */
+function getCurrentStackTrace () {
+    const err = new Error()
+    return err.stack
 }
 
 module.exports = {
