@@ -10,11 +10,14 @@ const UPDATED_AT = 'updatedAt'
 const CONNECTED_TABLES = {
     'MultiPayment':['Payment'],
     'Payment':['MultiPayment'],
+
     'AcquiringIntegration':['BillingIntegration'],
     'BillingIntegration':['AcquiringIntegration'],
-    'Division':['OrganizationEmployee', 'Meter', 'Property'],
-    'OrganizationEmployee':['Division', 'Property'],
+
+    'Division': ['OrganizationEmployee', 'Property'],
+    'OrganizationEmployee': ['Division', 'Property'],
     'Meter': ['Division', 'Property'],
+    'Property': ['Division'],
 }
 
 /**
