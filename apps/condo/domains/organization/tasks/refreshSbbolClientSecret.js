@@ -7,7 +7,7 @@ const { getSbbolSecretStorage, changeClientSecret } = require('@condo/domains/or
  * Previously we were comparing current time with `clientSecretExpiresAt` and decided, whether change is needed.
  */
 const refreshSbbolClientSecret = createCronTask('refreshSbbolClientSecret', '0 1 * * *', async () => {
-    const sbbolSecretStorage = getSbbolSecretStorage
+    const sbbolSecretStorage = getSbbolSecretStorage()
     await changeClientSecret({
         clientId: sbbolSecretStorage.clientId,
         currentClientSecret: await sbbolSecretStorage.getClientSecret(),
