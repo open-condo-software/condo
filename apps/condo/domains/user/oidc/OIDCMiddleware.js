@@ -1,5 +1,4 @@
 const express = require('express')
-const Provider = require('oidc-provider')
 
 const conf = require('@condo/config')
 const { getLogger } = require('@condo/keystone/logging')
@@ -18,6 +17,7 @@ class OIDCMiddleware {
         //
         // There is no way to fix it at the moment ...
         //
+        const Provider = require('oidc-provider')
         const provider = new Provider(conf.SERVER_URL, createConfiguration(keystone, conf))
         const app = express()
 
