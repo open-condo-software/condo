@@ -30,7 +30,7 @@ class SbbolSecretStorage {
 
     async getClientSecret () {
         // When no clientSecret has been stored yet, return a seeded one
-        return this.#getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
+        return await this.#getValue('clientSecret') || SBBOL_AUTH_CONFIG.client_secret
     }
 
     async setClientSecret (value, options) {
