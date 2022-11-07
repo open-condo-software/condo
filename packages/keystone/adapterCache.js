@@ -7,24 +7,30 @@ const { get, cloneDeep } = require('lodash')
 
 const UPDATED_AT = 'updatedAt'
 
+const CONNECTED_TABLES = {
+    'MultiPayment':['Payment'],
+    'Payment':['MultiPayment'],
+    'AcquiringIntegration':['BillingIntegration'],
+    'BillingIntegration':['AcquiringIntegration'],
+    'Division':['OrganizationEmployee', 'Meter', 'Property'],
+    'OrganizationEmployee':['Division', 'Property'],
+    'Meter': ['Division', 'Property'],
+}
 
-function simpleStringify (object){
-    // stringify an object, avoiding circular structures
-    // https://stackoverflow.com/a/31557814
-    const simpleObject = {}
-    for (const prop in object ){
-        if (!object.hasOwnProperty(prop)){
-            continue
-        }
-        if (typeof(object[prop]) == 'object'){
-            continue
-        }
-        if (typeof(object[prop]) == 'function'){
-            continue
-        }
-        simpleObject[prop] = object[prop]
+/**
+ * Stringifies complex objects with circular dependencies
+ * @param obj
+ * @returns {string}
+ */
+function stringifyComplexObj (obj){
+    const result = {}
+    for (const prop in obj ){
+        if (!obj.hasOwnProperty(prop)) { continue }
+        if (typeof(obj[prop]) == 'object') { continue }
+        if (typeof(obj[prop]) == 'function') { continue }
+        result[prop] = obj[prop]
     }
-    return JSON.stringify(simpleObject) // returns cleaned up JSON
+    return JSON.stringify(result)
 }
 
 function getCurrentStackTrace () {
@@ -149,7 +155,7 @@ const initAdapterCache = async (keystone, middleware) => {
             const argsJson = JSON.stringify(args)
 
             if (argsJson !== '{}') {
-                key = listName + '_' + JSON.stringify(args) + '_' + simpleStringify(opts)  // '_' + stackTrace
+                key = listName + '_' + JSON.stringify(args) + '_' + stringifyComplexObj(opts)  // '_' + stackTrace
             }
 
             let response = []
@@ -207,12 +213,10 @@ const initAdapterCache = async (keystone, middleware) => {
             const updateResult = await originalUpdate.apply(listAdapter, [id, data] )
             state[listName] = updateResult[UPDATED_AT]
 
-            if (listName === 'MultiPayment') {
-                state.Payment = updateResult[UPDATED_AT]
-            }
-
-            if (listName === 'Payment') {
-                state.MultiPayment = updateResult[UPDATED_AT]
+            if (listName in CONNECTED_TABLES) {
+                for (const connectedTable of CONNECTED_TABLES[listName]) {
+                    state[connectedTable] = updateResult[UPDATED_AT]
+                }
             }
 
             const cacheEvent = middleware.getCacheEvent({
@@ -230,12 +234,10 @@ const initAdapterCache = async (keystone, middleware) => {
             const createResult = await originalCreate.apply(listAdapter, [data] )
             state[listName] = createResult[UPDATED_AT]
 
-            if (listName === 'MultiPayment') {
-                state.Payment = createResult[UPDATED_AT]
-            }
-
-            if (listName === 'Payment') {
-                state.MultiPayment = createResult[UPDATED_AT]
+            if (listName in CONNECTED_TABLES) {
+                for (const connectedTable of CONNECTED_TABLES[listName]) {
+                    state[connectedTable] = createResult[UPDATED_AT]
+                }
             }
 
             const cacheEvent = middleware.getCacheEvent({
@@ -257,6 +259,13 @@ const initAdapterCache = async (keystone, middleware) => {
                 type: 'DELETE',
                 table: listName,
             })
+
+            if (listName in CONNECTED_TABLES) {
+                for (const connectedTable of CONNECTED_TABLES[listName]) {
+                    state[connectedTable] = deleteResult[UPDATED_AT]
+                }
+            }
+
             middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
 
             if (logging) { console.info(`DELETE: ${deleteResult}`) }
