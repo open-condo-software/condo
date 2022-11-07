@@ -6,13 +6,19 @@
  *
  * @example Change client secret for clientId `1234` that have an old client secret `a1b2c3d4` to new value of `asdf12345`
  * yarn node apps/condo/bin/sbbol/credentials.js change-client-secret 1234 a1b2c3d4 asdf12345
+ *
+ * @example Set credentials manually
+ * yarn node apps/condo/bin/sbbol/credentials.js set '{"clientSecret":"asdf12345"}'
+ * yarn node apps/condo/bin/sbbol/credentials.js set '{"clientSecret":"asdf12345","accessToken":"dc808c8e-e070-4947-9d71-c984aaa9b2b7", "refreshToken":"dc808c8e-e070-4947-9d71-c984aaa9b2b8"}'
  */
 const { values } = require('lodash')
+const Ajv = require('ajv')
 const { getRandomString } = require('@condo/keystone/test.utils')
 const { changeClientSecret, getSbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const COMMAND = {
     CHANGE_CLIENT_SECRET: 'change-client-secret',
+    SET: 'set',
 }
 
 const workerJob = async () => {
@@ -43,6 +49,53 @@ const workerJob = async () => {
         }
 
         await changeClientSecret({ clientId, currentClientSecret, newClientSecret })
+    }
+
+    if (command === COMMAND.SET) {
+        const rawValues = process.argv.slice(3)
+        let values
+        try {
+            values = JSON.parse(rawValues)
+        } catch (e) {
+            console.error('Could not parse values as JSON')
+            throw new Error(e)
+        }
+        const ajv = new Ajv()
+        const validate = ajv.compile({
+            '$schema': 'http://json-schema.org/draft-07/schema#',
+            additionalProperties: false,
+            properties: {
+                clientSecret: {
+                    type: 'string',
+                },
+                accessToken: {
+                    type: 'string',
+                },
+                refreshToken: {
+                    type: 'string',
+                },
+            },
+        })
+        if (!validate(values)) {
+            throw new Error('Invalid values object provided. Valid values object is { clientSecret, accessToken, refreshToken }. It may contain only needed keys', values)
+        }
+        console.debug('Values to be set', values)
+        const sbbolSecretStorage = getSbbolSecretStorage()
+        const { clientSecret, accessToken, refreshToken } = values
+        if (clientSecret) {
+            await sbbolSecretStorage.setClientSecret(clientSecret)
+            console.debug('Set clientSecret', clientSecret)
+        }
+        if (accessToken) {
+            await sbbolSecretStorage.setAccessToken(accessToken)
+            console.debug('Set accessToken', accessToken)
+        }
+        if (refreshToken) {
+            await sbbolSecretStorage.setRefreshToken(refreshToken)
+            console.debug('Set refreshToken', refreshToken)
+        }
+        console.log('Done.')
+        process.exit(0)
     }
 }
 
