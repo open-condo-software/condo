@@ -142,10 +142,16 @@ const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible,
                 )}
             </Col>
             <Col span={2}>
-                <Button onClick={onClose} icon={<CloseOutlined />} size='small' type='text' />
+                <Button
+                    onClick={onClose}
+                    icon={<CloseOutlined />}
+                    size='small'
+                    type='text'
+                    data-cy='property-map__top-modal__close-button'
+                />
             </Col>
         </Row>
-        <Row>
+        <Row data-cy='property-map__top-modal__children-container'>
             {children}
         </Row>
     </TopModal>

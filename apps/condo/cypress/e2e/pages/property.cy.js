@@ -1,5 +1,5 @@
 import { authUserWithCookies } from '../../plugins/auth'
-import { PropertyCreate } from '../../objects/Property'
+import { PropertyMapCreate, PropertyMapEdit } from '../../objects/Property'
 
 describe('Property', function () {
     describe('User', function () {
@@ -11,8 +11,8 @@ describe('Property', function () {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
 
-                const propertyCreate = new PropertyCreate()
-                propertyCreate
+                const propertyMapCreate = new PropertyMapCreate()
+                propertyMapCreate
                     .visit()
                     .clickOnPropertyTableRow()
                     .clickEditPropertyMapButton()
@@ -22,6 +22,24 @@ describe('Property', function () {
                     .clickEditSection()
                     .typeFloorCount()
                     .typeUnitsOnFloorCount()
+                    .clickSubmitButton()
+            })
+        })
+
+        it('can edit property map', () => {
+            cy.task('keystone:createUserWithProperty').then((response) => {
+                authUserWithCookies(response)
+
+                const propertyMapEdit = new PropertyMapEdit()
+                propertyMapEdit
+                    .visit()
+                    .clickOnPropertyTableRow()
+                    .clickEditPropertyMapButton()
+                    .cleanUp()
+                    .createTestSection()
+                    .clickOnEditMenu()
+                    .clickEditSection()
+                    .clickSectionEditMode()
                     .clickSubmitButton()
             })
         })

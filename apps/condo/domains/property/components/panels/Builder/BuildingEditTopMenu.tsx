@@ -85,7 +85,12 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const menuOverlay = useMemo(() => (
         <Menu css={MenuCss} onClick={menuClick} data-cy='property-map__edit-menu-container'>
             <Menu.Item key='addSection'>
-                <Button type='sberDefaultGradient' data-cy='property-map__edit-menu__add-section-button' secondary icon={<SectionIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-section-button'
+                    secondary
+                    icon={<SectionIcon />}
+                >
                     {AddSection}
                 </Button>
             </Menu.Item>
@@ -95,7 +100,13 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key='addUnit' disabled={mapEdit.isEmptySections}>
-                <Button type='sberDefaultGradient' secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-unit-button'
+                    secondary
+                    disabled={mapEdit.isEmptySections}
+                    icon={<FlatIcon />}
+                >
                     {AddUnit}
                 </Button>
             </Menu.Item>
@@ -105,7 +116,12 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key='addParking'>
-                <Button type='sberDefaultGradient' secondary icon={<ParkingIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-parking-button'
+                    secondary
+                    icon={<ParkingIcon />}
+                >
                     {AddParkingLabel}
                 </Button>
             </Menu.Item>
@@ -115,7 +131,13 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key='addParkingUnit' disabled={mapEdit.isEmptyParking}>
-                <Button type='sberDefaultGradient' secondary disabled={mapEdit.isEmptyParking} icon={<ParkingPlaceIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-parking-unit-button'
+                    secondary
+                    disabled={mapEdit.isEmptyParking}
+                    icon={<ParkingPlaceIcon />}
+                >
                     {AddParkingPlace}
                 </Button>
             </Menu.Item>
