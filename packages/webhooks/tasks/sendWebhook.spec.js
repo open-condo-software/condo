@@ -40,7 +40,7 @@ const { updateTestWebhookSubscription } = require('../schema/utils/testSchema')
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
         const appEntryPoint = require(entryPointPath)
-        setFakeClientMode(appEntryPoint)
+        setFakeClientMode(appEntryPoint, { excludeApps: ['OIDCMiddleware'] })
         let actors
         let firstUser
         let deletedUser
