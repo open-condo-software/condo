@@ -17,26 +17,38 @@
   content: "";
 }
 
-.condo-btn-gradient-text (@gradient) {
-  background: @gradient;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.condo-btn-gradient-text-layer (@text-color, @hover-text-color) {
+  & > .condo-btn-text {
+    position: relative;
+    color: @text-color;
+
+    &::before {
+      background: @hover-text-color;
+      .condo-btn-layer(0);
+
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-out;
+      content: attr(data-before);
+    }
+  }
 }
 
-.condo-btn-secondary-color (@text-color, @icon-color) {
-  color: @text-color;
-  background: transparent;
-  border: none;
-
-  & > span {
-    .condo-btn-gradient-text(@text-color);
+.condo-btn-static-text-color (@text-color) {
+  & > .condo-btn-text {
+    color: @text-color;
+    transition: color @condo-global-transition-duration-default ease-out;
   }
+}
 
+.condo-btn-icon-color (@icon-color) {
   & > .condo-btn-icon {
     color: @icon-color;
+    transition: color @condo-global-transition-duration-default ease-out;
 
     & svg {
-      fill: @icon-color;
+      fill: currentcolor;
     }
   }
 }
