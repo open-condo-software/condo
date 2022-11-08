@@ -32,16 +32,25 @@
 
   // After layer is used to show gradient outline on tab-focusing
   &:focus-visible::after {
-    .condo-btn-layer(-@condo-button-focus-outline-width);
-
     box-sizing: border-box;
     background: @condo-global-color-brand-gradient-5 border-box;
     border: @condo-button-focus-outline-width solid transparent;
-    border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
     opacity: 1;
     mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
+  }
+
+  &-primary:focus::after {
+    .condo-btn-layer(-@condo-button-focus-outline-width);
+
+    border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
+  }
+
+  &-secondary:focus::after {
+    .condo-btn-layer(-(@condo-button-focus-outline-width + @condo-button-border-width));
+
+    border-radius: @condo-button-border-radius + @condo-button-focus-outline-width;
   }
 
   &-primary {
@@ -50,21 +59,43 @@
 
     color: @condo-global-color-white;
     background: @condo-global-color-black;
+    transition-property: background-color;
+
+    & > .condo-btn-text {
+      color: @condo-global-color-white;
+    }
+
+    &::before {
+      .condo-btn-layer(0);
+
+      background: @condo-global-color-brand-gradient-5;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-in-out;
+    }
 
     &:focus {
       background: @condo-global-color-black;
     }
 
     &:hover {
-      background: @condo-global-color-brand-gradient-5;
+      background: @condo-global-color-black;
+
+      &::before {
+        opacity: 1;
+      }
     }
 
     &:active {
-      background: @condo-global-color-brand-gradient-7;
+      background: @condo-global-color-black;
+
+      &::before {
+        opacity: 0.9;
+      }
     }
 
     &.condo-btn-dangerous {
       background: @condo-global-color-red-5;
+      transition: background @condo-global-transition-duration-default ease-in-out;
 
       &:focus {
         background: @condo-global-color-red-5;
@@ -76,6 +107,10 @@
 
       &:active {
         background: @condo-global-color-red-5;
+      }
+
+      &::before {
+        opacity: 0;
       }
     }
 
@@ -90,38 +125,67 @@
       color: @condo-global-color-white;
       background: @condo-global-color-black;
       opacity: @condo-global-opacity-disabled;
+
+      &::before {
+        opacity: 0;
+      }
     }
   }
 
   &-secondary {
     .condo-btn(@condo-button-line-height, @condo-button-padding-vert,
-    @condo-button-padding-hor, 0);
+    @condo-button-padding-hor, @condo-button-border-width);
+
+    color: @condo-global-color-black;
+    border: @condo-button-border-width solid @condo-global-color-gray-7;
+    .condo-btn-icon-color(@condo-global-color-black);
+
+    & > .condo-btn-text {
+      background: transparent;
+    }
 
     &,
     &:focus {
-      .condo-btn-secondary-color(@condo-global-color-black, @condo-global-color-black);
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
+    }
+
+    &:not(.condo-btn-dangerous) {
+      .condo-btn-gradient-text-layer(@condo-global-color-black, @condo-global-color-brand-gradient-5);
+    }
+
+    &:hover > .condo-btn-text::before {
+      opacity: 1;
+    }
+
+    &:active > .condo-btn-text::before {
+      opacity: 0.8;
     }
 
     &:hover {
-      .condo-btn-secondary-color(@condo-global-color-brand-gradient-5, @condo-global-color-green-5);
+      background: transparent;
+      .condo-btn-icon-color(@condo-global-color-green-5);
     }
 
     &:active {
-      .condo-btn-secondary-color(@condo-global-color-brand-gradient-7, @condo-global-color-green-7);
+      background: transparent;
+      .condo-btn-icon-color(@condo-global-color-green-7);
     }
 
     &.condo-btn-dangerous {
-      &,
-      &:focus {
-        .condo-btn-secondary-color(@condo-global-color-red-5, @condo-global-color-red-5);
-      }
+      .condo-btn-icon-color(@condo-global-color-red-5);
+      .condo-btn-static-text-color(@condo-global-color-red-5);
+
+      border: @condo-button-border-width solid @condo-global-color-red-5;
 
       &:hover {
-        .condo-btn-secondary-color(@condo-global-color-red-7, @condo-global-color-red-7);
+        .condo-btn-icon-color(@condo-global-color-red-7);
+        .condo-btn-static-text-color(@condo-global-color-red-7);
       }
 
       &:active {
-        .condo-btn-secondary-color(@condo-global-color-red-5, @condo-global-color-red-5);
+        .condo-btn-icon-color(@condo-global-color-red-5);
+        .condo-btn-static-text-color(@condo-global-color-red-5);
       }
 
       &::before,
@@ -140,27 +204,31 @@
 
     // Used button before element for gradient border with radius
     &::before {
-      .condo-btn-layer(0);
+      .condo-btn-layer(-@condo-button-border-width);
 
       box-sizing: border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
       border: @condo-button-border-width solid transparent;
-      opacity: 1;
+      opacity: 0;
       mask: linear-gradient(#111 0 0) padding-box, linear-gradient(#fff 0 0);
       -webkit-mask-composite: xor;
       mask-composite: exclude;
+      transition: opacity @condo-global-transition-duration-default ease-out;
     }
 
     &::before,
     &:focus::before {
-      background: @condo-global-color-gray-7 border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
     }
 
     &:hover::before {
       background: @condo-global-color-brand-gradient-5 border-box;
+      opacity: 1;
     }
 
     &:active::before {
-      background: @condo-global-color-brand-gradient-7 border-box;
+      background: @condo-global-color-brand-gradient-5 border-box;
+      opacity: 0.9;
     }
 
     &:disabled,
@@ -171,12 +239,19 @@
     &.condo-btn-dangerous:disabled:hover,
     &.condo-btn-dangerous:disabled:active,
     &.condo-btn-dangerous:disabled:focus {
-      .condo-btn-secondary-color(@condo-global-color-black, @condo-global-color-black);
-
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
       opacity: @condo-global-opacity-disabled;
 
+      .condo-btn-icon-color(@condo-global-color-black);
+      .condo-btn-static-text-color(@condo-global-color-black);
+
+      & > .condo-btn-text:before {
+        opacity: 0;
+      }
+
       &::before {
-        background: @condo-global-color-gray-7;
+        opacity: 0;
       }
     }
   }
