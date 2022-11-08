@@ -151,19 +151,37 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         Object.values(BuildingUnitSubType)
             .filter(unitType => unitType !== BuildingUnitSubType.Parking)
             .map((unitType, unitTypeIndex) => (
-                <Option key={unitTypeIndex} value={unitType}>{intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}</Option>
+                <Option
+                    key={unitTypeIndex}
+                    value={unitType}
+                    data-cy='property-map__unit-form__unit-type-select__option'
+                >
+                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                </Option>
             ))
     ), [BuildingUnitSubType])
 
     const sectionOptions = useMemo(() => (
         sections.map((sec) => {
-            return <Option key={sec.id} value={sec.id}>{sec.label}</Option>
+            return <Option
+                key={sec.id}
+                value={sec.id}
+                data-cy='property-map__unit-form__section-select__option'
+            >
+                {sec.label}
+            </Option>
         })
     ), [sections])
 
     const floorOptions = useMemo(() => (
         floors.map(floorOption => {
-            return <Option key={floorOption.id} value={floorOption.id}>{floorOption.label}</Option>
+            return <Option
+                key={floorOption.id}
+                value={floorOption.id}
+                data-cy='property-map__unit-form__floor-select__option'
+            >
+                {floorOption.label}
+            </Option>
         })
     ), [floors])
 
@@ -176,6 +194,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                         value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
                         onSelect={updateUnitType}
                         style={INPUT_STYLE}
+                        data-cy='property-map__unit-form__unit-type-select'
                     >
                         {unitSubtypeOptions}
                     </Select>
@@ -190,6 +209,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                         value={label}
                         onChange={onLabelChange}
                         style={INPUT_STYLE}
+                        data-cy='property-map__unit-form__label-input'
                     />
                     {isValidationErrorVisible && (
                         <Typography.Text style={ERROR_TEXT_STYLE}>{UnitErrorLabel}</Typography.Text>
@@ -199,7 +219,12 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
             <Col span={24}>
                 <Space direction='vertical' size={8} style={INPUT_STYLE}>
                     <Typography.Text type='secondary' >{SectionLabel}</Typography.Text>
-                    <Select value={section} onSelect={updateSection} style={INPUT_STYLE}>
+                    <Select
+                        value={section}
+                        onSelect={updateSection}
+                        style={INPUT_STYLE}
+                        data-cy='property-map__unit-form__section-select'
+                    >
                         {sectionOptions}
                     </Select>
                 </Space>
@@ -208,10 +233,20 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                 <Space direction='vertical' size={BUTTON_SPACE_SIZE}>
                     <Space direction='vertical' size={8} style={INPUT_STYLE}>
                         <Typography.Text type='secondary' >{FloorLabel}</Typography.Text>
-                        <Select value={floor} onSelect={setFloor} style={INPUT_STYLE}>
+                        <Select
+                            value={floor}
+                            onSelect={setFloor}
+                            style={INPUT_STYLE}
+                            data-cy='property-map__unit-form__floor-select'
+                        >
                             {floorOptions}
                         </Select>
-                        <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
+                        <Checkbox
+                            defaultChecked
+                            onChange={toggleRenameNextUnits}
+                            style={MODAL_FORM_CHECKBOX_STYLE}
+                            data-cy='property-map__unit-form__rename-units-checkbox'
+                        >
                             {RenameNextUnitsLabel}
                         </Checkbox>
                     </Space>
@@ -222,7 +257,8 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
                                 disabled={!(floor && section && label.trim())}
-                            > {SaveLabel} </Button>
+                                data-cy='property-map__unit-form__submit-button'
+                            >{SaveLabel}</Button>
                         </Col>
                         {
                             mode === MapEditMode.EditUnit && (
@@ -232,6 +268,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
                                         onClick={deleteUnit}
                                         type='sberDangerGhost'
                                         icon={<DeleteFilled />}
+                                        data-cy='property-map__unit-form__delete-button'
                                     >{DeleteLabel}</Button>
                                 </Col>
                             )

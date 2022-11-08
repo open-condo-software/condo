@@ -376,6 +376,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Space size={20} align='center'>
                         <Button
                             key='submit'
+                            data-cy='property-map__save-map-button'
                             onClick={saveCallback}
                             type='sberDefaultGradient'
                             disabled={!canManageProperties || !address}

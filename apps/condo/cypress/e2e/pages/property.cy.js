@@ -1,5 +1,5 @@
 import { authUserWithCookies } from '../../plugins/auth'
-import { PropertyMapCreate, PropertyMapEdit } from '../../objects/Property'
+import { PropertyMapCreate, PropertyMapEdit, PropertyMapUnitEdit } from '../../objects/Property'
 
 describe('Property', function () {
     describe('User', function () {
@@ -23,10 +23,11 @@ describe('Property', function () {
                     .typeFloorCount()
                     .typeUnitsOnFloorCount()
                     .clickSubmitButton()
+                    .clickSavePropertyMap()
             })
         })
 
-        it('can edit property map', () => {
+        it('can create and copy section', () => {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
 
@@ -41,6 +42,31 @@ describe('Property', function () {
                     .clickEditSection()
                     .clickSectionEditMode()
                     .clickSubmitButton()
+                    .clickSavePropertyMap()
+            })
+        })
+
+        it('can add, remove and update section unit', () => {
+            cy.task('keystone:createUserWithProperty').then((response) => {
+                authUserWithCookies(response)
+
+                const propertyMapUnitEdit = new PropertyMapUnitEdit()
+                propertyMapUnitEdit
+                    .visit()
+                    .clickOnPropertyTableRow()
+                    .clickEditPropertyMapButton()
+                    .openUnitAddModal()
+                    .changeUnitType()
+                    .typeUnitLabel()
+                    .changeUnitSection()
+                    .changeUnitFloor()
+                    .clickSubmitButton()
+                    .quickSave()
+                    .selectUnit()
+                    .clickRemoveUnit()
+                    .quickSave()
+                    .renameUnit()
+                    .clickSavePropertyMap()
             })
         })
     })
