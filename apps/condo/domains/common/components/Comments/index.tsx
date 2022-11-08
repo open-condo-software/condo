@@ -86,6 +86,7 @@ const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
   
     .ant-tabs-card.ant-tabs {
       flex: 1 1 auto;
+      width: 100%;
 
       & > .ant-tabs-nav {
         background-color: ${colors.backgroundLightGrey};
