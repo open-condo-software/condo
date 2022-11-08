@@ -41145,6 +41145,517 @@ input ExternalReportsCreateInput {
   data: ExternalReportCreateInput
 }
 
+enum BankCategoryHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type BankCategoryHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankCategoryHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BankCategoryHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BankCategoryHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BankCategoryHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  parent: String
+  left: Int
+  right: Int
+  depth: Int
+  sortOrder: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankCategoryHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankCategoryHistoryRecordWhereInput {
+  AND: [BankCategoryHistoryRecordWhereInput]
+  OR: [BankCategoryHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  parent: String
+  parent_not: String
+  parent_in: [String]
+  parent_not_in: [String]
+  left: Int
+  left_not: Int
+  left_lt: Int
+  left_lte: Int
+  left_gt: Int
+  left_gte: Int
+  left_in: [Int]
+  left_not_in: [Int]
+  right: Int
+  right_not: Int
+  right_lt: Int
+  right_lte: Int
+  right_gt: Int
+  right_gte: Int
+  right_in: [Int]
+  right_not_in: [Int]
+  depth: Int
+  depth_not: Int
+  depth_lt: Int
+  depth_lte: Int
+  depth_gt: Int
+  depth_gte: Int
+  depth_in: [Int]
+  depth_not_in: [Int]
+  sortOrder: Int
+  sortOrder_not: Int
+  sortOrder_lt: Int
+  sortOrder_lte: Int
+  sortOrder_gt: Int
+  sortOrder_gte: Int
+  sortOrder_in: [Int]
+  sortOrder_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: BankCategoryHistoryRecordHistoryActionType
+  history_action_not: BankCategoryHistoryRecordHistoryActionType
+  history_action_in: [BankCategoryHistoryRecordHistoryActionType]
+  history_action_not_in: [BankCategoryHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input BankCategoryHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankCategoryHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  left_ASC
+  left_DESC
+  right_ASC
+  right_DESC
+  depth_ASC
+  depth_DESC
+  sortOrder_ASC
+  sortOrder_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input BankCategoryHistoryRecordUpdateInput {
+  name: String
+  parent: String
+  left: Int
+  right: Int
+  depth: Int
+  sortOrder: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankCategoryHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankCategoryHistoryRecordsUpdateInput {
+  id: ID!
+  data: BankCategoryHistoryRecordUpdateInput
+}
+
+input BankCategoryHistoryRecordCreateInput {
+  name: String
+  parent: String
+  left: Int
+  right: Int
+  depth: Int
+  sortOrder: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankCategoryHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankCategoryHistoryRecordsCreateInput {
+  data: BankCategoryHistoryRecordCreateInput
+}
+
+input BankCategoryRelateToOneInput {
+  create: BankCategoryCreateInput
+  connect: BankCategoryWhereUniqueInput
+  disconnect: BankCategoryWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Expenses category, that will be associated with transactions and contractors. Logically organized as a tree, which is stored in Nested Set format. To act as Nested Set, a one common technical root node should be presented, that will contain logically top-most categories as direct descendants. Categories are not intended to be changed frequently. After changes of the categories tree topology, index of Nested Set should be regenerated by manually calling buildNestedSetIndex function 
+"""
+type BankCategory {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankCategory List config, or
+   2. As an alias to the field set on 'labelField' in the BankCategory List config, or
+   3. As an alias to a 'name' field on the BankCategory List (if one exists), or
+   4. As an alias to the 'id' field on the BankCategory List.
+  """
+  _label_: String
+
+  """ Key for i18n """
+  name: String
+  nameNonLocalized: String
+
+  """ Nested set model. Reference to parent tree node """
+  parent: BankCategory
+
+  """ Nested set model. Left-hand-side index of subset, covered by this node 
+  """
+  left: Int
+
+  """ Nested set model. Right-hand-side index of subset, covered by this node 
+  """
+  right: Int
+
+  """ Nested set model. Depth of the node. Root node depth is 0 """
+  depth: Int
+
+  """ Display order among siblings of the category """
+  sortOrder: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input BankCategoryWhereInput {
+  AND: [BankCategoryWhereInput]
+  OR: [BankCategoryWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  parent: BankCategoryWhereInput
+  parent_is_null: Boolean
+  left: Int
+  left_not: Int
+  left_lt: Int
+  left_lte: Int
+  left_gt: Int
+  left_gte: Int
+  left_in: [Int]
+  left_not_in: [Int]
+  right: Int
+  right_not: Int
+  right_lt: Int
+  right_lte: Int
+  right_gt: Int
+  right_gte: Int
+  right_in: [Int]
+  right_not_in: [Int]
+  depth: Int
+  depth_not: Int
+  depth_lt: Int
+  depth_lte: Int
+  depth_gt: Int
+  depth_gte: Int
+  depth_in: [Int]
+  depth_not_in: [Int]
+  sortOrder: Int
+  sortOrder_not: Int
+  sortOrder_lt: Int
+  sortOrder_lte: Int
+  sortOrder_gt: Int
+  sortOrder_gte: Int
+  sortOrder_in: [Int]
+  sortOrder_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input BankCategoryWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankCategoriesBy {
+  name_ASC
+  name_DESC
+  parent_ASC
+  parent_DESC
+  left_ASC
+  left_DESC
+  right_ASC
+  right_DESC
+  depth_ASC
+  depth_DESC
+  sortOrder_ASC
+  sortOrder_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input BankCategoryUpdateInput {
+  name: String
+  parent: BankCategoryRelateToOneInput
+  left: Int
+  right: Int
+  depth: Int
+  sortOrder: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankCategoriesUpdateInput {
+  id: ID!
+  data: BankCategoryUpdateInput
+}
+
+input BankCategoryCreateInput {
+  name: String
+  parent: BankCategoryRelateToOneInput
+  left: Int
+  right: Int
+  depth: Int
+  sortOrder: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankCategoriesCreateInput {
+  data: BankCategoryCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -45405,6 +45916,33 @@ type Query {
   """ Retrieve the meta-data for the ExternalReport list. """
   _ExternalReportsMeta: _ListMeta
 
+  """ Search for all BankCategoryHistoryRecord items which match the where clause. 
+  """
+  allBankCategoryHistoryRecords(where: BankCategoryHistoryRecordWhereInput, search: String, sortBy: [SortBankCategoryHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankCategoryHistoryRecord]
+
+  """ Search for the BankCategoryHistoryRecord item with the matching ID. """
+  BankCategoryHistoryRecord(where: BankCategoryHistoryRecordWhereUniqueInput!): BankCategoryHistoryRecord
+
+  """ Perform a meta-query on all BankCategoryHistoryRecord items which match the where clause. 
+  """
+  _allBankCategoryHistoryRecordsMeta(where: BankCategoryHistoryRecordWhereInput, search: String, sortBy: [SortBankCategoryHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankCategoryHistoryRecord list. """
+  _BankCategoryHistoryRecordsMeta: _ListMeta
+
+  """ Search for all BankCategory items which match the where clause. """
+  allBankCategories(where: BankCategoryWhereInput, search: String, sortBy: [SortBankCategoriesBy!], orderBy: String, first: Int, skip: Int): [BankCategory]
+
+  """ Search for the BankCategory item with the matching ID. """
+  BankCategory(where: BankCategoryWhereUniqueInput!): BankCategory
+
+  """ Perform a meta-query on all BankCategory items which match the where clause. 
+  """
+  _allBankCategoriesMeta(where: BankCategoryWhereInput, search: String, sortBy: [SortBankCategoriesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankCategory list. """
+  _BankCategoriesMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -48151,6 +48689,42 @@ type Mutation {
 
   """ Delete multiple ExternalReport items by ID. """
   deleteExternalReports(ids: [ID!]): [ExternalReport]
+
+  """ Create a single BankCategoryHistoryRecord item. """
+  createBankCategoryHistoryRecord(data: BankCategoryHistoryRecordCreateInput): BankCategoryHistoryRecord
+
+  """ Create multiple BankCategoryHistoryRecord items. """
+  createBankCategoryHistoryRecords(data: [BankCategoryHistoryRecordsCreateInput]): [BankCategoryHistoryRecord]
+
+  """ Update a single BankCategoryHistoryRecord item by ID. """
+  updateBankCategoryHistoryRecord(id: ID!, data: BankCategoryHistoryRecordUpdateInput): BankCategoryHistoryRecord
+
+  """ Update multiple BankCategoryHistoryRecord items by ID. """
+  updateBankCategoryHistoryRecords(data: [BankCategoryHistoryRecordsUpdateInput]): [BankCategoryHistoryRecord]
+
+  """ Delete a single BankCategoryHistoryRecord item by ID. """
+  deleteBankCategoryHistoryRecord(id: ID!): BankCategoryHistoryRecord
+
+  """ Delete multiple BankCategoryHistoryRecord items by ID. """
+  deleteBankCategoryHistoryRecords(ids: [ID!]): [BankCategoryHistoryRecord]
+
+  """ Create a single BankCategory item. """
+  createBankCategory(data: BankCategoryCreateInput): BankCategory
+
+  """ Create multiple BankCategory items. """
+  createBankCategories(data: [BankCategoriesCreateInput]): [BankCategory]
+
+  """ Update a single BankCategory item by ID. """
+  updateBankCategory(id: ID!, data: BankCategoryUpdateInput): BankCategory
+
+  """ Update multiple BankCategory items by ID. """
+  updateBankCategories(data: [BankCategoriesUpdateInput]): [BankCategory]
+
+  """ Delete a single BankCategory item by ID. """
+  deleteBankCategory(id: ID!): BankCategory
+
+  """ Delete multiple BankCategory items by ID. """
+  deleteBankCategories(ids: [ID!]): [BankCategory]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

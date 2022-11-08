@@ -10,7 +10,7 @@ const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const BANK_CATEGORY_FIELDS = `{ name ${COMMON_FIELDS} }`
+const BANK_CATEGORY_FIELDS = `{ name left right depth sortOrder parent { id name } ${COMMON_FIELDS} }`
 const BankCategory = generateGqlQueries('BankCategory', BANK_CATEGORY_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
