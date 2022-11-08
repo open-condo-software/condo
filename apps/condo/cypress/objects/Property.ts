@@ -47,6 +47,19 @@ class BasePropertyTest {
 
         return this
     }
+
+    clickSavePropertyMap (): this {
+        cy.get('[data-cy=property-map__save-map-button]').click()
+        cy.location('pathname').should('not.contain', PROPERTY_MAP_UPDATE_URL)
+
+        return this
+    }
+
+    quickSave (): this {
+        cy.get('.fullscreen').type('{ctrl+s}')
+
+        return this
+    }
 }
 
 class PropertyMapCreate extends BasePropertyTest {
@@ -142,7 +155,73 @@ class PropertyMapEdit extends BasePropertyTest {
     }
 }
 
+class PropertyMapUnitEdit extends BasePropertyTest {
+    openUnitAddModal (): this {
+        this.clickOnEditMenu()
+        cy.get('[data-cy=property-map__edit-menu__add-unit-button]').click()
+
+        return this
+    }
+
+    changeUnitType (): this {
+        cy.get('[data-cy=property-map__unit-form__unit-type-select]').click()
+        cy.get('[data-cy=property-map__unit-form__unit-type-select__option]').last().click()
+
+        return this
+    }
+
+    typeUnitLabel (label = '1000'): this {
+        cy.get('[data-cy=property-map__unit-form__label-input]').focus().clear().type(label)
+
+        return this
+    }
+
+    changeUnitSection (): this {
+        cy.get('[data-cy=property-map__unit-form__section-select]').click()
+        cy.get('[data-cy=property-map__unit-form__section-select__option]').first().click()
+
+        return this
+    }
+
+    changeUnitFloor (): this {
+        cy.get('[data-cy=property-map__unit-form__floor-select]').click()
+        cy.get('[data-cy=property-map__unit-form__floor-select__option]').last().click()
+
+        return this
+    }
+
+    selectUnit (): this {
+        cy.get('[data-cy=property-map__unit-button]').last().click()
+
+        return this
+    }
+
+    clickSubmitButton (): this {
+        cy.get('[data-cy=property-map__unit-form__submit-button]').click()
+
+        cy.get('[data-cy=property-map__unit-button]').should('have.length', 29)
+
+        return this
+    }
+
+    clickRemoveUnit (): this {
+        cy.get('[data-cy=property-map__unit-form__delete-button]').click()
+
+        cy.get('[data-cy=property-map__unit-button]').should('have.length', 28)
+
+        return this
+    }
+
+    renameUnit (): this {
+        cy.get('[data-cy=property-map__unit-button]').last().click()
+        cy.get('[data-cy=property-map__unit-form__submit-button]').click()
+
+        return this
+    }
+}
+
 export {
     PropertyMapCreate,
     PropertyMapEdit,
+    PropertyMapUnitEdit,
 }
