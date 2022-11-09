@@ -30,7 +30,7 @@ const TicketFilterFields = {
     categoryClassifier: '[String]',
     problemClassifier: '[String]',
     clientPhone: '[String]',
-    author: '[String]',
+    createdBy: '[String]',
     reviewValue: '[String]',
     contactIsNull: '[String]',
     completedAt: '[String]',
