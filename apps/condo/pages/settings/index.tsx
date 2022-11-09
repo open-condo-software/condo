@@ -10,8 +10,10 @@ import {
     SETTINGS_TAB_SUBSCRIPTION,
     SETTINGS_TAB_CONTROL_ROOM,
     SETTINGS_TAB_PROPERTY_SCOPE,
+    SETTINGS_TAB_EMPLOYEE_ROLES,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
+import { EmployeeRolesSettingsContent } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
 import { PropertyScopeSettingsContent } from '@condo/domains/scope/components/PropertyScopeSettingsContent'
@@ -29,7 +31,7 @@ import { ControlRoomSettingsContent } from '@condo/domains/common/components/set
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_EMPLOYEE_ROLES, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
@@ -40,6 +42,7 @@ const SettingsPage: React.FC = () => {
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
     const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
+    const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 
@@ -69,6 +72,11 @@ const SettingsPage: React.FC = () => {
                 key: SETTINGS_TAB_PROPERTY_SCOPE,
                 title: PropertyScopeTitle,
                 content: <PropertyScopeSettingsContent/>,
+            },
+            {
+                key: SETTINGS_TAB_EMPLOYEE_ROLES,
+                title: EmployeeRolesTitle,
+                content: <EmployeeRolesSettingsContent/>,
             },
             {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
