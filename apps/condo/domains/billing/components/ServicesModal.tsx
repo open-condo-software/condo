@@ -47,21 +47,21 @@ const splitServices = (receipt: BillingReceipt) => {
 }
 
 const ExpandIconWrapper = styled.div`
-  font-size: 20px;
-  margin-right: 12px;
-  width: 20px;
-  color: ${colors.green[6]};
-  transform: translateY(2px);
-  display: inline-block;
+    font-size: 20px;
+    margin-right: 12px;
+    width: 20px;
+    color: ${colors.green[6]};
+    transform: translateY(2px);
+    display: inline-block;
 `
 
 const WideModalStyles = css`
-  .services-modal {
-    width: fit-content !important;
-    & > .ant-modal-content > .ant-modal-body {
-      width: min-content;
+    .services-modal {
+        width: fit-content !important;
+        & > .ant-modal-content > .ant-modal-body {
+            width: min-content;
+        }
     }
-  }
 `
 
 const formatRows = (significantServices: Array<TableRecord>, insignificantServices: Array<TableRecord>, expandMessage: string) => {
@@ -99,6 +99,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const address = get(receipt, ['property', 'address'])
     const unitName = get(receipt, ['account', 'unitName'])
     const unitType = get(receipt, ['account', 'unitType'])
+    const fullName = get(receipt, ['account', 'fullName'])
 
     const UnitTypePrefix = intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` }).toLocaleLowerCase()
 
@@ -113,6 +114,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
             <SubText size={configSize}>
                 {address}{unitName ? `, ${UnitTypePrefix}. ${unitName}` : ''}
             </SubText>
+            <SubText size={configSize}>{fullName}</SubText>
         </Space>
     )
 
