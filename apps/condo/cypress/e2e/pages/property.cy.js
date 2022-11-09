@@ -8,7 +8,7 @@ describe('Property', function () {
         })
 
         it('can create property map', () => {
-            cy.task('keystone:createUserWithProperty').then((response) => {
+            cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
 
                 const propertyMapCreate = new PropertyMapCreate()
@@ -28,7 +28,7 @@ describe('Property', function () {
         })
 
         it('can create and copy section', () => {
-            cy.task('keystone:createUserWithProperty').then((response) => {
+            cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
 
                 const propertyMapEdit = new PropertyMapEdit()
@@ -47,7 +47,7 @@ describe('Property', function () {
         })
 
         it('can add, remove and update section unit', () => {
-            cy.task('keystone:createUserWithProperty').then((response) => {
+            cy.task('keystone:createUserWithProperty', true).then((response) => {
                 authUserWithCookies(response)
 
                 const propertyMapUnitEdit = new PropertyMapUnitEdit()
