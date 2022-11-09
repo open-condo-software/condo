@@ -9,7 +9,7 @@ const SHRINKABLE_HEX_PATTERN = /^#(([0-9a-f])\2){3}$/i
 const WEIGHT_TO_INT = {
     light: 300,
     regular: 400,
-    semiBold: 700,
+    semiBold: 600,
     bold: 700,
     extraBold: 800,
 }

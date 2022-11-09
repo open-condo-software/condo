@@ -1,6 +1,4 @@
-import React from 'react'
-import { ThemeProvider, convert, Global, createReset } from '@storybook/theming'
-import customTheme from './theme'
+import '@condo/ui/src/components/style/core/global.less'
 
 export const parameters = {
     actions: { argTypesRegex: '^on[A-Z].*' },
@@ -12,14 +10,3 @@ export const parameters = {
     },
     backgrounds: { disable: true },
 }
-
-export const decorators = [
-    (StoryFn: React.FC) => {
-        return (
-            <ThemeProvider theme={convert(customTheme)}>
-                <Global styles={createReset}/>
-                <StoryFn/>
-            </ThemeProvider>
-        )
-    }
-]

@@ -1,5 +1,6 @@
 @import "antd/lib/button/style/index.less";
-@import "@condo/ui/src/tokens/variables.less";
+@import (reference) "@condo/ui/src/tokens/variables.less";
+@import (reference) "@condo/ui/src/components/style/mixins/typography";
 @import "./mixins";
 
 @condo-button-padding-vert: @condo-global-spacing-12;
@@ -11,11 +12,9 @@
 @condo-button-gap: @condo-global-spacing-8;
 
 .condo-btn {
+  .condo-typography-h4();
+
   position: relative;
-  font-weight: @condo-global-typography-h4-font-weight;
-  font-size: @condo-global-typography-h4-font-size;
-  font-family: @condo-global-typography-h4-font-family;
-  letter-spacing: @condo-global-typography-h4-letter-spacing;
   text-shadow: none;
   border-radius: @condo-button-border-radius;
   box-shadow: none;
@@ -246,7 +245,7 @@
       .condo-btn-icon-color(@condo-global-color-black);
       .condo-btn-static-text-color(@condo-global-color-black);
 
-      & > .condo-btn-text:before {
+      & > .condo-btn-text::before {
         opacity: 0;
       }
 
