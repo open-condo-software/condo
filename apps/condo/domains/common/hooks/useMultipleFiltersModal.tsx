@@ -1,7 +1,7 @@
 import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import Form from 'antd/lib/form'
-import { Col, FormInstance, Row, Tabs, Typography, ModalProps } from 'antd'
+import { Col, FormInstance, ModalProps, Row, Tabs, Typography } from 'antd'
 import { FormItemProps } from 'antd/es'
 import { Gutter } from 'antd/es/grid/row'
 import { CloseOutlined } from '@ant-design/icons'
@@ -26,6 +26,7 @@ import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { useOrganization } from '@condo/next/organization'
 import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
 
 import { useLayoutContext } from '../components/LayoutContext'
 import DatePicker from '../components/Pickers/DatePicker'
@@ -37,7 +38,8 @@ import { Loader } from '../components/Loader'
 import { DeleteButtonWithConfirmModal } from '../components/DeleteButtonWithConfirmModal'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 import {
-    ComponentType, FilterComponentSize,
+    ComponentType,
+    FilterComponentSize,
     FilterComponentType,
     FiltersMeta,
     getFiltersModalPopupContainer,
@@ -373,6 +375,8 @@ type MultipleFiltersModalProps = {
     filtersSchemaGql?
     onReset?: () => void
     onSubmit?: (filters) => void
+    eventNamePrefix?: string
+    detailedLogging?: string[]
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
@@ -389,6 +393,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     filtersSchemaGql,
     onReset,
     onSubmit,
+    eventNamePrefix,
+    detailedLogging,
 }) => {
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
@@ -417,6 +423,10 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const [openedFiltersTemplate, setOpenedFiltersTemplate] = useState(
         isEqualSelectedFiltersTemplateAndFilters(selectedFiltersTemplate, filters) ? selectedFiltersTemplate : null
     )
+
+    const { logEvent, getEventName } = useTracking()
+
+    const eventName = eventNamePrefix ? `${eventNamePrefix}FilterModalClickSubmit` : getEventName(TrackingEventType.Click)
 
     const { objs: filtersTemplates, loading, refetch } = filtersSchemaGql.useObjects({
         sortBy: 'createdAt_ASC',
@@ -495,6 +505,26 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     const handleSubmit = useCallback(async (values) => {
         const { newTemplateName, existedTemplateName, ...otherValues } = values
         const filtersValue = pickBy(otherValues)
+
+        if (eventName && !isEmpty(filtersValue)) {
+            const selectedFilters = omitBy(filtersValue, isEmpty)
+            const filterKeyList = Object.keys(selectedFilters)
+            const filterDetails = {}
+            const eventProperties = {}
+
+            detailedLogging.forEach(key => {
+                if (key in selectedFilters) {
+                    filterDetails[key] = selectedFilters[key]
+                }
+            })
+
+            eventProperties['filters'] = { details: filterDetails, list: filterKeyList }
+            // will help find the event if eventName with default value
+            eventProperties['event'] = 'FilterModalClickSubmit'
+
+            logEvent({ eventName, eventProperties })
+        }
+
         if (searchFilter) {
             filtersValue.search = searchFilter
         }
@@ -692,7 +722,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
-export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined) {
+export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined, eventNamePrefix?: string, detailedLogging: string[] = []) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
     const MultipleFiltersModal = useCallback(() => (
@@ -703,8 +733,10 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
             filtersSchemaGql={filtersSchemaGql}
             onReset={onReset}
             onSubmit={onSubmit}
+            eventNamePrefix={eventNamePrefix}
+            detailedLogging={detailedLogging}
         />
-    ), [filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit])
+    ), [detailedLogging, eventNamePrefix, filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit])
 
     const ResetFilterButton = useCallback(() => (
         <ResetFiltersModalButton handleReset={onReset} />

@@ -154,6 +154,7 @@ const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property',
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
 const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPaid']
 const CHECKBOX_WRAPPER_GUTTERS: [Gutter, Gutter] = [8, 16]
+const DETAILED_LOGGING = ['status', 'source', 'attributes', 'reviewValue', 'unitType', 'contactIsNull']
 
 const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
     const intl = useIntl()
@@ -185,7 +186,9 @@ const FiltersContainer = ({ TicketImportButton, filterMetas }) => {
         handleResetSearch()
     }, [handleResetAllAttributes, handleResetSearch])
 
-    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, TicketFilterTemplate, handleResetFilters, handleChangeAllAttributes)
+    const { MultipleFiltersModal, ResetFiltersModalButton, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(
+        filterMetas, TicketFilterTemplate, handleResetFilters, handleChangeAllAttributes, 'Ticket', DETAILED_LOGGING
+    )
 
     const handleOpenMultipleFilter = useCallback(() => {
         setIsMultipleFiltersModalVisible(true)
