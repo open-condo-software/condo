@@ -114,7 +114,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
             <SubText size={configSize}>
                 {address}{unitName ? `, ${UnitTypePrefix}. ${unitName}` : ''}
             </SubText>
-            <SubText size={configSize}>{fullName}</SubText>
+            {fullName && <SubText size={configSize}>{fullName}</SubText>}
         </Space>
     )
 
