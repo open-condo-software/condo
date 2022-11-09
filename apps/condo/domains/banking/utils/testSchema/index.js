@@ -4,13 +4,15 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
+const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
+const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
+const BankAccount = generateGQLTestUtils(BankAccountGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -42,9 +44,43 @@ async function updateTestBankCategory (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankAccount (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const bankAccount = createValidRuBankAccount()
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        importId: faker.datatype.uuid(),
+        ...bankAccount,
+        ...extraAttrs,
+    }
+    const obj = await BankAccount.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankAccount (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankAccount.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     BankCategory, createTestBankCategory, updateTestBankCategory,
+    BankAccount, createTestBankAccount, updateTestBankAccount,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

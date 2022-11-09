@@ -12199,6 +12199,802 @@ input BillingCategoriesCreateInput {
   data: BillingCategoryCreateInput
 }
 
+enum BankAccountHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type BankAccountHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankAccountHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BankAccountHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BankAccountHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BankAccountHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  tin: String
+  country: String
+  routingNumber: String
+  number: String
+  currencyCode: String
+  approvedAt: String
+  approvedBy: String
+  importId: String
+  territoryCode: String
+  bankName: String
+  meta: JSON
+  tinMeta: JSON
+  routingNumberMeta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankAccountHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankAccountHistoryRecordWhereInput {
+  AND: [BankAccountHistoryRecordWhereInput]
+  OR: [BankAccountHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  tin: String
+  tin_not: String
+  tin_contains: String
+  tin_not_contains: String
+  tin_starts_with: String
+  tin_not_starts_with: String
+  tin_ends_with: String
+  tin_not_ends_with: String
+  tin_i: String
+  tin_not_i: String
+  tin_contains_i: String
+  tin_not_contains_i: String
+  tin_starts_with_i: String
+  tin_not_starts_with_i: String
+  tin_ends_with_i: String
+  tin_not_ends_with_i: String
+  tin_in: [String]
+  tin_not_in: [String]
+  country: String
+  country_not: String
+  country_contains: String
+  country_not_contains: String
+  country_starts_with: String
+  country_not_starts_with: String
+  country_ends_with: String
+  country_not_ends_with: String
+  country_i: String
+  country_not_i: String
+  country_contains_i: String
+  country_not_contains_i: String
+  country_starts_with_i: String
+  country_not_starts_with_i: String
+  country_ends_with_i: String
+  country_not_ends_with_i: String
+  country_in: [String]
+  country_not_in: [String]
+  routingNumber: String
+  routingNumber_not: String
+  routingNumber_contains: String
+  routingNumber_not_contains: String
+  routingNumber_starts_with: String
+  routingNumber_not_starts_with: String
+  routingNumber_ends_with: String
+  routingNumber_not_ends_with: String
+  routingNumber_i: String
+  routingNumber_not_i: String
+  routingNumber_contains_i: String
+  routingNumber_not_contains_i: String
+  routingNumber_starts_with_i: String
+  routingNumber_not_starts_with_i: String
+  routingNumber_ends_with_i: String
+  routingNumber_not_ends_with_i: String
+  routingNumber_in: [String]
+  routingNumber_not_in: [String]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_contains: String
+  currencyCode_not_contains: String
+  currencyCode_starts_with: String
+  currencyCode_not_starts_with: String
+  currencyCode_ends_with: String
+  currencyCode_not_ends_with: String
+  currencyCode_i: String
+  currencyCode_not_i: String
+  currencyCode_contains_i: String
+  currencyCode_not_contains_i: String
+  currencyCode_starts_with_i: String
+  currencyCode_not_starts_with_i: String
+  currencyCode_ends_with_i: String
+  currencyCode_not_ends_with_i: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
+  approvedAt: String
+  approvedAt_not: String
+  approvedAt_lt: String
+  approvedAt_lte: String
+  approvedAt_gt: String
+  approvedAt_gte: String
+  approvedAt_in: [String]
+  approvedAt_not_in: [String]
+  approvedBy: String
+  approvedBy_not: String
+  approvedBy_in: [String]
+  approvedBy_not_in: [String]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  territoryCode: String
+  territoryCode_not: String
+  territoryCode_contains: String
+  territoryCode_not_contains: String
+  territoryCode_starts_with: String
+  territoryCode_not_starts_with: String
+  territoryCode_ends_with: String
+  territoryCode_not_ends_with: String
+  territoryCode_i: String
+  territoryCode_not_i: String
+  territoryCode_contains_i: String
+  territoryCode_not_contains_i: String
+  territoryCode_starts_with_i: String
+  territoryCode_not_starts_with_i: String
+  territoryCode_ends_with_i: String
+  territoryCode_not_ends_with_i: String
+  territoryCode_in: [String]
+  territoryCode_not_in: [String]
+  bankName: String
+  bankName_not: String
+  bankName_contains: String
+  bankName_not_contains: String
+  bankName_starts_with: String
+  bankName_not_starts_with: String
+  bankName_ends_with: String
+  bankName_not_ends_with: String
+  bankName_i: String
+  bankName_not_i: String
+  bankName_contains_i: String
+  bankName_not_contains_i: String
+  bankName_starts_with_i: String
+  bankName_not_starts_with_i: String
+  bankName_ends_with_i: String
+  bankName_not_ends_with_i: String
+  bankName_in: [String]
+  bankName_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  tinMeta: JSON
+  tinMeta_not: JSON
+  tinMeta_in: [JSON]
+  tinMeta_not_in: [JSON]
+  routingNumberMeta: JSON
+  routingNumberMeta_not: JSON
+  routingNumberMeta_in: [JSON]
+  routingNumberMeta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: BankAccountHistoryRecordHistoryActionType
+  history_action_not: BankAccountHistoryRecordHistoryActionType
+  history_action_in: [BankAccountHistoryRecordHistoryActionType]
+  history_action_not_in: [BankAccountHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input BankAccountHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankAccountHistoryRecordsBy {
+  tin_ASC
+  tin_DESC
+  country_ASC
+  country_DESC
+  routingNumber_ASC
+  routingNumber_DESC
+  number_ASC
+  number_DESC
+  currencyCode_ASC
+  currencyCode_DESC
+  approvedAt_ASC
+  approvedAt_DESC
+  importId_ASC
+  importId_DESC
+  territoryCode_ASC
+  territoryCode_DESC
+  bankName_ASC
+  bankName_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input BankAccountHistoryRecordUpdateInput {
+  organization: String
+  tin: String
+  country: String
+  routingNumber: String
+  number: String
+  currencyCode: String
+  approvedAt: String
+  approvedBy: String
+  importId: String
+  territoryCode: String
+  bankName: String
+  meta: JSON
+  tinMeta: JSON
+  routingNumberMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankAccountHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankAccountHistoryRecordsUpdateInput {
+  id: ID!
+  data: BankAccountHistoryRecordUpdateInput
+}
+
+input BankAccountHistoryRecordCreateInput {
+  organization: String
+  tin: String
+  country: String
+  routingNumber: String
+  number: String
+  currencyCode: String
+  approvedAt: String
+  approvedBy: String
+  importId: String
+  territoryCode: String
+  bankName: String
+  meta: JSON
+  tinMeta: JSON
+  routingNumberMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankAccountHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankAccountHistoryRecordsCreateInput {
+  data: BankAccountHistoryRecordCreateInput
+}
+
+enum BankAccountCountryType {
+  en
+  ru
+}
+
+""" Bank account, that will have transactions, pulled from various integrated data sources. Transactions will be marked by categories of incomes and expenses. 
+"""
+type BankAccount {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankAccount List config, or
+   2. As an alias to the field set on 'labelField' in the BankAccount List config, or
+   3. As an alias to a 'name' field on the BankAccount List (if one exists), or
+   4. As an alias to the 'id' field on the BankAccount List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Tax Identification Number """
+  tin: String
+
+  """ Country where the bank is located """
+  country: BankAccountCountryType
+
+  """ The routing transit number for the bank account. """
+  routingNumber: String
+
+  """ Bank account number """
+  number: String
+
+  """ Code of currency in ISO-4217 format """
+  currencyCode: String
+
+  """ When the bank account received the status of approved """
+  approvedAt: String
+
+  """ Who set the approved status for the bank account """
+  approvedBy: User
+
+  """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
+  """
+  importId: String
+
+  """ Location code (Classifier of Territories of Municipal Units - OKTMO) """
+  territoryCode: String
+
+  """ Bank name """
+  bankName: String
+
+  """ Structured metadata """
+  meta: JSON
+
+  """ Structured metadata found by tin """
+  tinMeta: JSON
+
+  """ Structured metadata found by routing number """
+  routingNumberMeta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input BankAccountWhereInput {
+  AND: [BankAccountWhereInput]
+  OR: [BankAccountWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  tin: String
+  tin_not: String
+  tin_contains: String
+  tin_not_contains: String
+  tin_starts_with: String
+  tin_not_starts_with: String
+  tin_ends_with: String
+  tin_not_ends_with: String
+  tin_i: String
+  tin_not_i: String
+  tin_contains_i: String
+  tin_not_contains_i: String
+  tin_starts_with_i: String
+  tin_not_starts_with_i: String
+  tin_ends_with_i: String
+  tin_not_ends_with_i: String
+  tin_in: [String]
+  tin_not_in: [String]
+  country: BankAccountCountryType
+  country_not: BankAccountCountryType
+  country_in: [BankAccountCountryType]
+  country_not_in: [BankAccountCountryType]
+  routingNumber: String
+  routingNumber_not: String
+  routingNumber_contains: String
+  routingNumber_not_contains: String
+  routingNumber_starts_with: String
+  routingNumber_not_starts_with: String
+  routingNumber_ends_with: String
+  routingNumber_not_ends_with: String
+  routingNumber_i: String
+  routingNumber_not_i: String
+  routingNumber_contains_i: String
+  routingNumber_not_contains_i: String
+  routingNumber_starts_with_i: String
+  routingNumber_not_starts_with_i: String
+  routingNumber_ends_with_i: String
+  routingNumber_not_ends_with_i: String
+  routingNumber_in: [String]
+  routingNumber_not_in: [String]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
+  approvedAt: String
+  approvedAt_not: String
+  approvedAt_lt: String
+  approvedAt_lte: String
+  approvedAt_gt: String
+  approvedAt_gte: String
+  approvedAt_in: [String]
+  approvedAt_not_in: [String]
+  approvedBy: UserWhereInput
+  approvedBy_is_null: Boolean
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  territoryCode: String
+  territoryCode_not: String
+  territoryCode_contains: String
+  territoryCode_not_contains: String
+  territoryCode_starts_with: String
+  territoryCode_not_starts_with: String
+  territoryCode_ends_with: String
+  territoryCode_not_ends_with: String
+  territoryCode_i: String
+  territoryCode_not_i: String
+  territoryCode_contains_i: String
+  territoryCode_not_contains_i: String
+  territoryCode_starts_with_i: String
+  territoryCode_not_starts_with_i: String
+  territoryCode_ends_with_i: String
+  territoryCode_not_ends_with_i: String
+  territoryCode_in: [String]
+  territoryCode_not_in: [String]
+  bankName: String
+  bankName_not: String
+  bankName_contains: String
+  bankName_not_contains: String
+  bankName_starts_with: String
+  bankName_not_starts_with: String
+  bankName_ends_with: String
+  bankName_not_ends_with: String
+  bankName_i: String
+  bankName_not_i: String
+  bankName_contains_i: String
+  bankName_not_contains_i: String
+  bankName_starts_with_i: String
+  bankName_not_starts_with_i: String
+  bankName_ends_with_i: String
+  bankName_not_ends_with_i: String
+  bankName_in: [String]
+  bankName_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  tinMeta: JSON
+  tinMeta_not: JSON
+  tinMeta_in: [JSON]
+  tinMeta_not_in: [JSON]
+  routingNumberMeta: JSON
+  routingNumberMeta_not: JSON
+  routingNumberMeta_in: [JSON]
+  routingNumberMeta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input BankAccountWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankAccountsBy {
+  organization_ASC
+  organization_DESC
+  tin_ASC
+  tin_DESC
+  country_ASC
+  country_DESC
+  routingNumber_ASC
+  routingNumber_DESC
+  number_ASC
+  number_DESC
+  currencyCode_ASC
+  currencyCode_DESC
+  approvedAt_ASC
+  approvedAt_DESC
+  approvedBy_ASC
+  approvedBy_DESC
+  importId_ASC
+  importId_DESC
+  territoryCode_ASC
+  territoryCode_DESC
+  bankName_ASC
+  bankName_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input BankAccountUpdateInput {
+  organization: OrganizationRelateToOneInput
+  tin: String
+  country: BankAccountCountryType
+  routingNumber: String
+  number: String
+  currencyCode: String
+  approvedAt: String
+  approvedBy: UserRelateToOneInput
+  importId: String
+  territoryCode: String
+  bankName: String
+  meta: JSON
+  tinMeta: JSON
+  routingNumberMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankAccountsUpdateInput {
+  id: ID!
+  data: BankAccountUpdateInput
+}
+
+input BankAccountCreateInput {
+  organization: OrganizationRelateToOneInput
+  tin: String
+  country: BankAccountCountryType
+  routingNumber: String
+  number: String
+  currencyCode: String
+  approvedAt: String
+  approvedBy: UserRelateToOneInput
+  importId: String
+  territoryCode: String
+  bankName: String
+  meta: JSON
+  tinMeta: JSON
+  routingNumberMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankAccountsCreateInput {
+  data: BankAccountCreateInput
+}
+
 enum TicketHistoryRecordHistoryActionType {
   c
   u
@@ -44396,6 +45192,33 @@ type Query {
   """ Retrieve the meta-data for the BillingCategory list. """
   _BillingCategoriesMeta: _ListMeta
 
+  """ Search for all BankAccountHistoryRecord items which match the where clause. 
+  """
+  allBankAccountHistoryRecords(where: BankAccountHistoryRecordWhereInput, search: String, sortBy: [SortBankAccountHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankAccountHistoryRecord]
+
+  """ Search for the BankAccountHistoryRecord item with the matching ID. """
+  BankAccountHistoryRecord(where: BankAccountHistoryRecordWhereUniqueInput!): BankAccountHistoryRecord
+
+  """ Perform a meta-query on all BankAccountHistoryRecord items which match the where clause. 
+  """
+  _allBankAccountHistoryRecordsMeta(where: BankAccountHistoryRecordWhereInput, search: String, sortBy: [SortBankAccountHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankAccountHistoryRecord list. """
+  _BankAccountHistoryRecordsMeta: _ListMeta
+
+  """ Search for all BankAccount items which match the where clause. """
+  allBankAccounts(where: BankAccountWhereInput, search: String, sortBy: [SortBankAccountsBy!], orderBy: String, first: Int, skip: Int): [BankAccount]
+
+  """ Search for the BankAccount item with the matching ID. """
+  BankAccount(where: BankAccountWhereUniqueInput!): BankAccount
+
+  """ Perform a meta-query on all BankAccount items which match the where clause. 
+  """
+  _allBankAccountsMeta(where: BankAccountWhereInput, search: String, sortBy: [SortBankAccountsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankAccount list. """
+  _BankAccountsMeta: _ListMeta
+
   """ Search for all TicketHistoryRecord items which match the where clause. 
   """
   allTicketHistoryRecords(where: TicketHistoryRecordWhereInput, search: String, sortBy: [SortTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [TicketHistoryRecord]
@@ -46770,6 +47593,42 @@ type Mutation {
 
   """ Delete multiple BillingCategory items by ID. """
   deleteBillingCategories(ids: [ID!]): [BillingCategory]
+
+  """ Create a single BankAccountHistoryRecord item. """
+  createBankAccountHistoryRecord(data: BankAccountHistoryRecordCreateInput): BankAccountHistoryRecord
+
+  """ Create multiple BankAccountHistoryRecord items. """
+  createBankAccountHistoryRecords(data: [BankAccountHistoryRecordsCreateInput]): [BankAccountHistoryRecord]
+
+  """ Update a single BankAccountHistoryRecord item by ID. """
+  updateBankAccountHistoryRecord(id: ID!, data: BankAccountHistoryRecordUpdateInput): BankAccountHistoryRecord
+
+  """ Update multiple BankAccountHistoryRecord items by ID. """
+  updateBankAccountHistoryRecords(data: [BankAccountHistoryRecordsUpdateInput]): [BankAccountHistoryRecord]
+
+  """ Delete a single BankAccountHistoryRecord item by ID. """
+  deleteBankAccountHistoryRecord(id: ID!): BankAccountHistoryRecord
+
+  """ Delete multiple BankAccountHistoryRecord items by ID. """
+  deleteBankAccountHistoryRecords(ids: [ID!]): [BankAccountHistoryRecord]
+
+  """ Create a single BankAccount item. """
+  createBankAccount(data: BankAccountCreateInput): BankAccount
+
+  """ Create multiple BankAccount items. """
+  createBankAccounts(data: [BankAccountsCreateInput]): [BankAccount]
+
+  """ Update a single BankAccount item by ID. """
+  updateBankAccount(id: ID!, data: BankAccountUpdateInput): BankAccount
+
+  """ Update multiple BankAccount items by ID. """
+  updateBankAccounts(data: [BankAccountsUpdateInput]): [BankAccount]
+
+  """ Delete a single BankAccount item by ID. """
+  deleteBankAccount(id: ID!): BankAccount
+
+  """ Delete multiple BankAccount items by ID. """
+  deleteBankAccounts(ids: [ID!]): [BankAccount]
 
   """ Create a single TicketHistoryRecord item. """
   createTicketHistoryRecord(data: TicketHistoryRecordCreateInput): TicketHistoryRecord

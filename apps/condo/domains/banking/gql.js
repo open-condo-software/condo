@@ -13,9 +13,13 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const BANK_CATEGORY_FIELDS = `{ name ${COMMON_FIELDS} }`
 const BankCategory = generateGqlQueries('BankCategory', BANK_CATEGORY_FIELDS)
 
+const BANK_ACCOUNT_FIELDS = `{ organization { id } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta tinMeta routingNumberMeta ${COMMON_FIELDS} }`
+const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
+	BankAccount,
     BankCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
