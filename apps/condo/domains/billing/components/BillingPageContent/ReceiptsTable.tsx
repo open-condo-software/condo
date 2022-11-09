@@ -25,11 +25,13 @@ import { ServicesModal } from '../ServicesModal'
 const addressFilter = getStringContainsFilter(['property', 'address'])
 const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
 const accountFilter = getStringContainsFilter(['account', 'number'])
+const fullNameFilter = getStringContainsFilter(['account', 'fullName'])
 const periodFilter = (period: string) => ({ period })
 const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
     { keyword: 'address', filters: [addressFilter] },
     { keyword: 'unitName', filters: [unitNameFilter] },
     { keyword: 'account', filters: [accountFilter] },
+    { keyword: 'fullName', filters: [fullNameFilter] },
 ]
 
 const SORTABLE_PROPERTIES = ['toPay']
@@ -50,7 +52,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
         ...staticQueryMetas,
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
-        { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter], combineType: 'OR' },
+        { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter, fullNameFilter], combineType: 'OR' },
     ]
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
     const {
