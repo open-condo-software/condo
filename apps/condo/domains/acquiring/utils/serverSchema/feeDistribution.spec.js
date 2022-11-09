@@ -18,7 +18,7 @@ const TEST_CASES = [
             { recipient:'commission', percent:'1', minAmount:null, maxAmount:null },
         ],
         cases: [
-            { amount: 1, category: 'housing', expected: { type: 'commission', summa: 1.02, recipientSum: 1, explicitFee: 0.02 } },
+            { amount: '1', category: 'housing', expected: { type: 'commission', summa: 1.02, recipientSum: 1, explicitFee: 0.02 } },
         ],
     },
     {
@@ -29,7 +29,7 @@ const TEST_CASES = [
         ],
         cases: [
             { amount: 1, category: 'housing', expected: { type: 'commission', summa: 13, recipientSum: 1, explicitFee: 12 } },
-            { amount: 4161, category: 'overhaul', expected: { type: 'commission', summa: 4260.86, recipientSum: 4161, explicitFee: 99.86 } },
+            { amount: '4161.00', category: 'overhaul', expected: { type: 'commission', summa: 4260.86, recipientSum: 4161, explicitFee: 99.86 } },
             { amount: 360192, category: 'trash', expected: { type: 'commission', summa: 361692, recipientSum: 360192, explicitFee: 1500 } },
             { amount: 812, category: null, expected: { type: 'commission', summa: 831.49, recipientSum: 812, explicitFee: 19.49 } },
         ],
@@ -47,7 +47,7 @@ const TEST_CASES = [
         ],
         cases: [
             { amount: 4231, category: 'overhaul', expected: { type: 'commission', summa: 4332.54, recipientSum: 4231, explicitFee: 101.54 } },
-            { amount: 18532, category: 'penny', expected: { type: 'commission', summa: 18532, recipientSum: 18532, explicitFee: 0 } },
+            { amount: '18532.00', category: 'penny', expected: { type: 'commission', summa: 18532, recipientSum: 18532, explicitFee: 0 } },
             { amount: 1735, category: null, expected: { type: 'commission', summa: 1735, recipientSum: 1698.57, implicitFee: 36.44 } },
         ],
     },
@@ -74,6 +74,17 @@ const TEST_CASES = [
             { amount: 1, expected: { type: 'service', summa: 1.01, recipientSum: 1, explicitFee: 0.01 } },
             { amount: 5125812.99, expected: { type: 'service', summa: 5187818.79, recipientSum: 5125812.99, explicitFee: 62005.8 } },
             { amount: 1746.12, category: null, expected: { type: 'service', summa: 1767.24, recipientSum: 1746.12, explicitFee: 21.12 } },
+        ],
+    },
+    {
+        title: 'Sum is 0 or negative. Commission will be 0 if set min',
+        settings: [
+            { recipient: 'acquiring', percent: '0.8', minAmount: '200' },
+            { recipient: 'service', percent: '0.4', minAmount: '100' },
+        ],
+        cases: [
+            { amount: 0, expected: { type: 'service', summa: 0, recipientSum: 0, explicitFee: 0 } },
+            { amount: -200.15, expected: { type: 'service', summa: -200.15, recipientSum: -200.15, explicitFee: 0 } },
         ],
     },
 ]
