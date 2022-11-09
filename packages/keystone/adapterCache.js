@@ -30,36 +30,41 @@ const ADAPTER_CACHE_CONNECTED_TABLES = {
 
 class AdapterCacheMiddleware {
 
-    /**
-     * tableName -> queryKey -> { response, lastUpdate }
-     */
-    cache = {}
-
-    /**
-     *  table_name -> lastUpdate
-     */
-    state = {}
-
     constructor (config) {
         try {
             const parsedConfig = JSON.parse(config)
+
             this.enabled = !!get(parsedConfig, 'enable', false)
+
+            // Cache: tableName -> queryKey -> { response, lastUpdate }
+            this.cache = {}
+
+            // Redis is used as State:
+            // State: table_name -> lastUpdate
             this.redisUrl = get(parsedConfig, 'redisUrl')
+
+            // This mechanism allows to skip caching some tables.
+            // Useful for hotfixes or disabling cache for business critical tables
             this.excludedTables = get(parsedConfig, 'excludedTables', [])
+
+            // Logging allows to get the percentage of cache hits
             this.logging = get(parsedConfig, 'logging', false)
-            this.debugMode = !!get(parsedConfig, 'debug', false)
-
-            this.connectedTables = ADAPTER_CACHE_CONNECTED_TABLES
-
-            this.cacheHistory = {}
-            this.cacheCallHistory = []
-
             this.totalRequests = 0
             this.cacheHits = 0
 
+            // Debug mode allows to get full history of operations with cache including cache dumps.
+            // Useful for local debugging
+            // You shouldn't allow this on production as it will lead to memory leak!
+            this.debugMode = !!get(parsedConfig, 'debug', false)
+            this.cacheHistory = {}
+            this.cacheCallHistory = []
             if (this.debugMode) {
                 console.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON_LOCAL ENVIRONMENT, OR WITH RUNNING BIG TESTSUITES')
             }
+
+            // This is just a hack that allows to drop state for more then one table for specific usecases.
+            this.connectedTables = ADAPTER_CACHE_CONNECTED_TABLES
+
         }
         catch (e) {
             this.enabled = false
