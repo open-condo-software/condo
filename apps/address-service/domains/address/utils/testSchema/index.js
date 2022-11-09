@@ -10,9 +10,11 @@ const {
 } = require('@condo/codegen/generate.test.utils')
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
+const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Address = generateGQLTestUtils(AddressGQL)
+const AddressInjection = generateGQLTestUtils(AddressInjectionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestAddress (client, extraAttrs = {}) {
@@ -48,9 +50,45 @@ async function updateTestAddress (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestAddressInjection (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        country: faker.address.country(),
+        region: faker.address.state(),
+        area: faker.address.state(),
+        city: faker.address.city(),
+        settlement: faker.address.city(),
+        street: faker.address.streetName(),
+        building: `${faker.datatype.number()}${faker.datatype.string(1)}`,
+        block: String(faker.datatype.number()),
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AddressInjection.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestAddressInjection (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AddressInjection.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Address, createTestAddress, updateTestAddress,
+    AddressInjection, createTestAddressInjection, updateTestAddressInjection,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

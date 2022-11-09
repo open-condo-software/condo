@@ -3,7 +3,7 @@
  * @property {string} country "Russia"
  * @property {string?} region "Sverdlovsk region"
  * @property {string?} area "Невьянский"
- * @property {string} city "Yekaterinburg"
+ * @property {string?} city "Yekaterinburg"
  * @property {string?} settlement "Шурала"
  * @property {string?} street "Lenina"
  * @property {string} building "66", "66a"

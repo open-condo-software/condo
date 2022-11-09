@@ -4,4 +4,5 @@
  */
 
 export * as Address from './Address'
+export * as AddressInjection from './AddressInjection'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -4,9 +4,11 @@
  */
 
 const { Address } = require('./Address')
+const { AddressInjection } = require('./AddressInjection')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Address,
+    AddressInjection,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
