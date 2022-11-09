@@ -44,13 +44,9 @@ const prepareAndSendNotification = async (context, remoteClient) => {
         uniqKey: notificationKey,
     }
 
-    try {
-        const { isDuplicateMessage } = await sendMessage(context, messageData)
-        return (isDuplicateMessage) ? 0 : 1
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-        return 0
-    }
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
+    
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {

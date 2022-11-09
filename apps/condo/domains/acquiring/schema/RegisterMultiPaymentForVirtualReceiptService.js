@@ -36,7 +36,7 @@ const {
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'registerMultiPaymentForVirtualReceipt',
         variable: ['data', 'dv'],
@@ -120,13 +120,13 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
                 } = data
 
                 // Stage 0. Check if input is valid
-                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
                 const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
 
                 if (acquiringContext.deletedAt) {
-                    throw new GQLError(errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
                 }
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
@@ -135,7 +135,7 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
 
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({
-                        ...errors.ACQUIRING_INTEGRATION_IS_DELETED,
+                        ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED,
                         messageInterpolation: { id: acquiringContext.integration },
                     }, context)
                 }
@@ -145,21 +145,21 @@ const RegisterMultiPaymentForVirtualReceiptService = new GQLCustomSchema('Regist
 
                 if (!ISO_CODES.includes(currencyCode)) {
                     throw new GQLError({
-                        ...errors.RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
+                        ...ERRORS.RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
                     }, context)
                 }
 
                 // amount is not a number
                 if (isNaN(amount)) {
                     throw new GQLError({
-                        ...errors.RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
+                        ...ERRORS.RECEIPT_HAVE_INVALID_TO_PAY_VALUE,
                     }, context)
                 }
 
                 // negative to pay value
                 if (Big(amount).lte(0)) {
                     throw new GQLError({
-                        ...errors.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
+                        ...ERRORS.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
                     }, context)
                 }
 

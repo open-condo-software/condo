@@ -60,14 +60,9 @@ const prepareAndSendNotification = async (context, resident, period) => {
         organization: organizationId && { id: organizationId },
     }
 
-    try {
-        const { isDuplicateMessage } = await sendMessage(context, messageData)
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
 
-        return (isDuplicateMessage) ? 0 : 1
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-        return 0
-    }
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${unitName}`.toLowerCase()

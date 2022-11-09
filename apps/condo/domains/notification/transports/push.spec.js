@@ -5,7 +5,6 @@ const dayjs = require('dayjs')
 const faker = require('faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
-const conf = require('@open-condo/config')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 
@@ -14,6 +13,7 @@ const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/
 const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('../utils/testSchema')
 const {
     CUSTOM_CONTENT_MESSAGE_TYPE,
+    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
     DEVICE_PLATFORM_ANDROID,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_HUAWEI,
@@ -61,15 +61,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -119,15 +123,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -178,15 +186,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -241,15 +253,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -299,15 +315,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -358,15 +378,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -423,15 +447,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -478,15 +506,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -534,15 +566,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 
@@ -632,15 +668,19 @@ describe('push transport', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT_Z)
                 const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toEqual(0)
+
                 const [messageStatus] = await sendMessageByTestClient(admin, messageData)
 
                 expect(messageStatus.isDuplicateMessage).toBeFalsy()
 
                 const messageWhere = {
-                    type: CUSTOM_CONTENT_MESSAGE_TYPE,
+                    type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
                     uniqKey: messageData.uniqKey,
                 }
 

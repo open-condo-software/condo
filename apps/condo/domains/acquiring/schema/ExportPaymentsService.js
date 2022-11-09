@@ -22,7 +22,7 @@ const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         // TODO(pahaz): mutation! cahnge
         query: 'exportPaymentsToExcel',
@@ -70,7 +70,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
             resolver: async (parent, args, context) => {
                 const { sender, where, sortBy, timeZone: timeZoneFromUser } = args.data
 
-                checkDvAndSender(args.data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(args.data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
 
                 const timeZone = normalizeTimeZone(timeZoneFromUser) || DEFAULT_ORGANIZATION_TIMEZONE
@@ -84,7 +84,7 @@ const ExportPaymentsService = new GQLCustomSchema('ExportPaymentsService', {
                 })
 
                 if (objs.length === 0) {
-                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
+                    throw new GQLError(ERRORS.NOTHING_TO_EXPORT, context)
                 }
 
                 const excelRows = objs.map(obj => {

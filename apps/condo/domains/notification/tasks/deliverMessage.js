@@ -1,4 +1,4 @@
-const isEmpty = require('lodash/isEmpty')
+const { isEmpty, get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { createTask } = require('@open-condo/keystone/tasks')
@@ -8,9 +8,9 @@ const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 
-const sms = require('../transports/sms')
-const email = require('../transports/email')
-const push = require('../transports/push')
+const smsAdapter = require('../transports/sms')
+const emailAdapter = require('../transports/email')
+const pushAdapter = require('../transports/push')
 const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,
@@ -19,17 +19,21 @@ const {
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
     MESSAGE_ERROR_STATUS,
+    MESSAGE_BLACKLISTED_STATUS,
     MESSAGE_SENT_STATUS,
+    MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    MESSAGE_DELIVERY_OPTIONS,
+    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
 } = require('../constants/constants')
 
 const SEND_TO_CONSOLE = `${conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE}`.toLowerCase() === 'true' || false
 const DISABLE_LOGGING = `${conf.NOTIFICATION__DISABLE_LOGGING}`.toLowerCase() === 'true' || false
-const logger = getLogger('notifications/tasks')
+const logger = getLogger('notifications/deliverMessage')
 
-const TRANSPORTS = {
-    [SMS_TRANSPORT]: sms,
-    [EMAIL_TRANSPORT]: email,
-    [PUSH_TRANSPORT]: push,
+const TRANSPORT_ADAPTERS = {
+    [SMS_TRANSPORT]: smsAdapter,
+    [EMAIL_TRANSPORT]: emailAdapter,
+    [PUSH_TRANSPORT]: pushAdapter,
 }
 const MESSAGE_SENDING_STATUSES = {
     [MESSAGE_SENDING_STATUS]: true,
@@ -50,130 +54,120 @@ async function _sendMessageByAdapter (transport, adapter, messageContext) {
     return await adapter.send(messageContext)
 }
 
-// TODO(pahaz): we should chose the best transport for the message.
-//  We can chose transport depends on the message.type?
-//  or use something like message.user.profile.preferredNotificationTransport if user want to get messages from TG
-
 /**
- * Calculates transport types priority queue for a message according to provided message data,
- * and fallback transports if more prioritized transports fail message delivery.
- * @param message
- * @returns {Promise<string[]>}
- * @private
+ * Extends DEFAULT_MESSAGE_DELIVERY_OPTIONS with MESSAGE_DELIVERY_OPTIONS[type] if available
+ * @param type
+ * @returns {{transports: *, strategy: *}}
  */
-async function _choseMessageTransport (message) {
-    const { phone, user, email, id } = message
-    const transports = []
+function getMessageTransportsAndStrategy (type) {
+    const { strategy, defaultTransports } =
+        {
+            ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+            ...get(MESSAGE_DELIVERY_OPTIONS, type, {}),
+        }
 
-    // if message has phone field, SMS would be the only priority transport
-    if (!isEmpty(phone)) return [SMS_TRANSPORT]
-
-    // if message doesn't have phone, but has email field, EMAIL would be the only priority transport
-    if (!isEmpty(email)) return [EMAIL_TRANSPORT]
-
-    // if user is provided, we can try to send PUSH notifications wither a priority transport
-    // if phone & email are absent, or fallback transport if phone & email are present but fail to deliver message
-    // at the moment we don't want to use fallback!
-    if (!isEmpty(user)) {
-        transports.push(PUSH_TRANSPORT)
-    }
-
-    // At this point we return whatever non-empty sequence we've got
-    if (!isEmpty(transports)) return transports
-
-    // NOTE: none of requirements were met for message state, so we can't send anything anywhere actually.
-    throw new Error(`No appropriate transport found for notification id: ${id}`)
+    return { strategy, transports: defaultTransports }
 }
 
 /**
  * Tries to deliver message via available transports depending on transport priorities
  * based on provided message data and available channels. If more prioritized channels fail message delivery,
- * tries to delived message through less prioritized fallback channels. Updates message status & meta in every case.
+ * tries to deliver message through less prioritized fallback channels. Updates message status & meta in every case.
  * @param messageId
  * @returns {Promise<string>}
  */
 async function deliverMessage (messageId) {
-    const { keystone } = await getSchemaCtx('Message')
-    const message = await Message.getOne(keystone, { id: messageId })
+    const { keystone: context } = await getSchemaCtx('Message')
+    const message = await Message.getOne(context, { id: messageId })
 
-    if (message.id !== messageId) throw new Error('get message by id has wrong result')
+    if (isEmpty(message)) throw new Error('get message by id has wrong result')
     // Skip messages that are already have been processed
     if (!MESSAGE_SENDING_STATUSES[message.status]) return `already-${message.status}`
 
-    const baseAttrs = {
-        dv: message.dv,
-        sender: message.sender,
-    }
+    const baseAttrs = { dv: message.dv, sender: message.sender }
+    const { error } = await checkMessageTypeInBlackList(context, message)
 
-    const { error } = await checkMessageTypeInBlackList(keystone, message)
     if (error) {
-        return await Message.update(keystone, message.id, {
+        const messageErrorData = {
             ...baseAttrs,
-            status: MESSAGE_ERROR_STATUS,
+            status: MESSAGE_BLACKLISTED_STATUS,
             processingMeta: {
                 dv: 1,
                 error,
             },
-        })
+        }
+
+        await Message.update(context, message.id, messageErrorData)
+
+        return MESSAGE_BLACKLISTED_STATUS
     }
 
-    const transports = await _choseMessageTransport(message)
-    const processingMeta = { dv: 1, transports, step: 'init' }
+    const processingMeta = { dv: 1, step: 'init' }
 
-    await Message.update(keystone, message.id, {
+    const messageInitData = {
         ...baseAttrs,
         status: MESSAGE_PROCESSING_STATUS,
         sentAt: null,
         deliveredAt: null,
         readAt: null,
         processingMeta,
-    })
+    }
 
-    const transportsMeta = []
-    processingMeta.transportsMeta = transportsMeta
+    await Message.update(context, message.id, messageInitData)
+
+    const { strategy, transports } = getMessageTransportsAndStrategy(message.type)
+    const sendByOneTransport = strategy === MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT
+
+    processingMeta.defaultTransports = transports
+    processingMeta.transports = []
+    processingMeta.transportsMeta = []
+
+    let successCnt = 0
 
     for (const transport of transports) {
         const transportMeta = { transport }
 
         processingMeta.transport = transport
-        transportsMeta.push(transportMeta)
 
         try {
-            const adapter = TRANSPORTS[transport]
+            const adapter = TRANSPORT_ADAPTERS[transport]
             // NOTE: Renderer will throw here, if it doesn't have template/support for required transport type.
             const messageContext = await adapter.prepareMessageToSend(message)
+
             processingMeta.messageContext = messageContext
+            transportMeta.messageContext = messageContext
+            processingMeta.transports.push(transport)
 
             const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext)
             transportMeta.deliveryMetadata = deliveryMetadata
+            transportMeta.status = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+            processingMeta.step = isOk ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
+            successCnt += isOk ? 1 : 0
 
-            if (isOk) {
-                transportMeta.status = MESSAGE_SENT_STATUS
-                processingMeta.step = MESSAGE_SENT_STATUS
-                break
-            } else {
-                transportMeta.status = MESSAGE_ERROR_STATUS
-                processingMeta.step = MESSAGE_ERROR_STATUS
-            }
         } catch (error) {
             transportMeta.status = MESSAGE_ERROR_STATUS
             transportMeta.exception = safeFormatError(error, false)
-            logger.error({ msg: 'deliverMessage error', error, messageId, transportMeta, transportsMeta, processingMeta })
+
+            logger.error({ msg: 'deliverMessage error', error, messageId, transportMeta, processingMeta })
         }
+
+        processingMeta.transportsMeta.push(transportMeta)
+
+        if (sendByOneTransport && successCnt > 0) break
     }
 
-    // message sent either directly or by fallback transport
-    const status = (processingMeta.step === MESSAGE_SENT_STATUS) ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS
-    await Message.update(keystone, message.id, {
+    const messageFinalData = {
         ...baseAttrs,
-        status,
-        sentAt: (processingMeta.step === MESSAGE_SENT_STATUS) ? new Date().toISOString() : null,
+        status: (successCnt > 0) ? MESSAGE_SENT_STATUS : MESSAGE_ERROR_STATUS,
+        sentAt: (successCnt > 0) ? new Date().toISOString() : null,
         deliveredAt: null,
         readAt: null,
         processingMeta,
-    })
+    }
 
-    return status
+    await Message.update(context, message.id, messageFinalData)
+
+    return messageFinalData.status
 }
 
 module.exports = {

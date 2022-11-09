@@ -83,13 +83,9 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
         organization: resident.organization && { id: resident.organization.id },
     }
 
-    try {
-        const { isDuplicateMessage } = await sendMessage(context, messageData)
-        return (isDuplicateMessage) ? 0 : 1
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-        return 0
-    }
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
+
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 /**

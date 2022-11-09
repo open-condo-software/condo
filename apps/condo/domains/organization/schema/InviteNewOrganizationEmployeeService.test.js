@@ -63,12 +63,14 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     /**
                      * Check that notification about invitation as employee was sent
                      */
+                    const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
+
                     await waitFor(async () => {
-                        const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
                         const message1 = await Message.getOne(admin, messageWhere)
+                        const { transportsMeta } = message1.processingMeta
 
                         expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                        expect(message1.processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
                         expect(message1.organization.id).toEqual(client.organization.id)
                     })
                 })
@@ -325,9 +327,9 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         const messages = await Message.getAll(admin, messageWhere)
 
                         expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
-                        expect(messages[0].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[0].processingMeta.transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
                         expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
-                        expect(messages[1].processingMeta.transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[1].processingMeta.transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
                         expect(messages[1].organization.id).toEqual(client.organization.id)
                     })
                 })

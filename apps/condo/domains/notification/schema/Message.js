@@ -46,6 +46,19 @@ const Message = new GQLListSchema('Message', {
             isRequired: false,
         },
 
+        remoteClient: {
+            schemaDoc: 'to Remote client',
+            type: 'Relationship',
+            ref: 'RemoteClient',
+            isRequired: false,
+            kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
         emailFrom: {
             schemaDoc: 'from Email',
             type: 'Text',
@@ -124,8 +137,8 @@ const Message = new GQLListSchema('Message', {
         constraints: [
             {
                 type: 'models.CheckConstraint',
-                check: 'Q(user__isnull=False) | Q(phone__isnull=False) | Q(email__isnull=False)',
-                name: 'has_phone_or_email_or_user',
+                check: 'Q(phone__isnull=False) | Q(email__isnull=False) | Q(user__isnull=False) | Q(remoteClient__isnull=False) | Q(deletedAt__isnull=False)',
+                name: 'has_phone_or_email_or_user_or_remoteClient',
             },
             {
                 type: 'models.UniqueConstraint',

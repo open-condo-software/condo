@@ -5,8 +5,9 @@ const faker = require('faker')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
+    NUMBER_RE, UUID_RE, DATETIME_RE,
+    makeClient, makeLoggedInAdminClient, waitFor,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
@@ -14,6 +15,14 @@ const {
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
+/** domains/common */
+const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
+const { md5 } = require('@condo/domains/common/utils/crypto')
+
+/** domains/contact */
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+
+/** domains/notification */
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
@@ -26,19 +35,18 @@ const {
     DEVICE_PLATFORM_ANDROID,
     APP_MASTER_ID_ANDROID,
     APP_RESIDENT_ID_ANDROID,
+    PUSH_TRANSPORT,
+    SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
-const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
 
-const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-
-const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 const {
     Message,
     MessageOrganizationBlackList,
     updateTestMessageOrganizationBlackList,
-    syncRemoteClientByTestClient,
+    syncRemoteClientWithPushTokenByTestClient,
 } = require('@condo/domains/notification/utils/testSchema')
 
+/** domains/organization */
 const {
     PROPERTY_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
@@ -48,12 +56,14 @@ const {
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
-    createTestOrganizationEmployee, createTestOrganizationEmployeeSpecialization,
+    createTestOrganizationEmployee,
+    createTestOrganizationEmployeeSpecialization,
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 
+/** domains/property */
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithProperty,
@@ -62,14 +72,17 @@ const {
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
 
+/** domains/resident */
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 
+/** domains/scope */
 const {
     createTestPropertyScope,
     createTestPropertyScopeOrganizationEmployee,
     createTestPropertyScopeProperty,
 } = require('@condo/domains/scope/utils/testSchema')
 
+/** domains/ticket */
 const {
     REVIEW_VALUES,
     DEFERRED_STATUS_TYPE,
@@ -78,14 +91,18 @@ const {
     DEFAULT_DEFERRED_DAYS,
 } = require('@condo/domains/ticket/constants')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+
 const {
-    Ticket, createTestTicket, updateTestTicket,
+    Ticket,
     TicketOrganizationSetting,
-    createTestTicketComment,
     TicketComment,
+    createTestTicket,
+    updateTestTicket,
+    createTestTicketComment,
     createTestTicketClassifier,
 } = require('@condo/domains/ticket/utils/testSchema')
 
+/** domains/user */
 const {
     makeClientWithResidentUser,
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -2178,15 +2195,16 @@ describe('Ticket', () => {
 
     describe('notifications', () => {
         describe('Assignee or executor was changed', () => {
+
             test('push message to assignee', async () => {
                 const client = await makeClientWithProperty()
                 const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
-                const payload = getRandomTokenData({
+                const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_MASTER_ID_ANDROID,
-                    pushToken: getRandomFakeSuccessToken(),
-                })
-                await syncRemoteClientByTestClient(assignee, payload)
+                }
+
+                await syncRemoteClientWithPushTokenByTestClient(assignee, payload)
 
                 const extraProps = { assignee: { connect: { id: assignee.user.id } } }
                 const [ticket] = await createTestTicket(client, client.organization, client.property, extraProps)
@@ -2202,6 +2220,7 @@ describe('Ticket', () => {
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
 
+                    // Testing processingMeta old way structure
                     expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(message1.processingMeta.transport).toEqual('push')
                     expect(message1.processingMeta.transports).toEqual(['push'])
@@ -2217,18 +2236,32 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.userId).toEqual(assignee.user.id)
                     expect(content.data.notificationId).toEqual(message.id)
+
+                    const transportMeta = message1.processingMeta.transportsMeta[0]
+                    const content1 = transportMeta.messageContext
+
+                    // Testing processingMeta ADR-7 way structure
+                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(content1.data.url).toBeDefined()
+                    expect(content1.data.ticketId).toEqual(ticket.id)
+                    expect(content1.data.ticketNumber).toEqual(ticket.number)
+                    expect(content1.data.userId).toEqual(assignee.user.id)
+                    expect(content1.data.notificationId).toEqual(message.id)
+
                 })
             })
 
             test('push message to executor', async () => {
                 const client = await makeClientWithProperty()
                 const executor = await makeClientWithNewRegisteredAndLoggedInUser()
-                const payload = getRandomTokenData({
+                const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_MASTER_ID_ANDROID,
-                    pushToken: getRandomFakeSuccessToken(),
-                })
-                await syncRemoteClientByTestClient(executor, payload)
+                }
+
+                await syncRemoteClientWithPushTokenByTestClient(executor, payload)
 
                 const extraProps = { executor: { connect: { id: executor.user.id } } }
                 const [ticket] = await createTestTicket(client, client.organization, client.property, extraProps)
@@ -2244,6 +2277,7 @@ describe('Ticket', () => {
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
 
+                    // Testing processingMeta old way structure
                     expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(message1.processingMeta.transport).toEqual('push')
 
@@ -2254,6 +2288,20 @@ describe('Ticket', () => {
                     expect(content.data.ticketNumber).toEqual(ticket.number)
                     expect(content.data.userId).toEqual(executor.user.id)
                     expect(content.data.notificationId).toEqual(message.id)
+
+                    const transportMeta = message1.processingMeta.transportsMeta[0]
+                    const content1 = transportMeta.messageContext
+
+                    // Testing processingMeta ADR-7 way structure
+                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(content1.data.url).toBeDefined()
+                    expect(content1.data.ticketId).toEqual(ticket.id)
+                    expect(content1.data.ticketNumber).toEqual(ticket.number)
+                    expect(content1.data.userId).toEqual(executor.user.id)
+                    expect(content1.data.notificationId).toEqual(message.id)
+
                 })
             })
 
@@ -2279,14 +2327,14 @@ describe('Ticket', () => {
             it('send push to resident if created Ticket with status == TICKET_STATUS_IN_PROGRESS', async () => {
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
-                const payload = getRandomTokenData({
+                const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_RESIDENT_ID_ANDROID,
-                    pushToken: getRandomFakeSuccessToken(),
-                })
+                }
 
-                await syncRemoteClientByTestClient(userClient, payload)
+                await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
 
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
 
@@ -2295,16 +2343,29 @@ describe('Ticket', () => {
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.IN_PROGRESS } } })
 
                 await waitFor(async () => {
-                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_IN_PROGRESS_TYPE }
                     const message = await Message.getOne(admin, messageWhere)
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+                    const content = transportMeta.messageContext
 
                     expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+
+                    // Testing processingMeta old way structure
                     expect(message.meta.data.userId).toEqual(userClient.user.id)
                     expect(message.meta.data.residentId).toEqual(resident.id)
                     expect(message.meta.data.ticketId).toEqual(ticket.id)
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+
+                    // Testing processingMeta ADR-7 way structure
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(content.data.url).toBeDefined()
+                    expect(content.data.ticketId).toEqual(ticket.id)
+                    expect(content.data.residentId).toEqual(resident.id)
+                    expect(content.data.userId).toEqual(userClient.user.id)
+                    expect(content.data.ticketNumber).toEqual(ticket.number)
+                    expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
@@ -2362,13 +2423,13 @@ describe('Ticket', () => {
             it('send push to resident', async () => {
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
-                const payload = getRandomTokenData({
+                const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_RESIDENT_ID_ANDROID,
-                    pushToken: getRandomFakeSuccessToken(),
-                })
-                
-                await syncRemoteClientByTestClient(userClient, payload)
+                }
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
+
+                await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2378,16 +2439,29 @@ describe('Ticket', () => {
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.COMPLETED } } })
 
                 await waitFor(async () => {
-                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_COMPLETED_TYPE }
                     const message = await Message.getOne(admin, messageWhere)
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+                    const content = transportMeta.messageContext
 
                     expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+
+                    // Testing processingMeta old way structure
                     expect(message.meta.data.userId).toEqual(userClient.user.id)
                     expect(message.meta.data.residentId).toEqual(resident.id)
                     expect(message.meta.data.ticketId).toEqual(ticket.id)
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+
+                    // Testing processingMeta ADR-7 way structure
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(content.data.url).toBeDefined()
+                    expect(content.data.ticketId).toEqual(ticket.id)
+                    expect(content.data.residentId).toEqual(resident.id)
+                    expect(content.data.userId).toEqual(userClient.user.id)
+                    expect(content.data.ticketNumber).toEqual(ticket.number)
+                    expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
@@ -2412,13 +2486,13 @@ describe('Ticket', () => {
             it('send push to resident', async () => {
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
-                const payload = getRandomTokenData({
+                const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_RESIDENT_ID_ANDROID,
-                    pushToken: getRandomFakeSuccessToken(),
-                })
+                }
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
 
-                await syncRemoteClientByTestClient(userClient, payload)
+                await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
@@ -2431,16 +2505,29 @@ describe('Ticket', () => {
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.OPEN } } })
 
                 await waitFor(async () => {
-                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_RETURNED_TYPE }
                     const message = await Message.getOne(admin, messageWhere)
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+                    const content = transportMeta.messageContext
 
                     expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+
+                    // Testing processingMeta old way structure
                     expect(message.meta.data.userId).toEqual(userClient.user.id)
                     expect(message.meta.data.residentId).toEqual(resident.id)
                     expect(message.meta.data.ticketId).toEqual(ticket.id)
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+
+                    // Testing processingMeta ADR-7 way structure
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(content.data.url).toBeDefined()
+                    expect(content.data.ticketId).toEqual(ticket.id)
+                    expect(content.data.residentId).toEqual(resident.id)
+                    expect(content.data.userId).toEqual(userClient.user.id)
+                    expect(content.data.ticketNumber).toEqual(ticket.number)
+                    expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
@@ -2469,13 +2556,13 @@ describe('Ticket', () => {
             it('send push to resident', async () => {
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
-                const payload = getRandomTokenData({
+                const payload = {
                     devicePlatform: DEVICE_PLATFORM_ANDROID,
                     appId: APP_RESIDENT_ID_ANDROID,
-                    pushToken: getRandomFakeSuccessToken(),
-                })
+                }
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
 
-                await syncRemoteClientByTestClient(userClient, payload)
+                await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2485,16 +2572,29 @@ describe('Ticket', () => {
                 await updateTestTicket(admin, ticket.id, { status: { connect: { id: STATUS_IDS.DECLINED } } })
 
                 await waitFor(async () => {
-                    const messageWhere = { user: { id: userClient.user.id }, type: TICKET_STATUS_DECLINED_TYPE }
                     const message = await Message.getOne(admin, messageWhere)
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+                    const content = transportMeta.messageContext
 
                     expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+
+                    // Testing processingMeta old way structure
                     expect(message.meta.data.userId).toEqual(userClient.user.id)
                     expect(message.meta.data.residentId).toEqual(resident.id)
                     expect(message.meta.data.ticketId).toEqual(ticket.id)
                     expect(message.meta.data.ticketNumber).toEqual(ticket.number)
                     expect(message.processingMeta.transport).toEqual('push')
                     expect(message.processingMeta.transports).toEqual(['push'])
+
+                    // Testing processingMeta ADR-7 way structure
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(content.data.url).toBeDefined()
+                    expect(content.data.ticketId).toEqual(ticket.id)
+                    expect(content.data.residentId).toEqual(resident.id)
+                    expect(content.data.userId).toEqual(userClient.user.id)
+                    expect(content.data.ticketNumber).toEqual(ticket.number)
+                    expect(content.data.notificationId).toEqual(message.id)
                     expect(message.organization.id).toEqual(ticket.organization.id)
                 })
             })
@@ -2550,15 +2650,20 @@ describe('Ticket', () => {
 
                 expect(ticket.client).toBeNull()
 
-                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                const messageWhere = {
+                    phone: clientPhone,
+                    type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+                    uniqKey: `${today}_${md5(clientPhone)}`,
+                }
                 const message = await Message.getOne(admin, messageWhere)
 
+                expect(message).toBeDefined()
                 expect(message.id).toMatch(UUID_RE)
-                expect(message.uniqKey).toEqual(`${today}_${clientPhone}`)
 
                 await waitFor(async () => {
                     const message1 = await Message.getOne(admin, messageWhere)
 
+                    // Testing processingMeta old way structure
                     expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(message1.processingMeta.transport).toEqual('sms')
 
@@ -2566,10 +2671,21 @@ describe('Ticket', () => {
 
                     expect(content.phone).toEqual(clientPhone)
                     expect(content.message).toBeDefined()
+
+                    // Testing processingMeta ADR-7 way structure
+                    const transportMeta = message1.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.transport).toEqual(SMS_TRANSPORT)
+
+                    const content1 = transportMeta.messageContext
+
+                    expect(content1.phone).toEqual(clientPhone)
+                    expect(content1.message).toBeDefined()
                 })
             })
 
-            test('dont send sms 2 times a day to one number', async () => {
+            test('dont send sms 2 times a day to same number', async () => {
+                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
 
                 const clientName = faker.name.firstName()
@@ -2585,11 +2701,14 @@ describe('Ticket', () => {
 
                 expect(ticket.client).toBeNull()
 
-                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                const messageWhere = {
+                    phone: clientPhone,
+                    type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+                }
                 const message = await Message.getOne(admin, messageWhere)
 
                 expect(message.id).toMatch(UUID_RE)
-                expect(message.uniqKey).toEqual(`${today}_${clientPhone}`)
+                expect(message.uniqKey).toEqual(`${today}_${md5(clientPhone)}`)
 
                 await createTestTicket(client, client.organization, client.property, {
                     isResidentTicket: true,

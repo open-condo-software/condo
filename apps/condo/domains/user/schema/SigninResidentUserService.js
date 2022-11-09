@@ -15,7 +15,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         mutation: 'signinResidentUser',
         variable: ['data', 'token'],
@@ -51,7 +51,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
             schema: 'signinResidentUser(data: SigninResidentUserInput!): SigninResidentUserOutput',
             doc: {
                 summary: 'Authenticates resident user for mobile apps',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 // TODO(DOMA-3209): check the dv === 1 and sender value
@@ -63,7 +63,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                     isPhoneVerified: false,
                 }
                 if (!token) {
-                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
                 const action = await ConfirmPhoneAction.getOne(context,
                     {
@@ -74,7 +74,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                     }
                 )
                 if (!action) {
-                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
                 if (action.phone !== normalizePhone(action.phone)) {
                     throw new Error('internal error: wrong phone format from ConfirmPhoneAction')
@@ -88,7 +88,7 @@ const SigninResidentUserService = new GQLCustomSchema('SigninResidentUserService
                     userData.password = getRandomString()
                     user = await User.create(context, userData)
                     if (!user) {
-                        throw new GQLError(errors.UNABLE_TO_CREATE_USER, context)
+                        throw new GQLError(ERRORS.UNABLE_TO_CREATE_USER, context)
                     }
                 }
                 await ConfirmPhoneAction.update(context, action.id, { dv: 1, sender, completedAt: new Date().toISOString() })

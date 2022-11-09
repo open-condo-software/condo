@@ -12,22 +12,22 @@ const { find } = require('@open-condo/keystone/schema')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
+const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+
 const {
-    Message: MessageGQL,
     SEND_MESSAGE,
     RESEND_MESSAGE,
-    RemoteClient: RemoteClientGQL,
     SYNC_DEVICE_MUTATION,
     DISCONNECT_USER_FROM_DEVICE_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
+    Message: MessageGQL,
+    RemoteClient: RemoteClientGQL,
+    MessageUserBlackList: MessageUserBlackListGQL,
+    MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
+    MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL,
+    MessageBatch: MessageBatchGQL,
 } = require('@condo/domains/notification/gql')
-const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
-
-const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
-const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
-const { MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL } = require('@condo/domains/notification/gql')
-const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
-const { MessageBatch: MessageBatchGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateServerUtils(MessageGQL)
@@ -37,17 +37,12 @@ async function sendMessage (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
     if (!data.to) throw new Error('no data.to')
-    if (!data.to.email && !data.to.phone && !data.to.user) throw new Error('wrong data.to')
+    if (!data.to.email && !data.to.phone && !data.to.user && !data.to.remoteClient) throw new Error('wrong data.to')
     if (!data.type) throw new Error('no data.type')
     if (!MESSAGE_TYPES.includes(data.type)) throw new Error('unknown data.type')
-    if (!data.lang) {
-        data.lang = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-    }
-    if (!data.dv) {
-        data.dv = 1
-    }
-
+    if (!data.lang) data.lang = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
     if (!LOCALES[data.lang]) throw new Error('unknown data.lang')
+    if (!data.dv) data.dv = 1
 
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,
@@ -137,19 +132,16 @@ async function checkMessageTypeInBlackList (context, message) {
         }
         const messageOrganizationBlackListRules = await MessageOrganizationBlackList.getAll(context, messageOrganizationBlackListWhere)
 
-        if (!isEmpty(messageOrganizationBlackListRules)) {
-            return {
-                error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST,
-            }
-        }
+        if (!isEmpty(messageOrganizationBlackListRules)) return { error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST }
     }
 
+    const userCriteria = [
+        message.user && { user: { id: message.user.id } },
+        message.phone && { phone: message.phone },
+        message.email && { email: message.email },
+    ]
     const messageUserBlackListWhere = {
-        OR: [
-            message.user && { user: { id: message.user.id } },
-            message.phone && { phone: message.phone },
-            message.email && { email: message.email },
-        ].filter(Boolean),
+        OR: userCriteria.filter(Boolean),
         deletedAt: null,
     }
 
@@ -158,11 +150,7 @@ async function checkMessageTypeInBlackList (context, message) {
     if (!isEmpty(messageUserBlackListRules)) {
         const isMessageTypeInUserBlackList = messageUserBlackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
 
-        if (isMessageTypeInUserBlackList) {
-            return {
-                error: MESSAGE_TYPE_IN_USER_BLACK_LIST,
-            }
-        }
+        if (isMessageTypeInUserBlackList) return { error: MESSAGE_TYPE_IN_USER_BLACK_LIST }
     }
 
     return { error: null }

@@ -16,7 +16,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('../../common/constants/errors')
 
-const errors = {
+const ERRORS = {
     RESIDENT_NOT_FOUND: {
         mutation: 'registerServiceConsumer',
         variable: ['data', 'residentId'],
@@ -66,23 +66,23 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
             doc: {
                 summary: 'Creates service consumer with default data, and automatically populates the optional data fields, such as `billingAccount',
                 description: 'To be successfully created accountNumber and unitName should at least have billingAccount with same data or Meter with same data',
-                errors,
+                errors: ERRORS,
             },
             access: access.canRegisterServiceConsumer,
             schema: 'registerServiceConsumer(data: RegisterServiceConsumerInput!): ServiceConsumer',
             resolver: async (parent, args, context = {}) => {
                 const { data: { dv, sender, residentId, accountNumber, organizationId, extra } } = args
 
-                if (!accountNumber || accountNumber.length === 0) { throw new GQLError(errors.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context) }
+                if (!accountNumber || accountNumber.length === 0) { throw new GQLError(ERRORS.ACCOUNT_NUMBER_IS_NOT_SPECIFIED, context) }
 
                 const [ resident ] = await Resident.getAll(context, { id: residentId })
                 if (!resident) {
-                    throw new GQLError(errors.RESIDENT_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.RESIDENT_NOT_FOUND, context)
                 }
 
                 const [ organization ] = await Organization.getAll(context, { id: organizationId })
                 if (!organization) {
-                    throw new GQLError(errors.ORGANIZATION_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
                 const paymentCategory = get(extra, 'paymentCategory', null)
@@ -113,7 +113,7 @@ const RegisterServiceConsumerService = new GQLCustomSchema('RegisterServiceConsu
                 if (!attrs.billingAccount) {
                     const meters = await Meter.getAll(context, { accountNumber: accountNumber, organization: { id: organizationId, deletedAt: null }, deletedAt: null })
                     if (meters.length < 1) {
-                        throw new GQLError(errors.BILLING_ACCOUNT_NOT_FOUND, context)
+                        throw new GQLError(ERRORS.BILLING_ACCOUNT_NOT_FOUND, context)
                     }
                 }
 

@@ -16,7 +16,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { FLAT_WITHOUT_FLAT_TYPE } = require('../constants/errors')
 
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         query: 'checkPropertyWithAddressExist',
         variable: ['data', 'addressMeta', 'dv'],
@@ -52,7 +52,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
             doc: {
                 summary: 'Tells, whether a Property with given address exists in condo database',
                 description: 'In specified address string a part up to building will be taken into account. So, it will make no sense when something more precise, like apartment number, will be specified.',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context = {}) => {
                 const { data: inputData } = args
@@ -62,7 +62,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 const dv = get(addressMeta, 'dv')
                 if (dv !== 1) {
                     throw new GQLError({
-                        ...errors.DV_VERSION_MISMATCH,
+                        ...ERRORS.DV_VERSION_MISMATCH,
                         messageInterpolation: {
                             dv,
                         },
@@ -71,7 +71,7 @@ const CheckPropertyWithAddressExistService = new GQLCustomSchema('CheckPropertyW
                 const flat = get(addressMeta, ['data', 'flat'])
                 const flatType = get(addressMeta, ['data', 'flat_type'])
                 if (flat && !flatType) {
-                    throw new GQLError(errors.FLAT_WITHOUT_FLAT_TYPE, context)
+                    throw new GQLError(ERRORS.FLAT_WITHOUT_FLAT_TYPE, context)
                 }
 
                 const search = getAddressUpToBuildingFrom(addressMeta)

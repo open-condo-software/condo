@@ -18,7 +18,7 @@ const uniq = require('lodash/uniq')
 
 const CONTACTS_EXPORT_TEMPLATE_PATH = './domains/scope/templates/PropertyScopesExportTemplate.xlsx'
 
-const errors = {
+const ERRORS = {
     NOTHING_TO_EXPORT: {
         query: 'exportPropertyScopesToExcel',
         code: BAD_USER_INPUT,
@@ -86,7 +86,7 @@ const ExportPropertyScopeToExcelService = new GQLCustomSchema('ExportPropertySco
 
                 const propertyScopes = await loadPropertyScopesForExcelExport({ where, sortBy })
                 if (propertyScopes.length === 0) {
-                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
+                    throw new GQLError(ERRORS.NOTHING_TO_EXPORT, context)
                 }
 
                 const propertyScopeIds = propertyScopes.map(scope => scope.id)

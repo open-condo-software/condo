@@ -19,7 +19,7 @@ dayjs.extend(timezone)
 
 const CONTACTS_EXPORT_TEMPLATE_PATH = './domains/contact/templates/ContactsExportTemplate.xlsx'
 
-const errors = {
+const ERRORS = {
     NOTHING_TO_EXPORT: {
         query: 'exportContactsToExcel',
         code: BAD_USER_INPUT,
@@ -60,7 +60,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
 
                 const contacts = await loadContactsForExcelExport({ where, sortBy })
                 if (contacts.length === 0) {
-                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
+                    throw new GQLError(ERRORS.NOTHING_TO_EXPORT, context)
                 }
                 const excelRows = contacts.map(contact => {
                     const unitType = contact.unitName ? i18n(`field.UnitType.${contact.unitType}`, { locale }) : ''

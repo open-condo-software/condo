@@ -15,7 +15,7 @@ const { i18n } = require('@open-condo/locales/loader')
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const conf = require('@open-condo/config')
 
-const errors = {
+const ERRORS = {
     NOTHING_TO_EXPORT: {
         query: 'exportPropertiesToExcel',
         code: BAD_USER_INPUT,
@@ -53,7 +53,7 @@ const ExportPropertiesToExcelService = new GQLCustomSchema('ExportPropertiesToEx
                     sortBy,
                 })
                 if (allProperties.length === 0) {
-                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
+                    throw new GQLError(ERRORS.NOTHING_TO_EXPORT, context)
                 }
                 const excelRows = allProperties.map(property => {
                     return {

@@ -1110,7 +1110,10 @@ describe('TicketComment', () => {
                 expect(message1.meta.data.commentId).toEqual(ticketComment.id)
                 expect(message1.meta.data.residentId).toEqual(resident.id)
                 expect(message1.meta.data.userId).toEqual(residentClient.user.id)
+                /** old way check */
                 expect(message1.processingMeta.transport).toEqual('push')
+                /** ADR-7 way check */
+                expect(message1.processingMeta.transportsMeta[0].transport).toEqual('push')
             })
         })
 

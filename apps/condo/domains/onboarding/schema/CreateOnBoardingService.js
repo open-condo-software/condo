@@ -10,7 +10,7 @@ const { ONBOARDING_TYPES, ONBOARDING_STEPS } = require('@condo/domains/onboardin
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { ROLE_IS_NOT_SUPPORTED } = require('../constants/errors')
 
-const errors = {
+const ERRORS = {
     ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING: {
         mutation: 'createOnBoardingByType',
         variable: ['data', 'type'],
@@ -44,7 +44,7 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
             schema: 'createOnBoardingByType(data: CreateOnBoardingInput!): OnBoarding',
             doc: {
                 summary: 'Creates OnBoarding and set of OnBoardingStep records for specified role and user',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
@@ -52,7 +52,7 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
 
                 if (!ONBOARDING_TYPES.includes(type)) {
                     throw new GQLError({
-                        ...errors.ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING,
+                        ...ERRORS.ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING,
                         messageInterpolation: {
                             type,
                         },
@@ -63,7 +63,7 @@ const CreateOnBoardingService = new GQLCustomSchema('CreateOnBoardingService', {
 
                 if (!onBoardingStepData) {
                     throw new GQLError({
-                        ...errors.ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING_STEP,
+                        ...ERRORS.ROLE_IS_NOT_SUPPORTED_TO_CREATE_ONBOARDING_STEP,
                         messageInterpolation: {
                             type,
                         },

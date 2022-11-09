@@ -18,7 +18,7 @@ const { findTokenAndRelatedUser, markTokenAsUsed } = require('../utils/serverSch
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     checkPasswordRecoveryToken: {
         UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION: {
             mutation: 'checkPasswordRecoveryToken',
@@ -130,7 +130,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             doc: {
                 summary: 'Tells, whether specified password recovery token is exists and not expired',
                 details: 'Returns "ok" status, if a token is found and not expired',
-                errors: errors.checkPasswordRecoveryToken,
+                errors: ERRORS.checkPasswordRecoveryToken,
             },
             resolver: async (parent, args, context, info, extra) => {
                 const { data: { token } } = args
@@ -141,7 +141,7 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                     usedAt: null,
                 })
                 if (!action) {
-                    throw new GQLError(errors.checkPasswordRecoveryToken.UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION, context)
+                    throw new GQLError(ERRORS.checkPasswordRecoveryToken.UNABLE_TO_FIND_FORGOT_PASSWORD_ACTION, context)
                 }
                 return { status: 'ok' }
             },
@@ -153,14 +153,14 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             schema: 'startPasswordRecovery(data: StartPasswordRecoveryInput!): StartPasswordRecoveryOutput',
             doc: {
                 summary: 'Beginning of a multi-step process of a password recovery.\n1. Start recovery and get token to confirm phone number\n2. Confirm phone number\n3. Call `changePasswordWithToken` mutation',
-                errors: errors.startPasswordRecovery,
+                errors: ERRORS.startPasswordRecovery,
             },
             resolver: async (parent, args, context, info, extra = {}) => {
                 // TODO(DOMA-3209): check the dv, sender and phone value
                 const { data: { phone: inputPhone, sender, dv } } = args
                 const phone = normalizePhone(inputPhone)
                 if (!phone) {
-                    throw new GQLError(errors.startPasswordRecovery.WRONG_PHONE_FORMAT, context)
+                    throw new GQLError(ERRORS.startPasswordRecovery.WRONG_PHONE_FORMAT, context)
                 }
                 const extraToken = extra.extraToken || uuid()
                 const extraTokenExpiration = extra.extraTokenExpiration || parseInt(RESET_PASSWORD_TOKEN_EXPIRY)
@@ -172,11 +172,11 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
                 const users = await User.getAll(context, { phone, type: STAFF })
 
                 if (isEmpty(users)) {
-                    throw new GQLError(errors.startPasswordRecovery.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.startPasswordRecovery.USER_NOT_FOUND, context)
                 }
 
                 if (users.length !== 1) {
-                    throw new GQLError(errors.startPasswordRecovery.MULTIPLE_USERS_FOUND, context)
+                    throw new GQLError(ERRORS.startPasswordRecovery.MULTIPLE_USERS_FOUND, context)
                 }
 
                 const userId = users[0].id
@@ -226,29 +226,29 @@ const ForgotPasswordService = new GQLCustomSchema('ForgotPasswordService', {
             schema: 'changePasswordWithToken(data: ChangePasswordWithTokenInput!): ChangePasswordWithTokenOutput',
             doc: {
                 schema: 'Changes password and authorizes this action via correct token, that should correspond to either ForgotPasswordAction (deprecated) or `ConfirmPhoneAction`',
-                errors: errors.changePasswordWithToken,
+                errors: ERRORS.changePasswordWithToken,
             },
             resolver: async (parent, args, context) => {
                 // TODO(DOMA-3209): check the dv, sender value
                 const { data: { token, password, sender, dv } } = args
 
                 if (password.length < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
+                    throw new GQLError(ERRORS.changePasswordWithToken.PASSWORD_IS_TOO_SHORT, context)
                 }
 
                 const [tokenType, tokenAction, user] = await findTokenAndRelatedUser(context, token)
 
                 if (!tokenType || !tokenAction) {
-                    throw new GQLError(errors.changePasswordWithToken.TOKEN_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.changePasswordWithToken.TOKEN_NOT_FOUND, context)
                 }
                 if (!user || !user.phone) {
-                    throw new GQLError(errors.changePasswordWithToken.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.changePasswordWithToken.USER_NOT_FOUND, context)
                 }
 
                 await User.update(context, user.id, { dv: 1, sender, password }, {
                     errorMapping: {
-                        '[password:minLength:User:password]': errors.changePasswordWithToken.PASSWORD_IS_TOO_SHORT,
-                        '[password:rejectCommon:User:password]': errors.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
+                        '[password:minLength:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_TOO_SHORT,
+                        '[password:rejectCommon:User:password]': ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
                     },
                 })
 

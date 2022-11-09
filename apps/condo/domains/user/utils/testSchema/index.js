@@ -6,29 +6,41 @@
 const faker = require('faker')
 const { v4: uuid } = require('uuid')
 const { countryPhoneData } = require('phone')
-const isEmpty = require('lodash/isEmpty')
+const { max, repeat, get, isEmpty } = require('lodash')
+
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { User: UserGQL, UserAdmin: UserAdminGQL, UserExternalIdentity: UserExternalIdentityGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION, CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
-const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
-const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
-const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
-const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
-const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
-const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
-const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
+
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
     SBER_ID_IDP_TYPE,
+    RESIDENT,
+    STAFF,
+    SERVICE
 } = require('@condo/domains/user/constants/common')
-const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
-const { max, repeat, get } = require('lodash')
+const {
+    ConfirmPhoneAction: ConfirmPhoneActionGQL,
+    ForgotPasswordAction: ForgotPasswordActionGQL,
+    OidcClient: OidcClientGQL,
+    User: UserGQL,
+    UserAdmin: UserAdminGQL,
+    UserExternalIdentity: UserExternalIdentityGQL,
+    COMPLETE_CONFIRM_PHONE_MUTATION,
+    CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION,
+    CHANGE_PASSWORD_WITH_TOKEN_MUTATION,
+    REGISTER_NEW_SERVICE_USER_MUTATION,
+    REGISTER_NEW_USER_MUTATION,
+    RESET_USER_MUTATION,
+    SEND_MESSAGE_TO_SUPPORT_MUTATION,
+    SIGNIN_AS_USER_MUTATION,
+} = require('@condo/domains/user/gql')
+const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
 const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
-const { OidcClient: OidcClientGQL, CHANGE_PASSWORD_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
+
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {

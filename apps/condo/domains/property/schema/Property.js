@@ -44,7 +44,7 @@ const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
 const REQUIRED_FIELDS = ['organization', 'type', 'address', 'addressMeta']
 
-const errors = {
+const ERRORS = {
     SAME_ADDRESS: (existingPropertyId) => ({
         query: 'createProperty',
         code: BAD_USER_INPUT,
@@ -74,7 +74,7 @@ const addressFieldHooks = {
             const sameAddressProperties = await PropertyAPI.getAll(context, where, { first: 1 })
 
             if (!isEmpty(sameAddressProperties)) {
-                throw new GQLError(errors.SAME_ADDRESS(get(sameAddressProperties, [0, 'id'])), context)
+                throw new GQLError(ERRORS.SAME_ADDRESS(get(sameAddressProperties, [0, 'id'])), context)
             }
         }
     },

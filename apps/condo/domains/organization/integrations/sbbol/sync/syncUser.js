@@ -14,6 +14,7 @@ const createOnboarding = async ({ keystone, user }) => {
             listKey: 'User',
         },
     })
+
     await userContext.executeGraphQL({
         context: userContext,
         query: CREATE_ONBOARDING_MUTATION,
@@ -40,6 +41,7 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
     if (!email) throw new Error('email argument is not specified')
 
     const [ existingUser ] = await User.getAll(context, { email, id_not: userIdToExclude })
+
     if (existingUser && existingUser.id !== userIdToExclude) {
         await User.update(context, existingUser.id, {
             email: null,
@@ -84,6 +86,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         ...userWhereStatement,
         id_not_in: importedUsers.map(identity => identity.id),
     })
+
     const existingUsers = [...notImportedUsers, ...importedUsers]
     const existingUsersCount = existingUsers.length
 
@@ -126,6 +129,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         })
 
         await createOnboarding({ keystone, user, dvSenderFields })
+
         return user
     }
 
@@ -135,18 +139,23 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
     if (notImportedUsers.length > 0) {
         const { email, phone } = userInfo
         const updateInput = {}
+
         if (email) {
             await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, userIdToExclude: user.id, context })
+
             if (!user.isEmailVerified && user.email === email) {
                 updateInput.isEmailVerified = true
             }
+
             if (!user.email || user.email !== email) {
                 updateInput.email = email
             }
         }
+
         if (!user.isPhoneVerified && user.phone === phone) {
             updateInput.isPhoneVerified = true
         }
+
         const updatedUser = await User.update(context, user.id, {
             ...updateInput,
             ...dvSenderFields,
@@ -159,6 +168,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
 
         return updatedUser
     }
+
     return user
 }
 

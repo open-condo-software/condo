@@ -4,19 +4,39 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    UUID_RE,
+    waitFor,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowInternalError,
+    expectToThrowValidationFailureError,
+} = require('@open-condo/keystone/test.utils')
+
+const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
+
+const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_BLACKLISTED_STATUS } = require('@condo/domains/notification/constants/constants')
+const { EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
+const {
+    Message,
+    MessageUserBlackList,
+    createTestMessageUserBlackList,
+    updateTestMessageUserBlackList,
+} = require('@condo/domains/notification/utils/testSchema')
+
+const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
 
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowInternalError, expectToThrowValidationFailureError,
-} = require('@open-condo/keystone/test.utils')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
-const { MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList, Message } = require('@condo/domains/notification/utils/testSchema')
-const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
-const { MESSAGE_TYPE_IN_USER_BLACK_LIST, EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR } = require('@condo/domains/notification/constants/errors')
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+    createTestEmail,
+    createTestPhone,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('MessageUserBlackList', () => {
     describe('accesses', () => {
@@ -157,7 +177,7 @@ describe('MessageUserBlackList', () => {
                 const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
                 const messages = await Message.getAll(admin, messageWhere)
 
-                expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
+                expect(messages[0].status).toEqual(MESSAGE_BLACKLISTED_STATUS)
                 expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_USER_BLACK_LIST)
             })
         })
@@ -182,7 +202,7 @@ describe('MessageUserBlackList', () => {
                 const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
                 const messages = await Message.getAll(admin, messageWhere)
 
-                expect(messages[0].status).toEqual(MESSAGE_ERROR_STATUS)
+                expect(messages[0].status).toEqual(MESSAGE_BLACKLISTED_STATUS)
                 expect(messages[0].processingMeta.error).toEqual(MESSAGE_TYPE_IN_USER_BLACK_LIST)
             })
         })
@@ -246,7 +266,8 @@ describe('MessageUserBlackList', () => {
             const supportClient = await makeClientWithSupportUser()
 
             await expectToThrowValidationFailureError(async () => {
-                await createTestMessageUserBlackList(supportClient)
+                const [obj, attrs] = await createTestMessageUserBlackList(supportClient)
+
             }, EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR)
         })
     })

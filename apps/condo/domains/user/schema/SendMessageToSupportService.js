@@ -25,7 +25,7 @@ if (scriptLifecycleName === 'dev' && !SUPPORT_EMAIL_MOBILE) console.error(EMAIL_
 const SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME = 'forwarded-emails-attachments'
 const fileAdapter = new FileAdapter(SEND_MESSAGE_TO_SUPPORT_ATTACHMENTS_FILE_FOLDER_NAME)
 
-const errors = {
+const ERRORS = {
     WRONG_EMAIL_FORMAT: {
         mutation: 'sendMessageToSupport',
         variable: ['data', 'emailFrom'],
@@ -63,7 +63,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 if (!user) throw new Error('You cant execute sendMessageToSupport without user context!')
 
                 const normalizedEmailFrom = normalizeEmail(emailFrom)
-                if (emailFrom && !normalizedEmailFrom) throw new GQLError(errors.WRONG_EMAIL_FORMAT, context)
+                if (emailFrom && !normalizedEmailFrom) throw new GQLError(ERRORS.WRONG_EMAIL_FORMAT, context)
 
                 const attachmentsData = await Promise.all(attachments)
 

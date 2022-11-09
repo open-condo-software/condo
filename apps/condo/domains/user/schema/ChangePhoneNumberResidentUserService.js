@@ -14,7 +14,7 @@ const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'changePhoneNumberResidentUser',
         variable: ['data', 'dv'],
@@ -58,12 +58,12 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
             schema: 'changePhoneNumberResidentUser(data: ChangePhoneNumberResidentUserInput!): ChangePhoneNumberResidentUserOutput',
             doc: {
                 summary: 'Changes a phone of a resident, that corresponds to confirmed phone number, specified via token',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
                 const { token, sender } = data
-                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
                 if (!context.authedItem.id) throw new Error('Internal error inside the access check. We assume that the user should exists!')
                 const userId = context.authedItem.id
                 const action = await ConfirmPhoneAction.getOne(context,
@@ -75,7 +75,7 @@ const ChangePhoneNumberResidentUserService = new GQLCustomSchema('ChangePhoneNum
                     }
                 )
                 if (!action) {
-                    throw new GQLError(errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, context)
                 }
                 const { phone, isPhoneVerified } = action
                 await User.update(context, userId, { sender, phone, isPhoneVerified, dv: 1 })
