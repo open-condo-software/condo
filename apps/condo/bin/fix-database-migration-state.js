@@ -64,6 +64,10 @@ ALTER TABLE "OrganizationEmployee" DROP COLUMN if exists "_old_id";
 ALTER TABLE "OrganizationEmployee" DROP COLUMN if exists "_old_newId";
 ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN if exists "_old_history_id";
 
+--
+-- 20221102170215-0184_auto_20221102_1402.js: remove old TokenSet table: we use redis at the moment
+--
+
 DROP TABLE "TokenSet" CASCADE;
 DROP TABLE "TokenSetHistoryRecord" CASCADE;
 
