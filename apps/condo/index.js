@@ -93,6 +93,9 @@ if (IS_ENABLE_CACHE) {
     keystoneCacheApp = new KeystoneCacheMiddleware(keystone)
 }
 
+const adapterCacheConfiig = conf.ADAPTER_CACHE_CONFIG
+let keystoneAdapterCacheApp = new AdapterCacheMiddleware(adapterCacheConfiig)
+
 // Because Babel is used only for frontend to transpile and optimise code,
 // backend files will bring unnecessary workload to building stage.
 // They can be safely ignored without impact on final executable code
@@ -161,6 +164,7 @@ module.exports = {
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
         new PaymentLinkMiddleware(),
+        new AdapterCacheMiddleware(adapterCacheConfiig, ADAPTER_CACHE_CONNECTED_TABLES),
         new GraphQLApp({
             apollo: {
                 formatError,

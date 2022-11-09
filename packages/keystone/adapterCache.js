@@ -7,30 +7,19 @@ const { get, cloneDeep } = require('lodash')
 
 const UPDATED_AT = 'updatedAt'
 
-const CONNECTED_TABLES = {
-    'MultiPayment':['Payment'],
-    'Payment':['MultiPayment'],
-
-    'AcquiringIntegration':['BillingIntegration'],
-    'BillingIntegration':['AcquiringIntegration'],
-
-    'Division': ['OrganizationEmployee', 'Property'],
-    'OrganizationEmployee': ['Division', 'Property'],
-    'Meter': ['Division', 'Property'],
-    'Property': ['Division'],
-}
-
-
 class AdapterCacheMiddleware {
 
-    // table_name -> queryKey -> { response, lastUpdate }
+    /**
+     * tableName -> queryKey -> { response, lastUpdate }
+     */
     cache = {}
 
-    // Should be saved in Redis! Here only for demonstration purposes!
-    // table_name -> lastUpdate (of this table)
+    /**
+     *  table_name -> lastUpdate
+     */
     state = {}
 
-    constructor (config) {
+    constructor (config, connectedTables) {
         try {
             const parsedConfig = JSON.parse(config)
             this.enabled = !!get(parsedConfig, 'enable', false)
@@ -38,8 +27,12 @@ class AdapterCacheMiddleware {
             this.excludedTables = get(parsedConfig, 'excludedTables', [])
             this.logging = get(parsedConfig, 'logging', false)
             this.debugMode = !!get(parsedConfig, 'debug', false)
+
+            this.connectedTables = connectedTables
+
             this.cacheHistory = {}
             this.cacheCallHistory = []
+
             this.totalRequests = 0
             this.cacheHits = 0
 
@@ -52,6 +45,14 @@ class AdapterCacheMiddleware {
             this.enabled = false
             console.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
         }
+    }
+
+    setState (key, value) {
+        this.state[key] = value
+    }
+
+    getState (key) {
+        return this.state[key]
     }
 
     writeChangeToHistory ({ cache, event, table }) {
@@ -82,7 +83,7 @@ class AdapterCacheMiddleware {
         console.info(event.string)
     }
 
-    getCacheEvent ({ type, key, table, result, stackTrace }) {
+    getCacheEvent ({ type, key, table, result }) {
         return ({
             type: type,
             table: table,
@@ -91,7 +92,7 @@ class AdapterCacheMiddleware {
             🔴 RKEY: ${key}\r\n
             🔴 TYPE: ${type}\r\n
             🔴 RESP: ${result}\r\n
-            🔴 STCK ${stackTrace}`,
+            `,
         })
     }
 
@@ -134,7 +135,6 @@ async function initAdapterCache (keystone, middleware) {
         listAdapter._itemsQuery = async ( args, opts ) => {
 
             middleware.totalRequests++
-            const stackTrace = getCurrentStackTrace()
 
             let key = null
 
@@ -146,7 +146,7 @@ async function initAdapterCache (keystone, middleware) {
 
             let response = []
             const cached = cache[listName][key]
-            const tableLastUpdate = state[listName]
+            const tableLastUpdate = middleware.getState(listName)
 
             if (cached) {
                 const cacheLastUpdate = cached.lastUpdate
@@ -156,7 +156,6 @@ async function initAdapterCache (keystone, middleware) {
                         type: 'HIT',
                         table: listName,
                         key,
-                        stackTrace,
                         result: JSON.stringify(cached.response),
                     })
                     middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
@@ -178,7 +177,6 @@ async function initAdapterCache (keystone, middleware) {
                 type: 'MISS',
                 key,
                 table: listName,
-                stackTrace,
                 result: JSON.stringify(copiedResponse),
             })
             middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
@@ -190,11 +188,11 @@ async function initAdapterCache (keystone, middleware) {
         const originalUpdate = listAdapter._update
         listAdapter._update = async ( id, data ) => {
             const updateResult = await originalUpdate.apply(listAdapter, [id, data] )
-            state[listName] = updateResult[UPDATED_AT]
+            middleware.setState(listName, updateResult[UPDATED_AT])
 
-            if (listName in CONNECTED_TABLES) {
-                for (const connectedTable of CONNECTED_TABLES[listName]) {
-                    state[connectedTable] = updateResult[UPDATED_AT]
+            if (listName in middleware.connectedTables) {
+                for (const connectedTable of middleware.connectedTables[listName]) {
+                    middleware.setState(connectedTable, updateResult[UPDATED_AT])
                 }
             }
 
@@ -211,11 +209,11 @@ async function initAdapterCache (keystone, middleware) {
         const originalCreate = listAdapter._create
         listAdapter._create = async ( data ) => {
             const createResult = await originalCreate.apply(listAdapter, [data] )
-            state[listName] = createResult[UPDATED_AT]
+            middleware.setState(listName, createResult[UPDATED_AT])
 
-            if (listName in CONNECTED_TABLES) {
-                for (const connectedTable of CONNECTED_TABLES[listName]) {
-                    state[connectedTable] = createResult[UPDATED_AT]
+            if (listName in middleware.connectedTables) {
+                for (const connectedTable of middleware.connectedTables[listName]) {
+                    middleware.setState(connectedTable, createResult[UPDATED_AT])
                 }
             }
 
@@ -232,16 +230,16 @@ async function initAdapterCache (keystone, middleware) {
         const originalDelete = listAdapter._delete
         listAdapter._delete = async ( id ) => {
             const deleteResult = await originalDelete.apply(listAdapter, [id])
-            state[listName] = deleteResult[UPDATED_AT]
+            middleware.setState(listName, deleteResult[UPDATED_AT])
 
             const cacheEvent = middleware.getCacheEvent({
                 type: 'DELETE',
                 table: listName,
             })
 
-            if (listName in CONNECTED_TABLES) {
-                for (const connectedTable of CONNECTED_TABLES[listName]) {
-                    state[connectedTable] = deleteResult[UPDATED_AT]
+            if (listName in middleware.connectedTables) {
+                for (const connectedTable of middleware.connectedTables[listName]) {
+                    middleware.setState(connectedTable, deleteResult[UPDATED_AT])
                 }
             }
 
@@ -267,15 +265,6 @@ function stringifyComplexObj (obj){
         result[prop] = obj[prop]
     }
     return JSON.stringify(result)
-}
-
-/**
- * Returns current stacktrace
- * @returns {string}
- */
-function getCurrentStackTrace () {
-    const err = new Error()
-    return err.stack
 }
 
 module.exports = {
