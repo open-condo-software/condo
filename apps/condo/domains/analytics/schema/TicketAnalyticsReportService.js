@@ -46,7 +46,7 @@ const conf = require('@open-condo/config')
 
 const NULLABLE_GROUP_KEYS = ['categoryClassifier', 'executor', 'assignee']
 
-const errors = {
+const ERRORS = {
     UNKNOWN_GROUP_BY_FILTER: {
         query: 'exportTicketAnalyticsToExcel',
         variable: ['data', 'groupBy'],
@@ -288,7 +288,7 @@ const getXLSXDataMapper = (groupByToken, isSummary, context) => {
             break
         default:
             throw new GQLError({
-                ...errors.UNKNOWN_GROUP_BY_FILTER,
+                ...ERRORS.UNKNOWN_GROUP_BY_FILTER,
                 messageInterpolation: {
                     value: groupByToken,
                 },
@@ -399,7 +399,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                         break
                     default:
                         throw new GQLError({
-                            ...errors.UNKNOWN_GROUP_BY_FILTER,
+                            ...ERRORS.UNKNOWN_GROUP_BY_FILTER,
                             messageInterpolation: {
                                 value: groupByToken,
                             },
@@ -462,7 +462,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
                                     break
                                 default:
                                     throw new GQLError({
-                                        ...errors.UNKNOWN_GROUP_BY_FILTER,
+                                        ...ERRORS.UNKNOWN_GROUP_BY_FILTER,
                                         messageInterpolation: {
                                             value: groupBy2,
                                         },

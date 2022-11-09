@@ -14,7 +14,7 @@ const ML_SPACE_TICKET_CLASSIFIER = conf['ML_SPACE_TICKET_CLASSIFIER'] ? JSON.par
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     TICKET_RULE_NOT_FOUND: {
         query: 'predictTicketClassification',
         code: INTERNAL_ERROR,
@@ -53,7 +53,7 @@ const PredictTicketClassificationService = new GQLCustomSchema('PredictTicketCla
                 const { data: { details } } = args
                 const { endpoint, authKey, workspace } = ML_SPACE_TICKET_CLASSIFIER
                 if (!endpoint || !authKey || !workspace) {
-                    throw new GQLError(errors.ML_SPACE_NOT_CONFIGURED, context)
+                    throw new GQLError(ERRORS.ML_SPACE_NOT_CONFIGURED, context)
                 }
                 const response = await fetch(endpoint, {
                     headers: {
@@ -66,13 +66,13 @@ const PredictTicketClassificationService = new GQLCustomSchema('PredictTicketCla
                     body: JSON.stringify({ instances: [ { ticket: details } ] }),
                 })
                 if (response.status !== 200) {
-                    throw new GQLError(errors.TICKET_PREDICT_REQUEST_FAILED, context)
+                    throw new GQLError(ERRORS.TICKET_PREDICT_REQUEST_FAILED, context)
                 }
                 const result = await response.json()
                 const { prediction: [id] } = result
                 const ticketClassifier = await getById('TicketClassifier', id)
                 if (!ticketClassifier) {
-                    throw new GQLError(errors.TICKET_RULE_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.TICKET_RULE_NOT_FOUND, context)
                 }
                 return ticketClassifier
             },

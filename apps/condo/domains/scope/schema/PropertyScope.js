@@ -15,7 +15,7 @@ const { LocalizedText } = require('@open-condo/keystone/fields')
 const { MAX_NAME_LENGTH_ERROR } = require('@condo/domains/scope/constants/errors')
 const { MAX_NAME_LENGTH } = require('@condo/domains/scope/constants/index')
 
-const errors = {
+const ERRORS = {
     MAX_NAME_LENGTH: {
         code: BAD_USER_INPUT,
         type: MAX_NAME_LENGTH_ERROR,
@@ -38,7 +38,7 @@ const PropertyScope = new GQLListSchema('PropertyScope', {
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, context }) => {
                     if (resolvedData[fieldPath] && resolvedData[fieldPath].length > MAX_NAME_LENGTH) {
-                        throw new GQLError(errors.MAX_NAME_LENGTH, context)
+                        throw new GQLError(ERRORS.MAX_NAME_LENGTH, context)
                     }
                 },
             },

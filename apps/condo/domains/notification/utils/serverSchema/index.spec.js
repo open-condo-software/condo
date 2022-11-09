@@ -2,21 +2,16 @@
  * @jest-environment node
  */
 
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { sendMessage, Message } = require('./index')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('../../constants/constants')
 
-let keystone
+const index = require('@app/condo/index')
+const { keystone } = index
 
 describe('notification', () => {
-    const keystoneIndex = require.resolve('../../../../index')
-    setFakeClientMode(require.resolve(keystoneIndex))
-
-    beforeAll(async () => {
-        const result = await prepareKeystoneExpressApp(require.resolve(keystoneIndex))
-        keystone = result.keystone
-    })
+    setFakeClientMode(index)
 
     describe('sendMessage', () => {
         it('send DEVELOPER_IMPORTANT_NOTE message', async () => {
@@ -32,7 +27,7 @@ describe('notification', () => {
                 },
             })
 
-            const [message] = await Message.getAll(keystone, { id: result.id })
+            const message = await Message.getOne(keystone, { id: result.id })
             expect(message.type).toEqual(DEVELOPER_IMPORTANT_NOTE_TYPE)
             expect(message.lang).toEqual('en')
             expect(message.meta).toEqual({

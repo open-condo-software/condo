@@ -31,7 +31,7 @@ const { MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, RECEIPTS_ARE_DELETED, RECEIPTS_
 } = require('../constants/errors')
 const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'registerMultiPayment',
         variable: ['data', 'dv'],
@@ -209,28 +209,28 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const { sender, groupedReceipts } = data
 
                 // Stage 0. Check if input is valid
-                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 if (!get(groupedReceipts, 'length')) {
-                    throw new GQLError(errors.MISSING_REQUIRED_GROUPED_RECEIPTS, context)
+                    throw new GQLError(ERRORS.MISSING_REQUIRED_GROUPED_RECEIPTS, context)
                 }
 
                 if (groupedReceipts.some(group => !get(group, ['receipts', 'length']))) {
-                    throw new GQLError(errors.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
+                    throw new GQLError(ERRORS.MISSING_REQUIRED_RECEIPTS_IN_GROUPED_RECEIPTS, context)
                 }
 
                 // Stage 0.1: Duplicates check
                 const consumersIds = groupedReceipts.map(group => group.serviceConsumer.id)
                 const uniqueConsumerIds = new Set(consumersIds)
                 if (consumersIds.length !== uniqueConsumerIds.size) {
-                    throw new GQLError(errors.DUPLICATED_SERVICE_CONSUMER, context)
+                    throw new GQLError(ERRORS.DUPLICATED_SERVICE_CONSUMER, context)
                 }
                 const receiptsIds = groupedReceipts
                     .flatMap(group => group['receipts'])
                     .map(receiptInfo => receiptInfo.id)
                 const uniqueReceiptsIds = new Set(receiptsIds)
                 if (receiptsIds.length !== uniqueReceiptsIds.size) {
-                    throw new GQLError(errors.DUPLICATED_RECEIPT, context)
+                    throw new GQLError(ERRORS.DUPLICATED_RECEIPT, context)
                 }
 
                 // Stage 1. Check Acquiring
@@ -240,17 +240,17 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (consumers.length !== consumersIds.length) {
                     const existingConsumerIds = consumers.map(consumer => consumer.id)
                     const missingConsumerIds = consumersIds.filter(consumerId => !existingConsumerIds.includes(consumerId))
-                    throw new GQLError({ ...errors.MISSING_SERVICE_CONSUMERS, messageInterpolation: { ids: missingConsumerIds.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.MISSING_SERVICE_CONSUMERS, messageInterpolation: { ids: missingConsumerIds.join(', ') } }, context)
                 }
                 const deletedConsumersIds = consumers.filter(consumer => consumer.deletedAt).map(consumer => consumer.id)
                 if (deletedConsumersIds.length) {
-                    throw new GQLError({ ...errors.DELETED_CONSUMERS, messageInterpolation: { ids: deletedConsumersIds.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.DELETED_CONSUMERS, messageInterpolation: { ids: deletedConsumersIds.join(', ') } }, context)
                 }
                 const contextMissingConsumers = consumers
                     .filter(consumer => !get(consumer, 'acquiringIntegrationContext'))
                     .map(consumer => consumer.id)
                 if (contextMissingConsumers.length) {
-                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING, messageInterpolation: { ids: contextMissingConsumers.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_MISSING, messageInterpolation: { ids: contextMissingConsumers.join(', ') } }, context)
                 }
 
                 const consumersByIds = Object.assign({}, ...consumers.map(obj => ({ [obj.id]: obj })))
@@ -265,14 +265,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const failedConsumers = consumers
                         .filter(consumer => deletedAcquiringContextsIds.has(consumer.acquiringIntegrationContext))
                         .map(consumer => ({ consumerId: consumer.id, acquiringContextId: consumer.acquiringIntegrationContext }))
-                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, data: { failedConsumers } }, context)
+                    throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, data: { failedConsumers } }, context)
                 }
 
                 const acquiringContextsByIds = Object.assign({}, ...acquiringContexts.map(obj => ({ [obj.id]: obj })))
 
                 const acquiringIntegrations = new Set(acquiringContexts.map(context => context.integration))
                 if (acquiringIntegrations.size !== 1) {
-                    throw new GQLError(errors.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
+                    throw new GQLError(ERRORS.MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, context)
                 }
 
                 // NOTE: Here using serverSchema to get many relation
@@ -280,13 +280,13 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     id: Array.from(acquiringIntegrations)[0],
                 })
                 if (acquiringIntegration.deletedAt) {
-                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
+                    throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }
 
                 // TODO (savelevMatthew): check that all receipts linked to right consumers?
                 // Stage 2. Check BillingReceipts
                 if (receiptsIds.length > 1 && !acquiringIntegration.canGroupReceipts) {
-                    throw new GQLError({ ...errors.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION, messageInterpolation: { id: acquiringIntegration.id } }, context)
+                    throw new GQLError({ ...ERRORS.RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION, messageInterpolation: { id: acquiringIntegration.id } }, context)
                 }
                 const receipts = await find('BillingReceipt', {
                     id_in: receiptsIds,
@@ -294,19 +294,19 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 if (receipts.length !== receiptsIds.length) {
                     const existingReceiptsIds = new Set(receipts.map(receipt => receipt.id))
                     const missingReceipts = receiptsIds.filter(receiptId => !existingReceiptsIds.has(receiptId))
-                    throw new GQLError({ ...errors.CANNOT_FIND_ALL_RECEIPTS, messageInterpolation: { missingReceiptIds: missingReceipts.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.CANNOT_FIND_ALL_RECEIPTS, messageInterpolation: { missingReceiptIds: missingReceipts.join(', ') } }, context)
                 }
 
                 const deletedReceiptsIds = receipts.filter(receipt => Boolean(receipt.deletedAt)).map(receipt => receipt.id)
                 if (deletedReceiptsIds.length) {
-                    throw new GQLError({ ...errors.RECEIPTS_ARE_DELETED, messageInterpolation: { ids: deletedReceiptsIds.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.RECEIPTS_ARE_DELETED, messageInterpolation: { ids: deletedReceiptsIds.join(', ') } }, context)
                 }
 
                 const negativeReceiptsIds = receipts
                     .filter(receipt => Big(receipt.toPay).lte(0))
                     .map(receipt => receipt.id)
                 if (negativeReceiptsIds.length) {
-                    throw new GQLError({ ...errors.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE, messageInterpolation: { ids: negativeReceiptsIds.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE, messageInterpolation: { ids: negativeReceiptsIds.join(', ') } }, context)
                 }
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
@@ -321,7 +321,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingContextsIds.has(receipt.context))
                         .map(receipt => ({ receiptId: receipt.id, contextId: receipt.context }))
-                    throw new GQLError({ ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } }, context)
+                    throw new GQLError({ ...ERRORS.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } }, context)
                 }
 
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
@@ -330,7 +330,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const unsupportedBillings = Array.from(uniqueBillingIntegrationsIds)
                     .filter(integration => !supportedBillingIntegrations.includes(integration))
                 if (unsupportedBillings.length) {
-                    throw new GQLError({ ...errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations:  unsupportedBillings.join(', ') } }, context)
+                    throw new GQLError({ ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION, messageInterpolation: { unsupportedBillingIntegrations:  unsupportedBillings.join(', ') } }, context)
                 }
 
                 const billingIntegrations = await find('BillingIntegration', {
@@ -341,7 +341,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const failedReceipts = receipts
                         .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
                         .map(receipt => ({ receiptId: receipt.id, integrationId: billingContextsById[receipt.context].integration }))
-                    throw new GQLError({ ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } }, context)
+                    throw new GQLError({ ...ERRORS.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } }, context)
                 }
 
                 // "consumer-id" -> [array of billing integration contexts that are linked thorough organization to this consumer]
@@ -364,7 +364,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             || (!billingIntegrationContextsByConsumer[consumer.id].includes(billingAccount.context))
                         ) {
                             throw new GQLError({
-                                ...errors.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
+                                ...ERRORS.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
                                 messageInterpolation: {
                                     receiptId: receiptInfo.id,
                                     serviceConsumerId: group.serviceConsumer.id,
@@ -376,7 +376,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
                 if (currencies.size > 1) {
-                    throw new GQLError(errors.RECEIPTS_HAS_MULTIPLE_CURRENCIES, context)
+                    throw new GQLError(ERRORS.RECEIPTS_HAS_MULTIPLE_CURRENCIES, context)
                 }
                 const currencyCode = get(billingIntegrations, ['0', 'currencyCode'])
 

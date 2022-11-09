@@ -28,7 +28,7 @@ const {
 
 const DATE_FORMAT = 'DD.MM.YYYY HH:mm'
 
-const errors = {
+const ERRORS = {
     NOTHING_TO_EXPORT: {
         query: 'exportMeterReadings',
         code: BAD_USER_INPUT,
@@ -62,7 +62,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                 const meterReadings = await loadMeterReadingsForExcelExport({ where, sortBy })
 
                 if (meterReadings.length === 0) {
-                    throw new GQLError(errors.NOTHING_TO_EXPORT, context)
+                    throw new GQLError(ERRORS.NOTHING_TO_EXPORT, context)
                 }
 
                 const meterIds = uniq(meterReadings.map(meterReading => meterReading.meter))

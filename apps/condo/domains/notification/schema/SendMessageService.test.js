@@ -3,7 +3,7 @@ const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@ope
 const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
-    MESSAGE_SENT_STATUS,
+    MESSAGE_SENT_STATUS, EMAIL_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
@@ -40,6 +40,7 @@ describe('SendMessageService', () => {
                 // give worker some time
                 await waitFor(async () => {
                     const message = await Message.getOne(admin, { id: data.id })
+                    const transportMeta = message.processingMeta.transportsMeta[0]
 
                     expect(message.lang).toEqual(attrs.lang)
                     expect(message.type).toEqual(attrs.type)
@@ -49,14 +50,9 @@ describe('SendMessageService', () => {
                     expect(message.updatedBy).toEqual(null)
                     expect(message.organization).toEqual(null)
                     expect(message.user).toEqual(expect.objectContaining({ id: admin.user.id }))
-                    expect(message.processingMeta).toEqual(expect.objectContaining({
-                        dv: 1,
-                        step: MESSAGE_SENT_STATUS,
-                        transport: 'email',
-                        messageContext: expect.objectContaining({
-                            to: attrs.to.email,
-                        }),
-                    }))
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(EMAIL_TRANSPORT)
+                    expect(transportMeta.messageContext.to).toEqual(attrs.to.email)
                 })
             })
 
@@ -140,7 +136,7 @@ describe('SendMessageService', () => {
                 })
             })
 
-            it('throws error when "email", "phone" and "user" attributes are not provided', async () => {
+            it('throws error when "email", "phone", "user" and "remoteClient" attributes are not provided', async () => {
                 const admin = await makeLoggedInAdminClient()
                 await catchErrorFrom(async () => {
                     await sendMessageByTestClient(admin, {
@@ -149,14 +145,14 @@ describe('SendMessageService', () => {
                     })
                 }, ({ errors, data }) => {
                     expect(errors).toMatchObject([{
-                        message: 'You should provide either "user" or "email" or "phone" attribute',
+                        message: 'You should provide either "user", "email", "phone" or "remoteClient" attribute',
                         path: ['result'],
                         extensions: {
                             mutation: 'sendMessage',
                             variable: ['data'],
                             code: 'BAD_USER_INPUT',
                             type: 'REQUIRED',
-                            message: 'You should provide either "user" or "email" or "phone" attribute',
+                            message: 'You should provide either "user", "email", "phone" or "remoteClient" attribute',
                         },
                     }])
                     expect(data).toEqual({ 'result': null })

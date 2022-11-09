@@ -1,4 +1,4 @@
-const isEmpty = require('lodash/isEmpty')
+const { get, isEmpty } = require('lodash')
 
 const { find } = require('@open-condo/keystone/schema')
 
@@ -21,18 +21,22 @@ const ADAPTERS = {
 
 /**
  * Request push tokens for user. Able to detect FireBase/Huawei and different appId versions.
- * @param userId
- * @returns {tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}}
+ * @param ownerId
+ * @param id
+ * @returns {Promise<{tokensByTransport: {[p: string]: [], '[PUSH_TRANSPORT_HUAWEI]': *[], '[PUSH_TRANSPORT_APPLE]': *[], '[PUSH_TRANSPORT_FIREBASE]': *[]}, appIds: {}, pushTypes: {}, count}|*[]>}
  */
-async function getTokens (userId) {
-    if (!userId) return []
+async function getTokens (ownerId, id) {
+    if (!ownerId && !id) return []
 
     const condition = {
-        owner: { id: userId },
         deletedAt: null,
         pushToken_not: null,
         pushTransport_in: PUSH_TRANSPORT_TYPES,
     }
+
+    if (ownerId) condition.owner = { id: ownerId }
+    if (id) condition.id_in = [id]
+
     const remoteClients =  await find('RemoteClient', condition)
     const tokensByTransport = {
         [PUSH_TRANSPORT_FIREBASE]: [],
@@ -59,7 +63,10 @@ async function getTokens (userId) {
  * @returns {Promise<Object>}
  */
 async function prepareMessageToSend (message) {
-    return await renderTemplate(PUSH_TRANSPORT, message)
+    const { user, remoteClient } = message
+    const { notification, data } = await renderTemplate(PUSH_TRANSPORT, message)
+
+    return { notification, data, user, remoteClient }
 }
 
 /**
@@ -82,11 +89,15 @@ const mixResult = (container, result) => {
  * Send notification using corresponding transports (depending on FireBase/Huawei and appId)
  * @param notification
  * @param data
- * @returns {Promise<*[]>}
+ * @param user
+ * @param remoteClient
+ * @returns {Promise<[boolean, {error: string}]|(boolean|{})[]>}
  */
-async function send ({ notification, data } = {}) {
-    const { userId } = data
-    const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId)
+async function send ({ notification, data, user, remoteClient } = {}) {
+    const userId = get(user, 'id')
+    const remoteClientId = get(remoteClient, 'id')
+    const { tokensByTransport, pushTypes, appIds, count } = await getTokens(userId, remoteClientId)
+
     let container = {}
     let _isOk = false
 

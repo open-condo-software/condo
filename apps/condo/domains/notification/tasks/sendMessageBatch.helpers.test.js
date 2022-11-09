@@ -1,11 +1,17 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
+const { isString } = require('lodash')
+
+const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,
     PUSH_TRANSPORT,
     CUSTOM_CONTENT_MESSAGE_TYPE,
+    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+    CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+    CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
@@ -24,6 +30,7 @@ describe('sendMessageBatch', () => {
             it('selects proper target type', async () => {
                 const user = {
                     id: faker.datatype.uuid(),
+                    remoteClient: `rc:${faker.datatype.uuid()}`,
                     phone: faker.phone.phoneNumber('+79#########'),
                     email: `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`,
                 }
@@ -35,6 +42,7 @@ describe('sendMessageBatch', () => {
                 expect(selectTarget(user.phone)).toEqual({ to: { phone: user.phone } })
                 expect(selectTarget(user.email)).toEqual({ to: { email: user.email }, emailFrom: EMAIL_FROM })
                 expect(selectTarget(user.id)).toEqual({ to: { user: { id: user.id } } })
+                expect(selectTarget(user.remoteClient)).toEqual({ to: { remoteClient: { id: user.remoteClient.replace('rc:', '') } } })
                 expect(selectTarget(brokenEmail)).toBeNull()
                 expect(selectTarget(brokenPhone)).toBeNull()
                 expect(selectTarget(landLinePhone)).toBeNull()
@@ -51,6 +59,7 @@ describe('sendMessageBatch', () => {
             it('properly detects transport type', async () => {
                 const user = {
                     id: faker.datatype.uuid(),
+                    remoteClient: `rc:${faker.datatype.uuid()}`,
                     phone: faker.phone.phoneNumber('+79#########'),
                     email: `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`,
                 }
@@ -62,6 +71,7 @@ describe('sendMessageBatch', () => {
                 expect(detectTransportType(user.phone)).toEqual(SMS_TRANSPORT)
                 expect(detectTransportType(user.email)).toEqual(EMAIL_TRANSPORT)
                 expect(detectTransportType(user.id)).toEqual(PUSH_TRANSPORT)
+                expect(detectTransportType(user.remoteClient)).toEqual(PUSH_TRANSPORT)
                 expect(detectTransportType(brokenEmail)).toBeNull()
                 expect(detectTransportType(brokenPhone)).toBeNull()
                 expect(detectTransportType(landLinePhone)).toBeNull()
@@ -81,7 +91,7 @@ describe('sendMessageBatch', () => {
                 const date = dayjs().format(DATE_FORMAT)
                 const title = faker.random.alphaNumeric(8)
 
-                expect(getUniqKey(date, title, target)).toEqual(`${date}:${title}:${target}`)
+                expect(getUniqKey(date, title, target)).toEqual(`${date}:${title}:${normalizeTarget(target)}`)
             })
         })
 
@@ -105,7 +115,8 @@ describe('sendMessageBatch', () => {
                 ]
 
                 denormalizedTargets.forEach((target, idx) => {
-                    expect(normalizeTarget(target)).toEqual(targets[idx])
+                    const normalizaedValue = isString(target) ? md5(targets[idx]) : null
+                    expect(normalizeTarget(target)).toEqual(normalizaedValue)
                 })
             })
         })
@@ -118,12 +129,13 @@ describe('sendMessageBatch', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT)
                 const messageData = prepareMessageData(target, batch, today)
 
                 expect(messageData).not.toBeNull()
-                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_TYPE)
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_PUSH_TYPE)
                 expect(messageData.to).toMatchObject({ user: { id: target } } )
                 expect(messageData.meta.dv).toEqual(1)
                 expect(messageData.meta.body).toEqual(batch.message)
@@ -143,15 +155,13 @@ describe('sendMessageBatch', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT)
                 const messageData = prepareMessageData(target, batch, today)
 
-                console.log('messageData:', messageData)
-                console.log('batch:', batch)
-
                 expect(messageData).not.toBeNull()
-                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_TYPE)
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE)
                 expect(messageData.to).toMatchObject({ email: target } )
                 expect(messageData.meta.dv).toEqual(1)
                 expect(messageData.meta.body).toEqual(batch.message)
@@ -171,12 +181,13 @@ describe('sendMessageBatch', () => {
                     title: faker.random.alphaNumeric(20),
                     message: faker.random.alphaNumeric(50),
                     deepLink: faker.random.alphaNumeric(30),
+                    messageType: CUSTOM_CONTENT_MESSAGE_TYPE,
                 }
                 const today = dayjs().format(DATE_FORMAT)
                 const messageData = prepareMessageData(target, batch, today)
 
                 expect(messageData).not.toBeNull()
-                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_TYPE)
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_SMS_TYPE)
                 expect(messageData.to).toMatchObject({ phone: target } )
                 expect(messageData.meta.dv).toEqual(1)
                 expect(messageData.meta.body).toEqual(batch.message)

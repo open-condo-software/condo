@@ -13,14 +13,11 @@ const { getRandomString } = require('@open-condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const {
-    PUSH_TRANSPORT_TYPES,
-    DEVICE_PLATFORM_TYPES,
-    INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
-    MESSAGE_BATCH_TYPE_OPTIONS,
-    PUSH_TRANSPORT_FIREBASE,
-    PUSH_FAKE_TOKEN_SUCCESS,
+    PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    MESSAGE_BATCH_TYPE_OPTIONS, PUSH_TRANSPORT_FIREBASE, PUSH_FAKE_TOKEN_SUCCESS,
 } = require('@condo/domains/notification/constants/constants')
-const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+
 const {
     Message: MessageGQL,
     SEND_MESSAGE,
@@ -153,13 +150,19 @@ async function syncRemoteClientByTestClient(client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
-async function syncRemoteClientWithPushTokenByTestClient (client, extraAttrs) {
+async function syncRemoteClientWithPushTokenByTestClient (client, extraAttrs = {}) {
     const tokenData = {
-        pushToken: `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`,
+        pushToken: getRandomFakeSuccessToken(),
         pushTransport: PUSH_TRANSPORT_FIREBASE,
         ...extraAttrs,
     }
+
+    console.log('syncRemoteClientWithPushTokenByTestClient:', JSON.stringify({ extraAttrs, tokenData }, null, 2))
+
     const payload = getRandomTokenData(tokenData)
+
+    console.log('syncRemoteClientWithPushTokenByTestClient:', JSON.stringify(payload, null, 2))
+
     /** Register fake success pushToken in order for user to be able to receive push notifications */
     const [device] = await syncRemoteClientByTestClient(client, payload)
 
@@ -285,12 +288,14 @@ async function updateTestMessageBatch (client, id, extraAttrs = {}) {
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Message, createTestMessage, updateTestMessage, sendMessageByTestClient, resendMessageByTestClient, setMessageStatusByTestClient,
+    Message, createTestMessage, updateTestMessage, sendMessageByTestClient,
+    resendMessageByTestClient, setMessageStatusByTestClient,
     RemoteClient, createTestRemoteClient, updateTestRemoteClient,
     syncRemoteClientByTestClient, syncRemoteClientWithPushTokenByTestClient,
     disconnectUserFromRemoteClientByTestClient,
     MessageUserBlackList, createTestMessageUserBlackList, updateTestMessageUserBlackList,
-    MessageOrganizationBlackList, createTestMessageOrganizationBlackList, updateTestMessageOrganizationBlackList,
+    MessageOrganizationBlackList, createTestMessageOrganizationBlackList,
+    updateTestMessageOrganizationBlackList,
     MessageBatch, createTestMessageBatch, updateTestMessageBatch,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

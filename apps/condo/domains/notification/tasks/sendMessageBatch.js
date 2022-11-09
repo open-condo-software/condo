@@ -37,6 +37,8 @@ async function sendMessageBatch (batchId) {
             failCnt += 1
             failedTargets.push(target)
 
+            console.log('sendMessageBatch: failed target', { target, normalizedTarget })
+
             continue
         }
 
@@ -44,12 +46,16 @@ async function sendMessageBatch (batchId) {
         if (usedTargets[normalizedTarget]) {
             duplicates += 1
 
+            console.log('sendMessageBatch: duplicate target', { target, normalizedTarget })
+
             continue
         }
 
         usedTargets[normalizedTarget] = true
 
         const success = await prepareAndSendMessage(context, target, batch, today)
+
+        console.log('sendMessageBatch: prepareAndSendMessage', { target, success })
 
         failCnt += 1 - success
         successCnt += success

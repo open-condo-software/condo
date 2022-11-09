@@ -39,7 +39,7 @@ const {
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'registerMultiPaymentForOneReceipt',
         variable: ['data', 'dv'],
@@ -139,13 +139,13 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 } = data
 
                 // Stage 0. Check if input is valid
-                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
+                checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
                 const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
 
                 if (acquiringContext.deletedAt) {
-                    throw new GQLError(errors.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
                 }
 
                 const acquiringIntegration = await AcquiringIntegration.getOne(context, {
@@ -154,7 +154,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
 
                 if (acquiringIntegration.deletedAt) {
                     throw new GQLError({
-                        ...errors.ACQUIRING_INTEGRATION_IS_DELETED,
+                        ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED,
                         messageInterpolation: { id: acquiringContext.integration },
                     }, context)
                 }
@@ -164,14 +164,14 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
 
                 if (isNil(billingReceipt)) {
                     throw new GQLError({
-                        ...errors.CANNOT_FIND_BILLING_RECEIPT,
+                        ...ERRORS.CANNOT_FIND_BILLING_RECEIPT,
                         messageInterpolation: { missingReceiptId: receipt.id },
                     }, context)
                 }
 
                 if (billingReceipt.deletedAt) {
                     throw new GQLError({
-                        ...errors.RECEIPT_IS_DELETED,
+                        ...ERRORS.RECEIPT_IS_DELETED,
                         messageInterpolation: { id: billingReceipt.id },
                     }, context)
                 }
@@ -179,7 +179,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 // negative to pay value
                 if (Big(billingReceipt.toPay).lte(0)) {
                     throw new GQLError({
-                        ...errors.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
+                        ...ERRORS.RECEIPT_HAVE_NEGATIVE_TO_PAY_VALUE,
                         messageInterpolation: { id: billingReceipt.id },
                     }, context)
                 }
@@ -189,7 +189,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                 if (billingContext.deletedAt) {
                     const failedReceipts = [{ receiptId: billingReceipt.id, contextId: billingReceipt.context }]
                     throw new GQLError({
-                        ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
+                        ...ERRORS.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
                         data: { failedReceipts },
                     }, context)
                 }
@@ -199,7 +199,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
 
                 if (!supportedBillingIntegrations.includes(billingContext.integration)) {
                     throw new GQLError({
-                        ...errors.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
+                        ...ERRORS.ACQUIRING_INTEGRATION_DOES_NOT_SUPPORTS_BILLING_INTEGRATION,
                         messageInterpolation: { unsupportedBillingIntegration: billingContext.integration },
                     }, context)
                 }
@@ -212,7 +212,7 @@ const RegisterMultiPaymentForOneReceiptService = new GQLCustomSchema('RegisterMu
                         integrationId: billingContext.integration,
                     }]
                     throw new GQLError({
-                        ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
+                        ...ERRORS.RECEIPT_HAS_DELETED_BILLING_INTEGRATION,
                         data: { failedReceipts },
                     }, context)
                 }

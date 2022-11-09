@@ -27,7 +27,7 @@ const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors'
 const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
-const errors = {
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'resetUser',
         variable: ['data', 'dv'],
@@ -69,7 +69,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             schema: 'resetUser(data: ResetUserInput!): ResetUserOutput',
             doc: {
                 summary: 'Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
@@ -77,16 +77,16 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                 if (!user.id) throw new Error('resetUser(): no user.id')
 
                 if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
+                    throw new GQLError(ERRORS.DV_VERSION_MISMATCH, context)
                 }
 
                 const userEntity = await getById('User', user.id)
                 if (!userEntity) {
-                    throw new GQLError(errors.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.USER_NOT_FOUND, context)
                 }
 
                 if (userEntity.isAdmin) {
-                    throw new GQLError(errors.CANNOT_RESET_ADMIN_USER, context)
+                    throw new GQLError(ERRORS.CANNOT_RESET_ADMIN_USER, context)
                 }
 
                 await User.update(context, user.id, {

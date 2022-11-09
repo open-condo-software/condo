@@ -18,7 +18,7 @@ const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE }
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
  * ("property", "unitName", "name", "phone")
  */
-const errors = {
+const ERRORS = {
     UNABLE_TO_CREATE_CONTACT_DUPLICATE: {
         mutation: 'signinResidentUser',
         code: BAD_USER_INPUT,
@@ -149,11 +149,11 @@ const Contact = new GQLListSchema('Contact', {
             const [contact] = await find('Contact', condition)
             if (operation === 'create') {
                 if (contact) {
-                    throw new GQLError(errors.UNABLE_TO_CREATE_CONTACT_DUPLICATE, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_CREATE_CONTACT_DUPLICATE, context)
                 }
             } else if (operation === 'update') {
                 if (contact && contact.id !== existingItem.id) {
-                    throw new GQLError(errors.UNABLE_TO_UPDATE_CONTACT_DUPLICATE, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_UPDATE_CONTACT_DUPLICATE, context)
                 }
             }
         },

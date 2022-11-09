@@ -1,11 +1,14 @@
+const { get } = require('lodash')
+
 const { SMS_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
 
 const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')
 
 async function prepareMessageToSend (message) {
-    const phone = message.phone || (message.user && message.user.phone) || null
-    if (!phone) throw new Error('on phone to send')
+    const phone = get(message, 'phone') || get(message, ['user', 'phone']) || null
+
+    if (!phone) throw new Error('no phone to send SMS')
 
     const { text } = await renderTemplate(SMS_TRANSPORT, message)
 

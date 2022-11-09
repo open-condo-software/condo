@@ -20,7 +20,7 @@ const RECEIPTS_LIMIT = 50
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     BILLING_CONTEXT_NOT_FOUND: {
         mutation: 'registerBillingReceipts',
         variable: ['data', 'context'],
@@ -322,13 +322,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 // Step 0:
                 // Perform basic validations:
                 if (receiptsInput.length > RECEIPTS_LIMIT) {
-                    throw new GQLError(errors.RECEIPTS_LIMIT_HIT, context)
+                    throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
                 }
 
                 const { id: billingContextId } = billingContextInput
                 const billingContext = await getById('BillingIntegrationOrganizationContext', billingContextId)
                 if (!billingContextId || !billingContext) {
-                    throw new GQLError(errors.BILLING_CONTEXT_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.BILLING_CONTEXT_NOT_FOUND, context)
                 }
 
                 // Step 1:
@@ -351,24 +351,24 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
-                        partialErrors.push(new GQLError({ ...errors.WRONG_MONTH, inputIndex: i }, context))
+                        partialErrors.push(new GQLError({ ...ERRORS.WRONG_MONTH, inputIndex: i }, context))
                         continue
                     }
                     if (year < 0) {
-                        partialErrors.push(new GQLError({ ...errors.WRONG_YEAR, inputIndex: i }, context))
+                        partialErrors.push(new GQLError({ ...ERRORS.WRONG_YEAR, inputIndex: i }, context))
                         continue
                     }
                     const period = (month < 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
 
                     // Validate address field
                     if (address === '') {
-                        partialErrors.push(new GQLError({ ...errors.ADDRESS_EMPTY_VALUE, inputIndex: i }, context))
+                        partialErrors.push(new GQLError({ ...ERRORS.ADDRESS_EMPTY_VALUE, inputIndex: i }, context))
                         continue
                     }
                     if (!normalizedAddress) {
                         const normalizedAddressFromSuggestions = get(await getAddressSuggestions(address, 1), ['0', 'value'])
                         if (!normalizedAddressFromSuggestions) {
-                            partialErrors.push(new GQLError({ ...errors.ADDRESS_NOT_RECOGNIZED_VALUE, inputIndex: i }, context))
+                            partialErrors.push(new GQLError({ ...ERRORS.ADDRESS_NOT_RECOGNIZED_VALUE, inputIndex: i }, context))
                             continue
                         }
                         normalizedAddress = normalizedAddressFromSuggestions
@@ -377,7 +377,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     // Validate category field
                     if (!knownCategories.includes(category.id)) {
                         if (!(await getById('BillingCategory', category.id))) {
-                            partialErrors.push(new GQLError({ ...errors.BILLING_CATEGORY_NOT_FOUND, inputIndex: i }, context))
+                            partialErrors.push(new GQLError({ ...ERRORS.BILLING_CATEGORY_NOT_FOUND, inputIndex: i }, context))
                             continue
                         }
                         knownCategories.push(category.id)
@@ -467,5 +467,5 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
 module.exports = {
     RegisterBillingReceiptsService,
-    errors,
+    errors: ERRORS,
 }

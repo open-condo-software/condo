@@ -16,7 +16,8 @@ async function canReadRemoteClients ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
 
     // User allowed to read own device info
-    return { owner: { id: user.id } }}
+    return { owner: { id: user.id } }
+}
 
 /**
  * Manages create/update/delete access rights. Natively available only for admin users.

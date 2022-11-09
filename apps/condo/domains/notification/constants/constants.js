@@ -43,6 +43,9 @@ const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_D
 const RESIDENT_UPGRADE_APP_TYPE = 'RESIDENT_UPGRADE_APP'
 const STAFF_UPGRADE_APP_TYPE = 'STAFF_UPGRADE_APP'
 const CUSTOM_CONTENT_MESSAGE_TYPE = 'CUSTOM_CONTENT_MESSAGE'
+const CUSTOM_CONTENT_MESSAGE_PUSH_TYPE = 'CUSTOM_CONTENT_MESSAGE_PUSH'
+const CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE = 'CUSTOM_CONTENT_MESSAGE_EMAIL'
+const CUSTOM_CONTENT_MESSAGE_SMS_TYPE = 'CUSTOM_CONTENT_MESSAGE_SMS'
 
 const MESSAGE_TYPES = [
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -74,7 +77,9 @@ const MESSAGE_TYPES = [
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     RESIDENT_UPGRADE_APP_TYPE,
     STAFF_UPGRADE_APP_TYPE,
-    CUSTOM_CONTENT_MESSAGE_TYPE,
+    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+    CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+    CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
 ]
 
 /**
@@ -344,16 +349,114 @@ const MESSAGE_META = {
             url: { defaultValue: '', required: true },
         },
     },
-    [CUSTOM_CONTENT_MESSAGE_TYPE]: {
+    [CUSTOM_CONTENT_MESSAGE_PUSH_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            userId: { required: false },
+            remoteClient: { required: false },
+            url: { defaultValue: '', required: false },
+            messageBatchId: { required: false },
+        },
+    },
+    [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE]: {
         dv: { required: true },
         title: { required: false },
         subject: { required: false },
         body: { required: true },
         data: {
-            userId: { required: false },
-            url: { defaultValue: '', required: false },
+            email: { required: false },
             messageBatchId: { required: false },
         },
+    },
+    [CUSTOM_CONTENT_MESSAGE_SMS_TYPE]: {
+        dv: { required: true },
+        title: { required: false },
+        body: { required: true },
+        data: {
+            phone: { required: false },
+            messageBatchId: { required: false },
+        },
+    },
+}
+
+
+
+const MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT = 'atLeastOneTransport'
+const MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS = 'allTransports'
+const MESSAGE_DELIVERY_DEFAULT_PRIORITY = 'default'
+const MESSAGE_DELIVERY_SLOW_PRIORITY = 'slow'
+const MESSAGE_DELIVERY_FAST_PRIORITY = 'fast'
+
+/**
+ * NOTE: Please never change these default options.
+ * And if you still do, be careful and make sure your changes don't break MESSAGE_DELIVERY_OPTIONS,
+ * because they inherit from here.
+ */
+const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
+    priority: MESSAGE_DELIVERY_DEFAULT_PRIORITY,
+    strategy: MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    allowedTransports: [PUSH_TRANSPORT, EMAIL_TRANSPORT],
+    defaultTransports: [PUSH_TRANSPORT],
+    isAllowedToChangeDefaultTransport: true,
+}
+
+/**
+ * If some message types have limited variety of transports, please set it here.
+ * The rest of types must have templates for all transports or at least default template.
+ *
+ * Note: these options extend DEFAULT_MESSAGE_DELIVERY_OPTIONS within deliverMessage.js
+ *
+ * TODO: add MESSAGE_DELIVERY_OPTIONS structure and values validator
+ */
+const MESSAGE_DELIVERY_OPTIONS = {
+    [REGISTER_NEW_USER_MESSAGE_TYPE]: {
+        priority: MESSAGE_DELIVERY_FAST_PRIORITY,
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        allowedTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT, EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT, SMS_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT, SMS_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [SHARE_TICKET_MESSAGE_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [CUSTOM_CONTENT_MESSAGE_PUSH_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [CUSTOM_CONTENT_MESSAGE_SMS_TYPE]: {
+        allowedTransports: [SMS_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [TRACK_TICKET_IN_DOMA_APP_TYPE]: {
+        allowedTransports: [SMS_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
     },
 }
 
@@ -361,6 +464,7 @@ const MESSAGE_SENDING_STATUS = 'sending'
 const MESSAGE_RESENDING_STATUS = 'resending'
 const MESSAGE_PROCESSING_STATUS = 'processing'
 const MESSAGE_ERROR_STATUS = 'error'
+const MESSAGE_BLACKLISTED_STATUS = 'blacklisted'
 const MESSAGE_DELIVERED_STATUS = 'delivered'
 const MESSAGE_CANCELED_STATUS = 'canceled'
 const MESSAGE_SENT_STATUS = 'sent'
@@ -370,6 +474,7 @@ const MESSAGE_STATUSES = [
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
     MESSAGE_ERROR_STATUS,
+    MESSAGE_BLACKLISTED_STATUS,
     MESSAGE_SENT_STATUS,
     MESSAGE_DELIVERED_STATUS,
     MESSAGE_READ_STATUS,
@@ -445,6 +550,7 @@ module.exports = {
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
     MESSAGE_ERROR_STATUS,
+    MESSAGE_BLACKLISTED_STATUS,
     MESSAGE_SENT_STATUS,
     MESSAGE_DELIVERED_STATUS,
     MESSAGE_READ_STATUS,
@@ -501,6 +607,9 @@ module.exports = {
     RESIDENT_UPGRADE_APP_TYPE,
     STAFF_UPGRADE_APP_TYPE,
     CUSTOM_CONTENT_MESSAGE_TYPE,
+    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+    CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+    CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
     MESSAGE_BATCH_STATUSES,
     MESSAGE_BATCH_CREATED_STATUS,
     MESSAGE_BATCH_PROCESSING_STATUS,
@@ -511,4 +620,11 @@ module.exports = {
     PUSH_TYPE_DEFAULT,
     PUSH_TYPE_SILENT_DATA,
     FAKE_SUCCESS_MESSAGE_PREFIX,
+    DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+    MESSAGE_DELIVERY_OPTIONS,
+    MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
+    MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+    MESSAGE_DELIVERY_DEFAULT_PRIORITY,
+    MESSAGE_DELIVERY_SLOW_PRIORITY,
+    MESSAGE_DELIVERY_FAST_PRIORITY,
 }

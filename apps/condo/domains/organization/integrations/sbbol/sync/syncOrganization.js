@@ -13,6 +13,7 @@ const CUSTOMER_EMAIL = conf.NOTIFY_ABOUT_NEW_ORGANIZATION_EMAIL
 async function sendToCustomer (data) {
     if (CUSTOMER_EMAIL) {
         const { keystone } = await getSchemaCtx('Message')
+        
         await sendMessage(keystone, {
             ...dvSenderFields,
             to: { email: CUSTOMER_EMAIL },

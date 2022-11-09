@@ -1,72 +1,163 @@
-const { get, isString } = require('lodash')
+const { get, isString, isEmpty } = require('lodash')
 
 const conf = require('@open-condo/config')
 
 const { getLogger } = require('@open-condo/keystone/logging')
+const { md5 } = require('@condo/domains/common/utils/crypto')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const {
     SMS_TRANSPORT, EMAIL_TRANSPORT, PUSH_TRANSPORT,
     CUSTOM_CONTENT_MESSAGE_TYPE,
+    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+    CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+    CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
 } = require('../constants/constants')
 
 const EMAIL_FROM = 'noreply@doma.ai'
 const DATE_FORMAT = 'YYYY-MM-DD'
 const IS_EMAIL_REGEXP = /^\S+@\S+\.\S+$/
 const IS_PHONE_REGEXP = /^\+79\d{9}$/
-const IS_UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const IS_USER_UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const IS_REMOTE_CLIENT_UUID_REGEXP = /^rc:[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+const MESSAGE_TYPES_BY_TRANSPORTS = {
+    [CUSTOM_CONTENT_MESSAGE_TYPE]: {
+        [PUSH_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
+        [EMAIL_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_EMAIL_TYPE,
+        [SMS_TRANSPORT]: CUSTOM_CONTENT_MESSAGE_SMS_TYPE,
+    },
+}
+
 const logger = getLogger('sendMessageBatch')
 
+/**
+ * Detects transport type based on target (contact), using corresponding RegExps
+ * Supported targets - phone, email, User id, RemoteClient id
+ * @param target
+ * @returns {string|null}
+ */
 const detectTransportType = (target) => {
     if (!isString(target)) return null
     if (IS_EMAIL_REGEXP.test(target)) return EMAIL_TRANSPORT
     if (IS_PHONE_REGEXP.test(target)) return SMS_TRANSPORT
-    if (IS_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
+    if (IS_USER_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
+    if (IS_REMOTE_CLIENT_UUID_REGEXP.test(target)) return PUSH_TRANSPORT
 
     return null
 }
 
+/**
+ * Prepares target for message based on initial target (contact)
+ * Supported targets - phone, email, User id, RemoteClient id
+ * @param target
+ * @returns {{to: {remoteClient: {id}}}|{emailFrom: string, to: {email}}|null|{to: {user: {id}}}|{to: {phone}}}
+ */
 const selectTarget = (target) => {
     const transportType = detectTransportType(target)
 
     if (!transportType) return null
     if (transportType === SMS_TRANSPORT) return { to: { phone: target } }
     if (transportType === EMAIL_TRANSPORT) return { to: { email: target }, emailFrom: EMAIL_FROM }
-    if (transportType === PUSH_TRANSPORT) return { to: { user: { id: target } } }
+    if (IS_REMOTE_CLIENT_UUID_REGEXP.test(target)) return { to: { remoteClient: { id: target.replace('rc:', '') } } }
+    if (IS_USER_UUID_REGEXP.test(target)) return { to: { user: { id: target } } }
 
     return null
 }
 
+/**
+ * Normalizes target value and converts to MD5 hash
+ * @param target
+ * @returns {string|null}
+ */
 const normalizeTarget = (target) => {
     if (!isString(target)) return null
 
     const value = target.trim()
     const type = detectTransportType(value)
 
-    if (type === EMAIL_TRANSPORT) return value.toLowerCase()
+    if (type === EMAIL_TRANSPORT) return md5(value.toLowerCase())
 
-    return value
+    // MD5 is used here to hide contacts (phone/email) within uniqKey value
+    return md5(value)
 }
 
+/**
+ * Prepares uniq key value based on it's arguments
+ * @param date
+ * @param title
+ * @param target
+ * @returns {`${string}:${string}:${string}`|`${string}:${string}:null`}
+ */
 const getUniqKey = (date, title, target) => `${date}:${title}:${normalizeTarget(target)}`
 
-const prepareMessageData = (target, batch, today) => {
+/**
+ * Prepares message data
+ * @param context
+ * @param target
+ * @param batch
+ * @param today
+ * @returns {Promise<number>}
+ */
+const prepareAndSendMessageOld = async (context, target, batch, today) => {
     const notificationKey = getUniqKey(today, batch.title, target)
     const transportType = detectTransportType(target)
     const to = selectTarget(target)
+    const type = get(MESSAGE_TYPES_BY_TRANSPORTS, [batch.messageType, transportType])
 
-    if (!to || !transportType) return null
+    if (isEmpty(to) || !transportType || !type) return 0
 
     const messageData = {
         ...to,
         lang: conf.DEFAULT_LOCALE,
-        type: CUSTOM_CONTENT_MESSAGE_TYPE,
+        type,
         meta: {
             dv: 1,
             body: batch.message,
             data: {
                 userId: get(to, 'to.user.id'),
+                remoteClient: get(to, 'to.remoteClient.id'),
+                target: target,
+                url: batch.deepLink,
+                batchId: batch.id,
+            },
+        },
+        sender: { dv: 1, fingerprint: 'send-message-batch-notification' },
+        uniqKey: notificationKey,
+    }
+
+    if (transportType === PUSH_TRANSPORT) messageData.meta.title = batch.title
+    if (transportType === EMAIL_TRANSPORT) messageData.meta.subject = batch.title
+
+    /** sendMessage still could fail, for ex. on non +79* phone format or absent email/sms config */
+    try {
+        const result = await sendMessage(context, messageData)
+
+        return 1 - result.isDuplicateMessage
+    } catch (error) {
+        return 0
+    }
+}
+
+
+const prepareMessageData = (target, batch, today) => {
+    const notificationKey = getUniqKey(today, batch.title, target)
+    const transportType = detectTransportType(target)
+    const to = selectTarget(target)
+    const type = get(MESSAGE_TYPES_BY_TRANSPORTS, [batch.messageType, transportType])
+
+    if (isEmpty(to) || !transportType || !type) return 0
+
+    const messageData = {
+        ...to,
+        lang: conf.DEFAULT_LOCALE,
+        type,
+        meta: {
+            dv: 1,
+            body: batch.message,
+            data: {
+                userId: get(to, 'to.user.id'),
+                remoteClient: get(to, 'to.remoteClient.id'),
                 target: target,
                 url: batch.deepLink,
                 batchId: batch.id,
@@ -82,6 +173,14 @@ const prepareMessageData = (target, batch, today) => {
     return messageData
 }
 
+/**
+ * Prepares message data then triggers sending it to proper target using proper transport
+ * @param context
+ * @param target
+ * @param batch
+ * @param today
+ * @returns {Promise<number>}
+ */
 const prepareAndSendMessage = async (context, target, batch, today) => {
     const messageData = prepareMessageData(target, batch, today)
 
@@ -92,7 +191,7 @@ const prepareAndSendMessage = async (context, target, batch, today) => {
 
         return 1 - result.isDuplicateMessage
     } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
+        logger.info({ msg: '!!!!!! sendMessage error', error, data: messageData })
 
         return 0
     }
