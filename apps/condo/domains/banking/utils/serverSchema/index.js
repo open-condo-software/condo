@@ -6,9 +6,11 @@
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
 
+const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const BankAccount = generateServerUtils(BankAccountGQL)
 const BankCategory = generateServerUtils(BankCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 

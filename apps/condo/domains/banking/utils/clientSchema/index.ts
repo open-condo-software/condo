@@ -3,5 +3,6 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+export * as BankAccount from './BankAccount'
 export * as BankCategory from './BankCategory'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

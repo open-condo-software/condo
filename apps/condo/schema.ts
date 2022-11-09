@@ -20735,30 +20735,6 @@ export type Mutation = {
   deleteExternalReport?: Maybe<ExternalReport>;
   /**  Delete multiple ExternalReport items by ID.  */
   deleteExternalReports?: Maybe<Array<Maybe<ExternalReport>>>;
-  /**  Create a single BankCategoryHistoryRecord item.  */
-  createBankCategoryHistoryRecord?: Maybe<BankCategoryHistoryRecord>;
-  /**  Create multiple BankCategoryHistoryRecord items.  */
-  createBankCategoryHistoryRecords?: Maybe<Array<Maybe<BankCategoryHistoryRecord>>>;
-  /**  Update a single BankCategoryHistoryRecord item by ID.  */
-  updateBankCategoryHistoryRecord?: Maybe<BankCategoryHistoryRecord>;
-  /**  Update multiple BankCategoryHistoryRecord items by ID.  */
-  updateBankCategoryHistoryRecords?: Maybe<Array<Maybe<BankCategoryHistoryRecord>>>;
-  /**  Delete a single BankCategoryHistoryRecord item by ID.  */
-  deleteBankCategoryHistoryRecord?: Maybe<BankCategoryHistoryRecord>;
-  /**  Delete multiple BankCategoryHistoryRecord items by ID.  */
-  deleteBankCategoryHistoryRecords?: Maybe<Array<Maybe<BankCategoryHistoryRecord>>>;
-  /**  Create a single BankCategory item.  */
-  createBankCategory?: Maybe<BankCategory>;
-  /**  Create multiple BankCategory items.  */
-  createBankCategories?: Maybe<Array<Maybe<BankCategory>>>;
-  /**  Update a single BankCategory item by ID.  */
-  updateBankCategory?: Maybe<BankCategory>;
-  /**  Update multiple BankCategory items by ID.  */
-  updateBankCategories?: Maybe<Array<Maybe<BankCategory>>>;
-  /**  Delete a single BankCategory item by ID.  */
-  deleteBankCategory?: Maybe<BankCategory>;
-  /**  Delete multiple BankCategory items by ID.  */
-  deleteBankCategories?: Maybe<Array<Maybe<BankCategory>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -26768,68 +26744,6 @@ export type MutationDeleteExternalReportArgs = {
 
 
 export type MutationDeleteExternalReportsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateBankCategoryHistoryRecordArgs = {
-  data?: Maybe<BankCategoryHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateBankCategoryHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<BankCategoryHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateBankCategoryHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<BankCategoryHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateBankCategoryHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<BankCategoryHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteBankCategoryHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteBankCategoryHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateBankCategoryArgs = {
-  data?: Maybe<BankCategoryCreateInput>;
-};
-
-
-export type MutationCreateBankCategoriesArgs = {
-  data?: Maybe<Array<Maybe<BankCategoriesCreateInput>>>;
-};
-
-
-export type MutationUpdateBankCategoryArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<BankCategoryUpdateInput>;
-};
-
-
-export type MutationUpdateBankCategoriesArgs = {
-  data?: Maybe<Array<Maybe<BankCategoriesUpdateInput>>>;
-};
-
-
-export type MutationDeleteBankCategoryArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteBankCategoriesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -33523,22 +33437,6 @@ export type Query = {
   _allExternalReportsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ExternalReport list.  */
   _ExternalReportsMeta?: Maybe<_ListMeta>;
-  /**  Search for all BankCategoryHistoryRecord items which match the where clause.  */
-  allBankCategoryHistoryRecords?: Maybe<Array<Maybe<BankCategoryHistoryRecord>>>;
-  /**  Search for the BankCategoryHistoryRecord item with the matching ID.  */
-  BankCategoryHistoryRecord?: Maybe<BankCategoryHistoryRecord>;
-  /**  Perform a meta-query on all BankCategoryHistoryRecord items which match the where clause.  */
-  _allBankCategoryHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the BankCategoryHistoryRecord list.  */
-  _BankCategoryHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all BankCategory items which match the where clause.  */
-  allBankCategories?: Maybe<Array<Maybe<BankCategory>>>;
-  /**  Search for the BankCategory item with the matching ID.  */
-  BankCategory?: Maybe<BankCategory>;
-  /**  Perform a meta-query on all BankCategory items which match the where clause.  */
-  _allBankCategoriesMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the BankCategory list.  */
-  _BankCategoriesMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -37225,56 +37123,6 @@ export type Query_AllExternalReportsMetaArgs = {
   where?: Maybe<ExternalReportWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortExternalReportsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllBankCategoryHistoryRecordsArgs = {
-  where?: Maybe<BankCategoryHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankCategoryHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryBankCategoryHistoryRecordArgs = {
-  where: BankCategoryHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllBankCategoryHistoryRecordsMetaArgs = {
-  where?: Maybe<BankCategoryHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankCategoryHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllBankCategoriesArgs = {
-  where?: Maybe<BankCategoryWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankCategoriesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryBankCategoryArgs = {
-  where: BankCategoryWhereUniqueInput;
-};
-
-
-export type Query_AllBankCategoriesMetaArgs = {
-  where?: Maybe<BankCategoryWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortBankCategoriesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -41166,48 +41014,6 @@ export enum SortB2CAppsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
-}
-
-export enum SortBankCategoriesBy {
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
-}
-
-export enum SortBankCategoryHistoryRecordsBy {
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
 }
 
 export enum SortBillingAccountHistoryRecordsBy {
