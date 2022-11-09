@@ -49105,7 +49105,7 @@ export type TicketFilter = {
   categoryClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   problemClassifier?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientPhone?: Maybe<Array<Maybe<Scalars['String']>>>;
-  author?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Array<Maybe<Scalars['String']>>>;
   reviewValue?: Maybe<Array<Maybe<Scalars['String']>>>;
   contactIsNull?: Maybe<Array<Maybe<Scalars['String']>>>;
   completedAt?: Maybe<Array<Maybe<Scalars['String']>>>;
