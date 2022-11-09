@@ -157,7 +157,9 @@ class FeeDistribution extends Logger {
             let overSum = this.type === 'service' ?
                 summa.mul(totalCommission).div(Big(1).minus(this.formula.fromTotalAmountFee)) :
                 summa.mul(totalCommission)
-            if (!this.minCommission.eq(0)) {
+            overSum = Big(Math.max(Number(overSum), 0))
+            // for payments with 0 -> explicitFee will be 0, not minimum allowed
+            if (!this.minCommission.eq(0) && summa.gt(0)) {
                 overSum = Big(Math.max(Number(this.minCommission), Number(overSum)))
             }
             if (!this.maxCommission.eq(0)) {
