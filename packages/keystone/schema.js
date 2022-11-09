@@ -124,11 +124,12 @@ function applyPlugins (schema, plugins, { schemaName, addSchema }) {
 
 function transformByPreprocessors (preprocessors, schemaType, name, schema) {
     if (!isArray(preprocessors)) throw new Error('wrong preprocessors type')
-    if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
+    if (preprocessors.length > 0 && IS_DEV) console.info(`Transform ${name} ${schemaType} by preprocessors`)
     return preprocessors.reduce((schema, fn) => {
         if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
         const newSchema = fn(schemaType, name, schema)
-        if (!newSchema) throw new Error('preprocessor should return a new schema object! Check your global preprocessors')
+        if (!newSchema) throw new Error(`Preprocessor "${Object(fn).name}" should return a new schema object!`)
+        if (IS_DEV) console.info(`✔ ${Object(fn).name}`)
         return newSchema
     }, schema)
 }
