@@ -3,9 +3,30 @@
  *
  */
 
+
 const { get, cloneDeep } = require('lodash')
 
 const UPDATED_AT = 'updatedAt'
+
+/**
+ * TODO (toplenboren) (DOMA-2681) move this to auto detection algorithm or env!
+ * These tables are connected between each other in a way, that changing one table is changing other table.
+ * 1. Two way realtions
+ * 2. MTM relations
+ */
+const ADAPTER_CACHE_CONNECTED_TABLES = {
+    'MultiPayment':['Payment'],
+    'Payment':['MultiPayment'],
+
+    'AcquiringIntegration':['BillingIntegration'],
+    'BillingIntegration':['AcquiringIntegration'],
+
+    'Division': ['OrganizationEmployee', 'Property'],
+    'OrganizationEmployee': ['Division', 'Property'],
+    'Meter': ['Division', 'Property'],
+    'Property': ['Division'],
+}
+
 
 class AdapterCacheMiddleware {
 
@@ -19,7 +40,7 @@ class AdapterCacheMiddleware {
      */
     state = {}
 
-    constructor (config, connectedTables) {
+    constructor (config) {
         try {
             const parsedConfig = JSON.parse(config)
             this.enabled = !!get(parsedConfig, 'enable', false)
@@ -28,7 +49,7 @@ class AdapterCacheMiddleware {
             this.logging = get(parsedConfig, 'logging', false)
             this.debugMode = !!get(parsedConfig, 'debug', false)
 
-            this.connectedTables = connectedTables
+            this.connectedTables = ADAPTER_CACHE_CONNECTED_TABLES
 
             this.cacheHistory = {}
             this.cacheCallHistory = []
@@ -39,7 +60,6 @@ class AdapterCacheMiddleware {
             if (this.debugMode) {
                 console.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON_LOCAL ENVIRONMENT, OR WITH RUNNING BIG TESTSUITES')
             }
-
         }
         catch (e) {
             this.enabled = false
@@ -98,7 +118,7 @@ class AdapterCacheMiddleware {
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
         if (this.enabled) {
-            await initAdapterCache(keystone, this)
+            await patchKeystoneAdapterWithCacheMiddleware(keystone, this)
             console.info('ADAPTER_CACHE: Adapter level cache ENABLED')
         } else {
             console.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
@@ -112,11 +132,10 @@ class AdapterCacheMiddleware {
  * @param {AdapterCacheMiddleware} middleware
  * @returns {Promise<void>}
  */
-async function initAdapterCache (keystone, middleware) {
+async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     const keystoneAdapter = keystone.adapter
 
     const cache = middleware.cache
-    const state = middleware.state
     const logging = middleware.logging
     const excludedTables = middleware.excludedTables
 
