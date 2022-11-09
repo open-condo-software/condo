@@ -29,7 +29,7 @@ export type Address = {
   _label_?: Maybe<Scalars['String']>;
   /**  The origin which used to detect the address  */
   source?: Maybe<Scalars['String']>;
-  /**  The address itself in one string  */
+  /**  The normalized address itself in one string  */
   address?: Maybe<Scalars['String']>;
   /**  The unique key of the address  */
   key?: Maybe<Scalars['String']>;
@@ -293,6 +293,646 @@ export type AddressHistoryRecordsUpdateInput = {
   data?: Maybe<AddressHistoryRecordUpdateInput>;
 };
 
+/**  Addresses that do not exist in external providers  */
+export type AddressInjection = {
+  __typename?: 'AddressInjection';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AddressInjection List config, or
+   *  2. As an alias to the field set on 'labelField' in the AddressInjection List config, or
+   *  3. As an alias to a 'name' field on the AddressInjection List (if one exists), or
+   *  4. As an alias to the 'id' field on the AddressInjection List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  The country  */
+  country?: Maybe<Scalars['String']>;
+  /**  The region  */
+  region?: Maybe<Scalars['String']>;
+  /**  Some area  */
+  area?: Maybe<Scalars['String']>;
+  /**  The city name  */
+  city?: Maybe<Scalars['String']>;
+  /**  The settlement name  */
+  settlement?: Maybe<Scalars['String']>;
+  /**  The street name itself  */
+  street?: Maybe<Scalars['String']>;
+  /**  The number of the building  */
+  building?: Maybe<Scalars['String']>;
+  /**  Some part of the building  */
+  block?: Maybe<Scalars['String']>;
+  /**  Additional data  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type AddressInjectionCreateInput = {
+  country?: Maybe<Scalars['String']>;
+  region?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  settlement?: Maybe<Scalars['String']>;
+  street?: Maybe<Scalars['String']>;
+  building?: Maybe<Scalars['String']>;
+  block?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type AddressInjectionHistoryRecord = {
+  __typename?: 'AddressInjectionHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the AddressInjectionHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the AddressInjectionHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the AddressInjectionHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the AddressInjectionHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  country?: Maybe<Scalars['String']>;
+  region?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  settlement?: Maybe<Scalars['String']>;
+  street?: Maybe<Scalars['String']>;
+  building?: Maybe<Scalars['String']>;
+  block?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AddressInjectionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AddressInjectionHistoryRecordCreateInput = {
+  country?: Maybe<Scalars['String']>;
+  region?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  settlement?: Maybe<Scalars['String']>;
+  street?: Maybe<Scalars['String']>;
+  building?: Maybe<Scalars['String']>;
+  block?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AddressInjectionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum AddressInjectionHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type AddressInjectionHistoryRecordUpdateInput = {
+  country?: Maybe<Scalars['String']>;
+  region?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  settlement?: Maybe<Scalars['String']>;
+  street?: Maybe<Scalars['String']>;
+  building?: Maybe<Scalars['String']>;
+  block?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<AddressInjectionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type AddressInjectionHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<AddressInjectionHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AddressInjectionHistoryRecordWhereInput>>>;
+  country?: Maybe<Scalars['String']>;
+  country_not?: Maybe<Scalars['String']>;
+  country_contains?: Maybe<Scalars['String']>;
+  country_not_contains?: Maybe<Scalars['String']>;
+  country_starts_with?: Maybe<Scalars['String']>;
+  country_not_starts_with?: Maybe<Scalars['String']>;
+  country_ends_with?: Maybe<Scalars['String']>;
+  country_not_ends_with?: Maybe<Scalars['String']>;
+  country_i?: Maybe<Scalars['String']>;
+  country_not_i?: Maybe<Scalars['String']>;
+  country_contains_i?: Maybe<Scalars['String']>;
+  country_not_contains_i?: Maybe<Scalars['String']>;
+  country_starts_with_i?: Maybe<Scalars['String']>;
+  country_not_starts_with_i?: Maybe<Scalars['String']>;
+  country_ends_with_i?: Maybe<Scalars['String']>;
+  country_not_ends_with_i?: Maybe<Scalars['String']>;
+  country_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  country_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  region?: Maybe<Scalars['String']>;
+  region_not?: Maybe<Scalars['String']>;
+  region_contains?: Maybe<Scalars['String']>;
+  region_not_contains?: Maybe<Scalars['String']>;
+  region_starts_with?: Maybe<Scalars['String']>;
+  region_not_starts_with?: Maybe<Scalars['String']>;
+  region_ends_with?: Maybe<Scalars['String']>;
+  region_not_ends_with?: Maybe<Scalars['String']>;
+  region_i?: Maybe<Scalars['String']>;
+  region_not_i?: Maybe<Scalars['String']>;
+  region_contains_i?: Maybe<Scalars['String']>;
+  region_not_contains_i?: Maybe<Scalars['String']>;
+  region_starts_with_i?: Maybe<Scalars['String']>;
+  region_not_starts_with_i?: Maybe<Scalars['String']>;
+  region_ends_with_i?: Maybe<Scalars['String']>;
+  region_not_ends_with_i?: Maybe<Scalars['String']>;
+  region_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  region_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area?: Maybe<Scalars['String']>;
+  area_not?: Maybe<Scalars['String']>;
+  area_contains?: Maybe<Scalars['String']>;
+  area_not_contains?: Maybe<Scalars['String']>;
+  area_starts_with?: Maybe<Scalars['String']>;
+  area_not_starts_with?: Maybe<Scalars['String']>;
+  area_ends_with?: Maybe<Scalars['String']>;
+  area_not_ends_with?: Maybe<Scalars['String']>;
+  area_i?: Maybe<Scalars['String']>;
+  area_not_i?: Maybe<Scalars['String']>;
+  area_contains_i?: Maybe<Scalars['String']>;
+  area_not_contains_i?: Maybe<Scalars['String']>;
+  area_starts_with_i?: Maybe<Scalars['String']>;
+  area_not_starts_with_i?: Maybe<Scalars['String']>;
+  area_ends_with_i?: Maybe<Scalars['String']>;
+  area_not_ends_with_i?: Maybe<Scalars['String']>;
+  area_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  city?: Maybe<Scalars['String']>;
+  city_not?: Maybe<Scalars['String']>;
+  city_contains?: Maybe<Scalars['String']>;
+  city_not_contains?: Maybe<Scalars['String']>;
+  city_starts_with?: Maybe<Scalars['String']>;
+  city_not_starts_with?: Maybe<Scalars['String']>;
+  city_ends_with?: Maybe<Scalars['String']>;
+  city_not_ends_with?: Maybe<Scalars['String']>;
+  city_i?: Maybe<Scalars['String']>;
+  city_not_i?: Maybe<Scalars['String']>;
+  city_contains_i?: Maybe<Scalars['String']>;
+  city_not_contains_i?: Maybe<Scalars['String']>;
+  city_starts_with_i?: Maybe<Scalars['String']>;
+  city_not_starts_with_i?: Maybe<Scalars['String']>;
+  city_ends_with_i?: Maybe<Scalars['String']>;
+  city_not_ends_with_i?: Maybe<Scalars['String']>;
+  city_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  city_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  settlement?: Maybe<Scalars['String']>;
+  settlement_not?: Maybe<Scalars['String']>;
+  settlement_contains?: Maybe<Scalars['String']>;
+  settlement_not_contains?: Maybe<Scalars['String']>;
+  settlement_starts_with?: Maybe<Scalars['String']>;
+  settlement_not_starts_with?: Maybe<Scalars['String']>;
+  settlement_ends_with?: Maybe<Scalars['String']>;
+  settlement_not_ends_with?: Maybe<Scalars['String']>;
+  settlement_i?: Maybe<Scalars['String']>;
+  settlement_not_i?: Maybe<Scalars['String']>;
+  settlement_contains_i?: Maybe<Scalars['String']>;
+  settlement_not_contains_i?: Maybe<Scalars['String']>;
+  settlement_starts_with_i?: Maybe<Scalars['String']>;
+  settlement_not_starts_with_i?: Maybe<Scalars['String']>;
+  settlement_ends_with_i?: Maybe<Scalars['String']>;
+  settlement_not_ends_with_i?: Maybe<Scalars['String']>;
+  settlement_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  settlement_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  street?: Maybe<Scalars['String']>;
+  street_not?: Maybe<Scalars['String']>;
+  street_contains?: Maybe<Scalars['String']>;
+  street_not_contains?: Maybe<Scalars['String']>;
+  street_starts_with?: Maybe<Scalars['String']>;
+  street_not_starts_with?: Maybe<Scalars['String']>;
+  street_ends_with?: Maybe<Scalars['String']>;
+  street_not_ends_with?: Maybe<Scalars['String']>;
+  street_i?: Maybe<Scalars['String']>;
+  street_not_i?: Maybe<Scalars['String']>;
+  street_contains_i?: Maybe<Scalars['String']>;
+  street_not_contains_i?: Maybe<Scalars['String']>;
+  street_starts_with_i?: Maybe<Scalars['String']>;
+  street_not_starts_with_i?: Maybe<Scalars['String']>;
+  street_ends_with_i?: Maybe<Scalars['String']>;
+  street_not_ends_with_i?: Maybe<Scalars['String']>;
+  street_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  street_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  building?: Maybe<Scalars['String']>;
+  building_not?: Maybe<Scalars['String']>;
+  building_contains?: Maybe<Scalars['String']>;
+  building_not_contains?: Maybe<Scalars['String']>;
+  building_starts_with?: Maybe<Scalars['String']>;
+  building_not_starts_with?: Maybe<Scalars['String']>;
+  building_ends_with?: Maybe<Scalars['String']>;
+  building_not_ends_with?: Maybe<Scalars['String']>;
+  building_i?: Maybe<Scalars['String']>;
+  building_not_i?: Maybe<Scalars['String']>;
+  building_contains_i?: Maybe<Scalars['String']>;
+  building_not_contains_i?: Maybe<Scalars['String']>;
+  building_starts_with_i?: Maybe<Scalars['String']>;
+  building_not_starts_with_i?: Maybe<Scalars['String']>;
+  building_ends_with_i?: Maybe<Scalars['String']>;
+  building_not_ends_with_i?: Maybe<Scalars['String']>;
+  building_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  building_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  block?: Maybe<Scalars['String']>;
+  block_not?: Maybe<Scalars['String']>;
+  block_contains?: Maybe<Scalars['String']>;
+  block_not_contains?: Maybe<Scalars['String']>;
+  block_starts_with?: Maybe<Scalars['String']>;
+  block_not_starts_with?: Maybe<Scalars['String']>;
+  block_ends_with?: Maybe<Scalars['String']>;
+  block_not_ends_with?: Maybe<Scalars['String']>;
+  block_i?: Maybe<Scalars['String']>;
+  block_not_i?: Maybe<Scalars['String']>;
+  block_contains_i?: Maybe<Scalars['String']>;
+  block_not_contains_i?: Maybe<Scalars['String']>;
+  block_starts_with_i?: Maybe<Scalars['String']>;
+  block_not_starts_with_i?: Maybe<Scalars['String']>;
+  block_ends_with_i?: Maybe<Scalars['String']>;
+  block_not_ends_with_i?: Maybe<Scalars['String']>;
+  block_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  block_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<AddressInjectionHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<AddressInjectionHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<AddressInjectionHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<AddressInjectionHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type AddressInjectionHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AddressInjectionHistoryRecordsCreateInput = {
+  data?: Maybe<AddressInjectionHistoryRecordCreateInput>;
+};
+
+export type AddressInjectionHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AddressInjectionHistoryRecordUpdateInput>;
+};
+
+export type AddressInjectionUpdateInput = {
+  country?: Maybe<Scalars['String']>;
+  region?: Maybe<Scalars['String']>;
+  area?: Maybe<Scalars['String']>;
+  city?: Maybe<Scalars['String']>;
+  settlement?: Maybe<Scalars['String']>;
+  street?: Maybe<Scalars['String']>;
+  building?: Maybe<Scalars['String']>;
+  block?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type AddressInjectionWhereInput = {
+  AND?: Maybe<Array<Maybe<AddressInjectionWhereInput>>>;
+  OR?: Maybe<Array<Maybe<AddressInjectionWhereInput>>>;
+  country?: Maybe<Scalars['String']>;
+  country_not?: Maybe<Scalars['String']>;
+  country_contains?: Maybe<Scalars['String']>;
+  country_not_contains?: Maybe<Scalars['String']>;
+  country_starts_with?: Maybe<Scalars['String']>;
+  country_not_starts_with?: Maybe<Scalars['String']>;
+  country_ends_with?: Maybe<Scalars['String']>;
+  country_not_ends_with?: Maybe<Scalars['String']>;
+  country_i?: Maybe<Scalars['String']>;
+  country_not_i?: Maybe<Scalars['String']>;
+  country_contains_i?: Maybe<Scalars['String']>;
+  country_not_contains_i?: Maybe<Scalars['String']>;
+  country_starts_with_i?: Maybe<Scalars['String']>;
+  country_not_starts_with_i?: Maybe<Scalars['String']>;
+  country_ends_with_i?: Maybe<Scalars['String']>;
+  country_not_ends_with_i?: Maybe<Scalars['String']>;
+  country_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  country_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  region?: Maybe<Scalars['String']>;
+  region_not?: Maybe<Scalars['String']>;
+  region_contains?: Maybe<Scalars['String']>;
+  region_not_contains?: Maybe<Scalars['String']>;
+  region_starts_with?: Maybe<Scalars['String']>;
+  region_not_starts_with?: Maybe<Scalars['String']>;
+  region_ends_with?: Maybe<Scalars['String']>;
+  region_not_ends_with?: Maybe<Scalars['String']>;
+  region_i?: Maybe<Scalars['String']>;
+  region_not_i?: Maybe<Scalars['String']>;
+  region_contains_i?: Maybe<Scalars['String']>;
+  region_not_contains_i?: Maybe<Scalars['String']>;
+  region_starts_with_i?: Maybe<Scalars['String']>;
+  region_not_starts_with_i?: Maybe<Scalars['String']>;
+  region_ends_with_i?: Maybe<Scalars['String']>;
+  region_not_ends_with_i?: Maybe<Scalars['String']>;
+  region_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  region_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area?: Maybe<Scalars['String']>;
+  area_not?: Maybe<Scalars['String']>;
+  area_contains?: Maybe<Scalars['String']>;
+  area_not_contains?: Maybe<Scalars['String']>;
+  area_starts_with?: Maybe<Scalars['String']>;
+  area_not_starts_with?: Maybe<Scalars['String']>;
+  area_ends_with?: Maybe<Scalars['String']>;
+  area_not_ends_with?: Maybe<Scalars['String']>;
+  area_i?: Maybe<Scalars['String']>;
+  area_not_i?: Maybe<Scalars['String']>;
+  area_contains_i?: Maybe<Scalars['String']>;
+  area_not_contains_i?: Maybe<Scalars['String']>;
+  area_starts_with_i?: Maybe<Scalars['String']>;
+  area_not_starts_with_i?: Maybe<Scalars['String']>;
+  area_ends_with_i?: Maybe<Scalars['String']>;
+  area_not_ends_with_i?: Maybe<Scalars['String']>;
+  area_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  area_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  city?: Maybe<Scalars['String']>;
+  city_not?: Maybe<Scalars['String']>;
+  city_contains?: Maybe<Scalars['String']>;
+  city_not_contains?: Maybe<Scalars['String']>;
+  city_starts_with?: Maybe<Scalars['String']>;
+  city_not_starts_with?: Maybe<Scalars['String']>;
+  city_ends_with?: Maybe<Scalars['String']>;
+  city_not_ends_with?: Maybe<Scalars['String']>;
+  city_i?: Maybe<Scalars['String']>;
+  city_not_i?: Maybe<Scalars['String']>;
+  city_contains_i?: Maybe<Scalars['String']>;
+  city_not_contains_i?: Maybe<Scalars['String']>;
+  city_starts_with_i?: Maybe<Scalars['String']>;
+  city_not_starts_with_i?: Maybe<Scalars['String']>;
+  city_ends_with_i?: Maybe<Scalars['String']>;
+  city_not_ends_with_i?: Maybe<Scalars['String']>;
+  city_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  city_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  settlement?: Maybe<Scalars['String']>;
+  settlement_not?: Maybe<Scalars['String']>;
+  settlement_contains?: Maybe<Scalars['String']>;
+  settlement_not_contains?: Maybe<Scalars['String']>;
+  settlement_starts_with?: Maybe<Scalars['String']>;
+  settlement_not_starts_with?: Maybe<Scalars['String']>;
+  settlement_ends_with?: Maybe<Scalars['String']>;
+  settlement_not_ends_with?: Maybe<Scalars['String']>;
+  settlement_i?: Maybe<Scalars['String']>;
+  settlement_not_i?: Maybe<Scalars['String']>;
+  settlement_contains_i?: Maybe<Scalars['String']>;
+  settlement_not_contains_i?: Maybe<Scalars['String']>;
+  settlement_starts_with_i?: Maybe<Scalars['String']>;
+  settlement_not_starts_with_i?: Maybe<Scalars['String']>;
+  settlement_ends_with_i?: Maybe<Scalars['String']>;
+  settlement_not_ends_with_i?: Maybe<Scalars['String']>;
+  settlement_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  settlement_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  street?: Maybe<Scalars['String']>;
+  street_not?: Maybe<Scalars['String']>;
+  street_contains?: Maybe<Scalars['String']>;
+  street_not_contains?: Maybe<Scalars['String']>;
+  street_starts_with?: Maybe<Scalars['String']>;
+  street_not_starts_with?: Maybe<Scalars['String']>;
+  street_ends_with?: Maybe<Scalars['String']>;
+  street_not_ends_with?: Maybe<Scalars['String']>;
+  street_i?: Maybe<Scalars['String']>;
+  street_not_i?: Maybe<Scalars['String']>;
+  street_contains_i?: Maybe<Scalars['String']>;
+  street_not_contains_i?: Maybe<Scalars['String']>;
+  street_starts_with_i?: Maybe<Scalars['String']>;
+  street_not_starts_with_i?: Maybe<Scalars['String']>;
+  street_ends_with_i?: Maybe<Scalars['String']>;
+  street_not_ends_with_i?: Maybe<Scalars['String']>;
+  street_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  street_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  building?: Maybe<Scalars['String']>;
+  building_not?: Maybe<Scalars['String']>;
+  building_contains?: Maybe<Scalars['String']>;
+  building_not_contains?: Maybe<Scalars['String']>;
+  building_starts_with?: Maybe<Scalars['String']>;
+  building_not_starts_with?: Maybe<Scalars['String']>;
+  building_ends_with?: Maybe<Scalars['String']>;
+  building_not_ends_with?: Maybe<Scalars['String']>;
+  building_i?: Maybe<Scalars['String']>;
+  building_not_i?: Maybe<Scalars['String']>;
+  building_contains_i?: Maybe<Scalars['String']>;
+  building_not_contains_i?: Maybe<Scalars['String']>;
+  building_starts_with_i?: Maybe<Scalars['String']>;
+  building_not_starts_with_i?: Maybe<Scalars['String']>;
+  building_ends_with_i?: Maybe<Scalars['String']>;
+  building_not_ends_with_i?: Maybe<Scalars['String']>;
+  building_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  building_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  block?: Maybe<Scalars['String']>;
+  block_not?: Maybe<Scalars['String']>;
+  block_contains?: Maybe<Scalars['String']>;
+  block_not_contains?: Maybe<Scalars['String']>;
+  block_starts_with?: Maybe<Scalars['String']>;
+  block_not_starts_with?: Maybe<Scalars['String']>;
+  block_ends_with?: Maybe<Scalars['String']>;
+  block_not_ends_with?: Maybe<Scalars['String']>;
+  block_i?: Maybe<Scalars['String']>;
+  block_not_i?: Maybe<Scalars['String']>;
+  block_contains_i?: Maybe<Scalars['String']>;
+  block_not_contains_i?: Maybe<Scalars['String']>;
+  block_starts_with_i?: Maybe<Scalars['String']>;
+  block_not_starts_with_i?: Maybe<Scalars['String']>;
+  block_ends_with_i?: Maybe<Scalars['String']>;
+  block_not_ends_with_i?: Maybe<Scalars['String']>;
+  block_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  block_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type AddressInjectionWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type AddressInjectionsCreateInput = {
+  data?: Maybe<AddressInjectionCreateInput>;
+};
+
+export type AddressInjectionsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<AddressInjectionUpdateInput>;
+};
+
 export type AddressUpdateInput = {
   source?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
@@ -497,6 +1137,30 @@ export type Mutation = {
   deleteAddress?: Maybe<Address>;
   /**  Delete multiple Address items by ID.  */
   deleteAddresses?: Maybe<Array<Maybe<Address>>>;
+  /**  Create a single AddressInjectionHistoryRecord item.  */
+  createAddressInjectionHistoryRecord?: Maybe<AddressInjectionHistoryRecord>;
+  /**  Create multiple AddressInjectionHistoryRecord items.  */
+  createAddressInjectionHistoryRecords?: Maybe<Array<Maybe<AddressInjectionHistoryRecord>>>;
+  /**  Update a single AddressInjectionHistoryRecord item by ID.  */
+  updateAddressInjectionHistoryRecord?: Maybe<AddressInjectionHistoryRecord>;
+  /**  Update multiple AddressInjectionHistoryRecord items by ID.  */
+  updateAddressInjectionHistoryRecords?: Maybe<Array<Maybe<AddressInjectionHistoryRecord>>>;
+  /**  Delete a single AddressInjectionHistoryRecord item by ID.  */
+  deleteAddressInjectionHistoryRecord?: Maybe<AddressInjectionHistoryRecord>;
+  /**  Delete multiple AddressInjectionHistoryRecord items by ID.  */
+  deleteAddressInjectionHistoryRecords?: Maybe<Array<Maybe<AddressInjectionHistoryRecord>>>;
+  /**  Create a single AddressInjection item.  */
+  createAddressInjection?: Maybe<AddressInjection>;
+  /**  Create multiple AddressInjection items.  */
+  createAddressInjections?: Maybe<Array<Maybe<AddressInjection>>>;
+  /**  Update a single AddressInjection item by ID.  */
+  updateAddressInjection?: Maybe<AddressInjection>;
+  /**  Update multiple AddressInjection items by ID.  */
+  updateAddressInjections?: Maybe<Array<Maybe<AddressInjection>>>;
+  /**  Delete a single AddressInjection item by ID.  */
+  deleteAddressInjection?: Maybe<AddressInjection>;
+  /**  Delete multiple AddressInjection items by ID.  */
+  deleteAddressInjections?: Maybe<Array<Maybe<AddressInjection>>>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -628,6 +1292,68 @@ export type MutationDeleteAddressesArgs = {
 };
 
 
+export type MutationCreateAddressInjectionHistoryRecordArgs = {
+  data?: Maybe<AddressInjectionHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateAddressInjectionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AddressInjectionHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateAddressInjectionHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AddressInjectionHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateAddressInjectionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<AddressInjectionHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAddressInjectionHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAddressInjectionHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateAddressInjectionArgs = {
+  data?: Maybe<AddressInjectionCreateInput>;
+};
+
+
+export type MutationCreateAddressInjectionsArgs = {
+  data?: Maybe<Array<Maybe<AddressInjectionsCreateInput>>>;
+};
+
+
+export type MutationUpdateAddressInjectionArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<AddressInjectionUpdateInput>;
+};
+
+
+export type MutationUpdateAddressInjectionsArgs = {
+  data?: Maybe<Array<Maybe<AddressInjectionsUpdateInput>>>;
+};
+
+
+export type MutationDeleteAddressInjectionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteAddressInjectionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationAuthenticateUserWithPasswordArgs = {
   email?: Maybe<Scalars['String']>;
   password?: Maybe<Scalars['String']>;
@@ -672,6 +1398,22 @@ export type Query = {
   _allAddressesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the Address list.  */
   _AddressesMeta?: Maybe<_ListMeta>;
+  /**  Search for all AddressInjectionHistoryRecord items which match the where clause.  */
+  allAddressInjectionHistoryRecords?: Maybe<Array<Maybe<AddressInjectionHistoryRecord>>>;
+  /**  Search for the AddressInjectionHistoryRecord item with the matching ID.  */
+  AddressInjectionHistoryRecord?: Maybe<AddressInjectionHistoryRecord>;
+  /**  Perform a meta-query on all AddressInjectionHistoryRecord items which match the where clause.  */
+  _allAddressInjectionHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AddressInjectionHistoryRecord list.  */
+  _AddressInjectionHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all AddressInjection items which match the where clause.  */
+  allAddressInjections?: Maybe<Array<Maybe<AddressInjection>>>;
+  /**  Search for the AddressInjection item with the matching ID.  */
+  AddressInjection?: Maybe<AddressInjection>;
+  /**  Perform a meta-query on all AddressInjection items which match the where clause.  */
+  _allAddressInjectionsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the AddressInjection list.  */
+  _AddressInjectionsMeta?: Maybe<_ListMeta>;
   /**  Retrieve the meta-data for all lists.  */
   _ksListsMeta?: Maybe<Array<Maybe<_ListMeta>>>;
   /** The version of the Keystone application serving this API. */
@@ -780,6 +1522,56 @@ export type Query_AllAddressesMetaArgs = {
 };
 
 
+export type QueryAllAddressInjectionHistoryRecordsArgs = {
+  where?: Maybe<AddressInjectionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAddressInjectionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAddressInjectionHistoryRecordArgs = {
+  where: AddressInjectionHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllAddressInjectionHistoryRecordsMetaArgs = {
+  where?: Maybe<AddressInjectionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAddressInjectionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllAddressInjectionsArgs = {
+  where?: Maybe<AddressInjectionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAddressInjectionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAddressInjectionArgs = {
+  where: AddressInjectionWhereUniqueInput;
+};
+
+
+export type Query_AllAddressInjectionsMetaArgs = {
+  where?: Maybe<AddressInjectionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortAddressInjectionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
@@ -818,6 +1610,76 @@ export enum SortAddressHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortAddressInjectionHistoryRecordsBy {
+  CountryAsc = 'country_ASC',
+  CountryDesc = 'country_DESC',
+  RegionAsc = 'region_ASC',
+  RegionDesc = 'region_DESC',
+  AreaAsc = 'area_ASC',
+  AreaDesc = 'area_DESC',
+  CityAsc = 'city_ASC',
+  CityDesc = 'city_DESC',
+  SettlementAsc = 'settlement_ASC',
+  SettlementDesc = 'settlement_DESC',
+  StreetAsc = 'street_ASC',
+  StreetDesc = 'street_DESC',
+  BuildingAsc = 'building_ASC',
+  BuildingDesc = 'building_DESC',
+  BlockAsc = 'block_ASC',
+  BlockDesc = 'block_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortAddressInjectionsBy {
+  CountryAsc = 'country_ASC',
+  CountryDesc = 'country_DESC',
+  RegionAsc = 'region_ASC',
+  RegionDesc = 'region_DESC',
+  AreaAsc = 'area_ASC',
+  AreaDesc = 'area_DESC',
+  CityAsc = 'city_ASC',
+  CityDesc = 'city_DESC',
+  SettlementAsc = 'settlement_ASC',
+  SettlementDesc = 'settlement_DESC',
+  StreetAsc = 'street_ASC',
+  StreetDesc = 'street_DESC',
+  BuildingAsc = 'building_ASC',
+  BuildingDesc = 'building_DESC',
+  BlockAsc = 'block_ASC',
+  BlockDesc = 'block_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortAddressesBy {

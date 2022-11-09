@@ -11,8 +11,6 @@ import {
 import { generateReactHooks } from '@address-service/domains/common/utils/codegeneration/generate.hooks'
 import { Address as AddressGQL } from '@address-service/domains/address/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
-
 const {
     useObject,
     useObjects,

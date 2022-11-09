@@ -6,12 +6,15 @@
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Address = generateServerUtils(AddressGQL)
+const AddressInjection = generateServerUtils(AddressInjectionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     Address,
+    AddressInjection,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
