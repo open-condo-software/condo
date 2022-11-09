@@ -164,7 +164,7 @@ module.exports = {
         new OIDCMiddleware(),
         new FeaturesMiddleware(),
         new PaymentLinkMiddleware(),
-        new AdapterCacheMiddleware(adapterCacheConfiig, ADAPTER_CACHE_CONNECTED_TABLES),
+        new AdapterCacheMiddleware(adapterCacheConfiig),
         new GraphQLApp({
             apollo: {
                 formatError,
