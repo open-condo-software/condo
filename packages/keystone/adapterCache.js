@@ -136,7 +136,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     const keystoneAdapter = keystone.adapter
 
     const cache = middleware.cache
-    const logging = middleware.logging
     const excludedTables = middleware.excludedTables
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
@@ -158,13 +157,12 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
             let key = null
 
             const argsJson = JSON.stringify(args)
-
             if (argsJson !== '{}') {
-                key = listName + '_' + JSON.stringify(args) + '_' + stringifyComplexObj(opts)
+                key = listName + '_' + argsJson + '_' + stringifyComplexObj(opts)
             }
 
             let response = []
-            const cached = cache[listName][key]
+            const cached = key ? cache[listName][key] : false
             const tableLastUpdate = middleware.getState(listName)
 
             if (cached) {
@@ -205,68 +203,43 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         }
 
         const originalUpdate = listAdapter._update
-        listAdapter._update = async ( id, data ) => {
-            const updateResult = await originalUpdate.apply(listAdapter, [id, data] )
-            middleware.setState(listName, updateResult[UPDATED_AT])
-
-            if (listName in middleware.connectedTables) {
-                for (const connectedTable of middleware.connectedTables[listName]) {
-                    middleware.setState(connectedTable, updateResult[UPDATED_AT])
-                }
-            }
-
-            const cacheEvent = middleware.getCacheEvent({
-                type: 'UPDATE',
-                table: listName,
-            })
-            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
-
-            if (logging) { console.info(`UPDATE: ${updateResult}`) }
-            return updateResult
-        }
+        listAdapter._update = patchMutation(listName, 'UPDATE', originalUpdate, listAdapter, middleware)
 
         const originalCreate = listAdapter._create
-        listAdapter._create = async ( data ) => {
-            const createResult = await originalCreate.apply(listAdapter, [data] )
-            middleware.setState(listName, createResult[UPDATED_AT])
-
-            if (listName in middleware.connectedTables) {
-                for (const connectedTable of middleware.connectedTables[listName]) {
-                    middleware.setState(connectedTable, createResult[UPDATED_AT])
-                }
-            }
-
-            const cacheEvent = middleware.getCacheEvent({
-                type: 'CREATE',
-                table: listName,
-            })
-            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
-
-            if (logging) { console.info(`CREATE: ${createResult}`) }
-            return createResult
-        }
+        listAdapter._create = patchMutation(listName, 'CREATE', originalCreate, listAdapter, middleware)
 
         const originalDelete = listAdapter._delete
-        listAdapter._delete = async ( id ) => {
-            const deleteResult = await originalDelete.apply(listAdapter, [id])
-            middleware.setState(listName, deleteResult[UPDATED_AT])
+        listAdapter._delete = patchMutation(listName, 'DELETE', originalDelete, listAdapter, middleware)
+    }
+}
 
-            const cacheEvent = middleware.getCacheEvent({
-                type: 'DELETE',
-                table: listName,
-            })
+/**
+ * Patches a keystone mutation to add cache functionality
+ * @param {string} listName
+ * @param {string} mutationName
+ * @param {function} mutationFunc
+ * @param {{}} listAdapter
+ * @param {AdapterCacheMiddleware} middleware
+ * @returns {function(...[*]): Promise<*>}
+ */
+function patchMutation ( listName, mutationName, mutationFunc, listAdapter, middleware ) {
+    return async ( ...args ) => {
+        const mutationResult = await mutationFunc.apply(listAdapter, args )
+        middleware.setState(listName, mutationResult[UPDATED_AT])
 
-            if (listName in middleware.connectedTables) {
-                for (const connectedTable of middleware.connectedTables[listName]) {
-                    middleware.setState(connectedTable, deleteResult[UPDATED_AT])
-                }
+        if (listName in middleware.connectedTables) {
+            for (const connectedTable of middleware.connectedTables[listName]) {
+                middleware.setState(connectedTable, mutationResult[UPDATED_AT])
             }
-
-            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
-
-            if (logging) { console.info(`DELETE: ${deleteResult}`) }
-            return deleteResult
         }
+
+        if (middleware.debug) {
+            const cacheEvent = middleware.getCacheEvent({ type: listName, table: listName })
+            middleware.writeChangeToHistory({ cache: middleware.cache, event: cacheEvent, table: listName })
+        }
+
+        if (middleware.logging) { console.info(`CREATE: ${mutationResult}`) }
+        return mutationResult
     }
 }
 
