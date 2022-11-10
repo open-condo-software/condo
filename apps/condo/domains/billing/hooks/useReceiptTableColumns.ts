@@ -11,6 +11,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const UnitNameTitle = intl.formatMessage({ id: 'field.UnitName' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const FullNameTitle = intl.formatMessage({ id: 'field.Holder' })
     const DebtTitle = intl.formatMessage({ id: 'DebtOverpayment' })
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
@@ -20,7 +21,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
-
+    
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
@@ -45,7 +46,18 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 filteredValue: get(filters, 'unitName'),
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(UnitNameTitle),
+                width: '10%',
+                render: getTextRender(search),
+            },
+            fullName: {
+                title: FullNameTitle,
+                key: 'fullName',
+                dataIndex: ['account', 'fullName'],
+                sorter: false,
+                filteredValue: get(filters, 'fullName'),
                 width: '15%',
+                filterIcon: getFilterIcon,
+                filterDropdown: getTextFilterDropdown(FullNameTitle),
                 render: getTextRender(search),
             },
             account: {
@@ -99,10 +111,12 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
         }
 
         return detailed
-            ? [columns.address, columns.unitName, columns.account, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            ? [columns.address, columns.unitName, columns.account, columns.fullName, columns.balance, columns.penalty, columns.charge, columns.toPay]
             : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,
+        FullNameTitle,
+        UnitNameTitle,
         AccountTitle,
         ToPayTitle,
         DebtTitle,

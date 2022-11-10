@@ -28,10 +28,10 @@ interface ITableProps extends TableProps<TableRecord> {
     columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
     applyQuery?: (queryParams) => Promise<boolean>
-    shouldHidePaginationOnSinglePage?: boolean,
+    shouldHidePaginationOnSinglePage?: boolean
 }
 
-type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; }
+type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean }
 
 export const DEFAULT_PAGE_SIZE = 30
 const TABLE_STYLE = { width: 'auto' }
