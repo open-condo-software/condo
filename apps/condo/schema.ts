@@ -31969,6 +31969,11 @@ export enum PushTransportType {
   Huawei = 'huawei'
 }
 
+export enum PushType {
+  Default = 'default',
+  SilentData = 'silent_data'
+}
+
 export type Query = {
   __typename?: 'Query';
   /**  Search for all UserHistoryRecord items which match the where clause.  */
@@ -37202,6 +37207,8 @@ export type RemoteClient = {
   pushTransport?: Maybe<RemoteClientPushTransportType>;
   /**  Represents the platform type of the client application like android/ios/web.  */
   devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  /**  Represents the type of push to be sent to the remote client like default/silent-data/etc. Remote client can control structure of data sent via push to the device using this field.Some remote clients are able to show own notifications instead system ones. To do so they have to receive push, containing no notification part, which is sent if this field is equal to PUSH_TYPE_SILENT_DATA.  */
+  pushType?: Maybe<RemoteClientPushTypeType>;
   /**  Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on.  */
   owner?: Maybe<User>;
   /**  RemoteClient metadata. OS type, OS version, etc.  */
@@ -37228,6 +37235,7 @@ export type RemoteClientCreateInput = {
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<RemoteClientPushTransportType>;
   devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  pushType?: Maybe<RemoteClientPushTypeType>;
   owner?: Maybe<UserRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -37263,6 +37271,7 @@ export type RemoteClientHistoryRecord = {
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<Scalars['String']>;
   devicePlatform?: Maybe<Scalars['String']>;
+  pushType?: Maybe<Scalars['String']>;
   owner?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -37286,6 +37295,7 @@ export type RemoteClientHistoryRecordCreateInput = {
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<Scalars['String']>;
   devicePlatform?: Maybe<Scalars['String']>;
+  pushType?: Maybe<Scalars['String']>;
   owner?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -37314,6 +37324,7 @@ export type RemoteClientHistoryRecordUpdateInput = {
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<Scalars['String']>;
   devicePlatform?: Maybe<Scalars['String']>;
+  pushType?: Maybe<Scalars['String']>;
   owner?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -37423,6 +37434,24 @@ export type RemoteClientHistoryRecordWhereInput = {
   devicePlatform_not_ends_with_i?: Maybe<Scalars['String']>;
   devicePlatform_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   devicePlatform_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushType?: Maybe<Scalars['String']>;
+  pushType_not?: Maybe<Scalars['String']>;
+  pushType_contains?: Maybe<Scalars['String']>;
+  pushType_not_contains?: Maybe<Scalars['String']>;
+  pushType_starts_with?: Maybe<Scalars['String']>;
+  pushType_not_starts_with?: Maybe<Scalars['String']>;
+  pushType_ends_with?: Maybe<Scalars['String']>;
+  pushType_not_ends_with?: Maybe<Scalars['String']>;
+  pushType_i?: Maybe<Scalars['String']>;
+  pushType_not_i?: Maybe<Scalars['String']>;
+  pushType_contains_i?: Maybe<Scalars['String']>;
+  pushType_not_contains_i?: Maybe<Scalars['String']>;
+  pushType_starts_with_i?: Maybe<Scalars['String']>;
+  pushType_not_starts_with_i?: Maybe<Scalars['String']>;
+  pushType_ends_with_i?: Maybe<Scalars['String']>;
+  pushType_not_ends_with_i?: Maybe<Scalars['String']>;
+  pushType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  pushType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   owner?: Maybe<Scalars['String']>;
   owner_not?: Maybe<Scalars['String']>;
   owner_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -37528,12 +37557,18 @@ export enum RemoteClientPushTransportType {
   Huawei = 'huawei'
 }
 
+export enum RemoteClientPushTypeType {
+  Default = 'default',
+  SilentData = 'silent_data'
+}
+
 export type RemoteClientUpdateInput = {
   deviceId?: Maybe<Scalars['String']>;
   appId?: Maybe<Scalars['String']>;
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<RemoteClientPushTransportType>;
   devicePlatform?: Maybe<RemoteClientDevicePlatformType>;
+  pushType?: Maybe<RemoteClientPushTypeType>;
   owner?: Maybe<UserRelateToOneInput>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
@@ -37612,6 +37647,10 @@ export type RemoteClientWhereInput = {
   devicePlatform_not?: Maybe<RemoteClientDevicePlatformType>;
   devicePlatform_in?: Maybe<Array<Maybe<RemoteClientDevicePlatformType>>>;
   devicePlatform_not_in?: Maybe<Array<Maybe<RemoteClientDevicePlatformType>>>;
+  pushType?: Maybe<RemoteClientPushTypeType>;
+  pushType_not?: Maybe<RemoteClientPushTypeType>;
+  pushType_in?: Maybe<Array<Maybe<RemoteClientPushTypeType>>>;
+  pushType_not_in?: Maybe<Array<Maybe<RemoteClientPushTypeType>>>;
   owner?: Maybe<UserWhereInput>;
   owner_is_null?: Maybe<Scalars['Boolean']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -43034,6 +43073,8 @@ export enum SortRemoteClientHistoryRecordsBy {
   PushTransportDesc = 'pushTransport_DESC',
   DevicePlatformAsc = 'devicePlatform_ASC',
   DevicePlatformDesc = 'devicePlatform_DESC',
+  PushTypeAsc = 'pushType_ASC',
+  PushTypeDesc = 'pushType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -43063,6 +43104,8 @@ export enum SortRemoteClientsBy {
   PushTransportDesc = 'pushTransport_DESC',
   DevicePlatformAsc = 'devicePlatform_ASC',
   DevicePlatformDesc = 'devicePlatform_DESC',
+  PushTypeAsc = 'pushType_ASC',
+  PushTypeDesc = 'pushType_DESC',
   OwnerAsc = 'owner_ASC',
   OwnerDesc = 'owner_DESC',
   IdAsc = 'id_ASC',
@@ -44731,6 +44774,7 @@ export type SyncRemoteClientInput = {
   pushToken?: Maybe<Scalars['String']>;
   pushTransport?: Maybe<PushTransportType>;
   devicePlatform?: Maybe<DevicePlatformType>;
+  pushType?: Maybe<PushType>;
   meta?: Maybe<Scalars['JSON']>;
 };
 

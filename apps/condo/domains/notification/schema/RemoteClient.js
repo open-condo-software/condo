@@ -12,7 +12,10 @@ const { REQUIRED_NO_VALUE_ERROR, VALUE_TOO_SHORT } = require('@condo/domains/com
 
 const access = require('@condo/domains/notification/access/RemoteClient')
 
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES } = require('../constants/constants')
+const {
+    PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES,
+    PUSH_TYPE_DEFAULT, PUSH_TYPE_SILENT_DATA,
+} = require('@condo/domains/notification/constants/constants')
 
 const APP_ID_MIN_LENGTH = 7
 
@@ -78,6 +81,20 @@ const RemoteClient = new GQLListSchema('RemoteClient', {
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true },
+        },
+
+        pushType: {
+            schemaDoc:  'Represents the type of push to be sent to the remote client like default/silent-data/etc. ' +
+                        'Remote client can control structure of data sent via push to the device using this field.' +
+                        'Some remote clients are able to show own notifications instead system ones. ' +
+                        'To do so they have to receive push, containing no notification part, which is sent if ' +
+                        'this field is equal to PUSH_TYPE_SILENT_DATA.',
+            type: Select,
+            options: PUSH_TYPES,
+            defaultValue: PUSH_TYPE_DEFAULT,
+            isRequired: false,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false },
         },
 
         owner: {

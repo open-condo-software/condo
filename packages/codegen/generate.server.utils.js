@@ -267,9 +267,8 @@ function generateServerUtils (gql) {
         _checkOptions(options)
 
         const existingItem = await getOne(context, where, options)
-        const shouldUpdate = Boolean(existingItem && existingItem.id)
 
-        return shouldUpdate
+        return get(existingItem, 'id')
             ? await update(context, existingItem.id, data, options)
             : await create(context, data, options)
     }

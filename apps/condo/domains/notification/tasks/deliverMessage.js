@@ -22,8 +22,8 @@ const {
     MESSAGE_SENT_STATUS,
 } = require('../constants/constants')
 
-const SEND_TO_CONSOLE = conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE || false
-const DISABLE_LOGGING = conf.NOTIFICATION__DISABLE_LOGGING || false
+const SEND_TO_CONSOLE = `${conf.NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE}`.toLowerCase() === 'true' || false
+const DISABLE_LOGGING = `${conf.NOTIFICATION__DISABLE_LOGGING}`.toLowerCase() === 'true' || false
 const logger = getLogger('notifications/tasks')
 
 const TRANSPORTS = {
