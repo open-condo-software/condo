@@ -320,6 +320,8 @@ export type AddressInjection = {
   building?: Maybe<Scalars['String']>;
   /**  Some part of the building  */
   block?: Maybe<Scalars['String']>;
+  /**  The keywords for searching  */
+  keywords?: Maybe<Scalars['String']>;
   /**  Additional data  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -347,6 +349,7 @@ export type AddressInjectionCreateInput = {
   street?: Maybe<Scalars['String']>;
   building?: Maybe<Scalars['String']>;
   block?: Maybe<Scalars['String']>;
+  keywords?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -378,6 +381,7 @@ export type AddressInjectionHistoryRecord = {
   street?: Maybe<Scalars['String']>;
   building?: Maybe<Scalars['String']>;
   block?: Maybe<Scalars['String']>;
+  keywords?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -403,6 +407,7 @@ export type AddressInjectionHistoryRecordCreateInput = {
   street?: Maybe<Scalars['String']>;
   building?: Maybe<Scalars['String']>;
   block?: Maybe<Scalars['String']>;
+  keywords?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -433,6 +438,7 @@ export type AddressInjectionHistoryRecordUpdateInput = {
   street?: Maybe<Scalars['String']>;
   building?: Maybe<Scalars['String']>;
   block?: Maybe<Scalars['String']>;
+  keywords?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -595,6 +601,24 @@ export type AddressInjectionHistoryRecordWhereInput = {
   block_not_ends_with_i?: Maybe<Scalars['String']>;
   block_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   block_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  keywords?: Maybe<Scalars['String']>;
+  keywords_not?: Maybe<Scalars['String']>;
+  keywords_contains?: Maybe<Scalars['String']>;
+  keywords_not_contains?: Maybe<Scalars['String']>;
+  keywords_starts_with?: Maybe<Scalars['String']>;
+  keywords_not_starts_with?: Maybe<Scalars['String']>;
+  keywords_ends_with?: Maybe<Scalars['String']>;
+  keywords_not_ends_with?: Maybe<Scalars['String']>;
+  keywords_i?: Maybe<Scalars['String']>;
+  keywords_not_i?: Maybe<Scalars['String']>;
+  keywords_contains_i?: Maybe<Scalars['String']>;
+  keywords_not_contains_i?: Maybe<Scalars['String']>;
+  keywords_starts_with_i?: Maybe<Scalars['String']>;
+  keywords_not_starts_with_i?: Maybe<Scalars['String']>;
+  keywords_ends_with_i?: Maybe<Scalars['String']>;
+  keywords_not_ends_with_i?: Maybe<Scalars['String']>;
+  keywords_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  keywords_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -699,6 +723,7 @@ export type AddressInjectionUpdateInput = {
   street?: Maybe<Scalars['String']>;
   building?: Maybe<Scalars['String']>;
   block?: Maybe<Scalars['String']>;
+  keywords?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -858,6 +883,24 @@ export type AddressInjectionWhereInput = {
   block_not_ends_with_i?: Maybe<Scalars['String']>;
   block_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   block_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  keywords?: Maybe<Scalars['String']>;
+  keywords_not?: Maybe<Scalars['String']>;
+  keywords_contains?: Maybe<Scalars['String']>;
+  keywords_not_contains?: Maybe<Scalars['String']>;
+  keywords_starts_with?: Maybe<Scalars['String']>;
+  keywords_not_starts_with?: Maybe<Scalars['String']>;
+  keywords_ends_with?: Maybe<Scalars['String']>;
+  keywords_not_ends_with?: Maybe<Scalars['String']>;
+  keywords_i?: Maybe<Scalars['String']>;
+  keywords_not_i?: Maybe<Scalars['String']>;
+  keywords_contains_i?: Maybe<Scalars['String']>;
+  keywords_not_contains_i?: Maybe<Scalars['String']>;
+  keywords_starts_with_i?: Maybe<Scalars['String']>;
+  keywords_not_starts_with_i?: Maybe<Scalars['String']>;
+  keywords_ends_with_i?: Maybe<Scalars['String']>;
+  keywords_not_ends_with_i?: Maybe<Scalars['String']>;
+  keywords_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  keywords_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -1629,6 +1672,8 @@ export enum SortAddressInjectionHistoryRecordsBy {
   BuildingDesc = 'building_DESC',
   BlockAsc = 'block_ASC',
   BlockDesc = 'block_DESC',
+  KeywordsAsc = 'keywords_ASC',
+  KeywordsDesc = 'keywords_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -1664,6 +1709,8 @@ export enum SortAddressInjectionsBy {
   BuildingDesc = 'building_DESC',
   BlockAsc = 'block_ASC',
   BlockDesc = 'block_DESC',
+  KeywordsAsc = 'keywords_ASC',
+  KeywordsDesc = 'keywords_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

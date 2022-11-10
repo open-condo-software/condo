@@ -7,6 +7,7 @@ const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
 const access = require('@address-service/domains/address/access/AddressInjection')
+const get = require('lodash/get')
 
 const AddressInjection = new GQLListSchema('AddressInjection', {
     schemaDoc: 'Addresses that do not exist in external providers',
@@ -53,11 +54,26 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
             type: Text,
         },
 
+        keywords: {
+            schemaDoc: 'The keywords for searching',
+            type: Text,
+        },
+
         meta: {
             schemaDoc: 'Additional data',
             type: Json,
         },
 
+    },
+    hooks: {
+        resolveInput: async ({ resolvedData, existingItem }) => ({
+            // Actualize address string on every data changing
+            ...resolvedData,
+            keywords: ['country', 'region', 'area', 'city', 'settlement', 'street', 'building', 'block']
+                .map((field) => get({ ...existingItem, ...resolvedData }, field))
+                .filter(Boolean)
+                .join(' '),
+        }),
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

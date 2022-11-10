@@ -11,6 +11,7 @@ const {
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
+const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Address = generateGQLTestUtils(AddressGQL)
@@ -85,10 +86,19 @@ async function updateTestAddressInjection (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function getTestInjections(client, s) {
+    if (!client) throw new Error('no client')
+    if (!s) throw new Error('no string to search')
+
+    const injectionsSeeker = new InjectionsSeeker(s)
+
+    return await AddressInjection.getAll(client, injectionsSeeker.buildWhere())
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     Address, createTestAddress, updateTestAddress,
-    AddressInjection, createTestAddressInjection, updateTestAddressInjection,
+    AddressInjection, createTestAddressInjection, updateTestAddressInjection, getTestInjections,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

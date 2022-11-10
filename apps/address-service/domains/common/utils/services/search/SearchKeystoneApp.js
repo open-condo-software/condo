@@ -78,12 +78,12 @@ class SearchKeystoneApp {
 
             const searchProvider = searchDetector.getProvider(geo)
 
-            const denormalizedSuggestions = await searchProvider.get({ query: s, context })
-            if (denormalizedSuggestions.length === 0) {
+            const denormalizedRows = await searchProvider.get({ query: s, context })
+            if (denormalizedRows.length === 0) {
                 res.send(404)
                 return
             }
-            const searchResult = searchProvider.normalize(denormalizedSuggestions)
+            const searchResult = searchProvider.normalize(denormalizedRows)
 
             // Use the first result for a while
             const addressKey = generateAddressKey(searchResult[0])
@@ -95,20 +95,23 @@ class SearchKeystoneApp {
                 // todo(nas): Update existing model or not? That's the question.
                 addressItem = addressFoundByKey
             } else {
-                addressItem = await Address.create(godContext, {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'address-service' },
-                    source: s,
-                    address: searchResult[0].value,
-                    key: addressKey,
-                    meta: {
-                        provider: {
-                            name: searchProvider.getProviderName(),
-                            rawData: denormalizedSuggestions[0],
+                addressItem = await Address.create(
+                    godContext,
+                    {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: 'address-service' },
+                        source: s,
+                        address: searchResult[0].value,
+                        key: addressKey,
+                        meta: {
+                            provider: {
+                                name: searchProvider.getProviderName(),
+                                rawData: denormalizedRows[0],
+                            },
+                            data: get(searchResult, [0, 'data'], {}),
                         },
-                        data: get(searchResult, [0, 'data'], {}),
                     },
-                })
+                )
             }
 
             res.json(this.createReturnObject(addressItem))
