@@ -3,10 +3,11 @@
  *
  */
 
-
 const { get, cloneDeep } = require('lodash')
+const { getRedisClient } = require('./redis')
 
 const UPDATED_AT = 'updatedAt'
+const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 
 /**
  * TODO (toplenboren) (DOMA-2681) move this to auto detection algorithm or env!
@@ -41,7 +42,7 @@ class AdapterCacheMiddleware {
 
             // Redis is used as State:
             // State: table_name -> lastUpdate
-            this.redisUrl = get(parsedConfig, 'redisUrl')
+            this.redisClient = getRedisClient('adapterCacheState')
 
             // This mechanism allows to skip caching some tables.
             // Useful for hotfixes or disabling cache for business critical tables
@@ -72,12 +73,12 @@ class AdapterCacheMiddleware {
         }
     }
 
-    setState (key, value) {
-        this.state[key] = value
+    async setState (key, value) {
+        await this.redisClient.set(`${STATE_REDIS_KEY_PREFIX}:${key}`, value)
     }
 
-    getState (key) {
-        return this.state[key]
+    async getState (key) {
+        return await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${key}`)
     }
 
     writeChangeToHistory ({ cache, event, table }) {
@@ -168,7 +169,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
             let response = []
             const cached = key ? cache[listName][key] : false
-            const tableLastUpdate = middleware.getState(listName)
+            const tableLastUpdate = await middleware.getState(listName)
 
             if (cached) {
                 const cacheLastUpdate = cached.lastUpdate
@@ -230,15 +231,15 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 function patchMutation ( listName, mutationName, mutationFunc, listAdapter, middleware ) {
     return async ( ...args ) => {
         const mutationResult = await mutationFunc.apply(listAdapter, args )
-        middleware.setState(listName, mutationResult[UPDATED_AT])
+        await middleware.setState(listName, mutationResult[UPDATED_AT])
 
         if (listName in middleware.connectedTables) {
             for (const connectedTable of middleware.connectedTables[listName]) {
-                middleware.setState(connectedTable, mutationResult[UPDATED_AT])
+                await middleware.setState(connectedTable, mutationResult[UPDATED_AT])
             }
         }
 
-        if (middleware.debug) {
+        if (middleware.debugMode) {
             const cacheEvent = middleware.getCacheEvent({ type: listName, table: listName })
             middleware.writeChangeToHistory({ cache: middleware.cache, event: cacheEvent, table: listName })
         }
