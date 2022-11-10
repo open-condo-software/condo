@@ -67,3 +67,7 @@ jobs:
       - name: test app/property_importer
         run: |
           yarn workspace @app/property-importer build
+
+      - name: test app/registry
+        run: |
+          yarn workspace @app/registry build
