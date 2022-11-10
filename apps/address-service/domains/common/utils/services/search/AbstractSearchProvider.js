@@ -34,7 +34,7 @@ class AbstractSearchProvider {
 
     /**
      * Returns the context object
-     * @param {string?} context
+     * @param {?string} context
      * @returns {Object}
      * @protected
      */

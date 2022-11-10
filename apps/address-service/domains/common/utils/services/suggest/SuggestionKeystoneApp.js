@@ -5,7 +5,7 @@ const { SuggestionProviderDetector } = require('@address-service/domains/common/
 
 class SuggestionKeystoneApp {
     /**
-     * @param params
+     * @param {{ keystone, distDir, dev }} params
      * @returns {Express}
      */
     prepareMiddleware (params) {
