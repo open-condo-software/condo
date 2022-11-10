@@ -2,13 +2,14 @@ const get = require('lodash/get')
 const pluralize = require('pluralize')
 
 const RAW_INT_TYPES = ['fontWeight', 'opacity']
+const RELATIVE_EM_TYPES = ['letterSpacing', 'paragraphSpacing']
 
 const SHRINKABLE_HEX_PATTERN = /^#(([0-9a-f])\2){3}$/i
 
 const WEIGHT_TO_INT = {
     light: 300,
     regular: 400,
-    semiBold: 700,
+    semiBold: 600,
     bold: 700,
     extraBold: 800,
 }
@@ -161,6 +162,24 @@ const lowerHexTransformer = {
     },
 }
 
+
+/**
+ * Transform relative values in percents to em
+ */
+const percentToEmTransformer = {
+    name: 'transformer/percent-to-em',
+    type: 'value',
+    matcher: (token) => {
+        const isTypeMatch = isMatchingType(token, RELATIVE_EM_TYPES)
+        const isPercent = Boolean(typeof token.value === 'string' && token.value.endsWith('%'))
+
+        return isTypeMatch && isPercent
+    },
+    transformer: (token) => {
+        return `${(parseFloat(token.value) / 100).toFixed(2)}em`
+    },
+}
+
 const allTransformers = [
     getDefaultFontTransformer(),
     intToPxTransformer,
@@ -168,6 +187,7 @@ const allTransformers = [
     boxShadowTransformer,
     shortHexTransformer,
     lowerHexTransformer,
+    percentToEmTransformer,
 ]
 
 const webVarsTransformersChain = [
@@ -178,6 +198,7 @@ const webVarsTransformersChain = [
     'transformer/shadow-css',
     'transformer/short-hex',
     'transformer/lower-hex',
+    'transformer/percent-to-em',
 ]
 
 module.exports = {

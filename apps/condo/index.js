@@ -122,6 +122,7 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/organization/tasks'),
         require('@condo/domains/ticket/tasks'),
         require('@condo/domains/resident/tasks'),
+        require('@condo/webhooks/tasks'),
     ])
 
     registerTriggers([

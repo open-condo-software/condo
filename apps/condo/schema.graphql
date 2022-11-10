@@ -41652,6 +41652,7 @@ type WebhookSubscriptionHistoryRecord {
   url: String
   syncedAt: String
   syncedAmount: Int
+  failuresCount: Int
   model: String
   fields: String
   filters: JSON
@@ -41712,6 +41713,14 @@ input WebhookSubscriptionHistoryRecordWhereInput {
   syncedAmount_gte: Int
   syncedAmount_in: [Int]
   syncedAmount_not_in: [Int]
+  failuresCount: Int
+  failuresCount_not: Int
+  failuresCount_lt: Int
+  failuresCount_lte: Int
+  failuresCount_gt: Int
+  failuresCount_gte: Int
+  failuresCount_in: [Int]
+  failuresCount_not_in: [Int]
   model: String
   model_not: String
   model_contains: String
@@ -41849,6 +41858,8 @@ enum SortWebhookSubscriptionHistoryRecordsBy {
   syncedAt_DESC
   syncedAmount_ASC
   syncedAmount_DESC
+  failuresCount_ASC
+  failuresCount_DESC
   model_ASC
   model_DESC
   fields_ASC
@@ -41878,6 +41889,7 @@ input WebhookSubscriptionHistoryRecordUpdateInput {
   url: String
   syncedAt: String
   syncedAmount: Int
+  failuresCount: Int
   model: String
   fields: String
   filters: JSON
@@ -41906,6 +41918,7 @@ input WebhookSubscriptionHistoryRecordCreateInput {
   url: String
   syncedAt: String
   syncedAmount: Int
+  failuresCount: Int
   model: String
   fields: String
   filters: JSON
@@ -41961,6 +41974,10 @@ type WebhookSubscription {
   """ The number of objects successfully delivered by webhooks. On successful synchronization, the syncedAt field is updated and syncedAmount becomes 0. If the remote server fails, syncedAt will not be updated, and syncedAmount will increment to the number of successfully delivered objects. 
   """
   syncedAmount: Int
+
+  """ The number of consecutive failures to send webhooks to a remote server. Field value is automatically incremented when the specified url is unavailable or the server response was not ok, but no more than once per hour. Field value is automatically reset to 0 when the remote server is successfully reached (syncedAt or syncedAmount changed), or can be manually reset by support. As soon as the counter reaches the value 10, which is interpreted as the unavailability of the external service for at least 10 hours, the webhook will stop being sent to this url. In this case, you will need to manually reset the counter via support to resume sending. 
+  """
+  failuresCount: Int
 
   """ The data model (schema) that the webhook is subscribed to """
   model: String
@@ -42038,6 +42055,14 @@ input WebhookSubscriptionWhereInput {
   syncedAmount_gte: Int
   syncedAmount_in: [Int]
   syncedAmount_not_in: [Int]
+  failuresCount: Int
+  failuresCount_not: Int
+  failuresCount_lt: Int
+  failuresCount_lte: Int
+  failuresCount_gt: Int
+  failuresCount_gte: Int
+  failuresCount_in: [Int]
+  failuresCount_not_in: [Int]
   model: String
   model_not: String
   model_in: [String]
@@ -42143,6 +42168,8 @@ enum SortWebhookSubscriptionsBy {
   syncedAt_DESC
   syncedAmount_ASC
   syncedAmount_DESC
+  failuresCount_ASC
+  failuresCount_DESC
   model_ASC
   model_DESC
   fields_ASC
@@ -42172,6 +42199,7 @@ input WebhookSubscriptionUpdateInput {
   url: String
   syncedAt: String
   syncedAmount: Int
+  failuresCount: Int
   model: String
   fields: String
   filters: JSON
@@ -42197,6 +42225,7 @@ input WebhookSubscriptionCreateInput {
   url: String
   syncedAt: String
   syncedAmount: Int
+  failuresCount: Int
   model: String
   fields: String
   filters: JSON

@@ -10,7 +10,6 @@ const baseCssLoaders = [
 ]
 
 module.exports = {
-    mode: 'production',
     entry: {
         'index': './src/index.ts',
         'colors/index': './src/colors/index.ts',
@@ -33,13 +32,6 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                test: /\.tsx?$/,
-                use: [
-                    'babel-loader',
-                ],
-                exclude: /node_modules/,
-            },
             {
                 test: /\.css$/,
                 use: baseCssLoaders,

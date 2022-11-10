@@ -178,19 +178,19 @@ function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
  * For more info look up to the https://github.com/open-condo-software/condo/pull/232/files#r664256921
  */
 function applySoftDeletedFilters (access, deletedAtField, args) {
+    const currentWhereFilters = getWhereVariables(args)
+    // If the filtering parameter is called not "where" or we want to skip this logic
+    const queryDeleted = get(args, ['context', 'req', 'query', 'deleted'])
+
+    // If we explicitly pass the deletedAt filter - we wont hide deleted items
+    if (queryDeleted || _queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
+        return access
+    }
+
     const type = getType(access)
     if (type === 'Boolean') {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
-        const currentWhereFilters = getWhereVariables(args)
-        // If the filtering parameter is called not "where" or we want to skip this logic
-        const queryDeleted = get(args, ['context', 'req', 'query', 'deleted'])
-
-        // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (queryDeleted || _queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
-            return access
-        }
-
         const anyFilterByDeleted = Object.keys(access).find((x) => x.startsWith(deletedAtField))
         if (anyFilterByDeleted) return access
         return {
@@ -198,6 +198,7 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
             [deletedAtField]: null,
         }
     }
+
     throw new Error(
         `applySoftDeletedFilters() accept a boolean or a object, received ${type}.`,
     )

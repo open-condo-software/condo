@@ -29,10 +29,11 @@
     "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",
-    "build:lib": "webpack && tsc --project tsconfig.prod.json",
+    "build:lib": "webpack --config webpack.prod.js && tsc --project tsconfig.prod.json",
     "build": "yarn build:tokens && yarn build:lib",
     "build:sb": "yarn build:tokens && build-storybook",
     "dev": "yarn build:tokens && start-storybook -p 6006",
+    "watch": "yarn build:tokens && webpack --config webpack.dev.js",
     "prepack": "yarn install --mode update-lockfile && yarn build"
   },
   "files": [
@@ -41,11 +42,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
+    ".": "./dist/index.js",
     "./colors": "./dist/colors/index.js",
-    "./src/": "./src/"
+    "./src": "./src/index.ts",
+    "./src/": "./src/",
+    "./dist/": "./dist/"
   },
   "typesVersions": {
     "*": {
+      "index.d.ts": [
+        "dist/index.d.ts"
+      ],
       "colors": [
         "dist/colors/index.d.ts"
       ]
@@ -94,11 +101,18 @@
     "style-dictionary": "^3.7.1",
     "style-loader": "^3.3.1",
     "token-transformer": "^0.0.27",
+    "ts-loader": "^9.4.1",
     "typescript": "^4.1.5",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "webpack-merge": "^5.8.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "antd": "^4.23.1",
+    "classnames": "^2.3.2"
   }
 }
