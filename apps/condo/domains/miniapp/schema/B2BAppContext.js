@@ -6,6 +6,7 @@ const { Relationship } = require('@keystonejs/fields')
 const { Json } = require('@condo/keystone/fields')
 const { GQLListSchema } = require('@condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { webHooked } = require('@condo/webhooks/plugins')
 const access = require('@condo/domains/miniapp/access/B2BAppContext')
 const { NO_CONTEXT_STATUS_ERROR } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
@@ -84,7 +85,15 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        uuided(),
+        versioned(),
+        tracked(),
+        softDeleted(),
+        dvAndSender(),
+        historical(),
+        webHooked(),
+    ],
     access: {
         read: access.canReadB2BAppContexts,
         create: access.canManageB2BAppContexts,
