@@ -69,7 +69,7 @@ const prepareAndSendMessage = async (context, target, batch, today) => {
                 userId: get(to, 'to.user.id'),
                 target: target,
                 url: batch.deepLink,
-                marketingMessageId: batch.id,
+                batchId: batch.id,
             },
         },
         sender: { dv: 1, fingerprint: 'send-message-batch-notification' },

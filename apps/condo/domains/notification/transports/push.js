@@ -19,11 +19,18 @@ async function getTokens (userId) {
         pushToken_not: null,
         pushTransport: PUSH_TRANSPORT_FIREBASE,
     }
-    const tokenData =  await find('RemoteClient', condition)
+    const remoteClients =  await find('RemoteClient', condition)
+    const tokens = []
+    const pushTypes = {}
 
-    if (isEmpty(tokenData)) return []
+    if (!isEmpty(remoteClients)) {
+        remoteClients.forEach(({ pushToken, pushType }) => {
+            tokens.push(pushToken)
+            pushTypes[pushToken] = pushType
+        })
+    }
 
-    return tokenData.map(token => token.pushToken)
+    return { tokens, pushTypes }
 }
 
 async function prepareMessageToSend (message) {
@@ -32,11 +39,9 @@ async function prepareMessageToSend (message) {
 
 async function send ({ notification, data } = {}) {
     const { userId } = data
-    const tokens = await getTokens(userId)
+    const { tokens, pushTypes } = await getTokens(userId)
 
-    const result = await adapter.sendNotification({ tokens, notification, data })
-
-    return result
+    return await adapter.sendNotification({ tokens, pushTypes, notification, data })
 }
 
 module.exports = {

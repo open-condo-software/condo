@@ -1,15 +1,18 @@
 const admin = require('firebase-admin')
-const isEmpty = require('lodash/isEmpty')
-const isNull = require('lodash/isNull')
-const get = require('lodash/get')
-const isString = require('lodash/isString')
+const { isEmpty, isNull, get, isString } = require('lodash')
 const faker = require('faker')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
-const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL, FIREBASE_CONFIG_ENV } = require('../constants/constants')
-const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../constants/errors')
+const {
+    PUSH_FAKE_TOKEN_SUCCESS,
+    PUSH_FAKE_TOKEN_FAIL,
+    FIREBASE_CONFIG_ENV,
+    PUSH_TYPE_DEFAULT,
+    PUSH_TYPE_SILENT_DATA,
+} = require('@condo/domains/notification/constants/constants')
+const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('@condo/domains/notification/constants/errors')
 
 const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 
@@ -117,24 +120,39 @@ class FirebaseAdapter {
      * @param tokens
      * @returns {*[][]}
      */
-    prepareBatchData (notificationRaw, data, tokens = []) {
+    prepareBatchData (notificationRaw, data, tokens = [], pushTypes = {}) {
         const notification = this.validateAndPrepareNotification(notificationRaw)
         const notifications = []
         const fakeNotifications = []
+        const pushContext = {}
 
         tokens.forEach((pushToken) => {
             const isFakeToken = pushToken.startsWith(PUSH_FAKE_TOKEN_SUCCESS) || pushToken.startsWith(PUSH_FAKE_TOKEN_FAIL)
             const target = isFakeToken ? fakeNotifications : notifications
+            const pushType = pushTypes[pushToken] || PUSH_TYPE_DEFAULT
+            const pushData = pushType === PUSH_TYPE_SILENT_DATA
+                ? {
+                    token: pushToken,
+                    data: {
+                        ...FirebaseAdapter.prepareData(data, pushToken),
+                        '_title': notification.title,
+                        '_body': notification.body,
+                    },
+                    ...DEFAULT_PUSH_SETTINGS,
+                }
+                : {
+                    token: pushToken,
+                    data: FirebaseAdapter.prepareData(data, pushToken),
+                    notification,
+                    ...DEFAULT_PUSH_SETTINGS,
+                }
 
-            target.push({
-                token: pushToken,
-                data: FirebaseAdapter.prepareData(data, pushToken),
-                notification,
-                ...DEFAULT_PUSH_SETTINGS,
-            })
+            target.push(pushData)
+
+            if (!pushContext[pushType]) pushContext[pushType] = pushData
         })
 
-        return [notifications, fakeNotifications]
+        return [notifications, fakeNotifications, pushContext]
     }
 
     /**
@@ -171,12 +189,13 @@ class FirebaseAdapter {
      * @param notification
      * @param tokens
      * @param data
+     * @param pushTypes
      * @returns {Promise<null|(boolean|T|{state: string, error: *})[]>}
      */
-    async sendNotification ({ notification, data, tokens } = {}) {
+    async sendNotification ({ notification, data, tokens, pushTypes } = {}) {
         if (!tokens || isEmpty(tokens)) return [false, { error: 'No pushTokens available.' }]
 
-        const [notifications, fakeNotifications] = this.prepareBatchData(notification, data, tokens)
+        const [notifications, fakeNotifications, pushContext] = this.prepareBatchData(notification, data, tokens, pushTypes)
         let result
 
         // If we come up to here and no real tokens provided, that means fakeNotifications contains
@@ -191,7 +210,14 @@ class FirebaseAdapter {
                 const fbResult = await this.app.messaging().sendAll(notifications)
 
                 if (!isEmpty(fbResult.responses)) {
-                    fbResult.responses = fbResult.responses.map((response, idx) => ({ ...response, pushToken: notifications[idx].token }))
+                    fbResult.responses = fbResult.responses.map(
+                        (response, idx) =>
+                            ({
+                                ...response,
+                                pushToken: notifications[idx].token,
+                                pushType: pushTypes[notifications[idx].token],
+                            })
+                    )
                 }
 
                 result = this.injectFakeResults(fbResult, fakeNotifications)
@@ -204,7 +230,7 @@ class FirebaseAdapter {
 
         const isOk = !isEmpty(result) && result.successCount > 0
 
-        return [isOk, result]
+        return [isOk, { ...result, pushContext }]
     }
 }
 

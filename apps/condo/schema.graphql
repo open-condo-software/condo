@@ -23341,6 +23341,7 @@ type RemoteClientHistoryRecord {
   pushToken: String
   pushTransport: String
   devicePlatform: String
+  pushType: String
   owner: String
   meta: JSON
   id: ID!
@@ -23451,6 +23452,24 @@ input RemoteClientHistoryRecordWhereInput {
   devicePlatform_not_ends_with_i: String
   devicePlatform_in: [String]
   devicePlatform_not_in: [String]
+  pushType: String
+  pushType_not: String
+  pushType_contains: String
+  pushType_not_contains: String
+  pushType_starts_with: String
+  pushType_not_starts_with: String
+  pushType_ends_with: String
+  pushType_not_ends_with: String
+  pushType_i: String
+  pushType_not_i: String
+  pushType_contains_i: String
+  pushType_not_contains_i: String
+  pushType_starts_with_i: String
+  pushType_not_starts_with_i: String
+  pushType_ends_with_i: String
+  pushType_not_ends_with_i: String
+  pushType_in: [String]
+  pushType_not_in: [String]
   owner: String
   owner_not: String
   owner_in: [String]
@@ -23552,6 +23571,8 @@ enum SortRemoteClientHistoryRecordsBy {
   pushTransport_DESC
   devicePlatform_ASC
   devicePlatform_DESC
+  pushType_ASC
+  pushType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -23576,6 +23597,7 @@ input RemoteClientHistoryRecordUpdateInput {
   pushToken: String
   pushTransport: String
   devicePlatform: String
+  pushType: String
   owner: String
   meta: JSON
   v: Int
@@ -23603,6 +23625,7 @@ input RemoteClientHistoryRecordCreateInput {
   pushToken: String
   pushTransport: String
   devicePlatform: String
+  pushType: String
   owner: String
   meta: JSON
   v: Int
@@ -23633,6 +23656,11 @@ enum RemoteClientDevicePlatformType {
   android
   ios
   web
+}
+
+enum RemoteClientPushTypeType {
+  default
+  silent_data
 }
 
 """ Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. RemoteClient could be mobile or web based. RemoteClient could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncRemoteClientService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncRemoteClientService. 
@@ -23666,6 +23694,10 @@ type RemoteClient {
   """ Represents the platform type of the client application like android/ios/web. 
   """
   devicePlatform: RemoteClientDevicePlatformType
+
+  """ Represents the type of push to be sent to the remote client like default/silent-data/etc. Remote client can control structure of data sent via push to the device using this field.Some remote clients are able to show own notifications instead system ones. To do so they have to receive push, containing no notification part, which is sent if this field is equal to PUSH_TYPE_SILENT_DATA. 
+  """
+  pushType: RemoteClientPushTypeType
 
   """ Owner user of a device and a push token. User, which is logged in on the device. Push token can be created by anonymous user and connected to authorized user later on. 
   """
@@ -23761,6 +23793,10 @@ input RemoteClientWhereInput {
   devicePlatform_not: RemoteClientDevicePlatformType
   devicePlatform_in: [RemoteClientDevicePlatformType]
   devicePlatform_not_in: [RemoteClientDevicePlatformType]
+  pushType: RemoteClientPushTypeType
+  pushType_not: RemoteClientPushTypeType
+  pushType_in: [RemoteClientPushTypeType]
+  pushType_not_in: [RemoteClientPushTypeType]
   owner: UserWhereInput
   owner_is_null: Boolean
   meta: JSON
@@ -23840,6 +23876,8 @@ enum SortRemoteClientsBy {
   pushTransport_DESC
   devicePlatform_ASC
   devicePlatform_DESC
+  pushType_ASC
+  pushType_DESC
   owner_ASC
   owner_DESC
   id_ASC
@@ -23866,6 +23904,7 @@ input RemoteClientUpdateInput {
   pushToken: String
   pushTransport: RemoteClientPushTransportType
   devicePlatform: RemoteClientDevicePlatformType
+  pushType: RemoteClientPushTypeType
   owner: UserRelateToOneInput
   meta: JSON
   v: Int
@@ -23890,6 +23929,7 @@ input RemoteClientCreateInput {
   pushToken: String
   pushTransport: RemoteClientPushTransportType
   devicePlatform: RemoteClientDevicePlatformType
+  pushType: RemoteClientPushTypeType
   owner: UserRelateToOneInput
   meta: JSON
   v: Int
@@ -43047,6 +43087,11 @@ enum DevicePlatformType {
   web
 }
 
+enum PushType {
+  default
+  silent_data
+}
+
 input SyncRemoteClientInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -43055,6 +43100,7 @@ input SyncRemoteClientInput {
   pushToken: String
   pushTransport: PushTransportType
   devicePlatform: DevicePlatformType
+  pushType: PushType
   meta: JSON
 }
 

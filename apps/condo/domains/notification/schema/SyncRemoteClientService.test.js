@@ -6,18 +6,21 @@ const faker = require('faker')
 
 const { makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { RemoteClient, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
-
-const { getRandomTokenData } = require('../utils/testSchema/helpers')
+const { PUSH_TYPE_SILENT_DATA } = require('@condo/domains/notification/constants/constants')
+const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
+const {
+    RemoteClient, syncRemoteClientByTestClient,
+} = require('@condo/domains/notification/utils/testSchema')
 
 describe('SyncRemoteClientService', () => {
     describe('Anonymous', () => {
-        it('registers deviceId + pushTransport (no pushToken/meta | pushToken | meta | pushToken + meta)', async () => {
+        it('registers deviceId + pushTransport (no pushToken/meta | pushToken | meta | pushType | pushToken + meta)', async () => {
             const client = await makeClient()
             const payload = getRandomTokenData({ pushToken: null, meta: null }) // no meta or pushToken
             const payload1 = getRandomTokenData({ meta: null }) // no meta, with pushToken
             const payload2 = getRandomTokenData({ pushToken: null }) // no pushToken, with meta
             const payload3 = getRandomTokenData() // with meta & pushToken
+            const payload4 = getRandomTokenData({ pushType: PUSH_TYPE_SILENT_DATA }) // with pushType
 
             const [device] = await syncRemoteClientByTestClient(client, payload)
 
@@ -62,6 +65,18 @@ describe('SyncRemoteClientService', () => {
             expect(device3.pushToken).toEqual(payload3.pushToken)
             expect(device3.meta).toEqual(payload3.meta)
             expect(device3.owner).toBeNull()
+
+            const [device4] = await syncRemoteClientByTestClient(client, payload4)
+
+            expect(device4.id).not.toBeFalsy()
+            expect(device4.deviceId).toEqual(payload4.deviceId)
+            expect(device4.appId).toEqual(payload4.appId)
+            expect(device4.pushTransport).toEqual(payload4.pushTransport)
+            expect(device4.devicePlatform).toEqual(payload4.devicePlatform)
+            expect(device4.pushToken).toEqual(payload4.pushToken)
+            expect(device4.pushType).toEqual(payload4.pushType)
+            expect(device4.owner).toBeNull()
+
         })
 
         it('registers deviceId + pushTransport & updates pushToken', async () => {
