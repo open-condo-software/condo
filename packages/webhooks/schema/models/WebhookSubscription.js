@@ -4,7 +4,12 @@ const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = req
 const { GQLListSchema } = require('@condo/keystone/schema')
 const access = require('@condo/webhooks/schema/access/WebhookSubscription')
 const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@condo/webhooks/model-validator')
-const { DEFAULT_MAX_PACK_SIZE, UNAVAILABILITY_THRESHOLD } = require('@condo/webhooks/constants')
+const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@condo/webhooks/constants')
+const conf = require('@condo/config')
+
+const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
+    ? conf['WEBHOOK_BLOCK_THRESHOLD']
+    : DEFAULT_UNAVAILABILITY_THRESHOLD
 
 function getWebhookSubscriptionModel (schemaPath) {
     if (!getModelValidator()) {
