@@ -114,7 +114,7 @@ async function sendWebhook (subscriptionId) {
                 logger.info({ message: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
             }
 
-            // Step 2: Update subscription state if full batch received. Else condition will lead to final update
+            // Step 3: Update subscription state if full batch received. Else condition will lead to final update
             if (lastLoaded === packSize) {
                 await WebhookSubscription.update(keystone, subscriptionId, {
                     syncedAmount: totalLoaded,

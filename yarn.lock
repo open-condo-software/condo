@@ -4983,6 +4983,7 @@ __metadata:
   resolution: "@condo/webhooks@workspace:packages/webhooks"
   dependencies:
     "@condo/codegen": "workspace:^"
+    "@condo/config": "workspace:^"
     "@condo/keystone": "workspace:^"
     "@graphql-tools/graphql-file-loader": ^7.5.5
     "@keystonejs/fields": ^22.1.3

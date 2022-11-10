@@ -6,6 +6,7 @@ const {
     createTestWebhookSubscription,
     softDeleteTestWebhook,
     softDeleteTestWebhookSubscription,
+    updateTestWebhookSubscription,
 } = require('@condo/webhooks/schema/utils/testSchema')
 const dayjs = require('dayjs')
 
@@ -34,8 +35,6 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
 })
 
 const { sendWebhook } = require('@condo/webhooks/tasks/sendWebhook')
-const { updateTestWebhookSubscription } = require('../schema/utils/testSchema')
-
 
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
