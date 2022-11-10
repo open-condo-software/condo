@@ -60,7 +60,7 @@ class AdapterCacheMiddleware {
             this.cacheHistory = {}
             this.cacheCallHistory = []
             if (this.debugMode) {
-                console.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON_LOCAL ENVIRONMENT, OR WITH RUNNING BIG TESTSUITES')
+                console.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON LOCAL ENVIRONMENT')
             }
 
             // This is just a hack that allows to drop state for more then one table for specific usecases.
