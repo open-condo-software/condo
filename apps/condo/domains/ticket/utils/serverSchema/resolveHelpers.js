@@ -1,5 +1,6 @@
 const { isUndefined, isEmpty, get } = require('lodash')
 const dayjs = require('dayjs')
+
 const { find } = require('@open-condo/keystone/schema')
 const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -82,7 +83,7 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
     }
 }
 
-function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus, originalInput) {
+function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus) {
     if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
         resolvedData.deferredUntil = null
     }

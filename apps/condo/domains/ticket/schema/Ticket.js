@@ -46,10 +46,13 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
-
-const { createTicketChange, ticketChangeDisplayNameResolversForSingleRelations, relatedManyToManyResolvers } = require('../utils/serverSchema/TicketChange')
-const { sendTicketNotifications } = require('../utils/handlers')
-const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('../constants')
+const {
+    createTicketChange,
+    ticketChangeDisplayNameResolversForSingleRelations,
+    relatedManyToManyResolvers,
+} = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
+const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
+const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -375,7 +378,7 @@ const Ticket = new GQLListSchema('Ticket', {
             schemaDoc: 'Date until which the ticket is deferred',
             type: DateTimeUtc,
             hooks: {
-                validateInput: async ({ resolvedData, addFieldValidationError, existingItem, originalInput }) => {
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
                     if (!resolvedData.deferredUntil) return
 
                     const deferredUntil = dayjs(resolvedData.deferredUntil)
@@ -394,7 +397,7 @@ const Ticket = new GQLListSchema('Ticket', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
-        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem, originalInput }) => {
+        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
             await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
@@ -414,7 +417,7 @@ const Ticket = new GQLListSchema('Ticket', {
                     await calculateReopenedCounter(context, existingItem, resolvedData, existedStatus, resolvedStatus)
                     calculateCompletedAt(resolvedData, existedStatus, resolvedStatus)
                     calculateStatusUpdatedAt(resolvedData, existedStatusId, resolvedStatusId)
-                    calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus, originalInput)
+                    calculateDeferredUntil(resolvedData, existedStatus, resolvedStatus)
                 }
 
                 // todo (DOMA-4092) delete this code when in mob. app will add feature deferred ticket with selecting date

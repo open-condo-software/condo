@@ -3,9 +3,9 @@
  */
 const faker = require('faker')
 const dayjs = require('dayjs')
+const { get } = require('lodash')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor, setIsFeatureFlagsEnabled } = require('@open-condo/keystone/test.utils')
-
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -15,9 +15,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-
 const { createTestDivision } = require('@condo/domains/division/utils/testSchema')
-
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
@@ -25,14 +23,10 @@ const {
     TICKET_STATUS_COMPLETED_TYPE,
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
-    MESSAGE_ERROR_STATUS,
     MESSAGE_SENT_STATUS,
     TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { Message, MessageOrganizationBlackList, updateTestMessageOrganizationBlackList } = require('@condo/domains/notification/utils/testSchema')
-
-const { DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
-
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
@@ -41,7 +35,6 @@ const {
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithProperty,
@@ -49,23 +42,23 @@ const {
     updateTestProperty,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
-
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-
-const { Ticket, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser, createTestEmail, createTestPhone, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { STATUS_IDS } = require('../constants/statusTransitions')
+const { Ticket, createTestTicket, updateTestTicket, TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
+const {
+    makeClientWithResidentUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestPhone,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
+const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
     REVIEW_VALUES,
     DEFERRED_STATUS_TYPE,
     CANCELED_STATUS_TYPE,
     NEW_OR_REOPENED_STATUS_TYPE,
     DEFAULT_DEFERRED_DAYS,
-} = require('../constants')
-const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
-const { get } = require('lodash')
+} = require('@condo/domains/ticket/constants')
 
 describe('Ticket', () => {
     describe('CRUD', () => {
