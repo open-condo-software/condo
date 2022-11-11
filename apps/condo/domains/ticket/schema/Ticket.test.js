@@ -130,19 +130,20 @@ describe('Ticket', () => {
             })
         })
 
-        test('resident: can create ticket without deadline and set deadline from TicketOrganizationSetting', async () => {
+        test('resident: can create ticket without deadline and set default deadline', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
                 unitName,
             })
-
             const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
                 unitName,
             })
-
-            const durationAsMs = dayjs.duration(DEFAULT_TICKET_DEADLINE_DURATION).asMilliseconds()
+            const ticketSetting = await TicketOrganizationSetting.getOne(admin, {
+                organization: { id: userClient.organization.id },
+            })
+            const durationAsMs = dayjs.duration(ticketSetting.defaultDeadlineDuration).asMilliseconds()
             const expectedDeadline = dayjs().add(durationAsMs, 'ms').toISOString()
             expect(ticket.deadline).not.toBeNull()
             expect(dayjs(ticket.deadline).diff(expectedDeadline, 'days')).toEqual(0)
