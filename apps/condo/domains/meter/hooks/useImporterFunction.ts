@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef } from 'react'
 import dayjs from 'dayjs'
-import { useOrganization } from '@condo/next/organization'
-import { useApolloClient } from '@condo/next/apollo'
+import { useOrganization } from '@open-condo/next/organization'
+import { useApolloClient } from '@open-condo/next/apollo'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import isEmpty from 'lodash/isEmpty'
 import { SortMetersBy } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import {
     Columns,

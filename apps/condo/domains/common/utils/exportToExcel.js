@@ -1,5 +1,5 @@
-const conf = require('@condo/config')
-const { i18n } = require('@condo/locales/loader')
+const conf = require('@open-condo/config')
+const { i18n } = require('@open-condo/locales/loader')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const fs = require('fs')
 

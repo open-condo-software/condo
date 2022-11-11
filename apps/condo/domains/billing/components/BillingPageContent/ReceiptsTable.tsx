@@ -8,7 +8,7 @@ import {
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
 import { BillingReceiptWhereInput, SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'

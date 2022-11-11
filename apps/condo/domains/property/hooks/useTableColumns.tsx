@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { PropertyWhereInput } from '@app/condo/schema'
 

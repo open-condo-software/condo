@@ -1,4 +1,4 @@
-const { createCronTask, removeCronTask } = require('@condo/keystone/tasks')
+const { createCronTask, removeCronTask } = require('@open-condo/keystone/tasks')
 
 const { sendBillingReceiptNotifications } = require('./helpers')
 

@@ -1,5 +1,5 @@
-const { sendWebhook } = require('@condo/webhooks/tasks/sendWebhook')
-const { sendModelWebhooks } = require('@condo/webhooks/tasks/sendModelWebhooks')
+const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+const { sendModelWebhooks } = require('@open-condo/webhooks/tasks/sendModelWebhooks')
 
 module.exports = {
     sendWebhook,

@@ -17,8 +17,8 @@ import { SubscriptionPane } from '@condo/domains/subscription/components/Subscri
 import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'

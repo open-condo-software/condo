@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import styled from '@emotion/styled'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'

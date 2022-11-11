@@ -3,9 +3,9 @@
  */
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { find } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
 
 async function canReadBillingReceipts ({ authentication: { item: user } }) {

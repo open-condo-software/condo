@@ -20,7 +20,7 @@ import { useHotkeys } from 'react-hotkeys-hook'
 import { Switch, Alert } from 'antd'
 
 import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 
 const getEnabledFeatures = (): Array<string> => {

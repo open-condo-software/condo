@@ -3,7 +3,7 @@
  */
 
 const Big = require('big.js')
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const access = require('@condo/domains/acquiring/access/SumPaymentsService')
 

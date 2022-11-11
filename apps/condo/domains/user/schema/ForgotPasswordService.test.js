@@ -1,6 +1,6 @@
 const { MIN_PASSWORD_LENGTH, RESIDENT } = require('@condo/domains/user/constants/common')
 const { makeLoggedInClient, createTestConfirmPhoneAction, ConfirmPhoneAction } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { User, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser, changePasswordWithTokenByTestClient } = require('@condo/domains/user/utils/testSchema')
 const { START_PASSWORD_RECOVERY_MUTATION, CHANGE_PASSWORD_WITH_TOKEN_MUTATION, CHECK_PASSWORD_RECOVERY_TOKEN, COMPLETE_CONFIRM_PHONE_MUTATION } = require('@condo/domains/user/gql')
 const faker = require('faker')

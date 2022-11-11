@@ -4,7 +4,7 @@ import { Rule } from 'rc-field-form/lib/interface'
 import get from 'lodash/get'
 
 import { Division, Organization } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { IDivisionFormState } from '@condo/domains/division/utils/clientSchema/Division'
 import Input from '@condo/domains/common/components/antd/Input'

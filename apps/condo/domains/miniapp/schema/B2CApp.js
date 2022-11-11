@@ -3,8 +3,8 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema, getByCondition } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/miniapp/access/B2CApp')
 const {
     LOGO_FIELD,

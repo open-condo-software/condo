@@ -1,4 +1,4 @@
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')

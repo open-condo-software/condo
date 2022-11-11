@@ -1,8 +1,8 @@
 const { get, isString } = require('lodash')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 

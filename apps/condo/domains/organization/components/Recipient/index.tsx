@@ -2,7 +2,7 @@ import React, { CSSProperties } from 'react'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 

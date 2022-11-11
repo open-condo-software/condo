@@ -1,4 +1,4 @@
-# Error: Cannot find module '@condo/codegen'
+# Error: Cannot find module '@open-condo/codegen'
 
 ```
 pahaz@PahazMac16 my-new-startup $> yarn createapp
@@ -8,7 +8,7 @@ internal/modules/cjs/loader.js:983
   throw err;
   ^
 
-Error: Cannot find module '@condo/codegen'
+Error: Cannot find module '@open-condo/codegen'
 Require stack:
 - /Users/pahaz/Code/pahaz/my-new-startup/bin/createapp
     at Function.Module._resolveFilename (internal/modules/cjs/loader.js:980:15)

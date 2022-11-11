@@ -1,13 +1,13 @@
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { notification } from 'antd'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import React from 'react'
 import { get } from 'lodash'
-import { FormattedMessage } from '@condo/next/intl'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { useMutation } from '@condo/next/apollo'
+import { useMutation } from '@open-condo/next/apollo'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,

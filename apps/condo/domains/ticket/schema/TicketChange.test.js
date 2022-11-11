@@ -12,11 +12,11 @@ const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const { createTestTicket } = require('../utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { TicketChange, TicketStatus, TicketSource, createTestTicketChange, updateTestTicketChange } = require('@condo/domains/ticket/utils/testSchema')
 

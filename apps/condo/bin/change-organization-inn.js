@@ -1,7 +1,7 @@
 const path = require('path')
 const { isEmpty } = require('lodash')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 class ChangeOrganizationInn {
     constructor (org_id, new_inn) {

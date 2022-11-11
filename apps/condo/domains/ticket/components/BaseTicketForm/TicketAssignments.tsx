@@ -6,7 +6,7 @@ import uniqBy from 'lodash/uniqBy'
 import { Col, FormInstance, Row, Select, Typography } from 'antd'
 import { Rule } from 'rc-field-form/lib/interface'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'

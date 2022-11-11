@@ -3,7 +3,7 @@
  */
 
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
-const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/resident/access/RegisterServiceConsumerService')
 const { BillingIntegrationOrganizationContext, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ServiceConsumer, Resident } = require('../utils/serverSchema')
@@ -12,7 +12,7 @@ const { Organization } = require('@condo/domains/organization/utils/serverSchema
 const get = require('lodash/get')
 const omit = require('lodash/omit')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('../../common/constants/errors')
 

@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const {
     METER_SUBMIT_READINGS_REMINDER_TYPE,

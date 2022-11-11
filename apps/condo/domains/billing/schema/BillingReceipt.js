@@ -7,8 +7,8 @@ const access = require('@condo/domains/billing/access/BillingReceipt')
 const { get } = require('lodash')
 const { Text, Relationship } = require('@keystonejs/fields')
 
-const { GQLListSchema, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')

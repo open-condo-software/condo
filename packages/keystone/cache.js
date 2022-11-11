@@ -29,7 +29,7 @@
 const express = require('express')
 const { get, set } = require('lodash')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const { getLogger } = require('./logging')
 

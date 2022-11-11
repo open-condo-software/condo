@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs from 'dayjs'

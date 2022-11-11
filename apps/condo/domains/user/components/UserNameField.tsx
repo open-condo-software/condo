@@ -1,6 +1,6 @@
 import React from 'react'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 
 // TODO(Dimitreee):move to global defs

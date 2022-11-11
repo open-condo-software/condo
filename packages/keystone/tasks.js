@@ -1,6 +1,6 @@
 const Queue = require('bull')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 const { getRedisClient } = require('./redis')

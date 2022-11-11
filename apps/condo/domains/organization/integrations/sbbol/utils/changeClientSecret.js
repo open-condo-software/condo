@@ -1,6 +1,6 @@
 const querystring = require('querystring')
 const dayjs = require('dayjs')
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
 const { getSbbolSecretStorage } = require('./index')

@@ -1,5 +1,5 @@
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { getOrganizationAccessToken } = require('./utils')

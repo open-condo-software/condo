@@ -7,7 +7,7 @@ import {
     BillingAccountMeterReadingUpdateInput,
     QueryAllBillingAccountMeterReadingsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { BillingAccountMeterReading as BillingAccountMeterReadingGQL } from '@condo/domains/billing/gql'
 
 const {

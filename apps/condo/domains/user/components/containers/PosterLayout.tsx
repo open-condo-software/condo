@@ -4,7 +4,7 @@ import { Col, Row, Typography } from 'antd'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { colors } from '@condo/domains/common/constants/style'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useIntl, FormattedMessage } from '@condo/next/intl'
+import { useIntl, FormattedMessage } from '@open-condo/next/intl'
 import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper, ReCaptchaContainer } from './styles'
 import { AuthHeader } from './AuthHeader'
 

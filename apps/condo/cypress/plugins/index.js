@@ -2,7 +2,7 @@
  * @type {Cypress.PluginConfig}
  */
 const isEmpty = require('lodash/isEmpty')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const {
     createTestUser,
     createTestForgotPasswordAction,

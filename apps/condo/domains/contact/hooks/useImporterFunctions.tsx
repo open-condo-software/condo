@@ -9,9 +9,9 @@ import {
     WAREHOUSE_UNIT_TYPE,
 } from '@condo/domains/property/constants/common'
 import { searchContacts, searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { useApolloClient } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
 import { useEffect, useRef } from 'react'
 

@@ -1,8 +1,8 @@
 const dayjs = require('dayjs')
 
-const conf = require('@condo/config')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')

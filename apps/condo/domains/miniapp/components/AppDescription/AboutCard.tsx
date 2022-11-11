@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react'
 import styled from '@emotion/styled'
 import { Card, Row, Col, Typography, Image } from 'antd'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 

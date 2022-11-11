@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { User: UserGQL } = require('@address-service/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */

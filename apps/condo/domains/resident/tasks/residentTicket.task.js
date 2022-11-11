@@ -1,7 +1,7 @@
 const get = require('lodash/get')
 
-const { getSchemaCtx, getById, find } = require('@condo/keystone/schema')
-const { createTask } = require('@condo/keystone/tasks')
+const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
 

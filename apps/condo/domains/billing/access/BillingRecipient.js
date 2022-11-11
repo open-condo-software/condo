@@ -6,9 +6,9 @@
 
 const { get } = require('lodash')
 
-const { getById } = require('@condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { canReadBillingEntity, checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 

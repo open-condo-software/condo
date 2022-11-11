@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'

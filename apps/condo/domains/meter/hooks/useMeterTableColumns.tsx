@@ -5,7 +5,7 @@ import { css, jsx } from '@emotion/react'
 import get from 'lodash/get'
 import pickBy from 'lodash/pickBy'
 import isEmpty from 'lodash/isEmpty'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'

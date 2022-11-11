@@ -6,9 +6,9 @@ const faker = require('faker')
 const get = require('lodash/get')
 const sample = require('lodash/sample')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@open-condo/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 

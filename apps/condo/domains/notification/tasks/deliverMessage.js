@@ -1,10 +1,10 @@
 const isEmpty = require('lodash/isEmpty')
 
-const conf = require('@condo/config')
-const { createTask } = require('@condo/keystone/tasks')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
-const { safeFormatError } = require('@condo/keystone/apolloErrorFormatter')
+const conf = require('@open-condo/config')
+const { createTask } = require('@open-condo/keystone/tasks')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const { Message, checkMessageTypeInBlackList } = require('@condo/domains/notification/utils/serverSchema')
 

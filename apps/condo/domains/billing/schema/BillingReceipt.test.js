@@ -37,8 +37,8 @@ const {
     expectToThrowInternalError,
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
-const { makeClient } = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingReceipt', () => {

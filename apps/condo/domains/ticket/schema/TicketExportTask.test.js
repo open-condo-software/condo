@@ -4,13 +4,13 @@
 const dayjs = require('dayjs')
 const difference = require('lodash/difference')
 const get = require('lodash/get')
-const conf = require('@condo/config')
-const { i18n } = require('@condo/locales/loader')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
+const conf = require('@open-condo/config')
+const { i18n } = require('@open-condo/locales/loader')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {

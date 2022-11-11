@@ -5,7 +5,7 @@ import { Row, Col, Typography }  from 'antd'
 import utc from 'dayjs/plugin/utc'
 dayjs.extend(utc)
 import { colors } from '@condo/domains/common/constants/style'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import {
     MULTIPAYMENT_DONE_STATUS,
     MULTIPAYMENT_ERROR_STATUS,

@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { createCronTask } = require('@condo/keystone/tasks')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 const { getSbbolSecretStorage, changeClientSecret } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 /**

@@ -4,9 +4,9 @@
 
 const get = require('lodash/get')
 
-const { getById, getByCondition } = require('@condo/keystone/schema')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 

@@ -1,9 +1,9 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const {
     checkOrganizationPermission,
     checkRelatedOrganizationPermission,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { find } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 const get = require('lodash/get')
 
 async function canExportContactsToExcel ({ args: { data: { where } }, authentication: { item: user } }) {

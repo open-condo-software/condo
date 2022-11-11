@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React from 'react'
 import Head from 'next/head'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { useRouter } from 'next/router'
 import { Row, Col, RowProps } from 'antd'
 import { jsx } from '@emotion/react'

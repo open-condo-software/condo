@@ -1,6 +1,6 @@
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 const NoAcquiringStub = (): JSX.Element => {
     const intl = useIntl()

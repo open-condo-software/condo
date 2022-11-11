@@ -4,8 +4,8 @@ import styled from '@emotion/styled'
 import { Row, Col, Typography, Alert } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { colors } from '@condo/domains/common/constants/style'
 

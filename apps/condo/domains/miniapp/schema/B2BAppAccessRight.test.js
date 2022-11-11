@@ -3,7 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -21,7 +21,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
 
 describe('B2BAppAccessRight', () => {

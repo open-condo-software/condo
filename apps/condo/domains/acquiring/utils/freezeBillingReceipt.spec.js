@@ -3,9 +3,9 @@
  */
 
 const { freezeBillingReceipt } = require('./freezeBillingReceipt')
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@condo/keystone/test.utils')
+const { prepareKeystoneExpressApp, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
-const { getById } = require('@condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 describe('freezeBillingReceipt', () => {
     setFakeClientMode(require.resolve('../../../index'))

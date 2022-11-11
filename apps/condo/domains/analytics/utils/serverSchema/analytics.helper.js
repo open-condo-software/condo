@@ -1,5 +1,5 @@
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const get = require('lodash/get')
 const { TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
 const groupBy = require('lodash/groupBy')

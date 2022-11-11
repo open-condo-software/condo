@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@condo/keystone/test.utils')
+const { prepareKeystoneExpressApp, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { sendMessage, Message } = require('./index')
 const { DEVELOPER_IMPORTANT_NOTE_TYPE } = require('../../constants/constants')

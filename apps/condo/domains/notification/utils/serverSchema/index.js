@@ -5,12 +5,12 @@
  */
 const { isEmpty, get } = require('lodash')
 
-const conf = require('@condo/config')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
-const { find } = require('@condo/keystone/schema')
+const conf = require('@open-condo/config')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { find } = require('@open-condo/keystone/schema')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const {
     Message: MessageGQL,

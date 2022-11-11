@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import { Button } from '@condo/ui/src'
+import { Button } from '@open-condo/ui/src'
 
 const icons = {
     DeleteFilled: <DeleteFilled/>,

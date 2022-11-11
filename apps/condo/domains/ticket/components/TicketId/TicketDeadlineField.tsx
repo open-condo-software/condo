@@ -2,7 +2,7 @@ import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'

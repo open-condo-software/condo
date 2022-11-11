@@ -3,10 +3,10 @@
  */
 
 const { Text, DateTimeUtc, Select, Relationship, Virtual } = require('@keystonejs/fields')
-const { getById, find } = require('@condo/keystone/schema')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { getById, find } = require('@open-condo/keystone/schema')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const {
     CURRENCY_CODE_FIELD,
     NON_NEGATIVE_MONEY_FIELD,

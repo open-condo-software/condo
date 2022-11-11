@@ -1,7 +1,7 @@
 import { Typography } from 'antd'
-import { useAuth } from '@condo/next/auth'
-import { useOrganization } from '@condo/next/organization'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/clientSchema'
 

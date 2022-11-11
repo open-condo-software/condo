@@ -3,17 +3,17 @@
  */
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { Division, createTestDivision, updateTestDivision } = require('@condo/domains/division/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeEmployeeUserClientWithAbilities } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowGraphQLRequestError, expectToThrowValidationFailureError } = require('@condo/keystone/test.utils')
+const { expectToThrowGraphQLRequestError, expectToThrowValidationFailureError } = require('@open-condo/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')

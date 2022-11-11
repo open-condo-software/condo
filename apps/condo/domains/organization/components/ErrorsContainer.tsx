@@ -1,4 +1,4 @@
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col } from 'antd'
 import React from 'react'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'

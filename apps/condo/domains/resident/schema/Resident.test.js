@@ -12,7 +12,7 @@ const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const { createTestProperty, makeClientWithResidentAccessAndProperty, makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { MeterResource } = require('@condo/domains/meter/utils/testSchema')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
@@ -27,7 +27,7 @@ const {
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { buildFakeAddressMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { createTestTicketFile, updateTestTicketFile, createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 

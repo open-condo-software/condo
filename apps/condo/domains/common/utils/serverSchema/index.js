@@ -1,5 +1,5 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
 
 // When we load models with Apollo graphql - every relation on a field for every object makes sql request

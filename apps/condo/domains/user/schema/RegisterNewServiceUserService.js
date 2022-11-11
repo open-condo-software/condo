@@ -3,7 +3,7 @@
  */
 const faker = require('faker')
 
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/RegisterNewServiceUserService')
 const { SERVICE } = require('@condo/domains/user/constants/common')

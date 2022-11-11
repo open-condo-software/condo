@@ -1,8 +1,8 @@
 import { useMemo } from 'react'
 import { MeterReadingWhereInput, MeterReadingSource as MeterReadingSourceType, MeterResource as MeterResourceType } from '@app/condo/schema'
 import get from 'lodash/get'
-import { useOrganization } from '@condo/next/organization'
-import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
 
 import {
     ComponentType,

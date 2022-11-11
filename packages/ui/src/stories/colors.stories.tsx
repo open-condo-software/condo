@@ -2,8 +2,8 @@ import React from 'react'
 import get from 'lodash/get'
 import { styled } from '@storybook/theming'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { colors } from '@condo/ui/src/colors'
-import tokens from '@condo/ui/src/tokens/tokens.json'
+import { colors } from '@open-condo/ui/src/colors'
+import tokens from '@open-condo/ui/src/tokens/tokens.json'
 import { identity } from 'lodash'
 
 type SwatchColors = { [key: string]: string }

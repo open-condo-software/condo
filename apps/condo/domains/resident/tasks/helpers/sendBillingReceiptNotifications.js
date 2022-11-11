@@ -1,8 +1,8 @@
 const { SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
 
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { sendBillingReceiptsAddedNotifications } = require('./sendBillingReceiptsAddedNotifications')
 const { sendResidentsNoAccountNotifications } = require('./sendResidentsNoAccountNotifications')

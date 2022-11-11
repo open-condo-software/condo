@@ -1,8 +1,8 @@
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
-const conf = require('@condo/config')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getRedisClient } = require('@condo/keystone/redis')
+const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
@@ -19,8 +19,8 @@ const {
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLocalized } = require('@condo/locales/loader')
-const { getLogger } = require('@condo/keystone/logging')
+const { getLocalized } = require('@open-condo/locales/loader')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const CHUNK_SIZE = 20

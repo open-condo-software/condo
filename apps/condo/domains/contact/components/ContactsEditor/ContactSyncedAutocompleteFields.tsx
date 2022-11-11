@@ -5,7 +5,7 @@ import { AutoComplete, Col, Radio } from 'antd'
 import { get } from 'lodash'
 import { MinusCircleOutlined } from '@ant-design/icons'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
 import { Contact as TContact } from '@condo/domains/contact/schema'

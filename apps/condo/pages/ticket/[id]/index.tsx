@@ -9,16 +9,16 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
-import { FormattedMessage } from '@condo/next/intl'
+import { FormattedMessage } from '@open-condo/next/intl'
 
 import {
     SortTicketChangesBy,
     SortTicketCommentFilesBy,
     SortTicketCommentsBy,
 } from '@app/condo/schema'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'

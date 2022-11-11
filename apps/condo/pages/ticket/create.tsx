@@ -3,7 +3,7 @@ import Head from 'next/head'
 import React from 'react'
 import { Gutter } from 'antd/es/grid/row'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'

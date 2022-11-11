@@ -2,11 +2,11 @@ import React from 'react'
 import { Form } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import BasePropertyForm from '@condo/domains/property/components/BasePropertyForm'
 import { Button } from '@condo/domains/common/components/Button'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import { PropertyTypeType } from '@app/condo/schema'
 
 const DEFAULT_PROPERTY_TYPE = PropertyTypeType.Building

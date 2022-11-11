@@ -1,4 +1,4 @@
-const { createWorker } = require('@condo/keystone/tasks')
+const { createWorker } = require('@open-condo/keystone/tasks')
 
 createWorker(require('./index'))
     .catch((error) => {

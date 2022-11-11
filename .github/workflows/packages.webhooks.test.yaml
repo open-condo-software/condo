@@ -30,4 +30,4 @@ jobs:
         run: yarn install --immutable
 
       - name: Test webhooks utils
-        run: yarn workspace @condo/webhooks jest
+        run: yarn workspace @open-condo/webhooks jest

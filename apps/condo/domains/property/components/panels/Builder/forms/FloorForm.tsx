@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
 import Select from '@condo/domains/common/components/antd/Select'

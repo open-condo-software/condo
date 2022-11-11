@@ -1,5 +1,5 @@
-const { Webhook } = require('@condo/webhooks/schema/models/Webhook')
-const { getWebhookSubscriptionModel } = require('@condo/webhooks/schema/models/WebhookSubscription')
+const { Webhook } = require('@open-condo/webhooks/schema/models/Webhook')
+const { getWebhookSubscriptionModel } = require('@open-condo/webhooks/schema/models/WebhookSubscription')
 
 function getWebhookModels (schemaPath) {
     return {

@@ -3,8 +3,8 @@ const dayjs = require('dayjs')
 const { get } = require('lodash')
 const Upload = require('graphql-upload/public/Upload')
 
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
 const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')

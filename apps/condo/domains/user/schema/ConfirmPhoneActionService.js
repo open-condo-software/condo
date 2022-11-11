@@ -1,8 +1,8 @@
 const { v4: uuid } = require('uuid')
 const isEmpty = require('lodash/isEmpty')
 const pick = require('lodash/pick')
-const conf = require('@condo/config')
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const conf = require('@open-condo/config')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { captchaCheck } = require('@condo/domains/user/utils/googleRecaptcha3')
 const {
     ConfirmPhoneAction,
@@ -20,8 +20,8 @@ const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/c
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { SMS_VERIFY_CODE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
 const {

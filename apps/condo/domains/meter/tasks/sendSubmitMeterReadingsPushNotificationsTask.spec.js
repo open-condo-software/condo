@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { setFakeClientMode } = require('@condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const sendSubmitMeterReadingsPushNotificationsTask = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotificationsTask')
 

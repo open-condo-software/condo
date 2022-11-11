@@ -1,5 +1,5 @@
 {
-  "name": "@condo/bicrypt",
+  "name": "@open-condo/bicrypt",
   "version": "1.1.6",
   "main": "lib/binding.js",
   "dependencies": {

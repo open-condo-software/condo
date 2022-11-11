@@ -4,13 +4,13 @@
 const { Contact } = require('@condo/domains/contact/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { createResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
-const { UUID_RE } = require('@condo/keystone/test.utils')
+const { UUID_RE } = require('@open-condo/keystone/test.utils')
 const faker = require('faker')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
 describe('CreateResidentTicketService', () => {
 

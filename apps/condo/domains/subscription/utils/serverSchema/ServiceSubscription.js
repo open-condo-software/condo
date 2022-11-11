@@ -1,4 +1,4 @@
-const { execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { ServiceSubscription } = require('../../gql')
 const dayjs = require('dayjs')
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('../../constants')

@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col, Form, Row } from 'antd'
 import { isEmpty } from 'lodash'
 import { PlusCircleFilled } from '@ant-design/icons'

@@ -1,4 +1,4 @@
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const express = require('express')
 const { generators, Issuer } = require('openid-client')
 const { get, isObject } = require('lodash')

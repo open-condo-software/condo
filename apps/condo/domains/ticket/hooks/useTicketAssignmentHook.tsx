@@ -1,5 +1,5 @@
 import { Division } from '@condo/domains/division/utils/clientSchema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { map } from 'lodash'
 import { useState } from 'react'
 

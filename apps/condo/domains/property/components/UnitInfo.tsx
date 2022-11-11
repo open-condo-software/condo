@@ -1,7 +1,7 @@
 import { isEmpty } from 'lodash'
 import React, { useCallback, useMemo, useState } from 'react'
 import { Gutter } from 'antd/es/grid/row'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col, FormInstance, Row } from 'antd'
 import get from 'lodash/get'
 

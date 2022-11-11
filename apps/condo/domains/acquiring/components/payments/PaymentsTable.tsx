@@ -1,5 +1,5 @@
 import { FilterFilled } from '@ant-design/icons'
-import { useQuery } from '@condo/next/apollo'
+import { useQuery } from '@open-condo/next/apollo'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
@@ -22,8 +22,8 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Col, Row, Space, Typography } from 'antd'
 
 import Input from '@condo/domains/common/components/antd/Input'

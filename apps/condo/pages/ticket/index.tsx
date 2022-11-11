@@ -12,8 +12,8 @@ import { useRouter } from 'next/router'
 
 import { jsx } from '@emotion/react'
 import { SortTicketsBy } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
@@ -37,7 +37,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
-import { useAuth } from '@condo/next/auth'
+import { useAuth } from '@open-condo/next/auth'
 import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
 import { TableComponents } from 'rc-table/lib/interface'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -48,7 +48,7 @@ import {
 } from '@condo/domains/common/constants/import'
 import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFunctions'
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 
 interface ITicketIndexPage extends React.FC {

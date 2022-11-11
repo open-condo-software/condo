@@ -3,7 +3,7 @@ import { Typography } from 'antd'
 
 import { Modal } from '@condo/domains/common/components/Modal'
 import { Button } from '@app/condo/domains/common/components/Button'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
 

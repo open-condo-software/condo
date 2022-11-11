@@ -3,7 +3,7 @@ const FormData = require('form-data')
 const https = require('https')
 const http = require('http')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const { EMAIL_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
