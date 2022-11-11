@@ -13,7 +13,7 @@ const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/co
 const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
-import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
+const { DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
 
 const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, ['user', 'id'], null) === id)
 
