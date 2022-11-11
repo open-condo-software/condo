@@ -21,7 +21,7 @@ const { makeClientWithRegisteredOrganization } = require('@condo/domains/organiz
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrationAccess, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { createValidRuTin10, createValidRuTin12 } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
+const { createValidRuTin10, createValidRuTin12 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 
 const {
     Organization,

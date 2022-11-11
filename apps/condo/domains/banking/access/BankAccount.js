@@ -4,6 +4,10 @@
 
 const { get } = require('lodash')
 const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 /**
  * BankAccount entity can be read either by:
@@ -15,7 +19,12 @@ async function canReadBankAccounts ({ authentication: { item: user } }) {
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
 
-    return { organization: { employees_some: { user: { id: user.id },  isBlocked: false } } }
+    return {
+        OR: [
+            { organization: queryOrganizationEmployeeFor(user.id) },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+        ],
+    }
 }
 
 async function canManageBankAccounts ({ authentication: { item: user } }) {

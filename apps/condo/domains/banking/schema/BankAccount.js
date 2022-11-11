@@ -20,7 +20,7 @@ const { validateNumber } = require('@condo/domains/banking/utils/validate/number
 
 
 const BankAccount = new GQLListSchema('BankAccount', {
-    schemaDoc: 'Bank account, that will have transactions, pulled from various integrated data sources. Transactions will be marked by categories of incomes and expenses.',
+    schemaDoc: 'Bank account, that will have transactions, pulled from various integrated data sources',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
 
@@ -42,6 +42,12 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     }
                 },
             },
+        },
+
+        tinMeta: {
+            schemaDoc: 'Structured metadata found by tin',
+            type: Json,
+            isRequired: false,
         },
 
         country: {
@@ -69,6 +75,12 @@ const BankAccount = new GQLListSchema('BankAccount', {
                     }
                 },
             },
+        },
+
+        routingNumberMeta: {
+            schemaDoc: 'Structured metadata found by routing number',
+            type: Json,
+            isRequired: false,
         },
 
         number: {
@@ -138,18 +150,6 @@ const BankAccount = new GQLListSchema('BankAccount', {
             isRequired: false,
         },
 
-        tinMeta: {
-            schemaDoc: 'Structured metadata found by tin',
-            type: Json,
-            isRequired: false,
-        },
-
-        routingNumberMeta: {
-            schemaDoc: 'Structured metadata found by routing number',
-            type: Json,
-            isRequired: false,
-        },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -166,7 +166,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
             if (('approvedAt' in resolvedData && get(resolvedData, 'approvedAt'))
                 || ('approvedBy' in resolvedData && get(resolvedData, 'approvedBy'))) {
                 const dateNow = new Date().toISOString()
-                const { authedItem: { id = null } = {} } = context
+                const { authedItem: { id } }  = context
 
                 resolvedData.approvedAt = dateNow
                 resolvedData.approvedBy = id
