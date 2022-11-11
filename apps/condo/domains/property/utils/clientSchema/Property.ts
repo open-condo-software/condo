@@ -11,7 +11,7 @@ import {
     QueryAllPropertiesArgs,
     BuildingMap,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { Property as PropertyGQL } from '@condo/domains/property/gql'
 
 export interface IPropertyFormState {

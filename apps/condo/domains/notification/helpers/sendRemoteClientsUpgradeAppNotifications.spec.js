@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
 

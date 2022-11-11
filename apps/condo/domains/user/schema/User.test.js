@@ -3,7 +3,7 @@
  */
 
 const { WRONG_EMAIL_ERROR } = require('@condo/domains/user/constants/errors')
-const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET, UUID_RE } = require('@condo/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeClient, DEFAULT_TEST_ADMIN_IDENTITY, DEFAULT_TEST_USER_SECRET, UUID_RE } = require('@open-condo/keystone/test.utils')
 
 const {
     User,
@@ -17,12 +17,12 @@ const {
     createTestEmail,
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowGQLError } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { GET_MY_USERINFO, SIGNIN_MUTATION } = require('@condo/domains/user/gql')
-const { DEFAULT_TEST_USER_IDENTITY } = require('@condo/keystone/test.utils')
+const { DEFAULT_TEST_USER_IDENTITY } = require('@open-condo/keystone/test.utils')
 const { WRONG_PASSWORD_ERROR, EMPTY_PASSWORD_ERROR } = require('@condo/domains/user/constants/errors')
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
 describe('SIGNIN', () => {
     test('anonymous: SIGNIN_MUTATION', async () => {

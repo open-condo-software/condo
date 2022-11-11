@@ -5,8 +5,8 @@ const fs = require('fs')
 const { promisify } = require('util')
 const { printSchema } = require('graphql')
 
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
-const { taskQueue } = require('@condo/keystone/tasks')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+const { taskQueue } = require('@open-condo/keystone/tasks')
 
 const writeFile = promisify(fs.writeFile)
 

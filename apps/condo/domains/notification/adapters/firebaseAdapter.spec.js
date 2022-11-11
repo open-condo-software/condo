@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const {
     PUSH_FAKE_TOKEN_SUCCESS,

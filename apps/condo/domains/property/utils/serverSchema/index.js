@@ -4,8 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 

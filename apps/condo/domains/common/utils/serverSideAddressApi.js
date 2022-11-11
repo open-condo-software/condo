@@ -1,6 +1,6 @@
 const get = require('lodash/get')
 const fetch = require('node-fetch')
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const FAKE_SUGGESTIONS = (conf['FAKE_ADDRESS_SUGGESTIONS'] && conf['FAKE_ADDRESS_SUGGESTIONS'] === 'true') || false
 const addressSuggestionsConfig = conf['ADDRESS_SUGGESTIONS_CONFIG'] && JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG'])

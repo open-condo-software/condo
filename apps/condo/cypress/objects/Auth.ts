@@ -11,32 +11,32 @@ class SignIn {
         signin-password-item
         signin-button
 */
-    visit () {
+    visit (): this {
         cy.visit(SIGNIN_URL)
         return this
     }
 
-    fillPhone (value) {
+    fillPhone (value): this {
         cy.get('[data-cy=signin-phone-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    fillPassword (value) {
+    fillPassword (value): this {
         cy.get('[data-cy=signin-password-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    signinClick () {
+    signinClick (): this {
         cy.get('[data-cy=signin-button]')
             .click()
         return this
     }
 
-    chooseOrganization () {
+    chooseOrganization (): this {
         cy.get('[data-cy=organization-select-item]')
             .first()
             .click()
@@ -51,12 +51,13 @@ class ForgotPassword {
         forgot-button
         forgot-success-message
 */
-    visit () {
+    visit (): this {
         cy.visit(FORGOT_PASSWORD_URL)
         return this
     }
 
-    fillPhone (value) {
+    fillPhone (value): this {
+        // @ts-ignore
         cy.waitForCaptcha()
         cy.get('[data-cy=forgot-phone-item] input')
             .clear()
@@ -64,7 +65,7 @@ class ForgotPassword {
         return this
     }
 
-    startPasswordRecoveryClick () {
+    startPasswordRecoveryClick (): this {
         // This combination can be moved to custom click command, or we can override click
         cy.get('[data-cy=forgot-button]')
             .trigger('mouseover')
@@ -90,61 +91,62 @@ class Registration {
             register-confirmpassword-item
             registercomplete-button
 */
-    visit () {
+    visit (): this {
         cy.visit(REGISTER_URL)
         return this
     }
 
-    fillPhone (value) {
+    fillPhone (value): this {
         cy.get('[data-cy=register-phone-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    fillSMSCode (value) {
+    fillSMSCode (value): this {
         cy.get('[data-cy=register-smscode-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    fillName (value) {
+    fillName (value): this {
         cy.get('[data-cy=register-name-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    fillEmail (value) {
+    fillEmail (value): this {
         cy.get('[data-cy=register-email-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    fillPassword (value) {
+    fillPassword (value): this {
         cy.get('[data-cy=register-password-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    fillConfirmPassword (value) {
+    fillConfirmPassword (value): this {
         cy.get('[data-cy=register-confirmpassword-item] input')
             .clear()
             .type(value)
         return this
     }
 
-    startRegistrationClick () {
+    startRegistrationClick (): this {
+        // @ts-ignore
         cy.waitForCaptcha()
         cy.get('[data-cy=register-button]')
             .click()
         return this
     }
 
-    completeRegistrationClick () {
+    completeRegistrationClick (): this {
         cy.get('[data-cy=registercomplete-button]')
             .click()
         return this

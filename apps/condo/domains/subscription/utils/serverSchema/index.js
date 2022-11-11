@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')

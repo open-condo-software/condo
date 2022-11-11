@@ -1,4 +1,4 @@
-import '@condo/ui/src/components/style/core/global.less'
+import '@open-condo/ui/src/components/style/core/global.less'
 
 export const parameters = {
     actions: { argTypesRegex: '^on[A-Z].*' },

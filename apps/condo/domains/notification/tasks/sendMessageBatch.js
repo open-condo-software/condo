@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 
-const { createTask } = require('@condo/keystone/tasks')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { MessageBatch } = require('@condo/domains/notification/utils/serverSchema')
 
 const { MESSAGE_BATCH_CREATED_STATUS, MESSAGE_BATCH_PROCESSING_STATUS, MESSAGE_BATCH_DONE_STATUS, MESSAGE_BATCH_FAILED_STATUS } = require('../constants/constants')

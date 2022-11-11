@@ -6,7 +6,7 @@ import UploadList from 'antd/lib/upload/UploadList'
 import React, { useCallback, useMemo } from 'react'
 
 import { TicketFile as TicketFileType } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { colors, fontSizes } from '@app/condo/domains/common/constants/style'
 

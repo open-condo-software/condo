@@ -1,7 +1,7 @@
 import { Typography } from 'antd'
 import React, { useCallback } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 
 export const useNotificationMessages = () => {

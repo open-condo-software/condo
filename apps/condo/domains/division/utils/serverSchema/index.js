@@ -4,12 +4,12 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
 const uniq = require('lodash/uniq')
 const flatten = require('lodash/flatten')
-const { find } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Division = generateServerUtils(DivisionGQL)

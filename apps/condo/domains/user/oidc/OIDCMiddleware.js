@@ -1,7 +1,7 @@
 const express = require('express')
 
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')

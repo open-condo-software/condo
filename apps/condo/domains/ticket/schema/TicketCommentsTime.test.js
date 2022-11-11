@@ -5,7 +5,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { TicketCommentsTime, createTestTicket, createTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')

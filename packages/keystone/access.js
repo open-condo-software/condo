@@ -1,8 +1,8 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 // TODO (DOMA-3868) Remove domain specific logic from here
 const RESIDENT_TYPE_USER = 'resident'
 const { get } = require('lodash')
-const { find } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 
 const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
 const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })

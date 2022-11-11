@@ -10,13 +10,13 @@ const {
     makeClient,
     UUID_RE,
     DATETIME_RE, waitFor,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     JSON_EXPECT_ARRAY_ERROR,
     JSON_EXPECT_OBJECT_ERROR,

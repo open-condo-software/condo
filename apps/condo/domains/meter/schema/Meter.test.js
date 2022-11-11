@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeClient, UUID_RE, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient, UUID_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
 
@@ -14,7 +14,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     catchErrorFrom,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const {
     createTestBillingAccount,

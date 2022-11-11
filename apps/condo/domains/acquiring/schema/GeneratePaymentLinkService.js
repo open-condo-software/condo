@@ -5,12 +5,12 @@ const { isNil } = require('lodash')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
+const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 
 const {
     PAYMENT_LINK_PATH,

@@ -4,8 +4,8 @@ import get from 'lodash/get'
 import map from 'lodash/map'
 import { identity } from 'lodash/util'
 
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 import {
     getAddressRender,
@@ -18,8 +18,8 @@ import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
-import { useOrganization } from '@condo/next/organization'
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { useOrganization } from '@open-condo/next/organization'
 import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
 
 import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'

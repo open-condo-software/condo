@@ -3,12 +3,12 @@
  */
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects, expectToThrowInternalError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 

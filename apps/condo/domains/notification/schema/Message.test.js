@@ -3,7 +3,7 @@
  */
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE } = require('@condo/domains/common/constants/errors')
 const {
@@ -12,7 +12,7 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowInternalError,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const { INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message, createTestMessage, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')

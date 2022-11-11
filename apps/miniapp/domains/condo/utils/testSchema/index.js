@@ -4,9 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
-const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
 
 const { User: UserGQL } = require('@miniapp/domains/condo/gql')

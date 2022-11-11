@@ -5,7 +5,7 @@ import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import {

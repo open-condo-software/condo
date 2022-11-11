@@ -4,8 +4,8 @@
 const get = require('lodash/get')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox } = require('@keystonejs/fields')
 
-const { GQLListSchema, find, getByCondition, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { identity } from 'lodash/util'
 import get from 'lodash/get'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getTextFilterDropdown, getFilterIcon } from '@condo/domains/common/components/TableFilter'

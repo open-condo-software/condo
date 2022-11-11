@@ -3,8 +3,8 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/billing/access/BillingIntegration')
 const { CURRENCY_CODE_FIELD } = require('@condo/domains/common/schema/fields')
 const { DATA_FORMAT_FIELD } = require('./fields/BillingIntegration/DataFormat')

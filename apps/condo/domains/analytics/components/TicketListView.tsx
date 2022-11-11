@@ -1,6 +1,6 @@
 import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Skeleton, Table, TableColumnsType } from 'antd'
 import { ticketAnalyticsPageFilters } from '@condo/domains/analytics/utils/helpers'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'

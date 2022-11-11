@@ -3,7 +3,7 @@ import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
-import { useAuth } from '@condo/next/auth'
+import { useAuth } from '@open-condo/next/auth'
 
 const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL = 10 * 1000

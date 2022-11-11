@@ -6,7 +6,7 @@ import isNull from 'lodash/isNull'
 
 import { TicketOrganizationSetting } from '@app/condo/schema'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { TICKET_DEFAULT_DEADLINE_DURATION_FIELDS } from '@condo/domains/ticket/constants/common'
 import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
 import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'

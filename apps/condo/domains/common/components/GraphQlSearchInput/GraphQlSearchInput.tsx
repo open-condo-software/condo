@@ -10,8 +10,8 @@ import uniqBy from 'lodash/uniqBy'
 import debounce from 'lodash/debounce'
 
 import { ApolloClient } from '@apollo/client'
-import { useApolloClient } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
 
 import {
     useTracking,

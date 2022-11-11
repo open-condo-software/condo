@@ -2,7 +2,7 @@
 const path = require('path')
 const fs = require('fs')
 const process = require('process')
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const { get, template, isEmpty } = require('lodash')
 
 const VARIABLE_REGEXP = /{([\s\S]+?)}/g

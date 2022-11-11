@@ -20,13 +20,13 @@ class TicketCreate {
         ticket__submit-button
 */
 
-    visit () {
+    visit (): this {
         cy.visit(TICKET_CREATE_URL)
         cy.wait(BASE_SIDE_EFFECTS)
         return this
     }
 
-    clickAndInputAddress (address) {
+    clickAndInputAddress (address: string): this {
         cy.get('[data-cy=ticket__property-address-search-input] input', {
             timeout: 5000,
         }).should('be.visible')
@@ -39,7 +39,7 @@ class TicketCreate {
         return this
     }
 
-    chooseAddressForTicket () {
+    chooseAddressForTicket (): this {
         cy.get('[data-cy=ticket__property-address-search-option', {
             timeout: 5000,
         }).should('be.visible')
@@ -47,7 +47,7 @@ class TicketCreate {
         return this
     }
 
-    clickAndInputUnitName (unitName) {
+    clickAndInputUnitName (unitName: string): this {
         cy.wait('@getAllProperties')
         cy.get('[data-cy=unit-name-input-item] .ant-select-selection-search')
             .click({ force: true })
@@ -55,21 +55,21 @@ class TicketCreate {
         return this
     }
 
-    chooseUnitName () {
+    chooseUnitName (): this {
         cy.get('[data-cy=user__unit-name-input-option]')
             .first()
             .click()
         return this
     }
 
-    clickAndInputDescription (description) {
+    clickAndInputDescription (description): this {
         cy.get('[data-cy=ticket__description-input]')
             .click()
             .type(description)
         return this
     }
 
-    selectProblemWithCategoryClassifier () {
+    selectProblemWithCategoryClassifier (): this {
         cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search')
             .click()
 
@@ -88,7 +88,7 @@ class TicketCreate {
         return this
     }
 
-    clickOnSubmitButton () {
+    clickOnSubmitButton (): this {
         cy.get('[data-cy=ticket__submit-button]')
             .click()
 
@@ -109,14 +109,14 @@ class TicketView {
         common__filters-button-submit
         common__filters-button-reset
 */
-    visit () {
+    visit (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
         cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
         return this
     }
 
-    clickIsWarrantyCheckbox () {
+    clickIsWarrantyCheckbox (): this {
         cy.get('[data-cy=ticket__filter-isWarranty]').click()
         cy.location('search').should('contain', 'isWarranty')
         cy.wait('@getAllTickets')
@@ -130,7 +130,7 @@ class TicketView {
         return this
     }
 
-    clickIsPaidCheckbox () {
+    clickIsPaidCheckbox (): this {
         cy.get('[data-cy=ticket__filter-isPaid]').click()
         cy.location('search').should('contain', 'isPaid')
         cy.wait('@getAllTickets')
@@ -144,7 +144,7 @@ class TicketView {
         return this
     }
 
-    clickIsEmergencyCheckbox () {
+    clickIsEmergencyCheckbox (): this {
         cy.get('[data-cy=ticket__filter-isEmergency]').click()
         cy.location('search').should('contain', 'isEmergency')
         cy.wait('@getAllTickets')
@@ -158,14 +158,14 @@ class TicketView {
         return this
     }
 
-    clickOnGlobalFiltersButton () {
+    clickOnGlobalFiltersButton (): this {
         cy.get('[data-cy=ticket__filters-button]').click()
         cy.wait('@getAllTicketFilterTemplates')
 
         return this
     }
 
-    typeAddressSearchInput (propertyAddress) {
+    typeAddressSearchInput (propertyAddress: string): this {
         cy.wait(['@selectProperty', '@selectDivision', '@getAllTicketClassifiers', '@selectOrganizationEmployee', '@getAllOrganizationEmployees'])
         cy.get('input#property')
             .click()
@@ -201,7 +201,7 @@ class TicketEdit {
         ticket__assignee-item
         ticket__apply-changes-button
  */
-    visit (ticket) {
+    visit (ticket): this {
         cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
         cy.wait([
             ...BASE_SIDE_EFFECTS,
@@ -218,7 +218,7 @@ class TicketEdit {
         return this
     }
 
-    changeTicketStatus () {
+    changeTicketStatus (): this {
         cy.wait('@getAllTickets')
         cy.wait('@getAllTicketClassifiers')
         cy.wait('@getAllTicketFiles')
@@ -236,7 +236,7 @@ class TicketEdit {
         return this
     }
 
-    clickUpdateTicketLink () {
+    clickUpdateTicketLink (): this {
         cy.get('[data-cy=ticket__update-link]').click()
 
         cy.wait([
@@ -251,7 +251,7 @@ class TicketEdit {
         return this
     }
 
-    clickProblemClassifier () {
+    clickProblemClassifier (): this {
         cy.get('[data-cy=ticket__place-select-item] .ant-select-selection-search')
             .click()
 
@@ -267,17 +267,18 @@ class TicketEdit {
         cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket__classifier-option]')
             .first()
             .click()
+
         return this
     }
 
-    clickTicketDeadline () {
+    clickTicketDeadline (): this {
         cy.get('[data-cy=ticket__deadline-item]').click()
         cy.get('.ant-picker-today-btn').click()
 
         return this
     }
 
-    clickAssigneeInput () {
+    clickAssigneeInput (): this {
         cy.get('[data-cy=ticket__assignee-item] input')
             .click()
             .type('{downArrow}')
@@ -286,7 +287,7 @@ class TicketEdit {
         return this
     }
 
-    clickApplyChanges () {
+    clickApplyChanges (): this {
         cy.get('[data-cy=ticket__apply-changes-button]').click()
         cy.location('pathname').should('not.contain', '/update')
 
@@ -302,7 +303,7 @@ Elements:
     data-importer--error
 */
 
-    visitTicketsPage () {
+    visitTicketsPage (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
         cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
@@ -310,33 +311,33 @@ Elements:
         return this
     }
 
-    importTicketTable (filePath) {
+    importTicketTable (filePath: string): this {
         cy.get('[data-cy=data-importer--upload]', { timeout: 30000 })
             .selectFile(filePath, { force: true })
 
         return this
     }
 
-    waitCreatingTicket () {
+    waitCreatingTicket (): this {
         cy.wait(['@selectContact', '@createTicket'], { timeout: 60000 })
 
         return this
     }
 
-    waitFetchingContact () {
+    waitFetchingContact (): this {
         cy.wait('@selectContact', { timeout: 60000 })
 
         return this
     }
 
-    waitSuccessModal () {
+    waitSuccessModal (): this {
         cy.get('[data-cy=data-importer--success]', { timeout: 30000 })
             .should('be.visible')
 
         return this
     }
 
-    waitErrorModal () {
+    waitErrorModal (): this {
         cy.get('[data-cy=data-importer--error]', { timeout: 30000 })
             .should('be.visible')
 

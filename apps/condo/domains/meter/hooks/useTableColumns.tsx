@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react'
 import { get } from 'lodash'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'

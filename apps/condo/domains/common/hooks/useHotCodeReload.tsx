@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react'
 import Router from 'next/router'
 import { notification } from 'antd'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { useCurrentBuild } from './useCurrentBuild'
 import { usePrevious } from './usePrevious'

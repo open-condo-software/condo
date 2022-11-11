@@ -3,7 +3,7 @@ const { BatchHttpLink } = require('@apollo/client/link/batch-http')
 const { createUploadLink } = require('apollo-upload-client')
 const { onError }  = require('apollo-link-error')
 const { RetryLink } = require('@apollo/client/link/retry')
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 const fetch = require('cross-fetch/polyfill').fetch
 const { chunk: splitArray } = require('lodash')
 

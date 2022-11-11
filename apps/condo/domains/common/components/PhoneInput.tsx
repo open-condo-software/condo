@@ -12,7 +12,7 @@ import React, {
 } from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
 import { colors } from '@condo/domains/common/constants/style'
 

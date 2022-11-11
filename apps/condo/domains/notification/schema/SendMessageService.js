@@ -1,5 +1,5 @@
-const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')

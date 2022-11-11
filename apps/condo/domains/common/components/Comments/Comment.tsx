@@ -10,8 +10,8 @@ import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 
 import { User, TicketComment } from '@app/condo/schema'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 
 import { colors, shadows } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')

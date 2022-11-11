@@ -4,7 +4,7 @@
 
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClient } = require('@condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
 
 const {
     Payment,
@@ -29,7 +29,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError, catchErrorFrom,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     PAYMENT_ERROR_STATUS,
     PAYMENT_INIT_STATUS,
@@ -54,7 +54,7 @@ const {
 } = require('@condo/domains/acquiring/constants/errors')
 const dayjs = require('dayjs')
 const Big = require('big.js')
-const { expectToThrowGQLError } = require('@condo/keystone/test.utils')
+const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const { updateTestAcquiringIntegration } = require('../utils/testSchema')
 
 describe('Payment', () => {

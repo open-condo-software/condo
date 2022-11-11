@@ -9,7 +9,7 @@ const {
     BILLING_RECEIPT_SERVICES_INPUT,
 } = require('@condo/domains/billing/constants/constants')
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
-const { Json } = require('@condo/keystone/fields')
+const { Json } = require('@open-condo/keystone/fields')
 
 const ServiceToPayDetailsFields = {
     ...ToPayDetailsFields,

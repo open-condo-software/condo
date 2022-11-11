@@ -2,7 +2,7 @@ const faker = require('faker')
 const { print } = require('graphql')
 const { get, isEmpty } = require('lodash')
 
-const { normalizeQuery } = require('@condo/keystone/logging/normalize')
+const { normalizeQuery } = require('@open-condo/keystone/logging/normalize')
 
 class TestClientResponseError extends Error {
     constructor (data, errors, context = {}) {

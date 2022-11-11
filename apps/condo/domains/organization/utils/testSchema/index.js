@@ -8,9 +8,9 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const {
     Organization: OrganizationGQL,
     OrganizationEmployee: OrganizationEmployeeGQL,

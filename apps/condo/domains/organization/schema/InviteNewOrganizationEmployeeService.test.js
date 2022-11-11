@@ -1,9 +1,9 @@
 const faker = require('faker')
 const { pick } = require('lodash')
 
-const { makeLoggedInAdminClient, makeClient, waitFor } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 
-const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
@@ -24,7 +24,7 @@ const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/ut
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestUser, createTestPhone, createTestEmail } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {

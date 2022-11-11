@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
-const { createCronTask } = require('@condo/keystone/tasks')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 const { syncSbbolSubscriptionPaymentRequestsState } = require('@condo/domains/organization/integrations/sbbol/sync/syncSbbolSubscriptionPaymentRequestsState')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 /**
  * Syncs new and cancelled subscriptions

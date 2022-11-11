@@ -1,4 +1,4 @@
-const { createCronTask } = require('@condo/keystone/tasks')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 const { syncSubscriptions } = require('../integrations/sbbol/sync/syncSubscriptions')
 
 /**

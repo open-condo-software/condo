@@ -5,9 +5,9 @@
 const { isEmpty } = require('lodash')
 const dayjs = require('dayjs')
 
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
-const conf = require('@condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
+const conf = require('@open-condo/config')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
 

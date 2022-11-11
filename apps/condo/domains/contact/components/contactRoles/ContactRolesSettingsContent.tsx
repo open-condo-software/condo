@@ -7,7 +7,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -16,7 +16,7 @@ import lowerCase from 'lodash/lowerCase'
 import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 const SORTABLE_PROPERTIES = ['name']
 const DEFAULT_SORT_BY = ['createdAt_DESC']

@@ -2,7 +2,7 @@ const fetch = require('node-fetch')
 const fs = require('fs')
 const xlsx = require('xlsx')
 const os = require('os')
-const { getRandomString } = require('@condo/keystone/test.utils')
+const { getRandomString } = require('@open-condo/keystone/test.utils')
 
 async function downloadFile (url, path) {
     const res = await fetch(url)

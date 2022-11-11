@@ -6,7 +6,7 @@ import { colors, fontSizes, shadows } from '@condo/domains/common/constants/styl
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import {
@@ -142,10 +142,16 @@ const BuildingPanelTopModal: React.FC<IBuildingPanelTopModalProps> = ({ visible,
                 )}
             </Col>
             <Col span={2}>
-                <Button onClick={onClose} icon={<CloseOutlined />} size='small' type='text' />
+                <Button
+                    onClick={onClose}
+                    icon={<CloseOutlined />}
+                    size='small'
+                    type='text'
+                    data-cy='property-map__top-modal__close-button'
+                />
             </Col>
         </Row>
-        <Row>
+        <Row data-cy='property-map__top-modal__children-container'>
             {children}
         </Row>
     </TopModal>
@@ -370,6 +376,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     <Space size={20} align='center'>
                         <Button
                             key='submit'
+                            data-cy='property-map__save-map-button'
                             onClick={saveCallback}
                             type='sberDefaultGradient'
                             disabled={!canManageProperties || !address}
@@ -611,6 +618,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
                 preview={section.preview}
                 onClick={chooseSection}
                 selected={isSectionSelected}
+                data-cy='property-map__section-button'
             >{SectionTitle}</UnitButton>
         </MapSectionContainer>
     )
@@ -681,6 +689,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             preview={unit.preview}
             selected={isUnitSelected}
             unitType={unit.unitType}
+            data-cy='property-map__unit-button'
         >{unit.label}</UnitButton>
     )
 }

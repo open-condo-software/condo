@@ -3,8 +3,8 @@
  */
 
 const { Integer, DateTimeUtc } = require('@keystonejs/fields')
-const { GQLListSchema, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingAccountMeterReading')
 

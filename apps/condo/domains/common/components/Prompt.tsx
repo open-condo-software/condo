@@ -4,7 +4,7 @@ import { isEqual, pick } from 'lodash'
 import { FormInstance } from 'antd'
 
 import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 
 interface IPromptProps {

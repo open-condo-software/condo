@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
@@ -61,7 +61,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const messages = await Message.getAll(admin, messageWhere)
 
-            expect(messages.length).toEqual(1)
+            expect(messages).toHaveLength(1)
             expect(lastDt).toEqual(receipt.createdAt)
             expect(messages[0].organization.id).toEqual(resident.organization.id)
         })

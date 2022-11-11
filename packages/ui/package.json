@@ -1,5 +1,5 @@
 {
-  "name": "@condo/ui",
+  "name": "@open-condo/ui",
   "description": "A set of React UI components for developing applications inside the condo ecosystem",
   "keywords": [
     "condo",

@@ -1,4 +1,4 @@
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const dayjs = require('dayjs')
 const isoWeek = require('dayjs/plugin/isoWeek')

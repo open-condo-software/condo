@@ -1,4 +1,4 @@
-const { getByCondition } = require('@condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 const get = require('lodash/get')
 
 async function checkAcquiringIntegrationAccessRight (userId, integrationId) {

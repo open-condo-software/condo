@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Space } from 'antd'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { PageContent, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
 import { Button } from '@condo/domains/common/components/Button'
 import Head from 'next/head'

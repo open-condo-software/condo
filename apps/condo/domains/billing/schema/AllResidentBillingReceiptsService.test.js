@@ -12,14 +12,14 @@ const {
 
 const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 describe('AllResidentBillingReceiptsService', () => {
 

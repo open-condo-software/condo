@@ -1,5 +1,5 @@
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { Ticket } from '@app/condo/schema'
 

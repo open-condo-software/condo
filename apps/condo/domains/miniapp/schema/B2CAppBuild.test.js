@@ -4,8 +4,8 @@
 
 const dayjs = require('dayjs')
 const path = require('path')
-const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@condo/keystone/test.utils')
-const conf = require('@condo/config')
+const { makeLoggedInAdminClient, makeClient, UploadingFile, waitFor } = require('@open-condo/keystone/test.utils')
+const conf = require('@open-condo/config')
 
 const {
     B2CApp,
@@ -21,7 +21,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,

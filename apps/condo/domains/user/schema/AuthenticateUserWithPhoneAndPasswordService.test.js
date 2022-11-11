@@ -1,4 +1,4 @@
-const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 const { gql } = require('graphql-tag')

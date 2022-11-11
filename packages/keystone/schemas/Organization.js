@@ -3,13 +3,13 @@ const { v4: uuid } = require('uuid')
 const { Text, Checkbox, Relationship, Uuid, Select } = require('@keystonejs/fields')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
 
-const { GQLListSchema, GQLCustomSchema } = require('@condo/keystone/schema')
-const access = require('@condo/keystone/access')
+const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const access = require('@open-condo/keystone/access')
 const { getByCondition } = require('../schema')
 const { find } = require('../schema')
 const { getById } = require('../schema')
 const { User } = require('./User')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 const Organization = new GQLListSchema('Organization', {
     fields: {

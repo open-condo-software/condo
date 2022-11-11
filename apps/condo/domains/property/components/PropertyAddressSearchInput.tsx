@@ -4,7 +4,7 @@ import get from 'lodash/get'
 import { Select, SelectProps, Typography } from 'antd'
 
 import { Organization, Property } from '@app/condo/schema'
-import { useApolloClient } from '@condo/next/apollo'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { grey } from '@ant-design/colors'
 import { jsx } from '@emotion/react'
 

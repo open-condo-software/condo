@@ -5,9 +5,9 @@
  */
 const faker = require('faker')
 const { EXTERNAL_REPORT_TYPES } = require('@condo/domains/analytics/constants/constants')
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { ExternalReport: ExternalReportGQL, GET_TICKET_WIDGET_REPORT_DATA, TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require('@condo/domains/analytics/gql')
 const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')

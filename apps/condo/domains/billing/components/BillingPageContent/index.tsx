@@ -1,5 +1,5 @@
 import React, { CSSProperties } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Typography } from 'antd'
 import { Loader } from '@condo/domains/common/components/Loader'

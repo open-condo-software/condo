@@ -4,10 +4,10 @@ const { Integer } = require('@keystonejs/fields')
 const isEmpty = require('lodash/isEmpty')
 const validate = require('validate.js')
 
-const { Json } = require('@condo/keystone/fields')
-const { composeNonResolveInputHook, composeResolveInputHook } = require('@condo/keystone/plugins/utils')
-const { plugin } = require('@condo/keystone/plugins/utils/typing')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { Json } = require('@open-condo/keystone/fields')
+const { composeNonResolveInputHook, composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
+const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
 const DV_VERSION_MISMATCH_ERROR = {
     variable: ['data', 'dv'],

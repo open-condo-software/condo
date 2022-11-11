@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react'
 import { Typography, Form } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'

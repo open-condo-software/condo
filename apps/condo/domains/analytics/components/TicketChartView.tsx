@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Skeleton, Typography, List } from 'antd'
 import get from 'lodash/get'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Row, Col, Typography, Tag, Space, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
@@ -24,7 +24,7 @@ import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 
 interface IPropertyInfoPanelProps {
     title: string
@@ -163,6 +163,7 @@ export const PropertyPageContent = ({ property, role }) => {
                                             type='sberDefaultGradient'
                                             secondary
                                             size='large'
+                                            data-cy='property-map__update-button'
                                         >
                                             {EditPropertyMapTitle}
                                         </Button>

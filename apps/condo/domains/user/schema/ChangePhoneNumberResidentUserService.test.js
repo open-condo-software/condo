@@ -1,10 +1,10 @@
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
 const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, createTestConfirmPhoneAction, UserAdmin, makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
 const { changePhoneNumberResidentUserByTestClient } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {

@@ -1,9 +1,9 @@
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import React, { useEffect } from 'react'
 import getConfig from 'next/config'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
-import { useAuth } from '@condo/next/auth'
+import { useAuth } from '@open-condo/next/auth'
 
 const { publicRuntimeConfig:{ UseDeskWidgetId } } = getConfig()
 const useDeskFieldsIdsMap = {

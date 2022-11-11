@@ -17,9 +17,9 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 

@@ -2,7 +2,7 @@
  * @type {Cypress.PluginConfig}
  */
 const isEmpty = require('lodash/isEmpty')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const {
     createTestUser,
     createTestForgotPasswordAction,
@@ -33,8 +33,8 @@ module.exports = async (on, config) => {
         async 'keystone:getConfirmPhoneAction' (phone) {
             return await ConfirmPhoneAction.getAll(admin, { phone })
         },
-        async 'keystone:createUserWithProperty' () {
-            if (isEmpty(userObject)) {
+        async 'keystone:createUserWithProperty' (forceCreate = false) {
+            if (forceCreate || isEmpty(userObject)) {
                 const result = await makeClientWithProperty()
                 const client = await makeLoggedInClient(result.userAttrs)
                 const cookie = client.getCookie()

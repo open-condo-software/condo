@@ -18,8 +18,8 @@ import {
     queryToSorter,
     sorterToQuery,
 } from '@condo/domains/organization/utils/helpers'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { Col, Dropdown, Menu, Row, Typography } from 'antd'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'

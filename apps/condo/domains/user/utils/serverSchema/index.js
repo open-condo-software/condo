@@ -3,7 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const { getByCondition } = require('@condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const has = require('lodash/has')
@@ -11,8 +11,8 @@ const faker = require('faker')
 const {
     SMS_CODE_LENGTH, STAFF,
 } = require('@condo/domains/user/constants/common')
-const { execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { User: UserGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
@@ -82,7 +82,7 @@ async function sendMessageToSupport (context, data) {
 const OidcClient = generateServerUtils(OidcClientGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
 
 

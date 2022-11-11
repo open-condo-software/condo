@@ -4,7 +4,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useSt
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import debounce from 'lodash/debounce'
 import throttle from 'lodash/throttle'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
 import { useSelectCareeteControls } from './useSelectCareeteControls'
 import { Loader } from '../Loader'

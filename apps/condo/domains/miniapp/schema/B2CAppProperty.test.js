@@ -2,13 +2,13 @@ const dayjs = require('dayjs')
 const {
     makeLoggedInAdminClient,
     makeClient,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,

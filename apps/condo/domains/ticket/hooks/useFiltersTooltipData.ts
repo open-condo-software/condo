@@ -1,8 +1,8 @@
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import { Ticket } from '@app/condo/schema'
 

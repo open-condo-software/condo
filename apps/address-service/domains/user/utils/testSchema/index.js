@@ -7,10 +7,10 @@ const faker = require('faker')
 
 const {
     generateGQLTestUtils,
-} = require('@condo/codegen/generate.test.utils')
+} = require('@open-condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@address-service/domains/user/gql')
-const { getRandomString, makeLoggedInAdminClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)

@@ -6,7 +6,7 @@ const faker = require('faker')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
-const { makeLoggedInAdminClient, setFakeClientMode } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestOrganization,

@@ -1,7 +1,7 @@
 const { isUndefined, isEmpty, get } = require('lodash')
 const dayjs = require('dayjs')
-const { find } = require('@condo/keystone/schema')
-const { getById, getByCondition } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')

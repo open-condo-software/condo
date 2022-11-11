@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { setFakeClientMode } = require('@condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { User: UserApi } = require('@condo/domains/user/utils/serverSchema')

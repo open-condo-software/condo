@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { Space, Typography } from 'antd'
 import styled from '@emotion/styled'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { Button } from '@condo/domains/common/components/Button'

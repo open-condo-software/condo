@@ -3,9 +3,9 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/billing/access/BillingIntegrationLog')
 const { WRONG_TEXT_FORMAT } = require('@condo/domains/common/constants/errors')
 const { UPPER_CASE_ALPHANUMERIC_REGEXP } = require('@condo/domains/common/constants/regexps')

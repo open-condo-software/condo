@@ -3,9 +3,9 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')

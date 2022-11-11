@@ -16,8 +16,8 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
-} = require('@condo/keystone/test.utils')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     createTestBillingIntegrationOrganizationContext,

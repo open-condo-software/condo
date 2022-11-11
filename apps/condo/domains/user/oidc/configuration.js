@@ -1,4 +1,4 @@
-const { getById } = require('@condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 const { createAdapterClass } = require('./adapter')
 const { get } = require('lodash')
 

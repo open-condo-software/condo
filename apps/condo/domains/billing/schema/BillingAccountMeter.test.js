@@ -9,7 +9,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const { createTestBillingMeterResource } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { BillingAccountMeter, createTestBillingAccountMeter, updateTestBillingAccountMeter } = require('@condo/domains/billing/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -17,7 +17,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingAccountMeter', () => {

@@ -1,4 +1,4 @@
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { initSbbolFintechApi } = require('../SbbolFintechApi')
 const { ServiceSubscriptionPayment, ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 const { SUBSCRIPTION_PAYMENT_STATUS, SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
@@ -6,7 +6,7 @@ const { executeInSequence } = require('@condo/domains/common/utils/parallel')
 const { SBBOL_PAYMENT_STATUS_MAP, dvSenderFields } = require('../constants')
 const { get } = require('lodash')
 const dayjs = require('dayjs')
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('sbbol/syncSbbolSubscriptionPaymentRequestsState')
 

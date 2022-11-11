@@ -3,9 +3,9 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 
-import { useIntl } from '@condo/next/intl'
-import { useApolloClient } from '@condo/next/apollo'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { TicketCreateInput } from '@app/condo/schema'
 

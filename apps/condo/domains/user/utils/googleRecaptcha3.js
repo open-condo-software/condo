@@ -1,7 +1,7 @@
 const { isEmpty } = require('lodash')
 
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const GOOGLE_RECAPTCHA_CONFIG = conf.GOOGLE_RECAPTCHA_CONFIG ? JSON.parse(conf.GOOGLE_RECAPTCHA_CONFIG) : {}
 const CAPTCHA_SCORE_URL = GOOGLE_RECAPTCHA_CONFIG.CAPTCHA_SCORE_URL ? GOOGLE_RECAPTCHA_CONFIG.CAPTCHA_SCORE_URL : 'https://www.google.com/recaptcha/api/siteverify'

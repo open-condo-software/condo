@@ -5,7 +5,7 @@ import get from 'lodash/get'
 import { Breadcrumb, Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'

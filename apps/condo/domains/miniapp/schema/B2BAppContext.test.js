@@ -3,7 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     makeClientWithSupportUser,
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -19,11 +19,11 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 describe('B2BAppContext', () => {
     describe('CRUD', () => {

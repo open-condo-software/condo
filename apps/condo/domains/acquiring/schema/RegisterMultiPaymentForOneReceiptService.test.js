@@ -8,7 +8,7 @@ const dayjs = require('dayjs')
 const {
     makeClient,
     makeLoggedInAdminClient,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     AcquiringIntegration,
     registerMultiPaymentForOneReceiptByTestClient,
@@ -27,7 +27,7 @@ const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
     catchErrorFrom,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     FEE_CALCULATION_PATH,
     WEB_VIEW_PATH,

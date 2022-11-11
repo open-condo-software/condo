@@ -5,7 +5,7 @@
  */
 const faker = require('faker')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { OnBoarding: OnBoardingGQL } = require('@condo/domains/onboarding/gql')
 const { OnBoardingStep: OnBoardingStepGQL } = require('@condo/domains/onboarding/gql')

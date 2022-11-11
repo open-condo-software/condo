@@ -1,6 +1,6 @@
 const { flatten, uniq } = require('lodash')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const { getStartDates } = require('@condo/domains/common/utils/date')
 

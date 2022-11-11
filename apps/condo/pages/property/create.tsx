@@ -2,7 +2,7 @@ import { Typography, Row, Col, RowProps } from 'antd'
 import Head from 'next/head'
 import React from 'react'
 import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 

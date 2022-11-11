@@ -14,11 +14,11 @@ const https = require('https')
 const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = require('lodash')
 const fs = require('fs')
 const falsey = require('falsey')
-const { getTranslations } = require('@condo/locales/loader')
+const { getTranslations } = require('@open-condo/locales/loader')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 

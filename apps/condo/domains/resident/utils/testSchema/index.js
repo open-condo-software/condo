@@ -9,7 +9,7 @@ const { makeClientWithResidentUser } = require(
 const { get } = require('lodash')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
@@ -18,7 +18,7 @@ const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const Resident = generateGQLTestUtils(ResidentGQL)

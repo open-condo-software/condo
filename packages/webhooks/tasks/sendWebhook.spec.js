@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { setFakeClientMode } = require('@condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const {
     WebhookSubscription,
     createTestWebhook,
@@ -7,10 +7,10 @@ const {
     softDeleteTestWebhook,
     softDeleteTestWebhookSubscription,
     updateTestWebhookSubscription,
-} = require('@condo/webhooks/schema/utils/testSchema')
+} = require('@open-condo/webhooks/schema/utils/testSchema')
 const dayjs = require('dayjs')
 
-const utils = require('@condo/webhooks/tasks/tasks.utils')
+const utils = require('@open-condo/webhooks/tasks/tasks.utils')
 const STABLE_URL = faker.internet.url()
 const STABLE_CALLS = []
 let ODD_COUNTER = 0
@@ -34,7 +34,7 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
     }
 })
 
-const { sendWebhook } = require('@condo/webhooks/tasks/sendWebhook')
+const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
 
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {

@@ -1,7 +1,7 @@
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const index = require('@app/condo')
-const { find } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 

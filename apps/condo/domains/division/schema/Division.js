@@ -3,8 +3,8 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/division/access/Division')
 const { OrganizationEmployee, Organization } = require('@condo/domains/organization/utils/serverSchema')

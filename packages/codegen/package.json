@@ -1,14 +1,14 @@
 {
-    "name": "@condo/codegen",
+    "name": "@open-condo/codegen",
     "main": "index.js",
     "version": "1.0.0",
     "repository": "https://github.com/open-condo-software/condo/tree/master/packages/codegen",
     "dependencies": {
         "@apollo/client": "3.3.20",
-        "@condo/config": "workspace:^",
-        "@condo/keystone": "workspace:^",
-        "@condo/next": "workspace:^",
         "@graphql-typed-document-node/core": "^3.1.1",
+        "@open-condo/config": "workspace:^",
+        "@open-condo/keystone": "workspace:^",
+        "@open-condo/next": "workspace:^",
         "boxen": "^4.2.0",
         "chalk": "4.1.2",
         "dayjs": "^1.10.6",

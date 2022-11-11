@@ -4,7 +4,7 @@
 
 const omit = require('lodash/omit')
 
-const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')

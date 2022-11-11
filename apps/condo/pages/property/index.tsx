@@ -7,9 +7,9 @@ import {
 import { Col, Radio, Row, RowProps, Tabs, Typography } from 'antd'
 import Head from 'next/head'
 import { jsx } from '@emotion/react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { useRouter } from 'next/router'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { GetServerSideProps } from 'next'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'

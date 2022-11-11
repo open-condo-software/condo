@@ -5,8 +5,8 @@ const get = require('lodash/get')
 const isString = require('lodash/isString')
 const faker = require('faker')
 
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { PUSH_FAKE_TOKEN_SUCCESS, PUSH_FAKE_TOKEN_FAIL, FIREBASE_CONFIG_ENV } = require('../constants/constants')
 const { EMPTY_CONFIG_ERROR, EMPTY_NOTIFICATION_TITLE_BODY_ERROR } = require('../constants/errors')

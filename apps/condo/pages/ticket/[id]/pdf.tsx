@@ -5,7 +5,7 @@ import compact from 'lodash/compact'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'

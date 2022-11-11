@@ -4,7 +4,7 @@
  *
  * @example
  * ```js
- * const { GQLError, GQLErrorCode } = require('@condo/keystone/errors')
+ * const { GQLError, GQLErrorCode } = require('@open-condo/keystone/errors')
  *
  * // Declare all errors, that can be thrown by a custom action, implemented below
  * const errors = {
@@ -65,9 +65,9 @@ const { ApolloError } = require('apollo-server-errors')
 const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 const cuid = require('cuid')
 
-const conf = require('@condo/config')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
-const { getTranslations } = require('@condo/locales/loader')
+const conf = require('@open-condo/config')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { getTranslations } = require('@open-condo/locales/loader')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g

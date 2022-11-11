@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import {
     ComponentType,

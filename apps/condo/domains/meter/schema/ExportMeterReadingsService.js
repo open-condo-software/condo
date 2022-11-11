@@ -4,16 +4,16 @@
 const { uniq, get } = require('lodash')
 const dayjs = require('dayjs')
 
-const { GQLCustomSchema } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const conf = require('@condo/config')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const conf = require('@open-condo/config')
 
 const { createExportFile } = require('@condo/domains/common/utils/createExportFile')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { NOTHING_TO_EXPORT } = require('@condo/domains/common/constants/errors')
 const { getHeadersTranslations, EXPORT_TYPE_METERS } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/locales/loader')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
+const { i18n } = require('@open-condo/locales/loader')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const access = require('@condo/domains/meter/access/ExportMeterReadingsService')
 
