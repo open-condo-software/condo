@@ -12,6 +12,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
     const UnitNameTitle = intl.formatMessage({ id: 'field.UnitName' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
     const FullNameTitle = intl.formatMessage({ id: 'field.Holder' })
+    const CategoryTitle = intl.formatMessage({ id: 'field.Category' })
     const DebtTitle = intl.formatMessage({ id: 'DebtOverpayment' })
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
@@ -33,7 +34,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 dataIndex: ['property', 'address'],
                 sorter: false,
                 filteredValue: get(filters, 'address'),
-                width: detailed ? '30%' : '50%',
+                width: detailed ? '25%' : '50%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(AddressTitle),
                 render: getTextRender(search),
@@ -46,7 +47,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 filteredValue: get(filters, 'unitName'),
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(UnitNameTitle),
-                width: '10%',
+                width: '17%',
                 render: getTextRender(search),
             },
             fullName: {
@@ -55,9 +56,17 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 dataIndex: ['account', 'fullName'],
                 sorter: false,
                 filteredValue: get(filters, 'fullName'),
-                width: '15%',
+                width: '18%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(FullNameTitle),
+                render: getTextRender(search),
+            },
+            category: {
+                title: CategoryTitle,
+                key: 'category',
+                dataIndex: ['category', 'name'],
+                sorter: false,
+                width: '14%',
                 render: getTextRender(search),
             },
             account: {
@@ -66,7 +75,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 dataIndex: ['account', 'number'],
                 sorter: false,
                 filteredValue: get(filters, 'account'),
-                width: detailed ? '25%' : '30%',
+                width: detailed ? '20%' : '30%',
                 filterIcon: getFilterIcon,
                 filterDropdown: getTextFilterDropdown(AccountTitle),
                 render: getTextRender(search),
@@ -76,7 +85,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 key: 'balance',
                 dataIndex: ['toPayDetails', 'balance'],
                 sorter: false,
-                width: '13%',
+                width: '14%',
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
@@ -94,7 +103,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 key: 'charge',
                 dataIndex: ['toPayDetails', 'charge'],
                 sorter: false,
-                width: '13%',
+                width: '14%',
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
@@ -111,7 +120,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
         }
 
         return detailed
-            ? [columns.address, columns.unitName, columns.account, columns.fullName, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            ? [columns.address, columns.unitName,  columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.toPay]
             : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,
@@ -122,6 +131,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
         DebtTitle,
         PenaltyTitle,
         ChargeTitle,
+        CategoryTitle,
         filters,
         sorterMap,
         ShortFlatNumber,

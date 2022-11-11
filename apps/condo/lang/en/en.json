@@ -83,6 +83,7 @@
   "field.Address": "Address",
   "field.Address.notFound": "Address not found. Maybe this house is not added into CRM",
   "field.Assignee.requiredError": "Set Responsible",
+  "field.Category": "Category",
   "field.Classifier.requiredError": "Select problem classifier",
   "field.ClientName.minLengthError": "Enter your full name",
   "field.Description.lengthError": "Please describe the problem in more detail",
