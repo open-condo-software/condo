@@ -160,7 +160,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
     }
 }
 
-export const getClassifierRender = (intl, search: FilterValue) => {
+export const getClassifierRender = (intl, search?: FilterValue) => {
     return function render (text, record) {
         const placeClassifier = get(record, ['classifier', 'place', 'name'])
         const postfix = `\n(${placeClassifier})`
@@ -169,7 +169,7 @@ export const getClassifierRender = (intl, search: FilterValue) => {
     }
 }
 
-export const getTicketDetailsRender = (search: FilterValue) => {
+export const getTicketDetailsRender = (search?: FilterValue) => {
     return function render (details: string, ticket: Ticket) {
         const address = get(ticket, ['property', 'address'])
         const maxDetailsLength = address ? address.length : details.length
@@ -179,7 +179,7 @@ export const getTicketDetailsRender = (search: FilterValue) => {
     }
 }
 
-export const getStatusRender = (intl, search: FilterValue) => {
+export const getStatusRender = (intl, search?: FilterValue) => {
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })

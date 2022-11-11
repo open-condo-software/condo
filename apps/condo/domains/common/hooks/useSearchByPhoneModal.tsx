@@ -10,9 +10,7 @@ import { useIntl } from '@condo/next/intl'
 
 import { Modal } from '@condo/domains/common/components/Modal'
 import Select from '@condo/domains/common/components/antd/Select'
-import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes, colors } from '@condo/domains/common/constants/style'
 import { useOrganization } from '@condo/next/organization'
@@ -23,9 +21,9 @@ const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 const LINK_STYLES = { fontSize: fontSizes.label, color: colors.black }
 
-const mapToOption = (id, phone, property, router, DeletedMessage) => (
+const mapToOption = (id, phone, property, unitName, type, router, DeletedMessage) => (
     <Select.Option key={id} value={id} title={phone}>
-        <Typography.Link href={`/phone/${phone}`} style={LINK_STYLES}>
+        <Typography.Link href={`/phone/${phone}?tab=${property.id}-${unitName}-${type}`} style={LINK_STYLES}>
             <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                 <Col>
                     {phone}
@@ -101,6 +99,7 @@ const SEARCH_BY_PHONE = gql`
             name
             phone
             property { ${TICKET_PROPERTY_FIELDS} }
+            unitName
         }
       
         tickets: allTickets(
@@ -115,6 +114,7 @@ const SEARCH_BY_PHONE = gql`
           property { ${TICKET_PROPERTY_FIELDS} }
           clientName
           clientPhone
+          unitName
       }
       
         employees: allOrganizationEmployees(
@@ -129,7 +129,7 @@ const SEARCH_BY_PHONE = gql`
     }
 `
 
-enum SearchByPhoneOptionType {
+export enum ClientType {
     Contact,
     NotResident,
     Employee,
@@ -144,14 +144,20 @@ export function searchByPhone (organizationId) {
         if (error) console.warn(error)
 
         const employees = []
-        const contacts = data.contacts.map(contact => ({ value: contact.id, phone: contact.phone, property: contact.property, type: SearchByPhoneOptionType.Contact }))
+        const contacts = data.contacts.map(({ id, phone, property, unitName }) => ({
+            value: id, phone, property, unitName, type: ClientType.Contact,
+        }))
         const tickets = data.tickets.filter(ticket => {
             const employee = data.employees.find(employee => employee.phone === ticket.clientPhone)
             if (employee) {
-                employees.push({ value: ticket.id, phone: ticket.clientPhone, property: ticket.property, type: SearchByPhoneOptionType.Employee })
+                employees.push({
+                    value: ticket.id, phone: ticket.clientPhone, property: ticket.property, unitName: ticket.unitName, type: ClientType.Employee,
+                })
                 return false
             } else return true
-        }).map(ticket => ({ value: ticket.id, phone: ticket.clientPhone, property: ticket.property, type: SearchByPhoneOptionType.NotResident }))
+        }).map(ticket => ({
+            value: ticket.id, phone: ticket.clientPhone, property: ticket.property, unitName: ticket.unitName, type: ClientType.NotResident,
+        }))
 
         return [...contacts, ...tickets, ...employees]
     }
@@ -177,14 +183,14 @@ const SearchByPhoneSelect = ({
     const renderOptions = useCallback((items) => {
         const resultOptions = []
         const contactOptions = items
-            .filter(item => item.type === SearchByPhoneOptionType.Contact)
-            .map(item => mapToOption(item.value, item.phone, item.property, router, DeletedMessage))
+            .filter(item => item.type === ClientType.Contact)
+            .map(item => mapToOption(item.value, item.phone, item.property, item.unitName, ClientType.Contact, router, DeletedMessage))
         const notResidentOptions = items
-            .filter(item => item.type === SearchByPhoneOptionType.NotResident)
-            .map(item => mapToOption(item.value, item.phone, item.property, router, DeletedMessage))
+            .filter(item => item.type === ClientType.NotResident)
+            .map(item => mapToOption(item.value, item.phone, item.property, item.unitName, ClientType.NotResident, router, DeletedMessage))
         const employeeOptions = items
-            .filter(item => item.type === SearchByPhoneOptionType.Employee)
-            .map(item => mapToOption(item.value, item.phone, item.property, router, DeletedMessage))
+            .filter(item => item.type === ClientType.Employee)
+            .map(item => mapToOption(item.value, item.phone, item.property, item.unitName, ClientType.Employee, router, DeletedMessage))
 
         if (!isEmpty(contactOptions)) {
             resultOptions.push(
