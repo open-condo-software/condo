@@ -791,6 +791,7 @@
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor": "Executor is not set",
   "pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee": "Assignee is not set",
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Load more {entity}",
+  "pages.condo.phone.table.lastComment": "Last comment",
   "pages.organizations.CreateOrganizationButtonLabel": "Create organization",
   "pages.organizations.CreateOrganizationModalTitle": "New organization",
   "pages.organizations.CreateOrganizationPlaceholder": "For example, IDACORP, Inc.",

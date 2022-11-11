@@ -207,6 +207,27 @@ export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQ
     return await router.push(router.route + query)
 }
 
+export async function updateRoute (router: NextRouter, newRoute: string, filters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
+    if (!offset && 'offset' in router.query) {
+        router.query['offset'] = '0'
+    }
+
+    const possibleFilters = pickBy(filters, (value) => !isEmpty(value))
+    const possibleQueryData = { sort, offset }
+    if (isEmpty(possibleFilters)) {
+        delete possibleQueryData['filters']
+    } else {
+        possibleQueryData['filters'] = JSON.stringify(possibleFilters)
+    }
+
+    const query = qs.stringify(
+        possibleQueryData,
+        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+    )
+
+    return await router.push(newRoute + query)
+}
+
 export function getFiltersModalPopupContainer (): HTMLElement {
     return document.getElementById(FILTERS_POPUP_CONTAINER_ID)
 }
