@@ -59,7 +59,7 @@ describe('Property', () => {
             expect(obj.id).toMatch(UUID_RE)
         })
 
-        test.each(emptyParkingValueCases)('gets created with `%p` value in `map.parking`', async (message, parking) => {
+        test.each(emptyParkingValueCases)('gets created with `%p` value in `map.parking`', async (parking) => {
             const map = {
                 'dv': 1,
                 'type': 'building',
