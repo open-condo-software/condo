@@ -72,6 +72,9 @@ class PropertyMapCreate extends BasePropertyTest {
     clickRemoveSection (): this {
         cy.get('[data-cy=property-map__remove-section-button]').click()
 
+        cy.get('[data-cy=property-map__section-button]').should('have.length', 1)
+        cy.get('[data-cy=property-map__unit-button]').should('have.length', 8)
+
         return this
     }
 

@@ -861,6 +861,7 @@ class MapEdit extends MapView {
 
         this.selectedSection = null
         this.mode = null
+        this.editMode = null
         this.notifyUpdater()
     }
 
@@ -882,6 +883,7 @@ class MapEdit extends MapView {
 
         this.selectedParking = null
         this.mode = null
+        this.editMode = null
         this.notifyUpdater()
     }
 
