@@ -86,6 +86,7 @@
   "field.Address": "Адрес",
   "field.Address.notFound": "Адрес не найден. Возможно, этот дом ещё не добавлен в «Домá».",
   "field.Assignee.requiredError": "Укажите Ответственного",
+  "field.Category": "Категория",
   "field.Classifier.requiredError": "Выберите классификатор проблемы",
   "field.ClientName.minLengthError": "Укажите ФИО",
   "field.Description.lengthError": "Пожалуйста, опишите проблему подробнее",
