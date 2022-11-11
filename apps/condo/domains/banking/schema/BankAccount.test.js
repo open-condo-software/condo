@@ -122,7 +122,24 @@ describe('BankAccount', () => {
                 expect(createdObj.currencyCode).toEqual(readObj.currencyCode)
             })
 
-            test('user can\'t', async () => {
+            test('user can\'t  when it\'s an employee of another organization', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [ organization ] = await createTestOrganization(admin)
+
+                const [ anotherOrganization ] = await createTestOrganization(admin)
+                const [ role ] = await createTestOrganizationEmployeeRole(admin, anotherOrganization)
+                await createTestOrganizationEmployee(admin, anotherOrganization, employeeUserClient.user, role)
+
+                await createTestBankAccount(admin, organization)
+
+                const readObj = await BankAccount.getAll(employeeUserClient, {})
+
+                expect(readObj).toHaveLength(0)
+            })
+
+            test('user can\'t when it\'s not an employee of organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -257,6 +274,29 @@ describe('BankAccount', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankAccount.delete(admin, createdObj.id)
+                })
+            })
+
+            test('support can\'t', async () => {
+                const support = await makeClientWithSupportUser()
+                const [organization] = await createTestOrganization(support)
+
+                const [createdObj] = await createTestBankAccount(support, organization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await BankAccount.delete(support, createdObj.id)
+                })
+            })
+
+            test('user can\'t', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+
+                const [ createdObj ] = await createTestBankAccount(admin, organization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await BankAccount.delete(user, createdObj.id)
                 })
             })
         })
