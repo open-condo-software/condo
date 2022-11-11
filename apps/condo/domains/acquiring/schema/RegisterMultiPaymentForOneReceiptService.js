@@ -4,7 +4,7 @@
 const { get, isNil } = require('lodash')
 const Big = require('big.js')
 
-const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForOneReceiptService')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
@@ -20,9 +20,9 @@ const {
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 
 const {
     RECEIPTS_ARE_DELETED,

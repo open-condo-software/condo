@@ -3,11 +3,11 @@
  */
 
 const get = require('lodash/get')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { getByCondition, find, getById } = require('@condo/keystone/schema')
+const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const compact = require('lodash/compact')
 const uniq = require('lodash/uniq')

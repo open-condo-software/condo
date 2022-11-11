@@ -1,9 +1,9 @@
 const querystring = require('querystring')
 const { isNil } = require('lodash')
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 const logger = getLogger('payment/linkHandler')
-const { getSchemaCtx, getById } = require('@condo/keystone/schema')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,

@@ -4,8 +4,8 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const conf = require('@condo/config')
-const { makeLoggedInAdminClient, UUID_RE } = require('@condo/keystone/test.utils')
+const conf = require('@open-condo/config')
+const { makeLoggedInAdminClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
 

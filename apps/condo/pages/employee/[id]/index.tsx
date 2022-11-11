@@ -8,8 +8,8 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
 import Router from 'next/router'
 import get from 'lodash/get'
@@ -20,7 +20,7 @@ import React from 'react'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { map } from 'lodash'
-import { useAuth } from '@condo/next/auth'
+import { useAuth } from '@open-condo/next/auth'
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()

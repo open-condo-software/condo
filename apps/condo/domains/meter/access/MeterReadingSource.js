@@ -1,4 +1,4 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 async function canReadMeterReadingSources ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

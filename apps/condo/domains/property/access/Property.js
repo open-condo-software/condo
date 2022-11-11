@@ -4,9 +4,9 @@
 const get = require('lodash/get')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getById, find } = require('@condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { uniq, compact } = require('lodash')
 

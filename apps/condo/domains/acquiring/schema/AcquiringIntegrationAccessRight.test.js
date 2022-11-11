@@ -3,7 +3,7 @@
  */
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 
 const {
     AcquiringIntegrationAccessRight,
@@ -18,7 +18,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')

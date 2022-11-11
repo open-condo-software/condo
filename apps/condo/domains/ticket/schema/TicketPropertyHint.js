@@ -4,8 +4,8 @@
 
 const { Text } = require('@keystonejs/fields')
 
-const { GQLListSchema, find } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/ticket/access/TicketPropertyHint')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { sanitizeXss } = require('@condo/domains/common/utils/xss')

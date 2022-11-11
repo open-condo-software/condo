@@ -1,5 +1,5 @@
 const express = require('express')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
 class FeaturesMiddleware {
     async prepareMiddleware () {

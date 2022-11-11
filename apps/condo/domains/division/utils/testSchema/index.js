@@ -5,9 +5,9 @@
  */
 const faker = require('faker')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { Division: DivisionGQL } = require('@condo/domains/division/gql')
 /* AUTOGENERATE MARKER <IMPORT> */

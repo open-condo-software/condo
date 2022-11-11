@@ -8,7 +8,7 @@ import {
     {{ name }}UpdateInput,
     QueryAll{{ pluralize.plural(name) }}Args,
 } from '@app/{{app}}/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { {{ name }} as {{ name }}GQL } from '@{{app}}/domains/{{ domain }}/gql'
 
 // TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO

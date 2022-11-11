@@ -9,9 +9,9 @@ const { makeClientWithProperty } = require('@condo/domains/property/utils/testSc
 const { Ticket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 const { createTestOrganizationLink, updateTestOrganizationLink } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
 describe('OrganizationLink', () => {
     test('admin: can create OrganizationLink', async () => {

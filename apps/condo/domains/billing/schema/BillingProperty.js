@@ -3,13 +3,13 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/billing/access/BillingProperty')
-const { find } = require('@condo/keystone/schema')
-const { getById } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 const { Virtual } = require('@keystonejs/fields')
 const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 const { RAW_DATA_FIELD } = require('./fields/common')

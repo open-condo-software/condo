@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import React from 'react'
 import get from 'lodash/get'
-import { useAuth } from '@condo/next/auth'
+import { useAuth } from '@open-condo/next/auth'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UserProfileForm } from '@condo/domains/user/components/UserProfileForm'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'

@@ -2,8 +2,8 @@ const express = require('express')
 const { isObject } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
 const { SBBOL_SESSION_KEY } = require('./constants')

@@ -6,7 +6,7 @@ import findIndex from 'lodash/findIndex'
 import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
-import { useAuth } from '@condo/next/auth'
+import { useAuth } from '@open-condo/next/auth'
 import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
 import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 

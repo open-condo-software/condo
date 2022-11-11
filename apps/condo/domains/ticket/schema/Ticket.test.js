@@ -4,7 +4,7 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor, setIsFeatureFlagsEnabled } = require('@condo/keystone/test.utils')
+const { NUMBER_RE, UUID_RE, DATETIME_RE, makeClient, makeLoggedInAdminClient, waitFor, setIsFeatureFlagsEnabled } = require('@open-condo/keystone/test.utils')
 
 const {
     expectToThrowAuthenticationErrorToObj,
@@ -12,7 +12,7 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 

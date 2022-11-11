@@ -4,11 +4,11 @@
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Ticket, TicketSource } = require('@condo/domains/ticket/utils/serverSchema')
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/ticket/access/CreateResidentTicketService')
 const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 const { get } = require('lodash')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 
 const errors = {

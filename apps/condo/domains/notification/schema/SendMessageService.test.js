@@ -1,5 +1,5 @@
 const faker = require('faker')
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
@@ -8,7 +8,7 @@ const {
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
 
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 describe('SendMessageService', () => {
     describe('sendMessage', () => {

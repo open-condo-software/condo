@@ -4,7 +4,7 @@ const { URL } = require('url')
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'

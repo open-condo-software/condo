@@ -5,7 +5,7 @@ const jwtDecode = require('jwt-decode')
 
 const {
     createAxiosClientWithCookie, getRandomString, makeLoggedInAdminClient,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const {
     makeClientWithNewRegisteredAndLoggedInUser,

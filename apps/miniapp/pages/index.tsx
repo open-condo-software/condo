@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
 import { Button } from '@condo/domains/common/components/Button'
 import getConfig from 'next/config'

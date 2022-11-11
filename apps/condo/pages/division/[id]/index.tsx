@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { get } from 'lodash'
 import { Row, Col, Typography } from 'antd'
 import { EditFilled } from '@ant-design/icons'
@@ -21,7 +21,7 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { useTableColumns } from '@condo/domains/division/hooks/useTechniciansTableColumns'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 const EMPLOYEE_TABLE_PAGE_SIZE = 10

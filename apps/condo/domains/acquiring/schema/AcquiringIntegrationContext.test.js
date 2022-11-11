@@ -6,7 +6,7 @@ const faker = require('faker')
 const { createTestOrganizationEmployee, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const {
     AcquiringIntegrationContext,
@@ -23,7 +23,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGraphQLRequestError,
     expectToThrowGQLError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')

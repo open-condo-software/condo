@@ -1,5 +1,5 @@
 {
-  "name": "@condo/triggers",
+  "name": "@open-condo/triggers",
   "main": "index.js",
   "version": "1.0.0",
   "dependencies": {

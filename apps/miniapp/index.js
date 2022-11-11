@@ -8,14 +8,14 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 
-const conf = require('@condo/config')
-const { EmptyApp } = require('@condo/keystone/test.utils')
-const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
-const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
+const conf = require('@open-condo/config')
+const { EmptyApp } = require('@open-condo/keystone/test.utils')
+const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
+const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
 
 const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
-const { formatError } = require('@condo/keystone/apolloErrorFormatter')
+const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
 
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'

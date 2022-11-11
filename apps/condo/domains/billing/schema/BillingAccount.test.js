@@ -27,8 +27,8 @@ const {
     expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
-const { makeClient } = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingAccount', () => {

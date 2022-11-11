@@ -5,7 +5,7 @@ import { Typography } from 'antd'
 import { Button, CustomButtonProps } from '@condo/domains/common/components/Button'
 import { Modal } from '@condo/domains/common/components/Modal'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 export interface IDeleteActionButtonWithConfirmModal {
     title: string

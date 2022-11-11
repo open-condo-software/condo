@@ -12,28 +12,28 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { NextApp } = require('@keystonejs/app-next')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
 
-const conf = require('@condo/config')
-const { prepareDefaultKeystoneConfig, getAdapter } = require('@condo/keystone/setup.utils')
-const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
-const { schemaDocPreprocessor } = require('@condo/keystone/preprocessors/schemaDoc')
-const { escapeSearchPreprocessor } = require('@condo/keystone/preprocessors/escapeSearch')
+const conf = require('@open-condo/config')
+const { prepareDefaultKeystoneConfig, getAdapter } = require('@open-condo/keystone/setup.utils')
+const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
+const { schemaDocPreprocessor } = require('@open-condo/keystone/preprocessors/schemaDoc')
+const { escapeSearchPreprocessor } = require('@open-condo/keystone/preprocessors/escapeSearch')
 
-const { getWebhookModels } = require('@condo/webhooks/schema')
+const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
 const { makeId } = require('@condo/domains/common/utils/makeid.utils')
-const { formatError } = require('@condo/keystone/apolloErrorFormatter')
+const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { SbbolMiddleware } = require('@condo/domains/organization/integrations/sbbol/routes')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { KeystoneCacheMiddleware } = require('@condo/keystone/cache')
+const { KeystoneCacheMiddleware } = require('@open-condo/keystone/cache')
 const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
-const { GraphQLLoggerPlugin } = require('@condo/keystone/logging')
+const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
-const { FeaturesMiddleware } = require('@condo/featureflags/FeaturesMiddleware')
+const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
 
 const packageJson = require('@app/condo/package.json')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
@@ -114,15 +114,15 @@ registerSchemas(keystone, [
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
-    const { registerTriggers } = require('@condo/triggers')
-    const { registerTasks } = require('@condo/keystone/tasks')
+    const { registerTriggers } = require('@open-condo/triggers')
+    const { registerTasks } = require('@open-condo/keystone/tasks')
 
     registerTasks([
         require('@condo/domains/notification/tasks'),
         require('@condo/domains/organization/tasks'),
         require('@condo/domains/ticket/tasks'),
         require('@condo/domains/resident/tasks'),
-        require('@condo/webhooks/tasks'),
+        require('@open-condo/webhooks/tasks'),
     ])
 
     registerTriggers([

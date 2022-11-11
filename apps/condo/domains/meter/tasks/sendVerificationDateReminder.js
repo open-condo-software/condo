@@ -1,9 +1,9 @@
 const dayjs = require('dayjs')
 const { get, flatten, uniq } = require('lodash')
 
-const conf = require('@condo/config')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLocalized } = require('@condo/locales/loader')
+const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')

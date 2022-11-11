@@ -8,9 +8,9 @@ const isEmpty = require('lodash/isEmpty')
 const sample = require('lodash/sample')
 const get = require('lodash/get')
 
-const { getRandomString } = require('@condo/keystone/test.utils')
+const { getRandomString } = require('@open-condo/keystone/test.utils')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const {
     PUSH_TRANSPORT_TYPES,

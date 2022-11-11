@@ -5,9 +5,9 @@ const { get } = require('lodash')
 const Big = require('big.js')
 
 const { Text, Relationship, DateTimeUtc, Select } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const {
     CURRENCY_CODE_FIELD,

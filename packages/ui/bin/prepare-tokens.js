@@ -30,7 +30,7 @@ function prepareTokens (tokenFile) {
         // Generate child process to transform tokens
         const chile_process = spawn('yarn', [
             'workspace',
-            '@condo/ui',
+            '@open-condo/ui',
             'token-transformer',
             `src/tokens/${filename}`,
             `src/tokens/sets/${setName}.json`,

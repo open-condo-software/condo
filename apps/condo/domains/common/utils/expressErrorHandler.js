@@ -1,6 +1,6 @@
 const cuid = require('cuid')
 const { get } = require('lodash')
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const logger = getLogger('expressErrorHandler')
 

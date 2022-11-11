@@ -4,8 +4,8 @@ import get from 'lodash/get'
 import { APP_TYPES } from '../constants'
 import Error from 'next/error'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { useOrganization } from '@condo/next/organization'
-import { useIntl } from '@condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
 
 export const AppPageWrapper: React.FC = ({ children }) => {
     const intl = useIntl()

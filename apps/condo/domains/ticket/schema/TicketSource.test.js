@@ -1,8 +1,8 @@
 const isEmpty = require('lodash/isEmpty')
 
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { getAvailableLocales, getTranslations } = require('@condo/locales/loader')
+const { getAvailableLocales, getTranslations } = require('@open-condo/locales/loader')
 
 const { TicketSource } = require('@condo/domains/ticket/utils/testSchema')
 const { TICKET_SOURCE_PREFIX } = require('@condo/domains/ticket/constants/common')

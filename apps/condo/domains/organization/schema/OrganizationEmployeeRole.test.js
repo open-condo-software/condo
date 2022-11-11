@@ -6,11 +6,11 @@ const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/
 const { createTestOrganizationEmployee } = require('../utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganization } = require('../utils/testSchema')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE } = require('@open-condo/keystone/test.utils')
 
 const { OrganizationEmployeeRole, createTestOrganizationEmployeeRole, updateTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
-const { getTranslations, getAvailableLocales } = require('@condo/locales/loader')
+const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+const { getTranslations, getAvailableLocales } = require('@open-condo/locales/loader')
 const { DEFAULT_ROLES } = require('../constants/common')
 const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Organization')
 

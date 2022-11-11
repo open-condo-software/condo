@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Col, Row, Tabs } from 'antd'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { IContextProps } from './index'
 import { ReceiptsTable } from './ReceiptsTable'
 import get from 'lodash/get'

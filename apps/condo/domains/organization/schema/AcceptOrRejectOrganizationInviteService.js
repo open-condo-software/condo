@@ -1,9 +1,9 @@
 const { get } = require('lodash')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/organization/access/AcceptOrRejectOrganizationInviteService')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 
 const errors = {

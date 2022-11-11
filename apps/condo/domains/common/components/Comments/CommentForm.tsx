@@ -1,5 +1,5 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'

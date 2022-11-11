@@ -3,7 +3,7 @@ import React, { useEffect } from 'react'
 import Router from 'next/router'
 import Head from 'next/head'
 import getConfig from 'next/config'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import {

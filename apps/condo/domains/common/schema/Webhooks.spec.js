@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
-const { SendWebhookTests } = require('@condo/webhooks/tasks/sendWebhook.spec')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { SendWebhookTests } = require('@open-condo/webhooks/tasks/sendWebhook.spec')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, updateTestUser } = require('@condo/domains/user/utils/testSchema')
 
 async function initializeActors () {

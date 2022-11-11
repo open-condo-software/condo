@@ -1,7 +1,7 @@
 import React from 'react'
 import { Typography } from 'antd'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import styled from '@emotion/styled'
 import { colors } from '@condo/domains/common/constants/style'
 import { green, grey } from '@ant-design/colors'

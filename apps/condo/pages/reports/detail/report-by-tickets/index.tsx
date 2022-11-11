@@ -3,7 +3,7 @@ import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRe
 import { css, jsx } from '@emotion/react'
 import { getQueryParams } from '@condo/domains/common/utils/url.utils'
 import Head from 'next/head'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import {
     PageContent,
     PageHeader,
@@ -13,12 +13,12 @@ import {
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import sum from 'lodash/sum'
 import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
-import { useApolloClient, useLazyQuery } from '@condo/next/apollo'
+import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
 
 import dayjs, { Dayjs } from 'dayjs'
 import quarterOfYear from 'dayjs/plugin/quarterOfYear'

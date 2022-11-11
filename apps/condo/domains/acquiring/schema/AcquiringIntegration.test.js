@@ -3,10 +3,10 @@
  */
 
 import { NO_INSTRUCTION_OR_MESSAGE_ERROR } from '@condo/domains/miniapp/constants'
-import { expectToThrowGQLError } from '@condo/keystone/test.utils'
+import { expectToThrowGQLError } from '@open-condo/keystone/test.utils'
 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 
 const { AcquiringIntegration, createTestAcquiringIntegration, updateTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
@@ -15,7 +15,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { DOCUMENT_BLOCK_SINGLE_EXAMPLE, DOCUMENT_BLOCK_MULTIPLE_EXAMPLE } = require('@condo/domains/miniapp/utils/testSchema')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 

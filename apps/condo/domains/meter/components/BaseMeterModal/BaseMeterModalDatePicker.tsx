@@ -1,7 +1,7 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import dayjs, { Dayjs } from 'dayjs'
 import React, { CSSProperties } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col } from 'antd'
 
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'

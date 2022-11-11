@@ -1,7 +1,7 @@
 import React, { CSSProperties } from 'react'
 import { Typography } from 'antd'
 import { TopCard } from '../AppDescription'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { MarkDown } from '@condo/domains/common/components/MarkDown'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 

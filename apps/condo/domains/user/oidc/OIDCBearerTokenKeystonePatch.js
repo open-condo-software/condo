@@ -1,7 +1,7 @@
 const { get } = require('lodash')
 
-const { getLogger } = require('@condo/keystone/logging')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { createAdapterClass } = require('./adapter')
 

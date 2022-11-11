@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { ExternalReport: ExternalReportGQL } = require('@condo/domains/analytics/gql')
 const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')

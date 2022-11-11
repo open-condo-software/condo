@@ -1,10 +1,10 @@
 # How to use
 
 ```js
-const { ApolloServerClient } = require('@condo/apollo-server-client')
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+const { ApolloServerClient } = require('@open-condo/apollo-server-client')
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const { endpoint, authRequisites } = conf.BILLING_INTEGRATION ? JSON.parse(conf.BILLING_INTEGRATION) : {}
 
 const BILLING_ACCOUNT_FIELDS = '{ id context { id } importId number unitName unitType }'

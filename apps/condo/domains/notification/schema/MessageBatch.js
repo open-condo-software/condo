@@ -6,9 +6,9 @@ const { isArray, isEmpty } = require('lodash')
 
 const { Text, Select } = require('@keystonejs/fields')
 
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 

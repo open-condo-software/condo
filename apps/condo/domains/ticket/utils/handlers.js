@@ -1,8 +1,8 @@
 const get = require('lodash/get')
 const dayjs = require('dayjs')
 
-const conf = require('@condo/config')
-const { getByCondition, find, getById } = require('@condo/keystone/schema')
+const conf = require('@open-condo/config')
+const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -26,7 +26,7 @@ const { Ticket, TicketCommentsTime } = require('./serverSchema')
 const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'

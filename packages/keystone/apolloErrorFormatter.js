@@ -31,7 +31,7 @@ const { printError } = require('graphql')
 const ensureError = require('ensure-error')
 const { pick, pickBy, identity, toArray, _, toString, get, set, isArray } = require('lodash')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 const COMMON_ERROR_CASES = {}

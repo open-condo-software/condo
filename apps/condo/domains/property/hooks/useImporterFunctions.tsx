@@ -1,5 +1,5 @@
-import { useOrganization } from '@condo/next/organization'
-import { useApolloClient } from '@condo/next/apollo'
+import { useOrganization } from '@open-condo/next/organization'
+import { useApolloClient } from '@open-condo/next/apollo'
 import { useEffect, useRef } from 'react'
 import { useAddressApi } from '../../common/components/AddressApi'
 import get from 'lodash/get'
@@ -8,7 +8,7 @@ import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 import { MapEdit } from '../components/panels/Builder/MapConstructor'
 import { BuildingMapType, PropertyTypeType } from '@app/condo/schema'
 import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 const createPropertyUnitsMap = (units, sections, floors) => {
     const unitsOnFloor = Math.floor(units / (floors * sections))

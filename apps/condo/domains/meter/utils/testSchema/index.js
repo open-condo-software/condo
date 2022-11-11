@@ -5,7 +5,7 @@
  */
 
 const faker = require('faker')
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
@@ -24,7 +24,7 @@ const MeterReading = generateGQLTestUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTemplateGQL)
 /* AUTOGENERATE MARKER <CONST> */
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 
 async function createTestMeterResource (client, extraAttrs = {}) {

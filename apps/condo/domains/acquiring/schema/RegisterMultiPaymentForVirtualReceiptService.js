@@ -4,7 +4,7 @@
 const { get, isNil } = require('lodash')
 const Big = require('big.js')
 
-const { getById, GQLCustomSchema } = require('@condo/keystone/schema')
+const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/RegisterMultiPaymentForVirtualReceiptService')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
@@ -20,9 +20,9 @@ const {
     getAcquiringIntegrationContextFormula,
     FeeDistribution,
 } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
-const { checkDvAndSender } = require('@condo/keystone/plugins/dvAndSender')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 
 const {
     RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,

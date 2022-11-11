@@ -4,9 +4,9 @@ import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import Router from 'next/router'
 
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {

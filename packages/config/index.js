@@ -13,7 +13,7 @@ if (fs.existsSync(path.join(root, '.env'))) {
     const env1 = dotenv.parse(fs.readFileSync(path.join(root, '.env')))
     for (const k in env1) {
         if (!env0.hasOwnProperty(k)) {
-            if (DEBUG) console.log(`@condo/config: [root.env] process.env[${k}] = ${env1[k]}`)
+            if (DEBUG) console.log(`@open-condo/config: [root.env] process.env[${k}] = ${env1[k]}`)
             process.env[k] = env1[k]
         }
     }
@@ -26,14 +26,14 @@ if (root !== cwd) {
         const env2 = dotenv.parse(fs.readFileSync(path.join(cwd, '.env')))
         for (const k in env2) {
             if (!env0.hasOwnProperty(k)) {
-                if (DEBUG) console.log(`@condo/config: [app.env] process.env[${k}] = ${env2[k]}`)
+                if (DEBUG) console.log(`@open-condo/config: [app.env] process.env[${k}] = ${env2[k]}`)
                 process.env[k] = env2[k]
             }
         }
     }
 }
 
-if (DEBUG) console.log(`@condo/config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
+if (DEBUG) console.log(`@open-condo/config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
 if (DEBUG) console.dir(process.env)
 
 function getEnv (namespace, name, defaultValue) {

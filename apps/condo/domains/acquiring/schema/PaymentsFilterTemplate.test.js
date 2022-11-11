@@ -3,21 +3,21 @@
  */
 
 const faker = require('faker')
-const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 
 const { PaymentsFilterTemplate, createTestPaymentsFilterTemplate, updateTestPaymentsFilterTemplate } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const { createTestOrganization, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganizationEmployeeRole,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowGraphQLRequestError } = require('@condo/keystone/test.utils')
+const { expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
 
 describe('PaymentsFilterTemplate', () => {
     describe('Create', () => {

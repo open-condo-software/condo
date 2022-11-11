@@ -7,9 +7,9 @@
 const faker = require('faker')
 const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { Ticket: TicketGQL, EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,

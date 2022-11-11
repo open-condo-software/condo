@@ -20,7 +20,7 @@ module.exports = {
         clean: true,
         library: {
             type: 'umd',
-            name: '@condo/ui',
+            name: '@open-condo/ui',
         },
         globalObject: 'this',
     },

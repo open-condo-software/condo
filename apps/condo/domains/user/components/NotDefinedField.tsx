@@ -1,6 +1,6 @@
 import { Typography } from 'antd'
 import React, { ReactElement } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 type DisplayValue = string | any[]

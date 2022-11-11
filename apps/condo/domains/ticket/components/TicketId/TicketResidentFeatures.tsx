@@ -5,7 +5,7 @@ import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'

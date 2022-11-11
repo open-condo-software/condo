@@ -5,16 +5,16 @@
  */
 const faker = require('faker')
 
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
 const { ServiceSubscription: ServiceSubscriptionGQL } = require('@condo/domains/subscription/gql')
 const dayjs = require('dayjs')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { ServiceSubscriptionPayment: ServiceSubscriptionPaymentGQL } = require('@condo/domains/subscription/gql')
 const { SUBSCRIPTION_PAYMENT_STATUS } = require('../../constants')
 const { SUBSCRIPTION_TYPE } = require('../../constants')
 const { WRONG_PAYMENT_STATUS_TRANSITION_ERROR } = require('../../constants/errors')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 

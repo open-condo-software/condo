@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import { ITasksStorage } from '../index'
-import { IGenerateHooksResult } from '@condo/codegen/generate.hooks'
+import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { TASK_POLL_INTERVAL } from '../../../constants/tasks'
 import dayjs from 'dayjs'
 

@@ -5,8 +5,8 @@
 const get = require('lodash/get')
 
 const { Text, Select, Integer, Checkbox, Password, Virtual } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const access = require('@miniapp/domains/condo/access/User')
 const { SERVICE_USER_TYPE, USER_TYPES } = require('@miniapp/domains/condo/constants/user')

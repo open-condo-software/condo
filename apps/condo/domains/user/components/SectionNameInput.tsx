@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'

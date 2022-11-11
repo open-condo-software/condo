@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')

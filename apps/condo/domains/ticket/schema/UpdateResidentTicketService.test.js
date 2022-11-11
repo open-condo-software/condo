@@ -5,11 +5,11 @@ const { createResidentTicketByTestClient } = require('@condo/domains/ticket/util
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { updateResidentTicketByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const faker = require('faker')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
-const { makeClient } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
  
 describe('UpdateResidentTicketService', () => {
     test('resident: can update ticket', async () => {

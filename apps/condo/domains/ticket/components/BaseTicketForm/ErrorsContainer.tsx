@@ -1,6 +1,6 @@
 import React from 'react'
 import isEmpty from 'lodash/isEmpty'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 

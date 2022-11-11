@@ -4,7 +4,7 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { TicketDeadlineSettingsForm } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsForm'
 import {
     TicketDeadlineSettingsAbout,

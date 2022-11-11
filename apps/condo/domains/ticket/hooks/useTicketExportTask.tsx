@@ -1,4 +1,4 @@
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { useRouter } from 'next/router'
 import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'

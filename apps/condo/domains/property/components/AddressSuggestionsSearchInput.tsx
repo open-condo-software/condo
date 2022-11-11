@@ -4,7 +4,7 @@ import identity from 'lodash/identity'
 import pickBy from 'lodash/pickBy'
 import { notification, Select, SelectProps, Typography } from 'antd'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { grey } from '@ant-design/colors'
 import styled from '@emotion/styled'
 

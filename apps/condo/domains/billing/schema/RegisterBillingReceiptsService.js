@@ -5,8 +5,8 @@
 const { get, omit, isEqual } = require('lodash')
 const Big = require('big.js')
 
-const { find, getById, GQLCustomSchema } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 

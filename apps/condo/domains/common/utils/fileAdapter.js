@@ -3,7 +3,7 @@ const { existsSync, mkdirSync } = require('fs')
 const express = require('express')
 
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const { SberCloudFileAdapter, OBSFilesMiddleware } = require('./sberCloudFileAdapter')
 const { DEFAULT_FILE_ADAPTER } = require('../constants/uploads')

@@ -5,10 +5,10 @@ const faker = require('faker')
 const { addBillingIntegrationAndContext } = require('@condo/domains/billing/utils/testSchema')
 const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
 
-const { makeClient } = require('@condo/keystone/test.utils')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
+const { catchErrorFrom, expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')

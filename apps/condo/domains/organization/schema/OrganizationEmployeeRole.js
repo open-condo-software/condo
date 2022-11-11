@@ -3,9 +3,9 @@
  */
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Checkbox, Virtual } = require('@keystonejs/fields')
-const { LocalizedText } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, dvAndSender } = require('@condo/keystone/plugins')
+const { LocalizedText } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, dvAndSender } = require('@open-condo/keystone/plugins')
 const { Organization } = require('../utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/organization/access/OrganizationEmployeeRole')

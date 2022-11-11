@@ -1,7 +1,7 @@
 import React from 'react'
 import { TooltipPlacement } from 'antd/es/tooltip'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 export interface INoOrganizationToolTipWrapper {
     element: JSX.Element,

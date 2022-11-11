@@ -1,8 +1,8 @@
 const { Select } = require('@keystonejs/fields')
 
-const LocalizedText = require('@condo/keystone/fields/LocalizedText')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const LocalizedText = require('@open-condo/keystone/fields/LocalizedText')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 

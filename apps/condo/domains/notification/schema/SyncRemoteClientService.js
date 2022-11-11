@@ -3,7 +3,7 @@
  */
 const get = require('lodash/get')
 
-const { GQLCustomSchema, getById, getByCondition } = require('@condo/keystone/schema')
+const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')

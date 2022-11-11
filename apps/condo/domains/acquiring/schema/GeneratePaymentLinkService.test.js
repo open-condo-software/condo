@@ -5,10 +5,10 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const {
     catchErrorFrom, expectToThrowAccessDeniedError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')

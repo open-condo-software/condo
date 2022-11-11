@@ -7,8 +7,8 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 
 import Input from '@condo/domains/common/components/antd/Input'

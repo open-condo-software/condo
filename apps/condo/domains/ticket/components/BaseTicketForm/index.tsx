@@ -15,7 +15,7 @@ import {
     TicketStatusTypeType,
     TicketSource as TicketSourceType,
 } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'

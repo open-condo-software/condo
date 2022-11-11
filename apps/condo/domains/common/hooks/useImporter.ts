@@ -8,7 +8,7 @@ import {
     ProcessedRow,
     ImporterErrorMessages, MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 

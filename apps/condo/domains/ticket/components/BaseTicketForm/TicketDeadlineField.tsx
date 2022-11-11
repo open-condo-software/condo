@@ -1,6 +1,6 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import { Col, Row, Typography } from 'antd'

@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Col, Form, notification, Row, Typography, RowProps, FormInstance } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import isEmpty from 'lodash/isEmpty'
@@ -15,7 +15,7 @@ import { useState } from 'react'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
-import { omitRecursively } from '@condo/keystone/fields/Json/utils/cleaner'
+import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 
 interface IOrganization {
     id: string

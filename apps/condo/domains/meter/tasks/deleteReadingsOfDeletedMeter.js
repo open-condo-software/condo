@@ -1,5 +1,5 @@
-const { getSchemaCtx, find } = require('@condo/keystone/schema')
-const { createTask } = require('@condo/keystone/tasks')
+const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
 const { MeterReading } = require('../utils/serverSchema')
 
 /**

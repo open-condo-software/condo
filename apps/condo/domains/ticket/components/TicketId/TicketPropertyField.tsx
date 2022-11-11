@@ -3,7 +3,7 @@ import { get, isEmpty } from 'lodash'
 import Link from 'next/link'
 import { Typography } from 'antd'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Ticket } from '@app/condo/schema'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'

@@ -1,6 +1,6 @@
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { getByCondition } = require('@condo/keystone/schema')
+const { getByCondition } = require('@open-condo/keystone/schema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const isEmpty = require('lodash/isEmpty')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')

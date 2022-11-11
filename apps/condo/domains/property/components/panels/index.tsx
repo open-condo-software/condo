@@ -5,7 +5,7 @@ import { BuildingMap } from '@app/condo/schema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Tabs } from 'antd'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
 const { TabPane } = Tabs

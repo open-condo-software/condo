@@ -1,5 +1,5 @@
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { createCondoBridge } from '@miniapp/domains/common/clients/CondoBridge'
 import { useOrganization } from '@miniapp/domains/common/utils/organization'
 import getConfig from 'next/config'

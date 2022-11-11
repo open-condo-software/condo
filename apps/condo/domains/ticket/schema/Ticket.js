@@ -6,11 +6,11 @@ const dayjs = require('dayjs')
 const isNull = require('lodash/isNull')
 const get = require('lodash/get')
 
-const { triggersManager } = require('@condo/triggers')
+const { triggersManager } = require('@open-condo/triggers')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
-const { GQLListSchema, getByCondition, getById } = require('@condo/keystone/schema')
-const { Json, AutoIncrementInteger } = require('@condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const {
     PROPERTY_REQUIRED_ERROR,

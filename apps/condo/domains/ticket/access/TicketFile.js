@@ -3,10 +3,10 @@
  */
 const get = require('lodash/get')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
-const { getById } = require('@condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 
 async function canReadTicketFiles ({ authentication: { item: user } }) {

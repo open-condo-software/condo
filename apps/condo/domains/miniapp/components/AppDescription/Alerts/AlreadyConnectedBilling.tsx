@@ -1,7 +1,7 @@
 import getConfig from 'next/config'
 import React, { CSSProperties, useCallback } from 'react'
 import { Alert, Space, Typography } from 'antd'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { useRouter } from 'next/router'
 

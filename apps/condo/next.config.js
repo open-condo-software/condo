@@ -1,16 +1,16 @@
 // @ts-check
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
-// Tell webpack to compile the "@condo/next" package, necessary
+// Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
 const withTM = require('next-transpile-modules')([
-    '@condo/codegen',
-    '@condo/next',
-    '@condo/featureflags',
-    '@condo/keystone',
+    '@open-condo/codegen',
+    '@open-condo/next',
+    '@open-condo/featureflags',
+    '@open-condo/keystone',
     'rc-table',
     '@condo/domains',
     '@emotion/styled',

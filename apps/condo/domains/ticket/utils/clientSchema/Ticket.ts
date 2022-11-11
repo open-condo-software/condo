@@ -5,7 +5,7 @@
 import { get, isUndefined, isNull } from 'lodash'
 import dayjs, { Dayjs } from 'dayjs'
 
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import {

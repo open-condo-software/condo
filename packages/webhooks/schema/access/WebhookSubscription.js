@@ -1,4 +1,4 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
 /**
  * Admin / support can read all webhook subscriptions.

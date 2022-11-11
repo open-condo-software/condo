@@ -7,7 +7,7 @@ const mockPushOrganizationToSalesCRM = jest.fn()
 
 const dayjs = require('dayjs')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { createTestServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 const { rightSbbolOfferAccept } = require('@condo/domains/subscription/utils/testSchema/constants')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')

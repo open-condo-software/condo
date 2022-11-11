@@ -1,5 +1,5 @@
 const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/AbstractSuggestionProvider')
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Row, Col, Space, Typography } from 'antd'
 import Select from '@condo/domains/common/components/antd/Select'

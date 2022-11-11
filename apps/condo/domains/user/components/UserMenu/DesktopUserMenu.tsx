@@ -9,8 +9,8 @@ import {
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
 import React, { useMemo } from 'react'
 import Router from 'next/router'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 import { green } from '@ant-design/colors'
 import { Button } from '@condo/domains/common/components/Button'
 

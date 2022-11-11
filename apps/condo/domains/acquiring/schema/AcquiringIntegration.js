@@ -3,8 +3,8 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')

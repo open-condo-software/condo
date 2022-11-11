@@ -13,7 +13,7 @@
  */
 const { values } = require('lodash')
 const Ajv = require('ajv')
-const { getRandomString } = require('@condo/keystone/test.utils')
+const { getRandomString } = require('@open-condo/keystone/test.utils')
 const { changeClientSecret, getSbbolSecretStorage } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const COMMAND = {

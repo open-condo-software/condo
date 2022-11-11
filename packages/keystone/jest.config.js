@@ -1,7 +1,7 @@
 module.exports = {
     projects: [
         {
-            displayName: '@condo/keystone',
+            displayName: '@open-condo/keystone',
             testEnvironment: 'node',
             testMatch: [`${__dirname}/**/*.spec.js`],
         },

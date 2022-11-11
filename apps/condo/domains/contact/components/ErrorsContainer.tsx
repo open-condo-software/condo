@@ -1,4 +1,4 @@
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import isEmpty from 'lodash/isEmpty'
 import React from 'react'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'

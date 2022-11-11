@@ -3,7 +3,7 @@ import { TicketPropertyHintContent } from '@condo/domains/ticket/components/Tick
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { useRouter } from 'next/router'
 import { jsx } from '@emotion/core'
 import Head from 'next/head'

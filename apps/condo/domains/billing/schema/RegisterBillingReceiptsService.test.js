@@ -4,14 +4,14 @@
 const {
     catchErrorFrom,
     expectToThrowGQLError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const faker = require('faker')
 
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
-const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@condo/keystone/test.utils')
+const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
     makeServiceUserForIntegration,
@@ -33,7 +33,7 @@ const {
 
 const { errors: mutationErrors } = require('@condo/domains/billing/schema/RegisterBillingReceiptsService')
 
-const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 describe('RegisterBillingReceiptsService', () => {
     let admin

@@ -26,7 +26,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Build styles from tokens
-        run: yarn workspace @condo/ui build:styles --web less css
+        run: yarn workspace @open-condo/ui build:styles --web less css
 
       - name: Strict lint token values (CSS vars)
         run: yarn stylelint "packages/ui/src/tokens/**/*.css"
@@ -35,7 +35,7 @@ jobs:
         run: yarn stylelint "packages/ui/src/tokens/**/*.less"
 
       - name: Generate color set
-        run: yarn workspace @condo/ui build:colors
+        run: yarn workspace @open-condo/ui build:colors
 
       - name: Build lib
-        run: yarn workspace @condo/ui build:lib
+        run: yarn workspace @open-condo/ui build:lib

@@ -2,7 +2,7 @@ import React, { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { Col, Row, Typography } from 'antd'
 
 import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_FILTERED_ELEMENTS } from '@condo/domains/ticket/constants/restrictions'
 

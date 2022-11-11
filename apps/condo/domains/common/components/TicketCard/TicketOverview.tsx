@@ -3,7 +3,7 @@ import { Row, Col, Typography, Space } from 'antd'
 import Link from 'next/link'
 import dayjs from 'dayjs'
 import { LOCALES } from '../../constants/locale'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { green } from '@ant-design/colors'
 import get from 'lodash/get'
 
