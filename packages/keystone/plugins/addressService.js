@@ -1,12 +1,12 @@
-const conf = require('@condo/config')
-const { ADDRESS_META_FIELD } = require('@condo/keystone/plugins/utils/addressMetaDefinition')
-const { composeResolveInputHook } = require('@condo/keystone/plugins/utils')
-const { plugin } = require('@condo/keystone/plugins/utils/typing')
+const conf = require('@open-condo/config')
+const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addressMetaDefinition')
+const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
+const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 const { Text } = require('@keystonejs/fields')
 const {
     createInstance: createAddressServiceClientInstance,
     createTestInstance: createTestAddressServiceClientInstance,
-} = require('@condo/keystone/plugins/utils/address-service-client')
+} = require('@open-condo/keystone/plugins/utils/address-service-client')
 const get = require('lodash/get')
 
 const readOnlyAccess = {

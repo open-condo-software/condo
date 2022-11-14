@@ -3,12 +3,12 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 const faker = require('faker')
 
 const {
     generateGQLTestUtils,
-} = require('@condo/codegen/generate.test.utils')
+} = require('@open-condo/codegen/generate.test.utils')
 
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
