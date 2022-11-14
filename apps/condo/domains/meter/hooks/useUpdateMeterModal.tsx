@@ -3,7 +3,9 @@ import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
+
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { Meter as MeterType } from '@app/condo/schema'
 import {
@@ -31,6 +33,9 @@ export const useUpdateMeterModal = (refetch) => {
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteMessage' })
     const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' }).toUpperCase()
+
+    const { organization } = useOrganization()
+    const userOrganizationId = get(organization, 'id')
 
     const [selectedMeter, setSelectedMeter] = useState<MeterType>()
     const meterNumber = get(selectedMeter, 'number')
@@ -96,6 +101,7 @@ export const useUpdateMeterModal = (refetch) => {
                     ? <AutoSourceAlert sourceAppName={masterAppName} />
                     : null
                 }
+                organizationId={userOrganizationId}
             />
         )
     }, [
@@ -108,6 +114,7 @@ export const useUpdateMeterModal = (refetch) => {
         selectedMeter,
         isAutomatic,
         masterAppName,
+        userOrganizationId,
     ])
 
     return useMemo(() => ({ UpdateMeterModal, setSelectedMeter }), [UpdateMeterModal])
