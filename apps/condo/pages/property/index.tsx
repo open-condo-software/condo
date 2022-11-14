@@ -30,8 +30,8 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 
 
-type PropertiesType = 'buildings' | 'divisions'
-const propertiesTypes: PropertiesType[] = ['buildings', 'divisions']
+type PropertiesType = 'buildings'
+const propertiesTypes: PropertiesType[] = ['buildings']
 
 export const getServerSideProps: GetServerSideProps = async ({ query }) => {
     if (propertiesTypes.includes(query.tab as PropertiesType)) {
