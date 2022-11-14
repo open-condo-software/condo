@@ -22,6 +22,7 @@ import isNil from 'lodash/isNil'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
 import invert from 'lodash/invert'
+import isNull from 'lodash/isNull'
 import MapSchemaJSON from './MapJsonSchema.json'
 
 const ajv = new Ajv()
@@ -514,11 +515,11 @@ class MapView extends Map {
 
 
 class MapEdit extends MapView {
-    public previewSectionId: string
-    public previewParkingId: string
+    public previewSectionId: string | null = null
+    public previewParkingId: string | null = null
     public previewSectionFloor: number | null = null
-    public previewUnitId: string
-    public previewParkingUnitId: string
+    public previewUnitId: string | null = null
+    public previewParkingUnitId: string | null = null
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
@@ -631,6 +632,14 @@ class MapEdit extends MapView {
                 this.mode = null
         }
         this.mode = mode
+    }
+
+    get hasPreviewComponents (): boolean {
+        return !isNull(this.previewSectionId)
+            || !isNull(this.previewParkingId)
+            || !isNull(this.previewUnitId)
+            || !isNull(this.previewParkingUnitId)
+            || !isNull(this.previewSectionFloor)
     }
 
     public setSelectedSection (section: BuildingSection): void {
