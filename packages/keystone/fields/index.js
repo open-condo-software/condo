@@ -5,6 +5,7 @@ const AutoIncrementInteger = require('./AutoIncrementInteger')
 const LocalizedText = require('./LocalizedText')
 const SignedDecimal = require('./SignedDecimal')
 const DateInterval = require('./DateInterval')
+const AddressPartWithType = require('./AddressPartWithType')
 
 module.exports = {
     Json,
@@ -14,4 +15,5 @@ module.exports = {
     LocalizedText,
     SignedDecimal,
     DateInterval,
+    AddressPartWithType,
 }
