@@ -11,7 +11,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const ADDRESS_FIELDS = `{ source address key meta ${COMMON_FIELDS} }`
 const Address = generateGqlQueries('Address', ADDRESS_FIELDS)
 
-const ADDRESS_INJECTION_FIELDS = `{ country region area city settlement street building block keywords meta ${COMMON_FIELDS} }`
+const ADDRESS_INJECTION_FIELDS = `{ country region area city cityDistrict settlement street house block keywords meta ${COMMON_FIELDS} }`
 const AddressInjection = generateGqlQueries('AddressInjection', ADDRESS_INJECTION_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

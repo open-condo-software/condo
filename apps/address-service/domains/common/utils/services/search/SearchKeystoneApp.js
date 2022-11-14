@@ -76,14 +76,21 @@ class SearchKeystoneApp {
                 return
             }
 
+            // Search by provider
+            // todo(nas): ability to search by s='fiasId:<some-id>' or s='injectionId:<some-uuid>'
             const searchProvider = searchDetector.getProvider(geo)
-
             const denormalizedRows = await searchProvider.get({ query: s, context })
-            if (denormalizedRows.length === 0) {
+            const searchResult = searchProvider.normalize(denormalizedRows)
+
+            // Inject internal properties
+            // const injectionsSeeker = new InjectionsSeeker(s)
+            // const denormalizedInjections = await injectionsSeeker.getInjections(godContext)
+            // searchResult.push(...injectionsSeeker.normalize(denormalizedInjections))
+
+            if (searchResult.length === 0) {
                 res.send(404)
                 return
             }
-            const searchResult = searchProvider.normalize(denormalizedRows)
 
             // Use the first result for a while
             const addressKey = generateAddressKey(searchResult[0])

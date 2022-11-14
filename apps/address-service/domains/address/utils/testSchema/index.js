@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const conf = require('@condo/config')
 const faker = require('faker')
 
 const {
@@ -14,15 +15,20 @@ const { AddressInjection: AddressInjectionGQL } = require('@address-service/doma
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+if (conf.DEFAULT_LOCALE) {
+    faker.locale = conf.DEFAULT_LOCALE
+}
+
 const Address = generateGQLTestUtils(AddressGQL)
 const AddressInjection = generateGQLTestUtils(AddressInjectionGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestAddress (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const address = `${faker.address.city()}, ${faker.address.streetName(true)}`
+    const address = `${faker.address.city()}, ${faker.address.streetName()}`
 
     const attrs = {
         dv: 1,
@@ -51,19 +57,46 @@ async function updateTestAddress (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+/**
+ * Creates emulation of address part type (ex.: sq., square, st., street, ...)
+ * @param {number} length
+ * @returns {string}
+ */
+function createAddressPartType (length = 2) {
+    const stringLettersCodes = { min: 97, max: 122 }
+    const capitalLettersCodes = { min: 65, max: 90 }
+    let returnString = ''
+
+    for (let i = 0; i < length; i++) {
+        const newChar = String.fromCharCode(faker.datatype.number(faker.datatype.boolean() ? stringLettersCodes : capitalLettersCodes))
+        returnString = `${returnString}${newChar}`
+    }
+
+    return returnString
+}
+
+/**
+ * @param {String} name
+ * @returns {{typeFull: String, typeShort: String, name: String}}
+ */
+function createTestAddressPartWithType (name) {
+    return { name, typeShort: `${createAddressPartType(2)}.`, typeFull: createAddressPartType(8) }
+}
+
 async function createTestAddressInjection (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         country: faker.address.country(),
-        region: faker.address.state(),
-        area: faker.address.state(),
-        city: faker.address.city(),
-        settlement: faker.address.city(),
-        street: faker.address.streetName(),
-        building: `${faker.datatype.number()}${faker.datatype.string(1)}`,
-        block: String(faker.datatype.number()),
+        region: createTestAddressPartWithType(faker.address.state()),
+        area: createTestAddressPartWithType(faker.address.state()),
+        city: createTestAddressPartWithType(faker.address.city()),
+        cityDistrict: createTestAddressPartWithType(faker.address.state()),
+        settlement: createTestAddressPartWithType(faker.address.city()),
+        street: createTestAddressPartWithType(faker.address.streetName()),
+        house: createTestAddressPartWithType(`${faker.datatype.number()}${faker.datatype.string(1)}`),
+        block: createTestAddressPartWithType(faker.datatype.number()),
         dv: 1,
         sender,
         ...extraAttrs,
@@ -86,19 +119,36 @@ async function updateTestAddressInjection (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function getTestInjections(client, s) {
+/**
+ * @param client
+ * @param {String} s
+ * @param {Boolean} doNormalization
+ * @returns {Promise<NormalizedBuilding[]|AddressInjection[]>}
+ */
+async function getTestInjections (client, s, doNormalization = false) {
     if (!client) throw new Error('no client')
     if (!s) throw new Error('no string to search')
 
     const injectionsSeeker = new InjectionsSeeker(s)
 
-    return await AddressInjection.getAll(client, injectionsSeeker.buildWhere())
+    /**
+     * @type {AddressInjection[]}
+     */
+    const denormalizedInjections = await AddressInjection.getAll(client, injectionsSeeker.buildWhere())
+
+    return doNormalization ? injectionsSeeker.normalize(denormalizedInjections) : denormalizedInjections
 }
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
-    Address, createTestAddress, updateTestAddress,
-    AddressInjection, createTestAddressInjection, updateTestAddressInjection, getTestInjections,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    Address,
+    createTestAddress,
+    updateTestAddress,
+    AddressInjection,
+    createTestAddressInjection,
+    updateTestAddressInjection,
+    getTestInjections,
+    createTestAddressPartWithType,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

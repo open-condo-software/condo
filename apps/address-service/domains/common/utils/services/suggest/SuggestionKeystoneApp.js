@@ -2,6 +2,7 @@ const express = require('express')
 
 const get = require('lodash/get')
 const { SuggestionProviderDetector } = require('@address-service/domains/common/utils/services/suggest/SuggestionProviderDetector')
+const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 
 class SuggestionKeystoneApp {
     /**
@@ -64,8 +65,10 @@ class SuggestionKeystoneApp {
 
             // 3. Inject some data not presented in provider
             if (!bypass) {
-                const normalizedInjectingData = suggestionProvider.getInjections(s)
-                suggestions.push(...normalizedInjectingData)
+                const injectionsSeeker = new InjectionsSeeker(s)
+                const denormalizedInjections = await injectionsSeeker.getInjections(await params.keystone.createContext({ skipAccessControl: true }))
+
+                suggestions.push(...injectionsSeeker.normalize(denormalizedInjections))
             }
 
             res.json(suggestions)

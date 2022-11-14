@@ -9,8 +9,8 @@ const access = require('@address-service/domains/user/access/User')
 
 const User = new GQLListSchema('User', {
     schemaDoc: 'Users authorized by oidc auth',
+    labelResolver: ({ name = 'noname', email = 'noemail' }) => `${name}, ${email}`,
     fields: {
-
         name: {
             schemaDoc: 'The user\'s name',
             type: Text,
@@ -29,7 +29,7 @@ const User = new GQLListSchema('User', {
             defaultValue: false,
         },
 
-        // `email` and `password` fields are not required because we allow to login only using condo users via oidc
+        // `email` and `password` fields are not required because we allow login only using condo users via oidc
         // At the same time, we keep the ability to log in using default initial data for developers' purposes
         email: {
             schemaDoc: 'The user\'s email',
