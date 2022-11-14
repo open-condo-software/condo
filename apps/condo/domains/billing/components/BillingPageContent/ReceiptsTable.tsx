@@ -54,7 +54,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
         { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter, fullNameFilter], combineType: 'OR' },
     ]
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES, intl.messages)
     const {
         loading,
         count: total,
@@ -66,7 +66,7 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
-
+    
     const [search, handleSearchChange] = useSearch()
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
