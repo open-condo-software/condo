@@ -1,0 +1,99 @@
+import React from 'react'
+import { ComponentStory, ComponentMeta } from '@storybook/react'
+import { styled } from '@storybook/theming'
+import { get } from 'lodash'
+import { Carousel as Component } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
+
+const AVAILABLE_COLORS = [
+    colors.green['3'],
+    colors.blue['3'],
+    colors.red['3'],
+    colors.teal['3'],
+    colors.cyan['3'],
+]
+
+const Slide = styled.h1<{ index: number }>`
+  background: ${(props => AVAILABLE_COLORS[props.index % AVAILABLE_COLORS.length])};
+  border-radius: 8px;
+  height: 320px;
+  line-height: 320px;
+  text-align: center;
+  margin: 0;
+`
+
+const StoryDecorator = styled.div`
+  padding: 40px;
+  max-width: 1200px;
+`
+
+export default {
+    title: 'Components/Carousel',
+    component: Component,
+    decorators: [
+        (Story) => (
+            <StoryDecorator>
+                <Story/>
+            </StoryDecorator>
+        ),
+    ],
+    argTypes: {
+        dots: {
+            type: 'boolean',
+            defaultValue: true,
+        },
+        autoplay: {
+            type: 'boolean',
+            defaultValue: false,
+        },
+        autoplaySpeed: {
+            type: 'number',
+            defaultValue: 5000,
+        },
+        infinite: {
+            type: 'boolean',
+            defaultValue: true,
+        },
+        speed: {
+            type: 'number',
+            defaultValue: 500,
+        },
+        draggable: {
+            type: 'boolean',
+            defaultValue: false,
+        },
+        slides: {
+            type: 'number',
+            defaultValue: 5,
+            control: {
+                type: 'range',
+                min: 1,
+                max: 10,
+            },
+        },
+        slidesToShow: {
+            type: 'number',
+            defaultValue: 1,
+            control: {
+                type: 'range',
+                min: 1,
+                max: 4,
+            },
+        },
+    },
+} as ComponentMeta<typeof Component>
+
+
+const Template: ComponentStory<typeof Component> = (args) => {
+    const slidesAmount = get(args, 'slides')
+
+    return (
+        <Component {...args}>
+            {[...Array(slidesAmount).keys()].map(key => (
+                <Slide key={key} index={key}>{key + 1}</Slide>
+            ))}
+        </Component>
+    )
+}
+
+export const Carousel = Template.bind({})
