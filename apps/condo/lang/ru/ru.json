@@ -803,7 +803,7 @@
   "pages.organizations.PageTitle": "Организации",
   "pages.clientCard.Title": "Контакт {phone}",
   "pages.clientCard.showAllPropertyTickets": "Показать все заявки по этому адресу",
-  "pages.clientCard.contactTickets": "Заявки контакта по этому адресу",
+  "pages.clientCard.contactTickets": "Заявки по этому адресу",
   "pages.clientCard.editContact": "Редактировать контакт",
   "pages.users.InviteNewUserButtonLabel": "Пригласить новго пользователя",
   "pages.users.InviteMessageTitle": "Вас пригласили в организацию «{name}»",

@@ -305,7 +305,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleTabChange = useCallback((tab) => {
         setSelectedContact(null)
         setEditableFieldsChecked(false)
-        
+
         setActiveTab(tab)
     }, [])
 

@@ -15,7 +15,7 @@ import { Col, Form, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useMemo } from 'react'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
@@ -56,6 +56,7 @@ export const EditContactForm: React.FC = () => {
     const { query, push } = useRouter()
     const { organization, link } = useOrganization()
     const contactId = get(query, 'id', '')
+    const redirectFromQuery = get(query, 'redirect') as string
     const {
         obj: contact,
         loading,
@@ -83,7 +84,11 @@ export const EditContactForm: React.FC = () => {
 
     const contactUpdateAction = Contact.useUpdate({}, async () => {
         await refetch()
-        await push(`/contact/${contactId}`)
+        if (redirectFromQuery) {
+            await push(redirectFromQuery)
+        } else {
+            await push(`/contact/${contactId}`)
+        }
     })
 
     const { requiredValidator, phoneValidator, emailValidator, trimValidator, changeMessage, specCharValidator } = useValidations({ allowLandLine: true })

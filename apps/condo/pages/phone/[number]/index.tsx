@@ -1,3 +1,4 @@
+import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
 import { updateRoute } from '@condo/domains/common/utils/filters.utils'
@@ -20,9 +21,10 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { useOrganization } from '@condo/next/organization'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
+import qs from 'qs'
 import React, { useCallback, useMemo, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
-import { SortTicketsBy } from '@app/condo/schema'
+import { BuildingUnitSubType, SortTicketsBy } from '@app/condo/schema'
 import { ClientType } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 
 const StyledTabs = styled(Tabs)`
@@ -118,7 +120,11 @@ const ClientContent = ({ lastTicket }) => {
             <Col span={24}>
                 <Row justify='space-between'>
                     <Typography.Title level={3}>{name}</Typography.Title>
-                    <TicketResidentFeatures ticket={lastTicket} />
+                    {
+                        ticketContact && (
+                            <TicketResidentFeatures ticket={lastTicket} />
+                        )
+                    }
                 </Row>
             </Col>
             {
@@ -134,7 +140,7 @@ const ClientContent = ({ lastTicket }) => {
     )
 }
 
-const ClientCardTabContent = ({ property, searchTicketsQuery }) => {
+const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreateClick, handleContactEditClick = null }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const ContactTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.contactTickets' })
@@ -153,6 +159,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery }) => {
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
+    const lastCreatedTicket = get(tickets, 0)
 
     const columns = useClientCardTicketTableColumns()
 
@@ -178,7 +185,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery }) => {
                         </StyledLink>
                     </Col>
                     <Col span={24}>
-                        <ClientContent lastTicket={get(tickets, 0)} />
+                        <ClientContent lastTicket={lastCreatedTicket} />
                     </Col>
                     <Col span={24}>
                         <TicketPropertyHintCard
@@ -207,11 +214,34 @@ const ClientCardTabContent = ({ property, searchTicketsQuery }) => {
                     </Col>
                 </Row>
             </Col>
+            <ActionBar>
+                <Button
+                    key='submit'
+                    onClick={() => handleTicketCreateClick(lastCreatedTicket)}
+                    type='sberDefaultGradient'
+                >
+                    Создать заявку
+                </Button>
+                {
+                    handleContactEditClick && (
+                        <Button
+                            key='submit'
+                            onClick={handleContactEditClick}
+                            type='sberDefaultGradient'
+                            secondary
+                        >
+                            Редактировать контакт
+                        </Button>
+                    )
+                }
+            </ActionBar>
         </Row>
     )
 }
 
-const ContactClientTabContent = ({ property, unitName, phone }) => {
+const ContactClientTabContent = ({ redirectUrl, property, unitName, phone }) => {
+    const router = useRouter()
+
     const { objs: contacts } = Contact.useObjects({
         where: {
             property: { id: property.id },
@@ -227,27 +257,103 @@ const ContactClientTabContent = ({ property, unitName, phone }) => {
         contact: { id: get(contact, 'id') },
     }), [contact, property, unitName])
 
-    return <ClientCardTabContent
-        property={property}
-        searchTicketsQuery={searchTicketsQuery}
-    />
+    const handleTicketCreateClick = useCallback(async () => {
+        const initialValues = {
+            property: get(property, 'id'),
+            unitName,
+            contact: get(contact, 'id'),
+            clientName: get(contact, 'name'),
+            clientPhone: get(contact, 'phone'),
+            unitType: BuildingUnitSubType.Flat,
+            isResidentTicket: true,
+        }
+
+        const query = qs.stringify(
+            { initialValues: JSON.stringify(initialValues), redirect: redirectUrl },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        await router.push(`/ticket/create${query}`)
+    }, [contact, property, router, redirectUrl, unitName])
+
+    const handleContactEditClick = useCallback(async () => {
+        const query = qs.stringify(
+            { redirect: redirectUrl },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        await router.push(`/contact/${get(contact, 'id')}/update${query}`)
+    }, [contact, redirectUrl, router])
+
+    return (
+        <>
+            <ClientCardTabContent
+                property={property}
+                searchTicketsQuery={searchTicketsQuery}
+                handleTicketCreateClick={handleTicketCreateClick}
+                handleContactEditClick={handleContactEditClick}
+            />
+        </>
+    )
 }
 
-const NotResidentClientTabContent = () => {
+const NotResidentClientTabContent = ({ property, unitName, phone, redirectUrl }) => {
+    const router = useRouter()
 
-    return <></>
+    const searchTicketsQuery = useMemo(() => ({
+        property: { id: get(property, 'id', null) },
+        unitName,
+        clientPhone: phone,
+        isResidentTicket: false,
+        clientName_not: null,
+    }), [phone, property, unitName])
+
+    const handleTicketCreateClick = useCallback(async (ticket) => {
+        const initialValues = {
+            property: get(property, 'id'),
+            unitName,
+            clientName: get(ticket, 'clientName'),
+            clientPhone: get(ticket, 'clientPhone'),
+            unitType: BuildingUnitSubType.Flat,
+            isResidentTicket: false,
+        }
+
+        const query = qs.stringify(
+            { initialValues: JSON.stringify(initialValues), redirect: redirectUrl },
+            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
+        )
+
+        await router.push(`/ticket/create${query}`)
+    }, [property, redirectUrl, router, unitName])
+
+    return (
+        <>
+            <ClientCardTabContent
+                property={property}
+                searchTicketsQuery={searchTicketsQuery}
+                handleTicketCreateClick={handleTicketCreateClick}
+            />
+        </>
+    )
 }
 
 const ClientTabContent = ({ type, phone, property, unitName }) => {
+    const redirectUrl = useMemo(() => `/phone/${phone}?tab=${property.id}-${unitName}-${type}`, [phone, property.id, type, unitName])
 
     return type === ClientType.Contact ? (
         <ContactClientTabContent
+            redirectUrl={redirectUrl}
             phone={phone}
             property={property}
             unitName={unitName}
         />
     ) : (
-        <NotResidentClientTabContent />
+        <NotResidentClientTabContent
+            redirectUrl={redirectUrl}
+            phone={phone}
+            property={property}
+            unitName={unitName}
+        />
     )
 }
 
@@ -289,8 +395,6 @@ const AddAddressTabTitle = () => {
 
 const ClientCardPageContent = ({ phoneNumber, tabsData }) => {
     const intl = useIntl()
-    const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
-    const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: phoneNumber,
     })
@@ -374,6 +478,7 @@ const ClientCardPage = () => {
         },
     })
 
+    // Баг -- 2 тикета - будет создавать 2 табы и 2 таблицы и тд, возможно надо группировать по номерам телефонов, чето придумать кароче
     const { objs: tickets } = Ticket.useObjects({
         where: {
             organization: { id: organizationId },
