@@ -1,0 +1,90 @@
+@import "antd/lib/carousel/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@carousel-dot-width: 8px;
+@carousel-dot-height: 8px;
+@carousel-dot-active-width: 8px;
+@condo-carousel-arrow-width: @condo-global-spacing-40;
+@condo-carousel-slide-gap: @condo-global-spacing-40;
+
+.condo-carousel {
+  // NOTE: Used non-none transform to create separate layer-stack flow
+  transform: translate(0);
+
+  & .slick-slider {
+    // Then making everything to be hidden in new flow
+    overflow: hidden;
+  }
+
+  & .slick-dots {
+    li {
+      box-sizing: border-box;
+      margin: 0 @condo-global-spacing-4;
+
+      & button {
+        background: transparent;
+        border: @condo-global-border-width-default solid @condo-global-color-white;
+        border-radius: @condo-global-border-radius-small;
+        opacity: @condo-global-opacity-disabled;
+      }
+    }
+
+    &-bottom {
+      bottom: @condo-global-spacing-20;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  & .slick-arrow {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    color: @condo-global-color-gray-7;
+    border: @condo-global-border-width-default solid @condo-global-color-white;
+    transition-timing-function: ease-out;
+    transition-duration: @condo-global-transition-duration-default;
+    transition-property: color, border;
+
+    &,
+    &:hover {
+      // Position fixed works as absolute when new stack-flow created, but allows to bypass overflow: hidden
+      position: fixed;
+      top: 50%;
+      z-index: 1;
+      width: @condo-carousel-arrow-width;
+      height: @condo-carousel-arrow-width;
+      margin-top: (-@condo-carousel-arrow-width / 2);
+      background: @condo-global-color-white;
+      border-radius: (@condo-carousel-arrow-width / 2);
+      box-shadow: @condo-global-box-shadow-default;
+    }
+
+    &:hover {
+      color: @condo-global-color-black;
+      border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    }
+
+    &.slick-next {
+      right: (-@condo-carousel-arrow-width / 2);
+    }
+
+    &.slick-prev {
+      left: (-@condo-carousel-arrow-width / 2);
+      transform: rotate(180deg);
+    }
+
+    &.slick-disabled {
+      display: none !important;
+    }
+  }
+
+  & .slick-list {
+    margin: 0 (-@condo-carousel-slide-gap / 2);
+  }
+
+  & .slick-slide > div {
+    margin: 0 (@condo-carousel-slide-gap / 2);
+    overflow: hidden;
+  }
+}
