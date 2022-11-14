@@ -18,7 +18,7 @@ import {
     getFilter,
     getNumberFilter,
     getStringContainsFilter,
-    getStringSimpleContainsFilter,
+    getStringOverlapFilter,
 } from '@condo/domains/common/utils/tables.utils'
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
@@ -51,14 +51,14 @@ const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
-const filterDetails = getStringContainsFilter('details')
+const filterDetails = getStringOverlapFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
-const filterAddress = getStringSimpleContainsFilter(['property', 'address'])
-const filterClientName = getStringContainsFilter('clientName')
+const filterAddress = getStringOverlapFilter(['propertyAddress'])
+const filterClientName = getStringOverlapFilter(['clientName'])
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
-const filterExecutorName = getStringContainsFilter(['executor', 'name'])
-const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
+const filterExecutorName = getStringOverlapFilter(['executor', 'name'])
+const filterAssigneeName = getStringOverlapFilter(['assignee', 'name'])
 const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
@@ -70,7 +70,7 @@ const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['classifier', 'place', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['classifier', 'category', 'id'], 'array', 'string', 'in')
 const filterProblemClassifier = getFilter(['classifier', 'problem', 'id'], 'array', 'string', 'in')
-const filterCategoryClassifierSearch = getStringContainsFilter(['classifier', 'category', 'name'])
+const filterCategoryClassifierSearch = getStringOverlapFilter(['classifier', 'category', 'name'])
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')

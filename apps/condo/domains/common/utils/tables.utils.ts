@@ -23,7 +23,7 @@ export type WhereType = { [key: string]: WhereArgumentType | Array<WhereArgument
 // TODO(mrfoxpro): make type generic
 export type FilterType<F = WhereType> = (search: QueryArgType) => F
 export type ArgumentType = 'single' | 'array'
-export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean' | 'manyString'
+export type ArgumentDataType = 'string' | 'number' | 'dateTime' | 'boolean' | 'overlap'
 export type FiltersApplyMode = 'AND' | 'OR'
 type ParsedQueryType = {
     offset: number
@@ -132,7 +132,7 @@ export const getFilter: (
                     .filter(Boolean)
                     .map(el => el.trim())
                 break
-            case 'manyString':
+            case 'overlap':
                 args = search
                     .filter(Boolean)
                     .map(el => el.trim()
@@ -161,15 +161,15 @@ export const getFilter: (
         return wrappedDataIndex.reduceRight<WhereType>((acc, current, index) => {
             if (index === wrappedDataIndex.length - 1) {
                 const propertyName = suffix ? `${wrappedDataIndex[index]}_${suffix}` : wrappedDataIndex[index]
-                return { [argData === 'manyString' ? 'AND' : propertyName]: args }
+                return { [argData === 'overlap' ? 'AND' : propertyName]: args }
             }
             return { [current]: acc }
         }, undefined)
     }
 }
 
-export const getStringSimpleContainsFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
-    return getFilter(dataIndex, 'array', 'manyString', 'contains_i')
+export const getStringOverlapFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    return getFilter(dataIndex, 'array', 'overlap', 'contains_i')
 }
 
 export const getDecimalFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
