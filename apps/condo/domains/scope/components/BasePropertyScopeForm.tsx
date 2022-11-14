@@ -4,7 +4,7 @@ import { difference, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {

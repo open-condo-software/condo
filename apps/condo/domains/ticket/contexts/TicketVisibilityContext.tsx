@@ -2,8 +2,8 @@ import get from 'lodash/get'
 import { createContext, useContext } from 'react'
 
 import { Ticket, TicketWhereInput } from '@app/condo/schema'
-import { useOrganization } from '@condo/next/organization'
-import { useAuth } from '@condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
+import { useAuth } from '@open-condo/next/auth'
 
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import {

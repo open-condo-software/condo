@@ -1,7 +1,7 @@
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'

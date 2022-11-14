@@ -2,8 +2,8 @@ import { Alert, Col } from 'antd'
 import { isEmpty } from 'lodash'
 import React, { useState } from 'react'
 
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
 
 import {
     getPropertyScopeNameByEmployee,

@@ -10,7 +10,7 @@ import { MeterIcon } from '@condo/domains/common/components/icons/MeterIcon'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 
 export const StyledMenu = styled(Menu)`
   width: 225px;

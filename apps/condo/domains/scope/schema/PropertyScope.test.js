@@ -9,7 +9,7 @@ const {
     waitFor,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAccessDeniedErrorToObj,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 

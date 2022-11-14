@@ -3,7 +3,7 @@ import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'

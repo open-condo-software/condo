@@ -2,7 +2,7 @@ import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import { isFunction } from 'lodash'
 
 import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 
 import Checkbox from './antd/Checkbox'
