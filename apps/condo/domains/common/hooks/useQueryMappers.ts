@@ -4,7 +4,7 @@ import get from 'lodash/get'
 
 const DEFAULT_SORT_BY = ['createdAt_DESC']
 
-export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColumns: Array<string>, translations) => {
+export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColumns: Array<string>, translations?) => {
     return useMemo(() => {
         const validSorts = sortableColumns.reduce((acc, cur) => {
             return [...acc, `${cur}_ASC`, `${cur}_DESC`]
@@ -27,7 +27,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                     .map((filter) => filter(searchValue || meta.defaultValue))
                     .filter(Boolean)
 
-                const categoryFilter = categoryToSearchQuery(searchValue, translations) as F
+                const categoryFilter = categoryToSearchQuery(searchValue, translations) as unknown as F
 
                 if (categoryFilter && meta.keyword === 'search'){
                     createdFilters.push(categoryFilter)
