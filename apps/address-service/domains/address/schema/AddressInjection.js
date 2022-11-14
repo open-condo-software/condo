@@ -3,11 +3,11 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@address-service/domains/address/access/AddressInjection')
 const get = require('lodash/get')
-const { Json, AddressPartWithType } = require('@condo/keystone/fields')
+const { Json, AddressPartWithType } = require('@open-condo/keystone/fields')
 
 const AddressInjection = new GQLListSchema('AddressInjection', {
     schemaDoc: 'Addresses that do not exist in external providers',

@@ -1,5 +1,5 @@
-const { AddressServiceClient } = require('@condo/keystone/plugins/utils/address-service-client/AddressServiceClient')
-const { MockedAddressServiceClient } = require('@condo/keystone/plugins/utils/address-service-client/MockedAddressServiceClient')
+const { AddressServiceClient } = require('@open-condo/keystone/plugins/utils/address-service-client/AddressServiceClient')
+const { MockedAddressServiceClient } = require('@open-condo/keystone/plugins/utils/address-service-client/MockedAddressServiceClient')
 
 let instance
 

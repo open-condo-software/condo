@@ -3,11 +3,11 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted } = require('@open-condo/keystone/plugins')
 const access = require('@address-service/domains/address/access/Address')
-const { dvAndSender } = require('@condo/keystone/plugins/dvAndSender')
+const { dvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 
 const Address = new GQLListSchema('Address', {
     schemaDoc: 'Some specific building',

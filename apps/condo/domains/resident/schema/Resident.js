@@ -33,7 +33,7 @@ const {
     ORGANIZATION_FEATURES_FIELDS,
     PAYMENT_CATEGORIES_FIELDS,
 } = require('@condo/domains/resident/gql')
-const { addressService } = require('@condo/keystone/plugins/addressService')
+const { addressService } = require('@open-condo/keystone/plugins/addressService')
 
 const addressFieldHooks = {
     resolveInput: async ({ resolvedData: { address, addressMeta } }) => {

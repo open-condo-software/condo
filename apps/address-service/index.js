@@ -10,7 +10,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { SuggestionKeystoneApp } = require('@address-service/domains/common/utils/services/suggest/SuggestionKeystoneApp')
 const { SearchKeystoneApp } = require('@address-service/domains/common/utils/services/search/SearchKeystoneApp')
 const { OIDCKeystoneApp } = require('@address-service/domains/common/oidc')
-const { formatError } = require('@condo/keystone/apolloErrorFormatter')
+const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const identity = require('lodash/identity')
 
 const keystone = new Keystone({

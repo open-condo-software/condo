@@ -35,8 +35,8 @@ const {
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
-const { addressService } = require('@condo/keystone/plugins/addressService')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { addressService } = require('@open-condo/keystone/plugins/addressService')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { PROPERTY_ALREADY_EXISTS } = require('@condo/domains/property/constants/errors')
 
 const ajv = new Ajv()
