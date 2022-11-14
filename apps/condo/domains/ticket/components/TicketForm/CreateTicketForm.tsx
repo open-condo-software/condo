@@ -1,5 +1,6 @@
 import { Col, Form, Row, Typography } from 'antd'
 import { useRouter } from 'next/router'
+import qs from 'qs'
 import React, { useCallback, useMemo } from 'react'
 import { get } from 'lodash'
 import dayjs from 'dayjs'
@@ -20,6 +21,7 @@ import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 dayjs.extend(isToday)
 
@@ -86,6 +88,20 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
 
 const LINK_STYLES = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[8] }
 
+const getObjectValueFromQuery = (router, path = []) => {
+    try {
+        const initialValuesFromQuery = JSON.parse(get(router, ['query', ...path]))
+
+        if (initialValuesFromQuery) {
+            return qs.parse(initialValuesFromQuery)
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+    return {}
+}
+
 export const CreateTicketForm: React.FC = () => {
     const intl = useIntl()
     const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description' })
@@ -96,13 +112,20 @@ export const CreateTicketForm: React.FC = () => {
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
 
+    const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
+    const redirectFromQuery = useMemo(() => get(router, ['query', 'redirect']) as string, [router])
+
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
         },
-        async (ticket) => {
+        (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
-            await router.push('/ticket')
+            if (redirectFromQuery) {
+                router.push(redirectFromQuery)
+            } else {
+                router.push('/ticket')
+            }
         })
 
     const createAction = useCallback((variables) => {
@@ -115,6 +138,12 @@ export const CreateTicketForm: React.FC = () => {
             organization: { connect: { id: organization.id } },
         })
     }, [organization, action])
+
+    const initialValues = useMemo(() => ({
+        ...initialValuesFromQuery,
+        assignee: auth.user.id,
+        executor: auth.user.id,
+    }), [auth.user.id, initialValuesFromQuery])
 
     const getCompletedNotification = useCallback((data) => ({
         message: (
@@ -132,7 +161,7 @@ export const CreateTicketForm: React.FC = () => {
     return useMemo(() => (
         <BaseTicketForm
             action={createAction}
-            initialValues={{}}
+            initialValues={initialValues}
             organization={organization}
             role={link.role}
             autoAssign
@@ -141,5 +170,5 @@ export const CreateTicketForm: React.FC = () => {
         >
             {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
-    ), [createAction, getCompletedNotification, link.role, organization])
+    ), [createAction, getCompletedNotification, initialValues, link.role, organization])
 }
