@@ -16,7 +16,6 @@ interface IExportToExcelActionBarProps {
     exportToExcelQuery: DocumentNode
     useTimeZone?: boolean
     disabled?: boolean
-    forceTimeZone?: string,
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
@@ -27,12 +26,11 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         hidden = false,
         useTimeZone = true,
         disabled = false,
-        forceTimeZone = null,
     } = props
 
     const intl = useIntl()
     const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const timeZone = forceTimeZone || intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const [
         exportToExcel,

@@ -68,10 +68,9 @@ const TicketsTable = ({
     sortBy,
     searchTicketsQuery,
     useTableColumns,
-    forceTimeZone,
 }) => {
     const intl = useIntl()
-    const timeZone = forceTimeZone || intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const router = useRouter()
     const [isRefetching, setIsRefetching] = useState(false)
@@ -321,7 +320,6 @@ export const TicketsPageContent = ({
     useTableColumns,
     showImport = false,
     baseQueryLoading = false,
-    forceTimeZone = null,
 }): JSX.Element => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
@@ -402,7 +400,6 @@ export const TicketsPageContent = ({
                                         />
                                     </Col>
                                     <TicketsTable
-                                        forceTimeZone={forceTimeZone}
                                         useTableColumns={useTableColumns}
                                         filterMetas={filterMetas}
                                         sortBy={sortBy}
