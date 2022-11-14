@@ -184,7 +184,7 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
     const quickSaveCallback = useCallback((event) => {
         event.preventDefault()
 
-        if (!canManageProperties || mapEdit.validate()) {
+        if (!canManageProperties || mapEdit.validate() || !mapEdit.hasPreviewComponents) {
             debouncedQuickSave()
             return
         }
@@ -192,7 +192,7 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
             message: MapValidationError,
             placement: 'bottomRight',
         })
-    }, [debouncedQuickSave, mapEdit, canManageProperties])
+    }, [debouncedQuickSave, mapEdit, canManageProperties, MapValidationError])
 
     useHotkeys('ctrl+s', quickSaveCallback, [map, property, canManageProperties])
 }
@@ -379,7 +379,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                             data-cy='property-map__save-map-button'
                             onClick={saveCallback}
                             type='sberDefaultGradient'
-                            disabled={!canManageProperties || !address}
+                            disabled={!canManageProperties || !address || mapEdit.hasPreviewComponents}
                         >
                             {SaveLabel}
                         </Button>

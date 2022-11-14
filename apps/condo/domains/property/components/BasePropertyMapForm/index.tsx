@@ -6,7 +6,7 @@ import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/c
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { BuildingMap, Property } from '@app/condo/schema'
-import { BuildingPanelEdit } from '../panels/Builder/BuildingPanelEdit'
+import { BuildingPanelEdit } from '@condo/domains/property/components/panels/Builder/BuildingPanelEdit'
 
 export interface IPropertyMapFormProps {
     id: string
