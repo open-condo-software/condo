@@ -1,4 +1,5 @@
 import { useIntl } from '@open-condo/next/intl'
+import { get } from 'lodash'
 import { useRouter } from 'next/router'
 import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
@@ -82,7 +83,7 @@ export const useTicketExportTask = ({ where, sortBy, format, locale, timeZone, u
                     sortBy: sortBy,
                     locale,
                     timeZone,
-                    user: { connect: { id: user.id } },
+                    user: { connect: { id: get(user, 'id', null) } },
                 }}
                 hidden={hidden}
                 disabled={disabled}
