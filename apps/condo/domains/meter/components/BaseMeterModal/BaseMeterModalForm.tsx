@@ -49,6 +49,7 @@ type BaseMeterModalFormProps = ComponentProps<typeof BaseModalForm> & {
     ModalSaveButtonLabelMsg: JSX.Element | string
     modalNotification?: JSX.Element | string
     disabled?: boolean
+    organizationId: string
 }
 
 // TODO (DOMA-3721) Remove mess and create global component with global styles to common component
