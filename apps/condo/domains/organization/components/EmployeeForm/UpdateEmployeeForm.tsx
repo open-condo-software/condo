@@ -3,7 +3,7 @@ import { jsx } from '@emotion/react'
 import { Col, Form, Row, Space } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { Button } from '@condo/domains/common/components/Button'
@@ -125,16 +125,16 @@ export const UpdateEmployeeForm = () => {
     const error = employeeError || employeeRolesError
     const loading = employeeLoading || employeeRolesLoading
 
-    const specializationsFormItemProps = useMemo(() => ({
+    const specializationsFormItemProps = {
         name: 'specializations',
         label: SpecializationsLabel,
         validateFirst: true,
         ...INPUT_LAYOUT_PROPS,
-    }), [SpecializationsLabel])
+    }
 
-    const specializationsSelectProps = useMemo(() => ({
+    const specializationsSelectProps = {
         search: searchClassifers,
-    }), [searchClassifers])
+    }
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -268,5 +268,9 @@ export const UpdateEmployeeForm = () => {
             }}
         </FormWithAction>
     )
+}
+
+function useMemo (arg0: () => { labelCol: { span: number }; wrapperCol: { span: number }; name: string; label: any; validateFirst: boolean }, arg1: any[]) {
+    throw new Error('Function not implemented.')
 }
 

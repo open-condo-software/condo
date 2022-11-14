@@ -4,7 +4,7 @@
 
 const faker = require('faker')
 
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 
 const { createTestPropertyScope } = require('@condo/domains/scope/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')

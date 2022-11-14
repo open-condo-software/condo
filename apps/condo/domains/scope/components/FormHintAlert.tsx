@@ -1,4 +1,4 @@
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { Typography } from 'antd'
 import React, { CSSProperties, useMemo } from 'react'
 

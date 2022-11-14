@@ -1,6 +1,6 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { find } = require('@condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
 const { PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { mapEmployeeToVisibilityTypeToEmployees, filterEmployeePropertyScopes, filterEmployeeSpecializations } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')

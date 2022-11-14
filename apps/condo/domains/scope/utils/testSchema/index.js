@@ -9,7 +9,7 @@ const { PropertyScope: PropertyScopeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeOrganizationEmployee: PropertyScopeOrganizationEmployeeGQL } = require('@condo/domains/scope/gql')
 const { PropertyScopeProperty: PropertyScopePropertyGQL } = require('@condo/domains/scope/gql')
 const { AssigneeScope: AssigneeScopeGQL } = require('@condo/domains/scope/gql')
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { EXPORT_PROPERTY_SCOPE_MUTATION } = require('@condo/domains/scope/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
