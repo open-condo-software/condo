@@ -377,6 +377,14 @@ UPDATE "OrganizationEmployeeRole"
 SET "ticketVisibilityType" = 'propertyAndSpecialization'
 WHERE "name" = ANY(ARRAY['employee.role.Foreman.name', 'employee.role.Technician.name']);
 
+
+--
+-- [CUSTOM] Remove division from onboarding steps
+--
+UPDATE "OnBoarding"
+SET "stepsTransitions" = (SELECT "stepsTransitions" - 'create.Division' #- '{create.OrganizationEmployee,0}' FROM "OnBoarding" limit 1)
+WHERE "stepsTransitions" is not null;
+
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
 --
