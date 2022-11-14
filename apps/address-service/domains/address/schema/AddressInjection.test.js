@@ -25,10 +25,14 @@ const {
 const {
     AddressInjection,
     createTestAddressInjection,
-    updateTestAddressInjection, getTestInjections,
+    updateTestAddressInjection,
+    getTestInjections,
+    createTestAddressPartWithType,
 } = require('@address-service/domains/address/utils/testSchema')
 
 const faker = require('faker')
+
+faker.locale = 'ru'
 
 describe('AddressInjection', () => {
     describe('CRUD tests', () => {
@@ -212,42 +216,124 @@ describe('AddressInjection', () => {
                 },
             )
         })
-    })
 
-    describe('Injecting', () => {
         test('Keywords created correctly', async () => {
             const admin = await makeLoggedInAdminClient()
 
             const country = 'Molvania'
+            const street = 'Baker'
 
-            const [obj, attrs] = await createTestAddressInjection(admin, { country })
+            const [obj, attrs] = await createTestAddressInjection(admin, {
+                country,
+                street: createTestAddressPartWithType(street),
+            })
 
             expect(obj.keywords).toContain(country)
+            expect(obj.keywords).toContain(street)
         })
+    })
+
+    describe('Injecting', () => {
+
+        const streetNameWithoutPrefix = () => {
+            switch (faker.datatype.number(1)) {
+                case 0:
+                    return faker.name.lastName()
+                case 1:
+                    return faker.name.firstName()
+            }
+        }
 
         test('Injections found correctly', async () => {
             const admin = await makeLoggedInAdminClient()
+
             const country = 'InjectedMolvania'
-            const city = 'InjectedCity'
-            const street = `InjectedStreet${faker.datatype.number()}`
-            const street1 = `${street}${faker.address.streetName()}`
-            const street2 = `${street}${faker.address.streetName()}`
+            const city = createTestAddressPartWithType('InjectedCity')
+            const street = createTestAddressPartWithType(`InjectedStreet${faker.datatype.number()}${streetNameWithoutPrefix()}`)
+            const street1 = createTestAddressPartWithType(`${street.name}${streetNameWithoutPrefix()}${faker.datatype.number()}`)
+            const street2 = createTestAddressPartWithType(`${street.name}${streetNameWithoutPrefix()}${faker.datatype.number()}`)
+
             await createTestAddressInjection(admin, { country, city, street: street1 })
             await createTestAddressInjection(admin, { country, city, street: street2 })
 
+            const injectionsBothStreets = await getTestInjections(admin, street.name)
+            const injectionsStreet1 = await getTestInjections(admin, street1.name)
 
-            const injectionsBothStreets = await getTestInjections(admin, street)
-            const injectionsStreet1 = await getTestInjections(admin, street1)
-
-            expect(injectionsBothStreets).toHaveLength(2)
+            expect(injectionsBothStreets.length).toEqual(2)
             expect(injectionsBothStreets).toEqual(expect.arrayContaining([
                 expect.objectContaining({ street: street1 }),
                 expect.objectContaining({ street: street2 }),
             ]))
 
-            expect(injectionsStreet1).toHaveLength(1)
-            expect(injectionsBothStreets).toEqual(expect.arrayContaining([
+            expect(injectionsStreet1.length).toEqual(1)
+            expect(injectionsStreet1).toEqual(expect.arrayContaining([
                 expect.objectContaining({ street: street1 }),
+            ]))
+        })
+
+        test('Found injections normalized correctly', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            const country = `NormalizedInjected${faker.datatype.number()}Molvania${faker.datatype.number()}`
+            const region = createTestAddressPartWithType(faker.address.state())
+            const area = createTestAddressPartWithType(faker.address.state())
+            const city = createTestAddressPartWithType(faker.address.city())
+            const cityDistrict = createTestAddressPartWithType(faker.address.state())
+            const settlement = createTestAddressPartWithType(faker.address.city())
+            const street = createTestAddressPartWithType(`NormalizedInjectedStreet${faker.datatype.number()}${streetNameWithoutPrefix()}`)
+            const house = createTestAddressPartWithType(faker.datatype.number())
+            const block = createTestAddressPartWithType(faker.datatype.number())
+
+            const [obj, attrs] = await createTestAddressInjection(admin, {
+                country,
+                region,
+                area,
+                city,
+                cityDistrict,
+                settlement,
+                street,
+                house,
+                block,
+            })
+
+            /**
+             * @type {NormalizedBuilding[]}
+             */
+            const normalizedInjections = await getTestInjections(admin, country, true)
+
+            const objectParts = {
+                region: obj.region,
+                area: obj.area,
+                city: obj.city,
+                city_district: obj.cityDistrict,
+                settlement: obj.settlement,
+                street: obj.street,
+            }
+
+            const objectParts2 = {
+                house: obj.house,
+                block: obj.block,
+            }
+
+            expect(normalizedInjections).toHaveLength(1)
+            expect(normalizedInjections).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    data: expect.objectContaining({
+                        ...Object.keys(objectParts).reduce((acc, partName) => ({
+                            ...acc,
+                            [partName]: objectParts[partName].name,
+                            [`${partName}_with_type`]: `${objectParts[partName].typeShort} ${objectParts[partName].name}`,
+                            [`${partName}_type`]: objectParts[partName].typeShort,
+                            [`${partName}_type_full`]: objectParts[partName].typeFull,
+                        }), {}),
+                        ...Object.keys(objectParts2).reduce((acc, partName) => ({
+                            ...acc,
+                            [partName]: objectParts2[partName].name,
+                            [`${partName}_type`]: objectParts2[partName].typeShort,
+                            [`${partName}_type_full`]: objectParts2[partName].typeFull,
+                        }), {}),
+                    }),
+                }),
             ]))
         })
     })

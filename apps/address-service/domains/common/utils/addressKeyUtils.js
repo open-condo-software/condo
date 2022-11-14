@@ -4,11 +4,11 @@ const JOINER = '~'
 const SPACE_REPLACER = '_'
 
 /**
- * @param {NormalizedBuilding} normalizedSuggestion
+ * @param {NormalizedBuilding} normalizedBuilding
  * @returns {string}
  */
-function generateAddressKey (normalizedSuggestion) {
-    const data = normalizedSuggestion.data
+function generateAddressKey (normalizedBuilding) {
+    const data = normalizedBuilding.data
     /**
      * @type {string[]}
      */
@@ -17,9 +17,10 @@ function generateAddressKey (normalizedSuggestion) {
         get(data, 'region'),
         get(data, 'area'),
         get(data, 'city'),
+        get(data, 'city_district'),
         get(data, 'settlement'),
         get(data, 'street'),
-        get(data, 'building'),
+        get(data, 'house'),
         get(data, 'block'),
     ]
 

@@ -1,12 +1,11 @@
 const { AbstractSearchProvider } = require('@address-service/domains/common/utils/services/search/AbstractSearchProvider')
-const get = require('lodash/get')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
 /**
  * The dadata search provider
  * Temporary use the suggestions API @link https://dadata.ru/api/suggest/address/
- * instead of the standardization API @link https://dadata.ru/api/clean/address/
+ * instead of the standardization API which is paid @link https://dadata.ru/api/clean/address/
  */
 class DadataSearchProvider extends AbstractSearchProvider {
 
@@ -29,19 +28,9 @@ class DadataSearchProvider extends AbstractSearchProvider {
      * @returns {NormalizedBuilding[]}
      */
     normalize (data) {
-        return data.map((item) => ({
-            value: item.value,
-            data: {
-                country: get(item, ['data', 'country']),
-                region: get(item, ['data', 'region_with_type']),
-                area: get(item, ['data', 'area_with_type']),
-                city: get(item, ['data', 'city_with_type']),
-                settlement: get(item, ['data', 'settlement_with_type']),
-                street: get(item, ['data', 'street_with_type']),
-                building: String(`${get(item, ['data', 'house_type_full']) || ''} ${get(item, ['data', 'house']) || ''}`).trim(),
-                block: String(`${get(item, ['data', 'block_type_full']) || ''} ${get(item, ['data', 'block']) || ''}`).trim(),
-            },
-        }))
+        // According to the DRY principle we use here normalizer from suggestions
+        const suggestionProvider = new DadataSuggestionProvider()
+        return  suggestionProvider.normalize(data)
     }
 }
 
