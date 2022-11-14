@@ -44,7 +44,7 @@ const mapEmployeesToExcelRow = (employees, employeesSpecializations, locale) => 
                 if (employeesSpecializations.length === 1) {
                     return `${employee.employeeName} (${employeeSpecializations[0].specialization})`
                 } else {
-                    return `${employee.employeeName} (${employeeSpecializationsCountMessage}${employeesSpecializations.length})`
+                    return `${employee.employeeName} (${employeeSpecializationsCountMessage}${employeeSpecializations.length})`
                 }
             } else {
                 return employee.employeeName
