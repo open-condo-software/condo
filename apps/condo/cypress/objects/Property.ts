@@ -147,8 +147,11 @@ class PropertyMapEdit extends BasePropertyTest {
 
     clickSubmitButton (): this {
         cy.get('[data-cy=property-map__section-form__submit-button]').click()
+
+        cy.get('[data-cy=property-map__save-map-button]').should('be.disabled')
         this.clickCloseModal()
 
+        cy.get('[data-cy=property-map__save-map-button]').should('not.be.disabled')
         cy.get('[data-cy=property-map__section-button]').should('be.visible')
         cy.get('[data-cy=property-map__section-button]').should('have.length', 2)
         cy.get('[data-cy=property-map__unit-button]').should('be.visible')
