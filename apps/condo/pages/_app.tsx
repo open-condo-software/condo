@@ -1,6 +1,7 @@
 import '@condo/domains/common/components/wdyr'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 
 import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
@@ -206,6 +207,7 @@ const MyApp = ({ Component, pageProps }) => {
     const intl = useIntl()
     useHotCodeReload()
     dayjs.locale(intl.locale)
+    const router = useRouter()
 
     const LayoutComponent = Component.container || BaseLayout
     // TODO(Dimitreee): remove this mess later
@@ -213,7 +215,9 @@ const MyApp = ({ Component, pageProps }) => {
     let RequiredAccess: React.FC = React.Fragment
 
     const organization = useOrganization()
-    if (!Component.isError && get(organization, ['link', 'role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY) {
+    if (!Component.isError &&
+        get(organization, ['link', 'role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY &&
+        router.route !== '/') {
         RequiredAccess = OnlyTicketPagesAccess
     } else if (Component.requiredAccess) {
         RequiredAccess = Component.requiredAccess
