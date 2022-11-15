@@ -210,7 +210,7 @@ def to_meta(value):
     code = []
     constraints = ctx.get('constraints')
     if constraints:
-        code.append('constraints = [')
+        code.append('\\n        constraints = [')
         for constraint in constraints:
             type_ = constraint['type']
             if type_ == 'models.CheckConstraint':
@@ -222,7 +222,7 @@ def to_meta(value):
         code.append('        ]')
     indexes = ctx.get('indexes')
     if indexes:
-        code.append('        indexes = [')
+        code.append('\\n        indexes = [')
         for constraint in indexes:
             type_ = constraint['type']
             expressions = constraint['expressions']
