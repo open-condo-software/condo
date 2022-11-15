@@ -108,4 +108,5 @@ fixTickets().then(() => {
     process.exit(0)
 }).catch((err) => {
     console.error('Failed to done', err)
+    process.exit(1)
 })
