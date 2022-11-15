@@ -130,6 +130,18 @@ You can also define a `condition` for `models.UniqueConstraint`:
 },
 ```
 
+You can also create an `index`:
+
+```
+indexes: [
+    {
+        type: 'BloomIndex',
+        expressions: '["phone", "email"]',
+        name: 'lower_title_date_idx',
+    },
+],
+```
+
 SQL result: `CREATE UNIQUE INDEX "unique_type_and_phone" ON "User" ("type", "phone") WHERE "deletedAt" IS NULL;`
 
 Another example:

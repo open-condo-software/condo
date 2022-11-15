@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 4)
+VERSION = (1, 5, 5)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -49,8 +49,10 @@ DATA = '__KNEX_SCHEMA_DATA__'
 NAME = '_django_model_generator'
 MODELS_TPL = """
 from django.db import models
-from django.db.models import Q
 from datetime import date, time, datetime, timedelta
+from django.db.models import *
+from django.db.models.indexes import *
+from django.contrib.postgres.indexes import *
 try:
     from django.db.models import JSONField
 except ImportError:
@@ -218,6 +220,18 @@ def to_meta(value):
             else:
                 raise Error('unknown constraint type! type=' + type_)
         code.append('        ]')
+    indexes = ctx.get('indexes')
+    if indexes:
+        code.append('        indexes = [')
+        for constraint in indexes:
+            type_ = constraint['type']
+            expressions = constraint['expressions']
+            if not expressions:
+                raise Error('no expressions!')
+            if expressions[0] != '[' or expressions[-1] != ']':
+                raise Error('wrong expressions format! require [ ... ]')
+            code.append('            ' + type_ + '(*' + expressions + ', name="' + constraint['name'] + '"),')
+        code.append('        ]')
     return '\\n'.join(code)
 
 
@@ -365,6 +379,12 @@ function createFakeTable (tableName) {
                                 throw new Error('kmigratorOptions.constraints is not an Array!')
                             }
                             ft.kmigrator('__meta', { constraints: kmigratorOptions.constraints })
+                        }
+                        if (kmigratorOptions.indexes) {
+                            if (!Array.isArray(kmigratorOptions.indexes)) {
+                                throw new Error('kmigratorOptions.indexes is not an Array!')
+                            }
+                            ft.kmigrator('__meta', { indexes: kmigratorOptions.indexes })
                         }
                     }
                 }
