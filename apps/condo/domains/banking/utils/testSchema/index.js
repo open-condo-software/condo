@@ -10,10 +10,12 @@ const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.util
 const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
-const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
-/* AUTOGENERATE MARKER <IMPORT> */
-
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
+
+const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
+const BankCostItem = generateGQLTestUtils(BankCostItemGQL)
+
+const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const BankAccount = generateGQLTestUtils(BankAccountGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -43,6 +45,37 @@ async function updateTestBankCategory (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await BankCategory.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestBankCostItem (client, category, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!category || !category.id) throw new Error('no category.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        category: { connect: { id: category.id } },
+        name: faker.lorem.word(),
+        ...extraAttrs,
+    }
+    const obj = await BankCostItem.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankCostItem (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name: faker.lorem.word(),
+        ...extraAttrs,
+    }
+    const obj = await BankCostItem.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -82,6 +115,7 @@ async function updateTestBankAccount (client, id, extraAttrs = {}) {
 
 module.exports = {
     BankCategory, createTestBankCategory, updateTestBankCategory,
+    BankCostItem, createTestBankCostItem, updateTestBankCostItem,
     BankAccount, createTestBankAccount, updateTestBankAccount,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
