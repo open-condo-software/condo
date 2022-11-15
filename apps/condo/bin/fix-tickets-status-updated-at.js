@@ -4,13 +4,13 @@ const isEmpty = require('lodash/isEmpty')
 const { Ticket, TicketChange } = require('@condo/domains/ticket/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
-class FixTicketsClientNameClientPhone {
+class FixTicketsStatusUpdatedAt {
     context = null
     countTicketToChange = 0
     successTicketChanged = 0
     errorTicketChanged = 0
     passedTicketChanged = 0
-    chunkSize = 50
+    chunkSize = 20
     where = {
         AND: [
             { statusUpdatedAt: null },
@@ -69,7 +69,7 @@ class FixTicketsClientNameClientPhone {
                         // In Ticket set "statusUpdatedAt" from "createdAt" last ChangeTicket with updated status
                         await Ticket.update(this.context, ticket.id, {
                             dv: 1,
-                            sender: { fingerprint: 'fixTicketScript', dv: 1 },
+                            sender: { fingerprint: 'fixTicketsStatusUpdatedAt', dv: 1 },
                             statusUpdatedAt: ticketChange.createdAt,
                         })
                         this.successTicketChanged++
@@ -88,7 +88,7 @@ class FixTicketsClientNameClientPhone {
 }
 
 const fixTickets = async () => {
-    const fixer = new FixTicketsClientNameClientPhone()
+    const fixer = new FixTicketsStatusUpdatedAt()
     console.info('[INFO] Connecting to database...')
     await fixer.connect()
     console.info('[INFO] Finding broken tickets...')
