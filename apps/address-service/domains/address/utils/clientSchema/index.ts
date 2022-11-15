@@ -5,4 +5,5 @@
 
 export * as Address from './Address'
 export * as AddressInjection from './AddressInjection'
+export * as AddressSource from './AddressSource'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
