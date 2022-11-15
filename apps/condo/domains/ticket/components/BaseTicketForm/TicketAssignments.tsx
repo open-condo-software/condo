@@ -12,7 +12,6 @@ import {
     convertEmployeesToOptions,
     getEmployeesSortedByTicketVisibilityType,
     isEmployeeSpecializationAndPropertyMatchesToScope,
-    SortEmployeesMode,
 } from '@condo/domains/scope/utils/clientSchema/utils'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -106,8 +105,6 @@ const TicketAssignments = ({
             const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
                 employeesWithMatchesPropertyAndSpecializationScope,
                 filteredEmployeeSpecializations,
-                categoryClassifier,
-                SortEmployeesMode.MatchedSpecializations
             )
             setMatchedEmployees(sortedEmployees)
 
@@ -124,8 +121,6 @@ const TicketAssignments = ({
             const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
                 otherEmployees,
                 filteredEmployeeSpecializations,
-                categoryClassifier,
-                SortEmployeesMode.All
             )
             const sortedEmployeeOptions = convertEmployeesToOptions(sortedEmployees, intl, filteredEmployeeSpecializations).map(renderOption)
 
