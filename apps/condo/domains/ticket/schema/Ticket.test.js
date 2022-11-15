@@ -12,7 +12,6 @@ const {
     expectToThrowGraphQLRequestError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
-    createdBy contactIsNull reviewValue
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')

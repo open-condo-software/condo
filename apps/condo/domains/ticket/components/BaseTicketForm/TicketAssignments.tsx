@@ -1,13 +1,7 @@
-import { Col, FormInstance, Row, Select, Typography } from 'antd'
-import { differenceBy } from 'lodash'
-import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
-
-import { useIntl } from '@open-condo/next/intl'
-
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { searchEmployeeUserWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import {
     PropertyScope,
@@ -18,8 +12,14 @@ import {
     convertEmployeesToOptions,
     getEmployeesSortedByTicketVisibilityType,
     isEmployeeSpecializationAndPropertyMatchesToScope,
+    SortEmployeesMode,
 } from '@condo/domains/scope/utils/clientSchema/utils'
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+
+import { useIntl } from '@open-condo/next/intl'
+import { Col, FormInstance, Row, Select, Typography } from 'antd'
+import { differenceBy } from 'lodash'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { AutoAssigner } from './AutoAssigner'
 import { TicketFormItem } from './index'
@@ -59,11 +59,14 @@ const TicketAssignments = ({
             property: { id: propertyId },
         },
     })
+    const filteredPropertyScopeProperties = useMemo(() =>
+        propertyScopeProperties.filter(scope => scope.property && scope.propertyScope),
+    [propertyScopeProperties])
     const { objs: propertyScopes, loading: scopesLoading } = PropertyScope.useAllObjects({
         where: {
             organization: { id: organizationId },
             OR: [
-                { id_in: propertyScopeProperties.map(scope => scope.propertyScope.id) },
+                { id_in: filteredPropertyScopeProperties.map(scope => scope.propertyScope.id) },
                 { hasAllProperties: true },
             ],
         },
@@ -73,11 +76,17 @@ const TicketAssignments = ({
             propertyScope: { id_in: propertyScopes.map(scope => scope.id) },
         },
     })
+    const filteredPropertyScopeEmployees = useMemo(() =>
+        propertyScopeEmployees.filter(scope => scope.employee && scope.propertyScope),
+    [propertyScopeEmployees])
     const { objs: organizationEmployeeSpecializations, loading: specializationsLoading } = OrganizationEmployeeSpecialization.useAllObjects({
         where: {
             employee: { organization: { id: organizationId } },
         },
     })
+    const filteredEmployeeSpecializations = useMemo(() =>
+        organizationEmployeeSpecializations.filter(scope => scope.employee && scope.specialization),
+    [organizationEmployeeSpecializations])
 
     const [matchedEmployees, setMatchedEmployees] = useState([])
 
@@ -87,19 +96,24 @@ const TicketAssignments = ({
 
         const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
             isEmployeeSpecializationAndPropertyMatchesToScope(
-                categoryClassifier, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees
+                categoryClassifier, filteredEmployeeSpecializations, propertyScopes, filteredPropertyScopeEmployees
             )
         )
 
         const otherEmployees = differenceBy(employees, employeesWithMatchesPropertyAndSpecializationScope, 'id')
 
         if (employeesWithMatchesPropertyAndSpecializationScope.length > 0) {
-            const sortedEmployees = getEmployeesSortedByTicketVisibilityType(employeesWithMatchesPropertyAndSpecializationScope, organizationEmployeeSpecializations)
+            const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
+                employeesWithMatchesPropertyAndSpecializationScope,
+                filteredEmployeeSpecializations,
+                categoryClassifier,
+                SortEmployeesMode.MatchedSpecializations
+            )
             setMatchedEmployees(sortedEmployees)
 
             result.push(
                 <Select.OptGroup label={EmployeesOnPropertyMessage} key={EmployeesOnPropertyMessage}>
-                    {convertEmployeesToOptions(sortedEmployees, intl, organizationEmployeeSpecializations).map(renderOption)}
+                    {convertEmployeesToOptions(sortedEmployees, intl, filteredEmployeeSpecializations).map(renderOption)}
                 </Select.OptGroup>
             )
         } else {
@@ -107,8 +121,13 @@ const TicketAssignments = ({
         }
 
         if (otherEmployees.length > 0) {
-            const sortedEmployees = getEmployeesSortedByTicketVisibilityType(otherEmployees, organizationEmployeeSpecializations)
-            const sortedEmployeeOptions = convertEmployeesToOptions(sortedEmployees, intl, organizationEmployeeSpecializations).map(renderOption)
+            const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
+                otherEmployees,
+                filteredEmployeeSpecializations,
+                categoryClassifier,
+                SortEmployeesMode.All
+            )
+            const sortedEmployeeOptions = convertEmployeesToOptions(sortedEmployees, intl, filteredEmployeeSpecializations).map(renderOption)
 
             if (employeesWithMatchesPropertyAndSpecializationScope.length === 0) {
                 result.push(sortedEmployeeOptions)
@@ -122,8 +141,7 @@ const TicketAssignments = ({
         }
 
         return result
-    }, [EmployeesOnPropertyMessage, OtherMessage, categoryClassifier, intl, propertyScopeEmployees,
-        propertyScopes, organizationEmployeeSpecializations])
+    }, [categoryClassifier, filteredEmployeeSpecializations, propertyScopes, filteredPropertyScopeEmployees, EmployeesOnPropertyMessage, intl, OtherMessage])
 
     const search = useMemo(() => searchEmployeeUserWithSpecializations(intl, organizationId, null),
         [intl, organizationId])
@@ -145,7 +163,7 @@ const TicketAssignments = ({
                                     categoryClassifierId={categoryClassifier}
                                     propertyId={propertyId}
                                     matchedEmployees={matchedEmployees}
-                                    propertyScopeEmployees={propertyScopeEmployees}
+                                    propertyScopeEmployees={filteredPropertyScopeEmployees}
                                     propertyScopes={propertyScopes}
                                 />
                             )
