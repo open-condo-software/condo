@@ -31,7 +31,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
     const settingsTabPanes = useMemo(() => settingsTabs.map(tab => (
         <Tabs.TabPane
             key={tab.key}
-            tab={<SettingsTab title={tab.title}/>}
+            tab={<SettingsTab title={tab.title} eventName={tab.eventName}/>}
             {...tab}
         >
             {tab.content}
