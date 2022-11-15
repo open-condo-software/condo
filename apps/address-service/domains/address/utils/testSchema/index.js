@@ -13,6 +13,7 @@ const {
 const { Address: AddressGQL } = require('@address-service/domains/address/gql')
 const { AddressInjection: AddressInjectionGQL } = require('@address-service/domains/address/gql')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
+const { AddressSource: AddressSourceGQL } = require('@address-service/domains/address/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 if (conf.DEFAULT_LOCALE) {
@@ -21,6 +22,8 @@ if (conf.DEFAULT_LOCALE) {
 
 const Address = generateGQLTestUtils(AddressGQL)
 const AddressInjection = generateGQLTestUtils(AddressInjectionGQL)
+
+const AddressSource = generateGQLTestUtils(AddressSourceGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -33,7 +36,7 @@ async function createTestAddress (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        source: address,
+        sources: { create: { source: address, dv: 1, sender } },
         address,
         key: faker.random.alpha(10),
         meta: {},
@@ -139,6 +142,36 @@ async function getTestInjections (client, s, doNormalization = false) {
     return doNormalization ? injectionsSeeker.normalize(denormalizedInjections) : denormalizedInjections
 }
 
+async function createTestAddressSource (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const source = `${faker.address.city()}, ${faker.address.streetName()}`
+
+    const attrs = {
+        dv: 1,
+        sender,
+        source,
+        ...extraAttrs,
+    }
+    const obj = await AddressSource.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestAddressSource (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await AddressSource.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -150,5 +183,6 @@ module.exports = {
     updateTestAddressInjection,
     getTestInjections,
     createTestAddressPartWithType,
+    AddressSource, createTestAddressSource, updateTestAddressSource,
     /* AUTOGENERATE MARKER <EXPORTS> */
 }
