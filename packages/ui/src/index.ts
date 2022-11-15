@@ -5,3 +5,6 @@ export type { ButtonProps } from './components/Button'
 
 export { Carousel } from './components/Carousel'
 export type { CarouselProps } from './components/Carousel'
+
+export { Title } from './components/Typography'
+export type { TypographyTitleProps } from './components/Typography'

@@ -1,0 +1,53 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography.less";
+
+.condo-typography {
+  color: @condo-global-color-black;
+  word-break: break-word;
+
+  &-inverted {
+    color: @condo-global-color-white;
+  }
+
+  h1&,
+  div&-h1,
+  div&-h1 > textarea,
+  h1 {
+    .condo-typography-h1();
+  }
+
+  h2&,
+  div&-h2,
+  div&-h2 > textarea,
+  h2 {
+    .condo-typography-h2();
+  }
+
+  h3&,
+  div&-h3,
+  div&-h3 > textarea,
+  h3 {
+    .condo-typography-h3();
+  }
+
+  h4&,
+  div&-h4,
+  div&-h4 > textarea,
+  h4 {
+    .condo-typography-h4();
+  }
+
+  h5&,
+  div&-h5,
+  div&-h5 > textarea,
+  h5 {
+    .condo-typography-h5();
+  }
+
+  h6&,
+  div&-h6,
+  div&-h6 > textarea,
+  h6 {
+    .condo-typography-h6();
+  }
+}
