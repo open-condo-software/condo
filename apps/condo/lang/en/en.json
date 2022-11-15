@@ -733,6 +733,7 @@
   "pages.condo.settings.propertyScope.create": "Create property scope",
   "pages.condo.settings.propertyScope.allProperties": "All properties",
   "pages.condo.settings.propertyScope.allEmployees": "All employees",
+  "pages.condo.settings.propertyScope.form.validation.name": "This title is too long: please shorten it to {max} characters",
   "pages.condo.settings.propertyScope.form.chooseAllEmployees": "Choose all employees",
   "pages.condo.settings.propertyScope.form.chooseAllProperties": "Choose all properties",
   "pages.condo.settings.propertyScope.form.editPropertyScope": "Editing property scope",

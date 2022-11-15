@@ -12,7 +12,7 @@ type ValidatorTypes = {
     trimValidator: Rule
     specCharValidator: Rule
     minLengthValidator: (length: number) => Rule
-    maxLengthValidator: (length: number) => Rule
+    maxLengthValidator: (length: number, errorMessage?: string) => Rule
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
@@ -86,10 +86,12 @@ export const useValidations: UseValidations = (settings = {}) => {
         }
     }
 
-    const maxLengthValidator: (length: number) => Rule = (length) => {
+    const maxLengthValidator: (length: number, errorMessage?: string) => Rule = (length, errorMessage) => {
+        const message = errorMessage ? errorMessage : FieldIsTooLongMessage
+
         return {
             max: length,
-            message: FieldIsTooLongMessage,
+            message,
         }
     }
 

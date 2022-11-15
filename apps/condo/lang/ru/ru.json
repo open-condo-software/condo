@@ -733,6 +733,7 @@
   "pages.condo.settings.propertyScope.create": "Добавить область видимости",
   "pages.condo.settings.propertyScope.allProperties": "Все дома",
   "pages.condo.settings.propertyScope.allEmployees": "Все сотрудники",
+  "pages.condo.settings.propertyScope.form.validation.name": "Это название слишком длинное: сократите его до {max} символов",
   "pages.condo.settings.propertyScope.form.chooseAllEmployees": "Выбрать всех сотрудников",
   "pages.condo.settings.propertyScope.form.chooseAllProperties": "Выбрать все дома",
   "pages.condo.settings.propertyScope.form.editPropertyScope": "Редактирование области видимости",
