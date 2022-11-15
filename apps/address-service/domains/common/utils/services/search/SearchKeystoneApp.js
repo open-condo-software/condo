@@ -1,8 +1,5 @@
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
-const { SearchProviderDetector } = require('@address-service/domains/common/utils/services/search/SearchProviderDetector')
 const express = require('express')
 const get = require('lodash/get')
-const { Address } = require('@address-service/domains/address/utils/serverSchema')
 
 /**
  * @typedef {Object} AddressSearchResult
@@ -13,6 +10,13 @@ const { Address } = require('@address-service/domains/address/utils/serverSchema
  */
 
 class SearchKeystoneApp {
+    /**
+     * @param {AbstractSearchPlugin[]} plugins
+     */
+    constructor (plugins) {
+        this.plugins = plugins
+    }
+
     /**
      * Converts the `Address` model to service response
      * @param addressModel
@@ -32,8 +36,11 @@ class SearchKeystoneApp {
      * @returns {Express}
      */
     prepareMiddleware ({ keystone, dev, distDir }) {
+        if (this.plugins.length === 0) {
+            throw new Error('You must add at least one search plugin!')
+        }
+
         const app = express()
-        const searchDetector = new SearchProviderDetector()
 
         function setNoCache (req, res, next) {
             res.set('Pragma', 'no-cache')
@@ -59,69 +66,42 @@ class SearchKeystoneApp {
              * depending on different clients (mobile app, backend job, user runtime)
              * @type {string}
              */
-            const context = String(get(req, ['query', 'context'], ''))
+            const searchContext = String(get(req, ['query', 'context'], ''))
 
             if (!s) {
                 res.send(400)
                 return
             }
 
-            // Manually created internal context. The first rule is no rules.
-            const godContext = await keystone.createContext({ skipAccessControl: true })
+            const keystoneContext = await keystone.createContext()
+            const pluginParams = { geo, searchContext, keystoneContext }
 
-            // We want to return the same result for the same source. This is the address cache, baby!
-            const addressFoundBySource = await Address.getOne(godContext, { source: s })
-            if (addressFoundBySource) {
-                res.json(this.createReturnObject(addressFoundBySource))
+            const plugins = this.plugins.filter((plugin) => plugin.isEnabled(s, pluginParams))
+            if (plugins.length === 0) {
+                // There is no plugins to process search request ¯\_(ツ)_/¯
+                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
+                res.send(422)
                 return
             }
 
-            // Search by provider
-            // todo(nas): ability to search by s='fiasId:<some-id>' or s='injectionId:<some-uuid>'
-            const searchProvider = searchDetector.getProvider(geo)
-            const denormalizedRows = await searchProvider.get({ query: s, context })
-            const searchResult = searchProvider.normalize(denormalizedRows)
-
-            // Inject internal properties
-            // const injectionsSeeker = new InjectionsSeeker(s)
-            // const denormalizedInjections = await injectionsSeeker.getInjections(godContext)
-            // searchResult.push(...injectionsSeeker.normalize(denormalizedInjections))
+            const searchResult = []
+            for (const plugin of plugins) {
+                // Return the first not empty plugin's result
+                // So, the plugins order is mandatory for performance
+                if (searchResult.length > 0) {
+                    break
+                }
+                const pluginResult = await plugin.prepare(pluginParams).search(s)
+                searchResult.push(...pluginResult)
+            }
 
             if (searchResult.length === 0) {
+                // Nothing found
                 res.send(404)
                 return
             }
 
-            // Use the first result for a while
-            const addressKey = generateAddressKey(searchResult[0])
-
-            const addressFoundByKey = await Address.getOne(godContext, { key: addressKey })
-
-            let addressItem
-            if (addressFoundByKey) {
-                // todo(nas): Update existing model or not? That's the question.
-                addressItem = addressFoundByKey
-            } else {
-                addressItem = await Address.create(
-                    godContext,
-                    {
-                        dv: 1,
-                        sender: { dv: 1, fingerprint: 'address-service' },
-                        source: s,
-                        address: searchResult[0].value,
-                        key: addressKey,
-                        meta: {
-                            provider: {
-                                name: searchProvider.getProviderName(),
-                                rawData: denormalizedRows[0],
-                            },
-                            data: get(searchResult, [0, 'data'], {}),
-                        },
-                    },
-                )
-            }
-
-            res.json(this.createReturnObject(addressItem))
+            res.json(searchResult.map(this.createReturnObject))
         })
 
         return app

@@ -11,7 +11,6 @@ const { Json, AddressPartWithType } = require('@open-condo/keystone/fields')
 
 const AddressInjection = new GQLListSchema('AddressInjection', {
     schemaDoc: 'Addresses that do not exist in external providers',
-    // TODO(nas): Maybe add translations for support users
     fields: {
         country: {
             schemaDoc: 'The country',

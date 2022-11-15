@@ -21,7 +21,7 @@ class SearchProviderDetector {
                 break
             case GOOGLE_PROVIDER:
             default:
-                //TODO(nas) always return dadata provider till the google's one will be ready
+                //TODO(AleX83Xpert) always return dadata provider till the google's one will be ready
                 searchProvider = new DadataSearchProvider()
         }
 
