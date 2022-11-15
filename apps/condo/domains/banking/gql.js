@@ -20,6 +20,9 @@ const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
 const BANK_ACCOUNT_FIELDS = `{ organization { id } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta tinMeta routingNumberMeta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
+const BANK_COST_ITEM_FIELDS = `{ name category { id } ${COMMON_FIELDS} }`
+const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
