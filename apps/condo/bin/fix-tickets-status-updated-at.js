@@ -11,21 +11,19 @@ class FixTicketsClientNameClientPhone {
     errorTicketChanged = 0
     passedTicketChanged = 0
     chunkSize = 50
-    // Tickets with statusUpdatedAt is null, but with updated status (~ 12.000 tickets)
     where = {
-        OR: [
+        AND: [
+            { statusUpdatedAt: null },
             {
-                AND: [{
-                    statusUpdatedAt: null,
-                    statusReopenedCounter: 0,
+                OR: [{
+                    // Select Tickets in not initial status, in this case status has been changed
                     status: { id_not: STATUS_IDS.OPEN },
-                }],
-            },
-            {
-                AND: [{
-                    statusUpdatedAt: null,
-                    statusReopenedCounter_not: 0,
-                    status: { id: STATUS_IDS.OPEN },
+                }, {
+                    AND: [{
+                        // Select Tickets in initial status but with reopened counter, that indicates presence of status change
+                        statusReopenedCounter_not: 0,
+                        status: { id: STATUS_IDS.OPEN },
+                    }],
                 }],
             },
         ],
