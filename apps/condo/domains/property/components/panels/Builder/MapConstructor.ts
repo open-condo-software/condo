@@ -515,15 +515,31 @@ class MapView extends Map {
 
 
 class MapEdit extends MapView {
-    public previewSectionId: string | null = null
-    public previewParkingId: string | null = null
-    public previewSectionFloor: number | null = null
-    public previewUnitId: string | null = null
-    public previewParkingUnitId: string | null = null
+    private _previewSectionId: string | null = null
+    private _previewParkingId: string | null = null
+    private _previewSectionFloor: number | null = null
+    private _previewUnitId: string | null = null
+    private _previewParkingUnitId: string | null = null
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
         super(map)
+    }
+
+    get previewParkingUnitId (): string | null {
+        return this._previewParkingUnitId
+    }
+    get previewUnitId (): string | null {
+        return this._previewUnitId
+    }
+    get previewSectionFloor (): number | null {
+        return this._previewSectionFloor
+    }
+    get previewParkingId (): string | null {
+        return this._previewParkingId
+    }
+    get previewSectionId (): string | null {
+        return this._previewSectionId
     }
 
     get nextUnitNumber (): number {
@@ -635,11 +651,11 @@ class MapEdit extends MapView {
     }
 
     get hasPreviewComponents (): boolean {
-        return !isNull(this.previewSectionId)
-            || !isNull(this.previewParkingId)
-            || !isNull(this.previewUnitId)
-            || !isNull(this.previewParkingUnitId)
-            || !isNull(this.previewSectionFloor)
+        return !isNull(this._previewSectionId)
+            || !isNull(this._previewParkingId)
+            || !isNull(this._previewUnitId)
+            || !isNull(this._previewParkingUnitId)
+            || !isNull(this._previewSectionFloor)
     }
 
     public setSelectedSection (section: BuildingSection): void {
@@ -697,9 +713,9 @@ class MapEdit extends MapView {
     }
 
     public removePreviewParkingUnit (renameNextUnits = true): void {
-        if (this.previewParkingUnitId) {
-            this.removeParkingUnit(this.previewParkingUnitId, renameNextUnits)
-            this.previewParkingUnitId = null
+        if (this._previewParkingUnitId) {
+            this.removeParkingUnit(this._previewParkingUnitId, renameNextUnits)
+            this._previewParkingUnitId = null
         }
     }
 
@@ -722,27 +738,27 @@ class MapEdit extends MapView {
     }
 
     public removePreviewSection (): void {
-        if (this.previewSectionId) {
-            const sectionPreviewIndex = this.map.sections.findIndex(mapSection => mapSection.id === this.previewSectionId)
+        if (this._previewSectionId) {
+            const sectionPreviewIndex = this.map.sections.findIndex(mapSection => mapSection.id === this._previewSectionId)
             this.map.sections.splice(sectionPreviewIndex, 1)
-            this.previewSectionId = null
+            this._previewSectionId = null
             this.notifyUpdater()
         }
     }
 
     public removePreviewUnit (renameNextUnits = true): void {
-        if (this.previewUnitId) {
-            this.removeUnit(this.previewUnitId, renameNextUnits)
-            this.previewUnitId = null
+        if (this._previewUnitId) {
+            this.removeUnit(this._previewUnitId, renameNextUnits)
+            this._previewUnitId = null
         }
     }
 
     public removePreviewSectionFloor (): void {
-        if (this.sectionFloorIndex !== null && this.previewSectionFloor !== null) {
-            this.removeFloor(this.sectionFloorIndex, this.previewSectionFloor)
+        if (this.sectionFloorIndex !== null && this._previewSectionFloor !== null) {
+            this.removeFloor(this.sectionFloorIndex, this._previewSectionFloor)
 
             this.sectionFloorIndex = null
-            this.previewSectionFloor = null
+            this._previewSectionFloor = null
             this.sectionFloorMap = {}
         }
     }
@@ -755,7 +771,7 @@ class MapEdit extends MapView {
             unit.preview = true
             return unit
         }))
-        this.previewSectionId = newSection.id
+        this._previewSectionId = newSection.id
         this.map.sections.push(newSection)
     }
 
@@ -798,6 +814,8 @@ class MapEdit extends MapView {
         if (renameNextUnits && previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
             this.updateUnitNumbers(previousUnit)
         }
+
+        this._previewSectionFloor = null
         this.notifyUpdater()
     }
 
@@ -824,7 +842,7 @@ class MapEdit extends MapView {
             return floor
         }, newSection.floors[0])
 
-        this.previewSectionId = newSection.id
+        this._previewSectionId = newSection.id
         this.map.sections.push(newSection)
         this.notifyUpdater()
     }
@@ -897,10 +915,10 @@ class MapEdit extends MapView {
     }
 
     public removePreviewParking (): void {
-        if (this.previewParkingId) {
-            const previewParkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === this.previewParkingId)
+        if (this._previewParkingId) {
+            const previewParkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === this._previewParkingId)
             this.map.parking.splice(previewParkingIndex, 1)
-            this.previewParkingId = null
+            this._previewParkingId = null
         }
     }
 
@@ -912,7 +930,7 @@ class MapEdit extends MapView {
             unit.preview = true
             return unit
         }))
-        this.previewParkingId = newParking.id
+        this._previewParkingId = newParking.id
         this.map.parking.push(newParking)
     }
 
@@ -950,7 +968,7 @@ class MapEdit extends MapView {
             return floor
         }, newParking.floors[0])
 
-        this.previewParkingId = newParking.id
+        this._previewParkingId = newParking.id
         this.map.parking.push(newParking)
         this.notifyUpdater()
     }
@@ -1001,7 +1019,7 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.sections[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.previewUnitId = newUnit.id
+        this._previewUnitId = newUnit.id
     }
 
     public addPreviewParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
@@ -1027,7 +1045,7 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.parking[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.previewParkingUnitId = newUnit.id
+        this._previewParkingUnitId = newUnit.id
     }
 
     public addParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
@@ -1381,7 +1399,7 @@ class MapEdit extends MapView {
             }
         }
 
-        this.previewSectionFloor = insertIndex
+        this._previewSectionFloor = insertIndex
         return insertIndex
     }
 
