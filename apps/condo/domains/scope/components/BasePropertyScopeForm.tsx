@@ -2,7 +2,7 @@ import { Col, Form, Input, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { difference, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -21,7 +21,7 @@ import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components
 import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
-import { useDeepCompareEffect } from '../../common/hooks/useDeepCompareEffect'
+import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
 
 import { FormHintAlert } from './FormHintAlert'
 
@@ -86,7 +86,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const router = useRouter()
 
     const { maxLengthValidator, trimValidator } = useValidations()
-    const nameValidations = useMemo(() => [trimValidator, maxLengthValidator(MAX_NAME_LENGTH, NameValidationErrorMessage)], [maxLengthValidator, trimValidator])
+    const nameValidations = useMemo(() => [trimValidator, maxLengthValidator(MAX_NAME_LENGTH, NameValidationErrorMessage)], [NameValidationErrorMessage, maxLengthValidator, trimValidator])
 
     const createPropertyScopePropertyAction = PropertyScopeProperty.useCreate({})
     const softDeletePropertyScopePropertyAction = PropertyScopeProperty.useSoftDelete()
@@ -184,6 +184,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                 <FormWithAction
                     initialValues={initialFormValues}
                     action={handleFormSubmit}
+                    colon={false}
                     {...LAYOUT}
                 >
                     {({ handleSave, isLoading, form }) => (
