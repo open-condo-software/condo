@@ -1,6 +1,6 @@
 import { BillingReceipt } from '@app/condo/domains/billing/utils/clientSchema'
 import { BankCardIcon } from '@app/condo/domains/common/components/icons/BankCardIcon'
-import { Ticket } from '@app/condo/schema'
+import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
 import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 
@@ -10,7 +10,7 @@ import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 interface MobileAppInstalledIndicatorProps {
     isContactHasMobileApp: boolean
@@ -30,6 +30,7 @@ const MobileAppInstalledIndicator: React.FC<MobileAppInstalledIndicatorProps> = 
 
 interface PaymentsAvailableIndicatorProps {
     ticketOrganizationId: string
+    propertyAddress: string
 }
 
 /**
@@ -50,7 +51,9 @@ const getIsPaymentsInMobileAppAvailable = (receiptsInCurrentPeriod, receiptsInPr
     return false
 }
 
-const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId }) => {
+const TWO_MONTHS_AGO = dayjs().startOf('day').subtract(2, 'months').toISOString()
+
+const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId, propertyAddress }) => {
     const intl = useIntl()
     const PaymentsAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsAvailable' })
     const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsNotAvailable' })
@@ -58,13 +61,12 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     const currentPeriod = dayjs().startOf('month').subtract(1, 'month').format('YYYY-MM-DD')
     const previousPeriod = dayjs(currentPeriod).subtract(1, 'month').format('YYYY-MM-DD')
 
-    const receiptsSearchQuery = { context: { organization: { id: ticketOrganizationId, deletedAt: null }, deletedAt: null } }
+    const receiptsSearchQuery = { context: { organization: { id: ticketOrganizationId } } }
 
     const { count: receiptsInCurrentPeriod, loading: currentPeriodLoading } = BillingReceipt.useCount({
         where: {
             ...receiptsSearchQuery,
             period: currentPeriod,
-            deletedAt: null,
         },
     })
 
@@ -72,15 +74,31 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
         where: {
             ...receiptsSearchQuery,
             period: previousPeriod,
-            deletedAt: null,
         },
     })
 
-    const isPaymentsAvailable = getIsPaymentsInMobileAppAvailable(receiptsInCurrentPeriod, receiptsInPreviousPeriod)
+    const { count: receiptsByProperty, loading: receiptsByPropertyLoading } = BillingReceipt.useCount({
+        where: {
+            property: {
+                OR: [
+                    { address: propertyAddress },
+                    { normalizedAddress: propertyAddress },
+                ],
+            },
+            createdAt_gte: TWO_MONTHS_AGO,
+        },
+        sortBy: [SortBillingReceiptsBy.CreatedAtDesc],
+    })
+
+    const isPaymentsAvailable = useMemo(
+        () => getIsPaymentsInMobileAppAvailable(receiptsInCurrentPeriod, receiptsInPreviousPeriod),
+        [receiptsInCurrentPeriod, receiptsInPreviousPeriod])
+    const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
+    const loading = currentPeriodLoading || previousPeriodLoading || receiptsByPropertyLoading
 
     return (
-        <Tooltip title={isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage}>
-            <BankCardIcon active={isPaymentsAvailable} loading={currentPeriodLoading || previousPeriodLoading} />
+        <Tooltip title={title}>
+            <BankCardIcon active={isPaymentsAvailable} loading={loading} />
         </Tooltip>
     )
 }
@@ -94,6 +112,7 @@ const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
 export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ ticket }) => {
     const isContactHasMobileApp = !!get(ticket, 'client')
     const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
+    const propertyAddress = get(ticket, ['property', 'address'], null)
 
     return (
         <Row gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
@@ -101,7 +120,10 @@ export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ 
                 <MobileAppInstalledIndicator isContactHasMobileApp={isContactHasMobileApp} />
             </Col>
             <Col>
-                <PaymentsAvailableIndicator ticketOrganizationId={ticketOrganizationId} />
+                <PaymentsAvailableIndicator
+                    ticketOrganizationId={ticketOrganizationId}
+                    propertyAddress={propertyAddress}
+                />
             </Col>
         </Row>
     )
