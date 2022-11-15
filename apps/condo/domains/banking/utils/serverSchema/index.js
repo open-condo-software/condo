@@ -8,14 +8,17 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
+const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankAccount = generateServerUtils(BankAccountGQL)
 const BankCategory = generateServerUtils(BankCategoryGQL)
+const BankCostItem = generateServerUtils(BankCostItemGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     BankAccount,
     BankCategory,
+    BankCostItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
