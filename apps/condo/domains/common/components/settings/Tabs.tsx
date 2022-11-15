@@ -3,11 +3,14 @@ import { TabPaneProps, Tabs } from 'antd'
 import React, { CSSProperties } from 'react'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
 import { StarIcon } from '@condo/domains/common/components/icons/Star'
+import { ITrackingComponent, TrackingEventType, useTracking } from '../TrackingContext'
 
 export type SettingsTabPaneDescriptor = TabPaneProps & {
     key: string,
     title: string,
     content?: React.ReactElement
+    eventName?: string
+    onClick?: (e) => void
 }
 
 export const SettingsTabs = styled(Tabs)`
@@ -58,9 +61,22 @@ export const SettingsTabsSmall = styled(Tabs)`
 
 const SETTINGS_TAB_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
 
-export const SettingsTab = ({ title }) => (
-    <div style={SETTINGS_TAB_STYLES}>
-        <StarIcon/>
-        {title}
-    </div>
-)
+interface ISettingsTabProps extends ITrackingComponent {
+    title: string
+    onClick?: (e) => void
+}
+
+export const SettingsTab: React.FC<ISettingsTabProps> = ({ title, eventName: propEventName, onClick }) => {
+    const { getTrackingWrappedCallback, getEventName } = useTracking()
+
+    const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Click)
+    const onClickCallback = eventName ? getTrackingWrappedCallback(eventName, {}, onClick) : onClick
+
+    return (
+        <div style={SETTINGS_TAB_STYLES} onClick={onClickCallback}>
+            <StarIcon/>
+            {title}
+        </div>
+    )
+}
+

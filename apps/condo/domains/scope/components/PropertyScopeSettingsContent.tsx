@@ -103,6 +103,7 @@ export const PropertyScopeSettingsContent = () => {
                             useTimeZone={false}
                         >
                             <Button
+                                eventName='PropertyScopeVisitCreate'
                                 type='sberDefaultGradient'
                                 icon={<PlusCircleOutlined/>}
                                 onClick={handleAddHintButtonClick}

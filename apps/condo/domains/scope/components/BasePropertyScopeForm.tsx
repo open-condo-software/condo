@@ -21,6 +21,7 @@ import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components
 import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
+import { useDeepCompareEffect } from '../../common/hooks/useDeepCompareEffect'
 
 import { FormHintAlert } from './FormHintAlert'
 
@@ -97,11 +98,11 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const initialFormValues = { ...initialValues, employees: initialEmployees, properties: initialProperties }
 
     const [showHintAlert, setShowHintAlert] = useState<boolean>()
-    useEffect(() => {
+    useDeepCompareEffect(() => {
         if (!loading && initialValues) {
             setShowHintAlert(!isEmpty(initialEmployees))
         }
-    }, [loading])
+    }, [initialEmployees, initialValues, loading])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, employees, ...otherValues } = values

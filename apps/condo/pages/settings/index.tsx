@@ -72,6 +72,7 @@ const SettingsPage: React.FC = () => {
                 key: SETTINGS_TAB_PROPERTY_SCOPE,
                 title: PropertyScopeTitle,
                 content: <PropertyScopeSettingsContent/>,
+                eventName: 'PropertyScopeVisitIndex',
             },
             {
                 key: SETTINGS_TAB_EMPLOYEE_ROLES,

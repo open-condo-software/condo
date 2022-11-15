@@ -105,6 +105,7 @@ const TicketAssignments = ({
             const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
                 employeesWithMatchesPropertyAndSpecializationScope,
                 filteredEmployeeSpecializations,
+                categoryClassifier,
             )
             setMatchedEmployees(sortedEmployees)
 
@@ -121,6 +122,7 @@ const TicketAssignments = ({
             const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
                 otherEmployees,
                 filteredEmployeeSpecializations,
+                categoryClassifier,
             )
             const sortedEmployeeOptions = convertEmployeesToOptions(sortedEmployees, intl, filteredEmployeeSpecializations).map(renderOption)
 

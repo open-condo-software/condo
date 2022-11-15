@@ -1,5 +1,5 @@
 import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
-import { isFunction } from 'lodash'
+import { get, isFunction } from 'lodash'
 
 import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
@@ -61,7 +61,12 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         if (selectedDataLength === allDataLength) {
             setIsAllChecked(true)
         }
-    }, [allDataLength])
+
+        const onChange = get(selectProps, 'onChange')
+        if (isFunction(onChange)) {
+            onChange(data)
+        }
+    }, [allDataLength, selectProps])
 
     const formItemName = String(selectFormItemProps.name)
     useEffect(() => {
