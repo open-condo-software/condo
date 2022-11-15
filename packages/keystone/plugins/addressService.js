@@ -45,10 +45,6 @@ const getFieldsToAdd = (mainField, fieldsHooks) => ({
             ...(fieldsHooks[getKeyFieldName(mainField)] || {}),
         },
     },
-    /**
-     * @todo(nas) This field may be different for different models
-     * @see apps/condo/domains/ticket/schema/Ticket.js
-     */
     [getMetaFieldName(mainField)]: ADDRESS_META_FIELD,
 })
 
@@ -71,7 +67,7 @@ function extractAndDadatifyAddressMeta (addressMeta) {
             break
         case 'google':
             data = {
-                // todo(nas) convert google raw data to dadata format
+                // todo(AleX83Xpert) convert google raw data to dadata format
             }
             unrestricted_value = ''
             break

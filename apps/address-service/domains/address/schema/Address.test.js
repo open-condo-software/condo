@@ -190,6 +190,4 @@ describe('Address', () => {
             })
         })
     })
-
-    test.todo('Test address key generation')
 })

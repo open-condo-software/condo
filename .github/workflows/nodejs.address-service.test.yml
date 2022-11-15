@@ -77,7 +77,7 @@ jobs:
           # check migrations
           yarn workspace @app/address-service makemigrations --check &> /dev/null
           
-          # TODO(nas): write the same check but for address-service or pass path to schema.ts
+          # TODO(AleX83Xpert): write the same check but for address-service or pass path to schema.ts
           # source bin/validate-db-schema-ts-to-match-graphql-api.sh
 
           # And check background processes!

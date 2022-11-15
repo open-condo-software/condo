@@ -189,7 +189,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
              * @link https://dadata.ru/api/stat/
              */
         } else {
-            //TODO(nas) need to log erroneous status
+            //TODO(AleX83Xpert) maybe need to log erroneous status
             return []
         }
     }
@@ -204,6 +204,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         // Yes, at the beginning it will be 1-to-1 copying
         return data.map((item) => (
             {
+                label: get(item, 'value'),
                 value: get(item, 'value'),
                 unrestricted_value: get(item, 'unrestricted_value'),
                 data: {
