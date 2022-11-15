@@ -79,11 +79,14 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
     const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
     const CheckAllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
     const CheckAllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllEmployees' })
+    const NameValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.validation.name' }, {
+        max: MAX_NAME_LENGTH,
+    })
 
     const router = useRouter()
 
     const { maxLengthValidator, trimValidator } = useValidations()
-    const nameValidations = useMemo(() => [trimValidator, maxLengthValidator(MAX_NAME_LENGTH)], [maxLengthValidator, trimValidator])
+    const nameValidations = useMemo(() => [trimValidator, maxLengthValidator(MAX_NAME_LENGTH, NameValidationErrorMessage)], [maxLengthValidator, trimValidator])
 
     const createPropertyScopePropertyAction = PropertyScopeProperty.useCreate({})
     const softDeletePropertyScopePropertyAction = PropertyScopeProperty.useSoftDelete()
