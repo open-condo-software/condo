@@ -14,21 +14,20 @@ import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/u
  * 2) employees with hasAllSpecialization flag
  * 3) employees without specializations
  */
-export const getEmployeesSortedBySpecializations = (employees, organizationEmployeeSpecializations, categoryClassifier) => {
+export const getEmployeesSortedBySpecializations = (employees, organizationEmployeeSpecializations) => {
     const employeesWithAllSpecializations = []
     const employeeWithSpecificSpecializations = []
-    const employeesWithNotMatchedSpecializations = []
+    const employeesWithoutSpecializations = []
 
     employees.forEach(employee => {
         if (employee.hasAllSpecializations) {
             employeesWithAllSpecializations.push(employee)
         } else {
-            const employeeSpecializations = organizationEmployeeSpecializations.filter(spec => spec.employee.id === employee.id)
-            const isEmployeeHasSelectedSpecialization = !!employeeSpecializations.find(spec => spec.specialization.id === categoryClassifier)
-            if (employeeSpecializations && isEmployeeHasSelectedSpecialization) {
+            const isEmployeeHasSpecialization = organizationEmployeeSpecializations.find(scope => scope.employee.id === employee.id)
+            if (isEmployeeHasSpecialization) {
                 employeeWithSpecificSpecializations.push(employee)
             } else {
-                employeesWithNotMatchedSpecializations.push(employee)
+                employeesWithoutSpecializations.push(employee)
             }
         }
     })
@@ -40,15 +39,7 @@ export const getEmployeesSortedBySpecializations = (employees, organizationEmplo
         return firstEmployeeSpecializationsCount - secondEmployeeSpecializationsCount
     })
 
-    return {
-        employeesWithMatchedSpecializations: [...sortedEmployeeWithSpecificSpecializations, ...employeesWithAllSpecializations],
-        employeesWithNotMatchedSpecializations,
-    }
-}
-
-export enum SortEmployeesMode {
-    All,
-    MatchedSpecializations,
+    return [...sortedEmployeeWithSpecificSpecializations, ...employeesWithAllSpecializations, ...employeesWithoutSpecializations]
 }
 
 /**
@@ -57,7 +48,7 @@ export enum SortEmployeesMode {
  * 2) employees with ASSIGNED_TICKET_VISIBILITY ticketVisibilityType, sorted by specializations
  * 3) employees with other ticketVisibilityType, sorted by specializations
  */
-export const getEmployeesSortedByTicketVisibilityType = (employees, organizationEmployeeSpecializations, categoryClassifier, mode: SortEmployeesMode) => {
+export const getEmployeesSortedByTicketVisibilityType = (employees, organizationEmployeeSpecializations) => {
     const employeesWithPropertyAndSpecializationVisibility = employees
         .filter(({ role }) => role.ticketVisibilityType === PROPERTY_AND_SPECIALIZATION_VISIBILITY)
 
@@ -69,27 +60,11 @@ export const getEmployeesSortedByTicketVisibilityType = (employees, organization
         [...employeesWithPropertyAndSpecializationVisibility, ...employeesWithAssigneeVisibility],
         'id')
 
-    const sortedEmployeesWithMatchedSpecializations = [
-        getEmployeesSortedBySpecializations(employeesWithPropertyAndSpecializationVisibility, organizationEmployeeSpecializations, categoryClassifier),
-        getEmployeesSortedBySpecializations(employeesWithAssigneeVisibility, organizationEmployeeSpecializations, categoryClassifier),
-        getEmployeesSortedBySpecializations(employeesWithOtherVisibility, organizationEmployeeSpecializations, categoryClassifier),
+    return [
+        ...getEmployeesSortedBySpecializations(employeesWithPropertyAndSpecializationVisibility, organizationEmployeeSpecializations),
+        ...getEmployeesSortedBySpecializations(employeesWithAssigneeVisibility, organizationEmployeeSpecializations),
+        ...getEmployeesSortedBySpecializations(employeesWithOtherVisibility, organizationEmployeeSpecializations),
     ]
-        .map(sortedGroup => sortedGroup.employeesWithMatchedSpecializations)
-        .flat(1)
-
-    if (mode === SortEmployeesMode.MatchedSpecializations) {
-        return sortedEmployeesWithMatchedSpecializations
-    } else {
-        const sortedEmployeesWithNotMatchedSpecializations = [
-            getEmployeesSortedBySpecializations(employeesWithPropertyAndSpecializationVisibility, organizationEmployeeSpecializations, categoryClassifier),
-            getEmployeesSortedBySpecializations(employeesWithAssigneeVisibility, organizationEmployeeSpecializations, categoryClassifier),
-            getEmployeesSortedBySpecializations(employeesWithOtherVisibility, organizationEmployeeSpecializations, categoryClassifier),
-        ]
-            .map(sortedGroup => sortedGroup.employeesWithNotMatchedSpecializations)
-            .flat(1)
-
-        return [...sortedEmployeesWithMatchedSpecializations, ...sortedEmployeesWithNotMatchedSpecializations]
-    }
 }
 
 export const isEmployeeSpecializationAndPropertyMatchesToScope = (categoryClassifier, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees) =>
