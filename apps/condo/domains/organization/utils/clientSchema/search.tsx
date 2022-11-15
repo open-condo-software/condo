@@ -47,6 +47,7 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
     return async function (client, value, query = {}, first, skip) {
         const where = {
             organization: { id: organizationId },
+            isBlocked: false,
             ...query,
         }
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })
@@ -87,6 +88,7 @@ export function searchEmployeeUserWithSpecializations (intl, organizationId, fil
     return async function (client, value, query = {}, first, skip) {
         const where  = {
             organization: { id: organizationId },
+            isBlocked: false,
             ...query,
         }
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })
