@@ -182,9 +182,9 @@ const BankAccount = new GQLListSchema('BankAccount', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['tin', 'routingNumber', 'number'],
+                fields: ['organization', 'tin', 'routingNumber', 'number'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'Bank_account_unique_tin_routingNumber_number',
+                name: 'Bank_account_unique_organization_tin_routingNumber_number',
             },
         ],
     },
