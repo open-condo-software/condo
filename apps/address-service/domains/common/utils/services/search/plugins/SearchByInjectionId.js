@@ -5,16 +5,16 @@ const { AddressInjection } = require('@address-service/domains/address/utils/ser
 const get = require('lodash/get')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { validate: validateUuid } = require('uuid')
 
 const SEPARATOR = ':'
-const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
 
 class SearchByInjectionId extends AbstractSearchPlugin {
 
     isEnabled (s, params) {
         const [type, id] = s.split(SEPARATOR, 2)
 
-        return type === 'injectionId' && UUID_REGEX.test(id)
+        return type === 'injectionId' && validateUuid(id)
     }
 
     /**
