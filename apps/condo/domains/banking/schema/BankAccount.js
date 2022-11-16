@@ -163,8 +163,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         resolveInput: async ({ resolvedData, context }) => {
 
             // If bank account is being updated -> drop approvedBy and approvedAt!
-            if (('approvedAt' in resolvedData && get(resolvedData, 'approvedAt'))
-                || ('approvedBy' in resolvedData && get(resolvedData, 'approvedBy'))) {
+            if (('approvedAt' in resolvedData && get(resolvedData, 'approvedAt'))) {
                 const dateNow = new Date().toISOString()
                 const { authedItem: { id } }  = context
 
