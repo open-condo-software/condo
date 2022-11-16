@@ -133,7 +133,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         importId: IMPORT_ID_FIELD,
 
         territoryCode: {
-            schemaDoc: 'Location code (Classifier of Territories of Municipal Units - OKTMO)',
+            schemaDoc: 'Location code',
             type: Text,
             isRequired: false,
         },
