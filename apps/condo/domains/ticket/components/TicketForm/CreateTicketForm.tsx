@@ -1,27 +1,27 @@
-import { Col, Form, Row, Typography } from 'antd'
-import { useRouter } from 'next/router'
-import qs from 'qs'
-import React, { useCallback, useMemo } from 'react'
-import { get } from 'lodash'
-import dayjs from 'dayjs'
-import isToday from 'dayjs/plugin/isToday'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { Button } from '@condo/domains/common/components/Button'
+
+import { colors } from '@condo/domains/common/constants/style'
+import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
+import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
+import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
+import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
+import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-
-import { colors } from '@condo/domains/common/constants/style'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
-import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
-import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
-import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
-import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
-import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { Col, Form, Row, Typography } from 'antd'
+import dayjs from 'dayjs'
+import isToday from 'dayjs/plugin/isToday'
+import { get } from 'lodash'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
+import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
+import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 
 dayjs.extend(isToday)
 
@@ -88,20 +88,6 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
 
 const LINK_STYLES = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[8] }
 
-const getObjectValueFromQuery = (router, path = []) => {
-    try {
-        const initialValuesFromQuery = JSON.parse(get(router, ['query', ...path]))
-
-        if (initialValuesFromQuery) {
-            return qs.parse(initialValuesFromQuery)
-        }
-    } catch (e) {
-        console.error(e)
-    }
-
-    return {}
-}
-
 export const CreateTicketForm: React.FC = () => {
     const intl = useIntl()
     const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description' })
@@ -113,18 +99,24 @@ export const CreateTicketForm: React.FC = () => {
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
 
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
-    const redirectFromQuery = useMemo(() => get(router, ['query', 'redirect']) as string, [router])
+    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
         },
-        (ticket) => {
+        async (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
-            if (redirectFromQuery) {
-                router.push(redirectFromQuery)
+            if (redirectToClientCard) {
+                const clientPhone = ticket.clientPhone
+                const ticketPropertyId = get(ticket, 'property.id')
+                const isResidentTicket = !!get(ticket, 'contact')
+                if (clientPhone && ticketPropertyId) {
+                    const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
+                    await router.push(`/phone/${clientPhone}?tab=${getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName)}`)
+                }
             } else {
-                router.push('/ticket')
+                await router.push('/ticket')
             }
         })
 

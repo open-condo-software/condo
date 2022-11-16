@@ -18,6 +18,8 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useMemo } from 'react'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { getObjectValueFromQuery } from '../../common/utils/query'
+import { ClientType, getClientCardTabKey } from '../utils/clientCard'
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {
@@ -53,10 +55,10 @@ export const EditContactForm: React.FC = () => {
     const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
 
     const { isSmall } = useLayoutContext()
-    const { query, push } = useRouter()
+    const router = useRouter()
     const { organization, link } = useOrganization()
-    const contactId = get(query, 'id', '')
-    const redirectFromQuery = get(query, 'redirect') as string
+    const contactId = get(router, 'query.id', '')
+
     const {
         obj: contact,
         loading,
@@ -82,14 +84,28 @@ export const EditContactForm: React.FC = () => {
         },
     })
 
-    const contactUpdateAction = Contact.useUpdate({}, async () => {
+    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
+
+    const contactUpdateAction = Contact.useUpdate({}, async (contact) => {
         await refetch()
-        if (redirectFromQuery) {
-            await push(redirectFromQuery)
+        if (redirectToClientCard) {
+            const phone = contact.phone
+            const propertyId = get(contact, 'property.id')
+            if (phone && propertyId) {
+                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName)}`)
+            }
         } else {
-            await push(`/contact/${contactId}`)
+            await router.push('/contact/')
         }
     })
+
+    const formInitialValues = useMemo(() => ({
+        name: get(contact, 'name'),
+        phone: get(contact, 'phone'),
+        email: get(contact, 'email'),
+        role: get(contact, ['role', 'id']),
+        isVerified: get(contact, 'isVerified'),
+    }), [contact])
 
     const { requiredValidator, phoneValidator, emailValidator, trimValidator, changeMessage, specCharValidator } = useValidations({ allowLandLine: true })
     const validations = {
@@ -120,13 +136,6 @@ export const EditContactForm: React.FC = () => {
 
     const formAction = (formValues) => {
         return contactUpdateAction(formValues, contact)
-    }
-    const formInitialValues = {
-        name: get(contact, 'name'),
-        phone: get(contact, 'phone'),
-        email: get(contact, 'email'),
-        role: get(contact, ['role', 'id']),
-        isVerified: get(contact, 'isVerified'),
     }
 
     return (

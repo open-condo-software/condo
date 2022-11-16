@@ -12,7 +12,8 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
+import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;
@@ -63,8 +64,9 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
     )
 }
 
+const DROPDOWN_POPUP_CONTAINER_ID = 'residentActionsPopupContainer'
 function getPopupContainer (): HTMLElement {
-    return document.getElementById('test')
+    return document.getElementById(DROPDOWN_POPUP_CONTAINER_ID)
 }
 
 interface IResidentActionsProps {
@@ -76,9 +78,10 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
 
     const { minified } = props
-    const { organization } = useOrganization()
-    const baseSearchByPhoneQuery = useMemo(() => ({ organization: { id: get(organization, 'id', null) } }), [organization])
-    const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal(baseSearchByPhoneQuery)
+    const { organization, link } = useOrganization()
+    const searchByPhoneFn = useMemo(() => searchByPhone(get(organization, 'id', null)), [organization])
+    const canManageContacts = useMemo(() => get(link, 'role.canManageContacts'), [link])
+    const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal(searchByPhoneFn, canManageContacts)
     const { isMobile } = useLayoutContext()
 
     const trigger = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
@@ -97,7 +100,7 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
 
     return (
-        <div id='test'>
+        <div id={DROPDOWN_POPUP_CONTAINER_ID}>
             <Dropdown
                 overlay={Overlay}
                 placement={minified ? 'bottomRight' : 'bottomCenter'}

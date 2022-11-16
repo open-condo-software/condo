@@ -186,46 +186,26 @@ export function convertToOptions <T> (objects: T[], labelField: string, valueFie
     })
 }
 
-export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
+export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number, newRoute?: string): Promise<boolean> {
     if (!offset && 'offset' in router.query) {
         router.query['offset'] = '0'
     }
 
     const possibleFilters = pickBy(newFilters, (value) => !isEmpty(value))
-    const possibleQueryData = { ...router.query, sort, offset }
+    const possibleQueryData = newRoute ? { sort, offset } : { ...router.query, sort, offset }
     if (isEmpty(possibleFilters)) {
         delete possibleQueryData['filters']
     } else {
         possibleQueryData['filters'] = JSON.stringify(possibleFilters)
     }
 
+    const route = newRoute ? newRoute : router.route
     const query = qs.stringify(
         possibleQueryData,
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     )
 
-    return await router.push(router.route + query)
-}
-
-export async function updateRoute (router: NextRouter, newRoute: string, filters?: FiltersFromQueryType, sort?: string[], offset?: number): Promise<boolean> {
-    if (!offset && 'offset' in router.query) {
-        router.query['offset'] = '0'
-    }
-
-    const possibleFilters = pickBy(filters, (value) => !isEmpty(value))
-    const possibleQueryData = { sort, offset }
-    if (isEmpty(possibleFilters)) {
-        delete possibleQueryData['filters']
-    } else {
-        possibleQueryData['filters'] = JSON.stringify(possibleFilters)
-    }
-
-    const query = qs.stringify(
-        possibleQueryData,
-        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-    )
-
-    return await router.push(newRoute + query)
+    return await router.push(route + query)
 }
 
 export function getFiltersModalPopupContainer (): HTMLElement {
