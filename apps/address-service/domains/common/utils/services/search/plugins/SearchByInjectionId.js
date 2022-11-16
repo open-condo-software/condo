@@ -4,6 +4,7 @@ const { InjectionsSeeker } = require('@address-service/domains/common/utils/serv
 const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const get = require('lodash/get')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
+const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 const SEPARATOR = ':'
 const UUID_REGEX = /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/
@@ -24,6 +25,10 @@ class SearchByInjectionId extends AbstractSearchPlugin {
         const [, id] = s.split(SEPARATOR, 2)
         const injectionsSeeker = new InjectionsSeeker(s)
         const godContext = this.keystoneContext.sudo()
+        const dvSender = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: `address-service-search-${this.constructor.name}` },
+        }
 
         const injection = await AddressInjection.getOne(this.keystoneContext.sudo(), { id })
         const searchResult = injectionsSeeker.normalize([injection])
@@ -34,20 +39,28 @@ class SearchByInjectionId extends AbstractSearchPlugin {
 
         let addressItem
         if (addressFoundByKey) {
-            // todo(AleX83Xpert): Update existing model or not? That's the question.
             addressItem = addressFoundByKey
+            if (!addressFoundByKey.sources.map(({ source }) => source).includes(s)) {
+                addressItem = await Address.update(
+                    godContext,
+                    addressFoundByKey.id,
+                    {
+                        sources: { create: { source: s, ...dvSender } },
+                        ...dvSender,
+                    },
+                )
+            }
         } else {
             addressItem = await Address.create(
                 godContext,
                 {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'address-service' },
+                    ...dvSender,
                     source: s,
                     address: searchResult[0].label,
                     key: addressKey,
                     meta: {
                         provider: {
-                            name: 'injection',
+                            name: INJECTIONS_PROVIDER,
                             rawData: injection,
                         },
                         data: get(searchResult, [0, 'data'], {}),

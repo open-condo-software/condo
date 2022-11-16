@@ -9,7 +9,7 @@ class SearchBySource extends AbstractSearchPlugin {
      */
     async search (s) {
         // We want to return the same result for the same source. This is the address cache, baby!
-        const addressFoundBySource = await Address.getOne(this.keystoneContext.sudo(), { source: s })
+        const addressFoundBySource = await Address.getOne(this.keystoneContext.sudo(), { sources_some: { source: s } })
 
         return addressFoundBySource ? [addressFoundBySource] : []
     }

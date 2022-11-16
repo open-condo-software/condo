@@ -14,6 +14,10 @@ class SearchByProvider extends AbstractSearchPlugin {
         const searchDetector = new SearchProviderDetector()
         const searchProvider = searchDetector.getProvider(this.geo)
         const godContext = this.keystoneContext.sudo()
+        const dvSender = {
+            dv: 1,
+            sender: { dv: 1, fingerprint: `address-service-search-${this.constructor.name}` },
+        }
 
         const denormalizedRows = await searchProvider.get({ query: s, context: this.searchContext })
         const searchResult = searchProvider.normalize(denormalizedRows)
@@ -29,15 +33,28 @@ class SearchByProvider extends AbstractSearchPlugin {
 
         let addressItem
         if (addressFoundByKey) {
-            // todo(AleX83Xpert): Update existing model or not? That's the question.
             addressItem = addressFoundByKey
+            if (!addressFoundByKey.sources.map(({ source }) => source).includes(s)) {
+                addressItem = await Address.update(
+                    godContext,
+                    addressFoundByKey.id,
+                    {
+                        sources: { create: { source: s, ...dvSender } },
+                        ...dvSender,
+                    },
+                )
+            }
         } else {
             addressItem = await Address.create(
                 godContext,
                 {
-                    dv: 1,
-                    sender: { dv: 1, fingerprint: 'address-service' },
-                    source: s,
+                    ...dvSender,
+                    sources: {
+                        create: {
+                            source: s,
+                            ...dvSender,
+                        },
+                    },
                     address: searchResult[0].value,
                     key: addressKey,
                     meta: {

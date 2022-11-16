@@ -62,6 +62,7 @@ const addressFieldHooks = {
         if (isCreate || isUpdateAddress) {
             const organizationId = isCreate ? resolvedData.organization : existingItem.organization
             const addressSearch = isCreate ? { address_i: value } : { address: value }
+            //todo(AleX83Xpert) compare by addressKey instead of address string
             const where = {
                 ...addressSearch,
                 organization: {
