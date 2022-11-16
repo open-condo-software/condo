@@ -3,7 +3,7 @@ import type { TextProps as DefaultTextProps } from 'antd/lib/typography/Text'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
 
-declare const TEXT_TYPES: ['default', 'secondary', 'inverted', 'danger', 'warning', 'info', 'success']
+declare const TEXT_TYPES: ['secondary', 'inverted', 'danger', 'warning', 'info', 'success']
 declare const TEXT_SIZES: ['lg', 'md', 'sm']
 export type TypographyTextProps = Omit<DefaultTextProps,
 'keyboard'
@@ -21,7 +21,7 @@ export type TypographyTextProps = Omit<DefaultTextProps,
 const TYPOGRAPHY_CLASS_PREFIX = 'condo-typography'
 
 const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref) => {
-    const { type = 'default', size = 'lg', ...rest } = props
+    const { type, size = 'lg', ...rest } = props
     const className = classNames(
         // TODO(DOMA-4681): Remove TYPOGRAPHY_CLASS_PREFIX after next antd release including this patch: https://github.com/ant-design/ant-design/pull/38586
         TYPOGRAPHY_CLASS_PREFIX,

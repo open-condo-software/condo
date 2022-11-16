@@ -17,13 +17,12 @@ const StoryDecorator = styled.div<{ bg: 'light' | 'dark' }>`
 export default {
     title: 'Components/Typography',
     component: Typography.Title,
-    args: {
-        type: 'default',
-    },
     argTypes: {
         children: { type: 'string' },
         type: {
+            defaultValue: 'default',
             options: ['default', 'inverted'],
+            mapping: [undefined, 'inverted'],
             control: 'select',
         },
     },

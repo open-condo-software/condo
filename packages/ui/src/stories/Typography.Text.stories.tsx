@@ -10,15 +10,15 @@ import { colors } from '../colors'
 import { Space } from 'antd'
 import 'antd/lib/space/style/index.less'
 
-const isVowel = (str?: string) => {
-    if (!str) return false
+const getArticle = (str?: string) => {
+    if (!str) return 'a'
     const firstChar = str.at(0)
-    if (!firstChar) return false
-    return Boolean(firstChar.match('a|e|i|o|u/i'))
+    if (!firstChar) return 'a'
+    return firstChar.match('a|e|i|o|u/i') ? 'an' : 'a'
 }
 
 const AVAILABLE_TYPES: Array<TypographyTextProps['type']> = [
-    'default',
+    undefined,
     'secondary',
     'inverted',
     'danger',
@@ -59,8 +59,7 @@ const Template: ComponentStory<typeof Typography.Text> = (args) => {
     return (
         <Space direction='vertical' size={20} prefixCls='condo-space'>
             {AVAILABLE_TYPES.map(type => {
-                const article = isVowel(type) ? 'an' : 'a'
-                const text = get(args, 'children') || `This is an example of ${article} ${type} text.`
+                const text = get(args, 'children') || `This is an example of ${getArticle(type)} ${type || 'default'} text.`
                 const props = {
                     ...args,
                     children: text,
@@ -74,13 +73,12 @@ const Template: ComponentStory<typeof Typography.Text> = (args) => {
                     )
                 }
                 return (
-                    <Typography.Text key={type} {...props}/>
+                    <Typography.Text key={String(type)} {...props}/>
                 )
             })}
             <hr/>
             {AVAILABLE_MODES.map(mode => {
-                const article = isVowel(mode) ? 'an' : 'a'
-                const text = get(args, 'children') || `This is an example of ${article} ${mode} text.`
+                const text = get(args, 'children') || `This is an example of ${getArticle(mode)} ${mode} text.`
                 const props = {
                     ...args,
                     [mode]: true,
