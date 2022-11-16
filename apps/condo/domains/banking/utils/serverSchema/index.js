@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
@@ -15,6 +15,7 @@ const BankCategory = generateServerUtils(BankCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
+    BankAccount,
     BankCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

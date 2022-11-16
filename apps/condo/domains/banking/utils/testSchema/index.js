@@ -4,9 +4,11 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
-const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccountGenerate')
+const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
+
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -75,7 +77,6 @@ async function updateTestBankAccount (client, id, extraAttrs = {}) {
     const obj = await BankAccount.update(client, id, attrs)
     return [obj, attrs]
 }
-
 
 /* AUTOGENERATE MARKER <FACTORY> */
 
