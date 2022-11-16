@@ -7,21 +7,23 @@ const {
     catchErrorFrom,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const {
-    INVALID_CONTROL_SUM_TIN_10,
-    INVALID_CONTROL_SUM_TIN_12,
-    WRONG_FORMAT_TIN,
-} = require('@condo/domains/banking/utils/validate/tin.utils.spec')
+    VALID_RU_TIN_10,
+    VALID_RU_TIN_12,
+    INVALID_RU_TIN_10,
+    INVALID_RU_TIN_12,
+    SOME_RANDOM_LETTERS,
+} = require('@condo/domains/organization/utils/tin.utils.spec')
 const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { DEFAULT_STATUS_TRANSITIONS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrationAccess, makeContextWithOrganizationAndIntegrationAsAdmin } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { createValidRuTin10, createValidRuTin12 } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 
 const {
     Organization,
@@ -310,30 +312,28 @@ describe('organization TIN: various cases',  () => {
     test('admin: create Organization with valid 10 digits RU INN and RU country code ', async () => {
         // TODO(DOMA-1897): Create organization by ordinary user, not admin to respect real flow.
         const admin = await makeLoggedInAdminClient()
-        const validRuTin = createValidRuTin10()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: validRuTin, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_RU_TIN_10, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
         expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(validRuTin)
+        expect(organizationData[0].tin).toEqual(VALID_RU_TIN_10)
     })
 
     test('admin: create Organization with valid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
-        const validRuTin = createValidRuTin12()
-        const [createdOrganization] = await createTestOrganization(admin, { tin: validRuTin, country: RUSSIA_COUNTRY })
+        const [createdOrganization] = await createTestOrganization(admin, { tin: VALID_RU_TIN_12, country: RUSSIA_COUNTRY })
 
         const organizationData = await Organization.getAll(admin, { id: createdOrganization.id })
 
         expect(organizationData).toHaveLength(1)
-        expect(organizationData[0].tin).toEqual(validRuTin)
+        expect(organizationData[0].tin).toEqual(VALID_RU_TIN_12)
     })
 
     test('admin: create Organization with invalid 10 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
         const createOrgAction = async () => {
-            await createTestOrganization(admin, { tin: INVALID_CONTROL_SUM_TIN_10, country: RUSSIA_COUNTRY })
+            await createTestOrganization(admin, { tin: INVALID_RU_TIN_10, country: RUSSIA_COUNTRY })
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
@@ -342,16 +342,16 @@ describe('organization TIN: various cases',  () => {
     test('admin: create Organization with invalid 12 digits RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
         const createOrgAction = async () => {
-            await createTestOrganization(admin, { tin: INVALID_CONTROL_SUM_TIN_12, country: RUSSIA_COUNTRY })
+            await createTestOrganization(admin, { tin: INVALID_RU_TIN_12, country: RUSSIA_COUNTRY })
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
     })
 
-    test('admin: create Organization with RU INN which has wrong format and RU country code ', async () => {
+    test('admin: create Organization with random letters 10 chars RU INN and RU country code ', async () => {
         const admin = await makeLoggedInAdminClient()
         const createOrgAction = async () => {
-            await createTestOrganization(admin, { tin: WRONG_FORMAT_TIN, country: RUSSIA_COUNTRY })
+            await createTestOrganization(admin, { tin: SOME_RANDOM_LETTERS, country: RUSSIA_COUNTRY })
         }
 
         await expect(createOrgAction).rejects.toThrowError('Tin field has not a valid values supplied')
