@@ -240,6 +240,18 @@ describe('BankAccount', () => {
                 })
             })
 
+            test('user can drop isApproved field', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+
+                const [ createdObj ] = await createTestBankAccount(admin, organization)
+
+                const [ updatedObj ] = await updateTestBankAccount(user, createdObj.id, { approvedBy: { disconnectAll: true } })
+
+                expect(updatedObj.approvedBy).toBeNull()
+            })
+
             test('user can\'t update isApproved field', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
