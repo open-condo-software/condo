@@ -125,8 +125,8 @@ const BankAccount = new GQLListSchema('BankAccount', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             access: {
                 read: true,
-                create: access.canManageIsApprovedField,
-                update: access.canManageIsApprovedField,
+                create: false,
+                update: false,
             },
         },
 
