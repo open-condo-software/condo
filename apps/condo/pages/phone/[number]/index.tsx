@@ -1,7 +1,7 @@
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
-import { updateRoute } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -13,19 +13,18 @@ import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/use
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import styled from '@emotion/styled'
 import { Col, Row, Tabs, Typography } from 'antd'
-import { get } from 'lodash'
+import { get, uniqBy } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useOrganization } from '@condo/next/organization'
+import { useOrganization } from '@open-condo/next/organization'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
-import qs from 'qs'
 import React, { useCallback, useMemo, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, SortTicketsBy } from '@app/condo/schema'
-import { ClientType } from '@condo/domains/common/hooks/useSearchByPhoneModal'
+import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 
 const StyledTabs = styled(Tabs)`
   &.ant-tabs-top > .ant-tabs-nav::before {
@@ -61,15 +60,13 @@ const ClientTabTitle = ({ active, type, property, unitName }) => {
     const intl = useIntl()
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
 
     const typeToMessage = useMemo(() => ({
-        [ClientType.Contact]: ContactMessage,
+        [ClientType.Resident]: ContactMessage,
         [ClientType.NotResident]: NotResidentMessage,
-        [ClientType.Employee]: EmployeeMessage,
-    }), [ContactMessage, EmployeeMessage, NotResidentMessage])
+    }), [ContactMessage, NotResidentMessage])
 
     const { text, postfix } = getPropertyAddressParts(property, DeletedMessage)
     const streetAndFlatMessage = unitName ? `${text} ${FlatMessage} ${unitName}` : text.substring(0, text.length - 1)
@@ -140,7 +137,7 @@ const ClientContent = ({ lastTicket }) => {
     )
 }
 
-const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreateClick, handleContactEditClick = null }) => {
+const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreateClick, canManageContacts, handleContactEditClick = null }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const ContactTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.contactTickets' })
@@ -164,7 +161,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
     const columns = useClientCardTicketTableColumns()
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
-        await updateRoute(router, '/ticket', { property: [property.id] })
+        await updateQuery(router, { property: [property.id] }, null, null, '/ticket')
     }, [property.id, router])
 
     const handleRowAction = useCallback((record) => {
@@ -223,7 +220,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
                     Создать заявку
                 </Button>
                 {
-                    handleContactEditClick && (
+                    canManageContacts && handleContactEditClick && (
                         <Button
                             key='submit'
                             onClick={handleContactEditClick}
@@ -239,7 +236,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
     )
 }
 
-const ContactClientTabContent = ({ redirectUrl, property, unitName, phone }) => {
+const ContactClientTabContent = ({ property, unitName, phone, canManageContacts }) => {
     const router = useRouter()
 
     const { objs: contacts } = Contact.useObjects({
@@ -268,36 +265,32 @@ const ContactClientTabContent = ({ redirectUrl, property, unitName, phone }) => 
             isResidentTicket: true,
         }
 
-        const query = qs.stringify(
-            { initialValues: JSON.stringify(initialValues), redirect: redirectUrl },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        await router.push(`/ticket/create${query}`)
-    }, [contact, property, router, redirectUrl, unitName])
+        await redirectToForm({
+            router,
+            formRoute: '/ticket/create',
+            initialValues,
+        })
+    }, [contact, property, router, unitName])
 
     const handleContactEditClick = useCallback(async () => {
-        const query = qs.stringify(
-            { redirect: redirectUrl },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        await router.push(`/contact/${get(contact, 'id')}/update${query}`)
-    }, [contact, redirectUrl, router])
+        await redirectToForm({
+            router,
+            formRoute: `/contact/${get(contact, 'id')}/update`,
+        })
+    }, [contact, router])
 
     return (
-        <>
-            <ClientCardTabContent
-                property={property}
-                searchTicketsQuery={searchTicketsQuery}
-                handleTicketCreateClick={handleTicketCreateClick}
-                handleContactEditClick={handleContactEditClick}
-            />
-        </>
+        <ClientCardTabContent
+            property={property}
+            searchTicketsQuery={searchTicketsQuery}
+            handleTicketCreateClick={handleTicketCreateClick}
+            handleContactEditClick={handleContactEditClick}
+            canManageContacts={canManageContacts}
+        />
     )
 }
 
-const NotResidentClientTabContent = ({ property, unitName, phone, redirectUrl }) => {
+const NotResidentClientTabContent = ({ property, unitName, phone }) => {
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
@@ -318,38 +311,33 @@ const NotResidentClientTabContent = ({ property, unitName, phone, redirectUrl })
             isResidentTicket: false,
         }
 
-        const query = qs.stringify(
-            { initialValues: JSON.stringify(initialValues), redirect: redirectUrl },
-            { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-        )
-
-        await router.push(`/ticket/create${query}`)
-    }, [property, redirectUrl, router, unitName])
+        await redirectToForm({
+            router,
+            formRoute: '/ticket/create',
+            initialValues,
+        })
+    }, [property, router, unitName])
 
     return (
-        <>
-            <ClientCardTabContent
-                property={property}
-                searchTicketsQuery={searchTicketsQuery}
-                handleTicketCreateClick={handleTicketCreateClick}
-            />
-        </>
+        <ClientCardTabContent
+            property={property}
+            searchTicketsQuery={searchTicketsQuery}
+            handleTicketCreateClick={handleTicketCreateClick}
+            canManageContacts={false}
+        />
     )
 }
 
-const ClientTabContent = ({ type, phone, property, unitName }) => {
-    const redirectUrl = useMemo(() => `/phone/${phone}?tab=${property.id}-${unitName}-${type}`, [phone, property.id, type, unitName])
-
-    return type === ClientType.Contact ? (
+const ClientTabContent = ({ type, phone, property, unitName, canManageContacts }) => {
+    return type === ClientType.Resident ? (
         <ContactClientTabContent
-            redirectUrl={redirectUrl}
             phone={phone}
             property={property}
             unitName={unitName}
+            canManageContacts={canManageContacts}
         />
     ) : (
         <NotResidentClientTabContent
-            redirectUrl={redirectUrl}
             phone={phone}
             property={property}
             unitName={unitName}
@@ -393,7 +381,7 @@ const AddAddressTabTitle = () => {
     )
 }
 
-const ClientCardPageContent = ({ phoneNumber, tabsData }) => {
+const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: phoneNumber,
@@ -432,7 +420,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData }) => {
                                 <Tabs.TabPane tab={<AddAddressTabTitle />} key='addAddress' />
                                 {
                                     tabsData.map(({ type, property, unitName }) => {
-                                        const key = `${property.id}-${unitName}-${type}`
+                                        const key = getClientCardTabKey(property.id, type, unitName)
 
                                         const Tab = (
                                             <ClientTabTitle
@@ -450,6 +438,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData }) => {
                                                     property={property}
                                                     phone={phoneNumber}
                                                     unitName={unitName}
+                                                    canManageContacts={canManageContacts}
                                                 />
                                             </Tabs.TabPane>
                                         )
@@ -464,24 +453,20 @@ const ClientCardPageContent = ({ phoneNumber, tabsData }) => {
     )
 }
 
-const ClientCardPage = () => {
+export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) => {
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 
-    const { organization } = useOrganization()
-    const organizationId = get(organization, 'id', null)
-
     const { objs: contacts } = Contact.useObjects({
         where: {
-            organization: { id: organizationId },
+            ...baseQuery,
             phone: phoneNumber,
         },
     })
 
-    // Баг -- 2 тикета - будет создавать 2 табы и 2 таблицы и тд, возможно надо группировать по номерам телефонов, чето придумать кароче
     const { objs: tickets } = Ticket.useObjects({
         where: {
-            organization: { id: organizationId },
+            ...baseQuery,
             clientPhone: phoneNumber,
             isResidentTicket: false,
         },
@@ -489,7 +474,7 @@ const ClientCardPage = () => {
 
     const { objs: employees } = OrganizationEmployee.useObjects({
         where: {
-            organization: { id: organizationId },
+            ...baseQuery,
             phone: phoneNumber,
         },
     })
@@ -498,19 +483,30 @@ const ClientCardPage = () => {
     const notResidentTickets = tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id))
 
     const tabsData = useMemo(() => {
-        const contactsData = contacts.map(contact => ({ type: ClientType.Contact, property: contact.property, unitName: contact.unitName }))
-        const employeesData = employeeTickets.map(ticket => ({ type: ClientType.Employee, property: ticket.property, unitName: ticket.unitName }))
-        const notResidentData = notResidentTickets.map(ticket => ({ type: ClientType.NotResident, property: ticket.property, unitName: ticket.unitName }))
+        const contactsData = contacts.map(contact => ({ type: ClientType.Resident, property: contact.property, unitName: contact.unitName }))
+        const notResidentData = uniqBy(notResidentTickets.map(ticket => ({ type: ClientType.NotResident, property: ticket.property, unitName: ticket.unitName })), 'property.id')
 
-        return [...contactsData, ...employeesData, ...notResidentData]
-    }, [contacts, employeeTickets, notResidentTickets])
-
+        return [...contactsData, ...notResidentData]
+    }, [contacts, notResidentTickets])
 
     return (
         <ClientCardPageContent
             phoneNumber={phoneNumber}
             tabsData={tabsData}
+            canManageContacts={canManageContacts}
         />
+    )
+}
+
+const ClientCardPage = () => {
+    const { organization, link } = useOrganization()
+    const organizationId = get(organization, 'id', null)
+    const canManageContacts = !!get(link, 'role.canManageContacts')
+
+    const baseQuery = { organization: { id: organizationId } }
+
+    return (
+        <ClientCardPageContentWrapper baseQuery={baseQuery} canManageContacts={canManageContacts}/>
     )
 }
 

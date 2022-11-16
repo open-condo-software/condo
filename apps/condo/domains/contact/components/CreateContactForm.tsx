@@ -18,11 +18,13 @@ import { Col, Form, Row } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } from '@condo/domains/user/constants/errors'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
+import { ClientType, getClientCardTabKey } from '../utils/clientCard'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -80,6 +82,9 @@ export const CreateContactForm: React.FC = () => {
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
 
+    const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
+    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
+
     const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator, trimValidator } = useValidations({ allowLandLine: true })
     const { addressValidator } = usePropertyValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -135,8 +140,16 @@ export const CreateContactForm: React.FC = () => {
 
     const action = Contact.useCreate({
         organization: { connect: { id: organization.id } },
-    }, () => {
-        router.push('/contact/')
+    }, async (contact) => {
+        if (redirectToClientCard) {
+            const phone = contact.phone
+            const propertyId = get(contact, 'property.id')
+            if (phone && propertyId) {
+                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName)}`)
+            }
+        } else {
+            await router.push('/contact/')
+        }
     })
 
     const actionWithHandleSubmit = async (data) => {
@@ -149,6 +162,7 @@ export const CreateContactForm: React.FC = () => {
     return (
         <FormWithAction
             action={actionWithHandleSubmit}
+            initialValues={initialValuesFromQuery}
             layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
