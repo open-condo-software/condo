@@ -79,6 +79,19 @@
     border-radius: @condo-global-border-radius-small;
   }
 
+  div&:not(:last-child),
+  p:not(:last-child) {
+    margin-bottom: @condo-global-typography-p1-paragraph-spacing;
+
+    &.condo-typography-md {
+      margin-bottom: @condo-global-typography-p2-paragraph-spacing;
+    }
+
+    &.condo-typography-sm {
+      margin-bottom: @condo-global-typography-p3-paragraph-spacing;
+    }
+  }
+
   h1&,
   div&-h1,
   div&-h1 > textarea,

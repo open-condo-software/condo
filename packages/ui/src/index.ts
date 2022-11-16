@@ -12,4 +12,5 @@ export type {
     TypographyTextProps,
     TypographyTitleProps,
     TypographyLinkProps,
+    TypographyParagraphProps,
 } from './components/Typography'

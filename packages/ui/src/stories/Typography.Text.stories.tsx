@@ -48,7 +48,8 @@ export default {
         children: { type: 'string' },
         size: {
             defaultValue: 'lg',
-            options: ['lg', 'md', 'sm'],
+            options: [undefined, 'lg', 'md', 'sm'],
+            mapping: ['undefined', 'lg', 'md', 'sm'],
             control: 'select',
         },
     },
