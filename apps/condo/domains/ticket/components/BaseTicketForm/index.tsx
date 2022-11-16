@@ -419,6 +419,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         organization: organization.id,
         role,
         allowLandLine: true,
+        initialQuery: { organization: { id: organization } },
     })
 
     const organizationId = get(property, ['organization', 'id'], null)

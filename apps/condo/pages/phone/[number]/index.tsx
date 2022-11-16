@@ -417,7 +417,11 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
                                 defaultActiveKey={tab}
                                 activeKey={tab}
                             >
-                                <Tabs.TabPane tab={<AddAddressTabTitle />} key='addAddress' />
+                                {
+                                    canManageContacts && (
+                                        <Tabs.TabPane tab={<AddAddressTabTitle />} key='addAddress' />
+                                    )
+                                }
                                 {
                                     tabsData.map(({ type, property, unitName }) => {
                                         const key = getClientCardTabKey(property.id, type, unitName)
