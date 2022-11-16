@@ -10,7 +10,7 @@ const RU_TIN_NOT_NUMERIC = 'Tin can contain only digits'
 
 /**
  * For RU number:
- * 1) Сhecking checksum verification for number
+ * 1) Check checksum verification for number
  *
  * Example:
  * number - 50286516400000008106
@@ -54,8 +54,9 @@ const validateRuRoutingNumber = (routingNumber, errors) => {
 
 /**
  * For RU tin:
- * 1) Сhecking checksum verification for TIN
- * 2) Checking for length and format (Consists of 10 or 12 digits)
+ * *** In Russia, tin is equivalent to INN***
+ * 1) Check checksum verification for TIN
+ * 2) Check for length and format (Consists of 10 or 12 digits)
  *  *
  * Example:
  * RU TIN with 10 characters - 7791815382
