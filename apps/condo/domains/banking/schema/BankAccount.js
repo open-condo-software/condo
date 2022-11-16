@@ -133,7 +133,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         importId: IMPORT_ID_FIELD,
 
         territoryCode: {
-            schemaDoc: 'Location code',
+            schemaDoc: 'Location of the holder of this bank account. It depends on a country. In Russia it is OKTMO',
             type: Text,
             isRequired: false,
         },
