@@ -6,7 +6,7 @@ const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/c
 class SearchProviderDetector {
 
     /**
-     * @param {string} geo
+     * @param {string} geo 'ru'|'en'|'dadata'|'google'|'<some city name>'|...
      * @returns {AbstractSearchProvider}
      */
     getProvider (geo) {
