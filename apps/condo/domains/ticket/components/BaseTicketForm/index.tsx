@@ -1,7 +1,10 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Alert, Col, Form, FormItemProps, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get, isEmpty, isFunction, isNull } from 'lodash'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import isFunction from 'lodash/isFunction'
+import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 
@@ -137,13 +140,16 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
 
     const { setIsAutoDetectedDeadlineValue, ticketSetting } = useTicketFormContext()
 
+    const createdAt = get(initialValues, 'createdAt', null)
+
     const handleChangeType = useCallback(() => {
         const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
         const autoAddDays = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty)
-        const autoDeadlineValue = isNull(autoAddDays) ? autoAddDays : dayjs().add(autoAddDays, 'day')
+        const startDate = createdAt ? dayjs(createdAt) : dayjs()
+        const autoDeadlineValue = isNull(autoAddDays) ? autoAddDays : startDate.add(autoAddDays, 'day')
         form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
         setIsAutoDetectedDeadlineValue(true)
-    }, [form, setIsAutoDetectedDeadlineValue, ticketSetting])
+    }, [createdAt, form, setIsAutoDetectedDeadlineValue, ticketSetting])
 
     return (
         <Col span={24}>
