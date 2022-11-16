@@ -1,5 +1,6 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography.less";
+@import "@open-condo/ui/src/components/style/mixins/link.less";
 
 .condo-typography {
   @condo-typography-decoration-thickness: 1px;
@@ -118,5 +119,33 @@
   div&-h6 > textarea,
   h6 {
     .condo-typography-h6();
+  }
+
+  a&-ellipsis,
+  span&-ellipsis {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  a&,
+  a {
+    .condo-link();
+
+    &:not(.condo-typography-lg, .condo-typography-md, .condo-typography-sm) {
+      font-size: inherit;
+    }
+
+    &[disabled],
+    &.condo-typography-disabled {
+      &,
+      &:focus-visible,
+      &:hover,
+      &:active {
+        color: @condo-global-color-black;
+        cursor: not-allowed;
+        opacity: @condo-global-opacity-disabled;
+        pointer-events: none;
+      }
+    }
   }
 }
