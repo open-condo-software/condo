@@ -2,11 +2,80 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography.less";
 
 .condo-typography {
+  @condo-typography-decoration-thickness: 1px;
+
   color: @condo-global-color-black;
   word-break: break-word;
 
+  &,
+  &-lg {
+    .condo-typography-p1();
+  }
+
+  &-md {
+    .condo-typography-p2();
+  }
+
+  &-sm {
+    .condo-typography-p3();
+  }
+
+  &-secondary {
+    color: @condo-global-color-gray-7;
+  }
+
   &-inverted {
     color: @condo-global-color-white;
+  }
+
+  &-info {
+    color: @condo-global-color-blue-5;
+  }
+
+  &-success {
+    color: @condo-global-color-green-5;
+  }
+
+  &-warning {
+    color: @condo-global-color-orange-5;
+  }
+
+  &-danger {
+    color: @condo-global-color-red-5;
+  }
+
+  &-disabled {
+    cursor: not-allowed;
+    opacity: @condo-global-opacity-disabled;
+    user-select: none;
+  }
+
+  u,
+  ins {
+    text-decoration: underline;
+    text-decoration-skip-ink: auto;
+    text-decoration-thickness: @condo-typography-decoration-thickness;
+  }
+
+  s,
+  del {
+    text-decoration: line-through;
+    text-decoration-thickness: @condo-typography-decoration-thickness;
+  }
+
+  strong {
+    font-weight: @condo-global-font-weight-semibold;
+  }
+
+  code {
+    box-sizing: border-box;
+    margin: 0 0.2em;
+    padding: 0.25em 0.4em;
+    font-size: 95%;
+    font-family: "Noto Sans Mono", monospace;
+    background: @condo-global-color-gray-1;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-radius: @condo-global-border-radius-small;
   }
 
   h1&,

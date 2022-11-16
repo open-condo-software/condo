@@ -1,7 +1,7 @@
 import React from 'react'
 import get from 'lodash/get'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { Title as Component } from '@open-condo/ui/src'
+import { Typography } from '@open-condo/ui/src'
 import type { TypographyTitleProps } from '@open-condo/ui/src'
 import { styled } from '@storybook/theming'
 import { colors } from '../colors'
@@ -16,7 +16,7 @@ const StoryDecorator = styled.div<{ bg: 'light' | 'dark' }>`
 
 export default {
     title: 'Components/Typography',
-    component: Component,
+    component: Typography.Title,
     args: {
         type: 'default',
     },
@@ -34,9 +34,9 @@ export default {
             </StoryDecorator>
         ),
     ],
-} as ComponentMeta<typeof Component>
+} as ComponentMeta<typeof Typography.Title>
 
-const TitleTemplate: ComponentStory<typeof Component> = (args) => {
+const Template: ComponentStory<typeof Typography.Title> = (args) => {
     const levels: Array<TypographyTitleProps['level']> = [1, 2, 3, 4, 5, 6]
 
     return (
@@ -44,11 +44,11 @@ const TitleTemplate: ComponentStory<typeof Component> = (args) => {
             {levels.map(level => {
                 const text = get(args, 'children') || `H${level}: This is an example of a level ${level} title.`
                 return (
-                    <Component key={level} {...args} level={level} children={text}/>
+                    <Typography.Title key={level} {...args} level={level} children={text}/>
                 )
             })}
         </Space>
     )
 }
 
-export const Title = TitleTemplate.bind({})
+export const Title = Template.bind({})
