@@ -65,6 +65,10 @@ function extractAndDadatifyAddressMeta (addressMeta) {
             data = get(rawData, 'data', {})
             unrestricted_value = String(get(rawData, 'unrestricted_value'))
             break
+        case 'injections':
+            data = get(rawData, 'data', {})
+            unrestricted_value = String(get(rawData, 'unrestricted_value'))
+            break
         case 'google':
             data = {
                 // todo(AleX83Xpert) convert google raw data to dadata format
@@ -122,7 +126,9 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
             const client = conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
                 ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
-            const result = await client.search(resolvedData[addressFieldName])
+            const results = await client.search(resolvedData[addressFieldName])
+
+            const result = results[0]
 
             resolvedData[getSourceFieldName(addressFieldName)] = resolvedData[addressFieldName]
             resolvedData[addressFieldName] = get(result, 'address')
