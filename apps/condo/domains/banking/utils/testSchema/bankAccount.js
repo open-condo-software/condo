@@ -1,7 +1,7 @@
 const faker = require('faker')
 
-const { getTinControlSumRU } = require('@condo/domains/banking/utils/validate/tin.utils')
-const { RU_NUMBER_WEIGHTS } = require('@condo/domains/banking/utils/validate/constants')
+const { RU_NUMBER_WEIGHTS, getRuTinControlSum } = require('@condo/domains/banking/utils/validate/countrySpecificValidators/ru.validator')
+
 
 function getRange (length) {
     return ({ min: Math.pow(10,length - 1), max: Math.pow(10, length) - 1 })
@@ -50,7 +50,7 @@ function createValidRuRoutingNumber () {
 function createValidRuTin10 () {
     const tin = faker.datatype.number(getRange(10)).toString()
 
-    const lastNumber = getTinControlSumRU(tin)
+    const lastNumber = getRuTinControlSum(tin)
 
     return tin.replace(/.$/, lastNumber)
 }
@@ -58,8 +58,8 @@ function createValidRuTin10 () {
 function createValidRuTin12 () {
     const tin = faker.datatype.number(getRange(11)).toString()
 
-    const penultNumber = getTinControlSumRU(tin)
-    const lastNumber = getTinControlSumRU(tin + penultNumber)
+    const penultNumber = getRuTinControlSum(tin)
+    const lastNumber = getRuTinControlSum(tin + penultNumber)
 
     return tin.replace(/.$/, penultNumber) + lastNumber
 }

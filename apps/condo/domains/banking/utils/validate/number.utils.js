@@ -10,40 +10,12 @@
  */
 
 const { validateRoutingNumber } = require('@condo/domains/banking/utils/validate/routingNumber.utils')
-const { RU_NUMBER_WEIGHTS } = require('@condo/domains/banking/utils/validate/constants')
+const { getCountrySpecificValidator } = require('@condo/domains/banking/utils/validate/countrySpecificValidators')
 
 const EMPTY = 'Number is empty'
 const NOT_NUMERIC = 'Number can contain only digits'
 const WRONG_LENGTH = 'Number length was expected to be 20, but received '
 
-const COUNTRY_SPECIFIC_VALIDATORS = {
-    /**
-     * For RU number:
-     * 1) Сhecking checksum verification for number
-     *
-     * Example:
-     * number - 50286516400000008106
-     * routing number - 823397286
-     *
-     * @param {string} number - BankAccount number
-     * @param {string} routingNumber - Bic
-     * @param {[]} errors
-     */
-    'ru': (number, routingNumber, errors) => {
-        const RU_CONTROL_SUM_FAILED = 'Control sum is not valid for number'
-
-        const controlString = routingNumber.substr(-3) + number
-
-        let controlSum = 0
-        for (const i in RU_NUMBER_WEIGHTS) {
-            controlSum += (RU_NUMBER_WEIGHTS[i] * controlString[i]) % 10
-        }
-
-        if (controlSum % 10 !== 0) {
-            errors.push(RU_CONTROL_SUM_FAILED)
-        }
-    },
-}
 
 const validateNumber = (number, routingNumber, country) => {
     const errors = []
@@ -63,8 +35,7 @@ const validateNumber = (number, routingNumber, country) => {
         errors.push(WRONG_LENGTH + numberWithoutSpaces.length)
     }
 
-    const countrySpecificValidator = COUNTRY_SPECIFIC_VALIDATORS[country]
-    if (countrySpecificValidator) { countrySpecificValidator(numberWithoutSpaces, routingNumberWithoutSpaces, errors) }
+    getCountrySpecificValidator('number', country)(numberWithoutSpaces, routingNumberWithoutSpaces, errors)
 
     return {
         result: !errors.length,
