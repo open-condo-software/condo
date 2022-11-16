@@ -1,7 +1,7 @@
 const faker = require('faker')
 
 const { getTinControlSumRU } = require('@condo/domains/banking/utils/validate/tin.utils')
-const { RU_NUMBER_WEIGHTS } = require('@condo/domains/banking/utils/validate/number.utils')
+const { RU_NUMBER_WEIGHTS } = require('@condo/domains/banking/utils/validate/constants')
 
 function getRange (length) {
     return ({ min: Math.pow(10,length - 1), max: Math.pow(10, length) - 1 })
