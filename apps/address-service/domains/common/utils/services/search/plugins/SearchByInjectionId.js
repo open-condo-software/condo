@@ -11,6 +11,11 @@ const SEPARATOR = ':'
 
 class SearchByInjectionId extends AbstractSearchPlugin {
 
+    /**
+     * @param {String} s
+     * @param {SearchPluginParams} params
+     * @returns {boolean}
+     */
     isEnabled (s, params) {
         const [type, id] = s.split(SEPARATOR, 2)
 
@@ -18,7 +23,7 @@ class SearchByInjectionId extends AbstractSearchPlugin {
     }
 
     /**
-     * @param s
+     * @param {String} s
      * @returns {Promise<Object[]>}
      */
     async search (s) {
