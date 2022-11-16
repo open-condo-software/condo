@@ -9,8 +9,7 @@ import { Gutter } from 'antd/lib/grid/row'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
-import { convertDurationToDays, getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 import { TicketFormItem } from './index'
 
@@ -20,8 +19,6 @@ const AUTO_DETECTED_DEADLINE_ROW_STYLE = { height: '100%' }
 const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const DATE_PICKER_STYLE = { width: '100%' }
 const AUTO_COMPLETE_MESSAGE_STYLE: CSSProperties = { whiteSpace:'nowrap' }
-
-const DEFAULT_DEADLINE_VALUE = dayjs().add(convertDurationToDays(DEFAULT_TICKET_DEADLINE_DURATION), 'days')
 
 export const TicketDeadlineField = ({ initialValues, form }) => {
     const intl = useIntl()
@@ -42,9 +39,12 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
         [isEmergency, isPaid, isWarranty, ticketSetting]
     )
 
+    const createdAt = get(initialValues, 'createdAt', null)
+
     const autoDeadlineValue = useMemo(() => {
-        return isNull(autoAddDays) ? autoAddDays : dayjs().add(autoAddDays, 'day')
-    }, [autoAddDays])
+        const startDate = createdAt ? dayjs(createdAt) : dayjs()
+        return isNull(autoAddDays) ? autoAddDays : startDate.add(autoAddDays, 'day')
+    }, [autoAddDays, createdAt])
 
     const initialDeadline = get(initialValues, 'deadline', null)
     const isShowDeadline = isExistedTicket && !isTouchedTicketType
@@ -86,12 +86,14 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
         } else {
             form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isExistedTicket, initialDeadline])
 
     useEffect(() => {
         if (!isExistedTicket || isTouchedTicketType) {
             form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isExistedTicket, isTouchedTicketType, ticketSetting])
 
     return (
