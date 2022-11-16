@@ -3,7 +3,7 @@
  */
 
 const { get } = require('lodash')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
