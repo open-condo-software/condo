@@ -11,8 +11,6 @@ import {
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { BankCostItem as BankCostItemGQL } from '@condo/domains/banking/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
-
 const {
     useObject,
     useObjects,
