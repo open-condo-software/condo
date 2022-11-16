@@ -5,9 +5,9 @@
 const { get } = require('lodash')
 
 const { Text, DateTimeUtc, Select } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { Json } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 
 const access = require('@condo/domains/banking/access/BankAccount')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
