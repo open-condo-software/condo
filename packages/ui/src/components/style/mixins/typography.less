@@ -7,8 +7,14 @@
   letter-spacing: @letter-spacing;
 }
 
+.condo-typography-header(@font-family, @font-weight, @line-height, @font-size, @letter-spacing, @paragraph-spacing) {
+  .condo-typography-layer(@font-family, @font-weight, @line-height, @font-size, @letter-spacing, @paragraph-spacing);
+
+  margin: 0;
+}
+
 .condo-typography-h1() {
-  .condo-typography-layer(
+  .condo-typography-header(
     @condo-global-typography-h1-font-family,
     @condo-global-typography-h1-font-weight,
     @condo-global-typography-h1-line-height,
@@ -19,7 +25,7 @@
 }
 
 .condo-typography-h2() {
-  .condo-typography-layer(
+  .condo-typography-header(
     @condo-global-typography-h2-font-family,
     @condo-global-typography-h2-font-weight,
     @condo-global-typography-h2-line-height,
@@ -30,7 +36,7 @@
 }
 
 .condo-typography-h3() {
-  .condo-typography-layer(
+  .condo-typography-header(
     @condo-global-typography-h3-font-family,
     @condo-global-typography-h3-font-weight,
     @condo-global-typography-h3-line-height,
@@ -41,7 +47,7 @@
 }
 
 .condo-typography-h4() {
-  .condo-typography-layer(
+  .condo-typography-header(
     @condo-global-typography-h4-font-family,
     @condo-global-typography-h4-font-weight,
     @condo-global-typography-h4-line-height,
@@ -52,7 +58,7 @@
 }
 
 .condo-typography-h5() {
-  .condo-typography-layer(
+  .condo-typography-header(
     @condo-global-typography-h5-font-family,
     @condo-global-typography-h5-font-weight,
     @condo-global-typography-h5-line-height,
@@ -63,7 +69,7 @@
 }
 
 .condo-typography-h6() {
-  .condo-typography-layer(
+  .condo-typography-header(
     @condo-global-typography-h6-font-family,
     @condo-global-typography-h6-font-weight,
     @condo-global-typography-h6-line-height,

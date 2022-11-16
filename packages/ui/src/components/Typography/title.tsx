@@ -19,7 +19,7 @@ const Title = React.forwardRef<HTMLElement, TypographyTitleProps>((props, ref) =
         // TODO(DOMA-4681): Remove TYPOGRAPHY_CLASS_PREFIX after next antd release including this patch: https://github.com/ant-design/ant-design/pull/38586
         TYPOGRAPHY_CLASS_PREFIX,
         {
-            [`${TYPOGRAPHY_CLASS_PREFIX}-inverted`]: type === 'inverted',
+            [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
         }
     )
 
