@@ -68,6 +68,7 @@ export interface IContactEditorProps {
     unitType?: BuildingUnitSubType,
     allowLandLine?: boolean,
     disabled?: boolean
+    initialQuery
     hasNotResidentTab?: boolean
 }
 
@@ -118,7 +119,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         unitName,
         unitType,
         hasNotResidentTab = true,
+        initialQuery,
     } = props
+
+    const isNotContact = useMemo(() => !initialValue.id && initialValue.phone, [initialValue.id, initialValue.phone])
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
@@ -133,14 +137,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [activeTab, setActiveTab] = useState<CONTACT_TYPE>()
 
     const initialContactsQuery = useMemo(() => ({
-        organization: { id: organization },
+        ...initialQuery,
         property: { id: property ? property : null },
         unitName: unitName ? unitName : undefined,
         unitType: unitType ? unitType : undefined,
-    }), [organization, property, unitName, unitType])
+    }), [initialQuery, property, unitName, unitType])
 
     const initialEmployeesQuery = useMemo(() => ({
-        organization: { id: organization },
+        ...initialQuery,
     }), [organization])
 
     const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])

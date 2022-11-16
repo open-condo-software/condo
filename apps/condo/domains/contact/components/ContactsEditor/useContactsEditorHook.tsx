@@ -3,17 +3,16 @@ import { ContactsEditor, IContactEditorProps } from './index'
 import { OrganizationEmployeeRole } from '@app/condo/schema'
 
 interface IContactsEditorHookArgs {
-    // Organization scope for contacts autocomplete and new contact, that can be created
-    organization: string,
     role?: OrganizationEmployeeRole,
     allowLandLine?: boolean,
+    initialQuery?: unknown
 }
 
 interface IContactsEditorHookResult {
     ContactsEditorComponent: React.FC<IContactEditorProps>
 }
 
-export const useContactsEditorHook = ({ organization, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ initialQuery, organization, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     const shouldCreateContactRef = useRef(shouldCreateContact)
@@ -25,11 +24,6 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
         setShouldCreateContact(isNew)
     }
 
-    const organizationRef = useRef(organization)
-    useEffect(() => {
-        organizationRef.current = organization
-    }, [organization])
-
     const roleRef = useRef(role)
     useEffect(() => {
         roleRef.current = role
@@ -40,9 +34,9 @@ export const useContactsEditorHook = ({ organization, role, allowLandLine }: ICo
             <ContactsEditor
                 {...props}
                 role={roleRef.current}
-                organization={organizationRef.current}
                 onChange={handleChangeContact}
                 allowLandLine={allowLandLine}
+                initialQuery={initialQuery}
             />
         )
         return ContactsEditorWrapper
