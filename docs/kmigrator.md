@@ -138,7 +138,7 @@ You can also create an `index`:
 indexes: [
     {
         type: 'BloomIndex',
-        expressions: '["phone", "email"]',
+        fields: '["phone", "email"]',
         name: 'phone_email_idx',
     },
 ],
