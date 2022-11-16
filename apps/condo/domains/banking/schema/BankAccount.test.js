@@ -15,6 +15,8 @@ const { BankAccount, createTestBankAccount, updateTestBankAccount } = require('@
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 
+const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
+
 describe('BankAccount', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
@@ -178,32 +180,6 @@ describe('BankAccount', () => {
                 expect(updatedObj.bankName).toEqual('NewBankName')
             })
 
-            test('admin can update approved fields', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
-
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
-                const [ updatedObj ] = await updateTestBankAccount(admin, createdObj.id, { approvedBy: { connect: { id: admin.user.id } } })
-
-                expect(createdObj.id).toEqual(updatedObj.id)
-                expect(createdObj.approvedAt).toBeNull()
-                expect(createdObj.approvedBy).toBeNull()
-                expect(updatedObj.approvedBy.id).toEqual(admin.user.id)
-            })
-
-            test('when admin updates, approved fields drop', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
-
-                const [ createdObj ] = await createTestBankAccount(admin, organization, { approvedBy: { connect: { id: admin.user.id } } })
-                const [ updatedObj ] = await updateTestBankAccount(admin, createdObj.id, { bankName: 'NewBankName' })
-
-                expect(createdObj.id).toEqual(updatedObj.id)
-                expect(createdObj.approvedBy.id).toEqual(admin.user.id)
-                expect(updatedObj.approvedBy).toBeNull()
-                expect(updatedObj.bankName).toEqual('NewBankName')
-            })
-
             test('support can', async () => {
                 const support = await makeClientWithSupportUser()
                 const [organization] = await createTestOrganization(support)
@@ -215,19 +191,6 @@ describe('BankAccount', () => {
                 expect(updatedObj.bankName).toEqual('NewBankName')
             })
 
-            test('support can update approved fields', async () => {
-                const support = await makeClientWithSupportUser()
-                const [organization] = await createTestOrganization(support)
-
-                const [ createdObj ] = await createTestBankAccount(support, organization)
-                const [ updatedObj ] = await updateTestBankAccount(support, createdObj.id, { approvedBy: { connect: { id: support.user.id } } })
-
-                expect(createdObj.id).toEqual(updatedObj.id)
-                expect(createdObj.approvedAt).toBeNull()
-                expect(createdObj.approvedBy).toBeNull()
-                expect(updatedObj.approvedBy.id).toEqual(support.user.id)
-            })
-
             test('user can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -237,30 +200,6 @@ describe('BankAccount', () => {
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBankAccount(user,
                     createdObj.id, { bankName: 'NewBankName' })
-                })
-            })
-
-            test('user can drop isApproved field', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const user = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(admin)
-
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
-
-                const [ updatedObj ] = await updateTestBankAccount(user, createdObj.id, { approvedBy: { disconnectAll: true } })
-
-                expect(updatedObj.approvedBy).toBeNull()
-            })
-
-            test('user can\'t update isApproved field', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const user = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(admin)
-
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBankAccount(user,
-                    createdObj.id, { approvedBy: { connect: { id: user.user.id } } })
                 })
             })
 
@@ -310,6 +249,107 @@ describe('BankAccount', () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankAccount.delete(user, createdObj.id)
                 })
+            })
+        })
+    })
+
+    describe('fields', () => {
+        describe('approvedAt', () => {
+            test('can create approved bankAccount', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const [createdObj] = await createTestBankAccount(admin, organization, { approvedAt: 'true'  })
+
+                expect(createdObj.approvedAt).toMatch(ISO_8601_FULL)
+                expect(createdObj.approvedBy.id).toEqual(admin.user.id)
+            })
+
+            test('setting approvedAt automatically sets approvedBy', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [updatedObj] = await updateTestBankAccount(admin, createdObj.id, { approvedAt: 'true'  })
+
+                expect(createdObj.id).toEqual(updatedObj.id)
+                expect(createdObj.approvedAt).toBeNull()
+                expect(createdObj.approvedBy).toBeNull()
+
+                expect(updatedObj.approvedAt).toMatch(ISO_8601_FULL)
+                expect(updatedObj.approvedBy.id).toEqual(admin.user.id)
+            })
+
+            test('when model is updated, approvedAt and approvedBy are set to NULL', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const [createdObj] = await createTestBankAccount(admin, organization, { approvedAt: 'true' })
+                const [updatedObj] = await updateTestBankAccount(admin, createdObj.id, { bankName: 'NewBankName' })
+
+                expect(createdObj.id).toEqual(updatedObj.id)
+                expect(createdObj.approvedBy.id).toEqual(admin.user.id)
+
+                expect(updatedObj.approvedBy).toBeNull()
+                expect(updatedObj.approvedAt).toBeNull()
+                expect(updatedObj.bankName).toEqual('NewBankName')
+            })
+
+            test('support can update approved fields', async () => {
+                const support = await makeClientWithSupportUser()
+                const [organization] = await createTestOrganization(support)
+
+                const [createdObj] = await createTestBankAccount(support, organization)
+                const [updatedObj] = await updateTestBankAccount(support, createdObj.id, { approvedAt: 'true' })
+
+                expect(createdObj.id).toEqual(updatedObj.id)
+                expect(createdObj.approvedAt).toBeNull()
+                expect(createdObj.approvedBy).toBeNull()
+                expect(updatedObj.approvedBy.id).toEqual(support.user.id)
+            })
+
+            test('user can\'t update isApproved field', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+
+                const [createdObj] = await createTestBankAccount(admin, organization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestBankAccount(user, createdObj.id, { approvedAt: 'true' })
+                })
+            })
+        })
+
+        describe('approvedBy', () => {
+            test('approvedBy field is not creatable', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                await catchErrorFrom(
+                    async () => {
+                        await createTestBankAccount(admin, organization, { approvedBy: { connect: { id: admin.user.id } } })
+                    }, (e) => {
+                        const msg = e.errors[0].message
+                        expect(msg).toContain('Field "approvedBy" is not defined by type "BankAccountCreateInput"')
+                    }
+                )
+            })
+
+            test('approvedBy field is not updatable', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [organization] = await createTestOrganization(admin)
+
+                const [createdObj] = await createTestBankAccount(admin, organization)
+
+                await catchErrorFrom(
+                    async () => {
+                        await updateTestBankAccount(admin, createdObj.id, { approvedBy: { connect: { id: admin.user.id } } })
+                    }, (e) => {
+                        const msg = e.errors[0].message
+                        expect(msg).toContain('Field "approvedBy" is not defined by type "BankAccountUpdateInput"')
+                    }
+                )
             })
         })
     })

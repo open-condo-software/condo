@@ -12,7 +12,7 @@ const {
 /**
  * BankAccount entity can be read either by:
  * 1. By admin or support
- * 2. Organization employee (without settings / state)
+ * 2. Organization employee
  */
 async function canReadBankAccounts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -27,6 +27,10 @@ async function canReadBankAccounts ({ authentication: { item: user } }) {
     }
 }
 
+/**
+ * BankAccount can be managed only by:
+ * 1. Admin or support
+ */
 async function canManageBankAccounts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -35,13 +39,11 @@ async function canManageBankAccounts ({ authentication: { item: user } }) {
     return false
 }
 
+/**
+ * IsApproved can be set to true only by support or admin
+ */
 async function canManageIsApprovedField ({ authentication: { item: user }, originalInput }) {
     if (user.isAdmin || user.isSupport) return true
-
-    // If user is not support and admin, then he only can drop isApproved fields
-    if (!get(originalInput, 'approvedAt') && !get(originalInput, 'approvedBy')) {
-        return true
-    }
 
     return false
 }
