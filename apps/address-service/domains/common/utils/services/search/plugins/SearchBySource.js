@@ -4,7 +4,7 @@ const { Address } = require('@address-service/domains/address/utils/serverSchema
 class SearchBySource extends AbstractSearchPlugin {
 
     /**
-     * @param s
+     * @param {String} s
      * @returns {Promise<Object[]>}
      */
     async search (s) {

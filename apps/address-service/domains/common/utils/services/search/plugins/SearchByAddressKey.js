@@ -5,6 +5,11 @@ const SEPARATOR = ':'
 
 class SearchByAddressKey extends AbstractSearchPlugin {
 
+    /**
+     * @param {String} s
+     * @param {SearchPluginParams} params
+     * @returns {boolean}
+     */
     isEnabled (s, params) {
         const [type, addressKey] = s.split(SEPARATOR, 2)
 
@@ -12,7 +17,7 @@ class SearchByAddressKey extends AbstractSearchPlugin {
     }
 
     /**
-     * @param s
+     * @param {String} s
      * @returns {Promise<Object[]>}
      */
     async search (s) {

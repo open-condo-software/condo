@@ -7,7 +7,7 @@ const get = require('lodash/get')
 class SearchByProvider extends AbstractSearchPlugin {
 
     /**
-     * @param s
+     * @param {String} s
      * @returns {Promise<Object[]>}
      */
     async search (s) {
