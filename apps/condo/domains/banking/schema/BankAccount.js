@@ -145,7 +145,7 @@ const BankAccount = new GQLListSchema('BankAccount', {
         },
 
         meta: {
-            schemaDoc: 'Structured metadata',
+            schemaDoc: 'Structured non-typed metadata, can be used by mini-apps or external services to store information',
             type: Json,
             isRequired: false,
         },
