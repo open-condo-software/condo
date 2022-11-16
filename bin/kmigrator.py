@@ -223,16 +223,22 @@ def to_meta(value):
     indexes = ctx.get('indexes')
     if indexes:
         code.append('\\n        indexes = [')
-        for constraint in indexes:
-            type_ = constraint['type']
-            expressions = constraint['expressions']
-            if not expressions:
-                raise Error('no expressions!')
-            if expressions[0] != '[' or expressions[-1] != ']':
-                raise Error('wrong expressions format! require [ ... ]')
-            code.append('            ' + type_ + '(*' + expressions + ', name="' + constraint['name'] + '"),')
+        for index in indexes:
+            code.append('            ' + index_to_code(index))
         code.append('        ]')
     return '\\n'.join(code)
+
+
+def index_to_code(index, options=['fields', 'opclasses', 'name']):
+    if 'type' not in index:
+        raise Error('no type!')
+    code = []
+    if 'expressions' in index:
+        code.append('*' + repr(index['expressions']))
+    for option in options:
+        if option in index:
+            code.append('{}={}'.format(option, repr(index[option])))
+    return '{}({}),'.format(index['type'], ', '.join(code))
 
 
 def main():
