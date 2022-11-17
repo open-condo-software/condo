@@ -33,11 +33,11 @@ const logInvalidInnOrganization = async ({ context, organization, innValue }) =>
         })
 
         const contactsDescriptions = employees
-        .filter(employee => employee.deletedAt == null && !employee.isBlocked)
-        .map(employee => {
-            return `${ get(employee, 'role.name') } (${ employee.name }): email=${ employee.email }, phone=${ employee.phone }`
-        })
-        .join('; ')
+            .filter(employee => employee.deletedAt == null && !employee.isBlocked)
+            .map(employee => {
+                return `${ get(employee, 'role.name') } (${ employee.name }): email=${ employee.email }, phone=${ employee.phone }`
+            })
+            .join('; ')
 
 
         log(
@@ -85,18 +85,18 @@ const migrateOrganizationTinField = async () => {
                 .map(async organization => {
                 // let's assume all organizations at this point has meta.inn values
                 // now we will validate inn and set it to the organization.tin in case if inn are valid
-                const innValue = organization.meta.inn.toString().trim()
-                const isValid = isValidTin(innValue, organization.country)
+                    const innValue = organization.meta.inn.toString().trim()
+                    const isValid = isValidTin(innValue, organization.country)
 
-                // set valid value
-                if (isValid) {
-                    organization.tin = innValue
-                    state.validInnFieldCount++
-                } else {
-                    state.invalidInnFieldCount++
-                    await logInvalidInnOrganization({ context, organization, innValue })
-                }
-            })
+                    // set valid value
+                    if (isValid) {
+                        organization.tin = innValue
+                        state.validInnFieldCount++
+                    } else {
+                        state.invalidInnFieldCount++
+                        await logInvalidInnOrganization({ context, organization, innValue })
+                    }
+                })
         )
 
         // the last step - produce all changes to the DB
@@ -106,16 +106,16 @@ const migrateOrganizationTinField = async () => {
                 // don't touch empty meta organizations, since we don't proceed them at all
                 .filter(organization => organization.meta != null)
                 .map(async (organization) => {
-                const { id, tin } = organization
+                    const { id, tin } = organization
 
-                if (tin == null) {
-                    state.emptyInnFieldCount++
-                }
+                    if (tin == null) {
+                        state.emptyInnFieldCount++
+                    }
 
-                return await knex('Organization')
-                .update({ tin })
-                .where({ id })
-            })
+                    return await knex('Organization')
+                        .update({ tin })
+                        .where({ id })
+                })
         )
 
         // check if we have more pages
