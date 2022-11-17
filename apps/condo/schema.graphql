@@ -12217,8 +12217,10 @@ type BankAccountHistoryRecord {
   _label_: String
   organization: String
   tin: String
+  tinMeta: JSON
   country: String
   routingNumber: String
+  routingNumberMeta: JSON
   number: String
   currencyCode: String
   approvedAt: String
@@ -12227,8 +12229,6 @@ type BankAccountHistoryRecord {
   territoryCode: String
   bankName: String
   meta: JSON
-  tinMeta: JSON
-  routingNumberMeta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12269,6 +12269,10 @@ input BankAccountHistoryRecordWhereInput {
   tin_not_ends_with_i: String
   tin_in: [String]
   tin_not_in: [String]
+  tinMeta: JSON
+  tinMeta_not: JSON
+  tinMeta_in: [JSON]
+  tinMeta_not_in: [JSON]
   country: String
   country_not: String
   country_contains: String
@@ -12305,6 +12309,10 @@ input BankAccountHistoryRecordWhereInput {
   routingNumber_not_ends_with_i: String
   routingNumber_in: [String]
   routingNumber_not_in: [String]
+  routingNumberMeta: JSON
+  routingNumberMeta_not: JSON
+  routingNumberMeta_in: [JSON]
+  routingNumberMeta_not_in: [JSON]
   number: String
   number_not: String
   number_contains: String
@@ -12411,14 +12419,6 @@ input BankAccountHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  tinMeta: JSON
-  tinMeta_not: JSON
-  tinMeta_in: [JSON]
-  tinMeta_not_in: [JSON]
-  routingNumberMeta: JSON
-  routingNumberMeta_not: JSON
-  routingNumberMeta_in: [JSON]
-  routingNumberMeta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12541,8 +12541,10 @@ enum SortBankAccountHistoryRecordsBy {
 input BankAccountHistoryRecordUpdateInput {
   organization: String
   tin: String
+  tinMeta: JSON
   country: String
   routingNumber: String
+  routingNumberMeta: JSON
   number: String
   currencyCode: String
   approvedAt: String
@@ -12551,8 +12553,6 @@ input BankAccountHistoryRecordUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
-  tinMeta: JSON
-  routingNumberMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12575,8 +12575,10 @@ input BankAccountHistoryRecordsUpdateInput {
 input BankAccountHistoryRecordCreateInput {
   organization: String
   tin: String
+  tinMeta: JSON
   country: String
   routingNumber: String
+  routingNumberMeta: JSON
   number: String
   currencyCode: String
   approvedAt: String
@@ -12585,8 +12587,6 @@ input BankAccountHistoryRecordCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
-  tinMeta: JSON
-  routingNumberMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12610,7 +12610,7 @@ enum BankAccountCountryType {
   ru
 }
 
-""" Bank account, that will have transactions, pulled from various integrated data sources. Transactions will be marked by categories of incomes and expenses. 
+""" Bank account, that will have transactions, pulled from various integrated data sources 
 """
 type BankAccount {
   """
@@ -12629,11 +12629,17 @@ type BankAccount {
   """ Tax Identification Number """
   tin: String
 
+  """ Structured metadata found by tin """
+  tinMeta: JSON
+
   """ Country where the bank is located """
   country: BankAccountCountryType
 
   """ The routing transit number for the bank account. """
   routingNumber: String
+
+  """ Structured metadata found by routing number """
+  routingNumberMeta: JSON
 
   """ Bank account number """
   number: String
@@ -12651,20 +12657,16 @@ type BankAccount {
   """
   importId: String
 
-  """ Location code (Classifier of Territories of Municipal Units - OKTMO) """
+  """ Location of the holder of this bank account. It depends on a country. In Russia it is OKTMO 
+  """
   territoryCode: String
 
   """ Bank name """
   bankName: String
 
-  """ Structured metadata """
+  """ Structured non-typed metadata, can be used by mini-apps or external services to store information 
+  """
   meta: JSON
-
-  """ Structured metadata found by tin """
-  tinMeta: JSON
-
-  """ Structured metadata found by routing number """
-  routingNumberMeta: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12711,6 +12713,10 @@ input BankAccountWhereInput {
   tin_not_ends_with_i: String
   tin_in: [String]
   tin_not_in: [String]
+  tinMeta: JSON
+  tinMeta_not: JSON
+  tinMeta_in: [JSON]
+  tinMeta_not_in: [JSON]
   country: BankAccountCountryType
   country_not: BankAccountCountryType
   country_in: [BankAccountCountryType]
@@ -12733,6 +12739,10 @@ input BankAccountWhereInput {
   routingNumber_not_ends_with_i: String
   routingNumber_in: [String]
   routingNumber_not_in: [String]
+  routingNumberMeta: JSON
+  routingNumberMeta_not: JSON
+  routingNumberMeta_in: [JSON]
+  routingNumberMeta_not_in: [JSON]
   number: String
   number_not: String
   number_contains: String
@@ -12823,14 +12833,6 @@ input BankAccountWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  tinMeta: JSON
-  tinMeta_not: JSON
-  tinMeta_in: [JSON]
-  tinMeta_not_in: [JSON]
-  routingNumberMeta: JSON
-  routingNumberMeta_not: JSON
-  routingNumberMeta_in: [JSON]
-  routingNumberMeta_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12937,8 +12939,10 @@ enum SortBankAccountsBy {
 input BankAccountUpdateInput {
   organization: OrganizationRelateToOneInput
   tin: String
+  tinMeta: JSON
   country: BankAccountCountryType
   routingNumber: String
+  routingNumberMeta: JSON
   number: String
   currencyCode: String
   approvedAt: String
@@ -12947,8 +12951,6 @@ input BankAccountUpdateInput {
   territoryCode: String
   bankName: String
   meta: JSON
-  tinMeta: JSON
-  routingNumberMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12968,8 +12970,10 @@ input BankAccountsUpdateInput {
 input BankAccountCreateInput {
   organization: OrganizationRelateToOneInput
   tin: String
+  tinMeta: JSON
   country: BankAccountCountryType
   routingNumber: String
+  routingNumberMeta: JSON
   number: String
   currencyCode: String
   approvedAt: String
@@ -12978,8 +12982,6 @@ input BankAccountCreateInput {
   territoryCode: String
   bankName: String
   meta: JSON
-  tinMeta: JSON
-  routingNumberMeta: JSON
   v: Int
   createdAt: String
   updatedAt: String
