@@ -1,5 +1,6 @@
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
+import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -23,7 +24,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { PlusOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, SortTicketsBy } from '@app/condo/schema'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 
@@ -31,12 +31,16 @@ const StyledTabs = styled(Tabs)`
   &.ant-tabs-top > .ant-tabs-nav::before {
     border-bottom: none;
   }
-  
-  & .ant-tabs-nav .ant-tabs-nav-wrap {
+
+  & .ant-tabs-nav {
     white-space: initial;
   }
 
   & .ant-tabs-nav-list .ant-tabs-ink-bar {
+    display: none;
+  }
+  
+  & .ant-tabs-nav-more {
     display: none;
   }
 `
@@ -48,7 +52,7 @@ const StyledClientTab = styled.div<{ active: boolean }>`
   border-radius: 12px;
   background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
   padding: 1px;
-  
+
   & > div {
     border-radius: 11px;
     height: 100%;
@@ -109,6 +113,7 @@ const ClientTabTitle = ({ active, type, property, unitName }) => {
 
 const StyledLink = styled.span`
   color: ${colors.black};
+
   &:hover {
     color: ${colors.black};
     cursor: pointer;
@@ -138,7 +143,7 @@ const ClientContent = ({ lastTicket }) => {
                     <Typography.Title level={3}>{name}</Typography.Title>
                     {
                         ticketContact && (
-                            <TicketResidentFeatures ticket={lastTicket} />
+                            <TicketResidentFeatures ticket={lastTicket}/>
                         )
                     }
                 </Row>
@@ -156,7 +161,13 @@ const ClientContent = ({ lastTicket }) => {
     )
 }
 
-const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreateClick, canManageContacts, handleContactEditClick = null }) => {
+const ClientCardTabContent = ({
+    property,
+    searchTicketsQuery,
+    handleTicketCreateClick,
+    canManageContacts,
+    handleContactEditClick = null,
+}) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const ContactTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.contactTickets' })
@@ -179,7 +190,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
     })
     const lastCreatedTicket = get(tickets, 0)
 
-    const columns = useClientCardTicketTableColumns()
+    const columns = useClientCardTicketTableColumns(tickets)
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
         await updateQuery(router, { property: [property.id] }, null, null, '/ticket')
@@ -203,7 +214,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
                         </StyledLink>
                     </Col>
                     <Col span={24}>
-                        <ClientContent lastTicket={lastCreatedTicket} />
+                        <ClientContent lastTicket={lastCreatedTicket}/>
                     </Col>
                     <Col span={24}>
                         <TicketPropertyHintCard
@@ -366,7 +377,7 @@ const ClientTabContent = ({ type, phone, property, unitName, canManageContacts }
     )
 }
 
-const StyledAddAddressTab = styled.div<{ active }>`
+const StyledAddAddressButton = styled(Button)<{ active }>`
   width: 258px;
   height: 150px;
   box-shadow: ${shadows.small};
@@ -374,15 +385,28 @@ const StyledAddAddressTab = styled.div<{ active }>`
   border: ${props => !props.active ? `1px dashed ${colors.inputBorderHover}` : 'inherit'};
   text-align: center;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  
+  font-weight: 600;
+
   & .anticon {
     margin: 0;
   }
 `
 
-const CREATE_CONTACT_LINK_STYLE: CSSProperties = { color: colors.black }
+const PlusIconWrapper = styled.div<{ active }>`
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  background-color: ${props => props.active ? colors.black : colors.backgroundLightGrey};
+  color: ${props => props.active ? colors.white : colors.black};
+  transition: inherit;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
 const ADD_ADDRESS_TEXT_STYLE: CSSProperties = { marginTop: '12px' }
 
 const AddAddressTabTitle = () => {
@@ -397,14 +421,14 @@ const AddAddressTabTitle = () => {
         setActive(false)
     }, [])
     return (
-        <StyledAddAddressTab active={active} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-            <Typography.Link href='/contact/create' style={CREATE_CONTACT_LINK_STYLE}>
-                <Button type='sberDefaultGradient' icon={<PlusOutlined />} shape='circle'/>
-                <Typography.Paragraph style={ADD_ADDRESS_TEXT_STYLE}>
-                    {AddAddressMessage}
-                </Typography.Paragraph>
-            </Typography.Link>
-        </StyledAddAddressTab>
+        <StyledAddAddressButton active={active} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+            <PlusIconWrapper active={active}>
+                <PlusIcon />
+            </PlusIconWrapper>
+            <Typography.Paragraph style={ADD_ADDRESS_TEXT_STYLE}>
+                {AddAddressMessage}
+            </Typography.Paragraph>
+        </StyledAddAddressButton>
     )
 }
 
@@ -419,7 +443,17 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
 
     const [activeTab, setActiveTab] = useState(tab)
 
-    const handleTabChange = useCallback((newKey) => {
+    const handleTabChange = useCallback(async (newKey) => {
+        if (newKey === 'addAddress') {
+            return await redirectToForm({
+                router,
+                formRoute: '/contact/create',
+                initialValues: {
+                    phone: phoneNumber,
+                },
+            })
+        }
+
         setActiveTab(newKey)
         const newRoute = `${router.route.replace('[number]', phoneNumber)}?tab=${newKey}`
 
@@ -446,7 +480,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
                             >
                                 {
                                     canManageContacts && (
-                                        <Tabs.TabPane tab={<AddAddressTabTitle />} key='addAddress' />
+                                        <Tabs.TabPane key='addAddress' tab={<AddAddressTabTitle/>}/>
                                     )
                                 }
                                 {
@@ -514,8 +548,16 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
     const notResidentTickets = tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id))
 
     const tabsData = useMemo(() => {
-        const contactsData = contacts.map(contact => ({ type: ClientType.Resident, property: contact.property, unitName: contact.unitName }))
-        const notResidentData = uniqBy(notResidentTickets.map(ticket => ({ type: ClientType.NotResident, property: ticket.property, unitName: ticket.unitName })), 'property.id')
+        const contactsData = contacts.map(contact => ({
+            type: ClientType.Resident,
+            property: contact.property,
+            unitName: contact.unitName,
+        }))
+        const notResidentData = uniqBy(notResidentTickets.map(ticket => ({
+            type: ClientType.NotResident,
+            property: ticket.property,
+            unitName: ticket.unitName,
+        })), 'property.id')
 
         return [...contactsData, ...notResidentData]
     }, [contacts, notResidentTickets])

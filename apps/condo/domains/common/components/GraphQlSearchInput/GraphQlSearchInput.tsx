@@ -79,6 +79,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         keyField = 'value',
         onAllDataLoading,
         searchMoreFirst,
+        allowClear = true,
         ...restProps
     } = props
 
@@ -255,7 +256,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         <Select
             showSearch
             autoClearSearchValue={autoClearSearchValue}
-            allowClear={true}
+            allowClear={allowClear}
             optionFilterProp='title'
             defaultActiveFirstOption={false}
             onSearch={handleSearch}
@@ -267,7 +268,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             placeholder={placeholder}
             loading={isInitialLoading || isSearchLoading || isSearchLoading}
             disabled={isDisabled}
-            notFoundContent={notFoundContent}
             {...restProps}
         >
             {renderedOptions}

@@ -139,7 +139,7 @@ const SearchByPhoneSelect = ({
             search={searchByPhoneFn}
             suffixIcon={<SearchOutlined style={SEARCH_ICON_STYLES}/>}
             showSearch={true}
-            clearIcon={null}
+            allowClear={false}
             style={SELECT_STYLES}
             placeholder={EnterPhoneMessage}
             notFoundContent={<NotFoundSearchByPhoneContent canManageContacts={canManageContacts} onSelect={onSelect} phone={phone} />}
