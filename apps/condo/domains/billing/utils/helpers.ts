@@ -3,6 +3,7 @@ import {
     FilterType,
     getDecimalFilter,
 } from '@condo/domains/common/utils/tables.utils'
+import { BillingCategory, BillingReceipt } from '../../../schema'
 
 
 export const getDecimalMoneyFilter = (dataIndex: DataIndexType, separator: string): FilterType => {
@@ -13,4 +14,8 @@ export const getDecimalMoneyFilter = (dataIndex: DataIndexType, separator: strin
         if (isNaN(Number(replaced))) return
         return defaultFilter(replaced)
     }
+}
+
+export interface IFilters extends Pick<BillingReceipt, 'category'> {
+    category?: BillingCategory
 }
