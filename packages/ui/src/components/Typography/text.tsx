@@ -19,21 +19,19 @@ export type TypographyTextProps = Omit<DefaultTextProps,
 
 const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref) => {
     const { type, size = 'lg', ...rest } = props
-    const className = classNames(
-        // TODO(DOMA-4681): Remove TYPOGRAPHY_CLASS_PREFIX after next antd release including this patch: https://github.com/ant-design/ant-design/pull/38586
-        TYPOGRAPHY_CLASS_PREFIX,
-        {
-            [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
-            [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
-        }
-    )
+    const className = classNames({
+        [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
+        [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
+    })
+    // NOTE: Used wrapper destructuring to explicitly pass component props, which is marked as internal in antd
+    const componentProps = { component: 'span' }
 
     return (
         <Base
             prefixCls={TYPOGRAPHY_CLASS_PREFIX}
             ref={ref}
-            component='span'
             className={className}
+            {...componentProps}
             {...rest}
         />
     )

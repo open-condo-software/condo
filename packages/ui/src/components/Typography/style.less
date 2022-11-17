@@ -9,16 +9,16 @@
   word-break: break-word;
 
   &,
-  &-lg {
-    .condo-typography-p1();
+  &-large {
+    .condo-typography-text-large();
   }
 
-  &-md {
-    .condo-typography-p2();
+  &-medium {
+    .condo-typography-text-medium();
   }
 
-  &-sm {
-    .condo-typography-p3();
+  &-small {
+    .condo-typography-text-small();
   }
 
   &-secondary {
@@ -79,16 +79,16 @@
     border-radius: @condo-global-border-radius-small;
   }
 
-  div&:not(:last-child),
-  p:not(:last-child) {
-    margin-bottom: @condo-global-typography-p1-paragraph-spacing;
+  div&:not(:last-of-type),
+  p:not(:last-of-type) {
+    margin-bottom: @condo-global-typography-text-l-paragraph-spacing;
 
-    &.condo-typography-md {
-      margin-bottom: @condo-global-typography-p2-paragraph-spacing;
+    &.condo-typography-medium {
+      margin-bottom: @condo-global-typography-text-m-paragraph-spacing;
     }
 
-    &.condo-typography-sm {
-      margin-bottom: @condo-global-typography-p3-paragraph-spacing;
+    &.condo-typography-small {
+      margin-bottom: @condo-global-typography-text-s-paragraph-spacing;
     }
   }
 
@@ -144,7 +144,7 @@
   a {
     .condo-link();
 
-    &:not(.condo-typography-lg, .condo-typography-md, .condo-typography-sm) {
+    &:not(.condo-typography-large, .condo-typography-medium, .condo-typography-small) {
       font-size: inherit;
     }
 

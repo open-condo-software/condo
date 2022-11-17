@@ -47,9 +47,9 @@ export default {
     argTypes: {
         children: { type: 'string' },
         size: {
-            defaultValue: 'lg',
-            options: [undefined, 'lg', 'md', 'sm'],
-            mapping: ['undefined', 'lg', 'md', 'sm'],
+            defaultValue: 'undefined',
+            options: [undefined, 'large', 'medium', 'small'],
+            mapping: ['undefined', 'large', 'medium', 'small'],
             control: 'select',
         },
     },
