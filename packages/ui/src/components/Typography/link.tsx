@@ -1,8 +1,8 @@
 import React from 'react'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
+import { TYPOGRAPHY_CLASS_PREFIX, TEXT_SIZES } from './constants'
 
-declare const TEXT_SIZES: ['lg', 'md', 'sm']
 export type TypographyLinkProps =  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'type'> & {
     title?: string
     disabled?: boolean
@@ -12,9 +12,6 @@ export type TypographyLinkProps =  Omit<React.AnchorHTMLAttributes<HTMLAnchorEle
     children?: React.ReactNode
     ['aria-label']?: string
 }
-
-
-const TYPOGRAPHY_CLASS_PREFIX = 'condo-typography'
 
 const Link = React.forwardRef<HTMLElement, TypographyLinkProps>((props, ref) => {
     const { size } = props
