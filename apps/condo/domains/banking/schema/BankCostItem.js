@@ -22,9 +22,9 @@ const BankCostItem = new GQLListSchema('BankCostItem', {
             schemaDoc: 'Used only for grouping to display in UI. Does not used in automatic classification feature',
             type: Relationship,
             ref: 'BankCategory',
-            isRequired: false,
-            knexOptions: { isNotNullable: false }, // Required relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
