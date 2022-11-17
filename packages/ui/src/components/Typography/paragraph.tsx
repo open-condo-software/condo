@@ -2,9 +2,8 @@ import React from 'react'
 import type { ParagraphProps as DefaultParagraphProps } from 'antd/lib/typography/Paragraph'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
+import { TYPOGRAPHY_CLASS_PREFIX, TEXT_SIZES, TEXT_TYPES } from './constants'
 
-declare const PARAGRAPH_TYPES: ['secondary', 'inverted', 'danger', 'warning', 'info', 'success']
-declare const PARAGRAPH_SIZES: ['lg', 'md', 'sm']
 export type TypographyParagraphProps = Omit<DefaultParagraphProps,
 'keyboard'
 | 'type'
@@ -14,11 +13,9 @@ export type TypographyParagraphProps = Omit<DefaultParagraphProps,
 | 'className'
 | 'prefixCls'
 | 'style'> & {
-    type?: typeof PARAGRAPH_TYPES[number]
-    size?: typeof PARAGRAPH_SIZES[number]
+    type?: typeof TEXT_TYPES[number]
+    size?: typeof TEXT_SIZES[number]
 }
-
-const TYPOGRAPHY_CLASS_PREFIX = 'condo-typography'
 
 const Paragraph = React.forwardRef<HTMLSpanElement, TypographyParagraphProps>((props, ref) => {
     const { type, size = 'lg', ...rest } = props

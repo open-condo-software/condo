@@ -2,9 +2,8 @@ import React from 'react'
 import type { TextProps as DefaultTextProps } from 'antd/lib/typography/Text'
 import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
+import { TYPOGRAPHY_CLASS_PREFIX, TEXT_SIZES, TEXT_TYPES } from './constants'
 
-declare const TEXT_TYPES: ['secondary', 'inverted', 'danger', 'warning', 'info', 'success']
-declare const TEXT_SIZES: ['lg', 'md', 'sm']
 export type TypographyTextProps = Omit<DefaultTextProps,
 'keyboard'
 | 'type'
@@ -17,8 +16,6 @@ export type TypographyTextProps = Omit<DefaultTextProps,
     type?: typeof TEXT_TYPES[number]
     size?: typeof TEXT_SIZES[number]
 }
-
-const TYPOGRAPHY_CLASS_PREFIX = 'condo-typography'
 
 const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref) => {
     const { type, size = 'lg', ...rest } = props
