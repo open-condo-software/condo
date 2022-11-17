@@ -23,11 +23,11 @@ const Link = React.forwardRef<HTMLElement, TypographyLinkProps>((props, ref) => 
 
     return (
         <Base
+            {...props}
             className={className}
             prefixCls={TYPOGRAPHY_CLASS_PREFIX}
             ref={ref}
             {...componentProps}
-            {...props}
         />
     )
 })

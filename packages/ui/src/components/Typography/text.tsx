@@ -28,11 +28,11 @@ const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref)
 
     return (
         <Base
+            {...rest}
             prefixCls={TYPOGRAPHY_CLASS_PREFIX}
             ref={ref}
             className={className}
             {...componentProps}
-            {...rest}
         />
     )
 })
