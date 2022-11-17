@@ -28,11 +28,11 @@ const Paragraph = React.forwardRef<HTMLSpanElement, TypographyParagraphProps>((p
 
     return (
         <Base
+            {...rest}
             prefixCls={TYPOGRAPHY_CLASS_PREFIX}
             ref={ref}
             className={className}
             {...componentProps}
-            {...rest}
         />
     )
 })
