@@ -18,8 +18,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useMemo } from 'react'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { getObjectValueFromQuery } from '../../common/utils/query'
-import { ClientType, getClientCardTabKey } from '../utils/clientCard'
+import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { ContactRoleSelect } from './contactRoles/ContactRoleSelect'
 
 const INPUT_LAYOUT_PROPS = {
