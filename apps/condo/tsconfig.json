@@ -28,6 +28,7 @@
     "node_modules",
     ".next",
     "out",
-    "cypress/cypress.config.ts"
+    "cypress/cypress.config.ts",
+    "cypress/**/*.ts"
   ]
 }
