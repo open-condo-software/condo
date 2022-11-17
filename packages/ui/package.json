@@ -112,7 +112,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
-    "antd": "^4.23.1",
+    "antd": "^4.24.3",
     "classnames": "^2.3.2"
   }
 }

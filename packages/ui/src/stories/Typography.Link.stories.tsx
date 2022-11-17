@@ -13,8 +13,8 @@ export default {
         children: { type: 'string', defaultValue: 'Inline link' },
         size: {
             defaultValue: 'undefined',
-            options: [undefined, 'lg', 'md', 'sm'],
-            mapping: ['undefined', 'lg', 'md', 'sm'],
+            options: [undefined, 'large', 'medium', 'small'],
+            mapping: ['undefined', 'large', 'medium', 'small'],
             control: 'select',
         },
         title: { type: 'string', defaultValue: 'Magic hover text' },
@@ -31,12 +31,12 @@ const Template: ComponentStory<typeof Typography.Link> = (args) => {
                 {' '}
                 inside large text
             </Typography.Text>
-            <Typography.Text size='md' type='secondary'>
+            <Typography.Text size='medium' type='secondary'>
                 <Typography.Link {...args}/>
                 {' '}
                 inside medium text
             </Typography.Text>
-            <Typography.Text size='sm'>
+            <Typography.Text size='small'>
                 <Typography.Link {...args}/>
                 {' '}
                 inside small text

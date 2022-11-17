@@ -32,8 +32,8 @@ export default {
         children: { type: 'string' },
         size: {
             defaultValue: 'undefined',
-            options: [undefined, 'lg', 'md', 'sm'],
-            mapping: ['undefined', 'lg', 'md', 'sm'],
+            options: [undefined, 'large', 'medium', 'small'],
+            mapping: ['undefined', 'large', 'medium', 'small'],
             control: 'select',
         },
         amount: {
