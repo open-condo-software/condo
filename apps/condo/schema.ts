@@ -22907,6 +22907,30 @@ export type Mutation = {
   deleteOidcClient?: Maybe<OidcClient>;
   /**  Delete multiple OidcClient items by ID.  */
   deleteOidcClients?: Maybe<Array<Maybe<OidcClient>>>;
+  /**  Create a single UserExternalIdentityHistoryRecord item.  */
+  createUserExternalIdentityHistoryRecord?: Maybe<UserExternalIdentityHistoryRecord>;
+  /**  Create multiple UserExternalIdentityHistoryRecord items.  */
+  createUserExternalIdentityHistoryRecords?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecord>>>;
+  /**  Update a single UserExternalIdentityHistoryRecord item by ID.  */
+  updateUserExternalIdentityHistoryRecord?: Maybe<UserExternalIdentityHistoryRecord>;
+  /**  Update multiple UserExternalIdentityHistoryRecord items by ID.  */
+  updateUserExternalIdentityHistoryRecords?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecord>>>;
+  /**  Delete a single UserExternalIdentityHistoryRecord item by ID.  */
+  deleteUserExternalIdentityHistoryRecord?: Maybe<UserExternalIdentityHistoryRecord>;
+  /**  Delete multiple UserExternalIdentityHistoryRecord items by ID.  */
+  deleteUserExternalIdentityHistoryRecords?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecord>>>;
+  /**  Create a single UserExternalIdentity item.  */
+  createUserExternalIdentity?: Maybe<UserExternalIdentity>;
+  /**  Create multiple UserExternalIdentity items.  */
+  createUserExternalIdentities?: Maybe<Array<Maybe<UserExternalIdentity>>>;
+  /**  Update a single UserExternalIdentity item by ID.  */
+  updateUserExternalIdentity?: Maybe<UserExternalIdentity>;
+  /**  Update multiple UserExternalIdentity items by ID.  */
+  updateUserExternalIdentities?: Maybe<Array<Maybe<UserExternalIdentity>>>;
+  /**  Delete a single UserExternalIdentity item by ID.  */
+  deleteUserExternalIdentity?: Maybe<UserExternalIdentity>;
+  /**  Delete multiple UserExternalIdentity items by ID.  */
+  deleteUserExternalIdentities?: Maybe<Array<Maybe<UserExternalIdentity>>>;
   /**  Create a single OrganizationHistoryRecord item.  */
   createOrganizationHistoryRecord?: Maybe<OrganizationHistoryRecord>;
   /**  Create multiple OrganizationHistoryRecord items.  */
@@ -26614,6 +26638,68 @@ export type MutationDeleteOidcClientArgs = {
 
 
 export type MutationDeleteOidcClientsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserExternalIdentityHistoryRecordArgs = {
+  data?: Maybe<UserExternalIdentityHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateUserExternalIdentityHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserExternalIdentityHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserExternalIdentityHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateUserExternalIdentityHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserExternalIdentityHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserExternalIdentityHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserExternalIdentityArgs = {
+  data?: Maybe<UserExternalIdentityCreateInput>;
+};
+
+
+export type MutationCreateUserExternalIdentitiesArgs = {
+  data?: Maybe<Array<Maybe<UserExternalIdentitiesCreateInput>>>;
+};
+
+
+export type MutationUpdateUserExternalIdentityArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserExternalIdentityUpdateInput>;
+};
+
+
+export type MutationUpdateUserExternalIdentitiesArgs = {
+  data?: Maybe<Array<Maybe<UserExternalIdentitiesUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserExternalIdentityArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserExternalIdentitiesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -38492,6 +38578,22 @@ export type Query = {
   _allOidcClientsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OidcClient list.  */
   _OidcClientsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserExternalIdentityHistoryRecord items which match the where clause.  */
+  allUserExternalIdentityHistoryRecords?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecord>>>;
+  /**  Search for the UserExternalIdentityHistoryRecord item with the matching ID.  */
+  UserExternalIdentityHistoryRecord?: Maybe<UserExternalIdentityHistoryRecord>;
+  /**  Perform a meta-query on all UserExternalIdentityHistoryRecord items which match the where clause.  */
+  _allUserExternalIdentityHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserExternalIdentityHistoryRecord list.  */
+  _UserExternalIdentityHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserExternalIdentity items which match the where clause.  */
+  allUserExternalIdentities?: Maybe<Array<Maybe<UserExternalIdentity>>>;
+  /**  Search for the UserExternalIdentity item with the matching ID.  */
+  UserExternalIdentity?: Maybe<UserExternalIdentity>;
+  /**  Perform a meta-query on all UserExternalIdentity items which match the where clause.  */
+  _allUserExternalIdentitiesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserExternalIdentity list.  */
+  _UserExternalIdentitiesMeta?: Maybe<_ListMeta>;
   /**  Search for all OrganizationHistoryRecord items which match the where clause.  */
   allOrganizationHistoryRecords?: Maybe<Array<Maybe<OrganizationHistoryRecord>>>;
   /**  Search for the OrganizationHistoryRecord item with the matching ID.  */
@@ -40092,6 +40194,56 @@ export type Query_AllOidcClientsMetaArgs = {
   where?: Maybe<OidcClientWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOidcClientsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserExternalIdentityHistoryRecordsArgs = {
+  where?: Maybe<UserExternalIdentityHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserExternalIdentityHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserExternalIdentityHistoryRecordArgs = {
+  where: UserExternalIdentityHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllUserExternalIdentityHistoryRecordsMetaArgs = {
+  where?: Maybe<UserExternalIdentityHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserExternalIdentityHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserExternalIdentitiesArgs = {
+  where?: Maybe<UserExternalIdentityWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserExternalIdentitiesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserExternalIdentityArgs = {
+  where: UserExternalIdentityWhereUniqueInput;
+};
+
+
+export type Query_AllUserExternalIdentitiesMetaArgs = {
+  where?: Maybe<UserExternalIdentityWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserExternalIdentitiesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -52316,6 +52468,54 @@ export enum SortTicketsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortUserExternalIdentitiesBy {
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  IdentityIdAsc = 'identityId_ASC',
+  IdentityIdDesc = 'identityId_DESC',
+  IdentityTypeAsc = 'identityType_ASC',
+  IdentityTypeDesc = 'identityType_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortUserExternalIdentityHistoryRecordsBy {
+  IdentityIdAsc = 'identityId_ASC',
+  IdentityIdDesc = 'identityId_DESC',
+  IdentityTypeAsc = 'identityType_ASC',
+  IdentityTypeDesc = 'identityType_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
 export enum SortUserHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
@@ -61134,6 +61334,391 @@ export type UserCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+};
+
+export type UserExternalIdentitiesCreateInput = {
+  data?: Maybe<UserExternalIdentityCreateInput>;
+};
+
+export type UserExternalIdentitiesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserExternalIdentityUpdateInput>;
+};
+
+/**  Individual user external identity link. Used primarily for authorization and linking to external idp purposes. Think of `User` as a technical entity, not a business actor.  */
+export type UserExternalIdentity = {
+  __typename?: 'UserExternalIdentity';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserExternalIdentity List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserExternalIdentity List config, or
+   *  3. As an alias to a 'name' field on the UserExternalIdentity List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserExternalIdentity List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to user  */
+  user?: Maybe<User>;
+  /**  External identity id. The value of this field should be populated from an external identity provider  */
+  identityId?: Maybe<Scalars['String']>;
+  /**  The type of external identity that was a source for this link  */
+  identityType?: Maybe<UserExternalIdentityIdentityTypeType>;
+  /**  External identity provider user metadata  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type UserExternalIdentityCreateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  identityId?: Maybe<Scalars['String']>;
+  identityType?: Maybe<UserExternalIdentityIdentityTypeType>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type UserExternalIdentityHistoryRecord = {
+  __typename?: 'UserExternalIdentityHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserExternalIdentityHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserExternalIdentityHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the UserExternalIdentityHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserExternalIdentityHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  identityId?: Maybe<Scalars['String']>;
+  identityType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserExternalIdentityHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserExternalIdentityHistoryRecordCreateInput = {
+  user?: Maybe<Scalars['String']>;
+  identityId?: Maybe<Scalars['String']>;
+  identityType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserExternalIdentityHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum UserExternalIdentityHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type UserExternalIdentityHistoryRecordUpdateInput = {
+  user?: Maybe<Scalars['String']>;
+  identityId?: Maybe<Scalars['String']>;
+  identityType?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserExternalIdentityHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserExternalIdentityHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecordWhereInput>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  identityId?: Maybe<Scalars['String']>;
+  identityId_not?: Maybe<Scalars['String']>;
+  identityId_contains?: Maybe<Scalars['String']>;
+  identityId_not_contains?: Maybe<Scalars['String']>;
+  identityId_starts_with?: Maybe<Scalars['String']>;
+  identityId_not_starts_with?: Maybe<Scalars['String']>;
+  identityId_ends_with?: Maybe<Scalars['String']>;
+  identityId_not_ends_with?: Maybe<Scalars['String']>;
+  identityId_i?: Maybe<Scalars['String']>;
+  identityId_not_i?: Maybe<Scalars['String']>;
+  identityId_contains_i?: Maybe<Scalars['String']>;
+  identityId_not_contains_i?: Maybe<Scalars['String']>;
+  identityId_starts_with_i?: Maybe<Scalars['String']>;
+  identityId_not_starts_with_i?: Maybe<Scalars['String']>;
+  identityId_ends_with_i?: Maybe<Scalars['String']>;
+  identityId_not_ends_with_i?: Maybe<Scalars['String']>;
+  identityId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  identityId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  identityType?: Maybe<Scalars['String']>;
+  identityType_not?: Maybe<Scalars['String']>;
+  identityType_contains?: Maybe<Scalars['String']>;
+  identityType_not_contains?: Maybe<Scalars['String']>;
+  identityType_starts_with?: Maybe<Scalars['String']>;
+  identityType_not_starts_with?: Maybe<Scalars['String']>;
+  identityType_ends_with?: Maybe<Scalars['String']>;
+  identityType_not_ends_with?: Maybe<Scalars['String']>;
+  identityType_i?: Maybe<Scalars['String']>;
+  identityType_not_i?: Maybe<Scalars['String']>;
+  identityType_contains_i?: Maybe<Scalars['String']>;
+  identityType_not_contains_i?: Maybe<Scalars['String']>;
+  identityType_starts_with_i?: Maybe<Scalars['String']>;
+  identityType_not_starts_with_i?: Maybe<Scalars['String']>;
+  identityType_ends_with_i?: Maybe<Scalars['String']>;
+  identityType_not_ends_with_i?: Maybe<Scalars['String']>;
+  identityType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  identityType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<UserExternalIdentityHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<UserExternalIdentityHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<UserExternalIdentityHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserExternalIdentityHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserExternalIdentityHistoryRecordsCreateInput = {
+  data?: Maybe<UserExternalIdentityHistoryRecordCreateInput>;
+};
+
+export type UserExternalIdentityHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserExternalIdentityHistoryRecordUpdateInput>;
+};
+
+export enum UserExternalIdentityIdentityTypeType {
+  SberId = 'sber_id'
+}
+
+export type UserExternalIdentityUpdateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  identityId?: Maybe<Scalars['String']>;
+  identityType?: Maybe<UserExternalIdentityIdentityTypeType>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type UserExternalIdentityWhereInput = {
+  AND?: Maybe<Array<Maybe<UserExternalIdentityWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserExternalIdentityWhereInput>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  identityId?: Maybe<Scalars['String']>;
+  identityId_not?: Maybe<Scalars['String']>;
+  identityId_contains?: Maybe<Scalars['String']>;
+  identityId_not_contains?: Maybe<Scalars['String']>;
+  identityId_starts_with?: Maybe<Scalars['String']>;
+  identityId_not_starts_with?: Maybe<Scalars['String']>;
+  identityId_ends_with?: Maybe<Scalars['String']>;
+  identityId_not_ends_with?: Maybe<Scalars['String']>;
+  identityId_i?: Maybe<Scalars['String']>;
+  identityId_not_i?: Maybe<Scalars['String']>;
+  identityId_contains_i?: Maybe<Scalars['String']>;
+  identityId_not_contains_i?: Maybe<Scalars['String']>;
+  identityId_starts_with_i?: Maybe<Scalars['String']>;
+  identityId_not_starts_with_i?: Maybe<Scalars['String']>;
+  identityId_ends_with_i?: Maybe<Scalars['String']>;
+  identityId_not_ends_with_i?: Maybe<Scalars['String']>;
+  identityId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  identityId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  identityType?: Maybe<UserExternalIdentityIdentityTypeType>;
+  identityType_not?: Maybe<UserExternalIdentityIdentityTypeType>;
+  identityType_in?: Maybe<Array<Maybe<UserExternalIdentityIdentityTypeType>>>;
+  identityType_not_in?: Maybe<Array<Maybe<UserExternalIdentityIdentityTypeType>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type UserExternalIdentityWhereUniqueInput = {
+  id: Scalars['ID'];
 };
 
 /**  A keystone list  */

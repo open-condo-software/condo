@@ -2241,6 +2241,450 @@ input OidcClientsCreateInput {
   data: OidcClientCreateInput
 }
 
+enum UserExternalIdentityHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type UserExternalIdentityHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserExternalIdentityHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserExternalIdentityHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserExternalIdentityHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserExternalIdentityHistoryRecord List.
+  """
+  _label_: String
+  user: String
+  identityId: String
+  identityType: String
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserExternalIdentityHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserExternalIdentityHistoryRecordWhereInput {
+  AND: [UserExternalIdentityHistoryRecordWhereInput]
+  OR: [UserExternalIdentityHistoryRecordWhereInput]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  identityId: String
+  identityId_not: String
+  identityId_contains: String
+  identityId_not_contains: String
+  identityId_starts_with: String
+  identityId_not_starts_with: String
+  identityId_ends_with: String
+  identityId_not_ends_with: String
+  identityId_i: String
+  identityId_not_i: String
+  identityId_contains_i: String
+  identityId_not_contains_i: String
+  identityId_starts_with_i: String
+  identityId_not_starts_with_i: String
+  identityId_ends_with_i: String
+  identityId_not_ends_with_i: String
+  identityId_in: [String]
+  identityId_not_in: [String]
+  identityType: String
+  identityType_not: String
+  identityType_contains: String
+  identityType_not_contains: String
+  identityType_starts_with: String
+  identityType_not_starts_with: String
+  identityType_ends_with: String
+  identityType_not_ends_with: String
+  identityType_i: String
+  identityType_not_i: String
+  identityType_contains_i: String
+  identityType_not_contains_i: String
+  identityType_starts_with_i: String
+  identityType_not_starts_with_i: String
+  identityType_ends_with_i: String
+  identityType_not_ends_with_i: String
+  identityType_in: [String]
+  identityType_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: UserExternalIdentityHistoryRecordHistoryActionType
+  history_action_not: UserExternalIdentityHistoryRecordHistoryActionType
+  history_action_in: [UserExternalIdentityHistoryRecordHistoryActionType]
+  history_action_not_in: [UserExternalIdentityHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input UserExternalIdentityHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserExternalIdentityHistoryRecordsBy {
+  identityId_ASC
+  identityId_DESC
+  identityType_ASC
+  identityType_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input UserExternalIdentityHistoryRecordUpdateInput {
+  user: String
+  identityId: String
+  identityType: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserExternalIdentityHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserExternalIdentityHistoryRecordsUpdateInput {
+  id: ID!
+  data: UserExternalIdentityHistoryRecordUpdateInput
+}
+
+input UserExternalIdentityHistoryRecordCreateInput {
+  user: String
+  identityId: String
+  identityType: String
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserExternalIdentityHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserExternalIdentityHistoryRecordsCreateInput {
+  data: UserExternalIdentityHistoryRecordCreateInput
+}
+
+enum UserExternalIdentityIdentityTypeType {
+  sber_id
+}
+
+""" Individual user external identity link. Used primarily for authorization and linking to external idp purposes. Think of `User` as a technical entity, not a business actor. 
+"""
+type UserExternalIdentity {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserExternalIdentity List config, or
+   2. As an alias to the field set on 'labelField' in the UserExternalIdentity List config, or
+   3. As an alias to a 'name' field on the UserExternalIdentity List (if one exists), or
+   4. As an alias to the 'id' field on the UserExternalIdentity List.
+  """
+  _label_: String
+
+  """ Link to user """
+  user: User
+
+  """ External identity id. The value of this field should be populated from an external identity provider 
+  """
+  identityId: String
+
+  """ The type of external identity that was a source for this link """
+  identityType: UserExternalIdentityIdentityTypeType
+
+  """ External identity provider user metadata """
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input UserExternalIdentityWhereInput {
+  AND: [UserExternalIdentityWhereInput]
+  OR: [UserExternalIdentityWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  identityId: String
+  identityId_not: String
+  identityId_contains: String
+  identityId_not_contains: String
+  identityId_starts_with: String
+  identityId_not_starts_with: String
+  identityId_ends_with: String
+  identityId_not_ends_with: String
+  identityId_i: String
+  identityId_not_i: String
+  identityId_contains_i: String
+  identityId_not_contains_i: String
+  identityId_starts_with_i: String
+  identityId_not_starts_with_i: String
+  identityId_ends_with_i: String
+  identityId_not_ends_with_i: String
+  identityId_in: [String]
+  identityId_not_in: [String]
+  identityType: UserExternalIdentityIdentityTypeType
+  identityType_not: UserExternalIdentityIdentityTypeType
+  identityType_in: [UserExternalIdentityIdentityTypeType]
+  identityType_not_in: [UserExternalIdentityIdentityTypeType]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input UserExternalIdentityWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserExternalIdentitiesBy {
+  user_ASC
+  user_DESC
+  identityId_ASC
+  identityId_DESC
+  identityType_ASC
+  identityType_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input UserExternalIdentityUpdateInput {
+  user: UserRelateToOneInput
+  identityId: String
+  identityType: UserExternalIdentityIdentityTypeType
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserExternalIdentitiesUpdateInput {
+  id: ID!
+  data: UserExternalIdentityUpdateInput
+}
+
+input UserExternalIdentityCreateInput {
+  user: UserRelateToOneInput
+  identityId: String
+  identityType: UserExternalIdentityIdentityTypeType
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserExternalIdentitiesCreateInput {
+  data: UserExternalIdentityCreateInput
+}
+
 enum OrganizationHistoryRecordHistoryActionType {
   c
   u
@@ -49775,6 +50219,36 @@ type Query {
   """ Retrieve the meta-data for the OidcClient list. """
   _OidcClientsMeta: _ListMeta
 
+  """ Search for all UserExternalIdentityHistoryRecord items which match the where clause. 
+  """
+  allUserExternalIdentityHistoryRecords(where: UserExternalIdentityHistoryRecordWhereInput, search: String, sortBy: [SortUserExternalIdentityHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserExternalIdentityHistoryRecord]
+
+  """ Search for the UserExternalIdentityHistoryRecord item with the matching ID. 
+  """
+  UserExternalIdentityHistoryRecord(where: UserExternalIdentityHistoryRecordWhereUniqueInput!): UserExternalIdentityHistoryRecord
+
+  """ Perform a meta-query on all UserExternalIdentityHistoryRecord items which match the where clause. 
+  """
+  _allUserExternalIdentityHistoryRecordsMeta(where: UserExternalIdentityHistoryRecordWhereInput, search: String, sortBy: [SortUserExternalIdentityHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserExternalIdentityHistoryRecord list. 
+  """
+  _UserExternalIdentityHistoryRecordsMeta: _ListMeta
+
+  """ Search for all UserExternalIdentity items which match the where clause. 
+  """
+  allUserExternalIdentities(where: UserExternalIdentityWhereInput, search: String, sortBy: [SortUserExternalIdentitiesBy!], orderBy: String, first: Int, skip: Int): [UserExternalIdentity]
+
+  """ Search for the UserExternalIdentity item with the matching ID. """
+  UserExternalIdentity(where: UserExternalIdentityWhereUniqueInput!): UserExternalIdentity
+
+  """ Perform a meta-query on all UserExternalIdentity items which match the where clause. 
+  """
+  _allUserExternalIdentitiesMeta(where: UserExternalIdentityWhereInput, search: String, sortBy: [SortUserExternalIdentitiesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserExternalIdentity list. """
+  _UserExternalIdentitiesMeta: _ListMeta
+
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
   allOrganizationHistoryRecords(where: OrganizationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationHistoryRecord]
@@ -52342,6 +52816,42 @@ type Mutation {
 
   """ Delete multiple OidcClient items by ID. """
   deleteOidcClients(ids: [ID!]): [OidcClient]
+
+  """ Create a single UserExternalIdentityHistoryRecord item. """
+  createUserExternalIdentityHistoryRecord(data: UserExternalIdentityHistoryRecordCreateInput): UserExternalIdentityHistoryRecord
+
+  """ Create multiple UserExternalIdentityHistoryRecord items. """
+  createUserExternalIdentityHistoryRecords(data: [UserExternalIdentityHistoryRecordsCreateInput]): [UserExternalIdentityHistoryRecord]
+
+  """ Update a single UserExternalIdentityHistoryRecord item by ID. """
+  updateUserExternalIdentityHistoryRecord(id: ID!, data: UserExternalIdentityHistoryRecordUpdateInput): UserExternalIdentityHistoryRecord
+
+  """ Update multiple UserExternalIdentityHistoryRecord items by ID. """
+  updateUserExternalIdentityHistoryRecords(data: [UserExternalIdentityHistoryRecordsUpdateInput]): [UserExternalIdentityHistoryRecord]
+
+  """ Delete a single UserExternalIdentityHistoryRecord item by ID. """
+  deleteUserExternalIdentityHistoryRecord(id: ID!): UserExternalIdentityHistoryRecord
+
+  """ Delete multiple UserExternalIdentityHistoryRecord items by ID. """
+  deleteUserExternalIdentityHistoryRecords(ids: [ID!]): [UserExternalIdentityHistoryRecord]
+
+  """ Create a single UserExternalIdentity item. """
+  createUserExternalIdentity(data: UserExternalIdentityCreateInput): UserExternalIdentity
+
+  """ Create multiple UserExternalIdentity items. """
+  createUserExternalIdentities(data: [UserExternalIdentitiesCreateInput]): [UserExternalIdentity]
+
+  """ Update a single UserExternalIdentity item by ID. """
+  updateUserExternalIdentity(id: ID!, data: UserExternalIdentityUpdateInput): UserExternalIdentity
+
+  """ Update multiple UserExternalIdentity items by ID. """
+  updateUserExternalIdentities(data: [UserExternalIdentitiesUpdateInput]): [UserExternalIdentity]
+
+  """ Delete a single UserExternalIdentity item by ID. """
+  deleteUserExternalIdentity(id: ID!): UserExternalIdentity
+
+  """ Delete multiple UserExternalIdentity items by ID. """
+  deleteUserExternalIdentities(ids: [ID!]): [UserExternalIdentity]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
