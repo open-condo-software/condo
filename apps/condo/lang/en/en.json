@@ -805,6 +805,7 @@
   "pages.clientCard.showAllPropertyTickets": "Show all tickets at this address",
   "pages.clientCard.contactTickets": "Contact tickets at this address",
   "pages.clientCard.editContact": "Edit contact",
+  "pages.clientCard.addAddress": "Add address",
   "pages.users.InviteNewUserButtonLabel": "Invite new user",
   "pages.users.InviteMessageTitle": "You have an invitation to «{name}»",
   "pages.users.PageTitle": "Users",

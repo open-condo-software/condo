@@ -1,6 +1,6 @@
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { get, isEmpty } from 'lodash'
+import { isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { SearchOutlined } from '@ant-design/icons'
@@ -11,8 +11,8 @@ import { Modal } from '@condo/domains/common/components/Modal'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { ClientType, mapToSelectOption, redirectToForm } from '../../contact/utils/clientCard'
-import { GraphQlSearchInput } from '../components/GraphQlSearchInput'
+import { ClientType, mapToSelectOption, redirectToForm } from '@condo/domains/contact/utils/clientCard'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 
@@ -139,6 +139,7 @@ const SearchByPhoneSelect = ({
             search={searchByPhoneFn}
             suffixIcon={<SearchOutlined style={SEARCH_ICON_STYLES}/>}
             showSearch={true}
+            clearIcon={null}
             style={SELECT_STYLES}
             placeholder={EnterPhoneMessage}
             notFoundContent={<NotFoundSearchByPhoneContent canManageContacts={canManageContacts} onSelect={onSelect} phone={phone} />}

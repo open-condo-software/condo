@@ -13,6 +13,7 @@ import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/use
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import styled from '@emotion/styled'
 import { Col, Row, Tabs, Typography } from 'antd'
+import { EllipsisConfig } from 'antd/es/typography/Base'
 import { get, uniqBy } from 'lodash'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -21,7 +22,7 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import { useOrganization } from '@open-condo/next/organization'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { PlusOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, SortTicketsBy } from '@app/condo/schema'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -55,6 +56,10 @@ const StyledClientTab = styled.div<{ active: boolean }>`
     background-color: #FFFFFF;
   }
 `
+const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
+const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0 }
+const ADDRESS_POSTFIX_ELLIPSIS: EllipsisConfig = { rows: 2 }
+const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label }
 
 const ClientTabTitle = ({ active, type, property, unitName }) => {
     const intl = useIntl()
@@ -75,13 +80,27 @@ const ClientTabTitle = ({ active, type, property, unitName }) => {
         <StyledClientTab active={active}>
             <Row gutter={[0, 12]}>
                 <Col span={24}>
-                    <Tag type='gray' style={{ borderRadius: '100px' }}>
+                    <Tag type='gray' style={TAG_STYLE}>
                         {typeToMessage[type]}
                     </Tag>
                 </Col>
                 <Col span={24}>
-                    <Typography.Paragraph ellipsis title={streetAndFlatMessage} strong style={{ margin: 0 }}>{streetAndFlatMessage}</Typography.Paragraph>
-                    <Typography.Paragraph ellipsis={{ rows: 2 }} title={postfix} type='secondary' style={{ margin: 0, fontSize: fontSizes.label }}>{postfix}</Typography.Paragraph>
+                    <Typography.Paragraph
+                        ellipsis
+                        title={streetAndFlatMessage}
+                        strong
+                        style={STREET_PARAGRAPH_STYLE}
+                    >
+                        {streetAndFlatMessage}
+                    </Typography.Paragraph>
+                    <Typography.Paragraph
+                        ellipsis={ADDRESS_POSTFIX_ELLIPSIS}
+                        title={postfix}
+                        type='secondary'
+                        style={ADDRESS_POSTFIX_STYLE}
+                    >
+                        {postfix}
+                    </Typography.Paragraph>
                 </Col>
             </Row>
         </StyledClientTab>
@@ -103,7 +122,7 @@ const StyledLink = styled.span`
   border-bottom: 1px solid ${colors.lightGrey[6]};
 `
 
-const HINT_CARD_STYLE = { maxHeight: '3em ' }
+const HINT_CARD_STYLE = { maxHeight: '3em' }
 
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 
@@ -141,6 +160,8 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
     const ContactTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.contactTickets' })
+    const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const EditContactMessage = intl.formatMessage({ id: 'pages.clientCard.editContact' })
 
     const router = useRouter()
 
@@ -217,7 +238,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
                     onClick={() => handleTicketCreateClick(lastCreatedTicket)}
                     type='sberDefaultGradient'
                 >
-                    Создать заявку
+                    {CreateTicketMessage}
                 </Button>
                 {
                     canManageContacts && handleContactEditClick && (
@@ -227,7 +248,7 @@ const ClientCardTabContent = ({ property, searchTicketsQuery, handleTicketCreate
                             type='sberDefaultGradient'
                             secondary
                         >
-                            Редактировать контакт
+                            {EditContactMessage}
                         </Button>
                     )
                 }
@@ -361,7 +382,13 @@ const StyledAddAddressTab = styled.div<{ active }>`
   }
 `
 
+const CREATE_CONTACT_LINK_STYLE: CSSProperties = { color: colors.black }
+const ADD_ADDRESS_TEXT_STYLE: CSSProperties = { marginTop: '12px' }
+
 const AddAddressTabTitle = () => {
+    const intl = useIntl()
+    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
+
     const [active, setActive] = useState<boolean>()
     const handleMouseEnter = useCallback(() => {
         setActive(true)
@@ -371,10 +398,10 @@ const AddAddressTabTitle = () => {
     }, [])
     return (
         <StyledAddAddressTab active={active} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-            <Typography.Link href='/contact/create' style={{ color: colors.black }}>
+            <Typography.Link href='/contact/create' style={CREATE_CONTACT_LINK_STYLE}>
                 <Button type='sberDefaultGradient' icon={<PlusOutlined />} shape='circle'/>
-                <Typography.Paragraph style={{ marginTop: '12px' }}>
-                    Добавить адрес
+                <Typography.Paragraph style={ADD_ADDRESS_TEXT_STYLE}>
+                    {AddAddressMessage}
                 </Typography.Paragraph>
             </Typography.Link>
         </StyledAddAddressTab>

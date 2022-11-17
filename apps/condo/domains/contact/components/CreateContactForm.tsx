@@ -24,7 +24,7 @@ import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
-import { ClientType, getClientCardTabKey } from '../utils/clientCard'
+import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
