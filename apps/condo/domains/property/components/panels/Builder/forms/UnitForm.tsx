@@ -95,41 +95,34 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
 
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
+        const selectedUnit = builder.getSelectedUnit()
         if (mode === MapEditMode.AddUnit) {
-            isUnitLabelUnique = builder.validateUniqueUnitLabel()
+            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
         } else if (mode === MapEditMode.EditUnit) {
-            const selectedUnit = builder.getSelectedUnit()
             if (!selectedUnit) {
                 return false
             }
-
-            const unitPlacementChanged = selectedUnit.floor !== floor
-                || selectedUnit.section !== section
-                || unitType !== selectedUnit.unitType
-            const labelChanged = selectedUnit.label !== label
-            const labelValidation = labelChanged
-                ? builder.validateUniqueUnitLabel(label, 'section')
-                : false
-
-            isUnitLabelUnique = unitPlacementChanged
-                ? (!labelChanged || labelValidation)
-                : labelValidation
+            isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
         }
-
-        return floor && section && label.trim() && isUnitLabelUnique
+        const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
+        !isUnitLabelUnique && setIsValidationErrorVisible(true)
+        return isUniqueCondition
     }, [floor, section, label, unitType, builder, mode])
 
     const applyChanges = useCallback(() => {
-        const mapUnit = builder.getSelectedUnit()
-        if (mapUnit) {
-            builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
-        } else {
-            builder.removePreviewUnit()
-            builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
-            resetForm()
+        if (isUnitUnique) {
+            const mapUnit = builder.getSelectedUnit()
+            if (mapUnit) {
+                console.log(mapUnit)
+                builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
+            } else {
+                builder.removePreviewUnit()
+                builder.addUnit({ id: '', label, floor, section, unitType }, renameNextUnits.current)
+                resetForm()
+            }
+            refresh()
         }
-        refresh()
-    }, [builder, refresh, resetForm, label, floor, section, unitType])
+    }, [builder, refresh, resetForm, label, floor, section, unitType, isUnitUnique])
 
     const onLabelChange = useCallback((e) => {
         isValidationErrorVisible && setIsValidationErrorVisible(false)
