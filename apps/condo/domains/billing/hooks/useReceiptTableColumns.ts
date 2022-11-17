@@ -5,8 +5,11 @@ import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/comp
 import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
+import { FiltersMeta, getFilterDropdownByKey } from '../../common/utils/filters.utils'
+import { getFilteredValue } from '../../common/utils/helpers'
+import { IFilters } from '../utils/helpers'
 
-export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) => {
+export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const UnitNameTitle = intl.formatMessage({ id: 'field.UnitName' })
@@ -66,7 +69,10 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 key: 'category',
                 dataIndex: ['category', 'name'],
                 sorter: false,
-                width: '14%',
+                filteredValue: getFilteredValue<IFilters>(filters, 'category'),
+                width: '16%',
+                filterIcon: getFilterIcon,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'category'),
                 render: getTextRender(search),
             },
             account: {
@@ -120,7 +126,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
         }
 
         return detailed
-            ? [columns.address, columns.unitName,  columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.toPay]
             : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,

@@ -192,7 +192,7 @@ export function useTableColumns <T> (
                 key: 'status',
                 sorter: true,
                 width: COLUMNS_WIDTH.status,
-                filterDropdown: renderStatusFilterDropdown,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'status'),
                 filterIcon: getFilterIcon,
             },
             {
