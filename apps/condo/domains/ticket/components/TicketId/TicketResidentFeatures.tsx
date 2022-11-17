@@ -35,11 +35,15 @@ interface PaymentsAvailableIndicatorProps {
 
 /**
  Availability is determined by:
- 1. at least 1 receipt for the current or previous period has been uploaded to the organization.
- 2. If the number of receipts for the previous period is not equal to 0,
- then the number of receipts for the current period must be greater than or equal to the number for the previous one.
+ 1. If receipts are found at this address for the last 2 months
+ 2. Or:
+    At least 1 receipt for the current or previous period has been uploaded to the organization.
+    If the number of receipts for the previous period is not equal to 0,
+    then the number of receipts for the current period must be greater than or equal to the number for the previous one.
  */
-const getIsPaymentsInMobileAppAvailable = (receiptsInCurrentPeriod, receiptsInPreviousPeriod) => {
+const getIsPaymentsInMobileAppAvailable = (receiptsByProperty, receiptsInCurrentPeriod, receiptsInPreviousPeriod) => {
+    if (receiptsByProperty) return true
+
     if (receiptsInCurrentPeriod > 0 || receiptsInPreviousPeriod > 0) {
         if (receiptsInPreviousPeriod === 0) return true
 
@@ -91,8 +95,8 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     })
 
     const isPaymentsAvailable = useMemo(
-        () => getIsPaymentsInMobileAppAvailable(receiptsInCurrentPeriod, receiptsInPreviousPeriod),
-        [receiptsInCurrentPeriod, receiptsInPreviousPeriod])
+        () => getIsPaymentsInMobileAppAvailable(receiptsByProperty, receiptsInCurrentPeriod, receiptsInPreviousPeriod),
+        [receiptsByProperty, receiptsInCurrentPeriod, receiptsInPreviousPeriod])
     const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
     const loading = currentPeriodLoading || previousPeriodLoading || receiptsByPropertyLoading
 
