@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import get from 'lodash/get'
 
@@ -16,8 +16,9 @@ import {
     getStatusRender,
     getTicketDetailsRender,
 } from '../utils/clientSchema/Renders'
+import { TicketComment } from '../utils/clientSchema'
 
-export function useClientCardTicketTableColumns () {
+export function useClientCardTicketTableColumns (tickets) {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -30,6 +31,26 @@ export function useClientCardTicketTableColumns () {
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
+
+    const ticketCommentsWhere = useMemo(() => tickets.map(ticket => ({
+        AND: [
+            { ticket: { id: ticket.id } },
+            { createdAt: ticket.lastCommentAt },
+        ],
+    })), [tickets])
+    const { objs: ticketComments } = TicketComment.useObjects({
+        where: {
+            OR: ticketCommentsWhere,
+        },
+    })
+
+    const renderLastComment = useCallback((ticket) => {
+        const lastComment = ticketComments.find(comment => comment.ticket.id === ticket.id)
+
+        if (lastComment) {
+            return lastComment.content
+        }
+    }, [ticketComments])
 
     return useMemo(() => ([
         {
@@ -76,6 +97,11 @@ export function useClientCardTicketTableColumns () {
             dataIndex: 'details',
             key: 'details',
             render: getTicketDetailsRender(),
+        },
+        {
+            title: LastCommentMessage,
+            key: 'lastComment',
+            render: renderLastComment,
         },
     ]), [AddressMessage, NumberMessage, DateMessage, filters, intl, StatusMessage, sorterMap, ClassifierTitle, DescriptionMessage])
 }
