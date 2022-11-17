@@ -381,17 +381,16 @@ export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
 }
 
-export const categoryToSearchQuery = (search: string, translations) => {
+export const categoryToSearchQuery = (search: string, translations: Record<string, string>) => {
     if (!search) return
-    const searchLCase = search.toLowerCase()
-    const whereIn = !translations ? [] : Object.keys(translations).filter(
+    const searchLowerCase = search.toLowerCase()
+    const whereIn = translations ? Object.keys(translations).filter(
         key => (
             key.includes('billing.category')
             && !key.includes('description')
-            && translations[key].toLowerCase().includes(searchLCase)
+            && translations[key].toLowerCase().includes(searchLowerCase)
         )
-    )
-    console.log('whereIn', whereIn)
+    ) : []
     return {
         category: { 'OR': [
             { name_in: whereIn },

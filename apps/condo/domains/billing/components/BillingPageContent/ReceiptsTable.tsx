@@ -1,17 +1,16 @@
 import React, { useCallback, useState } from 'react'
 import { IContextProps } from './index'
 import {
-    QueryMeta,
-    getStringContainsFilter,
     getPageIndexFromOffset,
     parseQuery,
+    categoryToSearchQuery,
 } from '@condo/domains/common/utils/tables.utils'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
 import { useIntl } from '@open-condo/next/intl'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
-import { BillingReceiptWhereInput, SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
+import { SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
@@ -21,18 +20,8 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { ServicesModal } from '../ServicesModal'
+import { useReceiptTableFilters } from '../../hooks/useReceiptTableFilters'
 
-const addressFilter = getStringContainsFilter(['property', 'address'])
-const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
-const accountFilter = getStringContainsFilter(['account', 'number'])
-const fullNameFilter = getStringContainsFilter(['account', 'fullName'])
-const periodFilter = (period: string) => ({ period })
-const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
-    { keyword: 'address', filters: [addressFilter] },
-    { keyword: 'unitName', filters: [unitNameFilter] },
-    { keyword: 'account', filters: [accountFilter] },
-    { keyword: 'fullName', filters: [fullNameFilter] },
-]
 
 const SORTABLE_PROPERTIES = ['toPay']
 
@@ -49,32 +38,31 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const contextPeriod = get(context, ['lastReport', 'period'], null)
     const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
 
-    const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
-        ...staticQueryMetas,
-        { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
-        { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter, fullNameFilter], combineType: 'OR' },
-    ]
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES, intl.messages)
+    const filterMetas = useReceiptTableFilters(context)
+    const [search, handleSearchChange] = useSearch()
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
+    const categorySearch = categoryToSearchQuery(search, intl.messages)
+    const filtersToPass = { OR:[ { ...filtersToWhere(filters) }, { ...categorySearch }] }
+
     const {
         loading,
         count: total,
         objs: receipts,
         error,
     } = BillingReceipt.useObjects({
-        where: { ...filtersToWhere(filters), context: { id: context.id } },
+        where: { ...filtersToPass, context: { id: context.id } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
-    
-    const [search, handleSearchChange] = useSearch()
+
     const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
 
     const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
     const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
     const hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
-    const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencyCode)
+    const mainTableColumns = useReceiptTableColumns(filterMetas, hasToPayDetails, currencyCode)
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
     const [detailedReceipt, setDetailedReceipt] = useState<BillingReceiptType>(null)

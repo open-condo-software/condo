@@ -1,10 +1,10 @@
-import { QueryMeta, SorterColumn, convertSortersToSortBy, categoryToSearchQuery } from '../utils/tables.utils'
+import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
 import { useMemo } from 'react'
 import get from 'lodash/get'
 
 const DEFAULT_SORT_BY = ['createdAt_DESC']
 
-export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColumns: Array<string>, translations?) => {
+export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColumns: Array<string>) => {
     return useMemo(() => {
         const validSorts = sortableColumns.reduce((acc, cur) => {
             return [...acc, `${cur}_ASC`, `${cur}_DESC`]
@@ -26,12 +26,6 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                 const createdFilters = meta.filters
                     .map((filter) => filter(searchValue || meta.defaultValue))
                     .filter(Boolean)
-
-                const categoryFilter = categoryToSearchQuery(searchValue, translations) as unknown as F
-
-                if (categoryFilter && meta.keyword === 'search'){
-                    createdFilters.push(categoryFilter)
-                }
                 
                 if (createdFilters.length) {
                     const combineType = get(meta, 'combineType', 'AND')
