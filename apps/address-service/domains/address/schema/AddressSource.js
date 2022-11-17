@@ -17,6 +17,7 @@ const AddressSource = new GQLListSchema('AddressSource', {
             schemaDoc: 'Source string itself',
             type: Text,
             isRequired: true,
+            isUnique: true,
         },
 
         address: {
