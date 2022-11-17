@@ -150,24 +150,30 @@ class Map {
         }
         return true
     }
-
-    public validateUniqueUnitLabel (renamedUnit: string = null, destination: keyof typeof MapViewMode = null): boolean {
-        const unitLabels = this.map.sections
+    get getUnitLabelsWithoutPreview (): string[] {
+        return this.map.sections
             ?.map((section) => section.floors
                 ?.map(floor => floor.units
-                    ?.map(unit => unit.label)
+                    ?.map(unit => !unit.preview && unit.label)
                 )
             )
             .flat(2)
-        const parkingUnitLabels = this.map.parking
+    }
+    get getParkingUnitLabelsWithoutPreview (): string[] {
+        return this.map.parking
             ?.map((parkingSection) => parkingSection.floors
                 ?.map(parkingFloor => parkingFloor.units
-                    ?.map(parkingUnit => parkingUnit.label)
+                    ?.map(parkingUnit => !parkingUnit.preview && parkingUnit.label)
                 )
             ).flat(2)
+    }
+    public validateUniqueUnitLabel (selectedUnit: BuildingUnit = null, destination: keyof typeof MapViewMode = null): boolean {
+        const unitLabels = this.getUnitLabelsWithoutPreview
+        const parkingUnitLabels = this.getParkingUnitLabelsWithoutPreview
+        const selectedUnitLabel = get(selectedUnit, 'label', null)
 
-        if (renamedUnit && destination) {
-            destination === 'section' ? unitLabels.push(renamedUnit) : parkingUnitLabels.push(renamedUnit)
+        if (selectedUnitLabel && destination) {
+            destination === 'section' ? unitLabels.push(selectedUnitLabel) : parkingUnitLabels.push(selectedUnitLabel)
         }
 
         const notUniqSectionLabels = unitLabels && unitLabels.length !== new Set(unitLabels).size
@@ -656,6 +662,44 @@ class MapEdit extends MapView {
             || !isNull(this._previewUnitId)
             || !isNull(this._previewParkingUnitId)
             || !isNull(this._previewSectionFloor)
+    }
+
+    public validateInputUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', destination: keyof typeof MapViewMode = null): boolean {
+        const unitLabels = this.map.sections
+            ?.map((section) => section.floors
+                ?.map(floor => floor.units
+                    ?.map(unit => unit)
+                    .filter(unit => {
+                        if (unit.preview) return
+                        else if (this.mode !== 'editUnit') return unit.label
+                        else if (unit.id !== get(selectedUnit, 'id')) return unit.label
+                    }))
+            ).flat(2)
+        const notUniqSectionLabels = unitLabels && !isEmpty(unitLabels.filter(unit => unit.label === newLabel))
+        if (notUniqSectionLabels) {
+            this.validationErrors = ['Name of unit label must be unique']
+            return false
+        }
+        return true
+    }
+    public validateInputParkingUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', destination: keyof typeof MapViewMode = null): boolean {
+        const parkingUnitLabels = this.map.parking
+            ?.map((parkingSection) => parkingSection.floors
+                ?.map(parkingFloor => parkingFloor.units
+                    ?.map(parkingUnit => parkingUnit)
+                    .filter(parkingUnit => {
+                        if (parkingUnit.preview) return
+                        else if (this.mode !== 'editParkingUnit') return parkingUnit.label
+                        else if (parkingUnit.id !== get(selectedUnit, 'id')) return parkingUnit.label
+                    }))
+            ).flat(2)
+
+        const notUniqParkingLabels = parkingUnitLabels && !isEmpty(parkingUnitLabels.filter(parking => parking.label === newLabel))
+        if (notUniqParkingLabels) {
+            this.validationErrors = ['Name of unit label must be unique']
+            return false
+        }
+        return true
     }
 
     public setSelectedSection (section: BuildingSection): void {
