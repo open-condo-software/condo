@@ -4,29 +4,31 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+} = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadBankContractorAccounts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin) return {}
+    if (user.isAdmin || user.isSupport) return true
 
-    // TODO(codegen): write canReadBankContractorAccounts logic for user!
-    return false
+    return {
+        OR: [
+            { organization: queryOrganizationEmployeeFor(user.id) },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+        ],
+    }
 }
 
 async function canManageBankContractorAccounts ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
 
-    if (operation === 'create') {
-        // TODO(codegen): write canManageBankContractorAccounts create logic!
-        return false
-    } else if (operation === 'update') {
-        // TODO(codegen): write canManageBankContractorAccounts update logic!
-        return false
-    }
+    // TODO(antonal): later a new `canImportBankTransactions` ability will be added to `OrganizationEmployeeRole`
 
     return false
 }
