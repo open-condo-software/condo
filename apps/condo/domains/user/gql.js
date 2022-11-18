@@ -14,6 +14,9 @@ const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEma
 const User = generateGqlQueries('User', USER_FIELDS)
 const UserAdmin = generateGqlQueries('User', '{ id type name isAdmin isSupport email isEmailVerified phone isPhoneVerified importId importRemoteSystem updatedBy { id } createdBy { id } }')
 
+const USER_EXTERNAL_IDENTITY_FIELDS = '{ user { id } identityId identityType meta }'
+const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
+
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
         user: registerNewUser(data: $data) ${USER_FIELDS}
@@ -146,6 +149,7 @@ const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
 module.exports = {
     User,
     UserAdmin,
+    UserExternalIdentity,
     REGISTER_NEW_USER_MUTATION,
     GET_MY_USERINFO,
     USER_QUERY,
