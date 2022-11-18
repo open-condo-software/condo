@@ -146,7 +146,10 @@ class MockedAddressServiceClient {
     }
 
     async add (data) {
-        throw new Error('This method shouldn\'t be called during tests')
+        return {
+            address: get(this.existingItem, 'address'),
+            addressKey: get(this.existingItem, 'addressKey', faker.random.alphaNumeric(32)),
+        }
     }
 }
 
