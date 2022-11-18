@@ -35,7 +35,7 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - uses: actions/setup-node@v3
         with:
-          node-version: 14
+          node-version: ${{ matrix.node-version }}
           cache: 'yarn'
           cache-dependency-path: yarn.lock
 
