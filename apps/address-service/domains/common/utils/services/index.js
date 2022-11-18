@@ -88,16 +88,22 @@
  * @property {string?} qc_geo "2"
  * @property {string?} qc_complete null
  * @property {string?} qc_house null
- * @property {Array<string>} history_values: ["ул Черненко"]
+ * @property {Array<string>?} history_values: ["ул Черненко"]
  * @property {string?} unparsed_parts null
  * @property {string?} source null
  * @property {string?} qc null
  */
 
 /**
+ * @typedef {Object} ProviderData
+ * @property {string} name
+ * @property {Object} rawData
+ */
+
+/**
  * @typedef {Object} NormalizedBuilding
- * @property {string} label "г Москва, ул Хабаровская"
  * @property {string} value "г Москва, ул Хабаровская" | "injectionId:<uuid>"
  * @property {string} unrestricted_value "г Москва, ул Хабаровская"
  * @property {NormalizedBuildingData} data
+ * @property {ProviderData} provider
  */
