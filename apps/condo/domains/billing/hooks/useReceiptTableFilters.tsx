@@ -2,7 +2,7 @@ import { ComponentType, convertToOptions, FilterComponentSize, FiltersMeta } fro
 import { BillingIntegrationOrganizationContext, BillingReceiptWhereInput } from '@app/condo/schema'
 import { getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
 import get from 'lodash/get'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 import { BillingCategory } from '../utils/clientSchema'
 import { BillingCategory as BillingCategoryType } from '@app/condo/schema'
 import { useMemo } from 'react'
