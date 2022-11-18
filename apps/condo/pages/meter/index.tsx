@@ -68,6 +68,9 @@ export const MetersPageContent = ({
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
+    const reduceNonEmpty = (cnt, filter) => cnt + Number((typeof filters[filter] === 'string' || Array.isArray(filters[filter])) && filters[filter].length > 0)
+    const appliedFiltersCount = Object.keys(filters).reduce(reduceNonEmpty, 0)
+
     const canManageMeterReadings = get(role, 'canManageMeterReadings', false)
 
     const {
@@ -87,7 +90,7 @@ export const MetersPageContent = ({
     const { isSmall } = useLayoutContext()
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const { UpdateMeterModal, setSelectedMeter } = useUpdateMeterModal(refetch)
-    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate, handleSearchReset)
+    const { MultipleFiltersModal, setIsMultipleFiltersModalVisible, ResetFiltersModalButton } = useMultipleFiltersModal(filterMetas, MeterReadingFilterTemplate, handleSearchReset)
     const [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator] = useImporterFunctions()
     const isNoMeterData = isEmpty(meterReadings) && isEmpty(filters) && !metersLoading && !loading
 
@@ -168,6 +171,13 @@ export const MetersPageContent = ({
                                     <Col>
                                         <Row gutter={[10, 0]} align='middle' justify='center'>
                                             {
+                                                appliedFiltersCount > 0 ? (
+                                                    <Col>
+                                                        <ResetFiltersModalButton />
+                                                    </Col>
+                                                ) : null
+                                            }
+                                            {
                                                 canManageMeterReadings && (
                                                     <Col>
                                                         <ImportWrapper
@@ -203,6 +213,7 @@ export const MetersPageContent = ({
                                                 >
                                                     <FilterFilled/>
                                                     {FiltersButtonLabel}
+                                                    {appliedFiltersCount > 0 ? ` (${appliedFiltersCount})` : null}
                                                 </Button>
                                             </Col>
                                         </Row>
