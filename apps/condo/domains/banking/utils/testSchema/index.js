@@ -19,6 +19,7 @@ const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const BankAccount = generateGQLTestUtils(BankAccountGQL)
 
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
+const { RUSSIA_COUNTRY } = require('../../../common/constants/countries')
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -119,12 +120,19 @@ async function createTestBankContractorAccount (client, organization, extraAttrs
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBankContractorAccount logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        name: faker.lorem.word(),
+        tin: String(faker.datatype.number()),
+        country: RUSSIA_COUNTRY,
+        routingNumber: '044525256',
+        number: 'n1',
+        currencyCode: 'RUB',
+        importId: faker.random.alphaNumeric(24),
+        territoryCode: faker.datatype.number().toString(),
+        bankName: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await BankContractorAccount.create(client, attrs)
@@ -136,11 +144,15 @@ async function updateTestBankContractorAccount (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestBankContractorAccount logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        name: faker.lorem.word(),
+        tin: String(faker.datatype.number()),
+        country: RUSSIA_COUNTRY,
+        importId: faker.random.alphaNumeric(24),
+        territoryCode: faker.datatype.number().toString(),
+        bankName: faker.lorem.word(),
         ...extraAttrs,
     }
     const obj = await BankContractorAccount.update(client, id, attrs)

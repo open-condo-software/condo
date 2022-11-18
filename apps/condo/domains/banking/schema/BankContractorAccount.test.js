@@ -12,18 +12,29 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount } = require('@condo/domains/banking/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+
+let admin
+let user
+let support
+let anonymous
+let organization
 
 describe('BankContractorAccount', () => {
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
+        anonymous = await makeClient()
+        const [_organization] = await createTestOrganization(admin)
+        organization = _organization
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 1) prepare data
-                const admin = await makeLoggedInAdminClient()
+                const [obj, attrs] = await createTestBankContractorAccount(admin, organization)
 
-                // 2) action
-                const [obj, attrs] = await createTestBankContractorAccount(admin)
-
-                // 3) check
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -34,44 +45,42 @@ describe('BankContractorAccount', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
-                // TODO(codegen): write others fields here! provide as match fields as you can here!
+                expect(obj.name).toMatch(attrs.name)
+                expect(obj.organization.id).toMatchObject(organization.id)
+                expect(obj.tin).toMatch(attrs.tin)
+                expect(obj.country).toMatch(attrs.country)
+                expect(obj.routingNumber).toMatch(attrs.routingNumber)
+                expect(obj.number).toMatch(attrs.number)
+                expect(obj.currencyCode).toMatch(attrs.currencyCode)
+                expect(obj.importId).toMatch(attrs.importId)
+                expect(obj.territoryCode).toMatch(attrs.territoryCode)
+                expect(obj.bankName).toMatch(attrs.bankName)
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
             test('support can', async () => {
-                const client = await makeClientWithSupportUser()  // TODO(codegen): create SUPPORT client!
-
-                const [obj, attrs] = await createTestBankContractorAccount(client)  // TODO(codegen): write 'support: create BankContractorAccount' test
+                const [obj, attrs] = await createTestBankContractorAccount(support, organization)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
             })
 
-            test('user can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-
-                const [obj, attrs] = await createTestBankContractorAccount(client)  // TODO(codegen): write 'user: create BankContractorAccount' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+            test('user can\'t', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestBankContractorAccount(user, organization)
+                })
             })
 
             test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestBankContractorAccount(client)  // TODO(codegen): write 'anonymous: create BankContractorAccount' test
+                    await createTestBankContractorAccount(anonymous)
                 })
             })
         })
 
         describe('update', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 const [obj, attrs] = await updateTestBankContractorAccount(admin, objCreated.id)
@@ -81,9 +90,7 @@ describe('BankContractorAccount', () => {
                 expect(obj.v).toEqual(2)
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
             test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
@@ -96,7 +103,6 @@ describe('BankContractorAccount', () => {
             })
 
             test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
@@ -109,7 +115,6 @@ describe('BankContractorAccount', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClient()
@@ -121,7 +126,6 @@ describe('BankContractorAccount', () => {
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -130,7 +134,6 @@ describe('BankContractorAccount', () => {
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
@@ -140,7 +143,6 @@ describe('BankContractorAccount', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [objCreated] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClient()
@@ -152,7 +154,6 @@ describe('BankContractorAccount', () => {
 
         describe('read', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [obj, attrs] = await createTestBankContractorAccount(admin)
 
                 const objs = await BankContractorAccount.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
@@ -167,7 +168,6 @@ describe('BankContractorAccount', () => {
             })
 
             test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [obj, attrs] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
@@ -183,7 +183,6 @@ describe('BankContractorAccount', () => {
             // TODO(codegen): write test for user1 doesn't have access to user2 data if it's applicable
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [obj, attrs] = await createTestBankContractorAccount(admin)
 
                 const client = await makeClient()
