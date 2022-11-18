@@ -1,5 +1,4 @@
 import getConfig from 'next/config'
-import get from 'lodash/get'
 import { AddressMetaField } from '@app/condo/schema'
 
 type SuggestionsResponse = Promise<{ suggestions: Array<AddressMetaField> }>
@@ -16,9 +15,14 @@ export class AddressApi implements IAddressApi {
     }
 
     public getSuggestions (query: string): SuggestionsResponse {
-        return fetch(this.suggestionsUrl, this.getAddressSuggestionRequestParams(query))
-            .then(response => response.text())
-            .then((res) => JSON.parse(res))
+        return fetch(`${this.suggestionsUrl}?s=${query}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        })
+            .then((response) => response.json())
+            .then((suggestions) => ({ suggestions }))
     }
 
     public getAddressMeta (address: string): AddressMetaField | undefined {
@@ -37,40 +41,11 @@ export class AddressApi implements IAddressApi {
 
     private setAddressSuggestionsConfig () {
         const {
-            publicRuntimeConfig: { addressSuggestionsConfig },
+            publicRuntimeConfig: { addressServiceUrl: apiUrl },
         } = getConfig()
-        const apiUrl = get(addressSuggestionsConfig, 'apiUrl', '')
-        const apiToken = get(addressSuggestionsConfig, 'apiToken', '')
-        if (!apiToken || !apiUrl) console.error('Wrong AddressSuggestionsConfig! no apiUrl/apiToken')
-
-        this.apiToken = apiToken
-        this.suggestionsUrl = apiUrl
-    }
-
-    private getAddressSuggestionRequestParams (query: string) {
-        return {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Token ${this.apiToken}`,
-            },
-            body: JSON.stringify(
-                {
-                    query,
-                    ...this.defaultSearchApiParams,
-                }
-            ),
-        }
+        this.suggestionsUrl = `${apiUrl}/suggest`
     }
 
     private suggestionsUrl: string
-    private apiToken: string
-    private defaultSearchApiParams = {
-        from_bound: { value: 'country' },
-        to_bound: { value: 'house' },
-        restrict_value: true,
-        count: 20,
-    }
     private addressMetaCache: Map<string, AddressMetaField> = new Map()
 }
