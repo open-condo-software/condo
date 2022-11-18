@@ -1,5 +1,6 @@
 const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const get = require('lodash/get')
+const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 const SPECIAL_SYMBOLS_REGEX = /[!@#$%^&*)(+=.\-_:;"'`[\]]/g
 
@@ -48,19 +49,19 @@ class InjectionsSeeker {
      */
     normalize (injections) {
         return injections.map((injection) => {
-            const country = get(injection, 'country')
+            const country = get(injection, 'country', '')
             const region_with_type = String(`${get(injection, ['region', 'name'], '')} ${get(injection, ['region', 'typeShort'], '')}`).trim()
             const area_with_type = String(`${get(injection, ['area', 'typeShort'], '')} ${get(injection, ['area', 'name'], '')}`).trim()
             const city_with_type = String(`${get(injection, ['city', 'typeShort'], '')} ${get(injection, ['city', 'name'], '')}`).trim()
             const city_district_with_type = String(`${get(injection, ['cityDistrict', 'typeShort'], '')} ${get(injection, ['cityDistrict', 'name'], '')}`).trim()
             const settlement_with_type = String(`${get(injection, ['settlement', 'typeShort'], '')} ${get(injection, ['settlement', 'name'], '')}`).trim()
             const street_with_type = String(`${get(injection, ['street', 'typeShort'], '')} ${get(injection, ['street', 'name'], '')}`).trim()
-            const house_type = get(injection, ['house', 'typeShort'])
-            const house = get(injection, ['house', 'name'])
-            const block_type = get(injection, ['block', 'typeShort'])
-            const block = get(injection, ['block', 'name'])
+            const house_type = get(injection, ['house', 'typeShort'], '')
+            const house = get(injection, ['house', 'name'], '')
+            const block_type = get(injection, ['block', 'typeShort'], '')
+            const block = get(injection, ['block', 'name'], '')
 
-            const label = [
+            const value = [
                 country,
                 region_with_type,
                 area_with_type,
@@ -73,9 +74,8 @@ class InjectionsSeeker {
             ].filter(Boolean).join(', ').trim()
 
             return {
-                label,
-                value: `injectionId:${injection.id}`,
-                unrestricted_value: label,
+                value,
+                unrestricted_value: value,
                 data: {
                     postal_code: null,
                     country,
@@ -85,39 +85,39 @@ class InjectionsSeeker {
                     region_kladr_id: null,
                     region_iso_code: null,
                     region_with_type,
-                    region_type: get(injection, ['region', 'typeShort'], null),
-                    region_type_full: get(injection, ['region', 'typeFull'], null),
-                    region: get(injection, ['region', 'name']),
+                    region_type: get(injection, ['region', 'typeShort'], ''),
+                    region_type_full: get(injection, ['region', 'typeFull'], ''),
+                    region: get(injection, ['region', 'name'], ''),
                     area_fias_id: null,
                     area_kladr_id: null,
                     area_with_type,
-                    area_type: get(injection, ['area', 'typeShort'], null),
-                    area_type_full: get(injection, ['area', 'typeFull'], null),
+                    area_type: get(injection, ['area', 'typeShort'], ''),
+                    area_type_full: get(injection, ['area', 'typeFull'], ''),
                     area: get(injection, ['area', 'name']),
                     city_fias_id: null,
                     city_kladr_id: null,
                     city_with_type,
-                    city_type: get(injection, ['city', 'typeShort'], null),
-                    city_type_full: get(injection, ['city', 'typeFull'], null),
+                    city_type: get(injection, ['city', 'typeShort'], ''),
+                    city_type_full: get(injection, ['city', 'typeFull'], ''),
                     city: get(injection, ['city', 'name']),
                     city_area: null,
                     city_district_fias_id: null,
                     city_district_kladr_id: null,
                     city_district_with_type,
-                    city_district_type: get(injection, ['cityDistrict', 'typeShort'], null),
-                    city_district_type_full: get(injection, ['cityDistrict', 'typeFull'], null),
+                    city_district_type: get(injection, ['cityDistrict', 'typeShort'], ''),
+                    city_district_type_full: get(injection, ['cityDistrict', 'typeFull'], ''),
                     city_district: get(injection, ['cityDistrict', 'name']),
                     settlement_fias_id: null,
                     settlement_kladr_id: null,
                     settlement_with_type,
-                    settlement_type: get(injection, ['settlement', 'typeShort'], null),
-                    settlement_type_full: get(injection, ['settlement', 'typeFull'], null),
+                    settlement_type: get(injection, ['settlement', 'typeShort'], ''),
+                    settlement_type_full: get(injection, ['settlement', 'typeFull'], ''),
                     settlement: get(injection, ['settlement', 'name']),
                     street_fias_id: null,
                     street_kladr_id: null,
                     street_with_type,
-                    street_type: get(injection, ['street', 'typeShort'], null),
-                    street_type_full: get(injection, ['street', 'typeFull'], null),
+                    street_type: get(injection, ['street', 'typeShort'], ''),
+                    street_type_full: get(injection, ['street', 'typeFull'], ''),
                     street: get(injection, ['street', 'name']),
                     stead_fias_id: null,
                     stead_cadnum: null,
@@ -128,10 +128,10 @@ class InjectionsSeeker {
                     house_kladr_id: null,
                     house_cadnum: null,
                     house_type,
-                    house_type_full: get(injection, ['house', 'typeFull']),
+                    house_type_full: get(injection, ['house', 'typeFull'], ''),
                     house,
                     block_type,
-                    block_type_full: get(injection, ['block', 'typeFull']),
+                    block_type_full: get(injection, ['block', 'typeFull'], ''),
                     block,
                     entrance: null,
                     floor: null,
@@ -169,6 +169,10 @@ class InjectionsSeeker {
                     unparsed_parts: null,
                     source: null,
                     qc: null,
+                },
+                provider: {
+                    name: INJECTIONS_PROVIDER,
+                    rawData: injection,
                 },
             }
         })
