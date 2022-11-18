@@ -17,6 +17,7 @@ const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
+const { REGISTER_USER_EXTERNAL_IDENTITY_MUTATION } = require('@condo/domains/user/gql')
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
@@ -318,6 +319,20 @@ async function resetUserByTestClient (client, extraAttrs = {}) {
     return [data.result, attrs]
 }
 
+async function registerUserExternalIdentityByTestClient (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_USER_EXTERNAL_IDENTITY_MUTATION, { data: attrs })
+    throwIfError(data, errors, { query: REGISTER_USER_EXTERNAL_IDENTITY_MUTATION, variables: { data: attrs } })
+    return [data.result, attrs]
+}
+
 async function registerNewServiceUserByTestClient (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
@@ -438,6 +453,7 @@ async function updateTestOidcClient (client, id, extraAttrs = {}) {
 module.exports = {
     User,
     UserAdmin,
+    UserExternalIdentity,
     createTestUser,
     createTestUserExternalIdentity,
     updateTestUser,
@@ -465,6 +481,7 @@ module.exports = {
     signinAsUserByTestClient,
     registerNewServiceUserByTestClient,
     resetUserByTestClient,
+    registerUserExternalIdentityByTestClient,
     supportSendMessageToSupportByTestClient,
     completeConfirmPhoneActionByTestClient,
     changePhoneNumberResidentUserByTestClient,

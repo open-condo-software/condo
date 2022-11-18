@@ -14,7 +14,7 @@ const {
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { User: UserGQL } = require('@condo/domains/user/gql')
+const { User: UserGQL, UserExternalIdentity: UserExternalIdentityGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
 const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
@@ -25,6 +25,7 @@ const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
+const UserExternalIdentity = generateServerUtils(UserExternalIdentityGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 const ForgotPasswordAction = generateServerUtils(ForgotPasswordActionGQL)
 
@@ -178,6 +179,7 @@ async function markTokenAsUsed (context, tokenType, tokenAction, sender) {
 
 module.exports = {
     User,
+    UserExternalIdentity,
     ConfirmPhoneAction,
     generateSmsCode,
     ForgotPasswordAction,
