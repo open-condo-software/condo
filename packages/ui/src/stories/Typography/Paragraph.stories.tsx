@@ -2,9 +2,9 @@ import React from 'react'
 import get from 'lodash/get'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Typography } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
 import type { TypographyParagraphProps } from '@open-condo/ui/src'
 import { styled } from '@storybook/theming'
-import { colors } from '../colors'
 
 const AVAILABLE_TYPES: Array<TypographyParagraphProps['type']> = [
     undefined,

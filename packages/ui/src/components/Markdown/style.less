@@ -1,0 +1,77 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+
+.condo-markdown {
+  // Headers margins
+  h1:not(:first-child),
+  h2:not(:first-child),
+  h3:not(:first-child),
+  h4:not(:first-child),
+  h5:not(:first-child),
+  h6:not(:first-child) {
+    margin: 1.8em 0 0.6em;
+  }
+
+  // Images fit
+  img {
+    max-width: 100%;
+  }
+
+  // Display code block as block
+  pre code {
+    display: block;
+    margin: 0 0 @condo-global-typography-text-l-paragraph-spacing;
+  }
+
+  // Lists
+  ul,
+  ol {
+    margin-bottom: 1.8em;
+    padding-left: 0.75em;
+    color: @condo-global-color-gray-7;
+    list-style-position: inside;
+
+    &.contains-task-list {
+      padding-left: 0;
+
+      & > li {
+        list-style-type: none;
+      }
+    }
+
+    & ul,
+    & ol {
+      padding-left: @condo-global-spacing-20;
+    }
+
+    & > li:not(:last-child),
+    & > li ul:not(:last-child),
+    & > li ol:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
+
+    & > li ul:first-child,
+    & > li ol:first-child {
+      margin-top: 0.5em;
+    }
+
+    & li::marker {
+      .condo-typography-text-large();
+    }
+  }
+
+  // Blockquotes
+  blockquote {
+    margin: 1em 0;
+    padding-left: 1em;
+    border-left: 0.25em solid @condo-global-color-gray-5;
+
+    & > .condo-typography {
+      padding: 0.5em 0;
+    }
+
+    & > blockquote:not(:first-child) {
+      margin-top: 0.5em;
+    }
+  }
+}

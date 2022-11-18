@@ -14,3 +14,6 @@ export type {
     TypographyLinkProps,
     TypographyParagraphProps,
 } from './components/Typography'
+
+export { Markdown } from './components/Markdown'
+export type { MarkdownProps } from './components/Markdown'

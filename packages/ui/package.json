@@ -113,6 +113,8 @@
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
     "antd": "^4.24.3",
-    "classnames": "^2.3.2"
+    "classnames": "^2.3.2",
+    "react-markdown": "^8.0.3",
+    "remark-gfm": "^3.0.1"
   }
 }
