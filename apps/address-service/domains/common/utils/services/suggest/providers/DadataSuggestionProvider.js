@@ -204,7 +204,6 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         // Yes, at the beginning it will be 1-to-1 copying
         return data.map((item) => (
             {
-                label: get(item, 'value'),
                 value: get(item, 'value'),
                 unrestricted_value: get(item, 'unrestricted_value'),
                 data: {
@@ -300,6 +299,10 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     unparsed_parts: get(item, ['data', 'unparsed_parts']),
                     source: get(item, ['data', 'source']),
                     qc: get(item, ['data', 'qc']),
+                },
+                provider: {
+                    name: DADATA_PROVIDER,
+                    rawData: item,
                 },
             }
         ))
