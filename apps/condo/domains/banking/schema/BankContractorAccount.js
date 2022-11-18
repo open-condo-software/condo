@@ -74,6 +74,8 @@ const BankContractorAccount = new GQLListSchema('BankContractorAccount', {
             isRequired: true,
         },
 
+        currencyCode: CURRENCY_CODE_FIELD,
+
         importId: {
             // TODO(codegen): write doc for BankContractorAccount.importId field!
             schemaDoc: 'TODO DOC!',
