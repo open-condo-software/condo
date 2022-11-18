@@ -15,7 +15,7 @@ interface IPosterLayoutProps {
 }
 const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.black }
 const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
-const FOOTER_ROW_STYLE = { width: '45%', justifyContent: 'stretch' }
+const FOOTER_STYLE = { width: '43%', justifyContent: 'stretch' }
 
 const {
     publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null, support_phone: SUPPORT_PHONE = null } },
@@ -56,8 +56,8 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAct
                     </PageContent>
                 </Col>
                 <Col span={24}>
-                    <Footer isSmall={isSmall} >
-                        <Row style={FOOTER_ROW_STYLE}>
+                    <Footer isSmall={isSmall} style={FOOTER_STYLE}>
+                        <Row>
                             {SUPPORT_EMAIL && SUPPORT_PHONE && <Row>
                                 <Typography.Paragraph type='secondary' >
                                     <Typography.Link
