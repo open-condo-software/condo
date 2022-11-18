@@ -8,9 +8,11 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const access = require('@address-service/domains/address/access/AddressInjection')
 const get = require('lodash/get')
 const { Json, AddressPartWithType } = require('@open-condo/keystone/fields')
+const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
 
 const AddressInjection = new GQLListSchema('AddressInjection', {
     schemaDoc: 'Addresses that do not exist in external providers',
+    labelResolver: ({ keywords }) => keywords,
     fields: {
         country: {
             schemaDoc: 'The country',
@@ -46,12 +48,18 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
         street: {
             schemaDoc: 'The street name itself',
             type: AddressPartWithType,
+            // The properties table will contain an empty string if there is no `street_with_type` field
+            // So, I decided to make this field required.
+            isRequired: true,
         },
 
         house: {
             schemaDoc: 'The number of the building',
             type: AddressPartWithType,
             isRequired: true,
+            allowedValues: {
+                typeFull: VALID_HOUSE_TYPES,
+            },
         },
 
         block: {
