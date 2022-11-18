@@ -17,6 +17,9 @@ const BankCostItem = generateGQLTestUtils(BankCostItemGQL)
 
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const BankAccount = generateGQLTestUtils(BankAccountGQL)
+
+const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
+const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -111,11 +114,45 @@ async function updateTestBankAccount (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankContractorAccount (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBankContractorAccount logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankContractorAccount.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankContractorAccount (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBankContractorAccount logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankContractorAccount.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     BankCategory, createTestBankCategory, updateTestBankCategory,
     BankCostItem, createTestBankCostItem, updateTestBankCostItem,
     BankAccount, createTestBankAccount, updateTestBankAccount,
+    BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
