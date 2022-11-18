@@ -14,8 +14,8 @@ describe('Suggestions provider detector', () => {
             [DADATA_PROVIDER, DadataSuggestionProvider],
             [GOOGLE_PROVIDER, GoogleSuggestionProvider],
             ['ru', DadataSuggestionProvider],
-            [undefined, GoogleSuggestionProvider],
-            ['abra-shvabra-cadabra', GoogleSuggestionProvider],
+            [undefined, DadataSuggestionProvider],
+            ['abra-shvabra-cadabra', DadataSuggestionProvider],
         ]
 
         test.each(cases)('for %p - is %p', (geo, expected) => {
