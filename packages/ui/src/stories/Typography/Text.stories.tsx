@@ -2,9 +2,9 @@ import React from 'react'
 import get from 'lodash/get'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Typography } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
 import type { TypographyTextProps } from '@open-condo/ui/src'
 import { styled } from '@storybook/theming'
-import { colors } from '../colors'
 
 // TODO(DOMA-4682): Move to UI-kit
 import { Space } from 'antd'
