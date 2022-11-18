@@ -18,6 +18,7 @@ const {
     SearchByAddressKey,
     SearchByInjectionId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
+const { MainKeystoneApp } = require('@address-service/domains/common/utils/services/main/MainKeystoneApp')
 
 const keystone = new Keystone({
     onConnect: async () => {
@@ -61,6 +62,7 @@ module.exports = {
             authStrategy,
             hooks: require.resolve('@app/address-service/admin-ui'),
         }),
+        new MainKeystoneApp(),
         new SuggestionKeystoneApp(),
         new SearchKeystoneApp([new SearchByAddressKey(), new SearchByInjectionId(), new SearchBySource(), new SearchByProvider()]),
     ].filter(identity),
