@@ -16,13 +16,15 @@ class SuggestionProviderDetector {
         switch (geo) {
             // In some cases, we need to force choose one of the providers.
             // To achieve this, we give an ability to pass a particular provider name
+            case GOOGLE_PROVIDER:
+                suggestionProvider = new GoogleSuggestionProvider()
+                break
             case DADATA_PROVIDER:
             case 'ru':
                 suggestionProvider = new DadataSuggestionProvider()
                 break
-            case GOOGLE_PROVIDER:
             default:
-                suggestionProvider = new GoogleSuggestionProvider()
+                suggestionProvider = new DadataSuggestionProvider()
         }
 
         return suggestionProvider
