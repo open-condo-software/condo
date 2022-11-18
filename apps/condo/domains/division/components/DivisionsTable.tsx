@@ -96,6 +96,7 @@ export default function DivisionTable (props: BuildingTableProps) {
                                         handleSearchChange(e.target.value)
                                     }}
                                     value={search}
+                                    allowClear={true}
                                 />
                             </Col>
                             <Col lg={6} offset={1} hidden={isSmall}>
