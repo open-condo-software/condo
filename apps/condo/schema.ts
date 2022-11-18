@@ -15923,6 +15923,10 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
   isPhoneVerified: Scalars['Boolean'];
 };
 
+export enum IdentityType {
+  SberId = 'sber_id'
+}
+
 export type InviteNewOrganizationEmployeeInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -23747,6 +23751,7 @@ export type Mutation = {
    * }`
    */
   resetUser?: Maybe<ResetUserOutput>;
+  registerUserExternalIdentity?: Maybe<RegisterUserExternalIdentityOutput>;
   /**
    * Registers new Organization for current user
    *
@@ -29931,6 +29936,11 @@ export type MutationSendMessageToSupportArgs = {
 
 export type MutationResetUserArgs = {
   data: ResetUserInput;
+};
+
+
+export type MutationRegisterUserExternalIdentityArgs = {
+  data: RegisterUserExternalIdentityInput;
 };
 
 
@@ -42502,6 +42512,20 @@ export type RegisterServiceConsumerInput = {
 
 export type RegisterServiceConsumerInputExtra = {
   paymentCategory?: Maybe<Scalars['String']>;
+};
+
+export type RegisterUserExternalIdentityInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  user: UserWhereUniqueInput;
+  identityId: Scalars['String'];
+  identityType: IdentityType;
+  meta: Scalars['JSON'];
+};
+
+export type RegisterUserExternalIdentityOutput = {
+  __typename?: 'RegisterUserExternalIdentityOutput';
+  status: Scalars['String'];
 };
 
 /**  Used to describe device in order to be able to send push notifications via corresponding transport, depending on pushTransport value. RemoteClient could be mobile or web based. RemoteClient could be registered (created by user, admin or anonymous) with or without token, and updated later on by admin (or a user within SyncRemoteClientService) by adding/changing token value and connecting device to user (whose authorization was passed within request). All such interactions should be done via SyncRemoteClientService.  */

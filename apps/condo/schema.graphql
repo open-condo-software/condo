@@ -47546,6 +47546,23 @@ type ResetUserOutput {
   status: String!
 }
 
+enum IdentityType {
+  sber_id
+}
+
+input RegisterUserExternalIdentityInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  user: UserWhereUniqueInput!
+  identityId: String!
+  identityType: IdentityType!
+  meta: JSON!
+}
+
+type RegisterUserExternalIdentityOutput {
+  status: String!
+}
+
 input RegisterNewOrganizationInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -54223,6 +54240,7 @@ type Mutation {
   }`
   """
   resetUser(data: ResetUserInput!): ResetUserOutput
+  registerUserExternalIdentity(data: RegisterUserExternalIdentityInput!): RegisterUserExternalIdentityOutput
 
   """
   Registers new Organization for current user
