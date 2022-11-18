@@ -9,7 +9,7 @@ const { countryPhoneData } = require('phone')
 const isEmpty = require('lodash/isEmpty')
 const { getRandomString, makeClient, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { User: UserGQL, UserAdmin: UserAdminGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION, CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
+const { User: UserGQL, UserAdmin: UserAdminGQL, UserExternalIdentity: UserExternalIdentityGQL, REGISTER_NEW_USER_MUTATION, COMPLETE_CONFIRM_PHONE_MUTATION, CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { generateSmsCode } = require('@condo/domains/user/utils/serverSchema')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
@@ -20,12 +20,14 @@ const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const {
     SMS_CODE_TTL,
     CONFIRM_PHONE_ACTION_EXPIRY,
+    SBER_ID_IDP_TYPE,
 } = require('@condo/domains/user/constants/common')
 const { RESIDENT, STAFF, SERVICE } = require('@condo/domains/user/constants/common')
 const { max, repeat, get } = require('lodash')
 
 const User = generateGQLTestUtils(UserGQL)
 const UserAdmin = generateGQLTestUtils(UserAdminGQL)
+const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
 const { OidcClient: OidcClientGQL, CHANGE_PASSWORD_WITH_TOKEN_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -65,6 +67,28 @@ async function createTestUser (client, extraAttrs = {}, { raw = false } = {}) {
         ...extraAttrs,
     }
     const result = await User.create(client, attrs, { raw })
+    if (raw) return result
+    return [result, attrs]
+}
+
+async function createTestUserExternalIdentity (client, extraAttrs = {}, { raw = false } = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
+    const identityId = faker.random.alphaNumeric(8)
+    const identityType = SBER_ID_IDP_TYPE
+    const meta = {
+        dv: 1, city: faker.address.city(), county: faker.address.county(),
+    }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        identityId,
+        identityType,
+        meta,
+        ...extraAttrs,
+    }
+    const result = await UserExternalIdentity.create(client, attrs, { raw })
     if (raw) return result
     return [result, attrs]
 }
@@ -415,6 +439,7 @@ module.exports = {
     User,
     UserAdmin,
     createTestUser,
+    createTestUserExternalIdentity,
     updateTestUser,
     registerNewUser,
     makeLoggedInClient,

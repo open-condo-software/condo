@@ -17,7 +17,7 @@ async function canReadUserExternalIntegrations ({ authentication: { item: user }
     if (user.isSupport || user.isAdmin) return {}
 }
 
-async function canManageUserExternalIntegrations ({ authentication: { item: user } }) {
+async function canDeleteUserExternalIntegrations ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -36,5 +36,5 @@ async function canManageUserExternalIntegrations ({ authentication: { item: user
 */
 module.exports = {
     canReadUserExternalIntegrations,
-    canManageUserExternalIntegrations,
+    canDeleteUserExternalIntegrations,
 }
