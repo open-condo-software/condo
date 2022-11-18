@@ -1,10 +1,12 @@
 /** @jsx jsx */
 import { FieldContainer, FieldInput, FieldLabel } from '@arch-ui/fields'
 import { Input } from '@arch-ui/input'
+import Select from '@arch-ui/select'
 import { jsx } from '@emotion/react'
+import get from 'lodash/get'
 
 const AddressPartWithTypeField = ({ onChange, autoFocus, field, errors, value = '{}', isDisabled }) => {
-    const { name = '', typeShort = '', typeFull = '' } = JSON.parse(value)
+    const { name = '', typeShort = '', typeFull = '' } = JSON.parse(value || '{}')
 
     const canRead = errors.every(
         error => !(error instanceof Error && error.name === 'AccessDeniedError'),
@@ -14,8 +16,14 @@ const AddressPartWithTypeField = ({ onChange, autoFocus, field, errors, value = 
     const htmlIdTypeShort = `ks-input-${field.path}typeShort`
     const htmlIdTypeFull = `ks-input-${field.path}typeFull`
 
+    const typeFullAllowedValues = get(field, ['allowedValues', 'typeFull'])
+
     const resolveOnChange = (fieldName) => (event) => {
         onChange(JSON.stringify({ ...JSON.parse(value), [fieldName]: event.target.value }))
+    }
+
+    const resolveOnSelectChange = (fieldName) => (newValue) => {
+        onChange(JSON.stringify({ ...JSON.parse(value), [fieldName]: newValue.value }))
     }
 
     return (
@@ -25,18 +33,39 @@ const AddressPartWithTypeField = ({ onChange, autoFocus, field, errors, value = 
                 <FieldContainer>
                     <FieldLabel field={{ ...field, label: 'Full type' }} htmlFor={htmlIdName}/>
                     <FieldInput>
-                        <Input
-                            autoComplete='off'
-                            autoFocus={autoFocus}
-                            required={field.isRequired}
-                            type='text'
-                            value={canRead ? typeFull : undefined}
-                            placeholder={canRead ? undefined : error.message}
-                            onChange={resolveOnChange('typeFull')}
-                            id={htmlIdName}
-                            isMultiline={false}
-                            disabled={isDisabled}
-                        />
+                        {
+                            typeFullAllowedValues
+                                ? (
+                                    <Select
+                                        autoFocus={autoFocus}
+                                        required={field.isRequired}
+                                        value={canRead ? { label: typeFull, value: typeFull } : undefined}
+                                        placeholder={canRead ? undefined : error.message}
+                                        options={typeFullAllowedValues.map((item) => ({ label: item, value: item }))}
+                                        onChange={resolveOnSelectChange('typeFull')}
+                                        isClearable={false}
+                                        id={`react-select-${htmlIdTypeFull}`}
+                                        inputId={htmlIdTypeFull}
+                                        instanceId={htmlIdTypeFull}
+                                        isDisabled={isDisabled}
+                                        showSearch={false}
+                                    />
+                                )
+                                : (
+                                    <Input
+                                        autoComplete='off'
+                                        autoFocus={autoFocus}
+                                        required={field.isRequired}
+                                        type='text'
+                                        value={canRead ? typeFull : undefined}
+                                        placeholder={canRead ? undefined : error.message}
+                                        onChange={resolveOnChange('typeFull')}
+                                        id={htmlIdName}
+                                        isMultiline={false}
+                                        disabled={isDisabled}
+                                    />
+                                )
+                        }
                     </FieldInput>
                 </FieldContainer>
                 <FieldContainer>
