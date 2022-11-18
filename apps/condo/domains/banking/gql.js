@@ -19,7 +19,7 @@ const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
-	BankAccount,
+    BankAccount,
     BankCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
