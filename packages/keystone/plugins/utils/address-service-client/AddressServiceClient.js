@@ -51,17 +51,26 @@ class AddressServiceClient {
 
     /**
      * @param {string} url just url to call
+     * @param {Object} body post-data
+     * @param {'GET'|'POST'} method query type
      * @returns {Promise<*>}
      * @private
      */
-    async call (url) {
-        const result = await fetch(url)
+    async call (url, body = {}, method = 'GET') {
+        const result = await fetch(url, {
+            method,
+            body,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        })
         const status = result.status
         if (status === 200) {
             return await result.json()
         } else {
-            //TODO(AleX83Xpert) need to log erroneous status
-            return []
+            //TODO(AleX83Xpert) maybe need to log erroneous status
+            return null
         }
     }
 
@@ -96,6 +105,18 @@ class AddressServiceClient {
         const urlParams = [`s=${s}`, this.urlifyParams(params)].filter(Boolean)
 
         return this.call(`${this.url}/search?${urlParams.join('&')}`)
+    }
+
+    /**
+     * @param {{source: string, value: {address: string} & NormalizedBuilding, token: string}} data
+     * @returns {Promise<*>}
+     */
+    async add (data) {
+        if (!data) {
+            throw new Error('The `data` parameter is mandatory')
+        }
+
+        return this.call(`${this.url}/add`, JSON.stringify(data), 'POST')
     }
 }
 

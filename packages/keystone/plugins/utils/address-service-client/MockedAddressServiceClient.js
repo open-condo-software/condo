@@ -144,6 +144,10 @@ class MockedAddressServiceClient {
     async suggest (s, params) {
         throw new Error('If you really need in this method, realize it! :)')
     }
+
+    async add (data) {
+        throw new Error('This method shouldn\'t be called during tests')
+    }
 }
 
 module.exports = { MockedAddressServiceClient }
