@@ -6,6 +6,9 @@ export type { ButtonProps } from './components/Button'
 export { Carousel } from './components/Carousel'
 export type { CarouselProps } from './components/Carousel'
 
+export { Modal } from './components/Modal'
+export type { ModalProps } from './components/Modal'
+
 export { Typography } from './components/Typography'
 export type {
     TypographyType,
