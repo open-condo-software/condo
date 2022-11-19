@@ -7,12 +7,12 @@ import { SearchOutlined } from '@ant-design/icons'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { Modal } from '@condo/domains/common/components/Modal'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { Modal } from '@condo/domains/common/components/Modal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { ClientType, mapToSelectOption, redirectToForm } from '@condo/domains/contact/utils/clientCard'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 

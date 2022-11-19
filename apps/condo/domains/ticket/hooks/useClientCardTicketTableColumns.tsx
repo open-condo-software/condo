@@ -10,13 +10,13 @@ import {
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { IFilters } from '../utils/helpers'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import {
     getClassifierRender,
     getStatusRender,
     getTicketDetailsRender,
-} from '../utils/clientSchema/Renders'
-import { TicketComment } from '../utils/clientSchema'
+} from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 
 export function useClientCardTicketTableColumns (tickets) {
     const intl = useIntl()
