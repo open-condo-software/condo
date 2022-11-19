@@ -2,6 +2,8 @@ import React, { useState, useCallback } from 'react'
 import { Typography, Form } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useIntl } from '@open-condo/next/intl'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { FormWithAction, IFormWithActionChildren } from '@condo/domains/common/components/containers/FormList'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
@@ -29,7 +31,7 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
     const intl = useIntl()
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
-    const SameUnitNamesErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const UnsavedChangesError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.unsavedChanges' })
 
     const { action, initialValues, property, children, canManageProperties = false } = props
 
@@ -63,16 +65,12 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                         rules={[
                             {
                                 validator (rule, value) {
-                                    const unitLabels = value?.sections
-                                        ?.map((section) => section.floors
-                                            ?.map(floor => floor.units
-                                                ?.map(unit => unit.label)
-                                            )
-                                        )
-                                        .flat(2)
+                                    const sections = get(value, 'sections', [])
+                                    const parking = get(value, 'parking', [])
 
-                                    if (unitLabels && unitLabels.length !== new Set(unitLabels).size) {
-                                        setMapValidationError(SameUnitNamesErrorMsg)
+                                    const hasPreview = (mapComponent) => get(mapComponent, 'preview', false)
+                                    if (!isEmpty(sections.filter(hasPreview)) || !isEmpty(parking.filter(hasPreview))) {
+                                        setMapValidationError(UnsavedChangesError)
                                         return Promise.reject()
                                     }
 

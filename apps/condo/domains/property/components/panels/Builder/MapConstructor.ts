@@ -773,6 +773,7 @@ class MapEdit extends MapView {
         }))
         this._previewSectionId = newSection.id
         this.map.sections.push(newSection)
+        this.notifyUpdater()
     }
 
     public addSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType = BuildingUnitSubType.Flat): void {
