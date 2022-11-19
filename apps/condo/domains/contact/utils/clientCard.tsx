@@ -1,13 +1,14 @@
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
+import { NextRouter } from 'next/router'
+import qs from 'qs'
 import React from 'react'
+
 import Select from '@condo/domains/common/components/antd/Select'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-import { NextRouter } from 'next/router'
-import qs from 'qs'
 
 export enum ClientType {
     Resident,

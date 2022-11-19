@@ -1,9 +1,25 @@
+import { Col, Row, Tabs, Typography } from 'antd'
+import { EllipsisConfig } from 'antd/es/typography/Base'
+import { get, uniqBy } from 'lodash'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import { BuildingUnitSubType, Contact as ContactType, SortTicketsBy, Ticket as TicketType } from '@app/condo/schema'
+
+import styled from '@emotion/styled'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { Tag } from '@condo/domains/common/components/Tag'
+import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -12,20 +28,6 @@ import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketI
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import styled from '@emotion/styled'
-import { Col, Row, Tabs, Typography } from 'antd'
-import { EllipsisConfig } from 'antd/es/typography/Base'
-import { get, uniqBy } from 'lodash'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { useIntl } from '@open-condo/next/intl'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useOrganization } from '@open-condo/next/organization'
-import { Tag } from '@condo/domains/common/components/Tag'
-import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { BuildingUnitSubType, SortTicketsBy } from '@app/condo/schema'
-import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 
 const StyledTabs = styled(Tabs)`
   &.ant-tabs-top > .ant-tabs-nav::before {
@@ -128,13 +130,18 @@ const StyledLink = styled.span`
 `
 
 const HINT_CARD_STYLE = { maxHeight: '3em' }
+const EMAIL_TEXT_STYLES = { fontSize: fontSizes.content }
 
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 
-const ClientContent = ({ lastTicket }) => {
-    const ticketContact = get(lastTicket, 'contact')
-    const name = get(ticketContact, 'name', get(lastTicket, 'clientName'))
-    const email = get(ticketContact, 'email', get(lastTicket, 'clientEmail'))
+interface IClientContactProps {
+    lastTicket: TicketType,
+    contact?: ContactType
+}
+
+const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact }) => {
+    const name = get(contact, 'name', get(lastTicket, 'clientName'))
+    const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
 
     return (
         <Row>
@@ -142,7 +149,7 @@ const ClientContent = ({ lastTicket }) => {
                 <Row justify='space-between'>
                     <Typography.Title level={3}>{name}</Typography.Title>
                     {
-                        ticketContact && (
+                        contact && lastTicket && (
                             <TicketResidentFeatures ticket={lastTicket}/>
                         )
                     }
@@ -151,7 +158,7 @@ const ClientContent = ({ lastTicket }) => {
             {
                 email && (
                     <Col span={24}>
-                        <Typography.Text style={{ fontSize: fontSizes.content }}>
+                        <Typography.Text style={EMAIL_TEXT_STYLES}>
                             {email}
                         </Typography.Text>
                     </Col>
@@ -167,6 +174,7 @@ const ClientCardTabContent = ({
     handleTicketCreateClick,
     canManageContacts,
     handleContactEditClick = null,
+    contact = null,
 }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
@@ -214,7 +222,7 @@ const ClientCardTabContent = ({
                         </StyledLink>
                     </Col>
                     <Col span={24}>
-                        <ClientContent lastTicket={lastCreatedTicket}/>
+                        <ClientContent lastTicket={lastCreatedTicket} contact={contact}/>
                     </Col>
                     <Col span={24}>
                         <TicketPropertyHintCard
@@ -318,6 +326,7 @@ const ContactClientTabContent = ({ property, unitName, phone, canManageContacts 
             handleTicketCreateClick={handleTicketCreateClick}
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
+            contact={contact}
         />
     )
 }
