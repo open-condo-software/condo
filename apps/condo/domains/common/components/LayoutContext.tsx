@@ -1,7 +1,6 @@
 import { Grid } from 'antd'
 import { ScreenMap } from 'antd/es/_util/responsiveObserve'
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { detectMobileNavigator } from '../utils/navigator'
 import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 const { useBreakpoint } = Grid
@@ -14,6 +13,13 @@ interface ILayoutContext {
     isCollapsed?: boolean
     toggleCollapsed?: () => void
     addNotification?: (notification: ITopNotification) => void
+}
+
+const detectMobileNavigator = (): boolean => {
+    return (
+        typeof window !== 'undefined'
+        && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
+    )
 }
 
 const LayoutContext = createContext<ILayoutContext>({})
