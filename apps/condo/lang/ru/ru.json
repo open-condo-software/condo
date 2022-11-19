@@ -478,6 +478,7 @@
   "pages.condo.property.warning.modal.HelpMessage": "Информация о доме не сохранится, если вы уйдёте со страницы. Сохраните изменения или продолжите редактировать информацию о доме, закрыв это сообщение.",
   "pages.condo.property.warning.modal.AddressValidationErrorMsg": "Это не похоже на адрес дома. Проверьте, всё ли вы правильно указали.",
   "pages.condo.property.warning.modal.SameUnitNamesErrorMsg": "Названия помещений должны быть уникальными",
+  "pages.condo.property.warning.modal.unsavedChanges": "У вас есть несохраненные изменения",
   "pages.condo.property.warning.modal.SamePropertyErrorMsg": "Дом с таким адресом уже был добавлен в организацию",
   "pages.condo.property.warning.modal.Title": "Не сохранять дом?",
   "pages.condo.property.id.DownloadExcelLabel": "Скачать файл",

@@ -478,6 +478,7 @@
   "pages.condo.property.warning.modal.HelpMessage": "Unsaved information about this property will be lost if you leave this page. You can save the information or continue to edit  by closing this modal window.",
   "pages.condo.property.warning.modal.AddressValidationErrorMsg": "It doesn't look like a house address. Check if you have specified everything correctly.",
   "pages.condo.property.warning.modal.SameUnitNamesErrorMsg": "Unit names must be unique",
+  "pages.condo.property.warning.modal.unsavedChanges": "You have unsaved changes",
   "pages.condo.property.warning.modal.SamePropertyErrorMsg": "Property with this address has already been added to the organization",
   "pages.condo.property.warning.modal.Title": "Do not save property?",
   "pages.condo.property.id.DownloadExcelLabel": "Download file",

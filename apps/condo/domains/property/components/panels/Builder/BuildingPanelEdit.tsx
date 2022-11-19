@@ -197,6 +197,8 @@ const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }
     useHotkeys('ctrl+s', quickSaveCallback, [map, property, canManageProperties])
 }
 
+const BUILDING_PANEL_EDIT_ERROR_STYLE: React.CSSProperties = { width: '100%', textAlign: 'center', marginBottom: 'unset' }
+
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
@@ -393,7 +395,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                         </Button>
                         {
                             mapValidationError ? (
-                                <Typography.Paragraph type='danger' style={{ width: '100%', textAlign: 'center' }}>
+                                <Typography.Paragraph type='danger' style={BUILDING_PANEL_EDIT_ERROR_STYLE}>
                                     {mapValidationError}
                                 </Typography.Paragraph>
                             ) : null
