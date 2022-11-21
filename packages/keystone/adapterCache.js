@@ -91,7 +91,11 @@ class AdapterCacheMiddleware {
      */
     async getState (key) {
         const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${key}`)
-        if (serializedTime) { return new Date(parseInt(serializedTime)) }
+        if (serializedTime) {
+            const parsedTime = parseInt(serializedTime)
+            if (!isNaN(parsedTime)) { return new Date(parsedTime) }
+        }
+        return null
     }
 
     writeChangeToHistory ({ cache, event, table }) {
