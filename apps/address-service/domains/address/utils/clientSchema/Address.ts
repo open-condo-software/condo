@@ -8,7 +8,7 @@ import {
     AddressUpdateInput,
     QueryAllAddressesArgs,
 } from '@app/address-service/schema'
-import { generateReactHooks } from '@address-service/domains/common/utils/codegeneration/generate.hooks'
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { Address as AddressGQL } from '@address-service/domains/address/gql'
 
 const {

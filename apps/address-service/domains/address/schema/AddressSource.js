@@ -9,12 +9,12 @@ const access = require('@address-service/domains/address/access/AddressSource')
 
 
 const AddressSource = new GQLListSchema('AddressSource', {
-    schemaDoc: 'The source for the address',
+    schemaDoc: 'A model containing data on the particular building\'s address origin',
     labelResolver: ({ source }) => source,
     fields: {
 
         source: {
-            schemaDoc: 'Source string itself',
+            schemaDoc: 'The string the address was found by (address origin)',
             type: Text,
             isRequired: true,
             isUnique: true,

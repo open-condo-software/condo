@@ -2,6 +2,7 @@ const get = require('lodash/get')
 
 const JOINER = '~'
 const SPACE_REPLACER = '_'
+const SPECIAL_SYMBOLS_REGEX = /[!@#$%^&*)(+=.,_:;"'`[\]{}]/g
 
 /**
  * @param {NormalizedBuilding} normalizedBuilding
@@ -31,6 +32,7 @@ function generateAddressKey (normalizedBuilding) {
         .map(
             (part) => (
                 String(part)
+                    .replace(SPECIAL_SYMBOLS_REGEX, '')
                     .split(/\s/)
                     .filter((word) => Boolean(word.trim()))
                     .join(' ')

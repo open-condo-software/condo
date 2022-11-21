@@ -10,7 +10,7 @@ const access = require('@address-service/domains/address/access/Address')
 const { dvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 
 const Address = new GQLListSchema('Address', {
-    schemaDoc: 'Some specific building',
+    schemaDoc: 'A model containing data on the particular building\'s address',
     labelResolver: ({ address }) => address,
     fields: {
 
