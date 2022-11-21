@@ -68,14 +68,21 @@ export const getEmployeesSortedByTicketVisibilityType = (employees, organization
     ]
 }
 
-export const isEmployeeSpecializationAndPropertyMatchesToScope = (categoryClassifier, organizationEmployeeSpecializations, propertyScopes, propertyScopeEmployees) =>
+export const isEmployeeSpecializationAndPropertyMatchesToScope = (
+    {
+        categoryClassifierId,
+        organizationEmployeeSpecializations,
+        propertyScopes,
+        propertyScopeEmployees,
+    }
+) =>
     employee => {
         const propertyScopesWithAllPropertiesAndEmployees = propertyScopes.filter(scope => scope.hasAllProperties && scope.hasAllEmployees)
 
         const isPropertyMatches = propertyScopesWithAllPropertiesAndEmployees.length > 0 ||
-            propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
+            !!propertyScopeEmployees.find(scope => scope.employee.id === employee.id)
         const isSpecializationMatches = employee.hasAllSpecializations ||
-            !!organizationEmployeeSpecializations.find(scope => scope.employee.id === employee.id && scope.specialization.id === categoryClassifier)
+            !!organizationEmployeeSpecializations.find(scope => scope.employee.id === employee.id && scope.specialization.id === categoryClassifierId)
 
         return isPropertyMatches && isSpecializationMatches
     }

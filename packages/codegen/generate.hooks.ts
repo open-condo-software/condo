@@ -1,3 +1,4 @@
+import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
 import { useCallback, useEffect, useState } from 'react'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
@@ -248,7 +249,11 @@ export function generateReactHooks<
         const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
         const [data, setData] = useState(objs)
 
-        useEffect(() => {
+        useDeepCompareEffect(() => {
+            setData([])
+        }, [variables])
+
+        useDeepCompareEffect(() => {
             if (!loading && fetchMore && count > data.length) {
                 fetchMore({
                     variables: {
@@ -258,7 +263,7 @@ export function generateReactHooks<
                     // @ts-ignore
                     .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
             }
-        }, [count, fetchMore, loading, objs.length, data.length])
+        }, [count, fetchMore, loading, objs, data])
 
         return {
             loading,
