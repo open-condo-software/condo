@@ -33,6 +33,7 @@ const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
+const { AdapterCacheMiddleware } = require('@open-condo/keystone/adapterCache')
 
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
