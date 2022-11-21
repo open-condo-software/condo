@@ -1,3 +1,25 @@
+# Description
+It's a separate service for address processing.
+
+Each property is presented as the Address model instance. Each address may be found by different strings, so several AddressSource model instances may belong to each address.
+
+## Models
+- **Address**. A model containing data on the particular building's address.
+- **AddressSource**. A model containing data on the particular building's address origin.
+- **AddressInjection**. Addresses that do not exist in external providers.
+
+## Endpoints
+
+### /suggest
+Used to get a list of suggestions while the user trying to add a new property. There is an ability to use different suggestions providers. If some property still not exists in external providers, we may inject proper data before the answer is sent to the response. It may be reached by adding new AddressInjection model via admin interface.
+
+### /search
+Used to search addresses. This endpoint utilizes search plugins under the hood. The first not-empty plugin's result will send to the response.
+
+### /add
+Used to create new property during creating the same property in the condo database.
+
+
 # address-service quick start
 
 ```
@@ -23,6 +45,13 @@ DOCKER_COMPOSE_START_APP_COMMAND=yarn workspace @app/address-service start
 DOCKER_COMPOSE_DATABASE_URL=postgresql://postgres:postgres@postgresdb/main
 DOCKER_COMPOSE_COOKIE_SECRET=random
 DOCKER_COMPOSE_SERVER_URL=http://localhost:3003
+
+# for OIDC auth (login into admin interface)
+OIDC_CONFIG='{"serverUrl":"insert condo url", "clientId":"<insert client id>", "clientSecret":"<insert secret>"}'
+
+# Config for dadata suggestions api
+DADATA_SUGGESTIONS='{"url": "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", "token": "<insert your token>"}'
+
 ENDOFFILE
 
 # up database on default port
