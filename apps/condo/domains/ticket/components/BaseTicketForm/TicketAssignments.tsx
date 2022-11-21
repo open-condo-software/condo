@@ -95,7 +95,12 @@ const TicketAssignments = ({
 
         const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
             isEmployeeSpecializationAndPropertyMatchesToScope(
-                categoryClassifier, filteredEmployeeSpecializations, propertyScopes, filteredPropertyScopeEmployees
+                {
+                    categoryClassifierId: categoryClassifier,
+                    organizationEmployeeSpecializations: filteredEmployeeSpecializations,
+                    propertyScopes,
+                    propertyScopeEmployees: filteredPropertyScopeEmployees,
+                }
             )
         )
 
@@ -138,7 +143,10 @@ const TicketAssignments = ({
         }
 
         return result
-    }, [categoryClassifier, filteredEmployeeSpecializations, propertyScopes, filteredPropertyScopeEmployees, EmployeesOnPropertyMessage, intl, OtherMessage])
+    }, [
+        categoryClassifier, filteredEmployeeSpecializations, propertyScopes, filteredPropertyScopeEmployees,
+        EmployeesOnPropertyMessage, intl, OtherMessage,
+    ])
 
     const search = useMemo(() => searchEmployeeUserWithSpecializations(intl, organizationId, null),
         [intl, organizationId])
