@@ -1,7 +1,7 @@
 const express = require('express')
 
 const get = require('lodash/get')
-const { SuggestionProviderDetector } = require('@address-service/domains/common/utils/services/suggest/SuggestionProviderDetector')
+const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 
 class SuggestionKeystoneApp {
@@ -11,7 +11,6 @@ class SuggestionKeystoneApp {
      */
     prepareMiddleware (params) {
         const app = express()
-        const providerDetector = new SuggestionProviderDetector()
 
         function setNoCache (req, res, next) {
             res.set('Pragma', 'no-cache')
@@ -57,7 +56,7 @@ class SuggestionKeystoneApp {
             }
 
             // 1. Detect the suggestion provider
-            const suggestionProvider = providerDetector.getProvider(geo)
+            const suggestionProvider = getSuggestionsProvider(geo)
 
             // 2. Get suggestions array
             const denormalizedSuggestions = await suggestionProvider.get({ query: s, context, count })
