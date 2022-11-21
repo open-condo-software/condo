@@ -1,4 +1,8 @@
-import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
+import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
+import {
+    EmployeeNameAndSpecializations,
+    getEmployeeSpecializationsMessage,
+} from '@condo/domains/organization/utils/clientSchema/Renders'
 import { Gutter } from 'antd/es/grid/row'
 import uniq from 'lodash/uniq'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
@@ -131,7 +135,7 @@ const PropertyScopeIdPage = () => {
         }
 
         return employees.map(employee => {
-            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
+            const { SpecializationsMessage } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
             return (
                 <Typography.Paragraph
@@ -142,11 +146,14 @@ const PropertyScopeIdPage = () => {
                         href={`/employee/${get(employee, 'id')}`}
                     >
                         <Typography.Text>
-                            {employee.name} {specializationsMessage && (
-                                <Typography.Text>
-                                ({specializationsMessage})
-                                </Typography.Text>
-                            )}
+                            {
+                                employee.isBlocked ? renderBlockedObject(intl, employee.name) : (
+                                    <EmployeeNameAndSpecializations
+                                        employee={employee}
+                                        organizationEmployeeSpecializations={organizationEmployeeSpecializations}
+                                    />
+                                )
+                            }
                         </Typography.Text>
                     </Typography.Link>
                 </Typography.Paragraph>

@@ -1455,7 +1455,6 @@
   "excelExport.headers.propertyScopes.name": "Property scope name",
   "excelExport.headers.propertyScopes.properties": "Properties",
   "excelExport.headers.propertyScopes.employees": "Employees",
-  "excelExport.propertyScopes.employeeSpecializationsCount": "work categories: ",
   "excelExport.tickets.ticketCommentFilesCount": "files",
   "excelExport.tickets.ticketFromResident": "resident",
   "excelExport.tickets.ticketFromNonResident": "not resident",

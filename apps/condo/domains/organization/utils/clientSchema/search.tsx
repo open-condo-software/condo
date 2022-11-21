@@ -1,8 +1,5 @@
-import { Typography } from 'antd'
 import { gql } from 'graphql-tag'
 import React from 'react'
-
-import { getEmployeeSpecializationsMessage } from './Renders'
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrganizationEmployee ($where: OrganizationEmployeeWhereInput, $first: Int = 300, $skip: Int) {
@@ -20,6 +17,7 @@ const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
                 ticketVisibilityType
             }
             hasAllSpecializations
+            isBlocked
         }
     }
 `
@@ -47,7 +45,6 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
     return async function (client, value, query = {}, first, skip) {
         const where = {
             organization: { id: organizationId },
-            isBlocked: false,
             ...query,
         }
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })
@@ -65,20 +62,11 @@ export function searchEmployeeWithSpecializations (intl, organizationId, filter)
 
         return employees
             .filter(filter || Boolean)
-            .map(employee => {
-                const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations.objs)
-                const EmployeeText = (
-                    <Typography.Text>
-                        {employee.name} {specializationsMessage && (
-                            <Typography.Text>
-                                ({specializationsMessage})
-                            </Typography.Text>
-                        )}
-                    </Typography.Text>
-                )
-
-                return { text: EmployeeText, title: employee.name, value: employee.id }
-            })
+            .map(employee => ({
+                value: employee.id,
+                employee,
+                specializations: organizationEmployeeSpecializations.objs,
+            }))
     }
 }
 
@@ -88,7 +76,6 @@ export function searchEmployeeUserWithSpecializations (intl, organizationId, fil
     return async function (client, value, query = {}, first, skip) {
         const where  = {
             organization: { id: organizationId },
-            isBlocked: false,
             ...query,
         }
         const { data, error } = await _search(client, GET_ALL_ORGANIZATION_EMPLOYEE_QUERY, { value, where, first, skip })

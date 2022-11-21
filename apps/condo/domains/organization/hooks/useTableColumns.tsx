@@ -59,11 +59,11 @@ export const useTableColumns = (
     }
 
     const renderSpecializations = (employee) => {
-        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
+        const { SpecializationsMessage } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
         return (
             <Typography.Paragraph key={employee.id} style={TEXT_STYLES}>
-                {specializationsMessage && specializationsMessage}
+                {SpecializationsMessage && SpecializationsMessage}
             </Typography.Paragraph>
         )
     }
