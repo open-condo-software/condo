@@ -2,8 +2,12 @@ const { AddressInjection } = require('@address-service/domains/address/utils/ser
 const get = require('lodash/get')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
-const SPECIAL_SYMBOLS_REGEX = /[!@#$%^&*)(+=.\-_:;"'`[\]]/g
+const SPECIAL_SYMBOLS_REGEX = /[!@#$%^&*)(+=.,\-_:;"'`[\]]/g
 
+/**
+ * A class used to search injections within database.
+ * The injections are normalizing and including to the suggested results {@see SuggestionKeystoneApp}
+ */
 class InjectionsSeeker {
 
     /**
