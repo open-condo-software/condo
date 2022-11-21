@@ -177,6 +177,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         {...INPUT_LAYOUT_PROPS}
                                                         labelAlign='left'
                                                         required
+                                                        validateFirst
                                                         rules={validations.name}
                                                     >
                                                         <Input placeholder={FullNamePlaceholder} />
