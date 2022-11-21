@@ -73,12 +73,25 @@ class AdapterCacheMiddleware {
         }
     }
 
-    async setState (key, value) {
-        await this.redisClient.set(`${STATE_REDIS_KEY_PREFIX}:${key}`, value)
+    /**
+     * Sets last updated table time to Redis storage
+     * @param {string} key -- List name
+     * @param {Date} value -- Last updated time
+     * @returns {Promise<void>}
+     */
+    async setState (key, time) {
+        const serializedTime = time.valueOf()
+        await this.redisClient.set(`${STATE_REDIS_KEY_PREFIX}:${key}`, serializedTime)
     }
 
+    /**
+     * Returns last updated time by table from Redis
+     * @param {string} key -- List name
+     * @returns {Promise<Date>}
+     */
     async getState (key) {
-        return await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${key}`)
+        const serializedTime = await this.redisClient.get(`${STATE_REDIS_KEY_PREFIX}:${key}`)
+        if (serializedTime) { return new Date(parseInt(serializedTime)) }
     }
 
     writeChangeToHistory ({ cache, event, table }) {
