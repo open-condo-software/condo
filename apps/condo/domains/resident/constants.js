@@ -60,8 +60,8 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '3',
-        name: 'Свет',
-        active: false,
+        name: 'Электричество',
+        active: true,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
@@ -74,8 +74,8 @@ const PAYMENT_CATEGORIES_META = [
     },
     {
         id: '5',
-        name: 'Вода',
-        active: false,
+        name: 'ХВС',
+        active: true,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
