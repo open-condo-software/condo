@@ -1,7 +1,7 @@
 const { AbstractSearchPlugin } = require('@address-service/domains/common/utils/services/search/AbstractSearchPlugin')
 const { Address } = require('@address-service/domains/address/utils/serverSchema')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
-const { SearchProviderDetector } = require('@address-service/domains/common/utils/services/search/SearchProviderDetector')
+const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const get = require('lodash/get')
 
 class SearchByProvider extends AbstractSearchPlugin {
@@ -11,8 +11,7 @@ class SearchByProvider extends AbstractSearchPlugin {
      * @returns {Promise<Object[]>}
      */
     async search (s) {
-        const searchDetector = new SearchProviderDetector()
-        const searchProvider = searchDetector.getProvider(this.geo)
+        const searchProvider = getSearchProvider(this.geo)
         const godContext = this.keystoneContext.sudo()
         const dvSender = {
             dv: 1,
