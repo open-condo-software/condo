@@ -1,6 +1,6 @@
 import { BillingReceipt } from '@app/condo/domains/billing/utils/clientSchema'
 import { BankCardIcon } from '@app/condo/domains/common/components/icons/BankCardIcon'
-import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
+import { Ticket } from '@app/condo/schema'
 import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 
@@ -10,7 +10,7 @@ import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
-import React, { useMemo } from 'react'
+import React from 'react'
 
 interface MobileAppInstalledIndicatorProps {
     isContactHasMobileApp: boolean
@@ -30,20 +30,15 @@ const MobileAppInstalledIndicator: React.FC<MobileAppInstalledIndicatorProps> = 
 
 interface PaymentsAvailableIndicatorProps {
     ticketOrganizationId: string
-    propertyAddress: string
 }
 
 /**
  Availability is determined by:
- 1. If receipts are found at this address for the last 2 months
- 2. Or:
-    At least 1 receipt for the current or previous period has been uploaded to the organization.
-    If the number of receipts for the previous period is not equal to 0,
-    then the number of receipts for the current period must be greater than or equal to the number for the previous one.
+ 1. at least 1 receipt for the current or previous period has been uploaded to the organization.
+ 2. If the number of receipts for the previous period is not equal to 0,
+ then the number of receipts for the current period must be greater than or equal to the number for the previous one.
  */
-const getIsPaymentsInMobileAppAvailable = (receiptsByProperty, receiptsInCurrentPeriod, receiptsInPreviousPeriod) => {
-    if (receiptsByProperty) return true
-
+const getIsPaymentsInMobileAppAvailable = (receiptsInCurrentPeriod, receiptsInPreviousPeriod) => {
     if (receiptsInCurrentPeriod > 0 || receiptsInPreviousPeriod > 0) {
         if (receiptsInPreviousPeriod === 0) return true
 
@@ -55,9 +50,7 @@ const getIsPaymentsInMobileAppAvailable = (receiptsByProperty, receiptsInCurrent
     return false
 }
 
-const TWO_MONTHS_AGO = dayjs().startOf('day').subtract(2, 'months').toISOString()
-
-const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId, propertyAddress }) => {
+const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId }) => {
     const intl = useIntl()
     const PaymentsAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsAvailable' })
     const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsNotAvailable' })
@@ -65,12 +58,13 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
     const currentPeriod = dayjs().startOf('month').subtract(1, 'month').format('YYYY-MM-DD')
     const previousPeriod = dayjs(currentPeriod).subtract(1, 'month').format('YYYY-MM-DD')
 
-    const receiptsSearchQuery = { context: { organization: { id: ticketOrganizationId } } }
+    const receiptsSearchQuery = { context: { organization: { id: ticketOrganizationId, deletedAt: null }, deletedAt: null } }
 
     const { count: receiptsInCurrentPeriod, loading: currentPeriodLoading } = BillingReceipt.useCount({
         where: {
             ...receiptsSearchQuery,
             period: currentPeriod,
+            deletedAt: null,
         },
     })
 
@@ -78,31 +72,15 @@ const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({
         where: {
             ...receiptsSearchQuery,
             period: previousPeriod,
+            deletedAt: null,
         },
     })
 
-    const { count: receiptsByProperty, loading: receiptsByPropertyLoading } = BillingReceipt.useCount({
-        where: {
-            property: {
-                OR: [
-                    { address: propertyAddress },
-                    { normalizedAddress: propertyAddress },
-                ],
-            },
-            createdAt_gte: TWO_MONTHS_AGO,
-        },
-        sortBy: [SortBillingReceiptsBy.CreatedAtDesc],
-    })
-
-    const isPaymentsAvailable = useMemo(
-        () => getIsPaymentsInMobileAppAvailable(receiptsByProperty, receiptsInCurrentPeriod, receiptsInPreviousPeriod),
-        [receiptsByProperty, receiptsInCurrentPeriod, receiptsInPreviousPeriod])
-    const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
-    const loading = currentPeriodLoading || previousPeriodLoading || receiptsByPropertyLoading
+    const isPaymentsAvailable = getIsPaymentsInMobileAppAvailable(receiptsInCurrentPeriod, receiptsInPreviousPeriod)
 
     return (
-        <Tooltip title={title}>
-            <BankCardIcon active={isPaymentsAvailable} loading={loading} />
+        <Tooltip title={isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage}>
+            <BankCardIcon active={isPaymentsAvailable} loading={currentPeriodLoading || previousPeriodLoading} />
         </Tooltip>
     )
 }
@@ -116,7 +94,6 @@ const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
 export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ ticket }) => {
     const isContactHasMobileApp = !!get(ticket, 'client')
     const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
-    const propertyAddress = get(ticket, ['property', 'address'], null)
 
     return (
         <Row gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
@@ -124,10 +101,7 @@ export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ 
                 <MobileAppInstalledIndicator isContactHasMobileApp={isContactHasMobileApp} />
             </Col>
             <Col>
-                <PaymentsAvailableIndicator
-                    ticketOrganizationId={ticketOrganizationId}
-                    propertyAddress={propertyAddress}
-                />
+                <PaymentsAvailableIndicator ticketOrganizationId={ticketOrganizationId} />
             </Col>
         </Row>
     )
