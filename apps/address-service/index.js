@@ -19,6 +19,7 @@ const {
     SearchByInjectionId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
 const { MainKeystoneApp } = require('@address-service/domains/common/utils/services/main/MainKeystoneApp')
+const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 
 const keystone = new Keystone({
     onConnect: async () => {
@@ -55,7 +56,13 @@ module.exports = {
     keystone,
     apps: [
         conf.NODE_ENV === 'test' ? undefined : new OIDCKeystoneApp(),
-        new GraphQLApp({ apollo: { formatError, debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test' } }),
+        new GraphQLApp({
+            apollo: {
+                formatError,
+                debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test',
+                plugins: [new GraphQLLoggerPlugin()],
+            },
+        }),
         new AdminUIApp({
             adminPath: '/admin',
             isAccessAllowed: access.userIsAdmin,

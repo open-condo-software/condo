@@ -6,7 +6,19 @@ const { Text, Relationship } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@address-service/domains/address/access/AddressSource')
+const { SOURCE_ALREADY_EXISTS_ERROR } = require('@address-service/domains/address/constants')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { AddressSource: AddressSourceApi } = require('@address-service/domains/address/utils/serverSchema')
+const isEmpty = require('lodash/isEmpty')
 
+const errors = {
+    SAME_SOURCE: {
+        mutation: 'createAddressSource',
+        code: BAD_USER_INPUT,
+        type: SOURCE_ALREADY_EXISTS_ERROR,
+        message: 'Source with the same address already exists',
+    },
+}
 
 const AddressSource = new GQLListSchema('AddressSource', {
     schemaDoc: 'A model containing data on the particular building\'s address origin',
@@ -18,6 +30,23 @@ const AddressSource = new GQLListSchema('AddressSource', {
             type: Text,
             isRequired: true,
             isUnique: true,
+            hooks: {
+                validateInput: async ({ resolvedData, fieldPath, context, existingItem, operation }) => {
+                    const value = resolvedData[fieldPath]
+                    const isCreate = operation === 'create'
+                    const isUpdateAddress = operation === 'update' && resolvedData.source !== existingItem.source
+
+                    if (isCreate || isUpdateAddress) {
+                        const sourceSearch = isCreate ? { source_i: value } : { source: value }
+                        const where = { ...sourceSearch, deletedAt: null }
+                        const sameAddressSourceRows = await AddressSourceApi.getAll(context, where, { first: 1 })
+
+                        if (!isEmpty(sameAddressSourceRows)) {
+                            throw new GQLError(errors.SAME_SOURCE, context)
+                        }
+                    }
+                },
+            },
         },
 
         address: {
