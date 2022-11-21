@@ -1,6 +1,5 @@
 /**
  * Keystone database adapter level cache
- *
  */
 
 const { get, cloneDeep } = require('lodash')
@@ -47,9 +46,19 @@ class AdapterCacheMiddleware {
             // State: table_name -> lastUpdate
             this.redisClient = getRedisClient('adapterCacheState')
 
-            // This mechanism allows to skip caching some tables.
-            // Useful for hotfixes or disabling cache for business critical tables
-            this.excludedTables = get(parsedConfig, 'excludedTables', [])
+            // This mechanism allows to skip caching some lists.
+            // Useful for hotfixes or disabling cache for business critical lists
+            //
+            // includeAllLists is Bool:
+            // If includeAllLists is True:
+            // ==> "includedLists" is ignored.
+            // ==> all lists, that are not in "excludedLists" are cached.
+            // Else:
+            // ==> only lists, that are in "includedLists" are cached.
+            // ==> lists that are in "excludedLists" are NOT cached.
+            this.includeAllLists = get(parsedConfig, 'includeAllLists', false)
+            this.includedLists = get(parsedConfig, 'includedLists', [])
+            this.excludedLists = get(parsedConfig, 'excludedLists', [])
 
             // Logging allows to get the percentage of cache hits
             this.logging = get(parsedConfig, 'logging', false)
@@ -162,7 +171,9 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
     const keystoneAdapter = keystone.adapter
 
     const cache = middleware.cache
-    const excludedTables = middleware.excludedTables
+    const includeAllLists = middleware.includeAllLists
+    const excludedLists = middleware.excludedLists
+    const includedLists = middleware.includedLists
 
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
@@ -171,9 +182,13 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         const listName = listAdapter.key
         cache[listName] = {}
 
-        if (excludedTables.includes(listName)) {
+        if (excludedLists.includes(listName) ||
+            !includeAllLists && !includedLists.includes(listName)) {
+            logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName}`)
             continue
         }
+
+        logger.info(`ADAPTER_CACHE: Cache is enabled for list: ${listName}`)
 
         const originalItemsQuery = listAdapter._itemsQuery
         listAdapter._itemsQuery = async ( args, opts ) => {
