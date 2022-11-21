@@ -1455,7 +1455,6 @@
   "excelExport.headers.propertyScopes.name": "Название области видимости",
   "excelExport.headers.propertyScopes.properties": "Дома",
   "excelExport.headers.propertyScopes.employees": "Сотрудники",
-  "excelExport.propertyScopes.employeeSpecializationsCount": "типов работ: ",
   "excelExport.tickets.ticketCommentFilesCount": "файлов",
   "excelExport.tickets.ticketFromResident": "житель",
   "excelExport.tickets.ticketFromNonResident": "не житель",

@@ -1,5 +1,5 @@
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { GraphQlSearchInput, renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { searchEmployeeUserWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
@@ -17,6 +17,7 @@ import {
 import { useIntl } from '@open-condo/next/intl'
 import { Col, FormInstance, Row, Select, Typography } from 'antd'
 import { differenceBy } from 'lodash'
+import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useState } from 'react'
 
@@ -116,7 +117,7 @@ const TicketAssignments = ({
 
             result.push(
                 <Select.OptGroup label={EmployeesOnPropertyMessage} key={EmployeesOnPropertyMessage}>
-                    {convertEmployeesToOptions(sortedEmployees, intl, filteredEmployeeSpecializations).map(renderOption)}
+                    {convertEmployeesToOptions(intl, renderOption, sortedEmployees, filteredEmployeeSpecializations)}
                 </Select.OptGroup>
             )
         } else {
@@ -129,7 +130,7 @@ const TicketAssignments = ({
                 filteredEmployeeSpecializations,
                 categoryClassifier,
             )
-            const sortedEmployeeOptions = convertEmployeesToOptions(sortedEmployees, intl, filteredEmployeeSpecializations).map(renderOption)
+            const sortedEmployeeOptions = convertEmployeesToOptions(intl, renderOption, sortedEmployees, filteredEmployeeSpecializations)
 
             if (employeesWithMatchesPropertyAndSpecializationScope.length === 0) {
                 result.push(sortedEmployeeOptions)

@@ -29,22 +29,31 @@ const errors = {
 }
 
 const mapEmployeesToExcelRow = (employees, employeesSpecializations, locale) => {
-    const allSpecializationsMessage = i18n('employee.AllSpecializations', { locale })
-    const employeeSpecializationsCountMessage = i18n('excelExport.propertyScopes.employeeSpecializationsCount', { locale })
+    const SpecializationsCountMessage = i18n('employee.SpecializationsCount', { locale })
+    const AllSpecializationsMessage = i18n('employee.AllSpecializations', { locale })
+    const BlockedMessage = i18n('employee.isBlocked', { locale })
+    const AndMessage = i18n('And', { locale })
 
     return employees
         .map(employee => {
+            if (employee.isBlocked) {
+                return `${employee.employeeName} (${BlockedMessage})`
+            }
+
             if (employee.hasAllSpecializations) {
-                return `${employee.employeeName} (${allSpecializationsMessage})`
+                return `${employee.employeeName} (${AllSpecializationsMessage})`
             }
 
             const employeeSpecializations = employeesSpecializations.filter(spec => spec.employee === employee.employee)
 
             if (employeeSpecializations.length > 0) {
-                if (employeesSpecializations.length === 1) {
-                    return `${employee.employeeName} (${employeeSpecializations[0].specialization})`
+                if (employeeSpecializations.length > 2) {
+                    return `${employee.employeeName} (${employeeSpecializations[0].specialization} ${SpecializationsCountMessage}${employeeSpecializations.length - 1})`
+                }
+                if (employeeSpecializations.length === 2) {
+                    return `${employee.employeeName} (${employeeSpecializations[0].specialization} ${AndMessage} ${employeeSpecializations[1].specialization})`
                 } else {
-                    return `${employee.employeeName} (${employeeSpecializationsCountMessage}${employeeSpecializations.length})`
+                    return `${employee.employeeName} (${employeeSpecializations[0].specialization})`
                 }
             } else {
                 return employee.employeeName

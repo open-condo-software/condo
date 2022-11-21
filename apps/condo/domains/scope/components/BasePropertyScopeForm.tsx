@@ -22,8 +22,10 @@ import { searchEmployeeWithSpecializations } from '@condo/domains/organization/u
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
 import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
+import { convertEmployeesToOptions } from '@condo/domains/scope/utils/clientSchema/utils'
 
 import { FormHintAlert } from './FormHintAlert'
+import get from 'lodash/get'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -146,6 +148,13 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         initialProperties, propertyScopeEmployees, propertyScopeProperties, router, softDeletePropertyScopeEmployeeAction, softDeletePropertyScopePropertyAction,
     ])
 
+    const renderEmployees = useCallback((options, renderOption) => {
+        const employees = options.map(option => option.employee)
+        const specializations = get(options, [0, 'specializations'], [])
+
+        return convertEmployeesToOptions(intl, renderOption, employees, specializations, 'id')
+    }, [intl])
+
     const propertiesFormItemProps = useMemo(() => ({
         name: 'properties',
         label: PropertiesMessage,
@@ -167,8 +176,9 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         initialValue: initialEmployees,
         search: searchEmployeeWithSpecializations(intl, organizationId, null),
         onChange: (value) => setShowHintAlert(!isEmpty(value)),
+        renderOptions: renderEmployees,
         ...BASE_SELECT_PROPS,
-    }), [initialEmployees, intl, organizationId])
+    }), [initialEmployees, intl, organizationId, renderEmployees])
 
     const handleCheckAllEmployeesCheckboxChange = useCallback(() => setShowHintAlert(false), [])
 

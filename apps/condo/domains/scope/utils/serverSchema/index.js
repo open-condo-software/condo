@@ -227,6 +227,7 @@ const loadPropertyScopeEmployeesForExcelExport = async ({ where = {}, sortBy = [
             ['OrganizationEmployee', 'employee', 'id'],
             ['OrganizationEmployee', 'employee', 'hasAllSpecializations', 'hasAllSpecializations'],
             ['PropertyScope', 'propertyScope', 'id'],
+            ['OrganizationEmployee', 'employee', 'isBlocked', 'isBlocked'],
         ],
         sortBy,
         where,

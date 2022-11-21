@@ -6,7 +6,11 @@ import {
     ASSIGNED_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
 } from '@condo/domains/organization/constants/common'
-import { getEmployeeSpecializationsMessage } from '@condo/domains/organization/utils/clientSchema/Renders'
+import {
+    EmployeeNameAndSpecializations,
+    getEmployeeSpecializationsMessage,
+} from '@condo/domains/organization/utils/clientSchema/Renders'
+import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 
 /**
  * Returns a new array with sorted employees in the following order:
@@ -99,27 +103,30 @@ export const getPropertyScopeNameByEmployee = (employee, propertyScopes, propert
     }
 }
 
-export const convertEmployeesToOptions = (employees, intl, organizationEmployeeSpecializations) => {
+export const convertEmployeesToOptions = (
+    intl,
+    renderOption,
+    employees,
+    organizationEmployeeSpecializations = [],
+    valuePath = 'user.id',
+) => {
     return employees.map(employee => {
-        const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
-
-        const EmployeeText = (
-            <Typography.Text>
-                {employee.name} {specializationsMessage && (
-                    <Typography.Text>
-                    ({specializationsMessage})
-                    </Typography.Text>
-                )}
-            </Typography.Text>
+        const EmployeeText = employee.isBlocked ? employee.name : (
+            <EmployeeNameAndSpecializations
+                employee={employee}
+                organizationEmployeeSpecializations={organizationEmployeeSpecializations}
+            />
         )
 
         return {
             text: EmployeeText,
-            value: employee.user.id,
+            value: get(employee, valuePath),
             title: employee.name,
             data: {
                 employee,
             },
         }
     })
+        .map(option => get(option, 'data.employee.isBlocked', false) ?
+            renderBlockedOption(intl, option) : renderOption(option))
 }

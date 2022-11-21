@@ -1,10 +1,13 @@
 import { Typography } from 'antd'
-import { FilterValue } from 'antd/es/table/interface'
 import { isEmpty } from 'lodash'
 import React from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 
-export const getEmployeeSpecializationsMessage = (intl, employee, organizationEmployeeSpecializations): React.ReactElement => {
+import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
+
+
+export const getEmployeeSpecializationsMessage = (intl, employee, organizationEmployeeSpecializations = []) => {
     const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
     const SpecializationsCountMessage = intl.formatMessage({ id: 'employee.SpecializationsCount' })
     const AndMessage = intl.formatMessage({ id: 'And' })
@@ -14,16 +17,19 @@ export const getEmployeeSpecializationsMessage = (intl, employee, organizationEm
         .map(scope => scope.specialization.name)
 
     let SpecializationsMessage
+    let title
     if (employee.hasAllSpecializations) {
+        title = AllSpecializationsMessage.toLowerCase()
         SpecializationsMessage = (
             <Typography.Text>
-                {AllSpecializationsMessage.toLowerCase()}
+                {title}
             </Typography.Text>
         )
     } else if (employeeSpecializations.length > 0){
         const firstSpecializationMessage = employeeSpecializations[0].toLowerCase()
 
         if (employeeSpecializations.length > 2) {
+            title = `${firstSpecializationMessage} ${SpecializationsCountMessage + (employeeSpecializations.length - 1)}`
             SpecializationsMessage = (
                 <Typography.Text>
                     {firstSpecializationMessage}&nbsp;
@@ -34,35 +40,51 @@ export const getEmployeeSpecializationsMessage = (intl, employee, organizationEm
             )
         } else if (employeeSpecializations.length === 2) {
             const secondSpecializationMessage = employeeSpecializations[1].toLowerCase()
-            SpecializationsMessage = <Typography.Text>{firstSpecializationMessage} {AndMessage} {secondSpecializationMessage}</Typography.Text>
+            title = `${firstSpecializationMessage} ${AndMessage} ${secondSpecializationMessage}`
+            SpecializationsMessage = <Typography.Text>{title}</Typography.Text>
         } else {
-            SpecializationsMessage = <Typography.Text>{firstSpecializationMessage}</Typography.Text>
+            title = firstSpecializationMessage
+            SpecializationsMessage = <Typography.Text>{title}</Typography.Text>
         }
     }
 
-    return SpecializationsMessage
+    return { SpecializationsMessage, title }
+}
+
+export const EmployeeNameAndSpecializations = ({ employee, organizationEmployeeSpecializations }) => {
+    const intl = useIntl()
+    const { SpecializationsMessage, title } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
+    const textTitle = `${employee.name} (${title})`
+
+    return (
+        <Typography.Paragraph key={employee.id} style={PARAGRAPH_STYLES} title={textTitle}>
+            {employee.name} {SpecializationsMessage && (
+                <Typography.Text>
+                ({SpecializationsMessage})
+                </Typography.Text>
+            )}
+        </Typography.Paragraph>
+    )
 }
 
 const PARAGRAPH_STYLES = { margin: 0 }
 
-export const getManyEmployeesNameRender = (search: FilterValue) => {
+export const getManyEmployeesNameRender = () => {
     return function render (intl, employees, organizationEmployeeSpecializations) {
         if (isEmpty(employees)) {
             return '—'
         }
 
         return employees.map(employee => {
-            const specializationsMessage = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
+            if (employee.isBlocked) {
+                return renderBlockedObject(intl, employee.name)
+            }
 
-            return (
-                <Typography.Paragraph key={employee.id} style={PARAGRAPH_STYLES}>
-                    {employee.name} {specializationsMessage && (
-                        <Typography.Text>
-                        ({specializationsMessage})
-                        </Typography.Text>
-                    )}
-                </Typography.Paragraph>
-            )
+            return <EmployeeNameAndSpecializations
+                key={employee.id}
+                employee={employee}
+                organizationEmployeeSpecializations={organizationEmployeeSpecializations}
+            />
         })
     }
 }
