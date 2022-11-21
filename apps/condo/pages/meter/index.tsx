@@ -253,6 +253,7 @@ const MetersPage: IMeterIndexPage = () => {
     const tableColumns = useTableColumns(filterMetas)
     const searchMeterReadingsQuery = useMemo(() => ({
         ...filtersToWhere(filters),
+        meter: { deletedAt: null },
         organization: { id: userOrganizationId } }),
     [filters, filtersToWhere, userOrganizationId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortMeterReadingsBy[], [sorters, sortersToSortBy])
