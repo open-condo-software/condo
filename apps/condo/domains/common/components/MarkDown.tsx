@@ -10,6 +10,9 @@ interface MarkDownProps {
     shouldParseHtml?: boolean,
 }
 
+/**
+ * @deprecated Will be removed as soon as Markdown component in @open-condo/ui will be ready. Also unified will be bumped to 10.x with that release
+ */
 export const MarkDown: React.FC<MarkDownProps> = ({ text, fontSize, shouldParseHtml }) => {
     const style = fontSize ? { fontSize } : {}
     const rehypePlugins = shouldParseHtml ? [rehypeRaw] : []

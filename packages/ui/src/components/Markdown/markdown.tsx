@@ -28,7 +28,7 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
                 p: (props) => <Typography.Paragraph {...props} type='secondary' />,
                 a: (props) => <Typography.Link {...props} target='_blank'/>,
                 code: (props) => <Typography.Text {...props} code/>,
-                li: ({ children, ...rest }) => <li {...rest}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
+                li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
                 em: 'i',
             }}
         >
