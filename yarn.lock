@@ -651,7 +651,7 @@ __metadata:
     react-indiana-drag-scroll: ^2.0.1
     react-infinite-scroller: 1.2.6
     react-intl: ^5.7.1
-    react-markdown: 6.0.3
+    react-markdown: ^8.0.3
     react-phone-input-2: ^2.14.0
     react-progressive-image: ^0.6.0
     react-test-renderer: ^16.13.1
@@ -36094,30 +36094,6 @@ __metadata:
     "@types/react": ">=16"
     react: ">=16"
   checksum: df70de71101d6e0176df74700e3d4d96c9a3c13af04d4ff7e0d79646f9360cdc30d81cc9c23e44d18a2f5b4f54504494dfb210a83659c77087d9ad8ea74eb524
-  languageName: node
-  linkType: hard
-
-"react-markdown@npm:6.0.3":
-  version: 6.0.3
-  resolution: "react-markdown@npm:6.0.3"
-  dependencies:
-    "@types/hast": ^2.0.0
-    "@types/unist": ^2.0.3
-    comma-separated-tokens: ^1.0.0
-    prop-types: ^15.7.2
-    property-information: ^5.3.0
-    react-is: ^17.0.0
-    remark-parse: ^9.0.0
-    remark-rehype: ^8.0.0
-    space-separated-tokens: ^1.1.0
-    style-to-object: ^0.3.0
-    unified: ^9.0.0
-    unist-util-visit: ^2.0.0
-    vfile: ^4.0.0
-  peerDependencies:
-    "@types/react": ">=16"
-    react: ">=16"
-  checksum: 5176e6a314a397b4747570213ae6c092f76c5c3dc67c748731243a0d4108e002134a9061cea87df1bea00db46cc7d238e092bae1609de74983c844e8386c0554
   languageName: node
   linkType: hard
 
