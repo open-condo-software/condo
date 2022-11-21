@@ -5,9 +5,12 @@
 
 const { get, cloneDeep } = require('lodash')
 const { getRedisClient } = require('./redis')
+const { getLogger } = require('./logging')
 
 const UPDATED_AT = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
+
+const logger = getLogger('adapterCache')
 
 /**
  * TODO (toplenboren) (DOMA-2681) move this to auto detection algorithm or env!
@@ -60,7 +63,7 @@ class AdapterCacheMiddleware {
             this.cacheHistory = {}
             this.cacheCallHistory = []
             if (this.debugMode) {
-                console.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON LOCAL ENVIRONMENT')
+                logger.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON LOCAL ENVIRONMENT')
             }
 
             // This is just a hack that allows to drop state for more then one table for specific usecases.
@@ -69,7 +72,7 @@ class AdapterCacheMiddleware {
         }
         catch (e) {
             this.enabled = false
-            console.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
+            logger.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
         }
     }
 
@@ -123,7 +126,7 @@ class AdapterCacheMiddleware {
 
     logEvent ({ event }) {
         if (!this.logging) { return }
-        console.info(event.string)
+        logger.info(event.string)
     }
 
     getCacheEvent ({ type, key, table, result }) {
@@ -142,9 +145,9 @@ class AdapterCacheMiddleware {
     async prepareMiddleware ({ keystone, dev, distDir }) {
         if (this.enabled) {
             await patchKeystoneAdapterWithCacheMiddleware(keystone, this)
-            console.info('ADAPTER_CACHE: Adapter level cache ENABLED')
+            logger.info('ADAPTER_CACHE: Adapter level cache ENABLED')
         } else {
-            console.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
+            logger.info('ADAPTER_CACHE: Adapter level cache NOT ENABLED')
         }
     }
 }
@@ -226,43 +229,43 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         }
 
         const originalUpdate = listAdapter._update
-        listAdapter._update = patchMutation(listName, 'UPDATE', originalUpdate, listAdapter, middleware)
+        listAdapter._update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware)
 
         const originalCreate = listAdapter._create
-        listAdapter._create = patchMutation(listName, 'CREATE', originalCreate, listAdapter, middleware)
+        listAdapter._create = patchAdapterFunction(listName, 'CREATE', originalCreate, listAdapter, middleware)
 
         const originalDelete = listAdapter._delete
-        listAdapter._delete = patchMutation(listName, 'DELETE', originalDelete, listAdapter, middleware)
+        listAdapter._delete = patchAdapterFunction(listName, 'DELETE', originalDelete, listAdapter, middleware)
     }
 }
 
 /**
  * Patches a keystone mutation to add cache functionality
  * @param {string} listName
- * @param {string} mutationName
- * @param {function} mutationFunc
+ * @param {string} functionName
+ * @param {function} f
  * @param {{}} listAdapter
- * @param {AdapterCacheMiddleware} middleware
+ * @param {AdapterCacheMiddleware} cache
  * @returns {function(...[*]): Promise<*>}
  */
-function patchMutation ( listName, mutationName, mutationFunc, listAdapter, middleware ) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) {
     return async ( ...args ) => {
-        const mutationResult = await mutationFunc.apply(listAdapter, args )
-        await middleware.setState(listName, mutationResult[UPDATED_AT])
+        const functionResult = await f.apply(listAdapter, args )
+        await cache.setState(listName, functionResult[UPDATED_AT])
 
-        if (listName in middleware.connectedTables) {
-            for (const connectedTable of middleware.connectedTables[listName]) {
-                await middleware.setState(connectedTable, mutationResult[UPDATED_AT])
+        if (listName in cache.connectedTables) {
+            for (const connectedTable of cache.connectedTables[listName]) {
+                await cache.setState(connectedTable, functionResult[UPDATED_AT])
             }
         }
 
-        if (middleware.debugMode) {
-            const cacheEvent = middleware.getCacheEvent({ type: listName, table: listName })
-            middleware.writeChangeToHistory({ cache: middleware.cache, event: cacheEvent, table: listName })
+        if (cache.debugMode) {
+            const cacheEvent = cache.getCacheEvent({ type: listName, table: listName })
+            cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName })
         }
 
-        if (middleware.logging) { console.info(`CREATE: ${mutationResult}`) }
-        return mutationResult
+        if (cache.logging) { logger.info(`CREATE: ${functionResult}`) }
+        return functionResult
     }
 }
 
