@@ -125,6 +125,34 @@ describe('AddressSource', () => {
                     await updateTestAddressSource(anonymousClient, objCreated.id)
                 })
             })
+
+            test('Can not rename the source to the existing one', async () => {
+                const source1 = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source2 = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+
+                const [obj1] = await createTestAddressSource(adminClient, { source: source1 })
+                await createTestAddressSource(adminClient, { source: source2 })
+
+                await catchErrorFrom(async () => {
+                    await updateTestAddressSource(adminClient, obj1.id, { source: source2 })
+                }, ({ errors, data }) => {
+                    expect(errors).toHaveLength(1)
+                    expect(errors[0].message).toMatch('Source with the same address already exists')
+                    expect(data).toEqual({ 'obj': null })
+                })
+            })
+
+            test('Can change source', async () => {
+                const source = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+                const source2 = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
+
+                const [obj] = await createTestAddressSource(adminClient, { source })
+
+                const [updatedObj] = await updateTestAddressSource(adminClient, obj.id, { source: source2 })
+
+                expect(updatedObj.source).not.toEqual(source)
+                expect(updatedObj.source).toEqual(source2)
+            })
         })
 
         describe('hard delete', () => {
