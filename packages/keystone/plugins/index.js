@@ -5,6 +5,7 @@ const { softDeleted } = require('./softDeleted')
 const { historical } = require('./historical')
 const { plugin, GQL_SCHEMA_PLUGIN } = require('./utils/typing')
 const { dvAndSender } = require('./dvAndSender')
+const { searchBy } = require('./searchBy')
 
 module.exports = {
     uuided,
@@ -13,6 +14,7 @@ module.exports = {
     softDeleted,
     historical,
     dvAndSender,
+    searchBy,
     plugin,
     GQL_SCHEMA_PLUGIN,
 }

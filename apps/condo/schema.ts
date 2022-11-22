@@ -50398,6 +50398,8 @@ export enum SortTicketHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
+  SearchAsc = 'search_ASC',
+  SearchDesc = 'search_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -50821,6 +50823,8 @@ export enum SortTicketsBy {
   SourceDesc = 'source_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
+  SearchAsc = 'search_ASC',
+  SearchDesc = 'search_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -51221,6 +51225,8 @@ export type Ticket = {
   sourceMeta?: Maybe<Scalars['JSON']>;
   /**  Date until which the ticket is deferred  */
   deferredUntil?: Maybe<Scalars['String']>;
+  /**  Service field for searching by different fields  */
+  search?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -54515,6 +54521,7 @@ export type TicketCreateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -55886,6 +55893,7 @@ export type TicketHistoryRecord = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  search?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -55945,6 +55953,7 @@ export type TicketHistoryRecordCreateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -56009,6 +56018,7 @@ export type TicketHistoryRecordUpdateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -56402,6 +56412,24 @@ export type TicketHistoryRecordWhereInput = {
   deferredUntil_gte?: Maybe<Scalars['String']>;
   deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  search?: Maybe<Scalars['String']>;
+  search_not?: Maybe<Scalars['String']>;
+  search_contains?: Maybe<Scalars['String']>;
+  search_not_contains?: Maybe<Scalars['String']>;
+  search_starts_with?: Maybe<Scalars['String']>;
+  search_not_starts_with?: Maybe<Scalars['String']>;
+  search_ends_with?: Maybe<Scalars['String']>;
+  search_not_ends_with?: Maybe<Scalars['String']>;
+  search_i?: Maybe<Scalars['String']>;
+  search_not_i?: Maybe<Scalars['String']>;
+  search_contains_i?: Maybe<Scalars['String']>;
+  search_not_contains_i?: Maybe<Scalars['String']>;
+  search_starts_with_i?: Maybe<Scalars['String']>;
+  search_not_starts_with_i?: Maybe<Scalars['String']>;
+  search_ends_with_i?: Maybe<Scalars['String']>;
+  search_not_ends_with_i?: Maybe<Scalars['String']>;
+  search_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  search_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -59176,6 +59204,7 @@ export type TicketUpdateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
+  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -59502,6 +59531,24 @@ export type TicketWhereInput = {
   deferredUntil_gte?: Maybe<Scalars['String']>;
   deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  search?: Maybe<Scalars['String']>;
+  search_not?: Maybe<Scalars['String']>;
+  search_contains?: Maybe<Scalars['String']>;
+  search_not_contains?: Maybe<Scalars['String']>;
+  search_starts_with?: Maybe<Scalars['String']>;
+  search_not_starts_with?: Maybe<Scalars['String']>;
+  search_ends_with?: Maybe<Scalars['String']>;
+  search_not_ends_with?: Maybe<Scalars['String']>;
+  search_i?: Maybe<Scalars['String']>;
+  search_not_i?: Maybe<Scalars['String']>;
+  search_contains_i?: Maybe<Scalars['String']>;
+  search_not_contains_i?: Maybe<Scalars['String']>;
+  search_starts_with_i?: Maybe<Scalars['String']>;
+  search_not_starts_with_i?: Maybe<Scalars['String']>;
+  search_ends_with_i?: Maybe<Scalars['String']>;
+  search_not_ends_with_i?: Maybe<Scalars['String']>;
+  search_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  search_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
