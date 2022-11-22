@@ -24,7 +24,7 @@ class SearchByInjectionId extends AbstractSearchPlugin {
 
     /**
      * @param {String} s
-     * @returns {Promise<Object[]>}
+     * @returns {Promise<?Object>}
      */
     async search (s) {
         const [, id] = s.split(SEPARATOR, 2)
@@ -36,6 +36,10 @@ class SearchByInjectionId extends AbstractSearchPlugin {
         }
 
         const injection = await AddressInjection.getOne(this.keystoneContext.sudo(), { id })
+        if (!injection) {
+            return null
+        }
+
         const searchResult = injectionsSeeker.normalize([injection])
 
         const addressKey = generateAddressKey(searchResult[0])
@@ -60,21 +64,23 @@ class SearchByInjectionId extends AbstractSearchPlugin {
                 godContext,
                 {
                     ...dvSender,
-                    source: s,
-                    address: searchResult[0].label,
+                    sources: { create: { source: s, ...dvSender } },
+                    address: searchResult[0].value,
                     key: addressKey,
                     meta: {
                         provider: {
                             name: INJECTIONS_PROVIDER,
                             rawData: injection,
                         },
+                        value: searchResult[0].value,
+                        unrestricted_value: searchResult[0].unrestricted_value,
                         data: get(searchResult, [0, 'data'], {}),
                     },
                 },
             )
         }
 
-        return [addressItem]
+        return addressItem
     }
 }
 

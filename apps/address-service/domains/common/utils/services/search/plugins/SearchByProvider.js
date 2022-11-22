@@ -8,7 +8,7 @@ class SearchByProvider extends AbstractSearchPlugin {
 
     /**
      * @param {String} s
-     * @returns {Promise<Object[]>}
+     * @returns {Promise<?Object>}
      */
     async search (s) {
         const searchProvider = getSearchProvider(this.geo)
@@ -19,14 +19,16 @@ class SearchByProvider extends AbstractSearchPlugin {
         }
 
         const denormalizedRows = await searchProvider.get({ query: s, context: this.searchContext })
-        const searchResult = searchProvider.normalize(denormalizedRows)
+        const searchResults = searchProvider.normalize(denormalizedRows)
 
-        if (searchResult.length === 0) {
-            return []
+        if (searchResults.length === 0) {
+            return null
         }
 
         // Use the first result for a while
-        const addressKey = generateAddressKey(searchResult[0])
+        const searchResult = searchResults[0]
+
+        const addressKey = generateAddressKey(searchResult)
 
         const addressFoundByKey = await Address.getOne(godContext, { key: addressKey })
 
@@ -54,20 +56,22 @@ class SearchByProvider extends AbstractSearchPlugin {
                             ...dvSender,
                         },
                     },
-                    address: searchResult[0].value,
+                    address: searchResult.value,
                     key: addressKey,
                     meta: {
                         provider: {
                             name: searchProvider.getProviderName(),
                             rawData: denormalizedRows[0],
                         },
-                        data: get(searchResult, [0, 'data'], {}),
+                        value: searchResult.value,
+                        unrestricted_value: searchResult.unrestricted_value,
+                        data: get(searchResult, 'data', {}),
                     },
                 },
             )
         }
 
-        return [addressItem]
+        return addressItem
     }
 }
 

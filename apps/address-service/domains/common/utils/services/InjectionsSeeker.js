@@ -49,7 +49,7 @@ class InjectionsSeeker {
     /**
      * Normalizes injections
      * @param {AddressInjection[]} injections
-     * @returns {NormalizedBuilding[]}
+     * @returns {(NormalizedBuilding & {rawValue: string})[]}
      */
     normalize (injections) {
         return injections.map((injection) => {
@@ -80,6 +80,7 @@ class InjectionsSeeker {
             return {
                 value,
                 unrestricted_value: value,
+                rawValue: `injectionId:${injection.id}`,
                 data: {
                     postal_code: null,
                     country,

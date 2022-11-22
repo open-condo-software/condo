@@ -56,7 +56,7 @@ class AddressServiceClient {
      * @returns {Promise<*>}
      * @private
      */
-    async call (url, body = {}, method = 'GET') {
+    async call (url, method = 'GET', body = undefined) {
         const result = await fetch(url, {
             method,
             body,
@@ -105,18 +105,6 @@ class AddressServiceClient {
         const urlParams = [`s=${s}`, this.urlifyParams(params)].filter(Boolean)
 
         return this.call(`${this.url}/search?${urlParams.join('&')}`)
-    }
-
-    /**
-     * @param {{source: string, value: {address: string} & NormalizedBuilding, token: string}} data
-     * @returns {Promise<*>}
-     */
-    async add (data) {
-        if (!data) {
-            throw new Error('The `data` parameter is mandatory')
-        }
-
-        return this.call(`${this.url}/add`, JSON.stringify(data), 'POST')
     }
 }
 

@@ -196,7 +196,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
 
     /**
      * @param {DadataObject[]} data
-     * @returns {NormalizedBuilding[]}
+     * @returns {(NormalizedBuilding & {rawValue: string})[]}
      */
     normalize (data) {
         // I wanna to decrease a dependency from possible data changes got from dadata
@@ -206,6 +206,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
             {
                 value: get(item, 'value'),
                 unrestricted_value: get(item, 'unrestricted_value'),
+                rawValue: get(item, 'value'),
                 data: {
                     postal_code: get(item, ['data', 'postal_code']),
                     country: get(item, ['data', 'country']),

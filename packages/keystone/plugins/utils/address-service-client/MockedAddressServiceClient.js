@@ -144,13 +144,6 @@ class MockedAddressServiceClient {
     async suggest (s, params) {
         throw new Error('If you really need in this method, realize it! :)')
     }
-
-    async add (data) {
-        return {
-            address: get(this.existingItem, 'address'),
-            addressKey: get(this.existingItem, 'addressKey', faker.random.alphaNumeric(32)),
-        }
-    }
 }
 
 module.exports = { MockedAddressServiceClient }

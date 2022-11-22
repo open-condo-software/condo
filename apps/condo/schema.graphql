@@ -4687,7 +4687,7 @@ type PropertyHistoryRecord {
   area: String
   id: ID!
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -4815,24 +4815,10 @@ input PropertyHistoryRecordWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  addressSource: String
-  addressSource_not: String
-  addressSource_contains: String
-  addressSource_not_contains: String
-  addressSource_starts_with: String
-  addressSource_not_starts_with: String
-  addressSource_ends_with: String
-  addressSource_not_ends_with: String
-  addressSource_i: String
-  addressSource_not_i: String
-  addressSource_contains_i: String
-  addressSource_not_contains_i: String
-  addressSource_starts_with_i: String
-  addressSource_not_starts_with_i: String
-  addressSource_ends_with_i: String
-  addressSource_not_ends_with_i: String
-  addressSource_in: [String]
-  addressSource_not_in: [String]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   addressKey: String
   addressKey_not: String
   addressKey_contains: String
@@ -4952,8 +4938,6 @@ enum SortPropertyHistoryRecordsBy {
   id_DESC
   address_ASC
   address_DESC
-  addressSource_ASC
-  addressSource_DESC
   addressKey_ASC
   addressKey_DESC
   v_ASC
@@ -4985,7 +4969,7 @@ input PropertyHistoryRecordUpdateInput {
   yearOfConstruction: String
   area: String
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -5020,7 +5004,7 @@ input PropertyHistoryRecordCreateInput {
   yearOfConstruction: String
   area: String
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -5382,9 +5366,9 @@ type Property {
   """ Normalized address """
   address: String
 
-  """ The origin of the address (some string which may looks like real address or some id) 
+  """ The origins of the address (some strings which may looks like real address or some id) 
   """
-  addressSource: String
+  addressSources: JSON
 
   """ The unique key of the address """
   addressKey: String
@@ -5500,24 +5484,10 @@ input PropertyWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  addressSource: String
-  addressSource_not: String
-  addressSource_contains: String
-  addressSource_not_contains: String
-  addressSource_starts_with: String
-  addressSource_not_starts_with: String
-  addressSource_ends_with: String
-  addressSource_not_ends_with: String
-  addressSource_i: String
-  addressSource_not_i: String
-  addressSource_contains_i: String
-  addressSource_not_contains_i: String
-  addressSource_starts_with_i: String
-  addressSource_not_starts_with_i: String
-  addressSource_ends_with_i: String
-  addressSource_not_ends_with_i: String
-  addressSource_in: [String]
-  addressSource_not_in: [String]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   addressKey: String
   addressKey_not: String
   addressKey_contains: String
@@ -5619,8 +5589,6 @@ enum SortPropertiesBy {
   id_DESC
   address_ASC
   address_DESC
-  addressSource_ASC
-  addressSource_DESC
   addressKey_ASC
   addressKey_DESC
   v_ASC
@@ -5650,7 +5618,7 @@ input PropertyUpdateInput {
   yearOfConstruction: String
   area: String
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -5680,7 +5648,7 @@ input PropertyCreateInput {
   yearOfConstruction: String
   area: String
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -29001,7 +28969,7 @@ type ResidentHistoryRecord {
   organization: String
   id: ID!
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -29107,24 +29075,10 @@ input ResidentHistoryRecordWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  addressSource: String
-  addressSource_not: String
-  addressSource_contains: String
-  addressSource_not_contains: String
-  addressSource_starts_with: String
-  addressSource_not_starts_with: String
-  addressSource_ends_with: String
-  addressSource_not_ends_with: String
-  addressSource_i: String
-  addressSource_not_i: String
-  addressSource_contains_i: String
-  addressSource_not_contains_i: String
-  addressSource_starts_with_i: String
-  addressSource_not_starts_with_i: String
-  addressSource_ends_with_i: String
-  addressSource_not_ends_with_i: String
-  addressSource_in: [String]
-  addressSource_not_in: [String]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   addressKey: String
   addressKey_not: String
   addressKey_contains: String
@@ -29234,8 +29188,6 @@ enum SortResidentHistoryRecordsBy {
   id_DESC
   address_ASC
   address_DESC
-  addressSource_ASC
-  addressSource_DESC
   addressKey_ASC
   addressKey_DESC
   v_ASC
@@ -29265,7 +29217,7 @@ input ResidentHistoryRecordUpdateInput {
   unitType: String
   organization: String
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -29298,7 +29250,7 @@ input ResidentHistoryRecordCreateInput {
   unitType: String
   organization: String
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -29391,9 +29343,9 @@ type Resident {
   """ Normalized address """
   address: String
 
-  """ The origin of the address (some string which may looks like real address or some id) 
+  """ The origins of the address (some strings which may looks like real address or some id) 
   """
-  addressSource: String
+  addressSources: JSON
 
   """ The unique key of the address """
   addressKey: String
@@ -29475,24 +29427,10 @@ input ResidentWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  addressSource: String
-  addressSource_not: String
-  addressSource_contains: String
-  addressSource_not_contains: String
-  addressSource_starts_with: String
-  addressSource_not_starts_with: String
-  addressSource_ends_with: String
-  addressSource_not_ends_with: String
-  addressSource_i: String
-  addressSource_not_i: String
-  addressSource_contains_i: String
-  addressSource_not_contains_i: String
-  addressSource_starts_with_i: String
-  addressSource_not_starts_with_i: String
-  addressSource_ends_with_i: String
-  addressSource_not_ends_with_i: String
-  addressSource_in: [String]
-  addressSource_not_in: [String]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   addressKey: String
   addressKey_not: String
   addressKey_contains: String
@@ -29588,8 +29526,6 @@ enum SortResidentsBy {
   id_DESC
   address_ASC
   address_DESC
-  addressSource_ASC
-  addressSource_DESC
   addressKey_ASC
   addressKey_DESC
   v_ASC
@@ -29615,7 +29551,7 @@ input ResidentUpdateInput {
   unitType: String
   organization: OrganizationRelateToOneInput
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
@@ -29641,7 +29577,7 @@ input ResidentCreateInput {
   unitType: String
   organization: OrganizationRelateToOneInput
   address: String
-  addressSource: String
+  addressSources: JSON
   addressKey: String
   addressMeta: JSON
   v: Int
