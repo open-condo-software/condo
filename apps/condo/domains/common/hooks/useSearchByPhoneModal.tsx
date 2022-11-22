@@ -1,18 +1,19 @@
+import { SearchOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
+import { useIntl } from '@open-condo/next/intl'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
-import { SearchOutlined } from '@ant-design/icons'
-
-import { useIntl } from '@open-condo/next/intl'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Modal } from '@condo/domains/common/components/Modal'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { ClientType, mapToSelectOption, redirectToForm } from '@condo/domains/contact/utils/clientCard'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 
@@ -34,6 +35,7 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
         })
         onSelect()
     }, [onSelect, phone, router])
+
     const handleCreateContactButtonClick = useCallback(async () => {
         await redirectToForm({
             router,
@@ -79,6 +81,17 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 
 const SELECT_STYLES = { width: '100%' }
 const SEARCH_ICON_STYLES = { fontSize: fontSizes.content }
+const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
+
+const StyledPhoneInput = styled(PhoneInput)`
+  & .ant-input {
+    padding-left: 12px;
+  }
+
+  & .flag-dropdown {
+    display: none;
+  }
+`
 
 const SearchByPhoneSelect = ({
     searchByPhoneFn,
@@ -138,16 +151,30 @@ const SearchByPhoneSelect = ({
         <GraphQlSearchInput
             search={searchByPhoneFn}
             suffixIcon={<SearchOutlined style={SEARCH_ICON_STYLES}/>}
-            showSearch={true}
+            showSearch
             allowClear={false}
             style={SELECT_STYLES}
-            placeholder={EnterPhoneMessage}
-            notFoundContent={<NotFoundSearchByPhoneContent canManageContacts={canManageContacts} onSelect={onSelect} phone={phone} />}
+            notFoundContent={
+                <NotFoundSearchByPhoneContent
+                    canManageContacts={canManageContacts}
+                    onSelect={onSelect}
+                    phone={phone}
+                />
+            }
             renderOptions={renderOptions}
             optionFilterProp='title'
-            searchValue={phone}
             onSearch={handleSearch}
-        />
+            SearchInputComponentType={SearchComponentType.AutoComplete}
+            onSelect={onSelect}
+            showLoadingMessage={false}
+            autoClearSearchValue
+        >
+            <StyledPhoneInput
+                compatibilityWithAntAutoComplete
+                placeholder={EnterPhoneMessage}
+                masks={PHONE_INPUT_MASK}
+            />
+        </GraphQlSearchInput>
     )
 }
 
@@ -166,7 +193,7 @@ export const useSearchByPhoneModal = (searchByPhoneFn, canManageContacts) => {
             onCancel={handleCloseModal}
             footer={null}
             width={1150}
-            destroyOnClose={true}
+            destroyOnClose
         >
             <SearchByPhoneSelect
                 onSelect={handleCloseModal}
@@ -174,7 +201,8 @@ export const useSearchByPhoneModal = (searchByPhoneFn, canManageContacts) => {
                 canManageContacts={canManageContacts}
             />
         </Modal>
-    ), [SearchByPhoneMessage, handleCloseModal, isSearchByPhoneModalVisible, searchByPhoneFn])
+    ), [SearchByPhoneMessage, canManageContacts, handleCloseModal,
+        isSearchByPhoneModalVisible, searchByPhoneFn])
 
     return { isSearchByPhoneModalVisible, setIsSearchByPhoneModalVisible, SearchByPhoneModal }
 }

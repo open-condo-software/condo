@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
-import { Select, SelectProps, Typography } from 'antd'
+import { AutoComplete, Select, SelectProps, Typography } from 'antd'
 import get from 'lodash/get'
 import throttle from 'lodash/throttle'
 import isFunction from 'lodash/isFunction'
@@ -32,6 +32,11 @@ type GraphQlSearchInputOption = {
 
 export type RenderOptionFunc = (option: GraphQlSearchInputOption) => JSX.Element
 
+export enum SearchComponentType {
+    Select,
+    AutoComplete,
+}
+
 // TODO: add apollo cache shape typings
 export interface ISearchInputProps extends SelectProps<string> {
     search: (client: ApolloClient<Record<string, unknown>>, searchText: string, where?: WhereType, first?: number, skip?: number) => Promise<Array<Record<string, unknown>>>
@@ -55,6 +60,8 @@ export interface ISearchInputProps extends SelectProps<string> {
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
     keyField?: string
+    SearchInputComponentType?: SearchComponentType
+    showLoadingMessage?: boolean
     searchMoreFirst?: number
 }
 
@@ -65,6 +72,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         search,
         initialValueSearch,
         onSelect,
+        onSearch,
         formatLabel,
         renderOptions,
         autoClearSearchValue = true,
@@ -80,6 +88,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         onAllDataLoading,
         searchMoreFirst,
         allowClear = true,
+        SearchInputComponentType = SearchComponentType.Select,
+        showLoadingMessage = true,
         ...restProps
     } = props
 
@@ -109,17 +119,25 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     const eventName = propEventName ? propEventName : getEventName(TrackingEventType.Select)
     const componentProperties = { ...eventProperties }
 
-    const needShowLoadingMessage = isInitialLoading || ((isSearchLoading || isLoadingMore) && isEmpty(allData))
+    const needShowLoadingMessage = showLoadingMessage && (isInitialLoading || ((isSearchLoading || isLoadingMore) && isEmpty(allData)))
     const placeholder = useMemo(() => needShowLoadingMessage ? LoadingMessage : initialPlaceholder,
         [LoadingMessage, initialPlaceholder, needShowLoadingMessage])
     const selectedValue = useMemo(() => needShowLoadingMessage ? [] : value,
         [value, needShowLoadingMessage])
     const isDisabled = disabled || needShowLoadingMessage || !search
 
-    const notFoundContent = useMemo(() => isInitialLoading || isSearchLoading || isLoadingMore
-        ? <Loader size='small' delay={0} fill />
-        : NotFoundMessage,
-    [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading])
+    const notFoundContent = useMemo(() => {
+        if (isInitialLoading || isSearchLoading || isLoadingMore) {
+            return <Loader size='small' delay={0} fill />
+        }
+
+        if (props.notFoundContent) {
+            return props.notFoundContent
+        }
+
+        return NotFoundMessage
+    },
+    [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading, props.notFoundContent])
 
     const renderOption = useCallback((option, index?) => {
         let optionLabel = option.text
@@ -176,9 +194,13 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const handleSearch = useCallback(async searchingValue => {
         if (!search) return
+        if (isFunction(onSearch)) {
+            onSearch(searchingValue)
+        }
+
         setSearchValue(searchingValue)
         await debounceSearch(searchingValue)
-    }, [debounceSearch, search])
+    }, [debounceSearch, onSearch, search])
 
     const handleSelect = useCallback(async (value, option) => {
         if (onSelect) onSelect(value, option)
@@ -252,25 +274,40 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         setOptions(uniqBy(updatedData, keyField))
     }, [initialData, allData, searchData, searchValue, keyField])
 
-    return (
-        <Select
-            showSearch
-            autoClearSearchValue={autoClearSearchValue}
-            allowClear={allowClear}
-            optionFilterProp='title'
-            defaultActiveFirstOption={false}
-            onSearch={handleSearch}
-            onSelect={handleSelect}
-            onClear={handleClear}
-            onPopupScroll={infinityScroll && handleScroll}
-            searchValue={searchValue}
-            value={selectedValue}
-            placeholder={placeholder}
-            loading={isInitialLoading || isSearchLoading || isSearchLoading}
-            disabled={isDisabled}
-            {...restProps}
-        >
-            {renderedOptions}
-        </Select>
-    )
+    const commonProps = useMemo(() => ({
+        showSearch: true,
+        autoClearSearchValue: autoClearSearchValue,
+        allowClear: allowClear,
+        optionFilterProp: 'title',
+        defaultActiveFirstOption: false,
+        onSearch: handleSearch,
+        onSelect: handleSelect,
+        onClear: handleClear,
+        onPopupScroll: infinityScroll && handleScroll,
+        searchValue,
+        value: selectedValue,
+        placeholder,
+        loading: isInitialLoading || isSearchLoading || isSearchLoading,
+        disabled: isDisabled,
+        notFoundContent,
+        ...restProps,
+    }),
+    [allowClear, autoClearSearchValue, handleClear, handleScroll, handleSearch, handleSelect, infinityScroll,
+        isDisabled, isInitialLoading, isSearchLoading, notFoundContent, placeholder, restProps, searchValue, selectedValue])
+
+    if (SearchInputComponentType === SearchComponentType.Select) {
+        return (
+            <Select {...commonProps}>
+                {renderedOptions}
+            </Select>
+        )
+    }
+    if (SearchInputComponentType === SearchComponentType.AutoComplete) {
+        return (
+            <AutoComplete
+                dataSource={renderedOptions}
+                {...commonProps}
+            />
+        )
+    }
 }
