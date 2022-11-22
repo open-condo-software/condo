@@ -90,7 +90,7 @@ export function usePropertyScopeColumns (filterMetas, propertyScopes) {
             .map(propertyScopeEmployee => propertyScopeEmployee.employee)
             .filter(Boolean)
 
-        return getManyEmployeesNameRender(search)(intl, employees, organizationEmployeeSpecializations)
+        return getManyEmployeesNameRender()(intl, employees, organizationEmployeeSpecializations)
     }, [AllEmployeesMessage, propertyScopeEmployees, search, organizationEmployeeSpecializations])
 
     return useMemo(() => ({

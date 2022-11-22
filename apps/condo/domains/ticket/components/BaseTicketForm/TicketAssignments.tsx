@@ -92,7 +92,9 @@ const TicketAssignments = ({
 
     const renderOptionGroups = useCallback((employeeOptions, renderOption) => {
         const result = []
-        const employees = employeeOptions.map(option => option.employee)
+        const employees = employeeOptions
+            .map(option => option.employee)
+            .filter(employee => employee && !employee.isBlocked)
 
         const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
             isEmployeeSpecializationAndPropertyMatchesToScope(
