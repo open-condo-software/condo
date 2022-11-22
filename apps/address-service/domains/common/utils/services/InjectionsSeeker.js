@@ -6,7 +6,7 @@ const SPECIAL_SYMBOLS_REGEX = /[!@#$%^&*)(+=.,\-_:;"'`[\]]/g
 
 /**
  * A class used to search injections within database.
- * The injections are normalizing and including to the suggested results {@see SuggestionKeystoneApp}
+ * Injections will be included into suggested results in normalized form {@see SuggestionKeystoneApp}
  */
 class InjectionsSeeker {
 
