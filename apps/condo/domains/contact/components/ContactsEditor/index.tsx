@@ -145,7 +145,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const initialEmployeesQuery = useMemo(() => ({
         ...initialQuery,
-    }), [organization])
+    }), [initialQuery, organization])
 
     const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone

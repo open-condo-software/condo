@@ -1,6 +1,8 @@
 import { Col, Row, Tabs, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import { EllipsisConfig } from 'antd/es/typography/Base'
-import { get, uniqBy } from 'lodash'
+import get from 'lodash/get'
+import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
@@ -29,6 +31,26 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
+//#region Constants, types and styles
+const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
+const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0 }
+const ADDRESS_POSTFIX_ELLIPSIS: EllipsisConfig = { rows: 2 }
+const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label }
+const ROW_BIG_GUTTER: [Gutter, Gutter] = [0, 60]
+const ROW_MEDIUM_GUTTER: [Gutter, Gutter] = [0, 40]
+const ROW_MEDIUM_SMALL_GUTTER: [Gutter, Gutter] = [0, 24]
+const ROW_SMALL_GUTTER: [Gutter, Gutter] = [0, 12]
+const ADD_ADDRESS_TEXT_STYLE: CSSProperties = { marginTop: '12px' }
+const HINT_CARD_STYLE = { maxHeight: '3em' }
+const EMAIL_TEXT_STYLES = { fontSize: fontSizes.content }
+const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
+const PLUS_ICON_WRAPPER_CLASS = 'plusIconWrapper'
+
+interface IClientContactProps {
+    lastTicket: TicketType,
+    contact?: ContactType
+}
+
 const StyledTabs = styled(Tabs)`
   &.ant-tabs-top > .ant-tabs-nav::before {
     border-bottom: none;
@@ -41,12 +63,11 @@ const StyledTabs = styled(Tabs)`
   & .ant-tabs-nav-list .ant-tabs-ink-bar {
     display: none;
   }
-  
+
   & .ant-tabs-nav-more {
     display: none;
   }
 `
-
 const StyledClientTab = styled.div<{ active: boolean }>`
   width: 258px;
   height: 150px;
@@ -62,10 +83,76 @@ const StyledClientTab = styled.div<{ active: boolean }>`
     background-color: #FFFFFF;
   }
 `
-const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0 }
-const ADDRESS_POSTFIX_ELLIPSIS: EllipsisConfig = { rows: 2 }
-const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label }
+const StyledAddAddressButton = styled(Button)`
+  width: 258px;
+  height: 150px;
+  box-shadow: ${shadows.small};
+  border-radius: 12px;
+  border: 1px dashed ${colors.inputBorderHover};
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+
+  & .anticon {
+    margin: 0;
+  }
+  
+  &:hover {
+    border: inherit;
+
+    & .${PLUS_ICON_WRAPPER_CLASS} {
+      background-color: ${colors.black};
+      color: ${colors.white};
+    }
+  }
+`
+const PlusIconWrapper = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 100px;
+  background-color: ${colors.backgroundLightGrey};
+  color: ${colors.black};
+  transition: inherit;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+const StyledLink = styled.span`
+  color: ${colors.black};
+
+  &:hover {
+    color: ${colors.black};
+    cursor: pointer;
+  }
+
+  display: block;
+  width: max-content;
+
+  font-size: ${fontSizes.label};
+  text-decoration: none;
+  border-bottom: 1px solid ${colors.lightGrey[6]};
+`
+//#endregion
+
+//#region Address and Client Tab cards
+const AddAddressTabTitle = () => {
+    const intl = useIntl()
+    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
+
+    return (
+        <StyledAddAddressButton>
+            <PlusIconWrapper className={PLUS_ICON_WRAPPER_CLASS}>
+                <PlusIcon/>
+            </PlusIconWrapper>
+            <Typography.Paragraph style={ADD_ADDRESS_TEXT_STYLE}>
+                {AddAddressMessage}
+            </Typography.Paragraph>
+        </StyledAddAddressButton>
+    )
+}
 
 const ClientTabTitle = ({ active, type, property, unitName }) => {
     const intl = useIntl()
@@ -84,7 +171,7 @@ const ClientTabTitle = ({ active, type, property, unitName }) => {
 
     return (
         <StyledClientTab active={active}>
-            <Row gutter={[0, 12]}>
+            <Row gutter={ROW_SMALL_GUTTER}>
                 <Col span={24}>
                     <Tag type='gray' style={TAG_STYLE}>
                         {typeToMessage[type]}
@@ -112,33 +199,9 @@ const ClientTabTitle = ({ active, type, property, unitName }) => {
         </StyledClientTab>
     )
 }
+//#endregion
 
-const StyledLink = styled.span`
-  color: ${colors.black};
-
-  &:hover {
-    color: ${colors.black};
-    cursor: pointer;
-  }
-
-  display: block;
-  width: max-content;
-
-  font-size: ${fontSizes.label};
-  text-decoration: none;
-  border-bottom: 1px solid ${colors.lightGrey[6]};
-`
-
-const HINT_CARD_STYLE = { maxHeight: '3em' }
-const EMAIL_TEXT_STYLES = { fontSize: fontSizes.content }
-
-const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
-
-interface IClientContactProps {
-    lastTicket: TicketType,
-    contact?: ContactType
-}
-
+//#region Contact and Not resident client Tab content
 const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact }) => {
     const name = get(contact, 'name', get(lastTicket, 'clientName'))
     const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
@@ -212,10 +275,13 @@ const ClientCardTabContent = ({
         }
     }, [router])
 
+    const handleCreateTicket = useCallback(() => handleTicketCreateClick(lastCreatedTicket),
+        [handleTicketCreateClick, lastCreatedTicket])
+
     return (
-        <Row gutter={[0, 60]}>
+        <Row gutter={ROW_BIG_GUTTER}>
             <Col span={24}>
-                <Row gutter={[0, 40]}>
+                <Row gutter={ROW_MEDIUM_GUTTER}>
                     <Col span={24}>
                         <StyledLink onClick={handleShowAllPropertyTicketsMessage}>
                             {ShowAllPropertyTicketsMessage}
@@ -233,7 +299,7 @@ const ClientCardTabContent = ({
                 </Row>
             </Col>
             <Col span={24}>
-                <Row gutter={[0, 24]}>
+                <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
                     <Col span={24}>
                         <Typography.Title level={4}>
                             {ContactTicketsMessage}
@@ -254,7 +320,7 @@ const ClientCardTabContent = ({
             <ActionBar>
                 <Button
                     key='submit'
-                    onClick={() => handleTicketCreateClick(lastCreatedTicket)}
+                    onClick={handleCreateTicket}
                     type='sberDefaultGradient'
                 >
                     {CreateTicketMessage}
@@ -385,62 +451,9 @@ const ClientTabContent = ({ type, phone, property, unitName, canManageContacts }
         />
     )
 }
+//#endregion
 
-const StyledAddAddressButton = styled(Button)<{ active }>`
-  width: 258px;
-  height: 150px;
-  box-shadow: ${shadows.small};
-  border-radius: 12px;
-  border: ${props => !props.active ? `1px dashed ${colors.inputBorderHover}` : 'inherit'};
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-
-  & .anticon {
-    margin: 0;
-  }
-`
-
-const PlusIconWrapper = styled.div<{ active }>`
-  width: 40px;
-  height: 40px;
-  border-radius: 100px;
-  background-color: ${props => props.active ? colors.black : colors.backgroundLightGrey};
-  color: ${props => props.active ? colors.white : colors.black};
-  transition: inherit;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-`
-
-const ADD_ADDRESS_TEXT_STYLE: CSSProperties = { marginTop: '12px' }
-
-const AddAddressTabTitle = () => {
-    const intl = useIntl()
-    const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
-
-    const [active, setActive] = useState<boolean>()
-    const handleMouseEnter = useCallback(() => {
-        setActive(true)
-    }, [])
-    const handleMouseLeave = useCallback(() => {
-        setActive(false)
-    }, [])
-    return (
-        <StyledAddAddressButton active={active} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
-            <PlusIconWrapper active={active}>
-                <PlusIcon />
-            </PlusIconWrapper>
-            <Typography.Paragraph style={ADD_ADDRESS_TEXT_STYLE}>
-                {AddAddressMessage}
-            </Typography.Paragraph>
-        </StyledAddAddressButton>
-    )
-}
-
+//#region Page Content
 const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
@@ -469,6 +482,33 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
         return router.push(newRoute)
     }, [phoneNumber, router])
 
+    const renderedTabs = useMemo(() =>
+        tabsData.map(({ type, property, unitName }) => {
+            const key = getClientCardTabKey(property.id, type, unitName)
+
+            const Tab = (
+                <ClientTabTitle
+                    type={type}
+                    property={property}
+                    unitName={unitName}
+                    active={activeTab === key}
+                />
+            )
+
+            return (
+                <Tabs.TabPane tab={Tab} key={key}>
+                    <ClientTabContent
+                        type={type}
+                        property={property}
+                        phone={phoneNumber}
+                        unitName={unitName}
+                        canManageContacts={canManageContacts}
+                    />
+                </Tabs.TabPane>
+            )
+        })
+    , [activeTab, canManageContacts, phoneNumber, tabsData])
+
     return (
         <>
             <Head>
@@ -476,7 +516,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 60]}>
+                    <Row gutter={ROW_BIG_GUTTER}>
                         <Col span={24}>
                             <Typography.Title>{ClientCardTitle}</Typography.Title>
                         </Col>
@@ -492,32 +532,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
                                         <Tabs.TabPane key='addAddress' tab={<AddAddressTabTitle/>}/>
                                     )
                                 }
-                                {
-                                    tabsData.map(({ type, property, unitName }) => {
-                                        const key = getClientCardTabKey(property.id, type, unitName)
-
-                                        const Tab = (
-                                            <ClientTabTitle
-                                                type={type}
-                                                property={property}
-                                                unitName={unitName}
-                                                active={activeTab === key}
-                                            />
-                                        )
-
-                                        return (
-                                            <Tabs.TabPane tab={Tab} key={key}>
-                                                <ClientTabContent
-                                                    type={type}
-                                                    property={property}
-                                                    phone={phoneNumber}
-                                                    unitName={unitName}
-                                                    canManageContacts={canManageContacts}
-                                                />
-                                            </Tabs.TabPane>
-                                        )
-                                    })
-                                }
+                                {renderedTabs}
                             </StyledTabs>
                         </Col>
                     </Row>
@@ -553,8 +568,12 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
         },
     })
 
-    const employeeTickets = tickets.filter(ticket => !!employees.find(employee => employee.phone === ticket.clientPhone))
-    const notResidentTickets = tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id))
+    const employeeTickets = useMemo(() =>
+        tickets.filter(ticket => !!employees.find(employee => employee.phone === ticket.clientPhone)),
+    [employees, tickets])
+    const notResidentTickets = useMemo(() =>
+        tickets.filter(ticket => !employeeTickets.find(employeeTicket => employeeTicket.id === ticket.id)),
+    [employeeTickets, tickets])
 
     const tabsData = useMemo(() => {
         const contactsData = contacts.map(contact => ({
@@ -591,6 +610,7 @@ const ClientCardPage = () => {
         <ClientCardPageContentWrapper baseQuery={baseQuery} canManageContacts={canManageContacts}/>
     )
 }
+//#endregion
 
 ClientCardPage.requiredAccess = OrganizationRequired
 

@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { ContactsEditor, IContactEditorProps } from './index'
-import { OrganizationEmployeeRole } from '@app/condo/schema'
+import {
+    ContactWhereInput,
+    OrganizationEmployeeRole,
+} from '@app/condo/schema'
 
 interface IContactsEditorHookArgs {
     role?: OrganizationEmployeeRole,
     allowLandLine?: boolean,
-    initialQuery?: unknown
+    initialQuery?: Pick<ContactWhereInput, 'organization'>
 }
 
 interface IContactsEditorHookResult {

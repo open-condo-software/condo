@@ -199,7 +199,7 @@ export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQ
         possibleQueryData['filters'] = JSON.stringify(possibleFilters)
     }
 
-    const route = newRoute ? newRoute : router.route
+    const route = newRoute || router.route
     const query = qs.stringify(
         possibleQueryData,
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },

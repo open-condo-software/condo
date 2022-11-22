@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
 import styled from '@emotion/styled'
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons'

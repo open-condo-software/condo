@@ -1,4 +1,4 @@
-import { get } from 'lodash'
+import get from 'lodash/get'
 import qs from 'qs'
 
 export const getObjectValueFromQuery = (router, path = []) => {
