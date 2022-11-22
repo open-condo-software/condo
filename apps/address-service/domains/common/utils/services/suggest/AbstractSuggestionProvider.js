@@ -48,7 +48,7 @@ class AbstractSuggestionProvider {
     /**
      * Normalizes data got from external service
      * @param {Array} data
-     * @returns {NormalizedBuilding[]}
+     * @returns {(NormalizedBuilding & {rawValue: string})[]}
      * @abstract
      * @public
      */

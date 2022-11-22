@@ -1,18 +1,15 @@
-import get from 'lodash/get'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
-import identity from 'lodash/identity'
-import pickBy from 'lodash/pickBy'
-import { notification, Select, SelectProps, Typography } from 'antd'
-
-import { useIntl } from '@open-condo/next/intl'
 import { grey } from '@ant-design/colors'
-import styled from '@emotion/styled'
-
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { Highlighter } from '@condo/domains/common/components/Highlighter'
-import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-
 import { colors } from '@condo/domains/common/constants/style'
+import styled from '@emotion/styled'
+import { useIntl } from '@open-condo/next/intl'
+import { notification, Select, SelectProps, Typography } from 'antd'
+import get from 'lodash/get'
+import identity from 'lodash/identity'
+import pickBy from 'lodash/pickBy'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 
 /*
     Fixes visual overlapping of close-button with text
@@ -40,15 +37,14 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
-    const AddressNotSelected = intl.formatMessage( { id: 'field.Property.nonSelectedError' })
-    
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     useEffect(() => {
         const isAddressNotSelected = get(props, 'setAddressValidatorError') && !isMatchSelectedProperty
         if (isAddressNotSelected) {
             setAddressValidatorError(addressValidatorError)
-        }
-        else if (addressValidatorError === AddressNotSelected){
+        } else if (addressValidatorError === AddressNotSelected) {
             setAddressValidatorError(null)
         }
     }, [isMatchSelectedProperty, setAddressValidatorError])
@@ -63,7 +59,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
                     const cleanedSuggestion = pickBy(suggestion, identity)
                     return {
                         text: suggestion.value,
-                        value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.value }),
+                        value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.rawValue }),
                     }
                 })
             } catch (e) {

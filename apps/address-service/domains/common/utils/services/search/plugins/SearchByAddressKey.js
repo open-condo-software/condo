@@ -18,13 +18,13 @@ class SearchByAddressKey extends AbstractSearchPlugin {
 
     /**
      * @param {String} s
-     * @returns {Promise<Object[]>}
+     * @returns {Promise<?Object>}
      */
     async search (s) {
         const [, key] = s.split(SEPARATOR, 2)
         const addressByKey = await Address.getOne(this.keystoneContext.sudo(), { key })
 
-        return addressByKey ? [addressByKey] : []
+        return addressByKey ? addressByKey : null
     }
 }
 

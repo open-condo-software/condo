@@ -20,11 +20,11 @@ class SearchKeystoneApp {
     /**
      * Converts the `Address` model to service response
      * @param addressModel
-     * @returns {{addressSource, address, addressKey, addressMeta}}
+     * @returns {{addressSources, address, addressKey, addressMeta}}
      */
     createReturnObject (addressModel) {
         return {
-            addressSource: addressModel.source,
+            addressSources: addressModel.sources.map(({ source }) => source),
             address: addressModel.address,
             addressKey: addressModel.key,
             addressMeta: addressModel.meta,
@@ -84,24 +84,24 @@ class SearchKeystoneApp {
                 return
             }
 
-            const searchResult = []
+            let searchResult = null
             for (const plugin of plugins) {
                 // Return the first not empty plugin's result
                 // So, the plugins order is mandatory for performance
-                if (searchResult.length > 0) {
+                if (searchResult) {
                     break
                 }
-                const pluginResult = await plugin.prepare(pluginParams).search(s)
-                searchResult.push(...pluginResult)
+
+                searchResult = await plugin.prepare(pluginParams).search(s)
             }
 
-            if (searchResult.length === 0) {
+            if (!searchResult) {
                 // Nothing found
                 res.send(404)
                 return
             }
 
-            res.json(searchResult.map(this.createReturnObject))
+            res.json(this.createReturnObject(searchResult))
         })
 
         return app

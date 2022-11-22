@@ -3,6 +3,7 @@ const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addre
 const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 const { Text } = require('@keystonejs/fields')
+const { Json } = require('@open-condo/keystone/fields')
 const {
     createInstance: createAddressServiceClientInstance,
     createTestInstance: createTestAddressServiceClientInstance,
@@ -16,7 +17,7 @@ const readOnlyAccess = {
     delete: false,
 }
 
-const getSourceFieldName = (mainFieldName) => `${mainFieldName}Source`
+const getSourceFieldName = (mainFieldName) => `${mainFieldName}Sources`
 const getKeyFieldName = (mainFieldName) => `${mainFieldName}Key`
 const getMetaFieldName = (mainFieldName) => `${mainFieldName}Meta`
 
@@ -30,8 +31,8 @@ const getFieldsToAdd = (mainField, fieldsHooks) => ({
         },
     },
     [getSourceFieldName(mainField)]: {
-        type: Text,
-        schemaDoc: 'The origin of the address (some string which may looks like real address or some id)',
+        type: Json,
+        schemaDoc: 'The origins of the address (some strings which may looks like real address or some id)',
         access: readOnlyAccess,
         hooks: {
             ...(fieldsHooks[getSourceFieldName(mainField)] || {}),
@@ -93,15 +94,18 @@ const addressService = (addressFieldName = 'address', fieldsHooks = {}) => plugi
                 ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
 
-            const result = await client.add({
-                source: resolvedData[addressFieldName],
-                value: resolvedData[getMetaFieldName(addressFieldName)],
-                token: 'TODO(AleX83Xpert)', // todo(AleX83Xpert)
-            })
+            const result = await client.search(get(resolvedData, ['addressMeta', 'rawValue'], resolvedData[addressFieldName]))
 
-            resolvedData[getSourceFieldName(addressFieldName)] = resolvedData[addressFieldName]
+            resolvedData[getSourceFieldName(addressFieldName)] = get(result, 'addressSources')
             resolvedData[addressFieldName] = get(result, 'address')
             resolvedData[getKeyFieldName(addressFieldName)] = get(result, 'addressKey')
+
+            resolvedData[getMetaFieldName(addressFieldName)] = {
+                dv: 1,
+                value: get(result, ['addressMeta', 'value'], ''),
+                unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
+                data: get(result, ['addressMeta', 'data'], null),
+            }
         }
 
         return resolvedData

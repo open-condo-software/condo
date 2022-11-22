@@ -16,10 +16,6 @@ Used to get a list of suggestions while the user trying to add a new property. T
 ### /search
 Used to search addresses. This endpoint utilizes search plugins under the hood. The first not-empty plugin's result will send to the response.
 
-### /add
-Used to create new property during creating the same property in the condo database.
-
-
 # address-service quick start
 
 ```

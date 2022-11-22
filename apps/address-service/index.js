@@ -18,7 +18,6 @@ const {
     SearchByAddressKey,
     SearchByInjectionId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
-const { MainKeystoneApp } = require('@address-service/domains/common/utils/services/main/MainKeystoneApp')
 const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 
 const keystone = new Keystone({
@@ -69,7 +68,6 @@ module.exports = {
             authStrategy,
             hooks: require.resolve('@app/address-service/admin-ui'),
         }),
-        new MainKeystoneApp(),
         new SuggestionKeystoneApp(),
         new SearchKeystoneApp([new SearchByAddressKey(), new SearchByInjectionId(), new SearchBySource(), new SearchByProvider()]),
     ].filter(identity),

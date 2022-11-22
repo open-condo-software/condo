@@ -30,7 +30,7 @@ class AbstractSearchPlugin {
 
     /**
      * @param {String} s
-     * @returns {Promise<Object[]>} The array of `Address` models
+     * @returns {Promise<?Object>} The `Address` model instance
      */
     async search (s) {
         throw new Error('Method still not implemented.')

@@ -1,7 +1,11 @@
 import getConfig from 'next/config'
 import { AddressMetaField } from '@app/condo/schema'
 
-type SuggestionsResponse = Promise<{ suggestions: Array<AddressMetaField> }>
+type TSuggestion = AddressMetaField & {
+    rawValue: string,
+}
+
+type SuggestionsResponse = Promise<{ suggestions: Array<TSuggestion> }>
 
 export interface IAddressApi {
     getAddressMeta(address: string): AddressMetaField
