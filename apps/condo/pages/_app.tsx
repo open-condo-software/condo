@@ -20,6 +20,7 @@ import { useOrganization, withOrganization } from '@open-condo/next/organization
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
+import PopupSmart from '@condo/domains/common/components/PopupSmart'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import BaseLayout, { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
@@ -243,6 +244,7 @@ const MyApp = ({ Component, pageProps }) => {
                         </FocusContextProvider>
                         <GoogleAnalytics/>
                         <YandexMetrika/>
+                        <PopupSmart />
                     </FeatureFlagsProvider>
                 </CacheProvider>
             </ConfigProvider>
