@@ -54,7 +54,7 @@ class InjectionsSeeker {
     normalize (injections) {
         return injections.map((injection) => {
             const country = get(injection, 'country', '')
-            const region_with_type = String(`${get(injection, ['region', 'name'], '')} ${get(injection, ['region', 'typeShort'], '')}`).trim()
+            const region_with_type = String(`${get(injection, ['region', 'typeShort'], '')} ${get(injection, ['region', 'name'], '')}`).trim()
             const area_with_type = String(`${get(injection, ['area', 'typeShort'], '')} ${get(injection, ['area', 'name'], '')}`).trim()
             const city_with_type = String(`${get(injection, ['city', 'typeShort'], '')} ${get(injection, ['city', 'name'], '')}`).trim()
             const city_district_with_type = String(`${get(injection, ['cityDistrict', 'typeShort'], '')} ${get(injection, ['cityDistrict', 'name'], '')}`).trim()
