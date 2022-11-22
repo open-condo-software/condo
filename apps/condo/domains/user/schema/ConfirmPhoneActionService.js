@@ -212,7 +212,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
                 }
                 await checkSMSDayLimitCounters(phone, context.req.ip)
-                await redisGuard.checkLock(phone, 'sendsms')
+                await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const token = uuid()
                 const now = extra.extraNow || Date.now()
@@ -281,7 +281,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 }
                 const { id, phone } = actions[0]
                 await checkSMSDayLimitCounters(phone, context.req.ip)
-                await redisGuard.checkLock(phone, 'sendsms')
+                await redisGuard.checkLock(phone, 'sendsms', context)
                 await redisGuard.lock(phone, 'sendsms', SMS_CODE_TTL)
                 const newSmsCode = generateSmsCode(phone)
                 await ConfirmPhoneAction.update(context, id, {
@@ -338,7 +338,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 if (isEmpty(actions)) {
                     throw new GQLError({ ...errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, mutation: 'completeConfirmPhoneAction' }, context)
                 }
-                await redisGuard.checkLock(token, 'confirm')
+                await redisGuard.checkLock(token, 'confirm', context)
                 await redisGuard.lock(token, 'confirm', LOCK_TIMEOUT)
                 const { id, smsCode: actionSmsCode, retries, smsCodeExpiresAt } = actions[0]
                 const isExpired = (new Date(smsCodeExpiresAt) < new Date(now))
