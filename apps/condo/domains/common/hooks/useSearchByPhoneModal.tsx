@@ -12,7 +12,11 @@ import { Button } from '@condo/domains/common/components/Button'
 import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Modal } from '@condo/domains/common/components/Modal'
 import { fontSizes } from '@condo/domains/common/constants/style'
-import { ClientType, mapToSelectOption, redirectToForm } from '@condo/domains/contact/utils/clientCard'
+import {
+    ClientType,
+    mapSearchItemToOption,
+    redirectToForm,
+} from '@condo/domains/contact/utils/clientCard'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
@@ -103,7 +107,6 @@ const SearchByPhoneSelect = ({
     const ResidentsOptGroupMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.residents' })
     const NotResidentsOptGroupMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notResidents' })
     const EmployeesOptGroupMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.employees' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const [phone, setPhone] = useState('')
 
@@ -111,13 +114,13 @@ const SearchByPhoneSelect = ({
         const resultOptions = []
         const contactOptions = searchData
             .filter(item => item.type === ClientType.Resident)
-            .map(item => mapToSelectOption({ ...item, id: item.value, type: ClientType.Resident, DeletedMessage }))
+            .map(item => mapSearchItemToOption(item, phone, ClientType.Resident))
         const notResidentOptions = searchData
             .filter(item => item.type === ClientType.NotResident && !item.isEmployee)
-            .map(item => mapToSelectOption({ ...item, id: item.value, type: ClientType.NotResident, DeletedMessage }))
-        const employeeOptions = notResidentOptions
+            .map(item => mapSearchItemToOption(item, phone, ClientType.NotResident))
+        const employeeOptions = searchData
             .filter(item => item.type === ClientType.NotResident && item.isEmployee)
-            .map(item => mapToSelectOption({ ...item, id: item.value, type: ClientType.NotResident, DeletedMessage }))
+            .map(item => mapSearchItemToOption(item, phone, ClientType.NotResident))
 
         if (!isEmpty(contactOptions)) {
             resultOptions.push(
@@ -144,7 +147,7 @@ const SearchByPhoneSelect = ({
         }
 
         return resultOptions
-    }, [DeletedMessage, EmployeesOptGroupMessage, NotResidentsOptGroupMessage, ResidentsOptGroupMessage])
+    }, [EmployeesOptGroupMessage, NotResidentsOptGroupMessage, ResidentsOptGroupMessage])
     const handleSearch = useCallback((value) => setPhone(value), [])
 
     return (

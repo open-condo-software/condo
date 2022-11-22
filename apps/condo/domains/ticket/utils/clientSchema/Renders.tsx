@@ -260,9 +260,27 @@ export const getTicketUserNameRender = (search: FilterValue) => {
     }
 }
 
-export const getAddressRender = (property: Property, DeletedMessage?: string) => {
+export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
+    return function render (intl, properties) {
+        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+
+        if (isEmpty(properties)) {
+            return '—'
+        }
+
+        return properties.map((property) => getAddressCellRender(property, DeletedMessage, search))
+    }
+}
+
+export const getAddressRender = (property: Property, unitNameMessage?: string, DeletedMessage?: string) => {
     const { postfix, text } = getPropertyAddressParts(property, DeletedMessage)
-    const renderText = text ? String(text) : ''
+    let renderText = ''
+    if (text) {
+        renderText += text
+        if (unitNameMessage) {
+            renderText += unitNameMessage
+        }
+    }
     const title = `${text} ${isString(postfix) && postfix || ''}`
 
     const getPostfix = () => (

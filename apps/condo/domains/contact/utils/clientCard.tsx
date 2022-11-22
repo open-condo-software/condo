@@ -11,6 +11,7 @@ import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
+import { useIntl } from '@open-condo/next/intl'
 
 export enum ClientType {
     Resident,
@@ -106,8 +107,14 @@ export function searchByPhone (organizationId) {
 
 const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
 const LINK_STYLES = { fontSize: fontSizes.label, color: colors.black }
-export const mapToSelectOption = ({ id, phone, property, unitName, type, DeletedMessage }) => (
-    <Select.Option key={id} value={phone} title={phone}>
+
+const SearchByPhoneSelectOption = ({ phone, property, unitName, type }) => {
+    const intl = useIntl()
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const ShortFlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const unitNameMessage = unitName && ` ${ShortFlatMessage} ${unitName}`
+
+    return (
         <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(property.id, type, unitName)}`} style={LINK_STYLES}>
             <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                 <Col>
@@ -117,10 +124,16 @@ export const mapToSelectOption = ({ id, phone, property, unitName, type, Deleted
 
                 </Col>
                 <Col>
-                    {property ? getAddressRender(property) : DeletedMessage}
+                    {property ? getAddressRender(property, unitNameMessage) : DeletedMessage}
                 </Col>
             </Row>
         </Typography.Link>
+    )
+}
+
+export const mapSearchItemToOption = (item, phone, type) => (
+    <Select.Option key={item.value} value={phone} title={phone}>
+        <SearchByPhoneSelectOption {...item} key={item.value} type={type} />
     </Select.Option>
 )
 
