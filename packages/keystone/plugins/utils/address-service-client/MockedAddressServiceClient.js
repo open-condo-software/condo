@@ -15,7 +15,7 @@ class MockedAddressServiceClient {
      */
     async search (s, params = {}) {
         const item = this.existingItem
-        return [{
+        return {
             addressSource: s,
             address: get(item, 'address', s),
             addressKey: get(item, 'addressKey', faker.random.alphaNumeric(32)),
@@ -138,7 +138,7 @@ class MockedAddressServiceClient {
                     ),
                 },
             },
-        }]
+        }
     }
 
     async suggest (s, params) {
