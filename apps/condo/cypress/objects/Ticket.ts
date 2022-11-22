@@ -165,7 +165,7 @@ class TicketView {
     }
 
     typeAddressSearchInput (propertyAddress: string): this {
-        cy.wait(['@selectProperty', '@selectDivision', '@getAllTicketClassifiers', '@selectOrganizationEmployee', '@getAllOrganizationEmployees'])
+        cy.wait(['@selectProperty', '@getAllTicketClassifiers', '@selectOrganizationEmployee', '@getAllOrganizationEmployees'])
         cy.get('input#property')
             .click()
             .type(propertyAddress.slice(0, 5))
@@ -212,6 +212,10 @@ class TicketEdit {
             '@getAllTicketChanges',
             '@getAllTicketPropertyHints',
             '@getAllUserTicketCommentReadTimes',
+            '@getAllOrganizationEmployeeSpecializations',
+            '@getAllPropertyScopeProperties',
+            '@getAllPropertyScopes',
+            '@getAllPropertyScopeOrganizationEmployees',
         ])
 
         return this
@@ -242,7 +246,6 @@ class TicketEdit {
             '@getAllTickets',
             '@getAllTicketClassifiers',
             '@getAllProperties',
-            '@getAllOrganizationEmployees',
         ])
 
         cy.location('pathname').should('contain', '/update')
@@ -264,13 +267,13 @@ class TicketEdit {
             .type('{downArrow}')
         cy.get('.ant-select-dropdown:not(.ant-select-dropdown-hidden) [data-cy=ticket__classifier-option]')
             .first()
-            .click()
+            .click({ force: true })
 
         return this
     }
 
     clickTicketDeadline (): this {
-        cy.get('[data-cy=ticket__deadline-item]').click()
+        cy.get('[data-cy=ticket__deadline-item] input').click()
         cy.get('.ant-picker-today-btn').click()
 
         return this

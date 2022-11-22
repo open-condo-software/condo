@@ -1,5 +1,4 @@
 import { gql } from 'graphql-tag'
-import React from 'react'
 
 const GET_ALL_ORGANIZATION_EMPLOYEE_QUERY = gql`
     query selectOrganizationEmployee ($where: OrganizationEmployeeWhereInput, $first: Int = 300, $skip: Int) {
