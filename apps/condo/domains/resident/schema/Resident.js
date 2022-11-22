@@ -185,7 +185,7 @@ const Resident = new GQLListSchema('Resident', {
     plugins: [
         addOrganizationFieldPlugin({ fromField: 'property' }),
         uuided(),
-        addressService('address', { address: addressFieldHooks }),
+        addressService({ address: addressFieldHooks }),
         versioned(),
         tracked(),
         softDeleted(),
