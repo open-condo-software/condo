@@ -10,6 +10,7 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
 import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { renderPhone } from '@condo/domains/common/utils/Renders'
 
 export enum ClientType {
     Resident,
@@ -106,11 +107,14 @@ export function searchByPhone (organizationId) {
 const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
 const LINK_STYLES = { fontSize: fontSizes.label, color: colors.black }
 export const mapToSelectOption = ({ id, phone, property, unitName, type, DeletedMessage }) => (
-    <Select.Option key={id} value={id} title={phone}>
+    <Select.Option key={id} value={phone} title={phone}>
         <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(property.id, type, unitName)}`} style={LINK_STYLES}>
             <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                 <Col>
-                    {phone}
+                    <Typography.Text strong>
+                        {renderPhone(phone)}
+                    </Typography.Text>
+
                 </Col>
                 <Col>
                     {property ? getAddressRender(property) : DeletedMessage}
