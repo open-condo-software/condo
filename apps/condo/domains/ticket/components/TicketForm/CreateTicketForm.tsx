@@ -1,7 +1,7 @@
 import { Col, Form, Row, Typography } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 

@@ -4,6 +4,7 @@ import { gql } from 'graphql-tag'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
 import React from 'react'
+import compact from 'lodash/compact'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
@@ -87,8 +88,9 @@ export function searchByPhone (organizationId) {
                     type: ClientType.NotResident,
                     isEmployee: true,
                 })
-                return false
-            } else return true
+            }
+
+            return !employee
         }).map(ticket => ({
             value: ticket.id,
             phone: ticket.clientPhone,
@@ -118,8 +120,8 @@ export const mapToSelectOption = ({ id, phone, property, unitName, type, Deleted
     </Select.Option>
 )
 
-export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName: string): string =>
-    `${propertyId}-${unitName ? unitName : ''}-${type}`
+export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string): string =>
+    compact([propertyId, unitName, type]).join('-')
 
 type RedirectToFormArgsType = {
     router: NextRouter,

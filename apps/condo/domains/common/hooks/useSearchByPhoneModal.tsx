@@ -1,6 +1,6 @@
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { SearchOutlined } from '@ant-design/icons'
