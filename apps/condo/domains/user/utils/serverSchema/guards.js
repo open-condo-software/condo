@@ -18,7 +18,14 @@ class RedisGuard {
         this.counterPrefix = 'guard_counter:'
     }
 
-    async checkLock (lockName, action) {
+    /**
+     *
+     * @param {string} lockName
+     * @param {string} action
+     * @param {Object | undefined} context - Keystone context
+     * @return {Promise<void>}
+     */
+    async checkLock (lockName, action, context = undefined) {
         const isLocked = await this.isLocked(lockName, action)
         if (isLocked) {
             const secondsRemaining = await this.lockTimeRemain(lockName, action)
@@ -27,11 +34,19 @@ class RedisGuard {
                 messageInterpolation: {
                     secondsRemaining,
                 },
-            })
+            }, context)
         }
     }
 
-    async checkCustomLimitCounters (variable, windowSize, counterLimit) {
+    /**
+     *
+     * @param {string} variable
+     * @param {string} windowSize
+     * @param {number} counterLimit
+     * @param {Object | undefined} context - Keystone context
+     * @return {Promise<void>}
+     */
+    async checkCustomLimitCounters (variable, windowSize, counterLimit, context = undefined) {
         const expiryAnchorDate = dayjs().add(windowSize, 'second')
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
         if (counter > counterLimit) {
@@ -41,7 +56,7 @@ class RedisGuard {
                 messageInterpolation: {
                     secondsRemaining,
                 },
-            })
+            }, context)
         }
     }
 
