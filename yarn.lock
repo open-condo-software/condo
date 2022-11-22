@@ -416,7 +416,7 @@ __metadata:
     graphql: ^15.6.1
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
-    immer: ^9.0.0
+    immer: 9.0.13
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
     less: ^3.12.2
@@ -746,7 +746,7 @@ __metadata:
     graphql-tag: ^2.12.6
     iconv: ^3.0.1
     identity-obj-proxy: ^3.0.0
-    immer: ^8.0.1
+    immer: 9.0.13
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
     less: ^3.12.2
@@ -851,7 +851,7 @@ __metadata:
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
-    immer: ^8.0.1
+    immer: 9.0.13
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
@@ -951,7 +951,7 @@ __metadata:
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
-    immer: ^8.0.1
+    immer: 9.0.13
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
@@ -1136,7 +1136,7 @@ __metadata:
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
-    immer: ^9.0.0
+    immer: 9.0.13
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
     js-cookie: ^2.2.1
@@ -1245,7 +1245,7 @@ __metadata:
     iconv: ^3.0.1
     identity-obj-proxy: ^3.0.0
     ignore-loader: 0.1.2
-    immer: ^9.0.6
+    immer: 9.0.13
     jest: ^26.6.3
     jest-watch-typeahead: ^0.6.1
     jschardet: ^3.0.0
@@ -24120,20 +24120,6 @@ __metadata:
   version: 9.0.13
   resolution: "immer@npm:9.0.13"
   checksum: cd3b82d4f4e9ad61879ab27071855224665fd8b5893ecc42a267f8965a7f75bcceae24e47244c826768124e95a3ae0a4a15a0dfd034a9efae4298936e162c7d7
-  languageName: node
-  linkType: hard
-
-"immer@npm:^8.0.1":
-  version: 8.0.4
-  resolution: "immer@npm:8.0.4"
-  checksum: 9d3b28df1ac5bf6918c611e71c15bdb136588c21a3431100448f21325fef9b055cc9a44fe8b023f0c5ecbc66a2ba38f403c9a67d581f613b49d0e4ff15564f79
-  languageName: node
-  linkType: hard
-
-"immer@npm:^9.0.0, immer@npm:^9.0.6":
-  version: 9.0.15
-  resolution: "immer@npm:9.0.15"
-  checksum: 92e3d63e810e3c3c2bb61b70c45443e37ef983ad12924e3edaf03725ae5979618f5b473439bb3bb4a8c4769f25132f18dec10ea15c40f0b20da5691ff96ff611
   languageName: node
   linkType: hard
 
