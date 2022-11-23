@@ -16,7 +16,7 @@ export type Scalars = {
 };
 
 
-/**  Some specific building  */
+/**  A model containing data on the particular building's address  */
 export type Address = {
   __typename?: 'Address';
   /**
@@ -53,7 +53,7 @@ export type Address = {
 };
 
 
-/**  Some specific building  */
+/**  A model containing data on the particular building's address  */
 export type AddressSourcesArgs = {
   where?: Maybe<AddressSourceWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -64,7 +64,7 @@ export type AddressSourcesArgs = {
 };
 
 
-/**  Some specific building  */
+/**  A model containing data on the particular building's address  */
 export type Address_SourcesMetaArgs = {
   where?: Maybe<AddressSourceWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -804,7 +804,7 @@ export type AddressRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  The source for the address  */
+/**  A model containing data on the particular building's address origin  */
 export type AddressSource = {
   __typename?: 'AddressSource';
   /**
@@ -815,7 +815,7 @@ export type AddressSource = {
    *  4. As an alias to the 'id' field on the AddressSource List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Source string itself  */
+  /**  The string the address was found by (address origin)  */
   source?: Maybe<Scalars['String']>;
   /**  The address which was found by the source address  */
   address?: Maybe<Address>;
