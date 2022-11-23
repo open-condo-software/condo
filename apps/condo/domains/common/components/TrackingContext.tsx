@@ -47,6 +47,8 @@ const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(
 
 const DETAIL_PAGE_NAMES = ['create', 'update', 'hint', 'detail', 'forgot', 'signin', 'register', 'change-password']
 
+const POST_MESSAGE_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
+
 export enum TrackingEventType {
     Visit = 'Visit',
     Click = 'Click',
@@ -58,6 +60,44 @@ export enum TrackingEventType {
     FollowExternalLink = 'FollowExternalLink',
     ImportComplete = 'ImportComplete',
     OnBoardingStepsCompleted = 'OnBoardingStepsCompleted',
+}
+
+const getEventNameFromRoute = (route: string, eventType: TrackingEventType): string => {
+    const [domainName, detailPageName, suffix, customPage] = compact(route.split('/'))
+    if (!domainName) {
+        return ''
+    }
+    const domain = upperFirst(domainName)
+    let domainSuffix = 'Index'
+    let domainPostfix = ''
+
+    if (detailPageName === '[id]') {
+        domainSuffix = 'Detail'
+    } else if (DETAIL_PAGE_NAMES.includes(detailPageName)) {
+        domainSuffix = upperFirst(detailPageName)
+    }
+
+    const postfixToken = customPage ? customPage : suffix
+
+    if (postfixToken) {
+        switch (postfixToken) {
+            case 'update':
+                domainPostfix = 'Update'
+                break
+            case 'pdf':
+                domainPostfix = 'Pdf'
+                break
+            case '[id]':
+                domainSuffix = 'Detail'
+                break
+            default:
+                // convert string from domain-related-page to DomainRelatedPage
+                domainPostfix = postfixToken.replace(/(-\w|^\w)/g, (_, g) => g.slice(-1).toUpperCase())
+                break
+        }
+    }
+
+    return `${domain}${eventType}${domainSuffix}${domainPostfix}`
 }
 
 interface IGetEventName {
@@ -76,9 +116,8 @@ interface IUseTracking {
 }
 
 const useTracking: IUseTracking = () => {
-    const router = useRouter()
-    const route = get(router, 'route', '')
     const { trackerInstances, eventProperties, userProperties } = useTrackingContext()
+    const { route } = useRouter()
 
     const logEvent = useCallback(({ eventName, eventProperties: localEventProperties = {}, denyDuplicates }: ITrackerLogEventType) => {
         const resultEventProperties = {
@@ -116,41 +155,7 @@ const useTracking: IUseTracking = () => {
     }
 
     const getEventName: IGetEventName = (eventType) => {
-        const [domainName, detailPageName, suffix, customPage] = compact(route.split('/'))
-        if (!domainName) {
-            return ''
-        }
-        const domain = upperFirst(domainName)
-        let domainSuffix = 'Index'
-        let domainPostfix = ''
-
-        if (detailPageName === '[id]') {
-            domainSuffix = 'Detail'
-        } else if (DETAIL_PAGE_NAMES.includes(detailPageName)) {
-            domainSuffix = upperFirst(detailPageName)
-        }
-
-        const postfixToken = customPage ? customPage : suffix
-
-        if (postfixToken) {
-            switch (postfixToken) {
-                case 'update':
-                    domainPostfix = 'Update'
-                    break
-                case 'pdf':
-                    domainPostfix = 'Pdf'
-                    break
-                case '[id]':
-                    domainSuffix = 'Detail'
-                    break
-                default:
-                    // convert string from domain-related-page to DomainRelatedPage
-                    domainPostfix = postfixToken.replace(/(-\w|^\w)/g, (_, g) => g.slice(-1).toUpperCase())
-                    break
-            }
-        }
-
-        return `${domain}${eventType}${domainSuffix}${domainPostfix}`
+        return getEventNameFromRoute(route, eventType)
     }
 
     return {
@@ -182,18 +187,44 @@ const TrackingProvider: React.FC = ({ children }) => {
         trackingProviderValueRef.current.eventProperties.page.path = url
     }
 
+    const handleExternalAnalyticsEvent = useCallback((event: MessageEvent) => {
+        if (!event.isTrusted) {
+            return
+        }
+        const data = event.data
+        const handler = get(data, 'handler')
+        if (handler != POST_MESSAGE_HANDLER_NAME) {
+            return
+        }
+
+        const eventName = getEventNameFromRoute(router.route, upperFirst(get(data, ['params', 'event'], '')) as TrackingEventType)
+        const eventProperties = {
+            ...trackingProviderValueRef.current.eventProperties,
+            components: get(data, 'params', {}),
+        }
+
+        Object.values(trackingProviderValueRef.current.trackerInstances).forEach((trackerInstance) => trackerInstance.logEvent({
+            eventName,
+            eventProperties,
+            userProperties: trackingProviderValueRef.current.userProperties,
+        }))
+
+    }, [router])
+
     useEffect(() => {
         // Init all instances of trackers only on client side rendering
         if (!isUndefined(window)) {
+            window.addEventListener('message', handleExternalAnalyticsEvent)
             // Page path changed -> change value at context object
             router.events.on('routeChangeComplete', routeChangeComplete)
             Object.values(trackingProviderValueRef.current.trackerInstances).forEach(trackerInstance => trackerInstance.init())
         }
 
         return () => {
+            window.removeEventListener('message', handleExternalAnalyticsEvent)
             router.events.off('routeChangeComplete', routeChangeComplete)
         }
-    }, [])
+    }, [handleExternalAnalyticsEvent, router])
 
     // Collect user & organization related data to slice custom groups based on given attributes
     useEffect(() => {
