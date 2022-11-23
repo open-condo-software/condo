@@ -43,6 +43,7 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
+    "./package.json": "./package.json",
     "./colors": "./dist/colors/index.js",
     "./src": "./src/index.ts",
     "./src/": "./src/",
