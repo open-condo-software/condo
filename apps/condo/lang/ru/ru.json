@@ -802,7 +802,7 @@
   "pages.organizations.tin.InvalidValue": "Некорректное значение ИНН",
   "pages.organizations.PageTitle": "Организации",
   "pages.clientCard.Title": "Контакт {phone}",
-  "pages.clientCard.showAllPropertyTickets": "Показать все заявки по этому адресу",
+  "pages.clientCard.showAllPropertyTickets": "Показать все заявки по этому дому",
   "pages.clientCard.contactTickets": "Заявки по этому адресу",
   "pages.clientCard.editContact": "Редактировать контакт",
   "pages.clientCard.addAddress": "Добавить адрес",

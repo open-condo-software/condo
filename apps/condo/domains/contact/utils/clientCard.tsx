@@ -137,8 +137,11 @@ export const mapSearchItemToOption = (item, phone, type) => (
     </Select.Option>
 )
 
-export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string): string =>
-    compact([propertyId, unitName, type]).join('-')
+export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string): string => {
+    const keyData = { property: propertyId, unitName, type }
+
+    return JSON.stringify(keyData)
+}
 
 type RedirectToFormArgsType = {
     router: NextRouter,
