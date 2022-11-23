@@ -15,7 +15,7 @@ interface ILayoutContext {
     addNotification?: (notification: ITopNotification) => void
 }
 
-const detectMobileNavigator = (): boolean => {
+const isMobileUserAgent = (): boolean => {
     return (
         typeof window !== 'undefined'
         && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
@@ -51,7 +51,7 @@ export const LayoutContextProvider: React.FC = (props) => {
 
     return (
         <LayoutContext.Provider value={{
-            isMobile: detectMobileNavigator(),
+            isMobile: isMobileUserAgent(),
             isSmall,
             shouldTableScroll,
             breakpoints,
