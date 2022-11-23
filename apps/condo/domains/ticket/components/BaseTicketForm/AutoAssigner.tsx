@@ -1,5 +1,5 @@
 import { Alert, Col } from 'antd'
-import { isEmpty } from 'lodash'
+import { every, isEmpty } from 'lodash'
 import React, { useState } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
@@ -35,8 +35,8 @@ export const AutoAssigner = ({
 
     useDeepCompareEffect(() => {
         if (categoryClassifierId && propertyId) {
-            if (!isEmpty(matchedEmployees)) {
-                const firstEmployee = matchedEmployees[0]
+            if (!isEmpty(matchedEmployees) && !every(matchedEmployees, employee => employee.isBlocked)) {
+                const firstEmployee = matchedEmployees.find(employee => !employee.isBlocked)
                 const firstEmployeeUserId = firstEmployee.user.id
 
                 form.setFieldsValue({
@@ -52,7 +52,10 @@ export const AutoAssigner = ({
 
                 form.setFieldsValue({
                     assignee: currentUserId,
+                    executor: null,
                 })
+
+                setAutoAssigneePropertyScopeName(null)
             }
         }
     }, [

@@ -94,10 +94,11 @@ const getTicketsQueryByTicketVisibilityType = ({
             if (isEmployeeHasAllSpecializations) {
                 return {
                     ...organizationTicketFiltersQuery,
-                    classifier_is_null: false,
                     OR: [
                         {
                             property: { id_in: properties },
+                        },
+                        {
                             ...assignedTicketFiltersQuery,
                         },
                     ],
