@@ -146,7 +146,7 @@ async function createTestAddressSource (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const source = `${faker.address.city()}, ${faker.address.streetName()}`
+    const source = `${faker.address.city()}${faker.random.alphaNumeric(8)}, ${faker.address.streetName()}, ${faker.random.alphaNumeric(8)}`
 
     const attrs = {
         dv: 1,
