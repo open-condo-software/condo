@@ -34,15 +34,21 @@ const faker = require('faker')
 
 faker.locale = 'ru'
 
+let adminClient, supportClient, userClient, anonymousClient
+
 describe('AddressInjection', () => {
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+        supportClient = await makeClientWithSupportUser()
+        userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        anonymousClient = await makeClient()
+    })
+
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 1) prepare data
-                const admin = await makeLoggedInAdminClient()
-
                 // 2) action
-                const [obj, attrs] = await createTestAddressInjection(admin)
+                const [obj, attrs] = await createTestAddressInjection(adminClient)
 
                 // 3) check
                 expect(obj.id).toMatch(UUID_RE)
@@ -51,46 +57,39 @@ describe('AddressInjection', () => {
                 expect(obj.v).toEqual(1)
                 expect(obj.newId).toEqual(null)
                 expect(obj.deletedAt).toEqual(null)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
             test('support can', async () => {
-                const client = await makeClientWithSupportUser()
-
-                const [obj, attrs] = await createTestAddressInjection(client)
+                const [obj, attrs] = await createTestAddressInjection(supportClient)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
             })
 
             test('user can\'t', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestAddressInjection(client)
+                    await createTestAddressInjection(userClient)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestAddressInjection(client)
+                    await createTestAddressInjection(anonymousClient)
                 })
             })
         })
 
         describe('update', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
-                const [obj, attrs] = await updateTestAddressInjection(admin, objCreated.id)
+                const [obj, attrs] = await updateTestAddressInjection(adminClient, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
@@ -98,77 +97,64 @@ describe('AddressInjection', () => {
             })
 
             test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
-                const client = await makeClientWithSupportUser()
-                const [obj, attrs] = await updateTestAddressInjection(client, objCreated.id)
+                const [obj, attrs] = await updateTestAddressInjection(supportClient, objCreated.id)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestAddressInjection(client, objCreated.id)
+                    await updateTestAddressInjection(userClient, objCreated.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestAddressInjection(client, objCreated.id)
+                    await updateTestAddressInjection(anonymousClient, objCreated.id)
                 })
             })
         })
 
         describe('hard delete', () => {
             test('admin can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AddressInjection.delete(admin, objCreated.id)
+                    await AddressInjection.delete(adminClient, objCreated.id)
                 })
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AddressInjection.delete(client, objCreated.id)
+                    await AddressInjection.delete(userClient, objCreated.id)
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestAddressInjection(admin)
+                const [objCreated] = await createTestAddressInjection(adminClient)
 
-                const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await AddressInjection.delete(client, objCreated.id)
+                    await AddressInjection.delete(anonymousClient, objCreated.id)
                 })
             })
         })
 
         describe('read', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj] = await createTestAddressInjection(admin)
+                const [obj] = await createTestAddressInjection(adminClient)
 
-                const objs = await AddressInjection.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await AddressInjection.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
                 expect(objs).toEqual(expect.arrayContaining([
@@ -179,23 +165,18 @@ describe('AddressInjection', () => {
             })
 
             test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                await createTestAddressInjection(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestAddressInjection(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await AddressInjection.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await AddressInjection.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                await createTestAddressInjection(admin)
+                await createTestAddressInjection(adminClient)
 
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await AddressInjection.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                    await AddressInjection.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
         })
@@ -203,10 +184,8 @@ describe('AddressInjection', () => {
 
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             await expectToThrowGQLError(
-                async () => await createTestAddressInjection(admin, { dv: 42 }),
+                async () => await createTestAddressInjection(adminClient, { dv: 42 }),
                 {
                     'code': 'BAD_USER_INPUT',
                     'type': 'DV_VERSION_MISMATCH',
@@ -218,12 +197,10 @@ describe('AddressInjection', () => {
         })
 
         test('Keywords created correctly', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             const country = 'Molvania'
             const street = 'Baker'
 
-            const [obj, attrs] = await createTestAddressInjection(admin, {
+            const [obj, attrs] = await createTestAddressInjection(adminClient, {
                 country,
                 street: createTestAddressPartWithType(street),
             })
@@ -245,19 +222,17 @@ describe('AddressInjection', () => {
         }
 
         test('Injections found correctly', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             const country = 'InjectedMolvania'
             const city = createTestAddressPartWithType('InjectedCity')
             const street = createTestAddressPartWithType(`InjectedStreet${faker.datatype.number()}${streetNameWithoutPrefix()}`)
             const street1 = createTestAddressPartWithType(`${street.name}${streetNameWithoutPrefix()}${faker.datatype.number()}`)
             const street2 = createTestAddressPartWithType(`${street.name}${streetNameWithoutPrefix()}${faker.datatype.number()}`)
 
-            await createTestAddressInjection(admin, { country, city, street: street1 })
-            await createTestAddressInjection(admin, { country, city, street: street2 })
+            await createTestAddressInjection(adminClient, { country, city, street: street1 })
+            await createTestAddressInjection(adminClient, { country, city, street: street2 })
 
-            const injectionsBothStreets = await getTestInjections(admin, street.name)
-            const injectionsStreet1 = await getTestInjections(admin, street1.name)
+            const injectionsBothStreets = await getTestInjections(adminClient, street.name)
+            const injectionsStreet1 = await getTestInjections(adminClient, street1.name)
 
             expect(injectionsBothStreets.length).toEqual(2)
             expect(injectionsBothStreets).toEqual(expect.arrayContaining([
@@ -272,8 +247,6 @@ describe('AddressInjection', () => {
         })
 
         test('Found injections normalized correctly', async () => {
-            const admin = await makeLoggedInAdminClient()
-
             const country = `NormalizedInjected${faker.datatype.number()}Molvania${faker.datatype.number()}`
             const region = createTestAddressPartWithType(faker.address.state())
             const area = createTestAddressPartWithType(faker.address.state())
@@ -284,7 +257,7 @@ describe('AddressInjection', () => {
             const house = createTestAddressPartWithType(faker.datatype.number())
             const block = createTestAddressPartWithType(faker.datatype.number())
 
-            const [obj, attrs] = await createTestAddressInjection(admin, {
+            const [obj, attrs] = await createTestAddressInjection(adminClient, {
                 country,
                 region,
                 area,
@@ -299,7 +272,7 @@ describe('AddressInjection', () => {
             /**
              * @type {NormalizedBuilding[]}
              */
-            const normalizedInjections = await getTestInjections(admin, country, true)
+            const normalizedInjections = await getTestInjections(adminClient, country, true)
 
             const objectParts = {
                 region: obj.region,
