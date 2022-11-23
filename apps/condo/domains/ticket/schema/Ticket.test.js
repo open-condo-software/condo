@@ -43,7 +43,7 @@ const {
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { Ticket, createTestTicket, updateTestTicket, TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
+const { Ticket, createTestTicket, updateTestTicket, TicketOrganizationSetting, createTestTicketComment, TicketComment, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithResidentUser,
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -61,6 +61,7 @@ const {
 } = require('@condo/domains/ticket/constants')
 const { Organization } = require('../../organization/utils/testSchema')
 const { createTestPropertyScope, createTestPropertyScopeOrganizationEmployee, createTestPropertyScopeProperty } = require('@condo/domains/scope/utils/testSchema')
+const { PROPERTY_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 
 describe('Ticket', () => {
     describe('CRUD', () => {

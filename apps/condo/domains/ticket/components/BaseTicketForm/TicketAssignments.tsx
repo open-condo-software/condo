@@ -16,6 +16,7 @@ import {
 
 import { useIntl } from '@open-condo/next/intl'
 import { Col, FormInstance, Row, Select, Typography } from 'antd'
+import { every } from 'lodash'
 import { differenceBy } from 'lodash'
 import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -94,8 +95,7 @@ const TicketAssignments = ({
         const result = []
         const employees = employeeOptions
             .map(option => option.employee)
-            .filter(employee => employee && !employee.isBlocked)
-
+            .filter(employee => employee)
         const employeesWithMatchesPropertyAndSpecializationScope = employees.filter(
             isEmployeeSpecializationAndPropertyMatchesToScope(
                 {
@@ -106,8 +106,9 @@ const TicketAssignments = ({
                 }
             )
         )
-
+        const isAllMatchesEmployeesIsBlocked = every(employeesWithMatchesPropertyAndSpecializationScope, employee => employee.isBlocked)
         const otherEmployees = differenceBy(employees, employeesWithMatchesPropertyAndSpecializationScope, 'id')
+        const isAllOtherEmployeesIsBlocked = every(otherEmployees, employee => get(employee, 'isBlocked'))
 
         if (employeesWithMatchesPropertyAndSpecializationScope.length > 0) {
             const sortedEmployees = getEmployeesSortedByTicketVisibilityType(
@@ -115,13 +116,22 @@ const TicketAssignments = ({
                 filteredEmployeeSpecializations,
                 categoryClassifier,
             )
+            const renderedOptions = convertEmployeesToOptions(intl, renderOption, sortedEmployees, filteredEmployeeSpecializations)
             setMatchedEmployees(sortedEmployees)
 
-            result.push(
-                <Select.OptGroup label={EmployeesOnPropertyMessage} key={EmployeesOnPropertyMessage}>
-                    {convertEmployeesToOptions(intl, renderOption, sortedEmployees, filteredEmployeeSpecializations)}
-                </Select.OptGroup>
-            )
+            if (!isAllMatchesEmployeesIsBlocked) {
+                result.push(
+                    <Select.OptGroup label={EmployeesOnPropertyMessage} key={EmployeesOnPropertyMessage}>
+                        {renderedOptions}
+                    </Select.OptGroup>
+                )
+            } else {
+                result.push(
+                    <>
+                        {renderedOptions}
+                    </>
+                )
+            }
         } else {
             setMatchedEmployees([])
         }
@@ -134,13 +144,21 @@ const TicketAssignments = ({
             )
             const sortedEmployeeOptions = convertEmployeesToOptions(intl, renderOption, sortedEmployees, filteredEmployeeSpecializations)
 
-            if (employeesWithMatchesPropertyAndSpecializationScope.length === 0) {
+            if (employeesWithMatchesPropertyAndSpecializationScope.length === 0 || isAllMatchesEmployeesIsBlocked) {
                 result.push(sortedEmployeeOptions)
             } else {
-                result.push(
-                    <Select.OptGroup label={OtherMessage} key={OtherMessage}>
-                        {sortedEmployeeOptions}
-                    </Select.OptGroup>
+                if (!isAllOtherEmployeesIsBlocked) {
+                    result.push(
+                        <Select.OptGroup label={OtherMessage} key={OtherMessage}>
+                            {sortedEmployeeOptions}
+                        </Select.OptGroup>
+                    )
+                } else (
+                    result.push(
+                        <>
+                            {sortedEmployeeOptions}
+                        </>
+                    )
                 )
             }
         }
