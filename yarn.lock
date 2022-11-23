@@ -8593,10 +8593,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@open-condo/bicrypt@workspace:packages/bicrypt"
   dependencies:
+    "@xmldom/xmldom": ^0.8.6
     node-addon-api: ^1.1.0
     node-gyp: ^9.1.0
     xml-c14n: ^0.0.6
-    xmldom: ^0.6.0
   languageName: unknown
   linkType: soft
 
@@ -12377,7 +12377,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@xmldom/xmldom@npm:^0.8.2":
+"@xmldom/xmldom@npm:^0.8.2, @xmldom/xmldom@npm:^0.8.6":
   version: 0.8.6
   resolution: "@xmldom/xmldom@npm:0.8.6"
   checksum: f17ac6d99a971a6aeb831fcfc5cfa86f367664e45815046548814b2deb17ccc421fef4e0d5ba29e66179d112b552f6caa5680064f8e7bd8a389b788a60404c8e

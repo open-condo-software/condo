@@ -1,7 +1,7 @@
 const path = require('path')
 const addon = require(path.join(__dirname, '../build/Release/condo-bicrypt-sign-native'))
 const { existsSync: checkPath } = require('fs')
-const { DOMParser } = require('xmldom')
+const { DOMParser } = require('@xmldom/xmldom')
 const c14n = require('xml-c14n')()
 
 const formatXml = (xmlData) => new Promise((resolve, reject) => {
