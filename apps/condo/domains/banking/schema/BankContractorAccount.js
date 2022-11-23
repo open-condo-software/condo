@@ -8,7 +8,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/banking/access/BankContractorAccount')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { CURRENCY_CODE_FIELD } = require('../../common/schema/fields')
+const { CURRENCY_CODE_FIELD, IMPORT_ID_FIELD } = require('../../common/schema/fields')
 
 
 const BankContractorAccount = new GQLListSchema('BankContractorAccount', {
@@ -27,76 +27,62 @@ const BankContractorAccount = new GQLListSchema('BankContractorAccount', {
         },
 
         costItem: {
-            // TODO(codegen): write doc for BankContractorAccount.costItem field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Related cost item, that will determine cost items for transactions belonging to this contractor',
             type: Relationship,
             ref: 'BankCostItem',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         tin: {
-            // TODO(codegen): write doc for BankContractorAccount.tin field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Tax Identification Number',
             type: Text,
             isRequired: true,
         },
 
         country: {
-            // TODO(codegen): write doc for BankContractorAccount.country field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Country where the bank is located',
             type: Text,
             isRequired: true,
         },
 
         routingNumber: {
-            // TODO(codegen): write doc for BankContractorAccount.routingNumber field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The routing transit number for the bank account.',
             type: Text,
             isRequired: true,
         },
 
         number: {
-            // TODO(codegen): write doc for BankContractorAccount.number field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Bank account number',
             type: Text,
             isRequired: true,
         },
 
         currencyCode: CURRENCY_CODE_FIELD,
 
-        importId: {
-            // TODO(codegen): write doc for BankContractorAccount.importId field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
-        },
+        importId: IMPORT_ID_FIELD,
 
         territoryCode: {
-            // TODO(codegen): write doc for BankContractorAccount.territoryCode field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Location of the holder of this bank account. It depends on a country. In Russia it is OKTMO',
             type: Text,
         },
 
         bankName: {
-            // TODO(codegen): write doc for BankContractorAccount.bankName field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Name of bank',
             type: Text,
         },
 
         meta: {
-            // TODO(codegen): write doc for BankContractorAccount.meta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured non-typed metadata, can be used by mini-apps or external services to store information',
             type: Json,
         },
 
         tinMeta: {
-            // TODO(codegen): write doc for BankContractorAccount.tinMeta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured metadata found by tin',
             type: Json,
         },
 
         routingNumberMeta: {
-            // TODO(codegen): write doc for BankContractorAccount.routingNumberMeta field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Structured metadata found by routing number',
             type: Json,
         },
 
