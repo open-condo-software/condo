@@ -1,46 +1,107 @@
 const dayjs = require('dayjs')
+const { isEmpty, get, isNumber } = require('lodash')
 
 const { createCronTask } = require('@open-condo/keystone/tasks')
-const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLogger } = require('@open-condo/keystone/logging')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+const { MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_TASK } = require('@condo/domains/common/constants/featureflags')
+
+const CHUNK_SIZE = 50
 
 const appLogger = getLogger('condo')
 const taskLogger = appLogger.child({ module: 'closeCompletedTickets' })
+
+// NOTE Mobile apps can take a long time to download a large number of updated tickets.
+// Therefore, you should limit updating tickets for each organization at one time if there are a lot of them.
+// With the help of the feature flag, you can manage this restriction.
+const closeCompletedTicketsWithLimitByOrganizations = async (limit = 100) => {
+    if (!isNumber(limit) || limit < 1) {
+        taskLogger.error({
+            msg: 'Failed to start ticket closing because the limit was less than one or was not a number',
+            data: { limit },
+        })
+        return
+    }
+
+    const { keystone } = await getSchemaCtx('Ticket')
+    const context = await keystone.createContext()
+    const weekAgo = dayjs().subtract('7', 'days').toISOString()
+    const ticketWhere = {
+        status: { id: STATUS_IDS.COMPLETED },
+        statusUpdatedAt_lte: weekAgo,
+        deletedAt: null,
+    }
+
+    const countTicketToChange = await Ticket.count(context, ticketWhere)
+    const countChangedTicketByOrganization = {}
+    let changedTicketCounter = 0
+    let skippedTicket = 0
+
+    while (countTicketToChange > changedTicketCounter) {
+        const ticketsToChange = await Ticket.getAll(context, ticketWhere, {
+            first: CHUNK_SIZE,
+            // NOTE The list needs to be sorted in the same order all the time.
+            // This is necessary so that we can skip the required number of elements without allowing repetitions
+            sortBy: ['createdAt_ASC', 'createdBy_ASC'],
+            // NOTE It is necessary to skip tickets that could not be updated
+            // or were skipped in order to avoid looping on the same elements
+            skip: skippedTicket,
+        })
+
+        if (isEmpty(ticketsToChange)) break
+
+        changedTicketCounter += ticketsToChange.length
+
+        for (const ticket of ticketsToChange) {
+            const organizationId = get(ticket, 'organization.id', null)
+            if (countChangedTicketByOrganization[organizationId] && countChangedTicketByOrganization[organizationId] >= limit) {
+                skippedTicket += 1
+                continue
+            }
+
+            try {
+                const updatedData = {
+                    dv: 1,
+                    sender: { fingerprint: 'auto-close', dv: 1 },
+                    status: { connect: { id: STATUS_IDS.CLOSED } },
+                }
+
+                await Ticket.update(context, ticket.id, updatedData)
+
+                if (organizationId in countChangedTicketByOrganization) {
+                    countChangedTicketByOrganization[organizationId] += 1
+                } else {
+                    countChangedTicketByOrganization[organizationId] = 1
+                }
+            } catch (error) {
+                skippedTicket += 1
+                taskLogger.error({
+                    msg: 'Failed to close Ticket',
+                    data: { id: ticket.id },
+                    error,
+                })
+            }
+        }
+    }
+}
 
 /**
  * Closes tickets that are in the "completed" status for 7 days
  */
 const closeCompletedTickets = async () => {
     const { keystone } = await getSchemaCtx('Ticket')
-    const adminContext = await keystone.createContext({ skipAccessControl: true })
-    const weekAgo = dayjs().startOf('day').subtract('7', 'day').toISOString()
+    const context = await keystone.createContext()
 
-    const ticketsToChange = await find('Ticket', {
-        status: { id: STATUS_IDS.COMPLETED },
-        statusUpdatedAt_lte: weekAgo,
-        deletedAt: null,
-    })
-
-    for (const ticket of ticketsToChange) {
-        try {
-            await Ticket.update(adminContext, ticket.id, {
-                status: { connect: { id: STATUS_IDS.CLOSED } },
-                dv: 1,
-                sender: { fingerprint: 'auto-close', dv: 1 },
-            })
-        } catch (error) {
-            taskLogger.error({
-                msg: 'Failed to close Ticket',
-                data: { id: ticket.id },
-                error,
-            })
-        }
-    }
+    // TODO (DOMA-4703) check feature flag
+    const maxTicketToChangeForOneOrganization = await featureToggleManager.isFeatureEnabled(context, MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_TASK)
+    await closeCompletedTicketsWithLimitByOrganizations(maxTicketToChangeForOneOrganization)
 }
 
 module.exports = {
-    closeCompletedTickets: createCronTask('closeCompletedTickets', '0 1 * * *', closeCompletedTickets),
+    closeCompletedTicketsCron: createCronTask('closeCompletedTickets', '0 1 * * *', closeCompletedTickets),
+    closeCompletedTicketsWithLimitByOrganizations,
 }
