@@ -4,18 +4,12 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, SIGNIN_MUTATION } from '@condo/domains/user/gql'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
 interface IAuthLayoutContext {
     isMobile: boolean
     signInByEmail: ({ email, password }, onCompleted?: () => void) => Promise<unknown>,
     signInByPhone: ({ phone, password }, onCompleted?: () => void) => Promise<unknown>,
-}
-
-const detectMobileNavigator = () => {
-    return (
-        typeof window !== 'undefined'
-        && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
-    )
 }
 
 export const AuthLayoutContext = createContext<IAuthLayoutContext>({
@@ -30,7 +24,7 @@ export const AuthLayoutContextProvider: React.FC = (props) => {
 
     const [signinByPhoneMutation] = useMutation(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION)
     const [signinByEmailMutation] = useMutation(SIGNIN_MUTATION)
-    const isMobile = detectMobileNavigator()
+    const { isMobile } = useLayoutContext()
 
     const signInByPhone = useCallback((variables, onCompleted) => {
         return runMutation({
