@@ -802,7 +802,7 @@
   "pages.organizations.tin.InvalidValue": "TIN field value is not valid",
   "pages.organizations.PageTitle": "Organizations",
   "pages.clientCard.Title": "Contact {phone}",
-  "pages.clientCard.showAllPropertyTickets": "Show all tickets at this address",
+  "pages.clientCard.showAllPropertyTickets": "Show all tickets at this property",
   "pages.clientCard.contactTickets": "Contact tickets at this address",
   "pages.clientCard.editContact": "Edit contact",
   "pages.clientCard.addAddress": "Add address",

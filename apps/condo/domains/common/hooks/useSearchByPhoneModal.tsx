@@ -173,6 +173,7 @@ const SearchByPhoneSelect = ({
             autoClearSearchValue
         >
             <StyledPhoneInput
+                autoFocus
                 compatibilityWithAntAutoComplete
                 placeholder={EnterPhoneMessage}
                 masks={PHONE_INPUT_MASK}
