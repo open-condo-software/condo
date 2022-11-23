@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { 
     Button as DefaultButton,
     ButtonProps as DefaultButtonProps,
 } from 'antd'
 import classNames from 'classnames'
+import isString from 'lodash/isString'
+import { sendAnalyticsClickEvent } from '../_utils/analytics'
 
 const BUTTON_CLASS_PREFIX = 'condo-btn'
 
@@ -16,7 +18,7 @@ export type ButtonProps = Omit<DefaultButtonProps, 'shape' | 'size' | 'style' | 
 & CondoButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
-    const { type, className, icon, children,  ...rest } = props
+    const { type, className, icon, children, onClick, ...rest } = props
     const classes = classNames(
         {
             [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
@@ -28,6 +30,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
         ? <span className={`${BUTTON_CLASS_PREFIX}-icon`}>{icon}</span>
         : null
 
+    const handleClick = useCallback((event) => {
+        if (typeof window !== 'undefined' && isString(children)) {
+            sendAnalyticsClickEvent('Button', { value: children })
+        }
+
+        if (onClick) {
+            onClick(event)
+        }
+    }, [children, onClick])
+
     return (
         <DefaultButton
             {...rest}
@@ -35,6 +47,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
             prefixCls={BUTTON_CLASS_PREFIX}
             className={classes}
             ref={ref}
+            onClick={handleClick}
         >
             <span className={`${BUTTON_CLASS_PREFIX}-text`} data-before={children}>
                 {children}
