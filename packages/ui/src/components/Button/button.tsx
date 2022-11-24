@@ -31,7 +31,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
         : null
 
     const handleClick = useCallback((event) => {
-        if (typeof window !== 'undefined' && isString(children)) {
+        if (isString(children)) {
             sendAnalyticsClickEvent('Button', { value: children })
         }
 
