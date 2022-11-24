@@ -5,7 +5,7 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -15,7 +15,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
-const { closeCompletedTickets } = require('./closeCompletedTickets')
+const { closeCompletedTickets, ERROR_START_TICKET_CLOSING } = require('./closeCompletedTickets')
 
 const index = require('@app/condo/index')
 
@@ -116,8 +116,17 @@ describe('closeCompletedTickets', () => {
                 statusUpdatedAt: dayjs().subtract(2, 'weeks').toISOString(),
             })
 
-            await closeCompletedTickets(0)
-            await closeCompletedTickets(-100)
+            await catchErrorFrom(async () => {
+                await closeCompletedTickets(0)
+            }, (error) => {
+                expect(error.message).toMatch(ERROR_START_TICKET_CLOSING)
+            })
+
+            await catchErrorFrom(async () => {
+                await closeCompletedTickets(-100)
+            }, (error) => {
+                expect(error.message).toMatch(ERROR_START_TICKET_CLOSING)
+            })
 
             const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
