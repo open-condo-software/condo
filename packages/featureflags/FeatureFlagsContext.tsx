@@ -10,6 +10,7 @@ const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
 
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
+    useFlagValue: (name: string) => any,
     updateContext: (context) => void
 }
 
@@ -36,6 +37,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
         growthbook.setAttributes({ ...previousContext, ...context })
     }, [growthbook])
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
+    const useFlagValue = useCallback((id) => growthbook.feature(id).value, [growthbook])
 
     useEffect(() => {
         const fetchFeatures = () => {
@@ -67,6 +69,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     return (
         <FeatureFlagsContext.Provider value={{
             useFlag,
+            useFlagValue,
             updateContext,
         }}>
             {children}
