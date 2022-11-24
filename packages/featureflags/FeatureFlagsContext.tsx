@@ -1,6 +1,7 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
+import { JSONValue } from '@growthbook/growthbook/src/types/growthbook'
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
 import { useAuth } from '@open-condo/next/auth'
@@ -10,7 +11,7 @@ const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
 
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
-    useFlagValue: (name: string) => any,
+    useFlagValue: <T extends JSONValue = any>(name: string) => T | null,
     updateContext: (context) => void
 }
 
