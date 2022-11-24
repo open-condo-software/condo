@@ -8,7 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import {
     getPropertyScopeNameByEmployee,
 } from '@condo/domains/scope/utils/clientSchema/utils'
-import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 /**
  * Sets the employee user in the assignee and executor fields after selecting ticket category classifier.

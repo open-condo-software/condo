@@ -1,5 +1,4 @@
-import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
 import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
@@ -10,6 +9,7 @@ import { useMutation, useQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import dayjs from 'dayjs'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useDeepCompareEffect } from './utils/useDeepCompareEffect'
 
 type IUUIDObject = { id: string }
 type IOnCompleteType<GQLObject> = (obj: GQLObject) => void

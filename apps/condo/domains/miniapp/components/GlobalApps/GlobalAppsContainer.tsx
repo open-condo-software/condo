@@ -10,7 +10,7 @@ import { v4 as uuidV4 } from 'uuid'
 import { MutationEmitter, MUTATION_RESULT_EVENT } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { SortB2BAppsBy } from '@app/condo/schema'
-import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import {
     IFRAME_MODAL_ACTION_MESSAGE_TYPE,

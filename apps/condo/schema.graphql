@@ -2957,6 +2957,7 @@ type OrganizationEmployeeHistoryRecord {
   isAccepted: Boolean
   isRejected: Boolean
   isBlocked: Boolean
+  hasAllSpecializations: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3069,6 +3070,8 @@ input OrganizationEmployeeHistoryRecordWhereInput {
   isRejected_not: Boolean
   isBlocked: Boolean
   isBlocked_not: Boolean
+  hasAllSpecializations: Boolean
+  hasAllSpecializations_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3168,6 +3171,8 @@ enum SortOrganizationEmployeeHistoryRecordsBy {
   isRejected_DESC
   isBlocked_ASC
   isBlocked_DESC
+  hasAllSpecializations_ASC
+  hasAllSpecializations_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3198,6 +3203,7 @@ input OrganizationEmployeeHistoryRecordUpdateInput {
   isAccepted: Boolean
   isRejected: Boolean
   isBlocked: Boolean
+  hasAllSpecializations: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3229,6 +3235,7 @@ input OrganizationEmployeeHistoryRecordCreateInput {
   isAccepted: Boolean
   isRejected: Boolean
   isBlocked: Boolean
+  hasAllSpecializations: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3261,13 +3268,6 @@ input OrganizationEmployeeRoleRelateToOneInput {
   disconnectAll: Boolean
 }
 
-input TicketCategoryClassifierRelateToManyInput {
-  create: [TicketCategoryClassifierCreateInput]
-  connect: [TicketCategoryClassifierWhereUniqueInput]
-  disconnect: [TicketCategoryClassifierWhereUniqueInput]
-  disconnectAll: Boolean
-}
-
 """ B2B customer employees """
 type OrganizationEmployee {
   """
@@ -3296,16 +3296,15 @@ type OrganizationEmployee {
 
   """ Free-form description of the employee's position """
   position: String
-
-  """ List of work categories, that this employee can perform """
-  specializations(where: TicketCategoryClassifierWhereInput, search: String, sortBy: [SortTicketCategoryClassifiersBy!], orderBy: String, first: Int, skip: Int): [TicketCategoryClassifier!]!
-  _specializationsMeta(where: TicketCategoryClassifierWhereInput, search: String, sortBy: [SortTicketCategoryClassifiersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
   isAccepted: Boolean
   isRejected: Boolean
 
   """ Employee is blocked status, used in permissions functions, isBlocked has Free-form description of the employee's position over all permissions 
   """
   isBlocked: Boolean
+
+  """ True if employee has all specializations """
+  hasAllSpecializations: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3414,21 +3413,14 @@ input OrganizationEmployeeWhereInput {
   position_not_ends_with_i: String
   position_in: [String]
   position_not_in: [String]
-
-  """ condition must be true for all nodes """
-  specializations_every: TicketCategoryClassifierWhereInput
-
-  """ condition must be true for at least 1 node """
-  specializations_some: TicketCategoryClassifierWhereInput
-
-  """ condition must be false for all nodes """
-  specializations_none: TicketCategoryClassifierWhereInput
   isAccepted: Boolean
   isAccepted_not: Boolean
   isRejected: Boolean
   isRejected_not: Boolean
   isBlocked: Boolean
   isBlocked_not: Boolean
+  hasAllSpecializations: Boolean
+  hasAllSpecializations_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3508,14 +3500,14 @@ enum SortOrganizationEmployeesBy {
   role_DESC
   position_ASC
   position_DESC
-  specializations_ASC
-  specializations_DESC
   isAccepted_ASC
   isAccepted_DESC
   isRejected_ASC
   isRejected_DESC
   isBlocked_ASC
   isBlocked_DESC
+  hasAllSpecializations_ASC
+  hasAllSpecializations_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3543,10 +3535,10 @@ input OrganizationEmployeeUpdateInput {
   phone: String
   role: OrganizationEmployeeRoleRelateToOneInput
   position: String
-  specializations: TicketCategoryClassifierRelateToManyInput
   isAccepted: Boolean
   isRejected: Boolean
   isBlocked: Boolean
+  hasAllSpecializations: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3572,10 +3564,10 @@ input OrganizationEmployeeCreateInput {
   phone: String
   role: OrganizationEmployeeRoleRelateToOneInput
   position: String
-  specializations: TicketCategoryClassifierRelateToManyInput
   isAccepted: Boolean
   isRejected: Boolean
   isBlocked: Boolean
+  hasAllSpecializations: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3622,15 +3614,15 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
-  canManageDivisions: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  ticketVisibilityType: String
+  canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
   id: ID!
   v: Int
@@ -3714,8 +3706,6 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageContactRoles_not: Boolean
   canManageTicketComments: Boolean
   canManageTicketComments_not: Boolean
-  canManageDivisions: Boolean
-  canManageDivisions_not: Boolean
   canShareTickets: Boolean
   canShareTickets_not: Boolean
   canReadBillingReceipts: Boolean
@@ -3728,10 +3718,28 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canBeAssignedAsResponsible_not: Boolean
   canBeAssignedAsExecutor: Boolean
   canBeAssignedAsExecutor_not: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
-  canReadEntitiesOnlyInScopeOfDivision_not: Boolean
   canManageTicketPropertyHints: Boolean
   canManageTicketPropertyHints_not: Boolean
+  ticketVisibilityType: String
+  ticketVisibilityType_not: String
+  ticketVisibilityType_contains: String
+  ticketVisibilityType_not_contains: String
+  ticketVisibilityType_starts_with: String
+  ticketVisibilityType_not_starts_with: String
+  ticketVisibilityType_ends_with: String
+  ticketVisibilityType_not_ends_with: String
+  ticketVisibilityType_i: String
+  ticketVisibilityType_not_i: String
+  ticketVisibilityType_contains_i: String
+  ticketVisibilityType_not_contains_i: String
+  ticketVisibilityType_starts_with_i: String
+  ticketVisibilityType_not_starts_with_i: String
+  ticketVisibilityType_ends_with_i: String
+  ticketVisibilityType_not_ends_with_i: String
+  ticketVisibilityType_in: [String]
+  ticketVisibilityType_not_in: [String]
+  canManagePropertyScopes: Boolean
+  canManagePropertyScopes_not: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankContractorAccounts_not: Boolean
   id: ID
@@ -3831,8 +3839,6 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageContactRoles_DESC
   canManageTicketComments_ASC
   canManageTicketComments_DESC
-  canManageDivisions_ASC
-  canManageDivisions_DESC
   canShareTickets_ASC
   canShareTickets_DESC
   canReadBillingReceipts_ASC
@@ -3845,10 +3851,12 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canBeAssignedAsResponsible_DESC
   canBeAssignedAsExecutor_ASC
   canBeAssignedAsExecutor_DESC
-  canReadEntitiesOnlyInScopeOfDivision_ASC
-  canReadEntitiesOnlyInScopeOfDivision_DESC
   canManageTicketPropertyHints_ASC
   canManageTicketPropertyHints_DESC
+  ticketVisibilityType_ASC
+  ticketVisibilityType_DESC
+  canManagePropertyScopes_ASC
+  canManagePropertyScopes_DESC
   canManageBankContractorAccounts_ASC
   canManageBankContractorAccounts_DESC
   id_ASC
@@ -3883,15 +3891,15 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
-  canManageDivisions: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  ticketVisibilityType: String
+  canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
@@ -3926,15 +3934,15 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
-  canManageDivisions: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  ticketVisibilityType: String
+  canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
@@ -3984,7 +3992,6 @@ type OrganizationEmployeeRole {
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
-  canManageDivisions: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
   canReadPayments: Boolean
@@ -3997,11 +4004,17 @@ type OrganizationEmployeeRole {
   """ Allows employees with this role to be assigned to tickets as executor 
   """
   canBeAssignedAsExecutor: Boolean
-
-  """ Limits the visibility of entities (such as ticket or meter/meterReading) to division 
-  """
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+
+  """
+   Which tickets the employee sees:
+  1) organization - sees all tickets in the organization.
+  2) property - Sees tickets in PropertyScope that have this employee
+  3) propertyAndSpecialization - Sees tickets by employee specialization + PropertyScope
+  4) assigned - sees only those tickets in which he is the executor or responsible
+  """
+  ticketVisibilityType: String
+  canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
   id: ID!
   v: Int
@@ -4087,8 +4100,6 @@ input OrganizationEmployeeRoleWhereInput {
   canManageContactRoles_not: Boolean
   canManageTicketComments: Boolean
   canManageTicketComments_not: Boolean
-  canManageDivisions: Boolean
-  canManageDivisions_not: Boolean
   canShareTickets: Boolean
   canShareTickets_not: Boolean
   canReadBillingReceipts: Boolean
@@ -4101,10 +4112,14 @@ input OrganizationEmployeeRoleWhereInput {
   canBeAssignedAsResponsible_not: Boolean
   canBeAssignedAsExecutor: Boolean
   canBeAssignedAsExecutor_not: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
-  canReadEntitiesOnlyInScopeOfDivision_not: Boolean
   canManageTicketPropertyHints: Boolean
   canManageTicketPropertyHints_not: Boolean
+  ticketVisibilityType: String
+  ticketVisibilityType_not: String
+  ticketVisibilityType_in: [String]
+  ticketVisibilityType_not_in: [String]
+  canManagePropertyScopes: Boolean
+  canManagePropertyScopes_not: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankContractorAccounts_not: Boolean
   id: ID
@@ -4186,8 +4201,6 @@ enum SortOrganizationEmployeeRolesBy {
   canManageContactRoles_DESC
   canManageTicketComments_ASC
   canManageTicketComments_DESC
-  canManageDivisions_ASC
-  canManageDivisions_DESC
   canShareTickets_ASC
   canShareTickets_DESC
   canReadBillingReceipts_ASC
@@ -4200,10 +4213,12 @@ enum SortOrganizationEmployeeRolesBy {
   canBeAssignedAsResponsible_DESC
   canBeAssignedAsExecutor_ASC
   canBeAssignedAsExecutor_DESC
-  canReadEntitiesOnlyInScopeOfDivision_ASC
-  canReadEntitiesOnlyInScopeOfDivision_DESC
   canManageTicketPropertyHints_ASC
   canManageTicketPropertyHints_DESC
+  ticketVisibilityType_ASC
+  ticketVisibilityType_DESC
+  canManagePropertyScopes_ASC
+  canManagePropertyScopes_DESC
   canManageBankContractorAccounts_ASC
   canManageBankContractorAccounts_DESC
   id_ASC
@@ -4237,15 +4252,15 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
-  canManageDivisions: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  ticketVisibilityType: String
+  canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
@@ -4276,15 +4291,15 @@ input OrganizationEmployeeRoleCreateInput {
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
-  canManageDivisions: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
   canBeAssignedAsExecutor: Boolean
-  canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  ticketVisibilityType: String
+  canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
@@ -4656,6 +4671,375 @@ input OrganizationLinkCreateInput {
 
 input OrganizationLinksCreateInput {
   data: OrganizationLinkCreateInput
+}
+
+enum OrganizationEmployeeSpecializationHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type OrganizationEmployeeSpecializationHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OrganizationEmployeeSpecializationHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the OrganizationEmployeeSpecializationHistoryRecord List config, or
+   3. As an alias to a 'name' field on the OrganizationEmployeeSpecializationHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the OrganizationEmployeeSpecializationHistoryRecord List.
+  """
+  _label_: String
+  employee: String
+  specialization: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrganizationEmployeeSpecializationHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrganizationEmployeeSpecializationHistoryRecordWhereInput {
+  AND: [OrganizationEmployeeSpecializationHistoryRecordWhereInput]
+  OR: [OrganizationEmployeeSpecializationHistoryRecordWhereInput]
+  employee: String
+  employee_not: String
+  employee_in: [String]
+  employee_not_in: [String]
+  specialization: String
+  specialization_not: String
+  specialization_in: [String]
+  specialization_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: OrganizationEmployeeSpecializationHistoryRecordHistoryActionType
+  history_action_not: OrganizationEmployeeSpecializationHistoryRecordHistoryActionType
+  history_action_in: [OrganizationEmployeeSpecializationHistoryRecordHistoryActionType]
+  history_action_not_in: [OrganizationEmployeeSpecializationHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input OrganizationEmployeeSpecializationHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOrganizationEmployeeSpecializationHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input OrganizationEmployeeSpecializationHistoryRecordUpdateInput {
+  employee: String
+  specialization: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrganizationEmployeeSpecializationHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrganizationEmployeeSpecializationHistoryRecordsUpdateInput {
+  id: ID!
+  data: OrganizationEmployeeSpecializationHistoryRecordUpdateInput
+}
+
+input OrganizationEmployeeSpecializationHistoryRecordCreateInput {
+  employee: String
+  specialization: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrganizationEmployeeSpecializationHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrganizationEmployeeSpecializationHistoryRecordsCreateInput {
+  data: OrganizationEmployeeSpecializationHistoryRecordCreateInput
+}
+
+input OrganizationEmployeeRelateToOneInput {
+  create: OrganizationEmployeeCreateInput
+  connect: OrganizationEmployeeWhereUniqueInput
+  disconnect: OrganizationEmployeeWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+input TicketCategoryClassifierRelateToOneInput {
+  create: TicketCategoryClassifierCreateInput
+  connect: TicketCategoryClassifierWhereUniqueInput
+  disconnect: TicketCategoryClassifierWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" A work category, that employee can perform. Used to limit the visibility of tickets for employees with "propertyAndSpecialization" ticketVisibilityType 
+"""
+type OrganizationEmployeeSpecialization {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OrganizationEmployeeSpecialization List config, or
+   2. As an alias to the field set on 'labelField' in the OrganizationEmployeeSpecialization List config, or
+   3. As an alias to a 'name' field on the OrganizationEmployeeSpecialization List (if one exists), or
+   4. As an alias to the 'id' field on the OrganizationEmployeeSpecialization List.
+  """
+  _label_: String
+  employee: OrganizationEmployee
+
+  """ Specific work category, that this employee can perform """
+  specialization: TicketCategoryClassifier
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input OrganizationEmployeeSpecializationWhereInput {
+  AND: [OrganizationEmployeeSpecializationWhereInput]
+  OR: [OrganizationEmployeeSpecializationWhereInput]
+  employee: OrganizationEmployeeWhereInput
+  employee_is_null: Boolean
+  specialization: TicketCategoryClassifierWhereInput
+  specialization_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input OrganizationEmployeeSpecializationWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOrganizationEmployeeSpecializationsBy {
+  employee_ASC
+  employee_DESC
+  specialization_ASC
+  specialization_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input OrganizationEmployeeSpecializationUpdateInput {
+  employee: OrganizationEmployeeRelateToOneInput
+  specialization: TicketCategoryClassifierRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input OrganizationEmployeeSpecializationsUpdateInput {
+  id: ID!
+  data: OrganizationEmployeeSpecializationUpdateInput
+}
+
+input OrganizationEmployeeSpecializationCreateInput {
+  employee: OrganizationEmployeeRelateToOneInput
+  specialization: TicketCategoryClassifierRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input OrganizationEmployeeSpecializationsCreateInput {
+  data: OrganizationEmployeeSpecializationCreateInput
 }
 
 enum PropertyHistoryRecordHistoryActionType {
@@ -15409,13 +15793,6 @@ input ContactRelateToOneInput {
   disconnectAll: Boolean
 }
 
-input TicketCategoryClassifierRelateToOneInput {
-  create: TicketCategoryClassifierCreateInput
-  connect: TicketCategoryClassifierWhereUniqueInput
-  disconnect: TicketCategoryClassifierWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 input TicketPlaceClassifierRelateToOneInput {
   create: TicketPlaceClassifierCreateInput
   connect: TicketPlaceClassifierWhereUniqueInput
@@ -21589,13 +21966,6 @@ input TicketFilterTemplateHistoryRecordsCreateInput {
   data: TicketFilterTemplateHistoryRecordCreateInput
 }
 
-input OrganizationEmployeeRelateToOneInput {
-  create: OrganizationEmployeeCreateInput
-  connect: OrganizationEmployeeWhereUniqueInput
-  disconnect: OrganizationEmployeeWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 type TicketFilter {
   organization: [String]
   number: Int
@@ -21603,8 +21973,8 @@ type TicketFilter {
   status: [String]
   details: String
   property: [String]
+  propertyScope: [String]
   address: String
-  division: [String]
   clientName: String
   executor: [String]
   assignee: [String]
@@ -31215,454 +31585,6 @@ input OnBoardingStepCreateInput {
 
 input OnBoardingStepsCreateInput {
   data: OnBoardingStepCreateInput
-}
-
-enum DivisionHistoryRecordHistoryActionType {
-  c
-  u
-  d
-}
-
-""" A keystone list """
-type DivisionHistoryRecord {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the DivisionHistoryRecord List config, or
-   2. As an alias to the field set on 'labelField' in the DivisionHistoryRecord List config, or
-   3. As an alias to a 'name' field on the DivisionHistoryRecord List (if one exists), or
-   4. As an alias to the 'id' field on the DivisionHistoryRecord List.
-  """
-  _label_: String
-  name: String
-  organization: String
-  responsible: String
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: DivisionHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input DivisionHistoryRecordWhereInput {
-  AND: [DivisionHistoryRecordWhereInput]
-  OR: [DivisionHistoryRecordWhereInput]
-  name: String
-  name_not: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
-  name_i: String
-  name_not_i: String
-  name_contains_i: String
-  name_not_contains_i: String
-  name_starts_with_i: String
-  name_not_starts_with_i: String
-  name_ends_with_i: String
-  name_not_ends_with_i: String
-  name_in: [String]
-  name_not_in: [String]
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
-  responsible: String
-  responsible_not: String
-  responsible_in: [String]
-  responsible_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: String
-  createdBy_not: String
-  createdBy_in: [String]
-  createdBy_not_in: [String]
-  updatedBy: String
-  updatedBy_not: String
-  updatedBy_in: [String]
-  updatedBy_not_in: [String]
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: JSON
-  newId_not: JSON
-  newId_in: [JSON]
-  newId_not_in: [JSON]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: JSON
-  sender_not: JSON
-  sender_in: [JSON]
-  sender_not_in: [JSON]
-  history_date: String
-  history_date_not: String
-  history_date_lt: String
-  history_date_lte: String
-  history_date_gt: String
-  history_date_gte: String
-  history_date_in: [String]
-  history_date_not_in: [String]
-  history_action: DivisionHistoryRecordHistoryActionType
-  history_action_not: DivisionHistoryRecordHistoryActionType
-  history_action_in: [DivisionHistoryRecordHistoryActionType]
-  history_action_not_in: [DivisionHistoryRecordHistoryActionType]
-  history_id: String
-  history_id_not: String
-  history_id_in: [String]
-  history_id_not_in: [String]
-}
-
-input DivisionHistoryRecordWhereUniqueInput {
-  id: ID!
-}
-
-enum SortDivisionHistoryRecordsBy {
-  name_ASC
-  name_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-  history_date_ASC
-  history_date_DESC
-  history_action_ASC
-  history_action_DESC
-}
-
-input DivisionHistoryRecordUpdateInput {
-  name: String
-  organization: String
-  responsible: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: DivisionHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input DivisionHistoryRecordsUpdateInput {
-  id: ID!
-  data: DivisionHistoryRecordUpdateInput
-}
-
-input DivisionHistoryRecordCreateInput {
-  name: String
-  organization: String
-  responsible: String
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: String
-  updatedBy: String
-  deletedAt: String
-  newId: JSON
-  dv: Int
-  sender: JSON
-  history_date: String
-  history_action: DivisionHistoryRecordHistoryActionType
-  history_id: String
-}
-
-input DivisionHistoryRecordsCreateInput {
-  data: DivisionHistoryRecordCreateInput
-}
-
-input PropertyRelateToManyInput {
-  create: [PropertyCreateInput]
-  connect: [PropertyWhereUniqueInput]
-  disconnect: [PropertyWhereUniqueInput]
-  disconnectAll: Boolean
-}
-
-""" Grouping of properties and employees with one single responsible person 
-"""
-type Division {
-  """
-  This virtual field will be resolved in one of the following ways (in this order):
-   1. Execution of 'labelResolver' set on the Division List config, or
-   2. As an alias to the field set on 'labelField' in the Division List config, or
-   3. As an alias to a 'name' field on the Division List (if one exists), or
-   4. As an alias to the 'id' field on the Division List.
-  """
-  _label_: String
-
-  """ Display name of this division """
-  name: String
-
-  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
-  """
-  organization: Organization
-
-  """ Person, responsible for this division """
-  responsible: OrganizationEmployee
-
-  """ Properties in service by this division """
-  properties(where: PropertyWhereInput, search: String, sortBy: [SortPropertiesBy!], orderBy: String, first: Int, skip: Int): [Property!]!
-  _propertiesMeta(where: PropertyWhereInput, search: String, sortBy: [SortPropertiesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Employees, that will be assigned as executors to all corresponding tickets 
-  """
-  executors(where: OrganizationEmployeeWhereInput, search: String, sortBy: [SortOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployee!]!
-  _executorsMeta(where: OrganizationEmployeeWhereInput, search: String, sortBy: [SortOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-  id: ID!
-  v: Int
-  createdAt: String
-  updatedAt: String
-
-  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  createdBy: User
-
-  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
-  """
-  updatedBy: User
-  deletedAt: String
-  newId: String
-
-  """ Data structure Version """
-  dv: Int
-
-  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
-  """
-  sender: SenderField
-}
-
-input DivisionWhereInput {
-  AND: [DivisionWhereInput]
-  OR: [DivisionWhereInput]
-  name: String
-  name_not: String
-  name_contains: String
-  name_not_contains: String
-  name_starts_with: String
-  name_not_starts_with: String
-  name_ends_with: String
-  name_not_ends_with: String
-  name_i: String
-  name_not_i: String
-  name_contains_i: String
-  name_not_contains_i: String
-  name_starts_with_i: String
-  name_not_starts_with_i: String
-  name_ends_with_i: String
-  name_not_ends_with_i: String
-  name_in: [String]
-  name_not_in: [String]
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
-  responsible: OrganizationEmployeeWhereInput
-  responsible_is_null: Boolean
-
-  """ condition must be true for all nodes """
-  properties_every: PropertyWhereInput
-
-  """ condition must be true for at least 1 node """
-  properties_some: PropertyWhereInput
-
-  """ condition must be false for all nodes """
-  properties_none: PropertyWhereInput
-
-  """ condition must be true for all nodes """
-  executors_every: OrganizationEmployeeWhereInput
-
-  """ condition must be true for at least 1 node """
-  executors_some: OrganizationEmployeeWhereInput
-
-  """ condition must be false for all nodes """
-  executors_none: OrganizationEmployeeWhereInput
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
-  v: Int
-  v_not: Int
-  v_lt: Int
-  v_lte: Int
-  v_gt: Int
-  v_gte: Int
-  v_in: [Int]
-  v_not_in: [Int]
-  createdAt: String
-  createdAt_not: String
-  createdAt_lt: String
-  createdAt_lte: String
-  createdAt_gt: String
-  createdAt_gte: String
-  createdAt_in: [String]
-  createdAt_not_in: [String]
-  updatedAt: String
-  updatedAt_not: String
-  updatedAt_lt: String
-  updatedAt_lte: String
-  updatedAt_gt: String
-  updatedAt_gte: String
-  updatedAt_in: [String]
-  updatedAt_not_in: [String]
-  createdBy: UserWhereInput
-  createdBy_is_null: Boolean
-  updatedBy: UserWhereInput
-  updatedBy_is_null: Boolean
-  deletedAt: String
-  deletedAt_not: String
-  deletedAt_lt: String
-  deletedAt_lte: String
-  deletedAt_gt: String
-  deletedAt_gte: String
-  deletedAt_in: [String]
-  deletedAt_not_in: [String]
-  newId: String
-  newId_not: String
-  newId_in: [String]
-  newId_not_in: [String]
-  dv: Int
-  dv_not: Int
-  dv_lt: Int
-  dv_lte: Int
-  dv_gt: Int
-  dv_gte: Int
-  dv_in: [Int]
-  dv_not_in: [Int]
-  sender: SenderFieldInput
-  sender_not: SenderFieldInput
-  sender_in: [SenderFieldInput]
-  sender_not_in: [SenderFieldInput]
-}
-
-input DivisionWhereUniqueInput {
-  id: ID!
-}
-
-enum SortDivisionsBy {
-  name_ASC
-  name_DESC
-  organization_ASC
-  organization_DESC
-  responsible_ASC
-  responsible_DESC
-  properties_ASC
-  properties_DESC
-  executors_ASC
-  executors_DESC
-  id_ASC
-  id_DESC
-  v_ASC
-  v_DESC
-  createdAt_ASC
-  createdAt_DESC
-  updatedAt_ASC
-  updatedAt_DESC
-  createdBy_ASC
-  createdBy_DESC
-  updatedBy_ASC
-  updatedBy_DESC
-  deletedAt_ASC
-  deletedAt_DESC
-  dv_ASC
-  dv_DESC
-}
-
-input DivisionUpdateInput {
-  name: String
-  organization: OrganizationRelateToOneInput
-  responsible: OrganizationEmployeeRelateToOneInput
-  properties: PropertyRelateToManyInput
-  executors: OrganizationEmployeeRelateToManyInput
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input DivisionsUpdateInput {
-  id: ID!
-  data: DivisionUpdateInput
-}
-
-input DivisionCreateInput {
-  name: String
-  organization: OrganizationRelateToOneInput
-  responsible: OrganizationEmployeeRelateToOneInput
-  properties: PropertyRelateToManyInput
-  executors: OrganizationEmployeeRelateToManyInput
-  v: Int
-  createdAt: String
-  updatedAt: String
-  createdBy: UserRelateToOneInput
-  updatedBy: UserRelateToOneInput
-  deletedAt: String
-  newId: String
-  dv: Int
-  sender: SenderFieldInput
-}
-
-input DivisionsCreateInput {
-  data: DivisionCreateInput
 }
 
 enum MeterResourceHistoryRecordHistoryActionType {
@@ -44306,6 +44228,1511 @@ input ExternalReportsCreateInput {
   data: ExternalReportCreateInput
 }
 
+enum PropertyScopeHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type PropertyScopeHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PropertyScopeHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyScopeHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PropertyScopeHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyScopeHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  organization: String
+  hasAllProperties: Boolean
+  hasAllEmployees: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopeHistoryRecordWhereInput {
+  AND: [PropertyScopeHistoryRecordWhereInput]
+  OR: [PropertyScopeHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  hasAllProperties: Boolean
+  hasAllProperties_not: Boolean
+  hasAllEmployees: Boolean
+  hasAllEmployees_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: PropertyScopeHistoryRecordHistoryActionType
+  history_action_not: PropertyScopeHistoryRecordHistoryActionType
+  history_action_in: [PropertyScopeHistoryRecordHistoryActionType]
+  history_action_not_in: [PropertyScopeHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input PropertyScopeHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPropertyScopeHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  hasAllProperties_ASC
+  hasAllProperties_DESC
+  hasAllEmployees_ASC
+  hasAllEmployees_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input PropertyScopeHistoryRecordUpdateInput {
+  name: String
+  organization: String
+  hasAllProperties: Boolean
+  hasAllEmployees: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopeHistoryRecordsUpdateInput {
+  id: ID!
+  data: PropertyScopeHistoryRecordUpdateInput
+}
+
+input PropertyScopeHistoryRecordCreateInput {
+  name: String
+  organization: String
+  hasAllProperties: Boolean
+  hasAllEmployees: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopeHistoryRecordsCreateInput {
+  data: PropertyScopeHistoryRecordCreateInput
+}
+
+""" A set of properties that limits the visibility of the organization's objects to the specified employees 
+"""
+type PropertyScope {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PropertyScope List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyScope List config, or
+   3. As an alias to a 'name' field on the PropertyScope List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyScope List.
+  """
+  _label_: String
+
+  """ The name of the zone that limits the visibility of employees by properties 
+  """
+  name: String
+  nameNonLocalized: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ True if PropertyScope includes all properties in organization """
+  hasAllProperties: Boolean
+
+  """ True if PropertyScope includes all employees in organization """
+  hasAllEmployees: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input PropertyScopeWhereInput {
+  AND: [PropertyScopeWhereInput]
+  OR: [PropertyScopeWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  hasAllProperties: Boolean
+  hasAllProperties_not: Boolean
+  hasAllEmployees: Boolean
+  hasAllEmployees_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input PropertyScopeWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPropertyScopesBy {
+  name_ASC
+  name_DESC
+  organization_ASC
+  organization_DESC
+  hasAllProperties_ASC
+  hasAllProperties_DESC
+  hasAllEmployees_ASC
+  hasAllEmployees_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input PropertyScopeUpdateInput {
+  name: String
+  organization: OrganizationRelateToOneInput
+  hasAllProperties: Boolean
+  hasAllEmployees: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PropertyScopesUpdateInput {
+  id: ID!
+  data: PropertyScopeUpdateInput
+}
+
+input PropertyScopeCreateInput {
+  name: String
+  organization: OrganizationRelateToOneInput
+  hasAllProperties: Boolean
+  hasAllEmployees: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PropertyScopesCreateInput {
+  data: PropertyScopeCreateInput
+}
+
+enum PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type PropertyScopeOrganizationEmployeeHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PropertyScopeOrganizationEmployeeHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyScopeOrganizationEmployeeHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PropertyScopeOrganizationEmployeeHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyScopeOrganizationEmployeeHistoryRecord List.
+  """
+  _label_: String
+  propertyScope: String
+  employee: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopeOrganizationEmployeeHistoryRecordWhereInput {
+  AND: [PropertyScopeOrganizationEmployeeHistoryRecordWhereInput]
+  OR: [PropertyScopeOrganizationEmployeeHistoryRecordWhereInput]
+  propertyScope: String
+  propertyScope_not: String
+  propertyScope_in: [String]
+  propertyScope_not_in: [String]
+  employee: String
+  employee_not: String
+  employee_in: [String]
+  employee_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType
+  history_action_not: PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType
+  history_action_in: [PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType]
+  history_action_not_in: [PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input PropertyScopeOrganizationEmployeeHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPropertyScopeOrganizationEmployeeHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input PropertyScopeOrganizationEmployeeHistoryRecordUpdateInput {
+  propertyScope: String
+  employee: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopeOrganizationEmployeeHistoryRecordsUpdateInput {
+  id: ID!
+  data: PropertyScopeOrganizationEmployeeHistoryRecordUpdateInput
+}
+
+input PropertyScopeOrganizationEmployeeHistoryRecordCreateInput {
+  propertyScope: String
+  employee: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopeOrganizationEmployeeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopeOrganizationEmployeeHistoryRecordsCreateInput {
+  data: PropertyScopeOrganizationEmployeeHistoryRecordCreateInput
+}
+
+input PropertyScopeRelateToOneInput {
+  create: PropertyScopeCreateInput
+  connect: PropertyScopeWhereUniqueInput
+  disconnect: PropertyScopeWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Many-to-many relationship between PropertyScope and OrganizationEmployee 
+"""
+type PropertyScopeOrganizationEmployee {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PropertyScopeOrganizationEmployee List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyScopeOrganizationEmployee List config, or
+   3. As an alias to a 'name' field on the PropertyScopeOrganizationEmployee List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyScopeOrganizationEmployee List.
+  """
+  _label_: String
+
+  """ Property scope which has an employee """
+  propertyScope: PropertyScope
+
+  """ An employee who is in the property scope """
+  employee: OrganizationEmployee
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input PropertyScopeOrganizationEmployeeWhereInput {
+  AND: [PropertyScopeOrganizationEmployeeWhereInput]
+  OR: [PropertyScopeOrganizationEmployeeWhereInput]
+  propertyScope: PropertyScopeWhereInput
+  propertyScope_is_null: Boolean
+  employee: OrganizationEmployeeWhereInput
+  employee_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input PropertyScopeOrganizationEmployeeWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPropertyScopeOrganizationEmployeesBy {
+  propertyScope_ASC
+  propertyScope_DESC
+  employee_ASC
+  employee_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input PropertyScopeOrganizationEmployeeUpdateInput {
+  propertyScope: PropertyScopeRelateToOneInput
+  employee: OrganizationEmployeeRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PropertyScopeOrganizationEmployeesUpdateInput {
+  id: ID!
+  data: PropertyScopeOrganizationEmployeeUpdateInput
+}
+
+input PropertyScopeOrganizationEmployeeCreateInput {
+  propertyScope: PropertyScopeRelateToOneInput
+  employee: OrganizationEmployeeRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PropertyScopeOrganizationEmployeesCreateInput {
+  data: PropertyScopeOrganizationEmployeeCreateInput
+}
+
+enum PropertyScopePropertyHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type PropertyScopePropertyHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PropertyScopePropertyHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyScopePropertyHistoryRecord List config, or
+   3. As an alias to a 'name' field on the PropertyScopePropertyHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyScopePropertyHistoryRecord List.
+  """
+  _label_: String
+  propertyScope: String
+  property: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopePropertyHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopePropertyHistoryRecordWhereInput {
+  AND: [PropertyScopePropertyHistoryRecordWhereInput]
+  OR: [PropertyScopePropertyHistoryRecordWhereInput]
+  propertyScope: String
+  propertyScope_not: String
+  propertyScope_in: [String]
+  propertyScope_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: PropertyScopePropertyHistoryRecordHistoryActionType
+  history_action_not: PropertyScopePropertyHistoryRecordHistoryActionType
+  history_action_in: [PropertyScopePropertyHistoryRecordHistoryActionType]
+  history_action_not_in: [PropertyScopePropertyHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input PropertyScopePropertyHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPropertyScopePropertyHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input PropertyScopePropertyHistoryRecordUpdateInput {
+  propertyScope: String
+  property: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopePropertyHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopePropertyHistoryRecordsUpdateInput {
+  id: ID!
+  data: PropertyScopePropertyHistoryRecordUpdateInput
+}
+
+input PropertyScopePropertyHistoryRecordCreateInput {
+  propertyScope: String
+  property: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: PropertyScopePropertyHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input PropertyScopePropertyHistoryRecordsCreateInput {
+  data: PropertyScopePropertyHistoryRecordCreateInput
+}
+
+""" Many-to-many relationship between PropertyScope and Property """
+type PropertyScopeProperty {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the PropertyScopeProperty List config, or
+   2. As an alias to the field set on 'labelField' in the PropertyScopeProperty List config, or
+   3. As an alias to a 'name' field on the PropertyScopeProperty List (if one exists), or
+   4. As an alias to the 'id' field on the PropertyScopeProperty List.
+  """
+  _label_: String
+
+  """ Property scope which has a property """
+  propertyScope: PropertyScope
+
+  """ A property which is in the property scope """
+  property: Property
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input PropertyScopePropertyWhereInput {
+  AND: [PropertyScopePropertyWhereInput]
+  OR: [PropertyScopePropertyWhereInput]
+  propertyScope: PropertyScopeWhereInput
+  propertyScope_is_null: Boolean
+  property: PropertyWhereInput
+  property_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input PropertyScopePropertyWhereUniqueInput {
+  id: ID!
+}
+
+enum SortPropertyScopePropertiesBy {
+  propertyScope_ASC
+  propertyScope_DESC
+  property_ASC
+  property_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input PropertyScopePropertyUpdateInput {
+  propertyScope: PropertyScopeRelateToOneInput
+  property: PropertyRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PropertyScopePropertiesUpdateInput {
+  id: ID!
+  data: PropertyScopePropertyUpdateInput
+}
+
+input PropertyScopePropertyCreateInput {
+  propertyScope: PropertyScopeRelateToOneInput
+  property: PropertyRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input PropertyScopePropertiesCreateInput {
+  data: PropertyScopePropertyCreateInput
+}
+
+enum AssigneeScopeHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type AssigneeScopeHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the AssigneeScopeHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the AssigneeScopeHistoryRecord List config, or
+   3. As an alias to a 'name' field on the AssigneeScopeHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the AssigneeScopeHistoryRecord List.
+  """
+  _label_: String
+  user: String
+  ticket: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AssigneeScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AssigneeScopeHistoryRecordWhereInput {
+  AND: [AssigneeScopeHistoryRecordWhereInput]
+  OR: [AssigneeScopeHistoryRecordWhereInput]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  ticket: String
+  ticket_not: String
+  ticket_in: [String]
+  ticket_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: AssigneeScopeHistoryRecordHistoryActionType
+  history_action_not: AssigneeScopeHistoryRecordHistoryActionType
+  history_action_in: [AssigneeScopeHistoryRecordHistoryActionType]
+  history_action_not_in: [AssigneeScopeHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input AssigneeScopeHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortAssigneeScopeHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input AssigneeScopeHistoryRecordUpdateInput {
+  user: String
+  ticket: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AssigneeScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AssigneeScopeHistoryRecordsUpdateInput {
+  id: ID!
+  data: AssigneeScopeHistoryRecordUpdateInput
+}
+
+input AssigneeScopeHistoryRecordCreateInput {
+  user: String
+  ticket: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: AssigneeScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input AssigneeScopeHistoryRecordsCreateInput {
+  data: AssigneeScopeHistoryRecordCreateInput
+}
+
+"""
+ Ticket where user is assignee or executor.
+Records are updated automatically: if the user has been assigned to the ticket, an entry appears.
+If the user was removed from the assignment to the ticket, the record is marked deletedAt.
+It is used to track the availability of the ticket for viewing in the technician mobile application. 
+"""
+type AssigneeScope {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the AssigneeScope List config, or
+   2. As an alias to the field set on 'labelField' in the AssigneeScope List config, or
+   3. As an alias to a 'name' field on the AssigneeScope List (if one exists), or
+   4. As an alias to the 'id' field on the AssigneeScope List.
+  """
+  _label_: String
+
+  """ The user who is assigned to the ticket """
+  user: User
+
+  """ The ticket in which the user is assigned as executor or assignee """
+  ticket: Ticket
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input AssigneeScopeWhereInput {
+  AND: [AssigneeScopeWhereInput]
+  OR: [AssigneeScopeWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  ticket: TicketWhereInput
+  ticket_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input AssigneeScopeWhereUniqueInput {
+  id: ID!
+}
+
+enum SortAssigneeScopesBy {
+  user_ASC
+  user_DESC
+  ticket_ASC
+  ticket_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input AssigneeScopeUpdateInput {
+  user: UserRelateToOneInput
+  ticket: TicketRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input AssigneeScopesUpdateInput {
+  id: ID!
+  data: AssigneeScopeUpdateInput
+}
+
+input AssigneeScopeCreateInput {
+  user: UserRelateToOneInput
+  ticket: TicketRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input AssigneeScopesCreateInput {
+  data: AssigneeScopeCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -45779,7 +47206,8 @@ input InviteNewOrganizationEmployeeInput {
   name: String
   role: OrganizationEmployeeRoleWhereUniqueInput
   position: String
-  specializations: TicketCategoryClassifierRelateToManyInput
+  specializations: [TicketCategoryClassifierWhereUniqueInput]
+  hasAllSpecializations: Boolean
 }
 
 input ReInviteOrganizationEmployeeInput {
@@ -46361,6 +47789,18 @@ type GetExternalReportIframeUrlOutput {
   iframeUrl: String
 }
 
+input ExportPropertyScopeToExcelInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  where: PropertyScopeWhereInput!
+  sortBy: [SortPropertyScopesBy!]
+}
+
+type ExportPropertyScopeToExcelOutput {
+  status: String!
+  linkToFile: String!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -46604,6 +48044,38 @@ type Query {
 
   """ Retrieve the meta-data for the OrganizationLink list. """
   _OrganizationLinksMeta: _ListMeta
+
+  """ Search for all OrganizationEmployeeSpecializationHistoryRecord items which match the where clause. 
+  """
+  allOrganizationEmployeeSpecializationHistoryRecords(where: OrganizationEmployeeSpecializationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationEmployeeSpecializationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployeeSpecializationHistoryRecord]
+
+  """ Search for the OrganizationEmployeeSpecializationHistoryRecord item with the matching ID. 
+  """
+  OrganizationEmployeeSpecializationHistoryRecord(where: OrganizationEmployeeSpecializationHistoryRecordWhereUniqueInput!): OrganizationEmployeeSpecializationHistoryRecord
+
+  """ Perform a meta-query on all OrganizationEmployeeSpecializationHistoryRecord items which match the where clause. 
+  """
+  _allOrganizationEmployeeSpecializationHistoryRecordsMeta(where: OrganizationEmployeeSpecializationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationEmployeeSpecializationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OrganizationEmployeeSpecializationHistoryRecord list. 
+  """
+  _OrganizationEmployeeSpecializationHistoryRecordsMeta: _ListMeta
+
+  """ Search for all OrganizationEmployeeSpecialization items which match the where clause. 
+  """
+  allOrganizationEmployeeSpecializations(where: OrganizationEmployeeSpecializationWhereInput, search: String, sortBy: [SortOrganizationEmployeeSpecializationsBy!], orderBy: String, first: Int, skip: Int): [OrganizationEmployeeSpecialization]
+
+  """ Search for the OrganizationEmployeeSpecialization item with the matching ID. 
+  """
+  OrganizationEmployeeSpecialization(where: OrganizationEmployeeSpecializationWhereUniqueInput!): OrganizationEmployeeSpecialization
+
+  """ Perform a meta-query on all OrganizationEmployeeSpecialization items which match the where clause. 
+  """
+  _allOrganizationEmployeeSpecializationsMeta(where: OrganizationEmployeeSpecializationWhereInput, search: String, sortBy: [SortOrganizationEmployeeSpecializationsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OrganizationEmployeeSpecialization list. 
+  """
+  _OrganizationEmployeeSpecializationsMeta: _ListMeta
 
   """ Search for all PropertyHistoryRecord items which match the where clause. 
   """
@@ -47885,33 +49357,6 @@ type Query {
   """ Retrieve the meta-data for the OnBoardingStep list. """
   _OnBoardingStepsMeta: _ListMeta
 
-  """ Search for all DivisionHistoryRecord items which match the where clause. 
-  """
-  allDivisionHistoryRecords(where: DivisionHistoryRecordWhereInput, search: String, sortBy: [SortDivisionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [DivisionHistoryRecord]
-
-  """ Search for the DivisionHistoryRecord item with the matching ID. """
-  DivisionHistoryRecord(where: DivisionHistoryRecordWhereUniqueInput!): DivisionHistoryRecord
-
-  """ Perform a meta-query on all DivisionHistoryRecord items which match the where clause. 
-  """
-  _allDivisionHistoryRecordsMeta(where: DivisionHistoryRecordWhereInput, search: String, sortBy: [SortDivisionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the DivisionHistoryRecord list. """
-  _DivisionHistoryRecordsMeta: _ListMeta
-
-  """ Search for all Division items which match the where clause. """
-  allDivisions(where: DivisionWhereInput, search: String, sortBy: [SortDivisionsBy!], orderBy: String, first: Int, skip: Int): [Division]
-
-  """ Search for the Division item with the matching ID. """
-  Division(where: DivisionWhereUniqueInput!): Division
-
-  """ Perform a meta-query on all Division items which match the where clause. 
-  """
-  _allDivisionsMeta(where: DivisionWhereInput, search: String, sortBy: [SortDivisionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
-
-  """ Retrieve the meta-data for the Division list. """
-  _DivisionsMeta: _ListMeta
-
   """ Search for all MeterResourceHistoryRecord items which match the where clause. 
   """
   allMeterResourceHistoryRecords(where: MeterResourceHistoryRecordWhereInput, search: String, sortBy: [SortMeterResourceHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MeterResourceHistoryRecord]
@@ -48536,6 +49981,122 @@ type Query {
   """ Retrieve the meta-data for the ExternalReport list. """
   _ExternalReportsMeta: _ListMeta
 
+  """ Search for all PropertyScopeHistoryRecord items which match the where clause. 
+  """
+  allPropertyScopeHistoryRecords(where: PropertyScopeHistoryRecordWhereInput, search: String, sortBy: [SortPropertyScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PropertyScopeHistoryRecord]
+
+  """ Search for the PropertyScopeHistoryRecord item with the matching ID. """
+  PropertyScopeHistoryRecord(where: PropertyScopeHistoryRecordWhereUniqueInput!): PropertyScopeHistoryRecord
+
+  """ Perform a meta-query on all PropertyScopeHistoryRecord items which match the where clause. 
+  """
+  _allPropertyScopeHistoryRecordsMeta(where: PropertyScopeHistoryRecordWhereInput, search: String, sortBy: [SortPropertyScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PropertyScopeHistoryRecord list. """
+  _PropertyScopeHistoryRecordsMeta: _ListMeta
+
+  """ Search for all PropertyScope items which match the where clause. """
+  allPropertyScopes(where: PropertyScopeWhereInput, search: String, sortBy: [SortPropertyScopesBy!], orderBy: String, first: Int, skip: Int): [PropertyScope]
+
+  """ Search for the PropertyScope item with the matching ID. """
+  PropertyScope(where: PropertyScopeWhereUniqueInput!): PropertyScope
+
+  """ Perform a meta-query on all PropertyScope items which match the where clause. 
+  """
+  _allPropertyScopesMeta(where: PropertyScopeWhereInput, search: String, sortBy: [SortPropertyScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PropertyScope list. """
+  _PropertyScopesMeta: _ListMeta
+
+  """ Search for all PropertyScopeOrganizationEmployeeHistoryRecord items which match the where clause. 
+  """
+  allPropertyScopeOrganizationEmployeeHistoryRecords(where: PropertyScopeOrganizationEmployeeHistoryRecordWhereInput, search: String, sortBy: [SortPropertyScopeOrganizationEmployeeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PropertyScopeOrganizationEmployeeHistoryRecord]
+
+  """ Search for the PropertyScopeOrganizationEmployeeHistoryRecord item with the matching ID. 
+  """
+  PropertyScopeOrganizationEmployeeHistoryRecord(where: PropertyScopeOrganizationEmployeeHistoryRecordWhereUniqueInput!): PropertyScopeOrganizationEmployeeHistoryRecord
+
+  """ Perform a meta-query on all PropertyScopeOrganizationEmployeeHistoryRecord items which match the where clause. 
+  """
+  _allPropertyScopeOrganizationEmployeeHistoryRecordsMeta(where: PropertyScopeOrganizationEmployeeHistoryRecordWhereInput, search: String, sortBy: [SortPropertyScopeOrganizationEmployeeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PropertyScopeOrganizationEmployeeHistoryRecord list. 
+  """
+  _PropertyScopeOrganizationEmployeeHistoryRecordsMeta: _ListMeta
+
+  """ Search for all PropertyScopeOrganizationEmployee items which match the where clause. 
+  """
+  allPropertyScopeOrganizationEmployees(where: PropertyScopeOrganizationEmployeeWhereInput, search: String, sortBy: [SortPropertyScopeOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): [PropertyScopeOrganizationEmployee]
+
+  """ Search for the PropertyScopeOrganizationEmployee item with the matching ID. 
+  """
+  PropertyScopeOrganizationEmployee(where: PropertyScopeOrganizationEmployeeWhereUniqueInput!): PropertyScopeOrganizationEmployee
+
+  """ Perform a meta-query on all PropertyScopeOrganizationEmployee items which match the where clause. 
+  """
+  _allPropertyScopeOrganizationEmployeesMeta(where: PropertyScopeOrganizationEmployeeWhereInput, search: String, sortBy: [SortPropertyScopeOrganizationEmployeesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PropertyScopeOrganizationEmployee list. 
+  """
+  _PropertyScopeOrganizationEmployeesMeta: _ListMeta
+
+  """ Search for all PropertyScopePropertyHistoryRecord items which match the where clause. 
+  """
+  allPropertyScopePropertyHistoryRecords(where: PropertyScopePropertyHistoryRecordWhereInput, search: String, sortBy: [SortPropertyScopePropertyHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [PropertyScopePropertyHistoryRecord]
+
+  """ Search for the PropertyScopePropertyHistoryRecord item with the matching ID. 
+  """
+  PropertyScopePropertyHistoryRecord(where: PropertyScopePropertyHistoryRecordWhereUniqueInput!): PropertyScopePropertyHistoryRecord
+
+  """ Perform a meta-query on all PropertyScopePropertyHistoryRecord items which match the where clause. 
+  """
+  _allPropertyScopePropertyHistoryRecordsMeta(where: PropertyScopePropertyHistoryRecordWhereInput, search: String, sortBy: [SortPropertyScopePropertyHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PropertyScopePropertyHistoryRecord list. 
+  """
+  _PropertyScopePropertyHistoryRecordsMeta: _ListMeta
+
+  """ Search for all PropertyScopeProperty items which match the where clause. 
+  """
+  allPropertyScopeProperties(where: PropertyScopePropertyWhereInput, search: String, sortBy: [SortPropertyScopePropertiesBy!], orderBy: String, first: Int, skip: Int): [PropertyScopeProperty]
+
+  """ Search for the PropertyScopeProperty item with the matching ID. """
+  PropertyScopeProperty(where: PropertyScopePropertyWhereUniqueInput!): PropertyScopeProperty
+
+  """ Perform a meta-query on all PropertyScopeProperty items which match the where clause. 
+  """
+  _allPropertyScopePropertiesMeta(where: PropertyScopePropertyWhereInput, search: String, sortBy: [SortPropertyScopePropertiesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the PropertyScopeProperty list. """
+  _PropertyScopePropertiesMeta: _ListMeta
+
+  """ Search for all AssigneeScopeHistoryRecord items which match the where clause. 
+  """
+  allAssigneeScopeHistoryRecords(where: AssigneeScopeHistoryRecordWhereInput, search: String, sortBy: [SortAssigneeScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [AssigneeScopeHistoryRecord]
+
+  """ Search for the AssigneeScopeHistoryRecord item with the matching ID. """
+  AssigneeScopeHistoryRecord(where: AssigneeScopeHistoryRecordWhereUniqueInput!): AssigneeScopeHistoryRecord
+
+  """ Perform a meta-query on all AssigneeScopeHistoryRecord items which match the where clause. 
+  """
+  _allAssigneeScopeHistoryRecordsMeta(where: AssigneeScopeHistoryRecordWhereInput, search: String, sortBy: [SortAssigneeScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the AssigneeScopeHistoryRecord list. """
+  _AssigneeScopeHistoryRecordsMeta: _ListMeta
+
+  """ Search for all AssigneeScope items which match the where clause. """
+  allAssigneeScopes(where: AssigneeScopeWhereInput, search: String, sortBy: [SortAssigneeScopesBy!], orderBy: String, first: Int, skip: Int): [AssigneeScope]
+
+  """ Search for the AssigneeScope item with the matching ID. """
+  AssigneeScope(where: AssigneeScopeWhereUniqueInput!): AssigneeScope
+
+  """ Perform a meta-query on all AssigneeScope items which match the where clause. 
+  """
+  _allAssigneeScopesMeta(where: AssigneeScopeWhereInput, search: String, sortBy: [SortAssigneeScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the AssigneeScope list. """
+  _AssigneeScopesMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -48699,6 +50260,7 @@ type Query {
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
   getExternalReportIframeUrl(data: GetExternalReportIframeUrlInput!): GetExternalReportIframeUrlOutput
+  exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String
@@ -48993,6 +50555,48 @@ type Mutation {
 
   """ Delete multiple OrganizationLink items by ID. """
   deleteOrganizationLinks(ids: [ID!]): [OrganizationLink]
+
+  """ Create a single OrganizationEmployeeSpecializationHistoryRecord item. 
+  """
+  createOrganizationEmployeeSpecializationHistoryRecord(data: OrganizationEmployeeSpecializationHistoryRecordCreateInput): OrganizationEmployeeSpecializationHistoryRecord
+
+  """ Create multiple OrganizationEmployeeSpecializationHistoryRecord items. 
+  """
+  createOrganizationEmployeeSpecializationHistoryRecords(data: [OrganizationEmployeeSpecializationHistoryRecordsCreateInput]): [OrganizationEmployeeSpecializationHistoryRecord]
+
+  """ Update a single OrganizationEmployeeSpecializationHistoryRecord item by ID. 
+  """
+  updateOrganizationEmployeeSpecializationHistoryRecord(id: ID!, data: OrganizationEmployeeSpecializationHistoryRecordUpdateInput): OrganizationEmployeeSpecializationHistoryRecord
+
+  """ Update multiple OrganizationEmployeeSpecializationHistoryRecord items by ID. 
+  """
+  updateOrganizationEmployeeSpecializationHistoryRecords(data: [OrganizationEmployeeSpecializationHistoryRecordsUpdateInput]): [OrganizationEmployeeSpecializationHistoryRecord]
+
+  """ Delete a single OrganizationEmployeeSpecializationHistoryRecord item by ID. 
+  """
+  deleteOrganizationEmployeeSpecializationHistoryRecord(id: ID!): OrganizationEmployeeSpecializationHistoryRecord
+
+  """ Delete multiple OrganizationEmployeeSpecializationHistoryRecord items by ID. 
+  """
+  deleteOrganizationEmployeeSpecializationHistoryRecords(ids: [ID!]): [OrganizationEmployeeSpecializationHistoryRecord]
+
+  """ Create a single OrganizationEmployeeSpecialization item. """
+  createOrganizationEmployeeSpecialization(data: OrganizationEmployeeSpecializationCreateInput): OrganizationEmployeeSpecialization
+
+  """ Create multiple OrganizationEmployeeSpecialization items. """
+  createOrganizationEmployeeSpecializations(data: [OrganizationEmployeeSpecializationsCreateInput]): [OrganizationEmployeeSpecialization]
+
+  """ Update a single OrganizationEmployeeSpecialization item by ID. """
+  updateOrganizationEmployeeSpecialization(id: ID!, data: OrganizationEmployeeSpecializationUpdateInput): OrganizationEmployeeSpecialization
+
+  """ Update multiple OrganizationEmployeeSpecialization items by ID. """
+  updateOrganizationEmployeeSpecializations(data: [OrganizationEmployeeSpecializationsUpdateInput]): [OrganizationEmployeeSpecialization]
+
+  """ Delete a single OrganizationEmployeeSpecialization item by ID. """
+  deleteOrganizationEmployeeSpecialization(id: ID!): OrganizationEmployeeSpecialization
+
+  """ Delete multiple OrganizationEmployeeSpecialization items by ID. """
+  deleteOrganizationEmployeeSpecializations(ids: [ID!]): [OrganizationEmployeeSpecialization]
 
   """ Create a single PropertyHistoryRecord item. """
   createPropertyHistoryRecord(data: PropertyHistoryRecordCreateInput): PropertyHistoryRecord
@@ -50628,42 +52232,6 @@ type Mutation {
   """ Delete multiple OnBoardingStep items by ID. """
   deleteOnBoardingSteps(ids: [ID!]): [OnBoardingStep]
 
-  """ Create a single DivisionHistoryRecord item. """
-  createDivisionHistoryRecord(data: DivisionHistoryRecordCreateInput): DivisionHistoryRecord
-
-  """ Create multiple DivisionHistoryRecord items. """
-  createDivisionHistoryRecords(data: [DivisionHistoryRecordsCreateInput]): [DivisionHistoryRecord]
-
-  """ Update a single DivisionHistoryRecord item by ID. """
-  updateDivisionHistoryRecord(id: ID!, data: DivisionHistoryRecordUpdateInput): DivisionHistoryRecord
-
-  """ Update multiple DivisionHistoryRecord items by ID. """
-  updateDivisionHistoryRecords(data: [DivisionHistoryRecordsUpdateInput]): [DivisionHistoryRecord]
-
-  """ Delete a single DivisionHistoryRecord item by ID. """
-  deleteDivisionHistoryRecord(id: ID!): DivisionHistoryRecord
-
-  """ Delete multiple DivisionHistoryRecord items by ID. """
-  deleteDivisionHistoryRecords(ids: [ID!]): [DivisionHistoryRecord]
-
-  """ Create a single Division item. """
-  createDivision(data: DivisionCreateInput): Division
-
-  """ Create multiple Division items. """
-  createDivisions(data: [DivisionsCreateInput]): [Division]
-
-  """ Update a single Division item by ID. """
-  updateDivision(id: ID!, data: DivisionUpdateInput): Division
-
-  """ Update multiple Division items by ID. """
-  updateDivisions(data: [DivisionsUpdateInput]): [Division]
-
-  """ Delete a single Division item by ID. """
-  deleteDivision(id: ID!): Division
-
-  """ Delete multiple Division items by ID. """
-  deleteDivisions(ids: [ID!]): [Division]
-
   """ Create a single MeterResourceHistoryRecord item. """
   createMeterResourceHistoryRecord(data: MeterResourceHistoryRecordCreateInput): MeterResourceHistoryRecord
 
@@ -51461,6 +53029,155 @@ type Mutation {
 
   """ Delete multiple ExternalReport items by ID. """
   deleteExternalReports(ids: [ID!]): [ExternalReport]
+
+  """ Create a single PropertyScopeHistoryRecord item. """
+  createPropertyScopeHistoryRecord(data: PropertyScopeHistoryRecordCreateInput): PropertyScopeHistoryRecord
+
+  """ Create multiple PropertyScopeHistoryRecord items. """
+  createPropertyScopeHistoryRecords(data: [PropertyScopeHistoryRecordsCreateInput]): [PropertyScopeHistoryRecord]
+
+  """ Update a single PropertyScopeHistoryRecord item by ID. """
+  updatePropertyScopeHistoryRecord(id: ID!, data: PropertyScopeHistoryRecordUpdateInput): PropertyScopeHistoryRecord
+
+  """ Update multiple PropertyScopeHistoryRecord items by ID. """
+  updatePropertyScopeHistoryRecords(data: [PropertyScopeHistoryRecordsUpdateInput]): [PropertyScopeHistoryRecord]
+
+  """ Delete a single PropertyScopeHistoryRecord item by ID. """
+  deletePropertyScopeHistoryRecord(id: ID!): PropertyScopeHistoryRecord
+
+  """ Delete multiple PropertyScopeHistoryRecord items by ID. """
+  deletePropertyScopeHistoryRecords(ids: [ID!]): [PropertyScopeHistoryRecord]
+
+  """ Create a single PropertyScope item. """
+  createPropertyScope(data: PropertyScopeCreateInput): PropertyScope
+
+  """ Create multiple PropertyScope items. """
+  createPropertyScopes(data: [PropertyScopesCreateInput]): [PropertyScope]
+
+  """ Update a single PropertyScope item by ID. """
+  updatePropertyScope(id: ID!, data: PropertyScopeUpdateInput): PropertyScope
+
+  """ Update multiple PropertyScope items by ID. """
+  updatePropertyScopes(data: [PropertyScopesUpdateInput]): [PropertyScope]
+
+  """ Delete a single PropertyScope item by ID. """
+  deletePropertyScope(id: ID!): PropertyScope
+
+  """ Delete multiple PropertyScope items by ID. """
+  deletePropertyScopes(ids: [ID!]): [PropertyScope]
+
+  """ Create a single PropertyScopeOrganizationEmployeeHistoryRecord item. """
+  createPropertyScopeOrganizationEmployeeHistoryRecord(data: PropertyScopeOrganizationEmployeeHistoryRecordCreateInput): PropertyScopeOrganizationEmployeeHistoryRecord
+
+  """ Create multiple PropertyScopeOrganizationEmployeeHistoryRecord items. 
+  """
+  createPropertyScopeOrganizationEmployeeHistoryRecords(data: [PropertyScopeOrganizationEmployeeHistoryRecordsCreateInput]): [PropertyScopeOrganizationEmployeeHistoryRecord]
+
+  """ Update a single PropertyScopeOrganizationEmployeeHistoryRecord item by ID. 
+  """
+  updatePropertyScopeOrganizationEmployeeHistoryRecord(id: ID!, data: PropertyScopeOrganizationEmployeeHistoryRecordUpdateInput): PropertyScopeOrganizationEmployeeHistoryRecord
+
+  """ Update multiple PropertyScopeOrganizationEmployeeHistoryRecord items by ID. 
+  """
+  updatePropertyScopeOrganizationEmployeeHistoryRecords(data: [PropertyScopeOrganizationEmployeeHistoryRecordsUpdateInput]): [PropertyScopeOrganizationEmployeeHistoryRecord]
+
+  """ Delete a single PropertyScopeOrganizationEmployeeHistoryRecord item by ID. 
+  """
+  deletePropertyScopeOrganizationEmployeeHistoryRecord(id: ID!): PropertyScopeOrganizationEmployeeHistoryRecord
+
+  """ Delete multiple PropertyScopeOrganizationEmployeeHistoryRecord items by ID. 
+  """
+  deletePropertyScopeOrganizationEmployeeHistoryRecords(ids: [ID!]): [PropertyScopeOrganizationEmployeeHistoryRecord]
+
+  """ Create a single PropertyScopeOrganizationEmployee item. """
+  createPropertyScopeOrganizationEmployee(data: PropertyScopeOrganizationEmployeeCreateInput): PropertyScopeOrganizationEmployee
+
+  """ Create multiple PropertyScopeOrganizationEmployee items. """
+  createPropertyScopeOrganizationEmployees(data: [PropertyScopeOrganizationEmployeesCreateInput]): [PropertyScopeOrganizationEmployee]
+
+  """ Update a single PropertyScopeOrganizationEmployee item by ID. """
+  updatePropertyScopeOrganizationEmployee(id: ID!, data: PropertyScopeOrganizationEmployeeUpdateInput): PropertyScopeOrganizationEmployee
+
+  """ Update multiple PropertyScopeOrganizationEmployee items by ID. """
+  updatePropertyScopeOrganizationEmployees(data: [PropertyScopeOrganizationEmployeesUpdateInput]): [PropertyScopeOrganizationEmployee]
+
+  """ Delete a single PropertyScopeOrganizationEmployee item by ID. """
+  deletePropertyScopeOrganizationEmployee(id: ID!): PropertyScopeOrganizationEmployee
+
+  """ Delete multiple PropertyScopeOrganizationEmployee items by ID. """
+  deletePropertyScopeOrganizationEmployees(ids: [ID!]): [PropertyScopeOrganizationEmployee]
+
+  """ Create a single PropertyScopePropertyHistoryRecord item. """
+  createPropertyScopePropertyHistoryRecord(data: PropertyScopePropertyHistoryRecordCreateInput): PropertyScopePropertyHistoryRecord
+
+  """ Create multiple PropertyScopePropertyHistoryRecord items. """
+  createPropertyScopePropertyHistoryRecords(data: [PropertyScopePropertyHistoryRecordsCreateInput]): [PropertyScopePropertyHistoryRecord]
+
+  """ Update a single PropertyScopePropertyHistoryRecord item by ID. """
+  updatePropertyScopePropertyHistoryRecord(id: ID!, data: PropertyScopePropertyHistoryRecordUpdateInput): PropertyScopePropertyHistoryRecord
+
+  """ Update multiple PropertyScopePropertyHistoryRecord items by ID. """
+  updatePropertyScopePropertyHistoryRecords(data: [PropertyScopePropertyHistoryRecordsUpdateInput]): [PropertyScopePropertyHistoryRecord]
+
+  """ Delete a single PropertyScopePropertyHistoryRecord item by ID. """
+  deletePropertyScopePropertyHistoryRecord(id: ID!): PropertyScopePropertyHistoryRecord
+
+  """ Delete multiple PropertyScopePropertyHistoryRecord items by ID. """
+  deletePropertyScopePropertyHistoryRecords(ids: [ID!]): [PropertyScopePropertyHistoryRecord]
+
+  """ Create a single PropertyScopeProperty item. """
+  createPropertyScopeProperty(data: PropertyScopePropertyCreateInput): PropertyScopeProperty
+
+  """ Create multiple PropertyScopeProperty items. """
+  createPropertyScopeProperties(data: [PropertyScopePropertiesCreateInput]): [PropertyScopeProperty]
+
+  """ Update a single PropertyScopeProperty item by ID. """
+  updatePropertyScopeProperty(id: ID!, data: PropertyScopePropertyUpdateInput): PropertyScopeProperty
+
+  """ Update multiple PropertyScopeProperty items by ID. """
+  updatePropertyScopeProperties(data: [PropertyScopePropertiesUpdateInput]): [PropertyScopeProperty]
+
+  """ Delete a single PropertyScopeProperty item by ID. """
+  deletePropertyScopeProperty(id: ID!): PropertyScopeProperty
+
+  """ Delete multiple PropertyScopeProperty items by ID. """
+  deletePropertyScopeProperties(ids: [ID!]): [PropertyScopeProperty]
+
+  """ Create a single AssigneeScopeHistoryRecord item. """
+  createAssigneeScopeHistoryRecord(data: AssigneeScopeHistoryRecordCreateInput): AssigneeScopeHistoryRecord
+
+  """ Create multiple AssigneeScopeHistoryRecord items. """
+  createAssigneeScopeHistoryRecords(data: [AssigneeScopeHistoryRecordsCreateInput]): [AssigneeScopeHistoryRecord]
+
+  """ Update a single AssigneeScopeHistoryRecord item by ID. """
+  updateAssigneeScopeHistoryRecord(id: ID!, data: AssigneeScopeHistoryRecordUpdateInput): AssigneeScopeHistoryRecord
+
+  """ Update multiple AssigneeScopeHistoryRecord items by ID. """
+  updateAssigneeScopeHistoryRecords(data: [AssigneeScopeHistoryRecordsUpdateInput]): [AssigneeScopeHistoryRecord]
+
+  """ Delete a single AssigneeScopeHistoryRecord item by ID. """
+  deleteAssigneeScopeHistoryRecord(id: ID!): AssigneeScopeHistoryRecord
+
+  """ Delete multiple AssigneeScopeHistoryRecord items by ID. """
+  deleteAssigneeScopeHistoryRecords(ids: [ID!]): [AssigneeScopeHistoryRecord]
+
+  """ Create a single AssigneeScope item. """
+  createAssigneeScope(data: AssigneeScopeCreateInput): AssigneeScope
+
+  """ Create multiple AssigneeScope items. """
+  createAssigneeScopes(data: [AssigneeScopesCreateInput]): [AssigneeScope]
+
+  """ Update a single AssigneeScope item by ID. """
+  updateAssigneeScope(id: ID!, data: AssigneeScopeUpdateInput): AssigneeScope
+
+  """ Update multiple AssigneeScope items by ID. """
+  updateAssigneeScopes(data: [AssigneeScopesUpdateInput]): [AssigneeScope]
+
+  """ Delete a single AssigneeScope item by ID. """
+  deleteAssigneeScope(id: ID!): AssigneeScope
+
+  """ Delete multiple AssigneeScope items by ID. """
+  deleteAssigneeScopes(ids: [ID!]): [AssigneeScope]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
