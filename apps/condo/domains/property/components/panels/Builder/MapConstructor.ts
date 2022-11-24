@@ -11,6 +11,7 @@ import {
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import Ajv from 'ajv'
+import isArray  from 'lodash/isArray'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
 import find from 'lodash/find'
@@ -526,6 +527,7 @@ class MapEdit extends MapView {
     private _previewSectionFloor: number | null = null
     private _previewUnitId: string | null = null
     private _previewParkingUnitId: string | null = null
+    private _duplicatedUnits: string[] | null = []
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
@@ -546,6 +548,10 @@ class MapEdit extends MapView {
     }
     get previewSectionId (): string | null {
         return this._previewSectionId
+    }
+
+    get duplicatedUnits (): string[] | null {
+        return this._duplicatedUnits
     }
 
     get nextUnitNumber (): number {
@@ -675,7 +681,13 @@ class MapEdit extends MapView {
                         else if (unit.id !== get(selectedUnit, 'id')) return unit.label
                     }))
             ).flat(2)
-        const notUniqSectionLabels = unitLabels && !isEmpty(unitLabels.filter(unit => unit.label === newLabel))
+
+        const notUniqSectionLabels = unitLabels && !isEmpty(unitLabels.filter(unit => {
+            if (unit.label === newLabel) {
+                isArray(this._duplicatedUnits) && this._duplicatedUnits.push(unit.id)
+                return unit
+            }
+        }))
         if (notUniqSectionLabels) {
             this.validationErrors = ['Name of unit label must be unique']
             return false
@@ -694,7 +706,12 @@ class MapEdit extends MapView {
                     }))
             ).flat(2)
 
-        const notUniqParkingLabels = parkingUnitLabels && !isEmpty(parkingUnitLabels.filter(parking => parking.label === newLabel))
+        const notUniqParkingLabels = parkingUnitLabels && !isEmpty(parkingUnitLabels.filter(parking => {
+            if (parking.label === newLabel) {
+                isArray(this._duplicatedUnits) && this._duplicatedUnits.push(parking.id)
+                return parking
+            }
+        }))
         if (notUniqParkingLabels) {
             this.validationErrors = ['Name of unit label must be unique']
             return false
