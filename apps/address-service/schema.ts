@@ -27,9 +27,6 @@ export type Address = {
    *  4. As an alias to the 'id' field on the Address List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  The origin which used to detect the address  */
-  sources: Array<AddressSource>;
-  _sourcesMeta?: Maybe<_QueryMeta>;
   /**  The normalized address itself in one string  */
   address?: Maybe<Scalars['String']>;
   /**  The unique key of the address  */
@@ -52,30 +49,7 @@ export type Address = {
   sender?: Maybe<SenderField>;
 };
 
-
-/**  A model containing data on the particular building's address  */
-export type AddressSourcesArgs = {
-  where?: Maybe<AddressSourceWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortAddressSourcesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  A model containing data on the particular building's address  */
-export type Address_SourcesMetaArgs = {
-  where?: Maybe<AddressSourceWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortAddressSourcesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
 export type AddressCreateInput = {
-  sources?: Maybe<AddressSourceRelateToManyInput>;
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -1033,13 +1007,6 @@ export type AddressSourceHistoryRecordsUpdateInput = {
   data?: Maybe<AddressSourceHistoryRecordUpdateInput>;
 };
 
-export type AddressSourceRelateToManyInput = {
-  create?: Maybe<Array<Maybe<AddressSourceCreateInput>>>;
-  connect?: Maybe<Array<Maybe<AddressSourceWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<AddressSourceWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type AddressSourceUpdateInput = {
   source?: Maybe<Scalars['String']>;
   address?: Maybe<AddressRelateToOneInput>;
@@ -1149,7 +1116,6 @@ export type AddressSourcesUpdateInput = {
 };
 
 export type AddressUpdateInput = {
-  sources?: Maybe<AddressSourceRelateToManyInput>;
   address?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
@@ -1167,12 +1133,6 @@ export type AddressUpdateInput = {
 export type AddressWhereInput = {
   AND?: Maybe<Array<Maybe<AddressWhereInput>>>;
   OR?: Maybe<Array<Maybe<AddressWhereInput>>>;
-  /**  condition must be true for all nodes  */
-  sources_every?: Maybe<AddressSourceWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  sources_some?: Maybe<AddressSourceWhereInput>;
-  /**  condition must be false for all nodes  */
-  sources_none?: Maybe<AddressSourceWhereInput>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
@@ -2056,8 +2016,6 @@ export enum SortAddressSourcesBy {
 }
 
 export enum SortAddressesBy {
-  SourcesAsc = 'sources_ASC',
-  SourcesDesc = 'sources_DESC',
   AddressAsc = 'address_ASC',
   AddressDesc = 'address_DESC',
   KeyAsc = 'key_ASC',

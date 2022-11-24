@@ -1,8 +1,8 @@
-const { AbstractSearchPlugin } = require('@address-service/domains/common/utils/services/search/AbstractSearchPlugin')
-const { Address } = require('@address-service/domains/address/utils/serverSchema')
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const get = require('lodash/get')
+const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 class SearchByProvider extends AbstractSearchPlugin {
 
@@ -30,48 +30,24 @@ class SearchByProvider extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult)
 
-        const addressFoundByKey = await Address.getOne(godContext, { key: addressKey })
-
-        let addressItem
-        if (addressFoundByKey) {
-            addressItem = addressFoundByKey
-            if (!addressFoundByKey.sources.map(({ source }) => source).includes(s)) {
-                addressItem = await Address.update(
-                    godContext,
-                    addressFoundByKey.id,
-                    {
-                        sources: { create: { source: s, ...dvSender } },
-                        ...dvSender,
+        return await createOrUpdateAddressWithSource(
+            godContext,
+            {
+                address: searchResult.value,
+                key: addressKey,
+                meta: {
+                    provider: {
+                        name: searchProvider.getProviderName(),
+                        rawData: denormalizedRows[0],
                     },
-                )
-            }
-        } else {
-            addressItem = await Address.create(
-                godContext,
-                {
-                    ...dvSender,
-                    sources: {
-                        create: {
-                            source: s,
-                            ...dvSender,
-                        },
-                    },
-                    address: searchResult.value,
-                    key: addressKey,
-                    meta: {
-                        provider: {
-                            name: searchProvider.getProviderName(),
-                            rawData: denormalizedRows[0],
-                        },
-                        value: searchResult.value,
-                        unrestricted_value: searchResult.unrestricted_value,
-                        data: get(searchResult, 'data', {}),
-                    },
+                    value: searchResult.value,
+                    unrestricted_value: searchResult.unrestricted_value,
+                    data: get(searchResult, 'data', {}),
                 },
-            )
-        }
-
-        return addressItem
+            },
+            s,
+            dvSender,
+        )
     }
 }
 

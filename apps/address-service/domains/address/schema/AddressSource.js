@@ -53,7 +53,7 @@ const AddressSource = new GQLListSchema('AddressSource', {
             schemaDoc: 'The address which was found by the source address',
             isRequired: true,
             type: Relationship,
-            ref: 'Address.sources',
+            ref: 'Address',
             many: false,
         },
 

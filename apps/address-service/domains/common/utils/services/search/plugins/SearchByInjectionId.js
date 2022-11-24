@@ -1,11 +1,11 @@
-const { AbstractSearchPlugin } = require('@address-service/domains/common/utils/services/search/AbstractSearchPlugin')
-const { Address } = require('@address-service/domains/address/utils/serverSchema')
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const get = require('lodash/get')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { validate: validateUuid } = require('uuid')
+const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 
 const SEPARATOR = ':'
 
@@ -44,43 +44,24 @@ class SearchByInjectionId extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult[0])
 
-        const addressFoundByKey = await Address.getOne(godContext, { key: addressKey })
-
-        let addressItem
-        if (addressFoundByKey) {
-            addressItem = addressFoundByKey
-            if (!addressFoundByKey.sources.map(({ source }) => source).includes(s)) {
-                addressItem = await Address.update(
-                    godContext,
-                    addressFoundByKey.id,
-                    {
-                        sources: { create: { source: s, ...dvSender } },
-                        ...dvSender,
+        return await createOrUpdateAddressWithSource(
+            godContext,
+            {
+                address: searchResult[0].value,
+                key: addressKey,
+                meta: {
+                    provider: {
+                        name: INJECTIONS_PROVIDER,
+                        rawData: injection,
                     },
-                )
-            }
-        } else {
-            addressItem = await Address.create(
-                godContext,
-                {
-                    ...dvSender,
-                    sources: { create: { source: s, ...dvSender } },
-                    address: searchResult[0].value,
-                    key: addressKey,
-                    meta: {
-                        provider: {
-                            name: INJECTIONS_PROVIDER,
-                            rawData: injection,
-                        },
-                        value: searchResult[0].value,
-                        unrestricted_value: searchResult[0].unrestricted_value,
-                        data: get(searchResult, [0, 'data'], {}),
-                    },
+                    value: searchResult[0].value,
+                    unrestricted_value: searchResult[0].unrestricted_value,
+                    data: get(searchResult, [0, 'data'], {}),
                 },
-            )
-        }
-
-        return addressItem
+            },
+            s,
+            dvSender,
+        )
     }
 }
 

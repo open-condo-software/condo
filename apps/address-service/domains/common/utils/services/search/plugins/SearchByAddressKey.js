@@ -1,4 +1,4 @@
-const { AbstractSearchPlugin } = require('@address-service/domains/common/utils/services/search/AbstractSearchPlugin')
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 const { Address } = require('@address-service/domains/address/utils/serverSchema')
 
 const SEPARATOR = ':'

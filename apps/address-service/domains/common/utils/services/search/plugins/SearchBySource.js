@@ -1,5 +1,5 @@
-const { AbstractSearchPlugin } = require('@address-service/domains/common/utils/services/search/AbstractSearchPlugin')
-const { Address } = require('@address-service/domains/address/utils/serverSchema')
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
+const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 class SearchBySource extends AbstractSearchPlugin {
 
@@ -9,7 +9,14 @@ class SearchBySource extends AbstractSearchPlugin {
      */
     async search (s) {
         // We want to return the same result for the same source. This is the address cache, baby!
-        const addressFoundBySource = await Address.getOne(this.keystoneContext.sudo(), { sources_some: { source: s } })
+        const godContext = this.keystoneContext.sudo()
+
+        const addressSource = await AddressSource.getOne(godContext, { source: s })
+        if (!addressSource) {
+            return null
+        }
+
+        const addressFoundBySource = await Address.getOne(godContext, { id: addressSource.address })
 
         return addressFoundBySource ? addressFoundBySource : null
     }
