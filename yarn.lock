@@ -552,7 +552,6 @@ __metadata:
     "@open-condo/locales": "workspace:^"
     "@open-condo/next": "workspace:^"
     "@open-condo/triggers": "workspace:^"
-    "@open-condo/ui": "workspace:^"
     "@open-condo/webhooks": "workspace:^"
     "@testing-library/react": ^11.2.5
     "@tinymce/tinymce-react": ^4.1.0
@@ -8755,7 +8754,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/ui@workspace:^, @open-condo/ui@workspace:packages/ui":
+"@open-condo/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@open-condo/ui@workspace:packages/ui"
   dependencies:
