@@ -19,24 +19,26 @@ const PopupSmart = (): null => {
 
     // watch for user role update. This is the way to tell popupsmart local user context
     useEffect(() => {
-        // We don't want to share support or admin user's
-        if (role && userIsNotStaff && popupSmartUrl) {
-            cookie.set('roleName', role)
+        if (typeof window !== 'undefined') {
+            // We don't want to share support or admin user's
+            if (role && userIsNotStaff && popupSmartUrl) {
+                cookie.set('roleName', role)
 
-            // If script is not loaded yet -> add it to the body section
-            // Placing script in render section not fire it's loading. That was fixed at nextjs v11 with next/script
-            if (isNull(scriptRef.current)) {
-                const scriptElement = document.createElement('script')
-                scriptElement.async = false
-                scriptElement.src = popupSmartUrl
+                // If script is not loaded yet -> add it to the body section
+                // Placing script in render section not fire it's loading. That was fixed at nextjs v11 with next/script
+                if (isNull(scriptRef.current)) {
+                    const scriptElement = document.createElement('script')
+                    scriptElement.async = false
+                    scriptElement.src = popupSmartUrl
 
-                document.querySelector('body').appendChild(scriptElement)
+                    document.querySelector('body').appendChild(scriptElement)
 
-                scriptRef.current = scriptElement
+                    scriptRef.current = scriptElement
+                }
+
+            } else {
+                cookie.remove('roleName')
             }
-
-        } else {
-            cookie.remove('roleName')
         }
     }, [role, userIsNotStaff, popupSmartUrl])
 
