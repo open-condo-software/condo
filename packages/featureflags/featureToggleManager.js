@@ -53,11 +53,14 @@ class FeatureToggleManager {
         }
     }
 
-    async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
-        const context = get(keystoneContext, 'req', null)
+    async #getContext (keystoneContext) {
+        return get(keystoneContext, 'req', null)
             ? keystoneContext
             : { req: { features: await this.fetchFeatures() } }
+    }
 
+    async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
+        const context = this.#getContext(keystoneContext)
         const request = context.req
         const headersFeatureFlags = get(request, ['headers', 'feature-flags'])
 
@@ -71,6 +74,22 @@ class FeatureToggleManager {
         if (featuresContext) growthbook.setAttributes(featuresContext)
 
         return growthbook.isOn(featureName)
+    }
+
+    async getFeatureValue (keystoneContext, featureName, defaultValue, featuresContext) {
+        const context = this.#getContext(keystoneContext)
+        const request = context.req
+
+        // Here it will stop under tests
+        if (conf.NODE_ENV === 'test') return defaultValue
+
+        const growthbook = new GrowthBook()
+
+        growthbook.setFeatures(request.features)
+
+        if (featuresContext) growthbook.setAttributes(featuresContext)
+
+        return growthbook.getFeatureValue(featureName, defaultValue)
     }
 }
 
