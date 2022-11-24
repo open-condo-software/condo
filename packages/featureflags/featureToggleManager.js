@@ -60,7 +60,7 @@ class FeatureToggleManager {
     }
 
     async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
-        const context = this.#getContext(keystoneContext)
+        const context = await this.#getContext(keystoneContext)
         const request = context.req
         const headersFeatureFlags = get(request, ['headers', 'feature-flags'])
 
@@ -77,7 +77,7 @@ class FeatureToggleManager {
     }
 
     async getFeatureValue (keystoneContext, featureName, defaultValue, featuresContext) {
-        const context = this.#getContext(keystoneContext)
+        const context = await this.#getContext(keystoneContext)
         const request = context.req
 
         // Here it will stop under tests
