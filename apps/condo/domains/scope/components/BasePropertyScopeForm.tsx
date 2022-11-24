@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import {
@@ -21,7 +22,6 @@ import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components
 import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
-import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
 import { convertEmployeesToOptions } from '@condo/domains/scope/utils/clientSchema/utils'
 
 import { FormHintAlert } from './FormHintAlert'

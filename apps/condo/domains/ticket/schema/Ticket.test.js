@@ -59,9 +59,8 @@ const {
     NEW_OR_REOPENED_STATUS_TYPE,
     DEFAULT_DEFERRED_DAYS,
 } = require('@condo/domains/ticket/constants')
-const { Organization } = require('../../organization/utils/testSchema')
 const { createTestPropertyScope, createTestPropertyScopeOrganizationEmployee, createTestPropertyScopeProperty } = require('@condo/domains/scope/utils/testSchema')
-const { PROPERTY_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 
 describe('Ticket', () => {
     describe('CRUD', () => {

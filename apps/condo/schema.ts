@@ -14914,422 +14914,6 @@ export type DisconnectUserFromRemoteClientOutput = {
   status: Scalars['String'];
 };
 
-/**  Grouping of properties and employees with one single responsible person  */
-export type Division = {
-  __typename?: 'Division';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the Division List config, or
-   *  2. As an alias to the field set on 'labelField' in the Division List config, or
-   *  3. As an alias to a 'name' field on the Division List (if one exists), or
-   *  4. As an alias to the 'id' field on the Division List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  Display name of this division  */
-  name?: Maybe<Scalars['String']>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
-  organization?: Maybe<Organization>;
-  /**  Person, responsible for this division  */
-  responsible?: Maybe<OrganizationEmployee>;
-  /**  Properties in service by this division  */
-  properties: Array<Property>;
-  _propertiesMeta?: Maybe<_QueryMeta>;
-  /**  Employees, that will be assigned as executors to all corresponding tickets  */
-  executors: Array<OrganizationEmployee>;
-  _executorsMeta?: Maybe<_QueryMeta>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-};
-
-
-/**  Grouping of properties and employees with one single responsible person  */
-export type DivisionPropertiesArgs = {
-  where?: Maybe<PropertyWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Grouping of properties and employees with one single responsible person  */
-export type Division_PropertiesMetaArgs = {
-  where?: Maybe<PropertyWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortPropertiesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Grouping of properties and employees with one single responsible person  */
-export type DivisionExecutorsArgs = {
-  where?: Maybe<OrganizationEmployeeWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationEmployeesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  Grouping of properties and employees with one single responsible person  */
-export type Division_ExecutorsMetaArgs = {
-  where?: Maybe<OrganizationEmployeeWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortOrganizationEmployeesBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-export type DivisionCreateInput = {
-  name?: Maybe<Scalars['String']>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
-  properties?: Maybe<PropertyRelateToManyInput>;
-  executors?: Maybe<OrganizationEmployeeRelateToManyInput>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-/**  A keystone list  */
-export type DivisionHistoryRecord = {
-  __typename?: 'DivisionHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the DivisionHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the DivisionHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the DivisionHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the DivisionHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  responsible?: Maybe<Scalars['String']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<DivisionHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type DivisionHistoryRecordCreateInput = {
-  name?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  responsible?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<DivisionHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum DivisionHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
-}
-
-export type DivisionHistoryRecordUpdateInput = {
-  name?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  responsible?: Maybe<Scalars['String']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<DivisionHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type DivisionHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<DivisionHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<DivisionHistoryRecordWhereInput>>>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  responsible?: Maybe<Scalars['String']>;
-  responsible_not?: Maybe<Scalars['String']>;
-  responsible_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  responsible_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<DivisionHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<DivisionHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<DivisionHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<DivisionHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type DivisionHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type DivisionHistoryRecordsCreateInput = {
-  data?: Maybe<DivisionHistoryRecordCreateInput>;
-};
-
-export type DivisionHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<DivisionHistoryRecordUpdateInput>;
-};
-
-export type DivisionUpdateInput = {
-  name?: Maybe<Scalars['String']>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  responsible?: Maybe<OrganizationEmployeeRelateToOneInput>;
-  properties?: Maybe<PropertyRelateToManyInput>;
-  executors?: Maybe<OrganizationEmployeeRelateToManyInput>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type DivisionWhereInput = {
-  AND?: Maybe<Array<Maybe<DivisionWhereInput>>>;
-  OR?: Maybe<Array<Maybe<DivisionWhereInput>>>;
-  name?: Maybe<Scalars['String']>;
-  name_not?: Maybe<Scalars['String']>;
-  name_contains?: Maybe<Scalars['String']>;
-  name_not_contains?: Maybe<Scalars['String']>;
-  name_starts_with?: Maybe<Scalars['String']>;
-  name_not_starts_with?: Maybe<Scalars['String']>;
-  name_ends_with?: Maybe<Scalars['String']>;
-  name_not_ends_with?: Maybe<Scalars['String']>;
-  name_i?: Maybe<Scalars['String']>;
-  name_not_i?: Maybe<Scalars['String']>;
-  name_contains_i?: Maybe<Scalars['String']>;
-  name_not_contains_i?: Maybe<Scalars['String']>;
-  name_starts_with_i?: Maybe<Scalars['String']>;
-  name_not_starts_with_i?: Maybe<Scalars['String']>;
-  name_ends_with_i?: Maybe<Scalars['String']>;
-  name_not_ends_with_i?: Maybe<Scalars['String']>;
-  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
-  responsible?: Maybe<OrganizationEmployeeWhereInput>;
-  responsible_is_null?: Maybe<Scalars['Boolean']>;
-  /**  condition must be true for all nodes  */
-  properties_every?: Maybe<PropertyWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  properties_some?: Maybe<PropertyWhereInput>;
-  /**  condition must be false for all nodes  */
-  properties_none?: Maybe<PropertyWhereInput>;
-  /**  condition must be true for all nodes  */
-  executors_every?: Maybe<OrganizationEmployeeWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  executors_some?: Maybe<OrganizationEmployeeWhereInput>;
-  /**  condition must be false for all nodes  */
-  executors_none?: Maybe<OrganizationEmployeeWhereInput>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-};
-
-export type DivisionWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type DivisionsCreateInput = {
-  data?: Maybe<DivisionCreateInput>;
-};
-
-export type DivisionsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<DivisionUpdateInput>;
-};
-
 export type ExportContactsToExcelInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -16348,7 +15932,8 @@ export type InviteNewOrganizationEmployeeInput = {
   name?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleWhereUniqueInput>;
   position?: Maybe<Scalars['String']>;
-  specializations?: Maybe<TicketCategoryClassifierRelateToManyInput>;
+  specializations?: Maybe<Array<Maybe<TicketCategoryClassifierWhereUniqueInput>>>;
+  hasAllSpecializations?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -22920,30 +22505,6 @@ export type Mutation = {
   deleteOnBoardingStep?: Maybe<OnBoardingStep>;
   /**  Delete multiple OnBoardingStep items by ID.  */
   deleteOnBoardingSteps?: Maybe<Array<Maybe<OnBoardingStep>>>;
-  /**  Create a single DivisionHistoryRecord item.  */
-  createDivisionHistoryRecord?: Maybe<DivisionHistoryRecord>;
-  /**  Create multiple DivisionHistoryRecord items.  */
-  createDivisionHistoryRecords?: Maybe<Array<Maybe<DivisionHistoryRecord>>>;
-  /**  Update a single DivisionHistoryRecord item by ID.  */
-  updateDivisionHistoryRecord?: Maybe<DivisionHistoryRecord>;
-  /**  Update multiple DivisionHistoryRecord items by ID.  */
-  updateDivisionHistoryRecords?: Maybe<Array<Maybe<DivisionHistoryRecord>>>;
-  /**  Delete a single DivisionHistoryRecord item by ID.  */
-  deleteDivisionHistoryRecord?: Maybe<DivisionHistoryRecord>;
-  /**  Delete multiple DivisionHistoryRecord items by ID.  */
-  deleteDivisionHistoryRecords?: Maybe<Array<Maybe<DivisionHistoryRecord>>>;
-  /**  Create a single Division item.  */
-  createDivision?: Maybe<Division>;
-  /**  Create multiple Division items.  */
-  createDivisions?: Maybe<Array<Maybe<Division>>>;
-  /**  Update a single Division item by ID.  */
-  updateDivision?: Maybe<Division>;
-  /**  Update multiple Division items by ID.  */
-  updateDivisions?: Maybe<Array<Maybe<Division>>>;
-  /**  Delete a single Division item by ID.  */
-  deleteDivision?: Maybe<Division>;
-  /**  Delete multiple Division items by ID.  */
-  deleteDivisions?: Maybe<Array<Maybe<Division>>>;
   /**  Create a single MeterResourceHistoryRecord item.  */
   createMeterResourceHistoryRecord?: Maybe<MeterResourceHistoryRecord>;
   /**  Create multiple MeterResourceHistoryRecord items.  */
@@ -28477,68 +28038,6 @@ export type MutationDeleteOnBoardingStepsArgs = {
 };
 
 
-export type MutationCreateDivisionHistoryRecordArgs = {
-  data?: Maybe<DivisionHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateDivisionHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<DivisionHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateDivisionHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<DivisionHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateDivisionHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<DivisionHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteDivisionHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteDivisionHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateDivisionArgs = {
-  data?: Maybe<DivisionCreateInput>;
-};
-
-
-export type MutationCreateDivisionsArgs = {
-  data?: Maybe<Array<Maybe<DivisionsCreateInput>>>;
-};
-
-
-export type MutationUpdateDivisionArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<DivisionUpdateInput>;
-};
-
-
-export type MutationUpdateDivisionsArgs = {
-  data?: Maybe<Array<Maybe<DivisionsUpdateInput>>>;
-};
-
-
-export type MutationDeleteDivisionArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteDivisionsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
 export type MutationCreateMeterResourceHistoryRecordArgs = {
   data?: Maybe<MeterResourceHistoryRecordCreateInput>;
 };
@@ -31925,9 +31424,6 @@ export type OrganizationEmployee = {
   role?: Maybe<OrganizationEmployeeRole>;
   /**  Free-form description of the employee's position  */
   position?: Maybe<Scalars['String']>;
-  /**  List of work categories, that this employee can perform  */
-  specializations: Array<TicketCategoryClassifier>;
-  _specializationsMeta?: Maybe<_QueryMeta>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   /**  Employee is blocked status, used in permissions functions, isBlocked has Free-form description of the employee's position over all permissions  */
@@ -31950,28 +31446,6 @@ export type OrganizationEmployee = {
   sender?: Maybe<SenderField>;
 };
 
-
-/**  B2B customer employees  */
-export type OrganizationEmployeeSpecializationsArgs = {
-  where?: Maybe<TicketCategoryClassifierWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketCategoryClassifiersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-/**  B2B customer employees  */
-export type OrganizationEmployee_SpecializationsMetaArgs = {
-  where?: Maybe<TicketCategoryClassifierWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortTicketCategoryClassifiersBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
 export type OrganizationEmployeeCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
   user?: Maybe<UserRelateToOneInput>;
@@ -31981,7 +31455,6 @@ export type OrganizationEmployeeCreateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   position?: Maybe<Scalars['String']>;
-  specializations?: Maybe<TicketCategoryClassifierRelateToManyInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
@@ -32338,6 +31811,15 @@ export type OrganizationEmployeeRole = {
   /**  Allows employees with this role to be assigned to tickets as executor  */
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  /**
+   *  Which tickets the employee sees:
+   * 1) organization - sees all tickets in the organization.
+   * 2) property - Sees tickets in PropertyScope that have this employee
+   * 3) propertyAndSpecialization - Sees tickets by employee specialization + PropertyScope
+   * 4) assigned - sees only those tickets in which he is the executor or responsible
+   */
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -32375,6 +31857,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -32418,6 +31902,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -32455,6 +31941,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -32497,6 +31985,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -32593,6 +32083,26 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints_not?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not?: Maybe<Scalars['String']>;
+  ticketVisibilityType_contains?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_contains?: Maybe<Scalars['String']>;
+  ticketVisibilityType_starts_with?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_starts_with?: Maybe<Scalars['String']>;
+  ticketVisibilityType_ends_with?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_ends_with?: Maybe<Scalars['String']>;
+  ticketVisibilityType_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_contains_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_contains_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_starts_with_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_starts_with_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_ends_with_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not_ends_with_i?: Maybe<Scalars['String']>;
+  ticketVisibilityType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketVisibilityType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -32703,6 +32213,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -32790,6 +32302,12 @@ export type OrganizationEmployeeRoleWhereInput = {
   canBeAssignedAsExecutor_not?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints_not?: Maybe<Scalars['Boolean']>;
+  ticketVisibilityType?: Maybe<Scalars['String']>;
+  ticketVisibilityType_not?: Maybe<Scalars['String']>;
+  ticketVisibilityType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketVisibilityType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
@@ -33166,7 +32684,6 @@ export type OrganizationEmployeeUpdateInput = {
   phone?: Maybe<Scalars['String']>;
   role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
   position?: Maybe<Scalars['String']>;
-  specializations?: Maybe<TicketCategoryClassifierRelateToManyInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
   isBlocked?: Maybe<Scalars['Boolean']>;
@@ -33267,12 +32784,6 @@ export type OrganizationEmployeeWhereInput = {
   position_not_ends_with_i?: Maybe<Scalars['String']>;
   position_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   position_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  /**  condition must be true for all nodes  */
-  specializations_every?: Maybe<TicketCategoryClassifierWhereInput>;
-  /**  condition must be true for at least 1 node  */
-  specializations_some?: Maybe<TicketCategoryClassifierWhereInput>;
-  /**  condition must be false for all nodes  */
-  specializations_none?: Maybe<TicketCategoryClassifierWhereInput>;
   isAccepted?: Maybe<Scalars['Boolean']>;
   isAccepted_not?: Maybe<Scalars['Boolean']>;
   isRejected?: Maybe<Scalars['Boolean']>;
@@ -35829,13 +35340,6 @@ export type PropertyHistoryRecordsUpdateInput = {
 
 export type PropertyMap = BuildingMap | VillageMap;
 
-export type PropertyRelateToManyInput = {
-  create?: Maybe<Array<Maybe<PropertyCreateInput>>>;
-  connect?: Maybe<Array<Maybe<PropertyWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<PropertyWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export type PropertyRelateToOneInput = {
   create?: Maybe<PropertyCreateInput>;
   connect?: Maybe<PropertyWhereUniqueInput>;
@@ -37902,22 +37406,6 @@ export type Query = {
   _allOnBoardingStepsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the OnBoardingStep list.  */
   _OnBoardingStepsMeta?: Maybe<_ListMeta>;
-  /**  Search for all DivisionHistoryRecord items which match the where clause.  */
-  allDivisionHistoryRecords?: Maybe<Array<Maybe<DivisionHistoryRecord>>>;
-  /**  Search for the DivisionHistoryRecord item with the matching ID.  */
-  DivisionHistoryRecord?: Maybe<DivisionHistoryRecord>;
-  /**  Perform a meta-query on all DivisionHistoryRecord items which match the where clause.  */
-  _allDivisionHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the DivisionHistoryRecord list.  */
-  _DivisionHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all Division items which match the where clause.  */
-  allDivisions?: Maybe<Array<Maybe<Division>>>;
-  /**  Search for the Division item with the matching ID.  */
-  Division?: Maybe<Division>;
-  /**  Perform a meta-query on all Division items which match the where clause.  */
-  _allDivisionsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the Division list.  */
-  _DivisionsMeta?: Maybe<_ListMeta>;
   /**  Search for all MeterResourceHistoryRecord items which match the where clause.  */
   allMeterResourceHistoryRecords?: Maybe<Array<Maybe<MeterResourceHistoryRecord>>>;
   /**  Search for the MeterResourceHistoryRecord item with the matching ID.  */
@@ -41170,56 +40658,6 @@ export type Query_AllOnBoardingStepsMetaArgs = {
   where?: Maybe<OnBoardingStepWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortOnBoardingStepsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllDivisionHistoryRecordsArgs = {
-  where?: Maybe<DivisionHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDivisionHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryDivisionHistoryRecordArgs = {
-  where: DivisionHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllDivisionHistoryRecordsMetaArgs = {
-  where?: Maybe<DivisionHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDivisionHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllDivisionsArgs = {
-  where?: Maybe<DivisionWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDivisionsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryDivisionArgs = {
-  where: DivisionWhereUniqueInput;
-};
-
-
-export type Query_AllDivisionsMetaArgs = {
-  where?: Maybe<DivisionWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortDivisionsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -47516,56 +46954,6 @@ export enum SortContactsBy {
   DvDesc = 'dv_DESC'
 }
 
-export enum SortDivisionHistoryRecordsBy {
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortDivisionsBy {
-  NameAsc = 'name_ASC',
-  NameDesc = 'name_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
-  ResponsibleAsc = 'responsible_ASC',
-  ResponsibleDesc = 'responsible_DESC',
-  PropertiesAsc = 'properties_ASC',
-  PropertiesDesc = 'properties_DESC',
-  ExecutorsAsc = 'executors_ASC',
-  ExecutorsDesc = 'executors_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
-}
-
 export enum SortExternalReportHistoryRecordsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
@@ -48586,6 +47974,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
   CanManageTicketPropertyHintsAsc = 'canManageTicketPropertyHints_ASC',
   CanManageTicketPropertyHintsDesc = 'canManageTicketPropertyHints_DESC',
+  TicketVisibilityTypeAsc = 'ticketVisibilityType_ASC',
+  TicketVisibilityTypeDesc = 'ticketVisibilityType_DESC',
+  CanManagePropertyScopesAsc = 'canManagePropertyScopes_ASC',
+  CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   IdAsc = 'id_ASC',
@@ -48647,6 +48039,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanBeAssignedAsExecutorDesc = 'canBeAssignedAsExecutor_DESC',
   CanManageTicketPropertyHintsAsc = 'canManageTicketPropertyHints_ASC',
   CanManageTicketPropertyHintsDesc = 'canManageTicketPropertyHints_DESC',
+  TicketVisibilityTypeAsc = 'ticketVisibilityType_ASC',
+  TicketVisibilityTypeDesc = 'ticketVisibilityType_DESC',
+  CanManagePropertyScopesAsc = 'canManagePropertyScopes_ASC',
+  CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   IdAsc = 'id_ASC',
@@ -48724,8 +48120,6 @@ export enum SortOrganizationEmployeesBy {
   RoleDesc = 'role_DESC',
   PositionAsc = 'position_ASC',
   PositionDesc = 'position_DESC',
-  SpecializationsAsc = 'specializations_ASC',
-  SpecializationsDesc = 'specializations_DESC',
   IsAcceptedAsc = 'isAccepted_ASC',
   IsAcceptedDesc = 'isAccepted_DESC',
   IsRejectedAsc = 'isRejected_ASC',
@@ -51282,13 +50676,6 @@ export type TicketCategoryClassifierHistoryRecordsCreateInput = {
 export type TicketCategoryClassifierHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketCategoryClassifierHistoryRecordUpdateInput>;
-};
-
-export type TicketCategoryClassifierRelateToManyInput = {
-  create?: Maybe<Array<Maybe<TicketCategoryClassifierCreateInput>>>;
-  connect?: Maybe<Array<Maybe<TicketCategoryClassifierWhereUniqueInput>>>;
-  disconnect?: Maybe<Array<Maybe<TicketCategoryClassifierWhereUniqueInput>>>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
 export type TicketCategoryClassifierRelateToOneInput = {

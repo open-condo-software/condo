@@ -2,9 +2,9 @@ import React, { useCallback, useEffect } from 'react'
 import Router from 'next/router'
 import { notification } from 'antd'
 import { useIntl } from '@open-condo/next/intl'
+import { usePrevious } from '@open-condo/codegen/utils/usePrevious'
 import { Button } from '@condo/domains/common/components/Button'
 import { useCurrentBuild } from './useCurrentBuild'
-import { usePrevious } from './usePrevious'
 
 /**
  * Periodically fetch information about build and compare it with previous value
