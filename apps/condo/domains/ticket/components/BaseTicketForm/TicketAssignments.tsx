@@ -176,12 +176,12 @@ const TicketAssignments = ({
 
     return (
         <Col span={24}>
-            <Row gutter={[0, 8]}>
+            <Row gutter={[0, 24]}>
                 <Col span={24}>
                     <Typography.Title level={3}>{TicketAssignmentTitle}</Typography.Title>
                 </Col>
                 <Col span={isSmall ? 24 : 18}>
-                    <Row justify='space-between'>
+                    <Row justify='space-between' gutter={[0, 12]}>
                         {
                             autoAssign && !loading && propertyId && categoryClassifier && (
                                 <AutoAssigner

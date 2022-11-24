@@ -51,7 +51,6 @@ import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFun
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
-import { PropertyScope, PropertyScopeOrganizationEmployee, PropertyScopeProperty } from '@condo/domains/scope/utils/clientSchema'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
