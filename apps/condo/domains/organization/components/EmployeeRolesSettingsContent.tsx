@@ -1,19 +1,27 @@
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useOrganization } from '@open-condo/next/organization'
-import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import { TableComponents } from 'rc-table/lib/interface'
 import React, { useMemo } from 'react'
+import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
-import { useEmployeeRolesTableColumns } from '../hooks/useEmployeeRolesTableColumns'
-import { OrganizationEmployeeRole } from '../utils/clientSchema'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { DEFAULT_PAGE_SIZE, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useEmployeeRolesTableColumns } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
+import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
 const StyledTable = styled(Table)`
   .ant-table-cell-ellipsis {
     white-space: inherit;
+  }
+  
+  .ant-table-cell-row-hover {
+    background-color: inherit !important;
+    cursor: not-allowed;
   }
 `
 
@@ -22,12 +30,13 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 export const EmployeeRolesSettingsContent = () => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
+    const EditProhibitedMessage = intl.formatMessage({ id: 'EditProhibited' })
 
     const router = useRouter()
     const { offset } = parseQuery(router.query)
 
     const userOrganization = useOrganization()
-    const userOrganizationId = useMemo(() => get(userOrganization, ['organization', 'id']), [])
+    const userOrganizationId = useMemo(() => get(userOrganization, ['organization', 'id']), [userOrganization])
 
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
@@ -43,6 +52,16 @@ export const EmployeeRolesSettingsContent = () => {
 
     const tableColumns = useEmployeeRolesTableColumns([])
 
+    const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
+        body: {
+            row: (props) => (
+                <Tooltip showArrow title={EditProhibitedMessage}>
+                    <tr {...props} />
+                </Tooltip>
+            ),
+        },
+    }), [EditProhibitedMessage])
+
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
@@ -55,6 +74,7 @@ export const EmployeeRolesSettingsContent = () => {
                     dataSource={roles}
                     columns={tableColumns}
                     data-cy='employeeRoles__table'
+                    components={tableComponents}
                 />
             </Col>
         </Row>

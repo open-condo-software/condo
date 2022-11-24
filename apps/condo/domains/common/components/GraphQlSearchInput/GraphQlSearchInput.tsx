@@ -240,9 +240,9 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     }, [isSearchLoading, throttledSearchMore, searchValue, searchData.length, allData.length])
 
     useEffect(() => {
-        searchMoreSuggestions('', 0)
         loadInitialOptions()
             .catch(err => console.error('failed to load initial options', err))
+            .finally(() => searchMoreSuggestions('', 0))
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

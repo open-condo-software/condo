@@ -3,7 +3,7 @@ import { jsx } from '@emotion/react'
 import { Col, Form, Row, Space } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useApolloClient } from '@open-condo/next/apollo'
 import { Button } from '@condo/domains/common/components/Button'
@@ -63,7 +63,8 @@ export const UpdateEmployeeForm = () => {
     })
     const createOrganizationEmployeeSpecializationAction = OrganizationEmployeeSpecialization.useCreate({})
     const updateOrganizationEmployeeSpecializationAction = OrganizationEmployeeSpecialization.useUpdate({})
-    const initialSpecializations = organizationEmployeeSpecializations.map(scope => scope.specialization)
+    const initialSpecializations = useMemo(() => organizationEmployeeSpecializations.map(scope => scope.specialization),
+        [organizationEmployeeSpecializations])
 
     const { emailValidator } = useValidations()
     const validations: { [key: string]: Rule[] } = {
@@ -86,13 +87,13 @@ export const UpdateEmployeeForm = () => {
         return () => classifiersLoader.clear()
     }, [])
 
-    const initialValues = {
+    const initialValues = useMemo(() => ({
         role: get(employee, ['role', 'id']),
         position: get(employee, 'position'),
         email: get(employee, 'email'),
         specializations: initialSpecializations.map(spec => spec.id),
         hasAllSpecializations: get(employee, 'hasAllSpecializations'),
-    }
+    }), [employee, initialSpecializations])
 
     const formAction = useCallback(async (formValues) => {
         const { specializations, ...updateEmployeeFormValues } = formValues
@@ -269,8 +270,3 @@ export const UpdateEmployeeForm = () => {
         </FormWithAction>
     )
 }
-
-function useMemo (arg0: () => { labelCol: { span: number }; wrapperCol: { span: number }; name: string; label: any; validateFirst: boolean }, arg1: any[]) {
-    throw new Error('Function not implemented.')
-}
-

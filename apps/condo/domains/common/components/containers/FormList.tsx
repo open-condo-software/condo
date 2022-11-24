@@ -23,8 +23,9 @@ import { ArgsProps } from 'antd/lib/notification'
 import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useMutation } from '@open-condo/next/apollo'
-import { throttle } from 'lodash'
+import { isUndefined, throttle } from 'lodash'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { colors } from '@condo/domains/common/constants/style'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
@@ -75,6 +76,10 @@ const SListActionsUl = styled.ul`
   > li {
     margin: 0;
   }
+`
+
+const StyledDescription = styled(Typography.Text)`
+    color: ${colors.textSecondary};
 `
 
 function FormList ({ dataSource, renderItem, ...extra }) {
@@ -247,6 +252,8 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
 const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const intl = useIntl()
     const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
+    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
+    const ChangesSavedMsg = intl.formatMessage({ id: 'ChangesSaved' })
 
     const {
         action,
@@ -283,6 +290,19 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     if (!action && mutation) {
         [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
     }
+
+    const getCompletedNotification = useCallback(() => ({
+        message: (
+            <Typography.Text strong>
+                {DoneMsg}
+            </Typography.Text>
+        ),
+        description: (
+            <StyledDescription>
+                {ChangesSavedMsg}
+            </StyledDescription>
+        ),
+    }), [DoneMsg])
 
     const _handleSubmit = useCallback((values) => {
         if (handleSubmit) {
@@ -337,7 +357,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             form,
             ErrorToFormFieldMsgMapping,
             OnErrorMsg,
-            OnCompletedMsg,
+            OnCompletedMsg: isUndefined(OnCompletedMsg) ? getCompletedNotification : OnCompletedMsg,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [action])

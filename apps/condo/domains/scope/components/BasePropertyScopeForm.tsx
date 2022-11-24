@@ -150,7 +150,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
 
     const renderEmployees = useCallback((options, renderOption) => {
         const employees = options.map(option => option.employee)
-        const specializations = get(options, [0, 'specializations'], [])
+        const specializations = get(options, [employees.length - 1, 'specializations'], [])
 
         return convertEmployeesToOptions(intl, renderOption, employees, specializations, 'id')
     }, [intl])
