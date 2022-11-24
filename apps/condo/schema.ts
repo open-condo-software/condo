@@ -31031,6 +31031,7 @@ export type OrganizationEmployeeRole = {
   /**  Limits the visibility of entities (such as ticket or meter/meterReading) to division  */
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -31069,6 +31070,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31113,6 +31115,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -31151,6 +31154,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31194,6 +31198,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31293,6 +31298,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints_not?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -31403,6 +31410,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canBeAssignedAsExecutor?: Maybe<Scalars['Boolean']>;
   canReadEntitiesOnlyInScopeOfDivision?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31493,6 +31501,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadEntitiesOnlyInScopeOfDivision_not?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   canManageTicketPropertyHints_not?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -45533,6 +45543,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
   CanManageTicketPropertyHintsAsc = 'canManageTicketPropertyHints_ASC',
   CanManageTicketPropertyHintsDesc = 'canManageTicketPropertyHints_DESC',
+  CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
+  CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45596,6 +45608,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadEntitiesOnlyInScopeOfDivisionDesc = 'canReadEntitiesOnlyInScopeOfDivision_DESC',
   CanManageTicketPropertyHintsAsc = 'canManageTicketPropertyHints_ASC',
   CanManageTicketPropertyHintsDesc = 'canManageTicketPropertyHints_DESC',
+  CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
+  CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

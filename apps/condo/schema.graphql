@@ -3631,6 +3631,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canBeAssignedAsExecutor: Boolean
   canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  canManageBankContractorAccounts: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3731,6 +3732,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadEntitiesOnlyInScopeOfDivision_not: Boolean
   canManageTicketPropertyHints: Boolean
   canManageTicketPropertyHints_not: Boolean
+  canManageBankContractorAccounts: Boolean
+  canManageBankContractorAccounts_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3846,6 +3849,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadEntitiesOnlyInScopeOfDivision_DESC
   canManageTicketPropertyHints_ASC
   canManageTicketPropertyHints_DESC
+  canManageBankContractorAccounts_ASC
+  canManageBankContractorAccounts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3887,6 +3892,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canBeAssignedAsExecutor: Boolean
   canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3929,6 +3935,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canBeAssignedAsExecutor: Boolean
   canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3995,6 +4002,7 @@ type OrganizationEmployeeRole {
   """
   canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  canManageBankContractorAccounts: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4097,6 +4105,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadEntitiesOnlyInScopeOfDivision_not: Boolean
   canManageTicketPropertyHints: Boolean
   canManageTicketPropertyHints_not: Boolean
+  canManageBankContractorAccounts: Boolean
+  canManageBankContractorAccounts_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4194,6 +4204,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadEntitiesOnlyInScopeOfDivision_DESC
   canManageTicketPropertyHints_ASC
   canManageTicketPropertyHints_DESC
+  canManageBankContractorAccounts_ASC
+  canManageBankContractorAccounts_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4234,6 +4246,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canBeAssignedAsExecutor: Boolean
   canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4272,6 +4285,7 @@ input OrganizationEmployeeRoleCreateInput {
   canBeAssignedAsExecutor: Boolean
   canReadEntitiesOnlyInScopeOfDivision: Boolean
   canManageTicketPropertyHints: Boolean
+  canManageBankContractorAccounts: Boolean
   v: Int
   createdAt: String
   updatedAt: String
