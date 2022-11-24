@@ -669,6 +669,10 @@ interface IPropertyMapUnitProps {
 }
 
 const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit }) => {
+    console.log('duplicatedUnitIds', builder.duplicatedUnits)
+    const duplicatedUnitIds = useMemo(() => {
+        return builder.duplicatedUnits
+    }, [builder, refresh])
     const selectUnit = useCallback(() => {
         if (unit.unitType !== BuildingUnitSubType.Parking) {
             builder.removePreviewUnit()
@@ -688,6 +692,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
         <UnitButton
             onClick={selectUnit}
             disabled={unit.preview}
+            duplicatedUnitIds={duplicatedUnitIds}
             preview={unit.preview}
             selected={isUnitSelected}
             unitType={unit.unitType}
