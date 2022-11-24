@@ -3,7 +3,7 @@ import {
     FilterType,
     getDecimalFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { BillingCategory, BillingReceipt } from '../../../schema'
+import { BillingCategory, BillingReceipt } from '@app/condo/schema'
 
 
 export const getDecimalMoneyFilter = (dataIndex: DataIndexType, separator: string): FilterType => {

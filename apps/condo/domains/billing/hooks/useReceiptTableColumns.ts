@@ -5,8 +5,8 @@ import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/comp
 import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
-import { FiltersMeta, getFilterDropdownByKey } from '../../common/utils/filters.utils'
-import { getFilteredValue } from '../../common/utils/helpers'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { IFilters } from '../utils/helpers'
 
 export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, detailed: boolean, currencyCode: string) => {
