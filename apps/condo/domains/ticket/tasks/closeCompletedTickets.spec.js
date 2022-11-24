@@ -15,7 +15,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
-const { closeCompletedTicketsWithLimitByOrganizations } = require('./closeCompletedTickets')
+const { closeCompletedTickets } = require('./closeCompletedTickets')
 
 const index = require('@app/condo/index')
 
@@ -55,7 +55,7 @@ describe('closeCompletedTickets', () => {
                 statusUpdatedAt: dayjs().subtract(2, 'weeks').toISOString(),
             })
 
-            await closeCompletedTicketsWithLimitByOrganizations()
+            await closeCompletedTickets()
 
             const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
@@ -79,7 +79,7 @@ describe('closeCompletedTickets', () => {
                 statusUpdatedAt: dayjs().subtract(2, 'weeks').toISOString(),
             })
 
-            await closeCompletedTicketsWithLimitByOrganizations(1)
+            await closeCompletedTickets(1)
 
             const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
             const updatedTicket2 = await Ticket.getOne(admin, { id: ticket2.id })
@@ -102,7 +102,7 @@ describe('closeCompletedTickets', () => {
                 statusUpdatedAt: dayjs().subtract(2, 'weeks').toISOString(),
             })
 
-            await closeCompletedTicketsWithLimitByOrganizations(1, ticket2.id)
+            await closeCompletedTickets(1)
 
             const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
             const updatedTicket2 = await Ticket.getOne(admin, { id: ticket2.id })
@@ -116,8 +116,8 @@ describe('closeCompletedTickets', () => {
                 statusUpdatedAt: dayjs().subtract(2, 'weeks').toISOString(),
             })
 
-            await closeCompletedTicketsWithLimitByOrganizations(0)
-            await closeCompletedTicketsWithLimitByOrganizations(-100)
+            await closeCompletedTickets(0)
+            await closeCompletedTickets(-100)
 
             const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
@@ -129,7 +129,7 @@ describe('closeCompletedTickets', () => {
                 statusUpdatedAt: dayjs().subtract(2, 'days').toISOString(),
             })
 
-            await closeCompletedTicketsWithLimitByOrganizations()
+            await closeCompletedTickets()
 
             const updatedTicket = await Ticket.getOne(admin, { id: ticket.id })
 
