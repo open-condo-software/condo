@@ -8,27 +8,35 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-const { MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_TASK } = require('@condo/domains/common/constants/featureflags')
+const { MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK } = require('@condo/domains/common/constants/featureflags')
 
 const CHUNK_SIZE = 50
 
 const appLogger = getLogger('condo')
 const taskLogger = appLogger.child({ module: 'closeCompletedTickets' })
 
-// NOTE Mobile apps can take a long time to download a large number of updated tickets.
-// Therefore, you should limit updating tickets for each organization at one time if there are a lot of them.
-// With the help of the feature flag, you can manage this restriction.
-const closeCompletedTicketsWithLimitByOrganizations = async (limit = 100) => {
-    if (!isNumber(limit) || limit < 1) {
+/**
+ * Closes tickets that are in the "completed" status for 7 days
+ */
+const closeCompletedTickets = async (defaultLimit = 100) => {
+    const { keystone } = await getSchemaCtx('Ticket')
+    const context = await keystone.createContext()
+
+    // NOTE Mobile apps can take a long time to download a large number of updated tickets.
+    // Therefore, you should limit updating tickets for each organization at one time if there are a lot of them.
+    // With the help of the feature flag, you can manage this restriction.
+    const limitByOrganization = await featureToggleManager.getFeatureValue(
+        context, MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK, defaultLimit
+    )
+
+    if (!isNumber(limitByOrganization) || limitByOrganization < 1) {
         taskLogger.error({
             msg: 'Failed to start ticket closing because the limit was less than one or was not a number',
-            data: { limit },
+            data: { limit: limitByOrganization },
         })
         return
     }
 
-    const { keystone } = await getSchemaCtx('Ticket')
-    const context = await keystone.createContext()
     const weekAgo = dayjs().subtract('7', 'days').toISOString()
     const ticketWhere = {
         status: { id: STATUS_IDS.COMPLETED },
@@ -58,7 +66,7 @@ const closeCompletedTicketsWithLimitByOrganizations = async (limit = 100) => {
 
         for (const ticket of ticketsToChange) {
             const organizationId = get(ticket, 'organization.id', null)
-            if (countChangedTicketByOrganization[organizationId] && countChangedTicketByOrganization[organizationId] >= limit) {
+            if (countChangedTicketByOrganization[organizationId] && countChangedTicketByOrganization[organizationId] >= limitByOrganization) {
                 skippedTicket += 1
                 continue
             }
@@ -89,19 +97,7 @@ const closeCompletedTicketsWithLimitByOrganizations = async (limit = 100) => {
     }
 }
 
-/**
- * Closes tickets that are in the "completed" status for 7 days
- */
-const closeCompletedTickets = async () => {
-    const { keystone } = await getSchemaCtx('Ticket')
-    const context = await keystone.createContext()
-
-    // TODO (DOMA-4703) check feature flag
-    const maxTicketToChangeForOneOrganization = await featureToggleManager.isFeatureEnabled(context, MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_TASK)
-    await closeCompletedTicketsWithLimitByOrganizations(maxTicketToChangeForOneOrganization)
-}
-
 module.exports = {
     closeCompletedTicketsCron: createCronTask('closeCompletedTickets', '0 1 * * *', closeCompletedTickets),
-    closeCompletedTicketsWithLimitByOrganizations,
+    closeCompletedTickets,
 }

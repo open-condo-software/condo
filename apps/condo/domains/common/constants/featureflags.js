@@ -5,7 +5,7 @@ const SEND_METER_VERIFICATION_DATE_REMINDER_TASK = 'send-verification-date-remin
 const SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK = 'send-billing-receipts-notifications-task'
 const TICKET_IMPORT = 'ticket-import'
 const PAYMENT_LINK = 'payment-link'
-const MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_TASK = 'max-count-completed-ticket-to-close-task'
+const MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK = 'max-count-completed-ticket-to-close-for-organization-task'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -15,5 +15,5 @@ module.exports = {
     SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK,
     TICKET_IMPORT,
     PAYMENT_LINK,
-    MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_TASK,
+    MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK,
 }
