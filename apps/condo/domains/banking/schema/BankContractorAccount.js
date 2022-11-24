@@ -76,16 +76,6 @@ const BankContractorAccount = new GQLListSchema('BankContractorAccount', {
             type: Json,
         },
 
-        tinMeta: {
-            schemaDoc: 'Structured metadata found by tin',
-            type: Json,
-        },
-
-        routingNumberMeta: {
-            schemaDoc: 'Structured metadata found by routing number',
-            type: Json,
-        },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
