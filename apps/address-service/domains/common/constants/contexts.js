@@ -28,6 +28,11 @@ const suggestionContexts = {
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
+    suggestHouse: {
+        [DADATA_PROVIDER]: {
+            from_bound: { value: 'house' },
+        },
+    },
     userRuntime: {
         [DADATA_PROVIDER]: {
             from_bound: {

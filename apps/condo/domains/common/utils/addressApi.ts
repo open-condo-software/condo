@@ -8,9 +8,9 @@ type TSuggestion = AddressMetaField & {
 type SuggestionsResponse = Promise<{ suggestions: Array<TSuggestion> }>
 
 export interface IAddressApi {
-    getAddressMeta(address: string): AddressMetaField
+    getRawAddress(address: string): string
     getSuggestions(query: string): SuggestionsResponse
-    cacheAddressMeta(address: string, addressMeta: AddressMetaField): void
+    cacheRawAddress(address: string, rawValue: string): void
 }
 
 export class AddressApi implements IAddressApi {
@@ -19,7 +19,7 @@ export class AddressApi implements IAddressApi {
     }
 
     public getSuggestions (query: string): SuggestionsResponse {
-        return fetch(`${this.suggestionsUrl}?s=${query}`, {
+        return fetch(`${this.suggestionsUrl}?s=${query}&context=suggestHouse`, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
@@ -29,18 +29,18 @@ export class AddressApi implements IAddressApi {
             .then((suggestions) => ({ suggestions }))
     }
 
-    public getAddressMeta (address: string): AddressMetaField | undefined {
-        const addressMeta = this.addressMetaCache.get(address)
+    public getRawAddress (address: string): string | undefined {
+        const ret = this.rawAddressCache.get(address)
 
-        if (!addressMeta) {
+        if (!ret) {
             throw new Error('addressMetaError')
         }
 
-        return addressMeta
+        return ret
     }
 
-    public cacheAddressMeta (address: string, addressMeta: AddressMetaField): void {
-        this.addressMetaCache.set(address, addressMeta)
+    public cacheRawAddress (address: string, rawAddress: string): void {
+        this.rawAddressCache.set(address, rawAddress)
     }
 
     private setAddressSuggestionsConfig () {
@@ -51,5 +51,5 @@ export class AddressApi implements IAddressApi {
     }
 
     private suggestionsUrl: string
-    private addressMetaCache: Map<string, AddressMetaField> = new Map()
+    private rawAddressCache: Map<string, string> = new Map()
 }
