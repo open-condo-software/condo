@@ -26,14 +26,6 @@ const getFieldsToAdd = (fieldsHooks) => ({
             ...(fieldsHooks['address'] || {}),
         },
     },
-    addressSources: {
-        type: Json,
-        schemaDoc: 'The origins of the address (some strings which may looks like real address or some id)',
-        access: readOnlyAccess,
-        hooks: {
-            ...(fieldsHooks['addressSources'] || {}),
-        },
-    },
     addressKey: {
         type: Text,
         schemaDoc: 'The unique key of the address',
@@ -87,7 +79,6 @@ const addressService = (fieldsHooks = {}) => plugin(({
 
             const result = await client.search(get(resolvedData, ['addressMeta', 'rawValue'], resolvedData['address']))
 
-            resolvedData['addressSources'] = get(result, 'addressSources')
             resolvedData['address'] = get(result, 'address')
             resolvedData['addressKey'] = get(result, 'addressKey')
 

@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ADDRESS_FIELDS = `{ sources { id source } address key meta ${COMMON_FIELDS} }`
+const ADDRESS_FIELDS = `{ address key meta ${COMMON_FIELDS} }`
 const Address = generateGqlQueries('Address', ADDRESS_FIELDS)
 
 const ADDRESS_INJECTION_FIELDS = `{ country region area city cityDistrict settlement street house block keywords meta ${COMMON_FIELDS} }`

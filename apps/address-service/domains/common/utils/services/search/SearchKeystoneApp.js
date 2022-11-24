@@ -20,11 +20,10 @@ class SearchKeystoneApp {
     /**
      * Converts the `Address` model to service response
      * @param addressModel
-     * @returns {{addressSources, address, addressKey, addressMeta}}
+     * @returns {{ address: string, addressKey: string, addressMeta: NormalizedBuilding }}
      */
     createReturnObject (addressModel) {
         return {
-            addressSources: addressModel.sources.map(({ source }) => source),
             address: addressModel.address,
             addressKey: addressModel.key,
             addressMeta: addressModel.meta,

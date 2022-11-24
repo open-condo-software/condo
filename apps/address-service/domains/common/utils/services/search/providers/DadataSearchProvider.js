@@ -1,4 +1,4 @@
-const { AbstractSearchProvider } = require('@address-service/domains/common/utils/services/search/AbstractSearchProvider')
+const { AbstractSearchProvider } = require('./AbstractSearchProvider')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
 
