@@ -1,7 +1,6 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
-import { JSONValue } from '@growthbook/growthbook/src/types/growthbook'
 import isEqual from 'lodash/isEqual'
 import get from 'lodash/get'
 import { useAuth } from '@open-condo/next/auth'
@@ -9,9 +8,11 @@ import { useAuth } from '@open-condo/next/auth'
 const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
 
+type UseFlagValueType = <T>(name: string) => T | null
+
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
-    useFlagValue: <T extends JSONValue = any>(name: string) => T | null,
+    useFlagValue: UseFlagValueType,
     updateContext: (context) => void
 }
 
@@ -38,7 +39,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
         growthbook.setAttributes({ ...previousContext, ...context })
     }, [growthbook])
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
-    const useFlagValue = useCallback((id) => growthbook.feature(id).value, [growthbook])
+    const useFlagValue: UseFlagValueType = useCallback((id) => growthbook.feature(id).value, [growthbook])
 
     useEffect(() => {
         const fetchFeatures = () => {
