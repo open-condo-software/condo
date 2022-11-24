@@ -381,6 +381,7 @@ export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
 }
 
+
 export const categoryToSearchQuery = (search: string, translations: Record<string, string>) => {
     if (!search) return
     const searchLowerCase = search.toLowerCase()
@@ -391,6 +392,7 @@ export const categoryToSearchQuery = (search: string, translations: Record<strin
             && translations[key].toLowerCase().includes(searchLowerCase)
         )
     ) : []
+
     return {
         category: { 'OR': [
             { name_in: whereIn },

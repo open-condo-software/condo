@@ -20,7 +20,7 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
 import { ServicesModal } from '../ServicesModal'
-import { useReceiptTableFilters } from '../../hooks/useReceiptTableFilters'
+import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
 
 
 const SORTABLE_PROPERTIES = ['toPay']
@@ -42,7 +42,12 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const [search, handleSearchChange] = useSearch()
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const categorySearch = categoryToSearchQuery(search, intl.messages)
-    const filtersToPass = { OR:[ { ...filtersToWhere(filters) }, { ...categorySearch }] }
+    const filtersToPass = filtersToWhere(filters)
+
+    if ( filtersToPass.AND.length > 1 ){
+        filtersToPass.AND[1].OR ? categorySearch && filtersToPass.AND[1].OR.push(categorySearch) :
+            categorySearch ? filtersToPass.AND[1].OR = categorySearch : null
+    }
 
     const {
         loading,
