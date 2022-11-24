@@ -266,4 +266,47 @@ describe('BankContractorAccount', () => {
             })
         })
     })
+
+    describe('Permissions', () => {
+        describe('user', () => {
+            it('can connect to organization it is employed in and has permission "canManageBankContractorAccounts"', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageBankContractorAccounts: true,
+                })
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+                const [obj, attrs] = await createTestBankContractorAccount(userClient, organization)
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: userClient.user.id }))
+            })
+
+            it('cannot connect to organization it is employed in and does not have permission "canManageBankContractorAccounts"', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageBankContractorAccounts: false,
+                })
+                await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestBankContractorAccount(userClient, organization)
+                })
+            })
+
+            it('cannot connect to organization it is not employed in and has in another organization permission "canManageBankContractorAccounts"', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [anotherOrganization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, anotherOrganization, {
+                    canManageBankContractorAccounts: true,
+                })
+                await createTestOrganizationEmployee(admin, anotherOrganization, userClient.user, role)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestBankContractorAccount(userClient, organization)
+                })
+            })
+        })
+    })
 })
