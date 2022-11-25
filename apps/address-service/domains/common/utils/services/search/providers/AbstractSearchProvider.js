@@ -41,11 +41,7 @@ class AbstractSearchProvider {
     getContext (context = null) {
         return {
             ...get(searchContexts, ['default', this.getProviderName()], {}),
-            ...(
-                context
-                    ? get(searchContexts, [context, this.getProviderName()], {})
-                    : {}
-            ),
+            ...get(searchContexts, [context, this.getProviderName()], {}),
         }
     }
 
