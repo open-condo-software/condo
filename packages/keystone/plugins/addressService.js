@@ -34,7 +34,18 @@ const getFieldsToAdd = (fieldsHooks) => ({
             ...(fieldsHooks['addressKey'] || {}),
         },
     },
-    addressMeta: ADDRESS_META_FIELD,
+    addressMeta: {
+        ...ADDRESS_META_FIELD,
+        access: readOnlyAccess,
+    },
+    addressSources: {
+        type: Json,
+        schemaDoc: 'The origins of the address (some strings which may looks like real address or some id)',
+        access: readOnlyAccess,
+        hooks: {
+            ...(fieldsHooks['addressSources'] || {}),
+        },
+    },
 })
 
 /**
@@ -62,25 +73,37 @@ const addressService = (fieldsHooks = {}) => plugin(({
     // Modify hooks
     //
     const newResolveInput = async ({ resolvedData, operation, existingItem, originalInput, context }) => {
+        const existingAddressSources = get(existingItem, 'addressSources', [])
         // We will call to address service in the following cases:
         if (
-            // 1. In the case of new property/resident creation
-            (operation === 'create' && !resolvedData['addressKey'])
+            // In the case of new property/resident creation
+            (operation === 'create')
 
-            // 2. In the case of property/resident update and updating property/resident has no address key for some reason
-            || (operation === 'update' && !existingItem['addressKey'])
+            // In some update cases...
+            || (
+                operation === 'update' && (
+                    // ... When existing item has no address key (a database row was created before the address service was launched)
+                    !existingItem['addressKey']
 
-            // 3. In the case of update and if property/resident address has been changed
-            || (operation === 'update' && !!resolvedData['address'] && existingItem['address'] !== resolvedData['address'])
+                    || (
+                        // ... When the received address is not included in address sources for existing property/resident model
+                        // Now we suppose that the received `address` field is a source of an actual address.
+                        // The value may equal some address string or some UUID or something else.
+                        // The actual address will be received from the address service.
+                        !!resolvedData['address'] && !existingAddressSources.includes(resolvedData['address'])
+                    )
+                )
+            )
         ) {
             const client = conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
                 ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
 
-            const result = await client.search(get(resolvedData, ['addressMeta', 'rawValue'], resolvedData['address']))
+            const result = await client.search(get(resolvedData, ['address']))
 
             resolvedData['address'] = get(result, 'address')
             resolvedData['addressKey'] = get(result, 'addressKey')
+            resolvedData['addressSources'] = get(result, 'addressSources', [])
 
             resolvedData['addressMeta'] = {
                 dv: 1,

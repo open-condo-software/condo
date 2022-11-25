@@ -1,5 +1,6 @@
 const express = require('express')
 const get = require('lodash/get')
+const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 /**
  * @typedef {Object} AddressSearchResult
@@ -19,14 +20,17 @@ class SearchKeystoneApp {
 
     /**
      * Converts the `Address` model to service response
+     * @param context Keystone context
      * @param addressModel
-     * @returns {{ address: string, addressKey: string, addressMeta: NormalizedBuilding }}
+     * @returns {Promise<{ address: string, addressKey: string, addressMeta: NormalizedBuilding, addressSources: string[] }>}
      */
-    createReturnObject (addressModel) {
+    async createReturnObject (context, addressModel) {
+        const addressSources = await AddressSource.getAll(context, { address: { id: addressModel.id } }) || []
         return {
             address: addressModel.address,
             addressKey: addressModel.key,
             addressMeta: addressModel.meta,
+            addressSources: addressSources.map(({ source }) => source),
         }
     }
 
@@ -100,7 +104,7 @@ class SearchKeystoneApp {
                 return
             }
 
-            res.json(this.createReturnObject(searchResult))
+            res.json(await this.createReturnObject(keystoneContext.sudo(), searchResult))
         })
 
         return app
