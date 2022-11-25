@@ -1,4 +1,3 @@
-// @ts-nocheck
 import get from 'lodash/get'
 import { TicketStatus } from '../utils/clientSchema'
 import { getPossibleStatuses } from '../utils/status'
@@ -9,7 +8,6 @@ export const useStatusTransitions = (ticketStatusId: string, organization: Organ
 
     const organizationStatusTransition = get(organization, 'statusTransitions')
     const employeeRoleStatusTransitions = get(employee, ['role', 'statusTransitions'])
-    const organizationDefaultEmployeeRoleStatusTransitions = get(organization, 'defaultEmployeeRoleStatusTransitions')
 
     return {
         loading: loading,
@@ -18,7 +16,6 @@ export const useStatusTransitions = (ticketStatusId: string, organization: Organ
             ticketStatusId,
             organizationStatusTransition,
             employeeRoleStatusTransitions,
-            organizationDefaultEmployeeRoleStatusTransitions
         ),
     }
 }
