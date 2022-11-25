@@ -23,6 +23,9 @@ const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id } tin country routingNumber number currencyCode importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankContractorAccount = generateGqlQueries('BankContractorAccount', BANK_CONTRACTOR_ACCOUNT_FIELDS)
 
+const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } organization { id } number date amount purpose dateWithdrawed dateReceived meta importId importRemoteSystem ${COMMON_FIELDS} }`
+const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -30,5 +33,6 @@ module.exports = {
     BankCategory,
     BankCostItem,
     BankContractorAccount,
+    BankTransaction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

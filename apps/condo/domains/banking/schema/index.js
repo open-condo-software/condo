@@ -7,6 +7,7 @@ const { BankAccount } = require('./BankAccount')
 const { BankCategory } = require('./BankCategory')
 const { BankCostItem } = require('./BankCostItem')
 const { BankContractorAccount } = require('./BankContractorAccount')
+const { BankTransaction } = require('./BankTransaction')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -14,5 +15,6 @@ module.exports = {
     BankCategory,
     BankCostItem,
     BankContractorAccount,
+    BankTransaction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
