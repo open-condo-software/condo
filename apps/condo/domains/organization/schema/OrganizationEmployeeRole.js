@@ -90,14 +90,9 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             options: TICKET_VISIBILITY_OPTIONS,
         },
         canManagePropertyScopes: { type: Checkbox, defaultValue: false },
-        canManageBankContractorAccounts: {
-            type: Checkbox,
-            defaultValue: false,
-        },
-        canManageBankIntegrationContexts: {
-            type: Checkbox,
-            defaultValue: false,
-        },
+        canManageBankIntegrationContexts: { type: Checkbox, defaultValue: false },
+        canManageBankContractorAccounts: { type: Checkbox, defaultValue: false },
+        canManageBankTransactions: { type: Checkbox, defaultValue: false },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {
