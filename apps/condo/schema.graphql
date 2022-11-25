@@ -4689,6 +4689,7 @@ type PropertyHistoryRecord {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -4836,6 +4837,10 @@ input PropertyHistoryRecordWhereInput {
   addressMeta_not: JSON
   addressMeta_in: [JSON]
   addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -4966,6 +4971,7 @@ input PropertyHistoryRecordUpdateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -5000,6 +5006,7 @@ input PropertyHistoryRecordCreateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -5364,6 +5371,10 @@ type Property {
 
   """ Property address components """
   addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -5495,6 +5506,10 @@ input PropertyWhereInput {
   addressMeta_not: JSON
   addressMeta_in: [JSON]
   addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -5605,6 +5620,7 @@ input PropertyUpdateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -5634,6 +5650,7 @@ input PropertyCreateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -28954,6 +28971,7 @@ type ResidentHistoryRecord {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29079,6 +29097,10 @@ input ResidentHistoryRecordWhereInput {
   addressMeta_not: JSON
   addressMeta_in: [JSON]
   addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -29197,6 +29219,7 @@ input ResidentHistoryRecordUpdateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29229,6 +29252,7 @@ input ResidentHistoryRecordCreateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29324,6 +29348,10 @@ type Resident {
 
   """ Property address components """
   addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29421,6 +29449,10 @@ input ResidentWhereInput {
   addressMeta_not: JSON
   addressMeta_in: [JSON]
   addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -29521,6 +29553,7 @@ input ResidentUpdateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -29546,6 +29579,7 @@ input ResidentCreateInput {
   address: String
   addressKey: String
   addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String

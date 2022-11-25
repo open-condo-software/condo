@@ -33856,6 +33856,8 @@ export type Property = {
   addressKey?: Maybe<Scalars['String']>;
   /**  Property address components  */
   addressMeta?: Maybe<AddressMetaField>;
+  /**  The origins of the address (some strings which may looks like real address or some id)  */
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33884,6 +33886,7 @@ export type PropertyCreateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33921,6 +33924,7 @@ export type PropertyHistoryRecord = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33950,6 +33954,7 @@ export type PropertyHistoryRecordCreateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -33985,6 +33990,7 @@ export type PropertyHistoryRecordUpdateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34132,6 +34138,10 @@ export type PropertyHistoryRecordWhereInput = {
   addressMeta_not?: Maybe<Scalars['JSON']>;
   addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -34253,6 +34263,7 @@ export type PropertyUpdateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -34373,6 +34384,10 @@ export type PropertyWhereInput = {
   addressMeta_not?: Maybe<Scalars['JSON']>;
   addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -40531,6 +40546,8 @@ export type Resident = {
   addressKey?: Maybe<Scalars['String']>;
   /**  Property address components  */
   addressMeta?: Maybe<AddressMetaField>;
+  /**  The origins of the address (some strings which may looks like real address or some id)  */
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40643,6 +40660,7 @@ export type ResidentCreateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40678,6 +40696,7 @@ export type ResidentHistoryRecord = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40705,6 +40724,7 @@ export type ResidentHistoryRecordCreateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40738,6 +40758,7 @@ export type ResidentHistoryRecordUpdateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -40863,6 +40884,10 @@ export type ResidentHistoryRecordWhereInput = {
   addressMeta_not?: Maybe<Scalars['JSON']>;
   addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -41120,6 +41145,7 @@ export type ResidentUpdateInput = {
   address?: Maybe<Scalars['String']>;
   addressKey?: Maybe<Scalars['String']>;
   addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -41206,6 +41232,10 @@ export type ResidentWhereInput = {
   addressMeta_not?: Maybe<Scalars['JSON']>;
   addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
