@@ -5,6 +5,9 @@
  * @property {Object} keystoneContext
  */
 
+/**
+ * This is an abstraction for search plugins must realize.
+ */
 class AbstractSearchPlugin {
     /**
      * Detects if the plugin is eligible for the current query

@@ -51,61 +51,79 @@ class SearchKeystoneApp {
             next()
         }
 
-        app.get('/search', setNoCache, async (req, res, next) => {
-            /**
-             * Using to detect a proper suggestion provider
-             * @type {string}
-             */
-            const geo = String(get(req, ['query', 'geo'], ''))
+        app.get(
+            '/search',
+            setNoCache,
 
             /**
-             * User's search string
-             * @type {string}
+             * @typedef {Object} ReqShapeQueryType
+             * @property {string} [geo] Parameter to detect external data provider
+             * @property {string} s search string
+             * @property {string} [context] search context {@see apps/address-service/domains/common/constants/contexts.js}
              */
-            const s = get(req, ['query', 's'])
 
             /**
-             * Sometimes we need to use different query parameters to providers
-             * depending on different clients (mobile app, backend job, user runtime)
-             * @type {string}
+             * @param {{ query: ReqShapeQueryType }} req
+             * @param res
+             * @param next
+             * @returns {Promise<void>}
              */
-            const searchContext = String(get(req, ['query', 'context'], ''))
+            async (req, res, next) => {
+                /**
+                 * Using to detect a proper suggestion provider
+                 * @type {string}
+                 */
+                const geo = String(get(req, ['query', 'geo'], ''))
 
-            if (!s) {
-                res.send(400)
-                return
-            }
+                /**
+                 * User's search string
+                 * @type {string}
+                 */
+                const s = get(req, ['query', 's'])
 
-            const keystoneContext = await keystone.createContext()
-            const pluginParams = { geo, searchContext, keystoneContext }
+                /**
+                 * Sometimes we need to use different query parameters to providers
+                 * depending on different clients (mobile app, backend job, user runtime)
+                 * @type {string}
+                 */
+                const searchContext = String(get(req, ['query', 'context'], ''))
 
-            const plugins = this.plugins.filter((plugin) => plugin.isEnabled(s, pluginParams))
-            if (plugins.length === 0) {
-                // There is no plugins to process search request ¯\_(ツ)_/¯
-                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
-                res.send(422)
-                return
-            }
-
-            let searchResult = null
-            for (const plugin of plugins) {
-                // Return the first not empty plugin's result
-                // So, the plugins order is mandatory for performance
-                if (searchResult) {
-                    break
+                if (!s) {
+                    res.send(400)
+                    return
                 }
 
-                searchResult = await plugin.prepare(pluginParams).search(s)
-            }
+                const keystoneContext = await keystone.createContext()
+                const pluginParams = { geo, searchContext, keystoneContext }
 
-            if (!searchResult) {
-                // Nothing found
-                res.send(404)
-                return
-            }
+                const plugins = this.plugins.filter((plugin) => plugin.isEnabled(s, pluginParams))
+                if (plugins.length === 0) {
+                    // There is no plugins to process search request ¯\_(ツ)_/¯
+                    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/422
+                    res.send(422)
+                    return
+                }
 
-            res.json(await this.createReturnObject(keystoneContext.sudo(), searchResult))
-        })
+                let searchResult = null
+                for (const plugin of plugins) {
+                    // Return the first not empty plugin's result
+                    // So, the plugins order is mandatory for performance
+                    if (searchResult) {
+                        break
+                    }
+
+                    searchResult = await plugin.prepare(pluginParams).search(s)
+                }
+
+                if (!searchResult) {
+                    // Nothing found
+                    res.send(404)
+                    return
+                }
+
+                res.json(await this.createReturnObject(keystoneContext.sudo(), searchResult))
+            },
+        )
 
         return app
     }
