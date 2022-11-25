@@ -14,7 +14,7 @@ Each property is presented as the Address model instance. Each address may be fo
 Used to get a list of suggestions while the user trying to add a new property. There is an ability to use different suggestions providers. If some property still not exists in external providers, we may inject proper data before the answer is sent to the response. It may be reached by adding new AddressInjection model via admin interface.
 
 ### /search
-Used to search addresses. This endpoint utilizes search plugins under the hood. The first not-empty plugin's result will send to the response.
+Should be used to get info about a single address by source (it's a cache) or some uuid. This endpoint utilizes search plugins under the hood. The first not-empty plugin's result will send to the response.
 
 # address-service quick start
 
