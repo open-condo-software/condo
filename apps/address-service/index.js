@@ -71,4 +71,7 @@ module.exports = {
         new SuggestionKeystoneApp(),
         new SearchKeystoneApp([new SearchByAddressKey(), new SearchByInjectionId(), new SearchBySource(), new SearchByProvider()]),
     ].filter(identity),
+    configureExpress: (app) => {
+        app.set('trust proxy', 1) // trust first proxy
+    },
 }
