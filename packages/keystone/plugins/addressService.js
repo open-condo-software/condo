@@ -92,6 +92,7 @@ const addressService = (fieldsHooks = {}) => plugin(({
                 )
             )
         ) {
+            // todo(AleX83Xpert) maybe create separated client for `conf.NODE_ENV === 'development'` mode
             const client = conf.NODE_ENV === 'test' || get(conf, 'ADDRESS_SERVICE_CLIENT_MODE') === 'fake'
                 ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
