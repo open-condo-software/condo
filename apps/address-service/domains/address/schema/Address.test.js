@@ -178,34 +178,4 @@ describe('Address', () => {
             })
         })
     })
-
-    describe('Some cases', () => {
-        test('Can\'t create address with existing source', async () => {
-            const source = `${faker.address.city()}, ${faker.address.streetName()}, ${faker.datatype.number()}, ${faker.datatype.number()}`
-            await createTestAddress(adminClient, { sources: { create: { source, dv: 1, sender } } })
-
-            await catchErrorFrom(async () => {
-                await createTestAddress(adminClient, { sources: { create: { source, dv: 1, sender } } })
-            }, ({ errors, data }) => {
-                expect(errors).toHaveLength(1)
-                expect(errors).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        extensions: expect.objectContaining({ code: 'INTERNAL_SERVER_ERROR' }),
-                        originalError: expect.objectContaining({
-                            errors: expect.arrayContaining([
-                                expect.objectContaining({
-                                    errors: expect.arrayContaining([
-                                        expect.objectContaining({
-                                            message: 'Source with the same address already exists',
-                                        }),
-                                    ]),
-                                }),
-                            ]),
-                        }),
-                    }),
-                ]))
-                expect(data).toEqual({ 'obj': null })
-            })
-        })
-    })
 })

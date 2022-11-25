@@ -36,7 +36,6 @@ async function createTestAddress (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        sources: { create: { source: address, dv: 1, sender } },
         address,
         key: faker.random.alpha(10),
         meta: {},
