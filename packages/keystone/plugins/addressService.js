@@ -34,10 +34,7 @@ const getFieldsToAdd = (fieldsHooks) => ({
             ...(fieldsHooks['addressKey'] || {}),
         },
     },
-    addressMeta: {
-        ...ADDRESS_META_FIELD,
-        access: readOnlyAccess,
-    },
+    addressMeta: ADDRESS_META_FIELD,
     addressSources: {
         type: Json,
         schemaDoc: 'The origins of the address (some strings which may looks like real address or some id)',
