@@ -14,6 +14,7 @@ const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
 const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
 const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
+const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -22,6 +23,7 @@ const BankAccount = generateGQLTestUtils(BankAccountGQL)
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
 const BankIntegrationContext = generateGQLTestUtils(BankIntegrationContextGQL)
+const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -220,6 +222,41 @@ async function updateTestBankIntegrationContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankTransaction (client, account, contractorAccount, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!account || !account.id) throw new Error('no account.id')
+    if (!contractorAccount || !contractorAccount.id) throw new Error('no contractorAccount.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBankTransaction logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        account: { connect: { id: account.id } },
+        contractorAccount: { connect: { id: contractorAccount.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankTransaction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankTransaction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+
+    const obj = await BankTransaction.update(client, id, attrs)
+    return [obj, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -229,5 +266,6 @@ module.exports = {
     BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
     BankIntegration, createTestBankIntegration, updateTestBankIntegration,
     BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext,
+    BankTransaction, createTestBankTransaction, updateTestBankTransaction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
