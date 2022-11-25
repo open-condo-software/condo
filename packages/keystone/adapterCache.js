@@ -18,11 +18,11 @@ const logger = getLogger('adapterCache')
  * 2. MTM relations
  */
 const ADAPTER_CACHE_CONNECTED_TABLES = {
-    'MultiPayment':['Payment'],
-    'Payment':['MultiPayment'],
+    // 'MultiPayment':['Payment'],
+    // 'Payment':['MultiPayment'],
 
-    'AcquiringIntegration':['BillingIntegration'],
-    'BillingIntegration':['AcquiringIntegration'],
+    // 'AcquiringIntegration':['BillingIntegration'],
+    // 'BillingIntegration':['AcquiringIntegration'],
 
     'Division': ['OrganizationEmployee', 'Property'],
     'OrganizationEmployee': ['Division', 'Property'],
@@ -56,9 +56,9 @@ class AdapterCacheMiddleware {
             // Else:
             // ==> only lists, that are in "includedLists" are cached.
             // ==> lists that are in "excludedLists" are NOT cached.
-            this.includeAllLists = get(parsedConfig, 'includeAllLists', false)
+            this.includeAllLists = true // get(parsedConfig, 'includeAllLists', false)
             this.includedLists = get(parsedConfig, 'includedLists', [])
-            this.excludedLists = get(parsedConfig, 'excludedLists', [])
+            this.excludedLists = [] // get(parsedConfig, 'excludedLists', [])
 
             // Logging allows to get the percentage of cache hits
             this.logging = get(parsedConfig, 'logging', false)
@@ -243,14 +243,14 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
             return response
         }
 
-        const originalUpdate = listAdapter._update
-        listAdapter._update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware)
+        const originalUpdate = listAdapter.update
+        listAdapter.update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware)
 
-        const originalCreate = listAdapter._create
-        listAdapter._create = patchAdapterFunction(listName, 'CREATE', originalCreate, listAdapter, middleware)
+        const originalCreate = listAdapter.create
+        listAdapter.create = patchAdapterFunction(listName, 'CREATE', originalCreate, listAdapter, middleware)
 
-        const originalDelete = listAdapter._delete
-        listAdapter._delete = patchAdapterFunction(listName, 'DELETE', originalDelete, listAdapter, middleware)
+        const originalDelete = listAdapter.delete
+        listAdapter.delete = patchAdapterFunction(listName, 'DELETE', originalDelete, listAdapter, middleware)
     }
 }
 
