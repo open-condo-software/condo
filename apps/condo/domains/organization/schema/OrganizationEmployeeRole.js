@@ -94,6 +94,10 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
             type: Checkbox,
             defaultValue: false,
         },
+        canManageBankTransactions: {
+            type: Checkbox,
+            defaultValue: false,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {

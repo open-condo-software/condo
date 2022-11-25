@@ -3624,6 +3624,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
+  canManageBankTransactions: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3742,6 +3743,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManagePropertyScopes_not: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankContractorAccounts_not: Boolean
+  canManageBankTransactions: Boolean
+  canManageBankTransactions_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3859,6 +3862,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManagePropertyScopes_DESC
   canManageBankContractorAccounts_ASC
   canManageBankContractorAccounts_DESC
+  canManageBankTransactions_ASC
+  canManageBankTransactions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3901,6 +3906,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
+  canManageBankTransactions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3944,6 +3950,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
+  canManageBankTransactions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4016,6 +4023,7 @@ type OrganizationEmployeeRole {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
+  canManageBankTransactions: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4122,6 +4130,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManagePropertyScopes_not: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankContractorAccounts_not: Boolean
+  canManageBankTransactions: Boolean
+  canManageBankTransactions_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4221,6 +4231,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManagePropertyScopes_DESC
   canManageBankContractorAccounts_ASC
   canManageBankContractorAccounts_DESC
+  canManageBankTransactions_ASC
+  canManageBankTransactions_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4262,6 +4274,7 @@ input OrganizationEmployeeRoleUpdateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
+  canManageBankTransactions: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4301,6 +4314,7 @@ input OrganizationEmployeeRoleCreateInput {
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
   canManageBankContractorAccounts: Boolean
+  canManageBankTransactions: Boolean
   v: Int
   createdAt: String
   updatedAt: String

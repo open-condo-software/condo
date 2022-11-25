@@ -31836,6 +31836,7 @@ export type OrganizationEmployeeRole = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -31875,6 +31876,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -31920,6 +31922,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -31959,6 +31962,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -32003,6 +32007,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -32120,6 +32125,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -32231,6 +32238,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -32325,6 +32333,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts_not?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions?: Maybe<Scalars['Boolean']>;
+  canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -47995,6 +48005,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
+  CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
+  CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -48060,6 +48072,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
   CanManageBankContractorAccountsDesc = 'canManageBankContractorAccounts_DESC',
+  CanManageBankTransactionsAsc = 'canManageBankTransactions_ASC',
+  CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
