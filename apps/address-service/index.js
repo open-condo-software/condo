@@ -64,7 +64,7 @@ module.exports = {
         }),
         new AdminUIApp({
             adminPath: '/admin',
-            isAccessAllowed: access.userIsAdmin,
+            isAccessAllowed: access.userIsAdmin || access.userIsSupport,
             authStrategy,
             hooks: require.resolve('@app/address-service/admin-ui'),
         }),
