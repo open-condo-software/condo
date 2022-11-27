@@ -4,15 +4,13 @@ const { generators, Issuer } = require('openid-client')
 const { get, isObject } = require('lodash')
 const { createOrUpdateUser } = require('@address-service/domains/common/utils/serverSchema/createOrUpdateUser')
 
-const CONDO_ACCESS_TOKEN_KEY = 'condoAccessToken'
-
 class OIDCHelper {
     constructor () {
         const oidcClientConfig = conf.OIDC_CONFIG
         if (!oidcClientConfig) throw new Error('no OIDC_CONFIG env')
 
         const { serverUrl, clientId, clientSecret, clientOptions, issuerOptions } = JSON.parse(oidcClientConfig)
-        if (!serverUrl || !clientId || !clientSecret) throw new Error('no serverUrl or clientId or clientSecret inside OIDC_CONDO_CLIENT_CONFIG env')
+        if (!serverUrl || !clientId || !clientSecret) throw new Error('no serverUrl or clientId or clientSecret inside OIDC_CONFIG env')
 
         this.redirectUrl = `${conf.SERVER_URL}/oidc/callback`
         this.issuer = new Issuer({
@@ -96,7 +94,6 @@ class OIDCKeystoneApp {
                     list: keystone.lists['User'],
                 })
 
-                req.session[CONDO_ACCESS_TOKEN_KEY] = accessToken
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 
