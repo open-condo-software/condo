@@ -22,21 +22,9 @@ const Slide = styled.h1<{ index: number }>`
   margin: 0;
 `
 
-const StoryDecorator = styled.div`
-  padding: 40px;
-  max-width: 1200px;
-`
-
 export default {
     title: 'Components/Carousel',
     component: Component,
-    decorators: [
-        (Story) => (
-            <StoryDecorator>
-                <Story/>
-            </StoryDecorator>
-        ),
-    ],
     argTypes: {
         dots: {
             type: 'boolean',
