@@ -6,18 +6,6 @@ import { colors } from '@open-condo/ui/src/colors'
 export default {
     title: 'Components/Banner',
     component: Component,
-    args: {
-        // backgroundColor: 'linear-gradient(90deg, #85EBA4 0%, #9FD5FF 100%)',
-        backgroundColor: colors.brandGradient['5'],
-        actionText: 'Detail',
-        title: '123456789012345678901234567 123456789012345678901234567',
-        // title: 'Settlement bank',
-        // subtitle: 'Accept payments from residents in the Doma mobile app',
-        subtitle: '1234567890123456789012345678901234567890 1234567890123456789012345678901234567890',
-        imgUrl: 'https://i.imgur.com/TuHXW0r.jpeg',
-        // imgUrl: 'https://i.imgur.com/jpjTXWM.png',
-        invertText: false,
-    },
     argTypes: {
         onClick: { control: false },
     },
@@ -25,4 +13,22 @@ export default {
 
 const Template: ComponentStory<typeof Component> = (args) => <Component {...args}/>
 
-export const Banner = Template.bind({})
+export const Solid = Template.bind({})
+Solid.args = {
+    backgroundColor: '#9b9dfa',
+    title: 'Settlement bank',
+    subtitle: 'Accept payments from residents in the Doma mobile app',
+    imgUrl: 'https://i.imgur.com/OAG817v.png',
+    invertText: true,
+    actionText: 'More',
+}
+
+export const Gradient = Template.bind({})
+Gradient.args = {
+    backgroundColor: colors.brandGradient['5'],
+    title: 'Some long description that takes 2 rows of texts',
+    subtitle: 'Text can also takes up to 2 rows, containing 40 symbols each, so use it wisely',
+    imgUrl: 'https://i.imgur.com/1iOC5BE.png',
+    invertText: false,
+    actionText: 'Click me button',
+}
