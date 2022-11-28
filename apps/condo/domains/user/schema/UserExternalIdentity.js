@@ -75,8 +75,8 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
     access: {
         read: access.canReadUserExternalIntegrations,
         create: false,
-        update: false,
-        delete: access.canDeleteUserExternalIntegrations,
+        update: access.canMutateUserExternalIntegrations,
+        delete: false,
         auth: true,
     },
 })
