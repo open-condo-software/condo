@@ -92,6 +92,18 @@
       }
     }
 
+    &.condo-btn-stateless {
+      &:focus,
+      &:hover,
+      &:active {
+        background: @condo-global-color-black;
+
+        &::before {
+          opacity: 0;
+        }
+      }
+    }
+
     &.condo-btn-dangerous {
       background: @condo-global-color-red-5;
       transition: background @condo-global-transition-duration-default ease-in-out;
@@ -106,6 +118,14 @@
 
       &:active {
         background: @condo-global-color-red-5;
+      }
+
+      &.condo-btn-stateless {
+        &:focus,
+        &:hover,
+        &:active {
+          background: @condo-global-color-red-5;
+        }
       }
 
       &::before {
@@ -199,6 +219,22 @@
       &:active::before {
         background: @condo-global-color-red-5 border-box;
       }
+
+      &.condo-btn-stateless {
+        &:hover,
+        &:active,
+        &:focus {
+          .condo-btn-icon-color(@condo-global-color-red-5);
+          .condo-btn-static-text-color(@condo-global-color-red-5);
+        }
+
+        &::before,
+        &:focus::before,
+        &:hover::before,
+        &:active::before {
+          background: @condo-global-color-red-5 border-box;
+        }
+      }
     }
 
     // Used button before element for gradient border with radius
@@ -230,7 +266,44 @@
       opacity: 0.9;
     }
 
-    &:disabled,
+    &:disabled {
+      background: transparent;
+      border: @condo-button-border-width solid @condo-global-color-gray-7;
+      opacity: @condo-global-opacity-disabled;
+
+      .condo-btn-icon-color(@condo-global-color-black);
+      .condo-btn-static-text-color(@condo-global-color-black);
+
+      & > .condo-btn-text::before {
+        opacity: 0;
+      }
+
+      &::before {
+        opacity: 0;
+      }
+    }
+
+    &.condo-btn-stateless {
+      &:not(.condo-btn-dangerous) {
+        .condo-btn-icon-color(@condo-global-color-black);
+      }
+
+      &:not(.condo-btn-dangerous):hover {
+        border: @condo-button-border-width solid @condo-global-color-gray-7;
+      }
+
+      &:hover::before,
+      &:active::before {
+        opacity: 0;
+      }
+
+      &:hover > .condo-btn-text::before,
+      &:active > .condo-btn-text::before {
+        opacity: 0;
+      }
+    }
+
+    //&:disabled,
     &:disabled:hover,
     &:disabled:active,
     &:disabled:focus,

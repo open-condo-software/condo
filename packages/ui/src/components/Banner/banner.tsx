@@ -96,6 +96,7 @@ export const Banner: React.FC<BannerProps> = ({
                 </div>
                 <Button
                     type='primary'
+                    stateless
                 >
                     {actionText}
                 </Button>
