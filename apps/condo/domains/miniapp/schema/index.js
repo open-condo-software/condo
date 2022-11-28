@@ -11,6 +11,7 @@ const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppProperty } = require('./B2CAppProperty')
+const { B2BAppPromoBlock } = require('./B2BAppPromoBlock')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -22,5 +23,6 @@ module.exports = {
     B2CAppAccessRight,
     B2CAppBuild,
     B2CAppProperty,
+    B2BAppPromoBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

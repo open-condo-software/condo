@@ -8,15 +8,19 @@ const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 
-const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
-const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
-const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppBuild: B2CAppBuildGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppProperty: B2CAppPropertyGQL } = require('@condo/domains/miniapp/gql')
+const {
+    ALL_MINI_APPS_QUERY,
+    B2BApp: B2BAppGQL,
+    B2BAppContext: B2BAppContextGQL,
+    B2BAppAccessRight: B2BAppAccessRightGQL,
+    B2BAppPromoBlock: B2BAppPromoBlockGQL,
+    B2CApp: B2CAppGQL,
+    B2CAppProperty: B2CAppPropertyGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
+    B2CAppBuild: B2CAppBuildGQL,
+} = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
@@ -45,6 +49,15 @@ const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
     }
 ]
 
+function randomChoice(options) {
+    const index = Math.floor(Math.random() * options.length);
+    return options[index];
+}
+
+function randomHex() {
+    return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`
+}
+
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
 const B2BAppContext = generateGQLTestUtils(B2BAppContextGQL)
 const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
@@ -52,6 +65,7 @@ const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
+const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -296,6 +310,47 @@ async function updateTestB2CAppProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const title = faker.company.catchPhrase()
+    const subtitle = faker.commerce.productName()
+    const textVariant = randomChoice(Object.keys(PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS))
+    const backgroundColor = randomChoice(['hex', 'grad']) === 'hex'
+        ? randomHex()
+        : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`
+    const backgroundImage = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
+    const url  = faker.internet.url()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        title,
+        subtitle,
+        textVariant,
+        backgroundColor,
+        backgroundImage,
+        url,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPromoBlock.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppPromoBlock (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPromoBlock.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
     const cityPart = `город ${faker.name.firstName()}`
@@ -318,6 +373,7 @@ module.exports = {
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
+    B2BAppPromoBlock, createTestB2BAppPromoBlock, updateTestB2BAppPromoBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }

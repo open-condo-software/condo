@@ -49,7 +49,10 @@ const LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR = '[app:noInstructionOrMessage] 
 const GLOBAL_APP_NO_APP_URL_ERROR = '[app:noAppUrl] If the app is global, it must have appUrl field'
 const NON_GLOBAL_APP_WITH_FEATURES_ERROR = '[app:non-global:features] Non global apps cannot specify features'
 
-
+const PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS = {
+    'BLACK': {},
+    'WHITE': { type: 'inverted' },
+}
 
 module.exports = {
     BILLING_APP_TYPE,
@@ -77,4 +80,5 @@ module.exports = {
     MAP_GENERATION_FEATURE,
     SUPPORTED_GLOBAL_FEATURES,
     NON_GLOBAL_APP_WITH_FEATURES_ERROR,
+    PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS,
 }

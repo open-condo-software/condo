@@ -10,4 +10,5 @@ export * as B2CApp from './B2CApp'
 export * as B2CAppAccessRight from './B2CAppAccessRight'
 export * as B2CAppBuild from './B2CAppBuild'
 export * as B2CAppProperty from './B2CAppProperty'
+export * as B2BAppPromoBlock from './B2BAppPromoBlock'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

@@ -6,14 +6,17 @@
 
 const { execGqlWithoutAccess, generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
-const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
-const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
-const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppBuild: B2CAppBuildGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppProperty: B2CAppPropertyGQL } = require('@condo/domains/miniapp/gql')
+const {
+    ALL_MINI_APPS_QUERY,
+    B2BApp: B2BAppGQL,
+    B2BAppContext: B2BAppContextGQL,
+    B2BAppAccessRight: B2BAppAccessRightGQL,
+    B2BAppPromoBlock: B2BAppPromoBlockGQL,
+    B2CApp: B2CAppGQL,
+    B2CAppProperty: B2CAppPropertyGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
+    B2CAppBuild: B2CAppBuildGQL,
+} = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -36,6 +39,7 @@ const B2CApp = generateServerUtils(B2CAppGQL)
 const B2CAppAccessRight = generateServerUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateServerUtils(B2CAppPropertyGQL)
+const B2BAppPromoBlock = generateServerUtils(B2BAppPromoBlockGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -47,5 +51,6 @@ module.exports = {
     B2CAppAccessRight,
     B2CAppBuild,
     B2CAppProperty,
+    B2BAppPromoBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

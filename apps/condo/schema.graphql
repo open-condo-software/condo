@@ -43192,6 +43192,610 @@ input B2CAppPropertiesCreateInput {
   data: B2CAppPropertyCreateInput
 }
 
+enum B2BAppPromoBlockHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type B2BAppPromoBlockHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppPromoBlockHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppPromoBlockHistoryRecord List config, or
+   3. As an alias to a 'name' field on the B2BAppPromoBlockHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppPromoBlockHistoryRecord List.
+  """
+  _label_: String
+  title: String
+  subtitle: String
+  textVariant: String
+  backgroundColor: String
+  backgroundImage: JSON
+  url: String
+  priority: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPromoBlockHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPromoBlockHistoryRecordWhereInput {
+  AND: [B2BAppPromoBlockHistoryRecordWhereInput]
+  OR: [B2BAppPromoBlockHistoryRecordWhereInput]
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
+  subtitle: String
+  subtitle_not: String
+  subtitle_contains: String
+  subtitle_not_contains: String
+  subtitle_starts_with: String
+  subtitle_not_starts_with: String
+  subtitle_ends_with: String
+  subtitle_not_ends_with: String
+  subtitle_i: String
+  subtitle_not_i: String
+  subtitle_contains_i: String
+  subtitle_not_contains_i: String
+  subtitle_starts_with_i: String
+  subtitle_not_starts_with_i: String
+  subtitle_ends_with_i: String
+  subtitle_not_ends_with_i: String
+  subtitle_in: [String]
+  subtitle_not_in: [String]
+  textVariant: String
+  textVariant_not: String
+  textVariant_contains: String
+  textVariant_not_contains: String
+  textVariant_starts_with: String
+  textVariant_not_starts_with: String
+  textVariant_ends_with: String
+  textVariant_not_ends_with: String
+  textVariant_i: String
+  textVariant_not_i: String
+  textVariant_contains_i: String
+  textVariant_not_contains_i: String
+  textVariant_starts_with_i: String
+  textVariant_not_starts_with_i: String
+  textVariant_ends_with_i: String
+  textVariant_not_ends_with_i: String
+  textVariant_in: [String]
+  textVariant_not_in: [String]
+  backgroundColor: String
+  backgroundColor_not: String
+  backgroundColor_contains: String
+  backgroundColor_not_contains: String
+  backgroundColor_starts_with: String
+  backgroundColor_not_starts_with: String
+  backgroundColor_ends_with: String
+  backgroundColor_not_ends_with: String
+  backgroundColor_i: String
+  backgroundColor_not_i: String
+  backgroundColor_contains_i: String
+  backgroundColor_not_contains_i: String
+  backgroundColor_starts_with_i: String
+  backgroundColor_not_starts_with_i: String
+  backgroundColor_ends_with_i: String
+  backgroundColor_not_ends_with_i: String
+  backgroundColor_in: [String]
+  backgroundColor_not_in: [String]
+  backgroundImage: JSON
+  backgroundImage_not: JSON
+  backgroundImage_in: [JSON]
+  backgroundImage_not_in: [JSON]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: B2BAppPromoBlockHistoryRecordHistoryActionType
+  history_action_not: B2BAppPromoBlockHistoryRecordHistoryActionType
+  history_action_in: [B2BAppPromoBlockHistoryRecordHistoryActionType]
+  history_action_not_in: [B2BAppPromoBlockHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input B2BAppPromoBlockHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppPromoBlockHistoryRecordsBy {
+  title_ASC
+  title_DESC
+  subtitle_ASC
+  subtitle_DESC
+  textVariant_ASC
+  textVariant_DESC
+  backgroundColor_ASC
+  backgroundColor_DESC
+  url_ASC
+  url_DESC
+  priority_ASC
+  priority_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input B2BAppPromoBlockHistoryRecordUpdateInput {
+  title: String
+  subtitle: String
+  textVariant: String
+  backgroundColor: String
+  backgroundImage: JSON
+  url: String
+  priority: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPromoBlockHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPromoBlockHistoryRecordsUpdateInput {
+  id: ID!
+  data: B2BAppPromoBlockHistoryRecordUpdateInput
+}
+
+input B2BAppPromoBlockHistoryRecordCreateInput {
+  title: String
+  subtitle: String
+  textVariant: String
+  backgroundColor: String
+  backgroundImage: JSON
+  url: String
+  priority: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: B2BAppPromoBlockHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input B2BAppPromoBlockHistoryRecordsCreateInput {
+  data: B2BAppPromoBlockHistoryRecordCreateInput
+}
+
+enum B2BAppPromoBlockTextVariantType {
+  BLACK
+  WHITE
+}
+
+""" Promotion banner which appears in "Miniapps" section of CRM. Used to promote B2BApps, discounts, collaborations and so on 
+"""
+type B2BAppPromoBlock {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the B2BAppPromoBlock List config, or
+   2. As an alias to the field set on 'labelField' in the B2BAppPromoBlock List config, or
+   3. As an alias to a 'name' field on the B2BAppPromoBlock List (if one exists), or
+   4. As an alias to the 'id' field on the B2BAppPromoBlock List.
+  """
+  _label_: String
+
+  """ Title of promotion banner. Main catch phrase is placed here. Must contain no more than 27 characters per line (including spaces) and no more than 2 lines in total. 
+  """
+  title: String
+
+  """ Secondary text of promotion banner. Some additional info goes here. Must contain no more than 40 characters per line (including spaces) and no more than 2 lines in total. 
+  """
+  subtitle: String
+
+  """ Variant of texts inside block. Can be one of the following: [BLACK, WHITE] 
+  """
+  textVariant: B2BAppPromoBlockTextVariantType
+
+  """ Background color of promo block. Can be hex code or linear gradient. """
+  backgroundColor: String
+
+  """ PNG image which appears next to text on large devices """
+  backgroundImage: File
+
+  """ Link to the resource that this B2BAppPromoBlock promotes """
+  url: String
+
+  """ The number used to determine the position of the block among the others. Blocks with higher priority appear earlier. Blocks with the same priority are sorted from newest to oldest. The default value is 1. 
+  """
+  priority: Int
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input B2BAppPromoBlockWhereInput {
+  AND: [B2BAppPromoBlockWhereInput]
+  OR: [B2BAppPromoBlockWhereInput]
+  title: String
+  title_not: String
+  title_contains: String
+  title_not_contains: String
+  title_starts_with: String
+  title_not_starts_with: String
+  title_ends_with: String
+  title_not_ends_with: String
+  title_i: String
+  title_not_i: String
+  title_contains_i: String
+  title_not_contains_i: String
+  title_starts_with_i: String
+  title_not_starts_with_i: String
+  title_ends_with_i: String
+  title_not_ends_with_i: String
+  title_in: [String]
+  title_not_in: [String]
+  subtitle: String
+  subtitle_not: String
+  subtitle_contains: String
+  subtitle_not_contains: String
+  subtitle_starts_with: String
+  subtitle_not_starts_with: String
+  subtitle_ends_with: String
+  subtitle_not_ends_with: String
+  subtitle_i: String
+  subtitle_not_i: String
+  subtitle_contains_i: String
+  subtitle_not_contains_i: String
+  subtitle_starts_with_i: String
+  subtitle_not_starts_with_i: String
+  subtitle_ends_with_i: String
+  subtitle_not_ends_with_i: String
+  subtitle_in: [String]
+  subtitle_not_in: [String]
+  textVariant: B2BAppPromoBlockTextVariantType
+  textVariant_not: B2BAppPromoBlockTextVariantType
+  textVariant_in: [B2BAppPromoBlockTextVariantType]
+  textVariant_not_in: [B2BAppPromoBlockTextVariantType]
+  backgroundColor: String
+  backgroundColor_not: String
+  backgroundColor_contains: String
+  backgroundColor_not_contains: String
+  backgroundColor_starts_with: String
+  backgroundColor_not_starts_with: String
+  backgroundColor_ends_with: String
+  backgroundColor_not_ends_with: String
+  backgroundColor_i: String
+  backgroundColor_not_i: String
+  backgroundColor_contains_i: String
+  backgroundColor_not_contains_i: String
+  backgroundColor_starts_with_i: String
+  backgroundColor_not_starts_with_i: String
+  backgroundColor_ends_with_i: String
+  backgroundColor_not_ends_with_i: String
+  backgroundColor_in: [String]
+  backgroundColor_not_in: [String]
+  backgroundImage: String
+  backgroundImage_not: String
+  backgroundImage_in: [String]
+  backgroundImage_not_in: [String]
+  url: String
+  url_not: String
+  url_contains: String
+  url_not_contains: String
+  url_starts_with: String
+  url_not_starts_with: String
+  url_ends_with: String
+  url_not_ends_with: String
+  url_i: String
+  url_not_i: String
+  url_contains_i: String
+  url_not_contains_i: String
+  url_starts_with_i: String
+  url_not_starts_with_i: String
+  url_ends_with_i: String
+  url_not_ends_with_i: String
+  url_in: [String]
+  url_not_in: [String]
+  priority: Int
+  priority_not: Int
+  priority_lt: Int
+  priority_lte: Int
+  priority_gt: Int
+  priority_gte: Int
+  priority_in: [Int]
+  priority_not_in: [Int]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input B2BAppPromoBlockWhereUniqueInput {
+  id: ID!
+}
+
+enum SortB2BAppPromoBlocksBy {
+  title_ASC
+  title_DESC
+  subtitle_ASC
+  subtitle_DESC
+  textVariant_ASC
+  textVariant_DESC
+  backgroundColor_ASC
+  backgroundColor_DESC
+  url_ASC
+  url_DESC
+  priority_ASC
+  priority_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input B2BAppPromoBlockUpdateInput {
+  title: String
+  subtitle: String
+  textVariant: B2BAppPromoBlockTextVariantType
+  backgroundColor: String
+  backgroundImage: Upload
+  url: String
+  priority: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppPromoBlocksUpdateInput {
+  id: ID!
+  data: B2BAppPromoBlockUpdateInput
+}
+
+input B2BAppPromoBlockCreateInput {
+  title: String
+  subtitle: String
+  textVariant: B2BAppPromoBlockTextVariantType
+  backgroundColor: String
+  backgroundImage: Upload
+  url: String
+  priority: Int
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input B2BAppPromoBlocksCreateInput {
+  data: B2BAppPromoBlockCreateInput
+}
+
 enum ExternalReportHistoryRecordHistoryActionType {
   c
   u
@@ -48051,6 +48655,34 @@ type Query {
   """ Retrieve the meta-data for the B2CAppProperty list. """
   _B2CAppPropertiesMeta: _ListMeta
 
+  """ Search for all B2BAppPromoBlockHistoryRecord items which match the where clause. 
+  """
+  allB2BAppPromoBlockHistoryRecords(where: B2BAppPromoBlockHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPromoBlockHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [B2BAppPromoBlockHistoryRecord]
+
+  """ Search for the B2BAppPromoBlockHistoryRecord item with the matching ID. 
+  """
+  B2BAppPromoBlockHistoryRecord(where: B2BAppPromoBlockHistoryRecordWhereUniqueInput!): B2BAppPromoBlockHistoryRecord
+
+  """ Perform a meta-query on all B2BAppPromoBlockHistoryRecord items which match the where clause. 
+  """
+  _allB2BAppPromoBlockHistoryRecordsMeta(where: B2BAppPromoBlockHistoryRecordWhereInput, search: String, sortBy: [SortB2BAppPromoBlockHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppPromoBlockHistoryRecord list. """
+  _B2BAppPromoBlockHistoryRecordsMeta: _ListMeta
+
+  """ Search for all B2BAppPromoBlock items which match the where clause. """
+  allB2BAppPromoBlocks(where: B2BAppPromoBlockWhereInput, search: String, sortBy: [SortB2BAppPromoBlocksBy!], orderBy: String, first: Int, skip: Int): [B2BAppPromoBlock]
+
+  """ Search for the B2BAppPromoBlock item with the matching ID. """
+  B2BAppPromoBlock(where: B2BAppPromoBlockWhereUniqueInput!): B2BAppPromoBlock
+
+  """ Perform a meta-query on all B2BAppPromoBlock items which match the where clause. 
+  """
+  _allB2BAppPromoBlocksMeta(where: B2BAppPromoBlockWhereInput, search: String, sortBy: [SortB2BAppPromoBlocksBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the B2BAppPromoBlock list. """
+  _B2BAppPromoBlocksMeta: _ListMeta
+
   """ Search for all ExternalReportHistoryRecord items which match the where clause. 
   """
   allExternalReportHistoryRecords(where: ExternalReportHistoryRecordWhereInput, search: String, sortBy: [SortExternalReportHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ExternalReportHistoryRecord]
@@ -50933,6 +51565,42 @@ type Mutation {
 
   """ Delete multiple B2CAppProperty items by ID. """
   deleteB2CAppProperties(ids: [ID!]): [B2CAppProperty]
+
+  """ Create a single B2BAppPromoBlockHistoryRecord item. """
+  createB2BAppPromoBlockHistoryRecord(data: B2BAppPromoBlockHistoryRecordCreateInput): B2BAppPromoBlockHistoryRecord
+
+  """ Create multiple B2BAppPromoBlockHistoryRecord items. """
+  createB2BAppPromoBlockHistoryRecords(data: [B2BAppPromoBlockHistoryRecordsCreateInput]): [B2BAppPromoBlockHistoryRecord]
+
+  """ Update a single B2BAppPromoBlockHistoryRecord item by ID. """
+  updateB2BAppPromoBlockHistoryRecord(id: ID!, data: B2BAppPromoBlockHistoryRecordUpdateInput): B2BAppPromoBlockHistoryRecord
+
+  """ Update multiple B2BAppPromoBlockHistoryRecord items by ID. """
+  updateB2BAppPromoBlockHistoryRecords(data: [B2BAppPromoBlockHistoryRecordsUpdateInput]): [B2BAppPromoBlockHistoryRecord]
+
+  """ Delete a single B2BAppPromoBlockHistoryRecord item by ID. """
+  deleteB2BAppPromoBlockHistoryRecord(id: ID!): B2BAppPromoBlockHistoryRecord
+
+  """ Delete multiple B2BAppPromoBlockHistoryRecord items by ID. """
+  deleteB2BAppPromoBlockHistoryRecords(ids: [ID!]): [B2BAppPromoBlockHistoryRecord]
+
+  """ Create a single B2BAppPromoBlock item. """
+  createB2BAppPromoBlock(data: B2BAppPromoBlockCreateInput): B2BAppPromoBlock
+
+  """ Create multiple B2BAppPromoBlock items. """
+  createB2BAppPromoBlocks(data: [B2BAppPromoBlocksCreateInput]): [B2BAppPromoBlock]
+
+  """ Update a single B2BAppPromoBlock item by ID. """
+  updateB2BAppPromoBlock(id: ID!, data: B2BAppPromoBlockUpdateInput): B2BAppPromoBlock
+
+  """ Update multiple B2BAppPromoBlock items by ID. """
+  updateB2BAppPromoBlocks(data: [B2BAppPromoBlocksUpdateInput]): [B2BAppPromoBlock]
+
+  """ Delete a single B2BAppPromoBlock item by ID. """
+  deleteB2BAppPromoBlock(id: ID!): B2BAppPromoBlock
+
+  """ Delete multiple B2BAppPromoBlock items by ID. """
+  deleteB2BAppPromoBlocks(ids: [ID!]): [B2BAppPromoBlock]
 
   """ Create a single ExternalReportHistoryRecord item. """
   createExternalReportHistoryRecord(data: ExternalReportHistoryRecordCreateInput): ExternalReportHistoryRecord

@@ -39,6 +39,9 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
+const B2B_APP_PROMO_BLOCK_FIELDS = `{ title subtitle textVariant backgroundColor backgroundImage { publicUrl } url priority ${COMMON_FIELDS} }`
+const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BLOCK_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -50,5 +53,6 @@ module.exports = {
     B2CAppAccessRight,
     B2CAppBuild,
     B2CAppProperty,
+    B2BAppPromoBlock,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
