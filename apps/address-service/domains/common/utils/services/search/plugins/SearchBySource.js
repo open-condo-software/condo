@@ -11,12 +11,12 @@ class SearchBySource extends AbstractSearchPlugin {
         // We want to return the same result for the same source. This is the address cache, baby!
         const godContext = this.keystoneContext.sudo()
 
-        const addressSource = await AddressSource.getOne(godContext, { source: s })
+        const addressSource = await AddressSource.getOne(godContext, { source: s, deletedAt: null })
         if (!addressSource) {
             return null
         }
 
-        const addressFoundBySource = await Address.getOne(godContext, { id: addressSource.address })
+        const addressFoundBySource = await Address.getOne(godContext, { id: addressSource.address.id, deletedAt: null })
 
         return addressFoundBySource ? addressFoundBySource : null
     }

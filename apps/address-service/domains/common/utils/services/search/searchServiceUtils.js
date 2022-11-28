@@ -7,21 +7,42 @@ const { Address, AddressSource } = require('@address-service/domains/address/uti
  * @param {{ dv: number, sender: { dv: number, fingerprint: string } }} dvSender
  */
 async function createOrUpdateAddressWithSource (context, addressData, addressSource, dvSender) {
+    const { key, ...addressDataWithoutKey } = addressData
 
-    let addressItem = await Address.getOne(context, { key: addressData.key })
+    //
+    // Address
+    //
+    let addressItem = await Address.getOne(context, { key })
 
-    if (!addressItem) {
+    if (addressItem) {
+        addressItem = await Address.update(context, addressItem.id, {
+            ...dvSender,
+            ...addressDataWithoutKey,
+            deletedAt: null, // Restore deleted address on demand
+        })
+    } else {
         addressItem = await Address.create(context, { ...dvSender, ...addressData })
     }
 
-    const addressSourcesCount = await AddressSource.count(context, { source: addressSource })
-    if (addressSourcesCount === 0) {
+    //
+    // Address source
+    //
+    const addressSourceItem = await AddressSource.getOne(context, { source: addressSource })
+
+    if (addressSourceItem) {
+        await AddressSource.update(context, addressSourceItem.id, {
+            ...dvSender,
+            source: addressSource,
+            address: { connect: { id: addressItem.id } },
+            deletedAt: null, // Restore deleted address source on demand
+        })
+    } else {
         await AddressSource.create(
             context,
             {
+                ...dvSender,
                 source: addressSource,
                 address: { connect: { id: addressItem.id } },
-                ...dvSender,
             },
         )
     }
