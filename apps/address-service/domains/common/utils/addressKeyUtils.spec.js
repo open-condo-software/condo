@@ -13,10 +13,10 @@ describe('Address key utils', () => {
                     area: '\t',
                     city: 'The= \t N\nCity',
                     city_district: 'District: $19',
-                    settlement: '',
+                    settlement: '|~',
                     street: '  Straight,\tstreet',
-                    house: 42,
-                    block: ', ',
+                    house: '42/1',
+                    block: '!@#$%^&*)(+=.,_:;"\'`[]{}№|<>~ ',
                 },
                 [
                     'some',
@@ -41,16 +41,16 @@ describe('Address key utils', () => {
                     SPACE_REPLACER,
                     'street',
                     JOINER,
-                    '42',
+                    '42/1',
                 ].join(''),
             ],
             [
                 {
                     country: 'Molvania%',
-                    region: 'South; district',
+                    region: 'South; ~district',
                     settlement: 'Stone, _ creek',
                     street: 'Усть-бобруйская',
-                    house: '+42',
+                    house: '№+<42>',
                 },
                 [
                     'molvania',
