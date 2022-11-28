@@ -16,6 +16,7 @@ export default {
         type: 'primary',
         disabled: false,
         danger: false,
+        stateless: false,
     },
     argTypes: {
         type: { control: 'select' },
