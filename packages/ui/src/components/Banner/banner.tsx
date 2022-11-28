@@ -1,7 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Button } from '../Button'
 import { Typography } from '../Typography'
-import { useSize } from '../_utils/hooks/useSize'
+import { useSize } from '../_utils/hooks'
+import { sendAnalyticsClickEvent } from '../_utils/analytics'
 import classNames from 'classnames'
 
 export type BannerProps = {
@@ -33,12 +34,19 @@ export const Banner: React.FC<BannerProps> = ({
         [`${CLASS_PREFIX}-content-container`]: true,
         [`${CLASS_PREFIX}-content-container-small`]: width <= IMAGE_TOGGLE_BARRIER,
     })
+    const handleClick = useCallback((event) => {
+        sendAnalyticsClickEvent('Banner', { title })
+
+        if (onClick) {
+            onClick(event)
+        }
+    }, [title, onClick])
 
     return (
         <div
             className={CLASS_PREFIX}
             style={{ background: backgroundColor }}
-            onClick={onClick}
+            onClick={handleClick}
             ref={ref}
         >
             <div className={contentContainerClasses}>
