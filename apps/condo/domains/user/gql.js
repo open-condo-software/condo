@@ -14,7 +14,7 @@ const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEma
 const User = generateGqlQueries('User', USER_FIELDS)
 const UserAdmin = generateGqlQueries('User', '{ id type name isAdmin isSupport email isEmailVerified phone isPhoneVerified importId importRemoteSystem updatedBy { id } createdBy { id } }')
 
-const USER_EXTERNAL_IDENTITY_FIELDS = '{ user { id } identityId identityType meta }'
+const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta }'
 const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
 
 const REGISTER_NEW_USER_MUTATION = gql`
@@ -129,7 +129,7 @@ const RESET_USER_MUTATION = gql`
 
 const REGISTER_USER_EXTERNAL_IDENTITY_MUTATION = gql`
     mutation registerUserExternalIdentity ($data: RegisterUserExternalIdentityInput!) {
-        result: registerUserExternalIdentity(data: $data) { status }
+        result: registerUserExternalIdentity(data: $data) { status id }
     }
 `
 
