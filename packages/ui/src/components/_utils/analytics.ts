@@ -1,15 +1,17 @@
 import { version } from '@open-condo/ui/package.json'
 
 type ComponentSpecificClickEventProps = {
-    Button: { value: string }
+    Banner: { title: string }
+    Button: { value: string, type: string }
 }
 
-type CommonAnalyticsProps = {
+type CommonAnalyticsProps<K> = {
     event: 'click',
     location: string,
+    component: K
 }
 
-type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps & { component: K } & ComponentSpecificClickEventProps[K]
+type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps<K> & ComponentSpecificClickEventProps[K]
 
 const ANALYTICS_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 

@@ -32,13 +32,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
 
     const handleClick = useCallback((event) => {
         if (isString(children)) {
-            sendAnalyticsClickEvent('Button', { value: children })
+            sendAnalyticsClickEvent('Button', { value: children, type })
         }
 
         if (onClick) {
             onClick(event)
         }
-    }, [children, onClick])
+    }, [children, onClick, type])
 
     return (
         <DefaultButton

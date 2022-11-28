@@ -7,9 +7,9 @@ export default {
     component: Component,
     args: {
         backgroundColor: '#9FA0F2',
-        actionText: 'Подробнее',
-        title: 'Расчетный банк',
-        subtitle: 'Принимайте платежи за ЖКУ от жителей в мобильном приложении Doma',
+        actionText: 'Detail',
+        title: 'Settlement bank',
+        subtitle: 'Accept payments from residents in the Doma mobile app',
         imgUrl: 'https://i.imgur.com/jpjTXWM.png',
         invertText: false,
     },
