@@ -13,7 +13,6 @@ const {
     UserExternalIdentity,
 } = require('@condo/domains/user/utils/testSchema')
 const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
-const { makePayer, registerMultiPaymentForOneReceiptByTestClient } = require("../../acquiring/utils/testSchema");
 
 const getRequest = (client) => ({
     user: { id: client.user.id },
