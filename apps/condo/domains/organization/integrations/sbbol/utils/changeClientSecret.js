@@ -3,7 +3,7 @@ const dayjs = require('dayjs')
 const conf = require('@open-condo/config')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
-const { getSbbolSecretStorage } = require('./index')
+const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
