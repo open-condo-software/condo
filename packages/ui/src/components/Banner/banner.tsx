@@ -17,7 +17,24 @@ export type BannerProps = {
 
 // NOTE: Some ad blockers block elements containing "banner" in classes
 const CLASS_PREFIX = 'condo-promo-block'
-const IMAGE_TOGGLE_BARRIER = 768
+const LG_BARRIER = 875
+const MD_BARRIER = 740
+const SM_BARRIER = 460
+const X_SM_BARRIER = 400
+
+const getSize =  (width: number) => {
+    if (width < X_SM_BARRIER) {
+        return 'xxs'
+    } else if (width < SM_BARRIER) {
+        return 'xs'
+    } else if (width < MD_BARRIER) {
+        return 'sm'
+    } else if (width < LG_BARRIER) {
+        return 'md'
+    } else {
+        return 'lg'
+    }
+}
 
 export const Banner: React.FC<BannerProps> = ({
     backgroundColor,
@@ -30,10 +47,21 @@ export const Banner: React.FC<BannerProps> = ({
 }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { width } = useSize(ref)
+
+    const showImage = imgUrl && width >= MD_BARRIER
+
+    const bannerClasses = classNames({
+        [`${CLASS_PREFIX}`]: true,
+        [`${CLASS_PREFIX}-no-image`]: !showImage,
+    })
     const contentContainerClasses = classNames({
         [`${CLASS_PREFIX}-content-container`]: true,
-        [`${CLASS_PREFIX}-content-container-small`]: width <= IMAGE_TOGGLE_BARRIER,
+        [`${CLASS_PREFIX}-content-container-${getSize(width)}`]: getSize(width),
     })
+
+    const titleLevel = (width >= LG_BARRIER || (width < MD_BARRIER && width >= SM_BARRIER)) ? 2 : 3
+    const textSize = (width >= LG_BARRIER || width < MD_BARRIER) ? 'large' : 'medium'
+
     const handleClick = useCallback((event) => {
         sendAnalyticsClickEvent('Banner', { title })
 
@@ -44,7 +72,7 @@ export const Banner: React.FC<BannerProps> = ({
 
     return (
         <div
-            className={CLASS_PREFIX}
+            className={bannerClasses}
             style={{ background: backgroundColor }}
             onClick={handleClick}
             ref={ref}
@@ -53,13 +81,15 @@ export const Banner: React.FC<BannerProps> = ({
                 <div className={`${CLASS_PREFIX}-text-container`}>
                     <Typography.Title
                         type={invertText ? 'inverted' : undefined}
-                        level={2}
+                        level={titleLevel}
+                        ellipsis={{ rows: 3 }}
                     >
                         {title}
                     </Typography.Title>
                     <Typography.Paragraph
                         type={invertText ? 'inverted' : undefined}
-                        ellipsis={{ rows: 2 }}
+                        ellipsis={{ rows: 3 }}
+                        size={textSize}
                     >
                         {subtitle}
                     </Typography.Paragraph>
@@ -70,7 +100,7 @@ export const Banner: React.FC<BannerProps> = ({
                     {actionText}
                 </Button>
             </div>
-            {imgUrl && width > IMAGE_TOGGLE_BARRIER && (
+            {imgUrl && width > MD_BARRIER && (
                 <div className={`${CLASS_PREFIX}-image-container`}>
                     <img
                         src={imgUrl}
