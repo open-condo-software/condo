@@ -22,7 +22,7 @@ class SearchByAddressKey extends AbstractSearchPlugin {
      */
     async search (s) {
         const [, key] = s.split(SEPARATOR, 2)
-        const addressByKey = await Address.getOne(this.keystoneContext.sudo(), { key })
+        const addressByKey = await Address.getOne(this.keystoneContext.sudo(), { key, deletedAt: null })
 
         return addressByKey ? addressByKey : null
     }
