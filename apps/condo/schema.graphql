@@ -47561,6 +47561,7 @@ input RegisterUserExternalIdentityInput {
 
 type RegisterUserExternalIdentityOutput {
   status: String!
+  id: String!
 }
 
 input RegisterNewOrganizationInput {

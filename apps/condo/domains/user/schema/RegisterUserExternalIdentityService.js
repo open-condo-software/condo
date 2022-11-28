@@ -51,7 +51,7 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
         },
         {
             access: true,
-            type: 'type RegisterUserExternalIdentityOutput { status: String! }',
+            type: 'type RegisterUserExternalIdentityOutput { status: String!, id: String! }',
         },
     ],
 
@@ -85,7 +85,7 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
                     throw new GQLError(errors.EMPTY_EXTERNAL_IDENTITY_ID_VALUE, context)
                 }
 
-                await UserExternalIdentity.create(context, {
+                const identity = await UserExternalIdentity.create(context, {
                     dv: 1,
                     sender,
                     user: { connect: { id: userEntity.id } },
@@ -94,7 +94,7 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
                     meta,
                 })
 
-                return { status: 'ok' }
+                return { status: 'ok', id: identity.id }
             },
         },
     ],
