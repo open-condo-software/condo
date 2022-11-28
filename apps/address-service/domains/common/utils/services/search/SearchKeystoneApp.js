@@ -28,7 +28,7 @@ class SearchKeystoneApp {
         const addressSources = await AddressSource.getAll(context, { address: { id: addressModel.id } }) || []
         return {
             address: addressModel.address,
-            addressKey: addressModel.key,
+            addressKey: addressModel.id,
             addressMeta: addressModel.meta,
             addressSources: addressSources.map(({ source }) => source),
         }
