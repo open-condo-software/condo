@@ -13,40 +13,200 @@ const {
     makeClientWithStaffUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+} = require('@open-condo/keystone/test.utils')
+const faker = require('faker')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const {
+    makeClientWithSupportUser,
+    registerUserExternalIdentityByTestClient,
+} = require('@condo/domains/user/utils/testSchema')
 
-describe('UserExternalIdentity create', () => {
-    test('Denied: RESIDENT', async () => {
-        const client = await makeClientWithResidentUser()
+const getRegisterRequest = (client) => ({
+    user: { id: client.user.id },
+    identityId: faker.random.alphaNumeric(8),
+    identityType: SBER_ID_IDP_TYPE,
+    meta: {
+        dv: 1, city: faker.address.city(), county: faker.address.county(),
+    },
+})
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestUserExternalIdentity(client)
+describe('UserExternalIdentity', () => {
+    describe('UserExternalIdentity create', () => {
+        test('Denied: RESIDENT', async () => {
+            const client = await makeClientWithResidentUser()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestUserExternalIdentity(client)
+            })
+        })
+
+        test('Denied: STAFF', async () => {
+            const client = await makeClientWithStaffUser()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestUserExternalIdentity(client)
+            })
+        })
+
+        test('Denied: SERVICE', async () => {
+            const client = await makeClientWithServiceUser()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestUserExternalIdentity(client)
+            })
+        })
+
+        test('Denied: admin', async () => {
+            const admin = await makeLoggedInAdminClient()
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestUserExternalIdentity(admin)
+            })
         })
     })
 
-    test('Denied: STAFF', async () => {
-        const client = await makeClientWithStaffUser()
+    describe('UserExternalIdentity read', () => {
+        let admin, support, staff, service, resident, identityRequest, secondResident
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestUserExternalIdentity(client)
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+            staff = await makeClientWithStaffUser()
+            service = await makeClientWithServiceUser()
+            resident = await makeClientWithResidentUser()
+            secondResident = await makeClientWithResidentUser()
+            identityRequest = getRegisterRequest(resident)
+
+            // register users external identity
+            await registerUserExternalIdentityByTestClient(resident, identityRequest)
+            await registerUserExternalIdentityByTestClient(secondResident, getRegisterRequest(secondResident))
+        })
+
+        test('Allowed: RESIDENT own identity', async () => {
+            const identities = await UserExternalIdentity.getAll(resident, {})
+            expect(identities).toHaveLength(1)
+            expect(identities[0]).toMatchObject(identityRequest)
+        })
+
+        test('Denied: STAFF', async () => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await UserExternalIdentity.getOne(staff, { user: { id: resident.user.id } })
+            })
+        })
+
+        test('Denied: SERVICE', async () => {
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await UserExternalIdentity.getOne(service, { user: { id: resident.user.id } })
+            })
+        })
+
+        test('Allowed: admin', async () => {
+            const identity = await UserExternalIdentity.getOne(admin, { user: { id: resident.user.id } })
+            expect(identity).toMatchObject(identityRequest)
         })
     })
 
-    test('Denied: SERVICE', async () => {
-        const client = await makeClientWithServiceUser()
+    describe('UserExternalIdentity update', () => {
+        let admin, support, staff, service, resident, identity, updateRequest
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestUserExternalIdentity(client)
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+            staff = await makeClientWithStaffUser()
+            service = await makeClientWithServiceUser()
+            resident = await makeClientWithResidentUser()
+            updateRequest = {
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'fixOrganizationInnScript' },
+                identityId: faker.random.alphaNumeric(8),
+            }
+
+            // register users external identity
+            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+
+            identity = await UserExternalIdentity.getOne(resident, {})
+        })
+
+        test('Denied: RESIDENT', async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await UserExternalIdentity.update(resident, identity.id, {  })
+            })
+        })
+
+        test('Denied: STAFF', async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await UserExternalIdentity.update(staff, identity.id, updateRequest)
+            })
+        })
+
+        test('Denied: SERVICE', async () => {
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await UserExternalIdentity.update(service, identity.id, updateRequest)
+            })
+        })
+
+        test('Allowed: admin', async () => {
+            const response = await UserExternalIdentity.update(admin, identity.id, updateRequest)
+            expect(response).toMatchObject({ identityId: updateRequest.identityId })
         })
     })
 
-    test('Denied: admin', async () => {
-        const admin = await makeLoggedInAdminClient()
+    describe('UserExternalIdentity soft delete', () => {
+        let admin, support, staff, service
 
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestUserExternalIdentity(admin)
+        beforeAll(async () => {
+            admin = await makeLoggedInAdminClient()
+            support = await makeClientWithSupportUser()
+            staff = await makeClientWithStaffUser()
+            service = await makeClientWithServiceUser()
+        })
+
+        test('Allowed: RESIDENT', async () => {
+            // register users external identity
+            const resident = await makeClientWithResidentUser()
+            const identityRequest = getRegisterRequest(resident)
+            await registerUserExternalIdentityByTestClient(resident, identityRequest)
+            const identity = await UserExternalIdentity.getOne(resident, {})
+
+            // call delete
+            await UserExternalIdentity.softDelete(resident, identity.id)
+        })
+
+        test('Denied: STAFF', async () => {
+            // register users external identity
+            const resident = await makeClientWithResidentUser()
+            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            const identity = await UserExternalIdentity.getOne(resident, {})
+
+            // call delete
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await UserExternalIdentity.softDelete(staff, identity.id)
+            })
+        })
+
+        test('Denied: SERVICE', async () => {
+            // register users external identity
+            const resident = await makeClientWithResidentUser()
+            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            const identity = await UserExternalIdentity.getOne(resident, {})
+
+            // call delete
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await UserExternalIdentity.softDelete(service, identity.id)
+            })
+        })
+
+        test('Allowed: admin', async () => {
+            // register users external identity
+            const resident = await makeClientWithResidentUser()
+            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            const identity = await UserExternalIdentity.getOne(resident, {})
+
+            // call delete
+            await UserExternalIdentity.softDelete(admin, identity.id)
         })
     })
 })
-
-// todo add update/read/delete tests
