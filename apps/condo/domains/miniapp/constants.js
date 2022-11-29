@@ -50,8 +50,8 @@ const GLOBAL_APP_NO_APP_URL_ERROR = '[app:noAppUrl] If the app is global, it mus
 const NON_GLOBAL_APP_WITH_FEATURES_ERROR = '[app:non-global:features] Non global apps cannot specify features'
 
 const PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS = {
-    'BLACK': {},
-    'WHITE': { type: 'inverted' },
+    BLACK: {},
+    WHITE: { invertText: true },
 }
 
 module.exports = {
