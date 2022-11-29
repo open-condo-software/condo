@@ -51,6 +51,7 @@ const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
  */
 let isDefaultFilterApplied = false
 let shouldApplyDefaultFilter = true
+let filtersAreReset = false
 
 interface IPaymentsTableProps {
     billingContext: BillingIntegrationOrganizationContext,
@@ -200,6 +201,19 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
         }
     }, [])
 
+    /**
+    * set default filters only when filters are empty and reset button hasn't been pressed
+    **/
+    useEffect(()=>{
+        if (hasFilters){
+            filtersAreReset = false
+        }
+        if (!hasFilters && !filtersAreReset) {
+            isDefaultFilterApplied = true
+            setDateRange(DEFAULT_DATE_RANGE)
+        }
+    }, [hasFilters])
+
     return (
         <>
             <Row gutter={ROW_GUTTER} align='middle' justify='center'>
@@ -232,7 +246,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                                 <Row justify='end' align='middle'>
                                     {
                                         appliedFiltersCount > 0 && (
-                                            <Col>
+                                            <Col onClick={() => filtersAreReset = true }>
                                                 <ResetFiltersModalButton />
                                             </Col>
                                         )
