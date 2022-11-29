@@ -5,7 +5,8 @@ const SERVICE = 'service'
 const USER_TYPES = [STAFF, RESIDENT, SERVICE]
 
 const SBER_ID_IDP_TYPE = 'sber_id'
-const IDP_TYPES = [SBER_ID_IDP_TYPE]
+const SBBOL_IDP_TYPE = 'sbbol'
+const IDP_TYPES = [SBER_ID_IDP_TYPE, SBBOL_IDP_TYPE]
 
 const MIN_PASSWORD_LENGTH = 8
 const LOCK_TIMEOUT = 1

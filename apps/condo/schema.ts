@@ -17516,7 +17516,8 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
 };
 
 export enum IdentityType {
-  SberId = 'sber_id'
+  SberId = 'sber_id',
+  Sbbol = 'sbbol'
 }
 
 export type InviteNewOrganizationEmployeeInput = {
@@ -61634,7 +61635,8 @@ export type UserExternalIdentityHistoryRecordsUpdateInput = {
 };
 
 export enum UserExternalIdentityIdentityTypeType {
-  SberId = 'sber_id'
+  SberId = 'sber_id',
+  Sbbol = 'sbbol'
 }
 
 export type UserExternalIdentityUpdateInput = {
