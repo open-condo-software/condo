@@ -12,9 +12,10 @@ import {
     getDateRender,
     renderMeterReading,
     getTextRender,
-    getTableCellRenderer, getAddressRender,
+    getAddressRender,
 } from '@condo/domains/common/components/Table/Renders'
 import { getResourceRender, getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
+import { getTicketUserNameRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
@@ -139,7 +140,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTableCellRenderer(search, true),
+                render: getTicketUserNameRender(search),
                 filterIcon: getFilterIcon,
             },
             {
