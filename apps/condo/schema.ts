@@ -59041,7 +59041,7 @@ export type UserExternalIdentitiesUpdateInput = {
   data?: Maybe<UserExternalIdentityUpdateInput>;
 };
 
-/**  Individual user external identity link. Used primarily for authorization and linking to external idp purposes. Think of `User` as a technical entity, not a business actor.  */
+/**  Individual user external identity link. Used primarily for authorization and linking to external identity provider purposes. Think of `User` as a technical entity, not a business actor.  */
 export type UserExternalIdentity = {
   __typename?: 'UserExternalIdentity';
   /**
