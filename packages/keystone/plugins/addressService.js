@@ -84,10 +84,15 @@ const addressService = (fieldsHooks = {}) => plugin(({
 
                     || (
                         // ... When the received address is not included in address sources for existing property/resident model
-                        // Now we suppose that the received `address` field is a source of an actual address.
-                        // The value may equal some address string or some UUID or something else.
+                        // We suppose that the received `address` field is a source of an actual address.
+                        // The value of the received `address` field may equal some address string or some UUID or something else.
                         // The actual address will be received from the address service.
-                        !!resolvedData['address'] && !existingAddressSources.includes(resolvedData['address'])
+                        !!resolvedData['address']
+                        && !existingAddressSources.includes(resolvedData['address'])
+                        // But! If we edit a building (change name or square or year) created from injections we receive a string in the `address` field.
+                        // This string is not equals 'injectionId:<uuid>', but equals human-readable address string (value got from InjectionSeeker)
+                        // So, we also need to compare received `address` with existing address.
+                        && resolvedData['address'] !== existingItem['address']
                     )
                 )
             )
