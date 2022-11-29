@@ -23,14 +23,14 @@ const errors = {
         mutation: 'signinResidentUser',
         code: BAD_USER_INPUT,
         type: UNABLE_TO_CREATE_CONTACT_DUPLICATE,
-        message: 'Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+        message: 'Cannot create contact, because another contact with the same provided set of "property", "unitName", "phone"',
         messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
     },
     UNABLE_TO_UPDATE_CONTACT_DUPLICATE: {
         mutation: 'signinResidentUser',
         code: BAD_USER_INPUT,
         type: UNABLE_TO_UPDATE_CONTACT_DUPLICATE,
-        message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+        message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "phone"',
         messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
     },
 
@@ -134,7 +134,7 @@ const Contact = new GQLListSchema('Contact', {
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            const { property, unitName, unitType, name, phone } = newItem
+            const { property, unitName, unitType, phone } = newItem
 
             if (operation === 'create' && !property) {
                 return addValidationError(`${ PROPERTY_REQUIRED_ERROR }] no property for contact`)
@@ -143,7 +143,6 @@ const Contact = new GQLListSchema('Contact', {
                 property: { id: property },
                 unitName: unitName || null,
                 unitType,
-                name,
                 phone,
                 deletedAt: null,
             }
@@ -158,6 +157,16 @@ const Contact = new GQLListSchema('Contact', {
                 }
             }
         },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['property', 'unitName', 'unitType', 'phone'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'contact_unique_property_unitName_unitType_phone',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
