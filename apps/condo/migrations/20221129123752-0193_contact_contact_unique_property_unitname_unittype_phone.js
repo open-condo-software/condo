@@ -21,6 +21,9 @@ exports.up = async (knex) => {
     SET "unitType" = NULL
     WHERE "unitName" IS NULL AND "unitType" IS NOT NULL;
     
+    --
+    -- [CUSTOM] Gets contacts with tickets to understand which contact from duplicates should remain
+    --
     CREATE OR REPLACE FUNCTION getContactsWithTickets(contactIds uuid[])
         RETURNS uuid[]
     AS
@@ -31,13 +34,13 @@ exports.up = async (knex) => {
     BEGIN
         FOREACH contactId IN ARRAY contactIds
             LOOP
-                IF (
+                IF EXISTS (
                        SELECT count(id)
                        FROM "Ticket"
                        WHERE contact = contactId
                          AND "deletedAt" IS NULL
                        LIMIT 1
-                   ) == 1
+                   )
                 THEN
                     contactsWithTickets := array_append(contactsWithTickets, contactId);
                 END IF;
@@ -47,6 +50,7 @@ exports.up = async (knex) => {
     END;
     $getContactsWithTickets$ LANGUAGE plpgsql;
     
+
     CREATE OR REPLACE FUNCTION getLastCreatedContactId(contactIds uuid[])
         RETURNS uuid
     AS
@@ -63,6 +67,10 @@ exports.up = async (knex) => {
     END
     $getLastCreatedContact$ LANGUAGE plpgsql;
     
+    
+    --
+    -- [CUSTOM] Deletes contacts duplicates and updates contact from tickets and meter readings with the remain contact
+    --
     CREATE OR REPLACE FUNCTION deleteContactDuplicates()
         RETURNS void
     AS
@@ -93,6 +101,9 @@ exports.up = async (knex) => {
     
                 contactsWithTickets := getContactsWithTickets(contactIds);
     
+                -- Find the last created contact among those that have tickets, 
+                -- If there are no tickets, then just the last created contact.
+                -- The remaining contacts are deleted.
                 IF contactsWithTickets IS NULL
                 THEN
                     lastCreatedContactId := getLastCreatedContactId(contactIds);
