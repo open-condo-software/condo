@@ -103,7 +103,7 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
 
 const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
     query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        inwork: _allTicketsMeta(where: { status: { type_not:  closed }, property: { id: $propertyId } }) {
+        inwork: _allTicketsMeta(where: { status: { type_not_in: [closed, canceled] }, property: { id: $propertyId } }) {
             count
         }  
   }
