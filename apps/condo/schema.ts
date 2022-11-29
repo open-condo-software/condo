@@ -23267,59 +23267,6 @@ export type Mutation = {
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
-   * Creates a new ticket for resident
-   *
-   * Corresponding resident, to create the ticket for, is fetched from current logged in user
-   *
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "mutation": "createResidentTicket",
-   *   "variable": [
-   *     "data",
-   *     "property"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "NOT_FOUND",
-   *   "message": "Cannot find Property by specified id"
-   * }`
-   *
-   * `{
-   *   "mutation": "createResidentTicket",
-   *   "variable": [
-   *     "data",
-   *     "source"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "NOT_FOUND",
-   *   "message": "Cannot find TicketSource by specified id"
-   * }`
-   */
-  createResidentTicket?: Maybe<ResidentTicketOutput>;
-  /**
-   * Updates ticket with specified id for resident, corresponding to current logged in user
-   *
-   *
-   *
-   * **Errors**
-   *
-   * Following objects will be presented in `extensions` property of thrown error
-   *
-   * `{
-   *   "mutation": "updateResidentTicket",
-   *   "variable": [
-   *     "id"
-   *   ],
-   *   "code": "BAD_USER_INPUT",
-   *   "type": "NOT_FOUND",
-   *   "message": "Cannot find ticket with id \"{ticketId}\" for current user",
-   *   "messageForUser": "api.ticket.updateResidentTicket.TICKET_NOT_FOUND"
-   * }`
-   */
-  updateResidentTicket?: Maybe<ResidentTicketOutput>;
-  /**
    * Sends message of specified type to specified contact
    *
    * Each message type has specific set of required fields:
@@ -29061,17 +29008,6 @@ export type MutationRegisterBillingReceiptsArgs = {
 
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
-};
-
-
-export type MutationCreateResidentTicketArgs = {
-  data?: Maybe<ResidentTicketCreateInput>;
-};
-
-
-export type MutationUpdateResidentTicketArgs = {
-  id?: Maybe<Scalars['ID']>;
-  data?: Maybe<ResidentTicketUpdateInput>;
 };
 
 
@@ -35783,7 +35719,6 @@ export type Query = {
   checkPropertyWithAddressExist?: Maybe<CheckPropertyWithAddressExistOutput>;
   exportPropertiesToExcel?: Maybe<ExportPropertiesToExcelOutput>;
   allResidentBillingReceipts?: Maybe<Array<Maybe<ResidentBillingReceiptOutput>>>;
-  allResidentTickets?: Maybe<Array<Maybe<ResidentTicketOutput>>>;
   predictTicketClassification?: Maybe<TicketClassifier>;
   exportContactsToExcel?: Maybe<ExportContactsToExcelOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
@@ -39684,14 +39619,6 @@ export type QueryAllResidentBillingReceiptsArgs = {
 };
 
 
-export type QueryAllResidentTicketsArgs = {
-  where?: Maybe<ResidentTicketWhereInput>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-  sortBy?: Maybe<Array<SortResidentTicketsBy>>;
-};
-
-
 export type QueryPredictTicketClassificationArgs = {
   data: PredictTicketClassificationInput;
 };
@@ -40987,153 +40914,6 @@ export type ResidentRelateToOneInput = {
   connect?: Maybe<ResidentWhereUniqueInput>;
   disconnect?: Maybe<ResidentWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
-export type ResidentTicketCreateInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  details: Scalars['String'];
-  source: TicketSourceRelateToOneInput;
-  property: PropertyRelateToOneInput;
-  unitName?: Maybe<Scalars['String']>;
-  placeClassifier?: Maybe<TicketPlaceClassifierRelateToOneInput>;
-  categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
-  problemClassifier?: Maybe<TicketProblemClassifierRelateToOneInput>;
-  classifier?: Maybe<TicketClassifierRelateToOneInput>;
-};
-
-export type ResidentTicketOutput = {
-  __typename?: 'ResidentTicketOutput';
-  organization: Organization;
-  property: Property;
-  unitName?: Maybe<Scalars['String']>;
-  sectionName?: Maybe<Scalars['String']>;
-  floorName?: Maybe<Scalars['String']>;
-  number: Scalars['Int'];
-  client?: Maybe<User>;
-  clientName?: Maybe<Scalars['String']>;
-  clientEmail?: Maybe<Scalars['String']>;
-  clientPhone?: Maybe<Scalars['String']>;
-  details: Scalars['String'];
-  related?: Maybe<Ticket>;
-  isEmergency?: Maybe<Scalars['Boolean']>;
-  isWarranty?: Maybe<Scalars['Boolean']>;
-  status: TicketStatus;
-  isPaid?: Maybe<Scalars['Boolean']>;
-  source: TicketSource;
-  id: Scalars['ID'];
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  placeClassifier?: Maybe<TicketPlaceClassifier>;
-  problemClassifier?: Maybe<TicketProblemClassifier>;
-  classifier?: Maybe<TicketClassifier>;
-  categoryClassifier?: Maybe<TicketCategoryClassifier>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderField>;
-  v?: Maybe<Scalars['Int']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-};
-
-export type ResidentTicketUpdateInput = {
-  dv: Scalars['Int'];
-  sender: SenderFieldInput;
-  details?: Maybe<Scalars['String']>;
-};
-
-export type ResidentTicketWhereInput = {
-  AND?: Maybe<Array<Maybe<ResidentTicketWhereInput>>>;
-  OR?: Maybe<Array<Maybe<ResidentTicketWhereInput>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  number?: Maybe<Scalars['Int']>;
-  number_not?: Maybe<Scalars['Int']>;
-  number_lt?: Maybe<Scalars['Int']>;
-  number_gt?: Maybe<Scalars['Int']>;
-  number_lte?: Maybe<Scalars['Int']>;
-  number_gte?: Maybe<Scalars['Int']>;
-  number_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  number_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  property?: Maybe<PropertyWhereInput>;
-  property_is_null?: Maybe<Scalars['Boolean']>;
-  unitName?: Maybe<Scalars['String']>;
-  unitName_not?: Maybe<Scalars['String']>;
-  unitName_contains?: Maybe<Scalars['String']>;
-  unitName_not_contains?: Maybe<Scalars['String']>;
-  unitName_starts_with?: Maybe<Scalars['String']>;
-  unitName_not_starts_with?: Maybe<Scalars['String']>;
-  unitName_ends_with?: Maybe<Scalars['String']>;
-  unitName_not_ends_with?: Maybe<Scalars['String']>;
-  unitName_i?: Maybe<Scalars['String']>;
-  unitName_not_i?: Maybe<Scalars['String']>;
-  unitName_contains_i?: Maybe<Scalars['String']>;
-  unitName_not_contains_i?: Maybe<Scalars['String']>;
-  unitName_starts_with_i?: Maybe<Scalars['String']>;
-  unitName_not_starts_with_i?: Maybe<Scalars['String']>;
-  unitName_ends_with_i?: Maybe<Scalars['String']>;
-  unitName_not_ends_with_i?: Maybe<Scalars['String']>;
-  status?: Maybe<TicketStatusWhereInput>;
-  status_is_null?: Maybe<Scalars['Boolean']>;
-  source?: Maybe<TicketSourceWhereInput>;
-  source_is_null?: Maybe<Scalars['Boolean']>;
-  classifier?: Maybe<TicketClassifierWhereInput>;
-  classifier_is_null?: Maybe<Scalars['Boolean']>;
-  isEmergency?: Maybe<Scalars['Boolean']>;
-  isEmergency_not?: Maybe<Scalars['Boolean']>;
-  isWarranty?: Maybe<Scalars['Boolean']>;
-  isWarranty_not?: Maybe<Scalars['Boolean']>;
-  isPaid?: Maybe<Scalars['Boolean']>;
-  isPaid_not?: Maybe<Scalars['Boolean']>;
-  details?: Maybe<Scalars['String']>;
-  details_not?: Maybe<Scalars['String']>;
-  details_contains?: Maybe<Scalars['String']>;
-  details_not_contains?: Maybe<Scalars['String']>;
-  details_starts_with?: Maybe<Scalars['String']>;
-  details_not_starts_with?: Maybe<Scalars['String']>;
-  details_ends_with?: Maybe<Scalars['String']>;
-  details_not_ends_with?: Maybe<Scalars['String']>;
-  details_i?: Maybe<Scalars['String']>;
-  details_not_i?: Maybe<Scalars['String']>;
-  details_contains_i?: Maybe<Scalars['String']>;
-  details_not_contains_i?: Maybe<Scalars['String']>;
-  details_starts_with_i?: Maybe<Scalars['String']>;
-  details_not_starts_with_i?: Maybe<Scalars['String']>;
-  details_ends_with_i?: Maybe<Scalars['String']>;
-  details_not_ends_with_i?: Maybe<Scalars['String']>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_contains?: Maybe<Scalars['String']>;
-  createdAt_not_contains?: Maybe<Scalars['String']>;
-  createdAt_starts_with?: Maybe<Scalars['String']>;
-  createdAt_not_starts_with?: Maybe<Scalars['String']>;
-  createdAt_ends_with?: Maybe<Scalars['String']>;
-  createdAt_not_ends_with?: Maybe<Scalars['String']>;
-  createdAt_i?: Maybe<Scalars['String']>;
-  createdAt_not_i?: Maybe<Scalars['String']>;
-  createdAt_contains_i?: Maybe<Scalars['String']>;
-  createdAt_not_contains_i?: Maybe<Scalars['String']>;
-  createdAt_starts_with_i?: Maybe<Scalars['String']>;
-  createdAt_not_starts_with_i?: Maybe<Scalars['String']>;
-  createdAt_ends_with_i?: Maybe<Scalars['String']>;
-  createdAt_not_ends_with_i?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_contains?: Maybe<Scalars['String']>;
-  updatedAt_not_contains?: Maybe<Scalars['String']>;
-  updatedAt_starts_with?: Maybe<Scalars['String']>;
-  updatedAt_not_starts_with?: Maybe<Scalars['String']>;
-  updatedAt_ends_with?: Maybe<Scalars['String']>;
-  updatedAt_not_ends_with?: Maybe<Scalars['String']>;
-  updatedAt_i?: Maybe<Scalars['String']>;
-  updatedAt_not_i?: Maybe<Scalars['String']>;
-  updatedAt_contains_i?: Maybe<Scalars['String']>;
-  updatedAt_not_contains_i?: Maybe<Scalars['String']>;
-  updatedAt_starts_with_i?: Maybe<Scalars['String']>;
-  updatedAt_not_starts_with_i?: Maybe<Scalars['String']>;
-  updatedAt_ends_with_i?: Maybe<Scalars['String']>;
-  updatedAt_not_ends_with_i?: Maybe<Scalars['String']>;
 };
 
 export type ResidentUpdateInput = {
@@ -46219,35 +45999,6 @@ export enum SortResidentHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortResidentTicketsBy {
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  NumberAsc = 'number_ASC',
-  NumberDesc = 'number_DESC',
-  PropertyAsc = 'property_ASC',
-  PropertyDesc = 'property_DESC',
-  UnitNameAsc = 'unitName_ASC',
-  UnitNameDesc = 'unitName_DESC',
-  StatusAsc = 'status_ASC',
-  StatusDesc = 'status_DESC',
-  SourceAsc = 'source_ASC',
-  SourceDesc = 'source_DESC',
-  ClassifierAsc = 'classifier_ASC',
-  ClassifierDesc = 'classifier_DESC',
-  IsEmergencyAsc = 'isEmergency_ASC',
-  IsEmergencyDesc = 'isEmergency_DESC',
-  IsWarrantyAsc = 'isWarranty_ASC',
-  IsWarrantyDesc = 'isWarranty_DESC',
-  IsPaidAsc = 'isPaid_ASC',
-  IsPaidDesc = 'isPaid_DESC',
-  DetailsAsc = 'details_ASC',
-  DetailsDesc = 'details_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC'
 }
 
 export enum SortResidentsBy {
