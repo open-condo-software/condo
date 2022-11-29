@@ -7,6 +7,9 @@ export default {
     title: 'Components/Banner',
     component: Component,
     argTypes: {
+        backgroundColor: {
+            control: 'text',
+        },
         onClick: { control: false },
     },
 } as ComponentMeta<typeof Component>

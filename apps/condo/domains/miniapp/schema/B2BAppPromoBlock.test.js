@@ -7,6 +7,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const {
@@ -127,6 +128,48 @@ describe('B2BAppPromoBlock', () => {
                 const actor = actors[role]
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await B2BAppPromoBlock.delete(actor, block.id)
+                })
+            })
+        })
+    })
+    describe('Validations', () => {
+        describe('Background color must be hex or gradient', () => {
+            let admin
+            let blockId
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+                const [promoBlock] = await createTestB2BAppPromoBlock(admin)
+                blockId = promoBlock.id
+            })
+            describe('Valid colors', () => {
+                const cases = [
+                    ['#af1'],
+                    ['#FF0022'],
+                    ['linear-gradient(90deg, #4cd174 0%, #6db8f2 100%)'],
+                ]
+                test.each(cases)('%p', async (backgroundColor) => {
+                    const [updated] = await updateTestB2BAppPromoBlock(admin, blockId, {
+                        backgroundColor,
+                    })
+                    expect(updated).toHaveProperty('backgroundColor', backgroundColor)
+                })
+            })
+            describe('Invalid colors', () => {
+                const cases = [
+                    ['#ag1'],
+                    ['#ffff'],
+                    ['#FF00222'],
+                    ['fff000'],
+                    ['#fff000;'],
+                    ['linear-gradient(90deg, #4cd174 0%, #6db8f2 100%);'],
+                    ['radial-gradient(circle, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%)'],
+                ]
+                test.each(cases)('%p', async (backgroundColor) => {
+                    await expectToThrowValidationFailureError(async () => {
+                        await updateTestB2BAppPromoBlock(admin, blockId, {
+                            backgroundColor,
+                        })
+                    }, 'Invalid color specified')
                 })
             })
         })
