@@ -13,7 +13,7 @@ const { IDP_TYPES, RESIDENT } = require('@condo/domains/user/constants/common')
 const access = require('@condo/domains/user/access/UserExternalIdentity')
 
 const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
-    schemaDoc: 'Individual user external identity link. Used primarily for authorization and linking to external idp purposes. Think of `User` as a technical entity, not a business actor.',
+    schemaDoc: 'Individual user external identity link. Used primarily for authorization and linking to external identity provider purposes. Think of `User` as a technical entity, not a business actor.',
     fields: {
         user: {
             schemaDoc: 'Link to user',
@@ -42,6 +42,7 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         identityId: {
             schemaDoc: 'External identity id. The value of this field should be populated from an external identity provider',
             type: Text,
+            isRequired: true,
         },
         identityType: {
             schemaDoc: 'The type of external identity that was a source for this link',
@@ -73,9 +74,9 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
         historical(),
     ],
     access: {
-        read: access.canReadUserExternalIntegrations,
+        read: access.canReadUserExternalIdentities,
         create: false,
-        update: access.canMutateUserExternalIntegrations,
+        update: access.canManageUserExternalIdentities,
         delete: false,
         auth: true,
     },

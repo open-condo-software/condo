@@ -72,7 +72,7 @@ async function createTestUser (client, extraAttrs = {}, { raw = false } = {}) {
     return [result, attrs]
 }
 
-async function createTestUserExternalIdentity (client, extraAttrs = {}, { raw = false } = {}) {
+async function createTestUserExternalIdentity (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const identityId = faker.random.alphaNumeric(8)
@@ -89,8 +89,7 @@ async function createTestUserExternalIdentity (client, extraAttrs = {}, { raw = 
         meta,
         ...extraAttrs,
     }
-    const result = await UserExternalIdentity.create(client, attrs, { raw })
-    if (raw) return result
+    const result = await UserExternalIdentity.create(client, attrs)
     return [result, attrs]
 }
 
