@@ -15,9 +15,6 @@ const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
 const { TicketProblemClassifier } = require('./TicketProblemClassifier')
 const { TicketClassifier } = require('./TicketClassifier')
 
-const { CreateResidentTicketService } = require('./CreateResidentTicketService')
-const { GetAllResidentTicketsService } = require('./GetAllResidentTicketsService')
-const { UpdateResidentTicketService } = require('./UpdateResidentTicketService')
 const { TicketFilterTemplate } = require('./TicketFilterTemplate')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
 const { TicketCommentFile } = require('./TicketCommentFile')
@@ -37,9 +34,6 @@ module.exports = {
     TicketChange,
     TicketComment,
     ShareTicketService,
-    CreateResidentTicketService,
-    GetAllResidentTicketsService,
-    UpdateResidentTicketService,
     TicketPlaceClassifier,
     TicketCategoryClassifier,
     TicketProblemClassifier,
