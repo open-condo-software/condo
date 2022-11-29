@@ -57,7 +57,7 @@ const B2BAppPromoBlock = new GQLListSchema('B2BAppPromoBlock', {
             isRequired: true,
             adapter: Adapter,
         },
-        url: {
+        targetUrl: {
             schemaDoc: 'Link to the resource that this B2BAppPromoBlock promotes',
             type: Url,
             isRequired: true,
