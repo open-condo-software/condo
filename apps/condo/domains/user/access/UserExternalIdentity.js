@@ -4,7 +4,7 @@
 const access = require('@open-condo/keystone/access')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadUserExternalIntegrations (args) {
+async function canReadUserExternalIdentities (args) {
     const { authentication: { item: user } } = args
 
     if (!access.userIsAuthenticated(args)) {
@@ -21,7 +21,7 @@ async function canReadUserExternalIntegrations (args) {
     }
 }
 
-async function canMutateUserExternalIntegrations (args) {
+async function canManageUserExternalIdentities (args) {
     const { authentication: { item: user }, originalInput } = args
 
     if (!access.userIsAuthenticated(args)) {
@@ -44,6 +44,6 @@ async function canMutateUserExternalIntegrations (args) {
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canReadUserExternalIntegrations,
-    canMutateUserExternalIntegrations,
+    canReadUserExternalIdentities,
+    canManageUserExternalIdentities,
 }
