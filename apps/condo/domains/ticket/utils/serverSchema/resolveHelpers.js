@@ -150,7 +150,9 @@ function overrideTicketFieldsForResidentUserType (context, resolvedData) {
     resolvedData.canReadByResident = true
     resolvedData.isResidentTicket = true
     // set default unitType and sectionType values to tickets, created from older versions of the resident's mobile app where no unitType and sectionType is passed
-    resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
+    if (resolvedData.unitName) {
+        resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
+    }
     const sectionTypeByUnitType = resolvedData.unitType === PARKING_UNIT_TYPE ? PARKING_SECTION_TYPE : SECTION_SECTION_TYPE
     resolvedData.sectionType = resolvedData.sectionType || sectionTypeByUnitType
 }
