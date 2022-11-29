@@ -9,7 +9,7 @@ const { UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema
 const { IDP_TYPES } = require('@condo/domains/user/constants/common')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const {
     USER_NOT_FOUND,
@@ -23,6 +23,14 @@ const errors = {
         code: BAD_USER_INPUT,
         type: DV_VERSION_MISMATCH,
         message: 'Unsupported value for dv',
+    },
+    WRONG_SENDER_FORMAT: {
+        mutation: 'registerUserExternalIdentity',
+        variable: ['data', 'sender'],
+        code: BAD_USER_INPUT,
+        type: WRONG_FORMAT,
+        message: 'Invalid format of "sender" field value. {details}',
+        correctExample: '{ dv: 1, fingerprint: \'example-fingerprint-alphanumeric-value\'}',
     },
     USER_NOT_FOUND: {
         mutation: 'registerUserExternalIdentity',
@@ -70,11 +78,8 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
                     identityType,
                     meta,
                 } = data
-                // validate dv
-                checkDvAndSender(data)
-                if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
-                }
+                // validate dv & sender
+                checkDvAndSender(data, errors.DV_VERSION_MISMATCH, errors.WRONG_SENDER_FORMAT, context)
 
                 // validate user
                 const userEntity = await getById('User', user.id)
@@ -88,7 +93,7 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
                 }
 
                 const identity = await UserExternalIdentity.create(context, {
-                    dv: 1,
+                    dv,
                     sender,
                     user: { connect: { id: userEntity.id } },
                     identityId,
