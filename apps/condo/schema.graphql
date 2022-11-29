@@ -43213,7 +43213,7 @@ type B2BAppPromoBlockHistoryRecord {
   textVariant: String
   backgroundColor: String
   backgroundImage: JSON
-  url: String
+  targetUrl: String
   priority: Int
   id: ID!
   v: Int
@@ -43309,24 +43309,24 @@ input B2BAppPromoBlockHistoryRecordWhereInput {
   backgroundImage_not: JSON
   backgroundImage_in: [JSON]
   backgroundImage_not_in: [JSON]
-  url: String
-  url_not: String
-  url_contains: String
-  url_not_contains: String
-  url_starts_with: String
-  url_not_starts_with: String
-  url_ends_with: String
-  url_not_ends_with: String
-  url_i: String
-  url_not_i: String
-  url_contains_i: String
-  url_not_contains_i: String
-  url_starts_with_i: String
-  url_not_starts_with_i: String
-  url_ends_with_i: String
-  url_not_ends_with_i: String
-  url_in: [String]
-  url_not_in: [String]
+  targetUrl: String
+  targetUrl_not: String
+  targetUrl_contains: String
+  targetUrl_not_contains: String
+  targetUrl_starts_with: String
+  targetUrl_not_starts_with: String
+  targetUrl_ends_with: String
+  targetUrl_not_ends_with: String
+  targetUrl_i: String
+  targetUrl_not_i: String
+  targetUrl_contains_i: String
+  targetUrl_not_contains_i: String
+  targetUrl_starts_with_i: String
+  targetUrl_not_starts_with_i: String
+  targetUrl_ends_with_i: String
+  targetUrl_not_ends_with_i: String
+  targetUrl_in: [String]
+  targetUrl_not_in: [String]
   priority: Int
   priority_not: Int
   priority_lt: Int
@@ -43426,8 +43426,8 @@ enum SortB2BAppPromoBlockHistoryRecordsBy {
   textVariant_DESC
   backgroundColor_ASC
   backgroundColor_DESC
-  url_ASC
-  url_DESC
+  targetUrl_ASC
+  targetUrl_DESC
   priority_ASC
   priority_DESC
   id_ASC
@@ -43454,7 +43454,7 @@ input B2BAppPromoBlockHistoryRecordUpdateInput {
   textVariant: String
   backgroundColor: String
   backgroundImage: JSON
-  url: String
+  targetUrl: String
   priority: Int
   v: Int
   createdAt: String
@@ -43481,7 +43481,7 @@ input B2BAppPromoBlockHistoryRecordCreateInput {
   textVariant: String
   backgroundColor: String
   backgroundImage: JSON
-  url: String
+  targetUrl: String
   priority: Int
   v: Int
   createdAt: String
@@ -43537,7 +43537,7 @@ type B2BAppPromoBlock {
   backgroundImage: File
 
   """ Link to the resource that this B2BAppPromoBlock promotes """
-  url: String
+  targetUrl: String
 
   """ The number used to determine the position of the block among the others. Blocks with higher priority appear earlier. Blocks with the same priority are sorted from newest to oldest. The default value is 1. 
   """
@@ -43630,24 +43630,24 @@ input B2BAppPromoBlockWhereInput {
   backgroundImage_not: String
   backgroundImage_in: [String]
   backgroundImage_not_in: [String]
-  url: String
-  url_not: String
-  url_contains: String
-  url_not_contains: String
-  url_starts_with: String
-  url_not_starts_with: String
-  url_ends_with: String
-  url_not_ends_with: String
-  url_i: String
-  url_not_i: String
-  url_contains_i: String
-  url_not_contains_i: String
-  url_starts_with_i: String
-  url_not_starts_with_i: String
-  url_ends_with_i: String
-  url_not_ends_with_i: String
-  url_in: [String]
-  url_not_in: [String]
+  targetUrl: String
+  targetUrl_not: String
+  targetUrl_contains: String
+  targetUrl_not_contains: String
+  targetUrl_starts_with: String
+  targetUrl_not_starts_with: String
+  targetUrl_ends_with: String
+  targetUrl_not_ends_with: String
+  targetUrl_i: String
+  targetUrl_not_i: String
+  targetUrl_contains_i: String
+  targetUrl_not_contains_i: String
+  targetUrl_starts_with_i: String
+  targetUrl_not_starts_with_i: String
+  targetUrl_ends_with_i: String
+  targetUrl_not_ends_with_i: String
+  targetUrl_in: [String]
+  targetUrl_not_in: [String]
   priority: Int
   priority_not: Int
   priority_lt: Int
@@ -43727,8 +43727,8 @@ enum SortB2BAppPromoBlocksBy {
   textVariant_DESC
   backgroundColor_ASC
   backgroundColor_DESC
-  url_ASC
-  url_DESC
+  targetUrl_ASC
+  targetUrl_DESC
   priority_ASC
   priority_DESC
   id_ASC
@@ -43755,7 +43755,7 @@ input B2BAppPromoBlockUpdateInput {
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
   backgroundImage: Upload
-  url: String
+  targetUrl: String
   priority: Int
   v: Int
   createdAt: String
@@ -43779,7 +43779,7 @@ input B2BAppPromoBlockCreateInput {
   textVariant: B2BAppPromoBlockTextVariantType
   backgroundColor: String
   backgroundImage: Upload
-  url: String
+  targetUrl: String
   priority: Int
   v: Int
   createdAt: String

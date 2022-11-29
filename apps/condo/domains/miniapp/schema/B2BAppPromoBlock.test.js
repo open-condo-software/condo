@@ -109,7 +109,7 @@ describe('B2BAppPromoBlock', () => {
                 expect(blocks[0]).toHaveProperty('textVariant')
                 expect(blocks[0]).toHaveProperty('backgroundColor')
                 expect(blocks[0]).toHaveProperty(['backgroundImage', 'publicUrl'])
-                expect(blocks[0]).toHaveProperty('url')
+                expect(blocks[0]).toHaveProperty('targetUrl')
                 expect(blocks[0]).toHaveProperty('priority')
             })
             test('Anonymous cannot read', async () => {

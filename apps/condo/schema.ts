@@ -2972,7 +2972,7 @@ export type B2BAppPromoBlock = {
   /**  PNG image which appears next to text on large devices  */
   backgroundImage?: Maybe<File>;
   /**  Link to the resource that this B2BAppPromoBlock promotes  */
-  url?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
   /**  The number used to determine the position of the block among the others. Blocks with higher priority appear earlier. Blocks with the same priority are sorted from newest to oldest. The default value is 1.  */
   priority?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -2997,7 +2997,7 @@ export type B2BAppPromoBlockCreateInput = {
   textVariant?: Maybe<B2BAppPromoBlockTextVariantType>;
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['Upload']>;
-  url?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3026,7 +3026,7 @@ export type B2BAppPromoBlockHistoryRecord = {
   textVariant?: Maybe<Scalars['String']>;
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['JSON']>;
-  url?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
   priority?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -3049,7 +3049,7 @@ export type B2BAppPromoBlockHistoryRecordCreateInput = {
   textVariant?: Maybe<Scalars['String']>;
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['JSON']>;
-  url?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3077,7 +3077,7 @@ export type B2BAppPromoBlockHistoryRecordUpdateInput = {
   textVariant?: Maybe<Scalars['String']>;
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['JSON']>;
-  url?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3172,24 +3172,24 @@ export type B2BAppPromoBlockHistoryRecordWhereInput = {
   backgroundImage_not?: Maybe<Scalars['JSON']>;
   backgroundImage_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   backgroundImage_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  url?: Maybe<Scalars['String']>;
-  url_not?: Maybe<Scalars['String']>;
-  url_contains?: Maybe<Scalars['String']>;
-  url_not_contains?: Maybe<Scalars['String']>;
-  url_starts_with?: Maybe<Scalars['String']>;
-  url_not_starts_with?: Maybe<Scalars['String']>;
-  url_ends_with?: Maybe<Scalars['String']>;
-  url_not_ends_with?: Maybe<Scalars['String']>;
-  url_i?: Maybe<Scalars['String']>;
-  url_not_i?: Maybe<Scalars['String']>;
-  url_contains_i?: Maybe<Scalars['String']>;
-  url_not_contains_i?: Maybe<Scalars['String']>;
-  url_starts_with_i?: Maybe<Scalars['String']>;
-  url_not_starts_with_i?: Maybe<Scalars['String']>;
-  url_ends_with_i?: Maybe<Scalars['String']>;
-  url_not_ends_with_i?: Maybe<Scalars['String']>;
-  url_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  url_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  targetUrl?: Maybe<Scalars['String']>;
+  targetUrl_not?: Maybe<Scalars['String']>;
+  targetUrl_contains?: Maybe<Scalars['String']>;
+  targetUrl_not_contains?: Maybe<Scalars['String']>;
+  targetUrl_starts_with?: Maybe<Scalars['String']>;
+  targetUrl_not_starts_with?: Maybe<Scalars['String']>;
+  targetUrl_ends_with?: Maybe<Scalars['String']>;
+  targetUrl_not_ends_with?: Maybe<Scalars['String']>;
+  targetUrl_i?: Maybe<Scalars['String']>;
+  targetUrl_not_i?: Maybe<Scalars['String']>;
+  targetUrl_contains_i?: Maybe<Scalars['String']>;
+  targetUrl_not_contains_i?: Maybe<Scalars['String']>;
+  targetUrl_starts_with_i?: Maybe<Scalars['String']>;
+  targetUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  targetUrl_ends_with_i?: Maybe<Scalars['String']>;
+  targetUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  targetUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  targetUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   priority?: Maybe<Scalars['Int']>;
   priority_not?: Maybe<Scalars['Int']>;
   priority_lt?: Maybe<Scalars['Int']>;
@@ -3300,7 +3300,7 @@ export type B2BAppPromoBlockUpdateInput = {
   textVariant?: Maybe<B2BAppPromoBlockTextVariantType>;
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['Upload']>;
-  url?: Maybe<Scalars['String']>;
+  targetUrl?: Maybe<Scalars['String']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3378,24 +3378,24 @@ export type B2BAppPromoBlockWhereInput = {
   backgroundImage_not?: Maybe<Scalars['String']>;
   backgroundImage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   backgroundImage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  url?: Maybe<Scalars['String']>;
-  url_not?: Maybe<Scalars['String']>;
-  url_contains?: Maybe<Scalars['String']>;
-  url_not_contains?: Maybe<Scalars['String']>;
-  url_starts_with?: Maybe<Scalars['String']>;
-  url_not_starts_with?: Maybe<Scalars['String']>;
-  url_ends_with?: Maybe<Scalars['String']>;
-  url_not_ends_with?: Maybe<Scalars['String']>;
-  url_i?: Maybe<Scalars['String']>;
-  url_not_i?: Maybe<Scalars['String']>;
-  url_contains_i?: Maybe<Scalars['String']>;
-  url_not_contains_i?: Maybe<Scalars['String']>;
-  url_starts_with_i?: Maybe<Scalars['String']>;
-  url_not_starts_with_i?: Maybe<Scalars['String']>;
-  url_ends_with_i?: Maybe<Scalars['String']>;
-  url_not_ends_with_i?: Maybe<Scalars['String']>;
-  url_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  url_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  targetUrl?: Maybe<Scalars['String']>;
+  targetUrl_not?: Maybe<Scalars['String']>;
+  targetUrl_contains?: Maybe<Scalars['String']>;
+  targetUrl_not_contains?: Maybe<Scalars['String']>;
+  targetUrl_starts_with?: Maybe<Scalars['String']>;
+  targetUrl_not_starts_with?: Maybe<Scalars['String']>;
+  targetUrl_ends_with?: Maybe<Scalars['String']>;
+  targetUrl_not_ends_with?: Maybe<Scalars['String']>;
+  targetUrl_i?: Maybe<Scalars['String']>;
+  targetUrl_not_i?: Maybe<Scalars['String']>;
+  targetUrl_contains_i?: Maybe<Scalars['String']>;
+  targetUrl_not_contains_i?: Maybe<Scalars['String']>;
+  targetUrl_starts_with_i?: Maybe<Scalars['String']>;
+  targetUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  targetUrl_ends_with_i?: Maybe<Scalars['String']>;
+  targetUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  targetUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  targetUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   priority?: Maybe<Scalars['Int']>;
   priority_not?: Maybe<Scalars['Int']>;
   priority_lt?: Maybe<Scalars['Int']>;
@@ -43949,8 +43949,8 @@ export enum SortB2BAppPromoBlockHistoryRecordsBy {
   TextVariantDesc = 'textVariant_DESC',
   BackgroundColorAsc = 'backgroundColor_ASC',
   BackgroundColorDesc = 'backgroundColor_DESC',
-  UrlAsc = 'url_ASC',
-  UrlDesc = 'url_DESC',
+  TargetUrlAsc = 'targetUrl_ASC',
+  TargetUrlDesc = 'targetUrl_DESC',
   PriorityAsc = 'priority_ASC',
   PriorityDesc = 'priority_DESC',
   IdAsc = 'id_ASC',
@@ -43980,8 +43980,8 @@ export enum SortB2BAppPromoBlocksBy {
   TextVariantDesc = 'textVariant_DESC',
   BackgroundColorAsc = 'backgroundColor_ASC',
   BackgroundColorDesc = 'backgroundColor_DESC',
-  UrlAsc = 'url_ASC',
-  UrlDesc = 'url_DESC',
+  TargetUrlAsc = 'targetUrl_ASC',
+  TargetUrlDesc = 'targetUrl_DESC',
   PriorityAsc = 'priority_ASC',
   PriorityDesc = 'priority_DESC',
   IdAsc = 'id_ASC',

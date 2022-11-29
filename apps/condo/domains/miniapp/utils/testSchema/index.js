@@ -320,7 +320,7 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
         ? randomHex()
         : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`
     const backgroundImage = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
-    const url  = faker.internet.url()
+    const targetUrl  = faker.internet.url()
 
     const attrs = {
         dv: 1,
@@ -330,7 +330,7 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
         textVariant,
         backgroundColor,
         backgroundImage,
-        url,
+        targetUrl,
         ...extraAttrs,
     }
     const obj = await B2BAppPromoBlock.create(client, attrs)
