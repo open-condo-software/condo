@@ -10,6 +10,9 @@ exports.up = async (knex) => {
     --
     SET statement_timeout = '1500s';  
     
+    --
+    -- [CUSTOM] Set unitType to NULL in Tickets and Contacts which have unitName null and not null unitType 
+    --
     UPDATE "Ticket"
     SET "unitType" = NULL
     WHERE "unitName" IS NULL AND "unitType" IS NOT NULL;
