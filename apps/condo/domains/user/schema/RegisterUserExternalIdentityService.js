@@ -10,10 +10,11 @@ const { IDP_TYPES } = require('@condo/domains/user/constants/common')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
 const {
     USER_NOT_FOUND,
     EMPTY_EXTERNAL_IDENTITY_ID_VALUE,
-} = require('../constants/errors')
+} = require('@condo/domains/user/constants/errors')
 
 const errors = {
     DV_VERSION_MISMATCH: {
@@ -57,7 +58,7 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
 
     mutations: [
         {
-            access: access.canRegister,
+            access: access.canRegisterUserExternalIdentity,
             schema: 'registerUserExternalIdentity(data: RegisterUserExternalIdentityInput!): RegisterUserExternalIdentityOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
@@ -70,6 +71,7 @@ const RegisterUserExternalIdentityService = new GQLCustomSchema('RegisterUserExt
                     meta,
                 } = data
                 // validate dv
+                checkDvAndSender(data)
                 if (dv !== 1) {
                     throw new GQLError(errors.DV_VERSION_MISMATCH, context)
                 }

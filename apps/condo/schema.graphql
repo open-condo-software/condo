@@ -2477,6 +2477,7 @@ input UserExternalIdentityHistoryRecordsCreateInput {
 
 enum UserExternalIdentityIdentityTypeType {
   sber_id
+  sbbol
 }
 
 """ Individual user external identity link. Used primarily for authorization and linking to external idp purposes. Think of `User` as a technical entity, not a business actor. 
@@ -47548,6 +47549,7 @@ type ResetUserOutput {
 
 enum IdentityType {
   sber_id
+  sbbol
 }
 
 input RegisterUserExternalIdentityInput {
