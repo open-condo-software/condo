@@ -44,13 +44,12 @@ describe('Contact', () => {
     })
 
     describe('unique constraint', () => {
-        it('throws error on create record with same set of fields: "property", "unitName", "name", "phone"', async () => {
+        it('throws error on create record with same set of fields: "property", "unitName", "phone"', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const duplicatedFields = {
                 property: { connect: { id: userClient.property.id } },
                 unitName: faker.random.alphaNumeric(3),
-                name: faker.name.firstName(),
                 phone: createTestPhone(),
             }
             await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
@@ -58,18 +57,17 @@ describe('Contact', () => {
             await catchErrorFrom(async () => {
                 await createTestContact(adminClient, userClient.organization, userClient.property, duplicatedFields)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                expect(errors[0].message).toMatch('Cannot create contact, because another contact with the same provided set of "property", "unitName", "phone"')
                 expect(data).toEqual({ 'obj': null })
             })
         })
 
-        it('throws error on update record when another record exist with same set of fields: "property", "unitName", "name", "phone"', async () => {
+        it('throws error on update record when another record exist with same set of fields: "property", "unitName", "phone"', async () => {
             const userClient = await makeClientWithProperty()
             const adminClient = await makeLoggedInAdminClient()
             const sameFields = {
                 property: { connect: { id: userClient.property.id } },
                 unitName: faker.random.alphaNumeric(3),
-                name: faker.name.firstName(),
                 phone: createTestPhone(),
             }
 
@@ -77,14 +75,13 @@ describe('Contact', () => {
             const [contact] = await createTestContact(adminClient, userClient.organization, userClient.property, {
                 property: { connect: { id: userClient.property.id } },
                 unitName: faker.random.alphaNumeric(3),
-                name: faker.name.firstName(),
                 phone: createTestPhone(),
             })
 
             await catchErrorFrom(async () => {
                 await updateTestContact(adminClient, contact.id, sameFields)
             }, ({ errors, data }) => {
-                expect(errors[0].message).toMatch('Cannot update contact, because another contact with the same provided set of "property", "unitName", "name", "phone"')
+                expect(errors[0].message).toMatch('Cannot update contact, because another contact with the same provided set of "property", "unitName", "phone"')
                 expect(data).toEqual({ 'obj': null })
             })
         })
