@@ -6,6 +6,7 @@ import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { Gutter } from 'antd/lib/grid/row'
 
+import pick from 'lodash/pick'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -208,7 +209,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleChangeContact = debounce((contact) => {
         // User can manually type phone and name, that will match already existing contact,
         // so, it should be connected with ticket
-        const fetchedContact = find(fetchedContacts, { ...contact, unitName: unitName || null })
+        const fetchedContact = find(fetchedContacts, { ...pick(contact, 'phone'), unitName: unitName || null })
         const contactToSet = fetchedContact || contact
 
         triggerOnChange(contactToSet, !fetchedContact)
