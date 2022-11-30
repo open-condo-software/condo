@@ -13,7 +13,6 @@ const {
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     INSTRUCTION_TEXT_FIELD,
-    CONNECTED_MESSAGE_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
@@ -21,7 +20,6 @@ const {
 const {
     B2B_APP_CATEGORIES,
     OTHER_CATEGORY,
-    LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR,
     GLOBAL_APP_NO_APP_URL_ERROR,
     NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 } = require('@condo/domains/miniapp/constants')
@@ -48,7 +46,6 @@ const B2BApp = new GQLListSchema('B2BApp', {
         developer: DEVELOPER_FIELD,
         partnerUrl: PARTNER_URL_FIELD,
         instruction: INSTRUCTION_TEXT_FIELD,
-        connectedMessage: CONNECTED_MESSAGE_FIELD,
         appUrl: IFRAME_URL_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {
@@ -96,9 +93,6 @@ const B2BApp = new GQLListSchema('B2BApp', {
             } else {
                 if (newItem.features) {
                     return addValidationError(NON_GLOBAL_APP_WITH_FEATURES_ERROR)
-                }
-                if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                    return addValidationError(LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
                 }
             }
         },

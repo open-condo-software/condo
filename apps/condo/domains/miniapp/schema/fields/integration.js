@@ -40,18 +40,12 @@ const SHORT_DESCRIPTION_FIELD = {
 const INSTRUCTION_TEXT_FIELD = {
     schemaDoc: 'Text which used to describe how to connect app written in markdown. Required if appUrl is not specified',
     type: Markdown,
-    isRequired: false,
+    isRequired: true,
 }
 
 const IFRAME_URL_FIELD = {
     schemaDoc: 'Url to app page, which is the app starting point and will be opened in iframe',
     type: Text,
-    isRequired: false,
-}
-
-const CONNECTED_MESSAGE_FIELD = {
-    schemaDoc: 'Short message which will be displayed on app\'s index page if it has no appUrl. Required if appUrl is not specified',
-    type: Markdown,
     isRequired: false,
 }
 
@@ -79,7 +73,6 @@ module.exports = {
     SHORT_DESCRIPTION_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
-    CONNECTED_MESSAGE_FIELD,
     APPS_FILE_ADAPTER,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,

@@ -15,7 +15,6 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     MAP_GENERATION_FEATURE,
-    LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR,
     GLOBAL_APP_NO_APP_URL_ERROR,
     NON_GLOBAL_APP_WITH_FEATURES_ERROR,
 } = require('@condo/domains/miniapp/constants')
@@ -41,7 +40,6 @@ describe('B2BApp', () => {
                 shortDescription: faker.commerce.productDescription(),
                 developer: faker.company.companyName(),
                 instruction: faker.datatype.string(),
-                connectedMessage: faker.company.catchPhrase(),
             }
             test('Admin can', async () => {
                 const [app] = await createTestB2BApp(admin, createPayload)
@@ -155,36 +153,6 @@ describe('B2BApp', () => {
         })
     })
     describe('Validations', () => {
-        test('Each non-global app must have appUrl or instruction and connectedMessage', async () => {
-            const admin = await makeLoggedInAdminClient()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestB2BApp(admin, {
-                    isGlobal: false,
-                    appUrl: null,
-                    connectedMessage: null,
-                    instruction: faker.datatype.string(),
-                })
-            }, LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
-            await expectToThrowValidationFailureError(async () => {
-                await createTestB2BApp(admin, {
-                    isGlobal: false,
-                    appUrl: null,
-                    connectedMessage: faker.company.catchPhrase(),
-                    instruction: null,
-                })
-            }, LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
-            const [validApp] = await createTestB2BApp(admin, {
-                isGlobal: false,
-                appUrl: faker.internet.url(),
-                connectedMessage: null,
-                instruction: faker.datatype.string(),
-            })
-            await expectToThrowValidationFailureError(async () => {
-                await updateTestB2BApp(admin, validApp.id, {
-                    appUrl: null,
-                })
-            }, LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
-        })
         test('Each global app must have appUrl', async () => {
             const admin = await makeLoggedInAdminClient()
             await expectToThrowValidationFailureError(async () => {

@@ -101,7 +101,6 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
         instruction: faker.datatype.string(),
-        connectedMessage: faker.company.catchPhrase(),
         supportedBillingIntegrations: { connect: billingsIds },
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs
