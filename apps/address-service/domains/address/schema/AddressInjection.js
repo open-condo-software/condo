@@ -98,6 +98,7 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
                     .map((field) => get({ ...existingItem, ...resolvedData }, field))
                     .filter(Boolean)
                     .join(' '),
+                // todo(AleX83Xpert) maybe create the `address` string (similar to dadata value)
             }
         },
     },

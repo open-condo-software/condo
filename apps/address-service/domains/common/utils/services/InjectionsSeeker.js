@@ -26,7 +26,7 @@ class InjectionsSeeker {
             .replace(SPECIAL_SYMBOLS_REGEX, '')
             .split(' ')
             .filter(Boolean)
-            .filter((x) => x.length > 3)
+            .filter((x) => x.length > 2)
     }
 
     /**
@@ -40,6 +40,7 @@ class InjectionsSeeker {
             AND: [
                 { deletedAt: null },
                 {
+                    // There is an ability to use `AND` or `OR`
                     AND: searchParts.map((searchPart) => ({ keywords_contains_i: searchPart })),
                 },
             ],
