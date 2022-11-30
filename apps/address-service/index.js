@@ -19,6 +19,9 @@ const {
     SearchByInjectionId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
 const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
+const nextCookie = require('next-cookies')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { makeId } = require('@condo/domains/common/utils/makeid.utils')
 
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
@@ -82,5 +85,30 @@ module.exports = {
     ].filter(identity),
     configureExpress: (app) => {
         app.set('trust proxy', 1) // trust first proxy
+
+        app.use('/admin/', (req, res, next) => {
+            if (req.url === '/api') return next()
+            const cookies = nextCookie({ req })
+            const isSenderValid = hasValidJsonStructure(
+                {
+                    resolvedData: { sender: cookies['sender'] },
+                    fieldPath: 'sender',
+                    addFieldValidationError: () => null,
+                },
+                true,
+                1,
+                {
+                    fingerprint: {
+                        presence: true,
+                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
+                        length: { minimum: 5, maximum: 42 },
+                    },
+                })
+            if (!isSenderValid) {
+                res.cookie('sender', JSON.stringify({ fingerprint: cookies['userId'] || makeId(12), dv: 1 }))
+                res.cookie('dv', 1)
+            }
+            next()
+        })
     },
 }
