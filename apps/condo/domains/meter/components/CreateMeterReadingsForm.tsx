@@ -237,7 +237,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
             createMeterReadingAction({
                 ...clientInfo,
                 meter: { connect: { id: meterId } },
-                contact: values.contact && { connect: { id: values.contact } },
+                contact: values.contact ? { connect: { id: values.contact } } : undefined,
                 date: new Date(),
                 value1,
                 value2,
@@ -329,7 +329,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
-                                                    initialValues={{}}
                                                     selectedPropertyId={selectedPropertyId}
                                                     hasNotResidentTab={false}
                                                 />

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ContactFields, ContactsEditor, IContactEditorProps } from './index'
+import { ContactsEditor, IContactEditorProps } from './index'
 import { OrganizationEmployeeRole } from '@app/condo/schema'
 
 interface IContactsEditorHookArgs {
