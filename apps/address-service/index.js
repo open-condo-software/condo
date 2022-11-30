@@ -27,7 +27,7 @@ const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV 
 const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
 
 if (conf.NODE_ENV === 'production' && IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND) {
-    throw new Error('Please disable or remove the IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND env variable')
+    console.log('☢️ Please disable or remove the ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND env variable')
 }
 
 const keystone = new Keystone({
