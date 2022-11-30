@@ -104,6 +104,17 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         delete: false,
         auth: true,
     },
+    hooks: {
+        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+            const data = { ...existingItem, ...resolvedData }
+            if (data.dateWithdrawed && data.dateReceived) {
+                addValidationError('Cannot have both "dateWithdrawed" and "dateReceived" filled fields')
+            }
+            if (!data.dateWithdrawed && !data.dateReceived) {
+                addValidationError('Cannot have no values for both "dateWithdrawed" and "dateReceived" fields')
+            }
+        },
+    },
 })
 
 module.exports = {
