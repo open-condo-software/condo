@@ -96,7 +96,6 @@ async function createTestB2BApp (client, extraAttrs = {}) {
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
         instruction: faker.datatype.string(),
-        connectedMessage: faker.company.catchPhrase(),
         isHidden: true,
         ...extraAttrs,
     }

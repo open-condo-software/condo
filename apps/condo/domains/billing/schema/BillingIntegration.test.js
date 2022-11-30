@@ -13,33 +13,11 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
-const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 
 describe('BillingIntegration', () => {
 
     describe('Validators', () => {
-        test('Should have instruction if no iframe url specified', async () => {
-            const admin = await makeLoggedInAdminClient()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBillingIntegration(admin, {
-                    instruction: null,
-                    appUrl: null,
-                })
-            }, NO_INSTRUCTION_OR_MESSAGE_ERROR)
-        })
-
-        test('Should have connectedMessage if no iframe url specified', async () => {
-            const admin = await makeLoggedInAdminClient()
-            await expectToThrowValidationFailureError(async () => {
-                await createTestBillingIntegration(admin, {
-                    connectedMessage: null,
-                    appUrl: null,
-                })
-            }, NO_INSTRUCTION_OR_MESSAGE_ERROR)
-        })
-
         test('update format with right payload', async () => {
             const admin = await makeLoggedInAdminClient()
             const [objCreated] = await createTestBillingIntegration(admin)
