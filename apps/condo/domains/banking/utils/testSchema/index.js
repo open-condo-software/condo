@@ -4,6 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const faker = require('faker')
+const dayjs = require('dayjs')
 
 const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('../../../common/constants/countries')
@@ -229,14 +230,21 @@ async function createTestBankTransaction (client, account, contractorAccount, or
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestBankTransaction logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
         account: { connect: { id: account.id } },
         contractorAccount: { connect: { id: contractorAccount.id } },
         organization: { connect: { id: organization.id } },
+        number: faker.random.number().toString(),
+        date: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+        amount: faker.datatype.float({ precision: 0.01 }).toString(),
+        currencyCode: 'RUB',
+        purpose: faker.lorem.word(),
+        dateWithdrawed: dayjs(faker.date.recent()).format('YYYY-MM-DD'),
+        importId: faker.datatype.uuid(),
+        importRemoteSystem: faker.lorem.word(),
+        meta: { someVendor: { v: '1', data: {} } },
         ...extraAttrs,
     }
     const obj = await BankTransaction.create(client, attrs)
