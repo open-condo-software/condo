@@ -209,7 +209,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
     }
 
-    const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
+    const { ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
         role,
     })
@@ -217,11 +217,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const { obj: property, loading: propertyLoading } = Property.useObject({
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
-
-    const canCreateContactRef = useRef(canCreateContact)
-    useEffect(() => {
-        canCreateContactRef.current = canCreateContact
-    }, [canCreateContact])
 
     const router = useRouter()
 
@@ -232,11 +227,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     })
 
     const handleSubmit = useCallback(async (values) => {
-        let createdContact
-        if (role && role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current, selectedUnitTypeRef.current)
-        }
-
         for (const [meterId, newMeterReading] of Object.entries(newMeterReadings)) {
             const value1 = get(newMeterReading, '1')
             const value2 = get(newMeterReading, '2')
@@ -246,8 +236,8 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
 
             createMeterReadingAction({
                 ...clientInfo,
-                contact: get(createdContact, 'id', values.contact) ? { connect: { id: get(createdContact, 'id', values.contact) } } : undefined,
                 meter: { connect: { id: meterId } },
+                contact: values.contact && { connect: { id: values.contact } },
                 date: new Date(),
                 value1,
                 value2,
@@ -255,7 +245,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                 value4,
             })
         }
-    }, [createContact, createMeterReadingAction, newMeterReadings, organization.id, role])
+    }, [createMeterReadingAction, newMeterReadings])
 
     const getHandleSelectPropertyAddress = useCallback((form) => (_, option) => {
         form.setFieldsValue({
@@ -341,6 +331,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                     form={form}
                                                     initialValues={{}}
                                                     selectedPropertyId={selectedPropertyId}
+                                                    hasNotResidentTab={false}
                                                 />
                                             </Col>
                                         </Row>

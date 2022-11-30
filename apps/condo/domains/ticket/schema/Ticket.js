@@ -432,7 +432,9 @@ const Ticket = new GQLListSchema('Ticket', {
                 await setDeadline(resolvedData)
             }
 
-            await connectContactToTicket(context, resolvedData, existingItem)
+            if (resolvedData.clientName && resolvedData.clientPhone) {
+                await connectContactToTicket(context, resolvedData, existingItem)
+            }
 
             // When creating ticket or updating ticket address,
             // if client is not passed in resolvedData,

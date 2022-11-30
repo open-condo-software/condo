@@ -66,6 +66,7 @@ export interface IContactEditorProps {
     unitType?: BuildingUnitSubType,
     allowLandLine?: boolean,
     disabled?: boolean
+    hasNotResidentTab?: boolean
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -89,9 +90,9 @@ const BUTTON_STYLE: CSSProperties = {
     paddingLeft: '5px',
 }
 
-enum CONTACT_EDITOR_TABS {
-    FROM_RESIDENT = '0',
-    NOT_FROM_RESIDENT = '1',
+enum CONTACT_TYPE {
+    RESIDENT = 'resident',
+    NOT_RESIDENT = 'notResident',
 }
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
@@ -104,8 +105,19 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
-    const { form, fields, value: initialValue, onChange, organization, role, property, unitName, unitType, allowLandLine } = props
-    const isNotContact = useMemo(() => !initialValue.id && initialValue.phone, [initialValue.id, initialValue.phone])
+    const {
+        form,
+        fields,
+        value: initialValue,
+        onChange,
+        organization,
+        role,
+        property,
+        unitName,
+        unitType,
+        allowLandLine,
+        hasNotResidentTab = true,
+    } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
@@ -117,6 +129,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [displayEditableContactFields, setDisplayEditableContactFields] = useState(false)
     const [isInitialContactsLoaded, setIsInitialContactsLoaded] = useState<boolean>()
     const [initialContacts, setInitialContacts] = useState<ContactType[]>([])
+    const [activeTab, setActiveTab] = useState<CONTACT_TYPE>()
 
     const initialContactsQuery = useMemo(() => ({
         organization: { id: organization },
@@ -128,6 +141,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const initialEmployeesQuery = useMemo(() => ({
         organization: { id: organization },
     }), [organization])
+
+    const isNotResidentInitialValue = !initialValue.id && initialValue.phone
+
+    const initialTab = isNotResidentInitialValue ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
 
     const {
         objs: fetchedContacts,
@@ -177,19 +194,27 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setManuallyTypedContact(null)
     }, [unitName, unitType])
 
-    const handleClickOnPlusButton = () => {
+    useEffect(() => {
+        setActiveTab(initialTab)
+    }, [initialTab])
+
+    useEffect(() => {
+        form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
+    }, [activeTab, form])
+
+    const handleClickOnPlusButton = useCallback(() => {
         setDisplayEditableContactFields(true)
         setSelectedContact(null)
         setEditableFieldsChecked(true)
-    }
+    }, [])
 
-    const handleClickOnMinusButton = () => {
+    const handleClickOnMinusButton = useCallback(() => {
         setDisplayEditableContactFields(false)
         setSelectedContact(fetchedContacts[0])
         setEditableFieldsChecked(false)
-    }
+    }, [fetchedContacts])
 
-    const triggerOnChange = (contact: ContactValue, isNew) => {
+    const triggerOnChange = useCallback((contact: ContactValue, isNew: boolean) => {
         form.setFieldsValue({
             [fields.id]: contact.id,
             [fields.name]: contact.name,
@@ -198,13 +223,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setValue(contact)
         setSelectedContact(contact)
         onChange && onChange(contact, isNew)
-    }
+    }, [fields.id, fields.name, fields.phone, form, onChange])
 
-    const handleSelectContact = (contact) => {
+    const handleSelectContact = useCallback((contact) => {
         setSelectedContact(contact)
         setEditableFieldsChecked(false)
         triggerOnChange(contact, false)
-    }
+    }, [triggerOnChange])
 
     const handleChangeContact = debounce((contact) => {
         // User can manually type phone and name, that will match already existing contact,
@@ -222,10 +247,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleSyncedFieldsChecked = () => {
         setSelectedContact(null)
         setEditableFieldsChecked(true)
-
-        if (isNotContact) {
-            handleChangeContact(initialValue)
-        }
     }
 
     const handleChangeEmployee = debounce((contact) => {
@@ -243,14 +264,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         onChange && onChange(employeeContact, false)
     }, DEBOUNCE_TIMEOUT)
 
-    const initialValueIsPresentedInFetchedContacts = useMemo(() => initialContacts
-        && initialValue && initialValue.name && initialValue.phone &&
-        initialContacts.find(contact => contact.name === initialValue.name && contact.phone === initialValue.phone),
+    const initialValueIsPresentedInFetchedContacts = useMemo(() => initialContacts &&
+        initialContacts.find(contact => contact.name === get(initialValue, 'name') && contact.phone === get(initialValue, 'phone')),
     [initialContacts, initialValue])
 
-    const isContactSameAsInitial = (contact) => (
+    const isContactSameAsInitial = useCallback((contact) => (
         initialValue && initialValue.name === contact.name && initialValue.phone === contact.phone && initialValue.id === contact.id
-    )
+    ), [initialValue])
 
     const isContactSelected = useCallback((contact) => {
         if (selectedContact) return selectedContact.id === contact.id
@@ -274,11 +294,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleTabChange = useCallback((tab) => {
         setSelectedContact(null)
         setEditableFieldsChecked(false)
-
-        if (tab === CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT) {
-            handleChangeEmployee(value)
-        }
-    }, [handleChangeEmployee, value])
+        
+        setActiveTab(tab)
+    }, [])
 
     const className = props.disabled ? 'disabled' : ''
 
@@ -291,11 +309,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         <Col span={24}>
             <ContactsInfoFocusContainer className={className}>
                 <Tabs
-                    defaultActiveKey={isNotContact ? CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT : CONTACT_EDITOR_TABS.FROM_RESIDENT}
+                    defaultActiveKey={activeTab}
+                    activeKey={activeTab}
                     style={TABS_STYLE}
                     onChange={handleTabChange}
                 >
-                    <TabPane tab={TicketFromResidentMessage} key={CONTACT_EDITOR_TABS.FROM_RESIDENT}>
+                    <TabPane tab={TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT}>
                         <Row gutter={TAB_PANE_ROW_GUTTERS}>
                             <Labels
                                 left={PhoneLabel}
@@ -354,27 +373,30 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                             )}
                         </Row>
                     </TabPane>
-                    <TabPane
-                        tab={TicketNotFromResidentMessage}
-                        key={CONTACT_EDITOR_TABS.NOT_FROM_RESIDENT}
-                    >
-                        <Row gutter={TAB_PANE_ROW_GUTTERS}>
-                            <Labels
-                                left={PhoneLabel}
-                                right={FullNameLabel}
-                            />
-                            <ContactSyncedAutocompleteFields
-                                initialQuery={initialEmployeesQuery}
-                                refetch={refetchEmployees}
-                                initialValue={!initialValue.id ? initialValue : manuallyTypedContact}
-                                onChange={handleChangeEmployee}
-                                contacts={fetchedEmployees}
-                            />
-                        </Row>
-                    </TabPane>
+                    {
+                        hasNotResidentTab && (
+                            <TabPane
+                                tab={TicketNotFromResidentMessage}
+                                key={CONTACT_TYPE.NOT_RESIDENT}
+                            >
+                                <Row gutter={TAB_PANE_ROW_GUTTERS}>
+                                    <Labels
+                                        left={PhoneLabel}
+                                        right={FullNameLabel}
+                                    />
+                                    <ContactSyncedAutocompleteFields
+                                        initialQuery={initialEmployeesQuery}
+                                        refetch={refetchEmployees}
+                                        initialValue={initialValue.id ? manuallyTypedContact : initialValue}
+                                        onChange={handleChangeEmployee}
+                                        contacts={fetchedEmployees}
+                                    />
+                                </Row>
+                            </TabPane>
+                        )
+                    }
                 </Tabs>
             </ContactsInfoFocusContainer>
-
             {/*
                     This is a place for items of external form, this component is embedded into.
                     Why not to use them in place of actual inputs?
@@ -388,6 +410,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 */}
             <Row gutter={TAB_PANE_ROW_GUTTERS}>
                 <Col span={10}>
+                    {
+                        hasNotResidentTab && (
+                            <Form.Item name='isResidentTicket' hidden>
+                                <Input value={String(activeTab === CONTACT_TYPE.RESIDENT)}/>
+                            </Form.Item>
+                        )
+                    }
                     <Form.Item name={fields.id} hidden>
                         <Input value={get(value, 'id')}/>
                     </Form.Item>

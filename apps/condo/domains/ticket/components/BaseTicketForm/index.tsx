@@ -55,7 +55,7 @@ import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues, hasNotResidentTab = true }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({
@@ -83,6 +83,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 property={selectedPropertyId}
                 unitName={unitName}
                 unitType={unitType}
+                hasNotResidentTab={hasNotResidentTab}
             />
         )
     }, [ContactsEditorComponent, contactEditorComponentFields, form, selectedPropertyId, value])
@@ -414,19 +415,13 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         initialFileList: files,
     })
 
-    const { createContact, canCreateContact, ContactsEditorComponent } = useContactsEditorHook({
+    const { ContactsEditorComponent } = useContactsEditorHook({
         organization: organization.id,
         role,
         allowLandLine: true,
     })
 
     const organizationId = get(property, ['organization', 'id'], null)
-
-    const canCreateContactRef = useRef(canCreateContact)
-
-    useEffect(() => {
-        canCreateContactRef.current = canCreateContact
-    }, [canCreateContact])
 
     const addressValidation = useCallback((_, value) => {
         const searchValueLength = get(value, 'length', 0)
@@ -442,16 +437,10 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
-        let createdContact
-
-        if (role.canManageContacts && canCreateContactRef.current) {
-            createdContact = await createContact(organization.id, selectPropertyIdRef.current, selectedUnitNameRef.current, selectedUnitTypeRef.current)
-        }
 
         const result = await _action({
             ...otherVariables,
             details: normalizeText(details),
-            contact: get(createdContact, 'id') || variables.contact,
         }, ...args)
 
         await syncModifiedFiles(result.id)

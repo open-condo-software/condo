@@ -1,7 +1,10 @@
 const get = require('lodash/get')
+
+const { find } = require('@open-condo/keystone/schema')
+
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
-const { find } = require('@open-condo/keystone/schema')
+const { getOrCreateContactByClientData } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 
 async function addClientInfoToResidentMeterReading (context, resolvedData) {
     const user = get(context, ['req', 'user'])
@@ -40,6 +43,16 @@ async function addClientInfoToResidentMeterReading (context, resolvedData) {
     resolvedData.clientEmail = user.email
 }
 
+async function connectContactToMeterReading (context, resolvedData, existingItem) {
+    const resolvedContact = get(resolvedData, 'contact', null)
+
+    if (!resolvedContact) {
+        const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
+        resolvedData.contact = contact.id
+    }
+}
+
 module.exports = {
     addClientInfoToResidentMeterReading,
+    connectContactToMeterReading,
 }

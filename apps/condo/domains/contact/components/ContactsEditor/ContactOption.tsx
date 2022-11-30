@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Col } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Radio from '@condo/domains/common/components/antd/Radio'
@@ -12,9 +12,9 @@ interface IContactFieldsDisplayProps {
 }
 
 export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected }) => {
-    const handleSelect = () => {
+    const handleSelect = useCallback(() => {
         onSelect(contact)
-    }
+    }, [contact, onSelect])
 
     return (
         <>
