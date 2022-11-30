@@ -226,8 +226,16 @@ async function connectContactToTicket (context, resolvedData, existingItem) {
         const isResidentTicket = isUndefined(resolvedIsResidentTicket) ? existedIsResidentTicket : resolvedIsResidentTicket
 
         if (isResidentTicket) {
-            const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
-            resolvedData.contact = contact.id
+            const updatedObj = { ...existingItem, ...resolvedData }
+
+            if (updatedObj.clientName && updatedObj.clientPhone) {
+                const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
+                resolvedData.contact = contact.id
+                resolvedData.clientName = contact.name
+                resolvedData.clientPhone = contact.phone
+            } else {
+                resolvedData.isResidentTicket = false
+            }
         } else if (existedIsResidentTicket && resolvedIsResidentTicket === false) {
             resolvedData.contact = null
         }

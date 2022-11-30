@@ -55,7 +55,7 @@ import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
 
-export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues, hasNotResidentTab = true }) => {
+export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
 
     const value = useMemo(() => ({

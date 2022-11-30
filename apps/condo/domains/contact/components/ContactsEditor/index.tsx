@@ -11,6 +11,7 @@ import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import debounce from 'lodash/debounce'
+import isFunction from 'lodash/isFunction'
 
 import { Button } from '@condo/domains/common/components/Button'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -216,13 +217,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const triggerOnChange = useCallback((contact: ContactValue, isNew: boolean) => {
         form.setFieldsValue({
-            [fields.id]: contact.id,
+            [fields.id]: !isNew && contact.id,
             [fields.name]: contact.name,
             [fields.phone]: contact.phone,
         })
         setValue(contact)
         setSelectedContact(contact)
-        onChange && onChange(contact, isNew)
+        isFunction(onChange) && onChange(contact, isNew)
     }, [fields.id, fields.name, fields.phone, form, onChange])
 
     const handleSelectContact = useCallback((contact) => {
