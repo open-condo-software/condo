@@ -7,7 +7,6 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
-const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const {
     LOGO_FIELD,
@@ -17,7 +16,6 @@ const {
     SHORT_DESCRIPTION_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
-    CONNECTED_MESSAGE_FIELD,
     IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
@@ -46,8 +44,6 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         partnerUrl: PARTNER_URL_FIELD,
 
         instruction: INSTRUCTION_TEXT_FIELD,
-
-        connectedMessage: CONNECTED_MESSAGE_FIELD,
 
         appUrl: IFRAME_URL_FIELD,
 
@@ -102,12 +98,6 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, addValidationError, existingItem }) => {
-            const newItem = { ...existingItem, ...resolvedData }
-            if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
-            }
-        },
         afterChange: logoMetaAfterChange,
     },
 })

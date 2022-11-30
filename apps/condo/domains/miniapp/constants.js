@@ -36,7 +36,6 @@ const CONTEXT_STATUSES = [
     CONTEXT_FINISHED_STATUS,
 ]
 
-const NO_INSTRUCTION_OR_MESSAGE_ERROR = '[integration:noInstructionOrMessage] If integration does not have appUrl, it must have instruction and connected message fields'
 const NON_SERVICE_USER_ERROR = '[user] No user specified or it has non-service type'
 const NO_CONTEXT_STATUS_ERROR = '[status] Status field cannot be set to null'
 const NON_ZIP_FILE_ERROR = '[data] Expected data to have "application/zip" mimetype'
@@ -45,7 +44,6 @@ const INCORRECT_ADDRESS_ERROR = '[address] Incorrect address was provided. Make 
 const INCORRECT_HOUSE_TYPE_ERROR = '[address] Address with specified house type is not currently supported'
 const B2C_APP_COLOR_SCHEMA_TYPE_NAME = 'AppColorSchemaField'
 const B2C_APP_COLOR_SCHEMA_INPUT_NAME = 'AppColorSchemaFieldInput'
-const LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR = '[app:noInstructionOrMessage] If the app is not global, then it must have either the appUrl field or the instruction and connectedMessage fields'
 const GLOBAL_APP_NO_APP_URL_ERROR = '[app:noAppUrl] If the app is global, it must have appUrl field'
 const NON_GLOBAL_APP_WITH_FEATURES_ERROR = '[app:non-global:features] Non global apps cannot specify features'
 
@@ -66,8 +64,6 @@ module.exports = {
     CONTEXT_ERROR_STATUS,
     CONTEXT_STATUSES,
     NON_SERVICE_USER_ERROR,
-    NO_INSTRUCTION_OR_MESSAGE_ERROR,
-    LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR,
     GLOBAL_APP_NO_APP_URL_ERROR,
     NO_CONTEXT_STATUS_ERROR,
     NON_ZIP_FILE_ERROR,
