@@ -10,6 +10,9 @@
  * @example Set credentials manually
  * yarn node apps/condo/bin/sbbol/credentials.js set '{"clientSecret":"asdf12345"}'
  * yarn node apps/condo/bin/sbbol/credentials.js set '{"clientSecret":"asdf12345","accessToken":"dc808c8e-e070-4947-9d71-c984aaa9b2b7", "refreshToken":"dc808c8e-e070-4947-9d71-c984aaa9b2b8"}'
+ *
+ * @example Display credentials values
+ * yarn node apps/condo/bin/sbbol/credentials.js get
  */
 const { values } = require('lodash')
 const Ajv = require('ajv')
@@ -19,6 +22,7 @@ const { changeClientSecret, getSbbolSecretStorage } = require('@condo/domains/or
 const COMMAND = {
     CHANGE_CLIENT_SECRET: 'change-client-secret',
     SET: 'set',
+    GET: 'get',
 }
 
 const workerJob = async () => {
@@ -49,6 +53,12 @@ const workerJob = async () => {
         }
 
         await changeClientSecret({ clientId, currentClientSecret, newClientSecret })
+    }
+
+    if (command === COMMAND.GET) {
+        const sbbolSecretStorage = getSbbolSecretStorage()
+        const values = await sbbolSecretStorage.getRawKeyValues()
+        console.log('SbbolSecretStorage values: ', JSON.stringify(values, null, 2))
     }
 
     if (command === COMMAND.SET) {
