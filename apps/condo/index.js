@@ -39,6 +39,7 @@ const { featureToggleManager } = require('@open-condo/featureflags/featureToggle
 
 dayjs.extend(duration)
 
+const FINGERPRINT_FORMAT_REGEXP = /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
@@ -217,7 +218,7 @@ module.exports = {
                 {
                     fingerprint: {
                         presence: true,
-                        format: /^[a-zA-Z0-9!#$%()*+-;=,:[\]/.?@^_`{|}~]{5,42}$/,
+                        format: FINGERPRINT_FORMAT_REGEXP,
                         length: { minimum: 5, maximum: 42 },
                     },
                 })
