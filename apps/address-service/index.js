@@ -20,6 +20,13 @@ const {
 } = require('@address-service/domains/common/utils/services/search/plugins')
 const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 
+const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
+const IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND = conf.ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND === 'true'
+
+if (conf.NODE_ENV === 'production' && IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND) {
+    throw new Error('Please disable or remove the IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND env variable')
+}
+
 const keystone = new Keystone({
     onConnect: async () => {
         // Initialise some data
@@ -58,7 +65,9 @@ module.exports = {
         new GraphQLApp({
             apollo: {
                 formatError,
-                debug: conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test',
+                debug: IS_ENABLE_APOLLO_DEBUG,
+                introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
+                playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                 plugins: [new GraphQLLoggerPlugin()],
             },
         }),
