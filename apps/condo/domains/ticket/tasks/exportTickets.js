@@ -19,8 +19,9 @@ const { i18n } = require('@open-condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { ERROR } = require('@condo/domains/common/constants/export')
+const { ERROR, EXCEL, PDF } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
+const { exportTicketsToPdf } = require('@condo/domains/ticket/utils/serverSchema/export')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -199,7 +200,7 @@ async function exportTickets (taskId) {
             ...baseAttrs,
             status: ERROR,
         })
-        throw new Error(`TicketExportTask with id "${task.id}" does not have value for "locale" field!`)
+        throw new Error(`TicketExportTask with id "${ task.id }" does not have value for "locale" field!`)
     }
 
     // NOTE: A field `TicketStatus.name` of type `LocalizedText` depends on `context.req` to determine current locale,
@@ -226,29 +227,35 @@ async function exportTickets (taskId) {
         return tickets
     }
 
-    if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
-        await exportRecordsAsCsvFile({
-            context,
-            loadRecordsBatch,
-            convertRecordToFileRow,
-            baseAttrs,
-            taskServerUtils: TicketExportTask,
-            totalRecordsCount,
-            taskId,
-        })
-    } else {
-        await exportRecordsAsXlsxFile({
-            context,
-            loadRecordsBatch,
-            convertRecordToFileRow,
-            buildExportFile: (rows) => buildExportFile({ rows, task }),
-            baseAttrs,
-            taskServerUtils: TicketExportTask,
-            totalRecordsCount,
-            taskId,
-        })
+    if (task.format === EXCEL) {
+        if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
+            await exportRecordsAsCsvFile({
+                context,
+                loadRecordsBatch,
+                convertRecordToFileRow,
+                baseAttrs,
+                taskServerUtils: TicketExportTask,
+                totalRecordsCount,
+                taskId,
+            })
+        } else {
+            await exportRecordsAsXlsxFile({
+                context,
+                loadRecordsBatch,
+                convertRecordToFileRow,
+                buildExportFile: (rows) => buildExportFile({ rows, task }),
+                baseAttrs,
+                taskServerUtils: TicketExportTask,
+                totalRecordsCount,
+                taskId,
+            })
+        }
     }
 
+    if (task.format === PDF) {
+        const tickets = await ticketsLoader.loadChunk()
+        await exportTicketsToPdf({ context, task, tickets, statuses })
+    }
 }
 
 module.exports = {
