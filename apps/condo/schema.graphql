@@ -6073,7 +6073,6 @@ type BillingIntegrationHistoryRecord {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6183,10 +6182,6 @@ input BillingIntegrationHistoryRecordWhereInput {
   instruction_not: JSON
   instruction_in: [JSON]
   instruction_not_in: [JSON]
-  connectedMessage: JSON
-  connectedMessage_not: JSON
-  connectedMessage_in: [JSON]
-  connectedMessage_not_in: [JSON]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -6396,7 +6391,6 @@ input BillingIntegrationHistoryRecordUpdateInput {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6431,7 +6425,6 @@ input BillingIntegrationHistoryRecordCreateInput {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6512,10 +6505,6 @@ type BillingIntegration {
   """ Text which used to describe how to connect app written in markdown. Required if appUrl is not specified 
   """
   instruction: String
-
-  """ Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified 
-  """
-  connectedMessage: String
 
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
@@ -6669,24 +6658,6 @@ input BillingIntegrationWhereInput {
   instruction_not_ends_with_i: String
   instruction_in: [String]
   instruction_not_in: [String]
-  connectedMessage: String
-  connectedMessage_not: String
-  connectedMessage_contains: String
-  connectedMessage_not_contains: String
-  connectedMessage_starts_with: String
-  connectedMessage_not_starts_with: String
-  connectedMessage_ends_with: String
-  connectedMessage_not_ends_with: String
-  connectedMessage_i: String
-  connectedMessage_not_i: String
-  connectedMessage_contains_i: String
-  connectedMessage_not_contains_i: String
-  connectedMessage_starts_with_i: String
-  connectedMessage_not_starts_with_i: String
-  connectedMessage_ends_with_i: String
-  connectedMessage_not_ends_with_i: String
-  connectedMessage_in: [String]
-  connectedMessage_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -6821,8 +6792,6 @@ enum SortBillingIntegrationsBy {
   partnerUrl_DESC
   instruction_ASC
   instruction_DESC
-  connectedMessage_ASC
-  connectedMessage_DESC
   appUrl_ASC
   appUrl_DESC
   billingPageTitle_ASC
@@ -6863,7 +6832,6 @@ input BillingIntegrationUpdateInput {
   developer: String
   partnerUrl: String
   instruction: String
-  connectedMessage: String
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6896,7 +6864,6 @@ input BillingIntegrationCreateInput {
   developer: String
   partnerUrl: String
   instruction: String
-  connectedMessage: String
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -35607,7 +35574,6 @@ type AcquiringIntegrationHistoryRecord {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
@@ -35715,10 +35681,6 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   instruction_not: JSON
   instruction_in: [JSON]
   instruction_not_in: [JSON]
-  connectedMessage: JSON
-  connectedMessage_not: JSON
-  connectedMessage_in: [JSON]
-  connectedMessage_not_in: [JSON]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -35888,7 +35850,6 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
@@ -35921,7 +35882,6 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
@@ -36011,10 +35971,6 @@ type AcquiringIntegration {
   """ Text which used to describe how to connect app written in markdown. Required if appUrl is not specified 
   """
   instruction: String
-
-  """ Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified 
-  """
-  connectedMessage: String
 
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
@@ -36165,24 +36121,6 @@ input AcquiringIntegrationWhereInput {
   instruction_not_ends_with_i: String
   instruction_in: [String]
   instruction_not_in: [String]
-  connectedMessage: String
-  connectedMessage_not: String
-  connectedMessage_contains: String
-  connectedMessage_not_contains: String
-  connectedMessage_starts_with: String
-  connectedMessage_not_starts_with: String
-  connectedMessage_ends_with: String
-  connectedMessage_not_ends_with: String
-  connectedMessage_i: String
-  connectedMessage_not_i: String
-  connectedMessage_contains_i: String
-  connectedMessage_not_contains_i: String
-  connectedMessage_starts_with_i: String
-  connectedMessage_not_starts_with_i: String
-  connectedMessage_ends_with_i: String
-  connectedMessage_not_ends_with_i: String
-  connectedMessage_in: [String]
-  connectedMessage_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -36318,8 +36256,6 @@ enum SortAcquiringIntegrationsBy {
   partnerUrl_DESC
   instruction_ASC
   instruction_DESC
-  connectedMessage_ASC
-  connectedMessage_DESC
   appUrl_ASC
   appUrl_DESC
   isHidden_ASC
@@ -36358,7 +36294,6 @@ input AcquiringIntegrationUpdateInput {
   developer: String
   partnerUrl: String
   instruction: String
-  connectedMessage: String
   appUrl: String
   isHidden: Boolean
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
@@ -36390,7 +36325,6 @@ input AcquiringIntegrationCreateInput {
   developer: String
   partnerUrl: String
   instruction: String
-  connectedMessage: String
   appUrl: String
   isHidden: Boolean
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
@@ -39677,7 +39611,6 @@ type B2BAppHistoryRecord {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -39787,10 +39720,6 @@ input B2BAppHistoryRecordWhereInput {
   instruction_not: JSON
   instruction_in: [JSON]
   instruction_not_in: [JSON]
-  connectedMessage: JSON
-  connectedMessage_not: JSON
-  connectedMessage_in: [JSON]
-  connectedMessage_not_in: [JSON]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -40000,7 +39929,6 @@ input B2BAppHistoryRecordUpdateInput {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -40035,7 +39963,6 @@ input B2BAppHistoryRecordCreateInput {
   developer: String
   partnerUrl: String
   instruction: JSON
-  connectedMessage: JSON
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -40107,10 +40034,6 @@ type B2BApp {
   """ Text which used to describe how to connect app written in markdown. Required if appUrl is not specified 
   """
   instruction: String
-
-  """ Short message which will be displayed on app's index page if it has no appUrl. Required if appUrl is not specified 
-  """
-  connectedMessage: String
 
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
@@ -40268,24 +40191,6 @@ input B2BAppWhereInput {
   instruction_not_ends_with_i: String
   instruction_in: [String]
   instruction_not_in: [String]
-  connectedMessage: String
-  connectedMessage_not: String
-  connectedMessage_contains: String
-  connectedMessage_not_contains: String
-  connectedMessage_starts_with: String
-  connectedMessage_not_starts_with: String
-  connectedMessage_ends_with: String
-  connectedMessage_not_ends_with: String
-  connectedMessage_i: String
-  connectedMessage_not_i: String
-  connectedMessage_contains_i: String
-  connectedMessage_not_contains_i: String
-  connectedMessage_starts_with_i: String
-  connectedMessage_not_starts_with_i: String
-  connectedMessage_ends_with_i: String
-  connectedMessage_not_ends_with_i: String
-  connectedMessage_in: [String]
-  connectedMessage_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -40420,8 +40325,6 @@ enum SortB2BAppsBy {
   partnerUrl_DESC
   instruction_ASC
   instruction_DESC
-  connectedMessage_ASC
-  connectedMessage_DESC
   appUrl_ASC
   appUrl_DESC
   isHidden_ASC
@@ -40462,7 +40365,6 @@ input B2BAppUpdateInput {
   developer: String
   partnerUrl: String
   instruction: String
-  connectedMessage: String
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -40495,7 +40397,6 @@ input B2BAppCreateInput {
   developer: String
   partnerUrl: String
   instruction: String
-  connectedMessage: String
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
