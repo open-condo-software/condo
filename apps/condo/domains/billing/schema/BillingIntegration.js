@@ -16,12 +16,10 @@ const {
     SHORT_DESCRIPTION_FIELD,
     INSTRUCTION_TEXT_FIELD,
     IFRAME_URL_FIELD,
-    CONNECTED_MESSAGE_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
-const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -46,8 +44,6 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         partnerUrl: PARTNER_URL_FIELD,
 
         instruction: INSTRUCTION_TEXT_FIELD,
-
-        connectedMessage: CONNECTED_MESSAGE_FIELD,
 
         appUrl: IFRAME_URL_FIELD,
 
@@ -87,12 +83,6 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
         isHidden: IS_HIDDEN_FIELD,
     },
     hooks: {
-        validateInput: ({ resolvedData, addValidationError, existingItem }) => {
-            const newItem = { ...existingItem, ...resolvedData }
-            if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
-            }
-        },
         afterChange: logoMetaAfterChange,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
