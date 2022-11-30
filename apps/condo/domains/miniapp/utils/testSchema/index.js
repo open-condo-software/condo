@@ -8,7 +8,7 @@ const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
-const { PROMO_BLOCK_TEXT_VARIANTS } = require('@condo/domains/miniapp/constants')
+const { PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
 
 const {
     ALL_MINI_APPS_QUERY,
@@ -95,7 +95,7 @@ async function createTestB2BApp (client, extraAttrs = {}) {
         name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
-        detailedDescription: faker.lorem.paragraph(3),
+        instruction: faker.datatype.string(),
         isHidden: true,
         ...extraAttrs,
     }
@@ -314,7 +314,7 @@ async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const title = faker.company.catchPhrase()
     const subtitle = faker.commerce.productName()
-    const textVariant = randomChoice(PROMO_BLOCK_TEXT_VARIANTS)
+    const textVariant = randomChoice(Object.keys(PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS))
     const backgroundColor = randomChoice(['hex', 'grad']) === 'hex'
         ? randomHex()
         : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`

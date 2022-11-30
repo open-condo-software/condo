@@ -39,7 +39,7 @@ describe('B2BApp', () => {
                 name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
                 shortDescription: faker.commerce.productDescription(),
                 developer: faker.company.companyName(),
-                detailedDescription: faker.datatype.string(),
+                instruction: faker.datatype.string(),
             }
             test('Admin can', async () => {
                 const [app] = await createTestB2BApp(admin, createPayload)
