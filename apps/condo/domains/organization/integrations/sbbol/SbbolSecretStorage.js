@@ -69,6 +69,25 @@ class SbbolSecretStorage {
         await this.#setValue('organization', id)
     }
 
+    /**
+     * Used for inspection of stored values in case when there is no direct access to Redis
+     */
+    async getRawKeyValues () {
+        const clientSecretScopedKey = this.#scopedKey('clientSecret')
+        const accessTokenScopedKey = this.#scopedKey('accessToken')
+        const refreshTokenScopedKey = this.#scopedKey('refreshToken')
+
+        const clientSecretValue = await this.#getValue('clientSecret')
+        const accessTokenValue = await this.#getValue('accessToken')
+        const refreshTokenValue = await this.#getValue('refreshToken')
+
+        return {
+            [clientSecretScopedKey]: clientSecretValue,
+            [accessTokenScopedKey]: accessTokenValue,
+            [refreshTokenScopedKey]: refreshTokenValue,
+        }
+    }
+
     #getValue (key) {
         const scopedKey = this.#scopedKey(key)
         return this.keyStorage.get(scopedKey)
