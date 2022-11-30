@@ -6072,7 +6072,7 @@ type BillingIntegrationHistoryRecord {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6178,10 +6178,10 @@ input BillingIntegrationHistoryRecordWhereInput {
   partnerUrl_not_ends_with_i: String
   partnerUrl_in: [String]
   partnerUrl_not_in: [String]
-  instruction: JSON
-  instruction_not: JSON
-  instruction_in: [JSON]
-  instruction_not_in: [JSON]
+  detailedDescription: JSON
+  detailedDescription_not: JSON
+  detailedDescription_in: [JSON]
+  detailedDescription_not_in: [JSON]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -6390,7 +6390,7 @@ input BillingIntegrationHistoryRecordUpdateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6424,7 +6424,7 @@ input BillingIntegrationHistoryRecordCreateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6487,7 +6487,7 @@ type BillingIntegration {
   """ Logo of app's company or app itself """
   logo: File
 
-  """ Short description providing information about integration functionality. Will be shown on App's card 
+  """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
   """
   shortDescription: String
 
@@ -6502,9 +6502,9 @@ type BillingIntegration {
   """
   partnerUrl: String
 
-  """ Text which used to describe how to connect app written in markdown. Required if appUrl is not specified 
+  """ Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page 
   """
-  instruction: String
+  detailedDescription: String
 
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
@@ -6640,24 +6640,24 @@ input BillingIntegrationWhereInput {
   partnerUrl_not_ends_with_i: String
   partnerUrl_in: [String]
   partnerUrl_not_in: [String]
-  instruction: String
-  instruction_not: String
-  instruction_contains: String
-  instruction_not_contains: String
-  instruction_starts_with: String
-  instruction_not_starts_with: String
-  instruction_ends_with: String
-  instruction_not_ends_with: String
-  instruction_i: String
-  instruction_not_i: String
-  instruction_contains_i: String
-  instruction_not_contains_i: String
-  instruction_starts_with_i: String
-  instruction_not_starts_with_i: String
-  instruction_ends_with_i: String
-  instruction_not_ends_with_i: String
-  instruction_in: [String]
-  instruction_not_in: [String]
+  detailedDescription: String
+  detailedDescription_not: String
+  detailedDescription_contains: String
+  detailedDescription_not_contains: String
+  detailedDescription_starts_with: String
+  detailedDescription_not_starts_with: String
+  detailedDescription_ends_with: String
+  detailedDescription_not_ends_with: String
+  detailedDescription_i: String
+  detailedDescription_not_i: String
+  detailedDescription_contains_i: String
+  detailedDescription_not_contains_i: String
+  detailedDescription_starts_with_i: String
+  detailedDescription_not_starts_with_i: String
+  detailedDescription_ends_with_i: String
+  detailedDescription_not_ends_with_i: String
+  detailedDescription_in: [String]
+  detailedDescription_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -6790,8 +6790,8 @@ enum SortBillingIntegrationsBy {
   developer_DESC
   partnerUrl_ASC
   partnerUrl_DESC
-  instruction_ASC
-  instruction_DESC
+  detailedDescription_ASC
+  detailedDescription_DESC
   appUrl_ASC
   appUrl_DESC
   billingPageTitle_ASC
@@ -6831,7 +6831,7 @@ input BillingIntegrationUpdateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: String
+  detailedDescription: String
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -6863,7 +6863,7 @@ input BillingIntegrationCreateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: String
+  detailedDescription: String
   appUrl: String
   billingPageTitle: String
   contextDefaultStatus: String
@@ -35666,7 +35666,7 @@ type AcquiringIntegrationHistoryRecord {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
@@ -35770,10 +35770,10 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   partnerUrl_not_ends_with_i: String
   partnerUrl_in: [String]
   partnerUrl_not_in: [String]
-  instruction: JSON
-  instruction_not: JSON
-  instruction_in: [JSON]
-  instruction_not_in: [JSON]
+  detailedDescription: JSON
+  detailedDescription_not: JSON
+  detailedDescription_in: [JSON]
+  detailedDescription_not_in: [JSON]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -35942,7 +35942,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
@@ -35974,7 +35974,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
   canGroupReceipts: Boolean
@@ -36046,7 +36046,7 @@ type AcquiringIntegration {
   """ Logo of app's company or app itself """
   logo: File
 
-  """ Short description providing information about integration functionality. Will be shown on App's card 
+  """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
   """
   shortDescription: String
 
@@ -36061,9 +36061,9 @@ type AcquiringIntegration {
   """
   partnerUrl: String
 
-  """ Text which used to describe how to connect app written in markdown. Required if appUrl is not specified 
+  """ Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page 
   """
-  instruction: String
+  detailedDescription: String
 
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
@@ -36196,24 +36196,24 @@ input AcquiringIntegrationWhereInput {
   partnerUrl_not_ends_with_i: String
   partnerUrl_in: [String]
   partnerUrl_not_in: [String]
-  instruction: String
-  instruction_not: String
-  instruction_contains: String
-  instruction_not_contains: String
-  instruction_starts_with: String
-  instruction_not_starts_with: String
-  instruction_ends_with: String
-  instruction_not_ends_with: String
-  instruction_i: String
-  instruction_not_i: String
-  instruction_contains_i: String
-  instruction_not_contains_i: String
-  instruction_starts_with_i: String
-  instruction_not_starts_with_i: String
-  instruction_ends_with_i: String
-  instruction_not_ends_with_i: String
-  instruction_in: [String]
-  instruction_not_in: [String]
+  detailedDescription: String
+  detailedDescription_not: String
+  detailedDescription_contains: String
+  detailedDescription_not_contains: String
+  detailedDescription_starts_with: String
+  detailedDescription_not_starts_with: String
+  detailedDescription_ends_with: String
+  detailedDescription_not_ends_with: String
+  detailedDescription_i: String
+  detailedDescription_not_i: String
+  detailedDescription_contains_i: String
+  detailedDescription_not_contains_i: String
+  detailedDescription_starts_with_i: String
+  detailedDescription_not_starts_with_i: String
+  detailedDescription_ends_with_i: String
+  detailedDescription_not_ends_with_i: String
+  detailedDescription_in: [String]
+  detailedDescription_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -36347,8 +36347,8 @@ enum SortAcquiringIntegrationsBy {
   developer_DESC
   partnerUrl_ASC
   partnerUrl_DESC
-  instruction_ASC
-  instruction_DESC
+  detailedDescription_ASC
+  detailedDescription_DESC
   appUrl_ASC
   appUrl_DESC
   isHidden_ASC
@@ -36386,7 +36386,7 @@ input AcquiringIntegrationUpdateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: String
+  detailedDescription: String
   appUrl: String
   isHidden: Boolean
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
@@ -36417,7 +36417,7 @@ input AcquiringIntegrationCreateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: String
+  detailedDescription: String
   appUrl: String
   isHidden: Boolean
   accessRights: AcquiringIntegrationAccessRightRelateToManyInput
@@ -39703,7 +39703,7 @@ type B2BAppHistoryRecord {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -39809,10 +39809,10 @@ input B2BAppHistoryRecordWhereInput {
   partnerUrl_not_ends_with_i: String
   partnerUrl_in: [String]
   partnerUrl_not_in: [String]
-  instruction: JSON
-  instruction_not: JSON
-  instruction_in: [JSON]
-  instruction_not_in: [JSON]
+  detailedDescription: JSON
+  detailedDescription_not: JSON
+  detailedDescription_in: [JSON]
+  detailedDescription_not_in: [JSON]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -40021,7 +40021,7 @@ input B2BAppHistoryRecordUpdateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -40055,7 +40055,7 @@ input B2BAppHistoryRecordCreateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: JSON
+  detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -40109,7 +40109,7 @@ type B2BApp {
   """ Logo of app's company or app itself """
   logo: File
 
-  """ Short description providing information about integration functionality. Will be shown on App's card 
+  """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
   """
   shortDescription: String
 
@@ -40124,9 +40124,9 @@ type B2BApp {
   """
   partnerUrl: String
 
-  """ Text which used to describe how to connect app written in markdown. Required if appUrl is not specified 
+  """ Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app's page 
   """
-  instruction: String
+  detailedDescription: String
 
   """ Url to app page, which is the app starting point and will be opened in iframe 
   """
@@ -40266,24 +40266,24 @@ input B2BAppWhereInput {
   partnerUrl_not_ends_with_i: String
   partnerUrl_in: [String]
   partnerUrl_not_in: [String]
-  instruction: String
-  instruction_not: String
-  instruction_contains: String
-  instruction_not_contains: String
-  instruction_starts_with: String
-  instruction_not_starts_with: String
-  instruction_ends_with: String
-  instruction_not_ends_with: String
-  instruction_i: String
-  instruction_not_i: String
-  instruction_contains_i: String
-  instruction_not_contains_i: String
-  instruction_starts_with_i: String
-  instruction_not_starts_with_i: String
-  instruction_ends_with_i: String
-  instruction_not_ends_with_i: String
-  instruction_in: [String]
-  instruction_not_in: [String]
+  detailedDescription: String
+  detailedDescription_not: String
+  detailedDescription_contains: String
+  detailedDescription_not_contains: String
+  detailedDescription_starts_with: String
+  detailedDescription_not_starts_with: String
+  detailedDescription_ends_with: String
+  detailedDescription_not_ends_with: String
+  detailedDescription_i: String
+  detailedDescription_not_i: String
+  detailedDescription_contains_i: String
+  detailedDescription_not_contains_i: String
+  detailedDescription_starts_with_i: String
+  detailedDescription_not_starts_with_i: String
+  detailedDescription_ends_with_i: String
+  detailedDescription_not_ends_with_i: String
+  detailedDescription_in: [String]
+  detailedDescription_not_in: [String]
   appUrl: String
   appUrl_not: String
   appUrl_contains: String
@@ -40416,8 +40416,8 @@ enum SortB2BAppsBy {
   developer_DESC
   partnerUrl_ASC
   partnerUrl_DESC
-  instruction_ASC
-  instruction_DESC
+  detailedDescription_ASC
+  detailedDescription_DESC
   appUrl_ASC
   appUrl_DESC
   isHidden_ASC
@@ -40457,7 +40457,7 @@ input B2BAppUpdateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: String
+  detailedDescription: String
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -40489,7 +40489,7 @@ input B2BAppCreateInput {
   about: JSON
   developer: String
   partnerUrl: String
-  instruction: String
+  detailedDescription: String
   appUrl: String
   isHidden: Boolean
   isGlobal: Boolean
@@ -41608,7 +41608,7 @@ type B2CApp {
   """ Logo of app's company or app itself """
   logo: File
 
-  """ Short description providing information about integration functionality. Will be shown on App's card 
+  """ Short description / catch phrase providing information about integration functionality. Will be shown on App's card 
   """
   shortDescription: String
 

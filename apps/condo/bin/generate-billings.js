@@ -39,7 +39,7 @@ const InProgressBilling = {
     sender: SENDER,
     name: 'ГИС ЖКХ (IN PROGRESS STATUS)',
     shortDescription: 'Государственная информационная система ЖКХ',
-    instruction: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
+    detailedDescription: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
         'В результате, вы будете видеть все данные биллинга внутри платформы «Домá».',
     contextDefaultStatus: CONTEXT_IN_PROGRESS_STATUS,
     dataFormat: Lvl1DataFormat,
@@ -51,7 +51,7 @@ const SuccessfulBilling = {
     sender: SENDER,
     name: 'Интеграция через загрузку вашего реестра (DONE STATUS)',
     shortDescription: 'Поддерживаемые форматы: 1С, СБ Бизнес Онлайн 8_2 и 9_1',
-    instruction: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
+    detailedDescription: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
         'Мы запомним ваш выбор и в следующий раз не будем спрашивать про формат файлов.',
     contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
