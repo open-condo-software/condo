@@ -382,8 +382,9 @@ export const getSorterMap: SorterMapType = (sorters) => {
 }
 
 
-export const categoryToSearchQuery = (search: string, translations: Record<string, string>) => {
-    if (!search) return
+export const categoryToSearchQuery: (search: string, translations: Record<string, string>) => FilterType = (search, translations) => {
+    if (!search) return () => null
+
     const searchLowerCase = search.toLowerCase()
     const whereIn = translations ? Object.keys(translations).filter(
         key => (
@@ -393,10 +394,10 @@ export const categoryToSearchQuery = (search: string, translations: Record<strin
         )
     ) : []
 
-    return {
+    return (search) =>  ({
         category: { 'OR': [
             { name_in: whereIn },
             { name_contains_i: search },
         ] },
-    } 
+    }) 
 }
