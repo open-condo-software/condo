@@ -1,13 +1,13 @@
 import { useMemo } from 'react'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import { useIntl } from '@open-condo/next/intl'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { useIntl } from '@open-condo/next/intl'
-import get from 'lodash/get'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { IFilters } from '../utils/helpers'
+import { IFilters } from '@condo/domains/billing/utils/helpers'
 
 export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
