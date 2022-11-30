@@ -14,7 +14,7 @@ const {
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     SHORT_DESCRIPTION_FIELD,
-    INSTRUCTION_TEXT_FIELD,
+    APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
@@ -43,7 +43,7 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
 
         partnerUrl: PARTNER_URL_FIELD,
 
-        instruction: INSTRUCTION_TEXT_FIELD,
+        detailedDescription: APP_DETAILS_FIELD,
 
         appUrl: IFRAME_URL_FIELD,
 
