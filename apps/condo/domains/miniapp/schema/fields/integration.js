@@ -32,13 +32,13 @@ const APP_IMAGE_FIELD = {
 }
 
 const SHORT_DESCRIPTION_FIELD = {
-    schemaDoc: 'Short description providing information about integration functionality. Will be shown on App\'s card',
+    schemaDoc: 'Short description / catch phrase providing information about integration functionality. Will be shown on App\'s card',
     type: Text,
     isRequired: true,
 }
 
-const INSTRUCTION_TEXT_FIELD = {
-    schemaDoc: 'Text which used to describe how to connect app written in markdown. Required if appUrl is not specified',
+const APP_DETAILS_FIELD = {
+    schemaDoc: 'Text describing app functionality, connection process and pricing in full detail. Written in markdown without html tags. Will be shown on app\'s page',
     type: Markdown,
     isRequired: true,
 }
@@ -71,7 +71,7 @@ module.exports = {
     PARTNER_URL_FIELD,
     APP_IMAGE_FIELD,
     SHORT_DESCRIPTION_FIELD,
-    INSTRUCTION_TEXT_FIELD,
+    APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     APPS_FILE_ADAPTER,
     IS_HIDDEN_FIELD,

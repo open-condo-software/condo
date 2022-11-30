@@ -12,7 +12,7 @@ const {
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
-    INSTRUCTION_TEXT_FIELD,
+    APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
@@ -45,7 +45,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         },
         developer: DEVELOPER_FIELD,
         partnerUrl: PARTNER_URL_FIELD,
-        instruction: INSTRUCTION_TEXT_FIELD,
+        detailedDescription: APP_DETAILS_FIELD,
         appUrl: IFRAME_URL_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {
