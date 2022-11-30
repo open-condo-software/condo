@@ -11,6 +11,8 @@ const get = require('lodash/get')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
@@ -68,11 +70,26 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
     },
     hooks: {
-        resolveInput: async ({ operation, context, resolvedData }) => {
+        resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             const user = get(context, ['req', 'user'])
 
             if (operation === 'create' && user.type === RESIDENT) {
                 await addClientInfoToResidentMeterReading(context, resolvedData)
+            }
+
+            const meter = await Meter.getOne(context, {
+                id: get(resolvedData, 'meter', null),
+            })
+            if (meter && resolvedData.clientName && resolvedData.clientPhone) {
+                const contactCreationData = {
+                    ...resolvedData,
+                    organization: get(meter, ['organization', 'id']),
+                    property: get(meter, ['property', 'id']),
+                    unitName: get(meter, 'unitName'),
+                    unitType: get(meter, 'unitType'),
+                }
+
+                await connectContactToMeterReading(context, contactCreationData, existingItem)
             }
 
             return resolvedData
