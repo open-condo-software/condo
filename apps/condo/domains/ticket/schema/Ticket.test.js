@@ -14,8 +14,6 @@ const {
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
-const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
-
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
@@ -25,16 +23,37 @@ const {
     TICKET_STATUS_DECLINED_TYPE,
     MESSAGE_SENT_STATUS,
     TRACK_TICKET_IN_DOMA_APP_TYPE,
+    DEVICE_PLATFORM_ANDROID,
+    APP_MASTER_ID_ANDROID,
+    APP_RESIDENT_ID_ANDROID,
 } = require('@condo/domains/notification/constants/constants')
-const { Message, MessageOrganizationBlackList, updateTestMessageOrganizationBlackList } = require('@condo/domains/notification/utils/testSchema')
+const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
+
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const {
+    Message,
+    MessageOrganizationBlackList,
+    updateTestMessageOrganizationBlackList,
+    syncRemoteClientByTestClient,
+} = require('@condo/domains/notification/utils/testSchema')
+
+const {
+    PROPERTY_TICKET_VISIBILITY,
+    PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+    ASSIGNED_TICKET_VISIBILITY,
+    ORGANIZATION_TICKET_VISIBILITY,
+} = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganizationLink,
     createTestOrganizationWithAccessToAnotherOrganization,
     createTestOrganizationEmployee, createTestOrganizationEmployeeSpecialization,
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
-const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithProperty,
@@ -42,16 +61,15 @@ const {
     updateTestProperty,
     makeClientWithResidentAccessAndProperty,
 } = require('@condo/domains/property/utils/testSchema')
+
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
-const { Ticket, createTestTicket, updateTestTicket, TicketOrganizationSetting, createTestTicketComment, TicketComment, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
+
 const {
-    makeClientWithResidentUser,
-    makeClientWithNewRegisteredAndLoggedInUser,
-    createTestPhone,
-    makeClientWithSupportUser,
-} = require('@condo/domains/user/utils/testSchema')
-const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
-const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+    createTestPropertyScope,
+    createTestPropertyScopeOrganizationEmployee,
+    createTestPropertyScopeProperty,
+} = require('@condo/domains/scope/utils/testSchema')
+
 const {
     REVIEW_VALUES,
     DEFERRED_STATUS_TYPE,
@@ -59,10 +77,29 @@ const {
     NEW_OR_REOPENED_STATUS_TYPE,
     DEFAULT_DEFERRED_DAYS,
 } = require('@condo/domains/ticket/constants')
-const { createTestPropertyScope, createTestPropertyScopeOrganizationEmployee, createTestPropertyScopeProperty } = require('@condo/domains/scope/utils/testSchema')
-const { PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ASSIGNED_TICKET_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const {
+    Ticket, createTestTicket, updateTestTicket,
+    TicketOrganizationSetting,
+    createTestTicketComment,
+    TicketComment,
+    createTestTicketClassifier,
+} = require('@condo/domains/ticket/utils/testSchema')
+
+const {
+    makeClientWithResidentUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    createTestPhone,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('Ticket', () => {
+    let admin
+    
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+    })
+    
     describe('CRUD', () => {
         test('user: create Ticket', async () => {
             const client = await makeClientWithProperty()
@@ -107,7 +144,6 @@ describe('Ticket', () => {
         })
 
         test('user with resident type without resident: cannot create Ticket', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             await createTestResident(admin, userClient.user, userClient.property)
 
@@ -117,7 +153,6 @@ describe('Ticket', () => {
         })
 
         test('resident: can create ticket without deadline and set default deadline', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -136,7 +171,6 @@ describe('Ticket', () => {
         })
 
         test('resident: can create Ticket and client info save in new ticket', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -157,7 +191,6 @@ describe('Ticket', () => {
         })
 
         test('user with 2 residents: can create Ticket for each resident', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
@@ -182,7 +215,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot create Ticket without unitName', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -195,7 +227,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot create Ticket in other unitName', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName1 = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
@@ -211,7 +242,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot create Ticket in other property', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const [property] = await createTestProperty(admin, userClient.organization)
             const unitName = faker.random.alphaNumeric(5)
@@ -227,7 +257,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update his Ticket details', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             const newDetails = faker.random.alphaNumeric(5)
@@ -271,7 +300,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update his Ticket fields other than accessibleUpdatedFields', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             const unitName2 = faker.random.alphaNumeric(5)
@@ -293,7 +321,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update not his Ticket', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const userClient2 = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
@@ -319,7 +346,6 @@ describe('Ticket', () => {
         })
 
         test('resident: can read his Tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const unitName = faker.random.alphaNumeric(5)
             await createTestResident(admin, userClient.user, userClient.property, {
@@ -334,7 +360,6 @@ describe('Ticket', () => {
         })
 
         test('resident: can read ticket with a contact whose phone number and address matches the resident phone number and address', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -361,7 +386,6 @@ describe('Ticket', () => {
         })
 
         test('resident: if no client data but with contact data, client data fills from contact', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -390,7 +414,6 @@ describe('Ticket', () => {
         })
 
         test('admin: if client data and contact data sended, client data not overwritted', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -419,7 +442,6 @@ describe('Ticket', () => {
         })
 
         test('admin: if client data sended without contact data, client data not overwritted', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -446,7 +468,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot read ticket with a contact whose phone number did not matches the resident phone number', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient1 = await makeClientWithResidentUser()
             const { phone } = residentClient1.userAttrs
             const residentClient2 = await makeClientWithResidentUser()
@@ -480,7 +501,6 @@ describe('Ticket', () => {
 
         test('resident: cannot read ticket with a contact whose property or unitName ' +
             'did not matches the resident property or unitName', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentWithTicketClient = await makeClientWithResidentUser()
             const residentFromAnotherPropertyClient = await makeClientWithResidentUser()
             const residentFromAnotherUnitClient = await makeClientWithResidentUser()
@@ -521,7 +541,6 @@ describe('Ticket', () => {
         })
 
         test('resident: user with 2 residents and 2 different contacts can read ticket for each resident', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient1 = await makeClientWithResidentUser()
             const { phone } = residentClient1.userAttrs
 
@@ -562,7 +581,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot read ticket from crm with "canReadByResident": false', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -595,7 +613,6 @@ describe('Ticket', () => {
         })
 
         test('resident: can read ticket from crm if first it was hidden to him then it became showed', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -631,7 +648,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot read ticket from crm if first it was showed to him then it became hidden', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -667,7 +683,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot update ticket from crm', async () => {
-            const admin = await makeLoggedInAdminClient()
             const residentClient = await makeClientWithResidentUser()
 
             const [organization] = await createTestOrganization(admin)
@@ -697,7 +712,6 @@ describe('Ticket', () => {
         })
 
         test('resident: cannot read not his Tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const userInOtherProperty = await makeClientWithResidentAccessAndProperty()
             const userInOtherUnit = await makeClientWithResidentAccessAndProperty()
@@ -830,7 +844,6 @@ describe('Ticket', () => {
         })
 
         test('admin: set ticket executor', async () => {
-            const admin = await makeLoggedInAdminClient()
             const client = await makeClientWithProperty()
             const [objCreated] = await createTestTicket(client, client.organization, client.property)
 
@@ -878,7 +891,6 @@ describe('Ticket', () => {
         })
 
         test('should auto generating statusUpdatedAt when update status', async () => {
-            const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
             const [openTicket] = await createTestTicket(admin, userClient.organization, userClient.property, {
                 status: { connect: { id: STATUS_IDS.OPEN } },
@@ -919,7 +931,6 @@ describe('Ticket', () => {
         })
 
         test('employee from "from" organization: can read tickets from "to" organizations', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 clientFrom,
                 organizationTo,
@@ -938,7 +949,6 @@ describe('Ticket', () => {
         })
 
         test('employee from "to" organization: cannot read tickets from "from" organization', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 clientTo,
                 organizationFrom,
@@ -951,7 +961,6 @@ describe('Ticket', () => {
         })
 
         test('employee from "from" organization: cannot read not its own "to" organizations', async () => {
-            const admin = await makeLoggedInAdminClient()
             const { organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const {
                 clientFrom,
@@ -965,7 +974,6 @@ describe('Ticket', () => {
         })
 
         test('organization "from" employee with canManageTickets access: can create organization "to" tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 clientFrom,
                 organizationTo,
@@ -997,7 +1005,6 @@ describe('Ticket', () => {
         })
 
         test('user: cannot create tickets for "from" or "to" organizations', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 organizationFrom,
                 propertyFrom,
@@ -1022,7 +1029,6 @@ describe('Ticket', () => {
         })
 
         test('organization "from" employee: can update organization "to" tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 clientFrom,
                 organizationTo,
@@ -1046,7 +1052,6 @@ describe('Ticket', () => {
         })
 
         test('blocked user: cannot read "to" tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 employeeFrom,
                 clientFrom,
@@ -1063,7 +1068,6 @@ describe('Ticket', () => {
         })
 
         test('deleted user: cannot read "to" tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 employeeFrom,
                 clientFrom,
@@ -1080,7 +1084,6 @@ describe('Ticket', () => {
         })
 
         test('blocked user: cannot create "to" tickets', async () => {
-            const admin = await makeLoggedInAdminClient()
             const {
                 employeeFrom,
                 clientFrom,
@@ -1105,7 +1108,6 @@ describe('Ticket', () => {
         })
 
         test.skip('user: can read assigned tickets if he is not organization employee', async () => {
-            const admin = await makeLoggedInAdminClient()
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [organization1] = await createTestOrganization(admin)
@@ -1129,7 +1131,6 @@ describe('Ticket', () => {
     describe.skip('ticket visibility type', () => {
         describe('organization', () => {
             it('can read tickets and related to ticket objects in organization where user is employee', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1150,7 +1151,6 @@ describe('Ticket', () => {
             })
 
             it('cannot read tickets and related to ticket objects in organization where user is not employee', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1174,7 +1174,6 @@ describe('Ticket', () => {
 
         describe('property', () => {
             it('can read all tickets and related to ticket objects in organization if employee in PropertyScope with hasAllProperties flag', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1208,7 +1207,6 @@ describe('Ticket', () => {
             })
 
             it('can read tickets and related to ticket objects in properties from PropertyScope where this employee is', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1244,7 +1242,6 @@ describe('Ticket', () => {
             })
 
             it('can read tickets and related to ticket objects where employee is executor or assignee', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1275,7 +1272,6 @@ describe('Ticket', () => {
             })
 
             it('cannot read tickets and related to ticket objects if there no PropertyScope in which employee is', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1296,7 +1292,6 @@ describe('Ticket', () => {
             })
 
             it('cannot read tickets and related to ticket objects with properties which are in the PropertyScope where employee is not', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1326,7 +1321,6 @@ describe('Ticket', () => {
         describe('property and specialization', () => {
             it('can read tickets with TicketCategoryClassifier matches to employee OrganizationEmployeeSpecialization ' +
                 'and property from PropertyScope where this employee is', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1364,7 +1358,6 @@ describe('Ticket', () => {
             })
 
             it('can read tickets where employee is executor or assignee', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1392,7 +1385,6 @@ describe('Ticket', () => {
 
             it('cannot read tickets with TicketCategoryClassifier matches to employee OrganizationEmployeeSpecialization ' +
                 'and there no property from PropertyScope where this employee is', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1419,7 +1411,6 @@ describe('Ticket', () => {
 
             it('cannot read tickets with property from PropertyScope where this employee is ' +
                 'and TicketCategoryClassifier not matches to employee OrganizationEmployeeSpecialization', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1448,7 +1439,6 @@ describe('Ticket', () => {
 
         describe('assigned', () => {
             it('can read only tickets where employee is executor or assignee', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1488,7 +1478,6 @@ describe('Ticket', () => {
 
         describe('change status after resident review', () => {
             test('status changed to CLOSED after resident left GOOD review value', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
                 const reviewComment = faker.random.alphaNumeric(5)
@@ -1513,7 +1502,6 @@ describe('Ticket', () => {
             })
 
             test('status changed to OPEN after resident return ticket to work', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
                 await createTestResident(admin, userClient.user, userClient.property, {
@@ -1611,7 +1599,6 @@ describe('Ticket', () => {
 
         describe('client', () => {
             test('should be filled automatically on ticket creation if contact phone number and ticket address matches the resident phone number and address', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1641,7 +1628,6 @@ describe('Ticket', () => {
             })
 
             test('should be filled automatically on ticket update if contact phone number and updated ticket address matches the resident phone number and address', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1680,7 +1666,6 @@ describe('Ticket', () => {
             })
 
             test('should be filled automatically on create resident with same contact phone and same ticket address', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1714,7 +1699,6 @@ describe('Ticket', () => {
             })
 
             test('should be filled automatically on ticket with isResidentTicket creation if clientPhone number and ticket address matches the resident phone number and address', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -1745,7 +1729,7 @@ describe('Ticket', () => {
         describe('contact', () => {
             describe('isResident ticket is true', function () {
                 it('should be created and connected if no contact matches with clientPhone, unitName and unitType', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
 
@@ -1766,7 +1750,7 @@ describe('Ticket', () => {
                 })
 
                 it('should be connected if contact with same clientPhone, unitName and unitType exists', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
 
@@ -1793,7 +1777,7 @@ describe('Ticket', () => {
                 })
 
                 it('should create and connect new contact if clientPhone, unitName or unitType are different than connected contact\'s', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone: phone1, name: name1 } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const { userAttrs: { phone: phone2, name: name2 } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
@@ -1833,7 +1817,7 @@ describe('Ticket', () => {
                 })
 
                 it('should be connected if resident user creates ticket', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const residentClient = await makeClientWithResidentUser()
                     const { name, phone } = residentClient.userAttrs
 
@@ -1859,7 +1843,7 @@ describe('Ticket', () => {
                 })
 
                 it('should be disconnected if isResidentTicket changed to false', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
 
@@ -1888,7 +1872,7 @@ describe('Ticket', () => {
 
             describe('isResidentTicket is false', () => {
                 it('should not be created if no contact matches witch clientPhone, unitName and unitType', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
 
@@ -1905,7 +1889,7 @@ describe('Ticket', () => {
                 })
 
                 it('should not be connected if contact with same clientPhone, unitName and unitType is exist', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
 
@@ -1928,7 +1912,7 @@ describe('Ticket', () => {
                 })
 
                 it('should be connected if isResidentTicket changed to true', async () => {
-                    const admin = await makeLoggedInAdminClient()
+                    
                     const { userAttrs: { phone, name } } = await makeClientWithNewRegisteredAndLoggedInUser()
                     const unitName = faker.random.alphaNumeric(8)
 
@@ -1965,7 +1949,7 @@ describe('Ticket', () => {
 
         describe('completedAt', () => {
             test('should be filled and updated automatically when ticket status changes to "completed" value', async () => {
-                const admin = await makeLoggedInAdminClient()
+                
 
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization)
@@ -2142,7 +2126,6 @@ describe('Ticket', () => {
 
     describe('reopened ticket', () => {
         test('reset dismissed employees when update status from completed to open', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -2169,7 +2152,6 @@ describe('Ticket', () => {
         })
 
         test('non-dismissed employees are not being reset on updating ticket status from completed to open', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -2197,9 +2179,14 @@ describe('Ticket', () => {
     describe('notifications', () => {
         describe('Assignee or executor was changed', () => {
             test('push message to assignee', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
                 const assignee = await makeClientWithNewRegisteredAndLoggedInUser()
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_MASTER_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+                await syncRemoteClientByTestClient(assignee, payload)
 
                 const extraProps = { assignee: { connect: { id: assignee.user.id } } }
                 const [ticket] = await createTestTicket(client, client.organization, client.property, extraProps)
@@ -2234,9 +2221,14 @@ describe('Ticket', () => {
             })
 
             test('push message to executor', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
                 const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_MASTER_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+                await syncRemoteClientByTestClient(executor, payload)
 
                 const extraProps = { executor: { connect: { id: executor.user.id } } }
                 const [ticket] = await createTestTicket(client, client.organization, client.property, extraProps)
@@ -2266,7 +2258,6 @@ describe('Ticket', () => {
             })
 
             test('push two message if executor and assignee is the same user', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
@@ -2286,9 +2277,15 @@ describe('Ticket', () => {
 
         describe('Ticket status changed to TICKET_STATUS_IN_PROGRESS', () => {
             it('send push to resident if created Ticket with status == TICKET_STATUS_IN_PROGRESS', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+
+                await syncRemoteClientByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2313,7 +2310,6 @@ describe('Ticket', () => {
             })
 
             it('does not send push if there is no resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2329,7 +2325,6 @@ describe('Ticket', () => {
             })
 
             it('does not send push if Ticket.canReadByResident == false', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
                 const unitType = FLAT_UNIT_TYPE
@@ -2365,9 +2360,15 @@ describe('Ticket', () => {
 
         describe('Ticket status changed to TICKET_STATUS_COMPLETED', () => {
             it('send push to resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+                
+                await syncRemoteClientByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2392,7 +2393,6 @@ describe('Ticket', () => {
             })
 
             it('does not send if no resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2406,14 +2406,19 @@ describe('Ticket', () => {
 
                 expect(messageCount).toEqual(0)
             })
-
         })
 
         describe('Ticket status changed to TICKET_STATUS_RETURNED', () => {
             it('send push to resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+
+                await syncRemoteClientByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, {
@@ -2441,7 +2446,6 @@ describe('Ticket', () => {
             })
 
             it('does not send if no resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
 
@@ -2463,9 +2467,15 @@ describe('Ticket', () => {
 
         describe('Ticket status changed to TICKET_STATUS_DECLINED', () => {
             it('send push to resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithResidentAccessAndProperty()
                 const unitName = faker.random.alphaNumeric(5)
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+
+                await syncRemoteClientByTestClient(userClient, payload)
 
                 const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
                 const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
@@ -2490,7 +2500,6 @@ describe('Ticket', () => {
             })
 
             it('does not send if no resident', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const userClient = await makeClientWithProperty()
                 const unitName = faker.random.alphaNumeric(5)
 
@@ -2527,9 +2536,7 @@ describe('Ticket', () => {
             })
 
             test('send sms after create ticket with isResidentTicket is true and without resident matches contact data', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
-
                 const clientName = faker.name.firstName()
                 const clientPhone = createTestPhone()
                 const today = dayjs().format('YYYY-MM-DD')
@@ -2563,7 +2570,6 @@ describe('Ticket', () => {
             })
 
             test('dont send sms 2 times a day to one number', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
 
                 const clientName = faker.name.firstName()
@@ -2598,7 +2604,6 @@ describe('Ticket', () => {
             })
 
             test('dont send sms if ticket.isResidentTicket is false', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithProperty()
 
                 const clientName = faker.name.firstName()
@@ -2617,7 +2622,6 @@ describe('Ticket', () => {
             })
 
             test('dont send sms if resident matches ticket contact data', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
                 const [organization] = await createTestOrganization(admin)
@@ -2647,7 +2651,6 @@ describe('Ticket', () => {
             })
 
             test('dont send sms if resident user create ticket', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const residentClient = await makeClientWithResidentUser()
 
                 const [organization] = await createTestOrganization(admin)

@@ -6,6 +6,7 @@ const SEND_BILLING_RECEIPTS_NOTIFICATIONS_TASK = 'send-billing-receipts-notifica
 const TICKET_IMPORT = 'ticket-import'
 const PAYMENT_LINK = 'payment-link'
 const MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK = 'max-count-completed-ticket-to-close-for-organization-task'
+const HUAWEI_SILENT_DATA_PUSH_ENABLED = 'huawei-silent-data-push-enabled'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -16,4 +17,5 @@ module.exports = {
     TICKET_IMPORT,
     PAYMENT_LINK,
     MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK,
+    HUAWEI_SILENT_DATA_PUSH_ENABLED,
 }

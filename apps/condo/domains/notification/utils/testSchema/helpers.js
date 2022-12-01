@@ -1,10 +1,18 @@
 const faker = require('faker')
-const sample = require('lodash/sample')
+const { get, sample } = require('lodash')
 
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES } = require('@condo/domains/notification/constants/constants')
+const {
+    PUSH_TRANSPORT_TYPES,
+    DEVICE_PLATFORM_TYPES,
+    PUSH_FAKE_TOKEN_SUCCESS,
+    PUSH_FAKE_TOKEN_FAIL,
+} = require('@condo/domains/notification/constants/constants')
+
+const getRandomFakeSuccessToken = () => `${PUSH_FAKE_TOKEN_SUCCESS}-${faker.datatype.uuid()}`
+const getRandomFakeFailToken = () => `${PUSH_FAKE_TOKEN_FAIL}-${faker.datatype.uuid()}`
 
 const getRandomTokenData = (extraAttrs = {}) => {
-    const pushTransport = sample(PUSH_TRANSPORT_TYPES)
+    const pushTransport = get(extraAttrs, 'pushTransport') || sample(PUSH_TRANSPORT_TYPES)
     const devicePlatform = sample(DEVICE_PLATFORM_TYPES)
 
     return {
@@ -20,4 +28,6 @@ const getRandomTokenData = (extraAttrs = {}) => {
 
 module.exports = {
     getRandomTokenData,
+    getRandomFakeSuccessToken,
+    getRandomFakeFailToken,
 }

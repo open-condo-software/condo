@@ -1,6 +1,5 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
-const { sample } = require('lodash')
 
 const conf = require('@open-condo/config')
 
@@ -10,12 +9,11 @@ const {
     FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TYPE_SILENT_DATA,
     PUSH_TYPE_DEFAULT,
-    MESSAGE_TYPES,
+    FAKE_SUCCESS_MESSAGE_PREFIX,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
     FirebaseAdapter,
-    FAKE_SUCCESS_MESSAGE_PREFIX,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
 } = require('./firebaseAdapter')
 
@@ -191,22 +189,6 @@ describe('Firebase adapter utils', () => {
         expect(pushContext.data._title).toEqual(pushData.notification.title)
         expect(pushContext.data._body).toEqual(pushData.notification.body)
     })
-
-    // it('should fail to initialize FirebaseAdapter with broken config', async () => {
-    //     await expect(
-    //         () => {
-    //             const adapter1 = new FirebaseAdapter(BROKEN_CONFIG, true)
-    //         }
-    //     ).toThrow(`Failed to parse service account json file: Error: ENOENT: no such file or directory, open '${BROKEN_CONFIG}'`)
-    // })
-    //
-    // it('should fail to initialize FirebaseAdapter with empty config', async () => {
-    //     await expect(
-    //         () => {
-    //             const adapter1 = new FirebaseAdapter('', true)
-    //         }
-    //     ).toThrow(EMPTY_CONFIG_ERROR)
-    // })
 
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
         await expect(
