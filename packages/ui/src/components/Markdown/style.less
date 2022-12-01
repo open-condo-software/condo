@@ -1,5 +1,6 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/table";
 
 .condo-markdown {
   // Headers margins
@@ -73,5 +74,10 @@
     & > blockquote:not(:first-child) {
       margin-top: 0.5em;
     }
+  }
+
+  table {
+    margin-bottom: 1.8em;
+    .condo-table();
   }
 }
