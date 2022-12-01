@@ -63,6 +63,33 @@ class AdapterCacheMiddleware {
     }
 
     /**
+     * Sometimes we might get a situation when two instances try to update state with different timestamp values.
+     * So, we might have two commands ordered to execute by internal redis queue:
+     * 1. SET some_key 18:00
+     * 2. SET some_key 17:59
+     * In result (GET some_key) will equal 17:59, but the correct value is 18:00!
+     * So to counter this we write custom redis function that will update value only if it is bigger!
+     */
+    getStateRedisClient () {
+        const updateTimeStampFunction = {
+            numberOfKeys: 1,
+            lua: `
+            local time = tonumber(ARGV[1])
+            local old_time = tonumber(redis.call('GET', KEYS[1]))
+            if (old_time == nil) then
+                return redis.call('SET', KEYS[1], ARGV[1])
+            end
+            if (time > old_time) then
+                return redis.call('SET', KEYS[1], ARGV[1])
+            end
+        ` }
+
+        const redis = getRedisClient('adapterCacheState')
+        redis.defineCommand('cacheUpdateStateTimestamp', updateTimeStampFunction)
+        return redis
+    }
+
+    /**
      * Sets last updated table time to Redis storage
      * @param {string} key -- List name
      * @param {Date} value -- Last updated time
@@ -70,7 +97,8 @@ class AdapterCacheMiddleware {
      */
     async setState (key, time) {
         const serializedTime = time.valueOf()
-        await this.redisClient.set(`${STATE_REDIS_KEY_PREFIX}:${key}`, serializedTime)
+        const prefixedKey = `${STATE_REDIS_KEY_PREFIX}:${key}`
+        await this.redisClient.cacheUpdateStateTimestamp(prefixedKey, serializedTime)
     }
 
     /**
@@ -110,11 +138,6 @@ class AdapterCacheMiddleware {
         this.cacheHistory.lastTableUpdated = table
     }
 
-    logEvent ({ event }) {
-        if (!this.logging) { return }
-        logger.info(event.string)
-    }
-
     getCacheEvent ({ type, key, table, result }) {
         return ({
             type: type,
@@ -126,6 +149,11 @@ class AdapterCacheMiddleware {
             🔴 RESP: ${result}\r\n
             `,
         })
+    }
+
+    logEvent ({ event }) {
+        if (!this.logging) { return }
+        logger.info(event.string)
     }
 
     async prepareMiddleware ({ keystone, dev, distDir }) {
