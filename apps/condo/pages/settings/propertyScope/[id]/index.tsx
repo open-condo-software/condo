@@ -209,6 +209,7 @@ const PropertyScopeIdPage = () => {
                                             <Button
                                                 color='green'
                                                 type='sberDefaultGradient'
+                                                eventName='PropertyScopeVisitUpdate'
                                             >
                                                 {EditMessage}
                                             </Button>

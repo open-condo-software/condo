@@ -31,6 +31,7 @@ export const CreatePropertyScopeForm = () => {
                         onClick={handleSave}
                         type='sberDefaultGradient'
                         loading={isLoading}
+                        eventName='PropertyScopeClickCreate'
                     >
                         {SaveLabel}
                     </Button>

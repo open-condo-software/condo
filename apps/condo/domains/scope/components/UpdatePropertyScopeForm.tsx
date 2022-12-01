@@ -62,6 +62,7 @@ export const UpdatePropertyScopeForm = ({ id }) => {
                         onClick={handleSave}
                         type='sberDefaultGradient'
                         loading={isLoading}
+                        eventName='PropertyScopeClickUpdate'
                     >
                         {SaveLabel}
                     </Button>
