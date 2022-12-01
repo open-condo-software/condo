@@ -22,22 +22,6 @@ const UserExternalIdentity = new GQLListSchema('UserExternalIdentity', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
-            hooks: {
-                validateInput: async ({ operation, resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (operation === 'create') {
-                        const userId = get(resolvedData, fieldPath)
-                        if (!userId) {
-                            addFieldValidationError('No user specified')
-                            return
-                        }
-                        const user = await getById('User', userId)
-                        const userType = get(user, 'type')
-                        if ( userType !== RESIDENT) {
-                            addFieldValidationError('Cannot create UserExternalIdentity to non-resident type of user')
-                        }
-                    }
-                },
-            },
         },
         identityId: {
             schemaDoc: 'External identity id. The value of this field should be populated from an external identity provider',

@@ -31,5 +31,6 @@ module.exports = {
     SERVICE,
     USER_TYPES,
     SBER_ID_IDP_TYPE,
+    SBBOL_IDP_TYPE,
     IDP_TYPES,
 }

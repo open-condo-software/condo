@@ -5,10 +5,14 @@
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { MockSbbolResponses } = require('./MockSbbolResponses')
-const { User: UserApi } = require('@condo/domains/user/utils/serverSchema')
+const {
+    User: UserApi,
+    UserExternalIdentity: UserExternalIdentityApi,
+} = require('@condo/domains/user/utils/serverSchema')
 const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
 const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
 
 const { syncUser } = require('./syncUser')
 
@@ -32,6 +36,11 @@ describe('syncUser from SBBOL', () => {
             expect(newUser.phone).toBeDefined()
             const [ checkUser ] = await UserApi.getAll(adminContext, { id: newUser.id })
             expect(checkUser).toBeDefined()
+            const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
+                identityId: userData.importId,
+                identityType: SBBOL_IDP_TYPE,
+            })
+            expect(checkedIdentity).toBeDefined()
         })
         it('should create onboarding', async () => {
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
@@ -46,7 +55,7 @@ describe('syncUser from SBBOL', () => {
         })
     })
     describe('User with given phone already existed', () => {
-        it('should update importId and importRemoteSystem fields', async () => {
+        it('should create user external identity', async () => {
             const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -55,17 +64,16 @@ describe('syncUser from SBBOL', () => {
             }
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             userData.phone = existingUserPhone
-            await syncUser({ context, userInfo: userData })
-            const updatedUser = await getItem({
-                keystone,
-                itemId: existingUser.id,
-                listKey: 'User',
-                returnFields: 'id name phone importId importRemoteSystem',
+            const user = await syncUser({ context, userInfo: userData })
+            expect(user.id).toEqual(existingUser.id)
+            expect(user.phone).toEqual(existingUserPhone)
+
+            const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
+                identityId: userData.importId,
+                identityType: SBBOL_IDP_TYPE,
             })
-            expect(updatedUser.id).toEqual(existingUser.id)
-            expect(updatedUser.phone).toEqual(existingUserPhone)
-            expect(updatedUser.importId).toEqual(userData.importId)
-            expect(updatedUser.importRemoteSystem).toEqual(userData.importRemoteSystem)
+            expect(checkedIdentity.identityId).toEqual(userData.importId)
+            expect(checkedIdentity.identityType).toEqual(SBBOL_IDP_TYPE)
         })
         it('should work with resident and phone collision', async () => {
             const residentClient = await makeClientWithResidentUser()
@@ -88,7 +96,7 @@ describe('syncUser from SBBOL', () => {
                 keystone,
                 listKey: 'User',
                 where: { phone: residentUser.phone },
-                returnFields: 'id type name phone importId importRemoteSystem',
+                returnFields: 'id type name phone',
             })
             
             expect(existingUsers).toHaveLength(2)
@@ -99,10 +107,16 @@ describe('syncUser from SBBOL', () => {
             expect(resident.id).toEqual(residentUser.id)
             expect(staff.id).not.toEqual(residentUser.id)
 
-            expect(resident.importId).toEqual(null)
-            expect(resident.importRemoteSystem).toEqual(null)
-            expect(staff.importId).toEqual(userData.importId)
-            expect(staff.importRemoteSystem).toEqual(userData.importRemoteSystem)
+            const identities = await UserExternalIdentityApi.getAll(adminContext, {
+                identityId: userData.importId,
+                identityType: SBBOL_IDP_TYPE,
+            })
+            expect(identities).toHaveLength(1)
+            const [identity] = identities
+            expect(identity.identityId).toEqual(userData.importId)
+            expect(identity.identityType).toEqual(SBBOL_IDP_TYPE)
+            expect(identity.user).toBeDefined()
+            expect(identity.user.id).toEqual(staff.id)
         })
     })
     describe('Another first user with given email already exist', () => {
