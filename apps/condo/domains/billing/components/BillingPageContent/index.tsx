@@ -29,7 +29,7 @@ const BIG_DINO_STYLE: CSSProperties = { height: 200 }
 
 export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access, contextLoading, contextError, context }) => {
     const intl = useIntl()
-    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+    const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPermissionToPage' })
     const NoBillingTitle = intl.formatMessage({ id: 'pages.billing.NoBilling.title' })
     const NoBillingMessage = intl.formatMessage({ id: 'pages.billing.NoBilling.message' })
     const NoBillingActionLabel = intl.formatMessage({ id: 'pages.billing.NoBilling.button' })
