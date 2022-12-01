@@ -26,7 +26,7 @@ class InjectionsSeeker {
             .replace(SPECIAL_SYMBOLS_REGEX, '')
             .split(' ')
             .filter(Boolean)
-            .filter((x) => x.length > 2)
+            .filter((x) => x.length > 1) // to allow search by house numbers contains 2 digits
     }
 
     /**
