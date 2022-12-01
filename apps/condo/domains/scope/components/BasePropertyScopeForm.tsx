@@ -164,6 +164,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         initialValue: initialProperties,
         search: searchOrganizationProperty(organizationId),
         disabled: !organizationId,
+        eventName: 'PropertyScopeFormSelectProperty',
         ...BASE_SELECT_PROPS,
     }), [initialProperties, organizationId])
     const employeesFormItemProps = useMemo(() => ({
@@ -177,6 +178,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
         search: searchEmployeeWithSpecializations(intl, organizationId, null),
         onChange: (value) => setShowHintAlert(!isEmpty(value)),
         renderOptions: renderEmployees,
+        eventName: 'PropertyScopeFormSelectEmployee',
         ...BASE_SELECT_PROPS,
     }), [initialEmployees, intl, organizationId, renderEmployees])
 
@@ -220,6 +222,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                     checkBoxOffset={6}
                                     CheckAllMessage={CheckAllPropertiesMessage}
                                     form={form}
+                                    checkBoxEventName='PropertyScopeFormClickCheckAllProperties'
                                 />
                             </Col>
                             <Col span={24}>
@@ -232,6 +235,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
                                     CheckAllMessage={CheckAllEmployeesMessage}
                                     form={form}
                                     onCheckBoxChange={handleCheckAllEmployeesCheckboxChange}
+                                    checkBoxEventName='PropertyScopeFormClickCheckAllEmployees'
                                 />
                             </Col>
                             {

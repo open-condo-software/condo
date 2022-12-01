@@ -18,6 +18,7 @@ type InputWithCheckAllProps = {
     selectProps: ComponentProps<typeof GraphQlSearchInput>
     checkBoxOffset?: number
     form: FormInstance
+    checkBoxEventName?: string
 }
 
 const CheckAllCheckboxFormItem = styled(Form.Item)`
@@ -36,6 +37,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         CheckAllMessage,
         form,
         checkBoxOffset,
+        checkBoxEventName,
     }
 ) => {
     const intl = useIntl()
@@ -108,6 +110,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                 >
                     <Checkbox
                         onChange={handleCheckboxChange}
+                        eventName={checkBoxEventName}
                     >
                         {CheckAllMessage}
                     </Checkbox>
