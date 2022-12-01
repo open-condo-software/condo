@@ -162,13 +162,13 @@ const User = new GQLListSchema('User', {
         },
 
         importRemoteSystem: {
-            schemaDoc: 'External provider for users',
+            schemaDoc: 'External provider for users. Deprecated: Use UserExternalIdentity instead',
             type: Text,
             access: access.canAccessToImportField,
             kmigratorOptions: { null: true, unique: false },
         },
         importId: {
-            schemaDoc: 'External system user id. Used for integrations',
+            schemaDoc: 'External system user id. Used for integrations.  Deprecated: Use UserExternalIdentity instead',
             type: Text,
             access: access.canAccessToImportField,
             kmigratorOptions: { null: true, unique: false },
