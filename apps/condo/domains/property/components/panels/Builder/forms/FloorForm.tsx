@@ -151,7 +151,6 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Button
-                                secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
                                 disabled={isSubmitDisabled}
