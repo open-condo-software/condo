@@ -67,7 +67,7 @@ class SuggestionKeystoneApp {
                 const injectionsSeeker = new InjectionsSeeker(s)
                 const denormalizedInjections = await injectionsSeeker.getInjections(await params.keystone.createContext({ skipAccessControl: true }))
 
-                suggestions.push(...injectionsSeeker.normalize(denormalizedInjections))
+                suggestions.unshift(...injectionsSeeker.normalize(denormalizedInjections))
             }
 
             res.json(suggestions)
