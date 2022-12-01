@@ -1,4 +1,8 @@
+import React, { useEffect, useState, useCallback } from 'react'
 import { FilterFilled } from '@ant-design/icons'
+import { Col, Row, Space, Typography } from 'antd'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { useQuery } from '@open-condo/next/apollo'
 import { BillingIntegrationOrganizationContext, SortPaymentsBy } from '@app/condo/schema'
 import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
@@ -22,16 +26,11 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-import { Col, Row, Space, Typography } from 'antd'
-
 import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/lib/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
 import { get, isEmpty } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
 import { getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 import { Modal } from '@condo/domains/common/components/Modal'
 
@@ -51,7 +50,6 @@ const DATE_PICKER_COL_LAYOUT = { span: 11, offset: 1 }
  */
 let isDefaultFilterApplied = false
 let shouldApplyDefaultFilter = true
-let filtersAreReset = false
 
 interface IPaymentsTableProps {
     billingContext: BillingIntegrationOrganizationContext,
@@ -171,13 +169,18 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     }, {
         fetchPolicy: 'network-only',
     })
-
+    const [filtersAreReset, setFiltersAreReset] = useState(false)
     const { data: sumDonePayments, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
     const { data: sumWithdrawnPayments, loading: withdrawnPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_WITHDRAWN_STATUS })
     const { data: sumAllPayments, loading: allPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery })
 
     const [search, handleSearchChange, handleResetSearch] = useSearch<IFilters>()
     const [dateRange, setDateRange] = useDateRangeSearch('advancedAt', loading)
+
+    const onReset = useCallback(() => {
+        setFiltersAreReset(true)
+    }, [])
+    
     const {
         MultipleFiltersModal,
         ResetFiltersModalButton,
@@ -206,7 +209,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
     **/
     useEffect(()=>{
         if (hasFilters){
-            filtersAreReset = false
+            setFiltersAreReset(false)
         }
         if (!hasFilters && !filtersAreReset) {
             isDefaultFilterApplied = true
@@ -246,7 +249,7 @@ const PaymentsTableContent: React.FC<IPaymentsTableProps> = ({ billingContext, c
                                 <Row justify='end' align='middle'>
                                     {
                                         appliedFiltersCount > 0 && (
-                                            <Col onClick={() => filtersAreReset = true }>
+                                            <Col onClick={onReset}>
                                                 <ResetFiltersModalButton />
                                             </Col>
                                         )
