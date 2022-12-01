@@ -1,5 +1,32 @@
 /**
  * Keystone database adapter level cache
+ *
+ * How it works:
+ *
+ * To understand how adapterCache works we need to understand the environment and the tasks that this feature solve
+ * 1. Your web app has multiple instances, but single database
+ * 2. You use Redis
+ * 3. You need a mechanism to lower the number of SQL queries to your DB
+ *
+ * Adapter cache has two variables:
+ *
+ * State -- saved in redis and contains last date of update (update_time) on every GQL List.
+ * State part example: { "User": "1669912192723" }
+ *
+ * Cache -- saved internally in instance.
+ * Cache part example: { "User": { "where:{id:"1"},first:1": { result: <User>, updateTime: "1669912192723" } ] } }
+ *
+ * For every list patch listAdapter function:
+ * If request to this list is Query ->
+ * 1. check if request is in cache
+ * 2. check if cache last update time equals state last update time
+ * 3. If both checks are passed, then return value from cache, else get value from DB, update cache
+ * If request to this list is Mutation (anything that mutates the data) ->
+ * 1. update state on this list to the update time of the updated/created/deleted object
+ *
+ * Usage:
+ * 1. Configure adapterCache with .env values
+ * 2. Call new AdapterCacheMiddleware(config) in index.js
  */
 
 const { get, cloneDeep } = require('lodash')
