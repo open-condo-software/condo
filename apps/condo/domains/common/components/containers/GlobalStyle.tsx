@@ -297,7 +297,6 @@ export default function GlobalStyle () {
               ${radioGroupCss}
               ${inputControlCss}
               ${page}
-              ${carouselCss}
               ${cardCSS}
               
               .ant-notification-notice.tasks {
@@ -440,18 +439,6 @@ const page = css`
     align-self: center;
     max-width: 600px;
     min-width: initial;
-  }
-`
-
-const carouselCss = css`
-  .ant-carousel {
-    width: 100%;
-    background: ${colors.backgroundLightGrey};
-    padding: 12px;
-    border-radius: 12px;
-  }
-  .slick-slide {
-    padding: 12px;
   }
 `
 
