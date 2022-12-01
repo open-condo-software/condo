@@ -3246,6 +3246,8 @@ export type B2BAppPromoBlock = {
   backgroundImage?: Maybe<File>;
   /**  Link to the resource that this B2BAppPromoBlock promotes  */
   targetUrl?: Maybe<Scalars['String']>;
+  /**  Determines whether the banner leads to an external resource or not. If external, interaction with block will lead to new tab. Otherwise user will stay in current tab  */
+  external?: Maybe<Scalars['Boolean']>;
   /**  The number used to determine the position of the block among the others. Blocks with higher priority appear earlier. Blocks with the same priority are sorted from newest to oldest. The default value is 1.  */
   priority?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
@@ -3271,6 +3273,7 @@ export type B2BAppPromoBlockCreateInput = {
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['Upload']>;
   targetUrl?: Maybe<Scalars['String']>;
+  external?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3300,6 +3303,7 @@ export type B2BAppPromoBlockHistoryRecord = {
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['JSON']>;
   targetUrl?: Maybe<Scalars['String']>;
+  external?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -3323,6 +3327,7 @@ export type B2BAppPromoBlockHistoryRecordCreateInput = {
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['JSON']>;
   targetUrl?: Maybe<Scalars['String']>;
+  external?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3351,6 +3356,7 @@ export type B2BAppPromoBlockHistoryRecordUpdateInput = {
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['JSON']>;
   targetUrl?: Maybe<Scalars['String']>;
+  external?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3463,6 +3469,8 @@ export type B2BAppPromoBlockHistoryRecordWhereInput = {
   targetUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   targetUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   targetUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  external?: Maybe<Scalars['Boolean']>;
+  external_not?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   priority_not?: Maybe<Scalars['Int']>;
   priority_lt?: Maybe<Scalars['Int']>;
@@ -3574,6 +3582,7 @@ export type B2BAppPromoBlockUpdateInput = {
   backgroundColor?: Maybe<Scalars['String']>;
   backgroundImage?: Maybe<Scalars['Upload']>;
   targetUrl?: Maybe<Scalars['String']>;
+  external?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3669,6 +3678,8 @@ export type B2BAppPromoBlockWhereInput = {
   targetUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   targetUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   targetUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  external?: Maybe<Scalars['Boolean']>;
+  external_not?: Maybe<Scalars['Boolean']>;
   priority?: Maybe<Scalars['Int']>;
   priority_not?: Maybe<Scalars['Int']>;
   priority_lt?: Maybe<Scalars['Int']>;
@@ -45499,6 +45510,8 @@ export enum SortB2BAppPromoBlockHistoryRecordsBy {
   BackgroundColorDesc = 'backgroundColor_DESC',
   TargetUrlAsc = 'targetUrl_ASC',
   TargetUrlDesc = 'targetUrl_DESC',
+  ExternalAsc = 'external_ASC',
+  ExternalDesc = 'external_DESC',
   PriorityAsc = 'priority_ASC',
   PriorityDesc = 'priority_DESC',
   IdAsc = 'id_ASC',
@@ -45530,6 +45543,8 @@ export enum SortB2BAppPromoBlocksBy {
   BackgroundColorDesc = 'backgroundColor_DESC',
   TargetUrlAsc = 'targetUrl_ASC',
   TargetUrlDesc = 'targetUrl_DESC',
+  ExternalAsc = 'external_ASC',
+  ExternalDesc = 'external_DESC',
   PriorityAsc = 'priority_ASC',
   PriorityDesc = 'priority_DESC',
   IdAsc = 'id_ASC',
