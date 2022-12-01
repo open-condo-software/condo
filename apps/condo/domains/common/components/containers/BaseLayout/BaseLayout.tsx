@@ -7,6 +7,7 @@ import { SideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
 import 'antd/dist/antd.less'
+import '@open-condo/ui/dist/styles.min.css'
 import {
     LAYOUT_CSS,
     PAGE_CONTENT_CSS,

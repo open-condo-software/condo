@@ -1,12 +1,12 @@
 import React from 'react'
 import Head from 'next/head'
+import get from 'lodash/get'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import Content from '@condo/domains/miniapp/components/AppSelector'
-import get from 'lodash/get'
-import { useOrganization } from '@open-condo/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/PageContent'
 
 const AllMiniAppsPage = () => {
     const intl = useIntl()
@@ -27,7 +27,7 @@ const AllMiniAppsPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Content/>
+                    <CatalogPageContent/>
                 </PageContent>
             </PageWrapper>
         </>
