@@ -462,6 +462,7 @@
   "pages.condo.property.modal.title.editParkingUnit": "Редактировать машиноместо",
   "pages.condo.property.modal.title.addSectionFloor": "Добавить этаж",
   "pages.condo.property.modal.title.unitTypeAtFloor": "Тип помещений на этаже",
+  "pages.condo.property.warning.modal.AddressValidationErrorMsg": "Это не похоже на адрес дома. Проверьте, всё ли вы правильно указали.",
   "pages.condo.property.modal.RenameNextUnits": "Изменить номера следующих помещений",
   "pages.condo.property.modal.RenameNextSections": "Изменить номера следующих подъездов",
   "pages.condo.property.modal.RenameNextParkingUnits": "Изменить номера следующих машиномест",

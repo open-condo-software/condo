@@ -118,7 +118,7 @@ const addressService = (fieldsHooks = {}) => plugin(({
 
         return resolvedData
     }
-    hooks.resolveInput = composeResolveInputHook(hooks.resolveInput, newResolveInput)
+    // hooks.resolveInput = composeResolveInputHook(hooks.resolveInput, newResolveInput)
 
     return { fields: { ...fields, ...fieldsToAdd }, hooks, ...rest }
 })

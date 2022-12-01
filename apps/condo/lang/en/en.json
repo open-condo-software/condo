@@ -462,6 +462,7 @@
   "pages.condo.property.modal.title.editParkingUnit": "Remove parking place",
   "pages.condo.property.modal.title.addSectionFloor": "Add floor",
   "pages.condo.property.modal.title.unitTypeAtFloor": "Unit type at the floor",
+  "pages.condo.property.warning.modal.AddressValidationErrorMsg": "It doesn't look like a house address. Check if you have specified everything correctly.",
   "pages.condo.property.modal.RenameNextUnits": "Rename the following unit in order",
   "pages.condo.property.modal.RenameNextSections": "Rename the following sections in order",
   "pages.condo.property.modal.RenameNextParkingUnits": "Rename the following parking unit in order",

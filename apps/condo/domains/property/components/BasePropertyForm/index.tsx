@@ -1,18 +1,21 @@
-import { useAddressApi } from '@condo/domains/common/components/AddressApi'
+import React, { useCallback } from 'react'
+import { useIntl } from '@open-condo/next/intl'
+import { Col, Form, notification, Row, Typography, RowProps, FormInstance } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
+import isEmpty from 'lodash/isEmpty'
+import dayjs from 'dayjs'
+import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import Prompt from '@condo/domains/common/components/Prompt'
+import { AddressMetaField } from '@app/condo/schema'
+import { useState } from 'react'
+import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
-import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
-import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
-import { useIntl } from '@open-condo/next/intl'
-import { Col, Form, FormInstance, notification, Row, RowProps, Typography } from 'antd'
-import dayjs from 'dayjs'
-import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useState } from 'react'
 import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
+import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 
 interface IOrganization {
     id: string
@@ -25,7 +28,7 @@ interface IPropertyFormProps {
     type: string
     address?: string
     children: (
-        { handleSave, isLoading, form }: { handleSave: () => void, isLoading: boolean, form: FormInstance },
+        { handleSave, isLoading, form }: { handleSave: () => void, isLoading: boolean, form: FormInstance }
     ) => React.ReactElement
 }
 
@@ -37,7 +40,7 @@ const INPUT_LAYOUT_PROPS = {
 const FORM_WITH_ACTION_STYLES = {
     width: '100%',
 }
-const PROPERTY_FULLSCREEN_ROW_GUTTER: RowProps['gutter'] = [0, 40]
+const PROPERTY_FULLSCREEN_ROW_GUTTER: RowProps['gutter']  = [0, 40]
 const PROPERTY_ROW_GUTTER: RowProps['gutter'] = [50, 40]
 
 const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
@@ -54,6 +57,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
+    const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
     const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
     const WrongYearErrorMsg = intl.formatMessage({ id: 'pages.condo.property.form.YearValidationError' })
 
@@ -72,8 +76,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
         if (isAddressFieldTouched) {
             try {
-                const address = addressApi.getRawAddress(formData.address)
-                return { ...formData, address, yearOfConstruction, area }
+                const addressMeta = addressApi.getAddressMeta(formData.address)
+                return { ...formData, addressMeta: { dv: 1, ...addressMeta }, yearOfConstruction, area }
             } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,
@@ -159,13 +163,19 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             placeholder={AddressTitle}
                                             addressValidatorError={addressValidatorError}
                                             setAddressValidatorError={setAddressValidatorError}
-                                        />
+                                            onSelect={(_, option) => {
+                                                const address = JSON.parse(option.key as string) as AddressMetaField
+                                                if (!validHouseTypes.includes(address.data.house_type_full)) {
+                                                    setAddressValidatorError(AddressValidationErrorMsg)
+                                                }
+                                                else setAddressValidatorError(null)
+                                            }} />
                                     </Form.Item>
                                     <Form.Item
                                         name='map'
                                         hidden
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                 </Col>
                             </Row>
@@ -181,23 +191,21 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                 </Col>
                             </Row>
                             <Row gutter={PROPERTY_ROW_GUTTER}>
-                                <Col span={isSmall ? 12 : 4}>
+                                <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
                                         name='area'
                                         label={AreaTitle}
                                         rules={validations.area}
                                     >
-                                        <Input/>
+                                        <Input />
                                     </Form.Item>
                                 </Col>
-                                <Col span={isSmall ? 12 : 4}>
+                                <Col span={isSmall ? 12 : 4} >
                                     <Form.Item
                                         name='yearOfConstruction'
                                         label={YearOfConstructionTitle}
                                         rules={validations.yearOfConstruction}
-                                    >
-                                        <Input/>
-                                    </Form.Item>
+                                    ><Input /></Form.Item>
                                 </Col>
                             </Row>
                             <Row gutter={PROPERTY_FULLSCREEN_ROW_GUTTER}>
