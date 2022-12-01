@@ -43145,6 +43145,7 @@ type B2BAppPromoBlockHistoryRecord {
   backgroundColor: String
   backgroundImage: JSON
   targetUrl: String
+  external: Boolean
   priority: Int
   id: ID!
   v: Int
@@ -43258,6 +43259,8 @@ input B2BAppPromoBlockHistoryRecordWhereInput {
   targetUrl_not_ends_with_i: String
   targetUrl_in: [String]
   targetUrl_not_in: [String]
+  external: Boolean
+  external_not: Boolean
   priority: Int
   priority_not: Int
   priority_lt: Int
@@ -43359,6 +43362,8 @@ enum SortB2BAppPromoBlockHistoryRecordsBy {
   backgroundColor_DESC
   targetUrl_ASC
   targetUrl_DESC
+  external_ASC
+  external_DESC
   priority_ASC
   priority_DESC
   id_ASC
@@ -43386,6 +43391,7 @@ input B2BAppPromoBlockHistoryRecordUpdateInput {
   backgroundColor: String
   backgroundImage: JSON
   targetUrl: String
+  external: Boolean
   priority: Int
   v: Int
   createdAt: String
@@ -43413,6 +43419,7 @@ input B2BAppPromoBlockHistoryRecordCreateInput {
   backgroundColor: String
   backgroundImage: JSON
   targetUrl: String
+  external: Boolean
   priority: Int
   v: Int
   createdAt: String
@@ -43469,6 +43476,10 @@ type B2BAppPromoBlock {
 
   """ Link to the resource that this B2BAppPromoBlock promotes """
   targetUrl: String
+
+  """ Determines whether the banner leads to an external resource or not. If external, interaction with block will lead to new tab. Otherwise user will stay in current tab 
+  """
+  external: Boolean
 
   """ The number used to determine the position of the block among the others. Blocks with higher priority appear earlier. Blocks with the same priority are sorted from newest to oldest. The default value is 1. 
   """
@@ -43579,6 +43590,8 @@ input B2BAppPromoBlockWhereInput {
   targetUrl_not_ends_with_i: String
   targetUrl_in: [String]
   targetUrl_not_in: [String]
+  external: Boolean
+  external_not: Boolean
   priority: Int
   priority_not: Int
   priority_lt: Int
@@ -43660,6 +43673,8 @@ enum SortB2BAppPromoBlocksBy {
   backgroundColor_DESC
   targetUrl_ASC
   targetUrl_DESC
+  external_ASC
+  external_DESC
   priority_ASC
   priority_DESC
   id_ASC
@@ -43687,6 +43702,7 @@ input B2BAppPromoBlockUpdateInput {
   backgroundColor: String
   backgroundImage: Upload
   targetUrl: String
+  external: Boolean
   priority: Int
   v: Int
   createdAt: String
@@ -43711,6 +43727,7 @@ input B2BAppPromoBlockCreateInput {
   backgroundColor: String
   backgroundImage: Upload
   targetUrl: String
+  external: Boolean
   priority: Int
   v: Int
   createdAt: String
