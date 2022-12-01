@@ -19440,7 +19440,16 @@ export enum MeterReadingSourceTypeType {
   ImportCondo = 'import_condo',
   Call = 'call',
   MobileApp = 'mobile_app',
-  ExternalImport = 'external_import'
+  ExternalImport = 'external_import',
+  Email = 'email',
+  RemoteSystem = 'remote_system',
+  Other = 'other',
+  Visit = 'visit',
+  WebApp = 'web_app',
+  OrganizationSite = 'organization_site',
+  Messenger = 'messenger',
+  SocialNetwork = 'social_network',
+  MobileAppStaff = 'mobile_app_staff'
 }
 
 export type MeterReadingSourceUpdateInput = {
