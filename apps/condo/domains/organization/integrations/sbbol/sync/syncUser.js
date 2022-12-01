@@ -1,6 +1,8 @@
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
+const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { registerUserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
@@ -59,6 +61,16 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
     }
 }
 
+const registerIdentity = async ({ context, user, userInfo }) => {
+    await registerUserExternalIdentity(context.context, {
+        ...dvSenderFields,
+        user: { id: user.id },
+        identityId: userInfo.importId,
+        identityType: SBBOL_IDP_TYPE,
+        meta: {},
+    })
+}
+
 /**
  * Creates or updates user, according to data from SBBOL
  *
@@ -68,40 +80,58 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
  * @return {Promise<{importId}|*>}
  */
 const syncUser = async ({ context, userInfo }) => {
-    const returnFields = 'id phone email name importId importRemoteSystem'
-    const importFields = {
-        type: 'staff',
-        importId: userInfo.importId,
-        importRemoteSystem: userInfo.importRemoteSystem,
+    const returnFields = 'id phone email name'
+    const identityWhereStatement = {
+        user: { type: 'staff' },
+        identityId: userInfo.importId,
+        identityType: SBBOL_IDP_TYPE,
     }
-    const userFields = {
+    const userWhereStatement = {
         type: 'staff',
         phone: userInfo.phone,
     }
-    const existingUsers = await getItems({
+
+    // let's search users by UserExternalIdentity and phone
+    const importedUsers = (await getItems({
+        ...context,
+        listKey: 'UserExternalIdentity',
+        where: identityWhereStatement,
+        returnFields: `id user { ${returnFields} }`,
+    })).map(identity => identity.user)
+    const notImportedUsers = await getItems({
         ...context,
         listKey: 'User',
         where: {
-            OR: [
-                { AND: userFields },
-                { AND: importFields },
-            ],
+            ...userWhereStatement,
+            id_not_in: importedUsers.map(identity => identity.user.id),
         },
         returnFields,
     })
-    if (existingUsers.length > 1) {
+    const existingUsers = [...notImportedUsers, ...importedUsers]
+    const existingUsersCount = existingUsers.length
+
+    if (existingUsersCount > 1) {
         throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
     }
-    if (existingUsers.length === 0) {
+
+    // no users found by external identity and phone number
+    if (existingUsersCount === 0) {
+        // user not exists case
         if (userInfo.email) {
             await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, context })
         }
 
+        // create a user
         const user = await createItem({
             listKey: 'User',
             item: { ...userInfo, ...dvSenderFields },
             returnFields,
             ...context,
+        })
+
+        // register a UserExternalIdentity
+        await registerIdentity({
+            context, user, userInfo,
         })
 
         // SBBOL works only in Russia, another languages does not need t
@@ -126,8 +156,11 @@ const syncUser = async ({ context, userInfo }) => {
         await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
         return user
     }
+
     const [user] = existingUsers
-    if (!user.importId) {
+
+    // user already registered by phone number, but not imported
+    if (notImportedUsers.length > 0) {
         const { email, phone } = userInfo
         const update = {}
         if (email) {
@@ -148,13 +181,18 @@ const syncUser = async ({ context, userInfo }) => {
                 id: user.id,
                 data: {
                     ...update,
-                    ...importFields,
                     ...dvSenderFields,
                 },
             },
             returnFields,
             ...context,
         })
+
+        // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
+        await registerIdentity({
+            context, user, userInfo,
+        })
+
         return updatedUser
     }
     return user

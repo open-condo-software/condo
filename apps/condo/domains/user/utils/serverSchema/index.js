@@ -22,6 +22,7 @@ const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql'
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
+const { REGISTER_USER_EXTERNAL_IDENTITY_MUTATION } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -63,6 +64,18 @@ async function resetUser (context, data) {
         query: RESET_USER_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to resetUser',
+        dataPath: 'result',
+    })
+}
+async function registerUserExternalIdentity (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_USER_EXTERNAL_IDENTITY_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerUserExternalIdentity',
         dataPath: 'result',
     })
 }
@@ -188,6 +201,7 @@ module.exports = {
     registerNewServiceUser,
     sendMessageToSupport,
     resetUser,
+    registerUserExternalIdentity,
     findTokenAndRelatedUser,
     markTokenAsUsed,
     OidcClient,
