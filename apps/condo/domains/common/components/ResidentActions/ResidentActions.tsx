@@ -1,10 +1,8 @@
-import { PlusOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useMemo } from 'react'
-import styled from '@emotion/styled'
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -17,6 +15,7 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
+import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;
@@ -87,9 +86,6 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal(searchByPhoneFn, canManageContacts)
     const { isMobile } = useLayoutContext()
 
-    const trigger = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
-
-    const { link } = useOrganization()
     const role = get(link, 'role', {})
     const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
 

@@ -21,7 +21,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
@@ -408,7 +408,6 @@ const NotResidentClientTabContent = ({ property, unitName, phone }) => {
         property: { id: get(property, 'id', null) },
         unitName,
         clientPhone: phone,
-        isResidentTicket: false,
         clientName_not: null,
     }), [phone, property, unitName])
 
