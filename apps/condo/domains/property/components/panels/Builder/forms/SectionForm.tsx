@@ -210,7 +210,6 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             <Col span={24}>
                 <Button
                     key='submit'
-                    secondary
                     onClick={handleFinish}
                     type='sberDefaultGradient'
                     style={MODAL_FORM_BUTTON_STYLE}
@@ -273,7 +272,6 @@ const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             <Row gutter={MODAL_FORM_BUTTON_GUTTER}>
                 <Col span={24}>
                     <Button
-                        secondary
                         onClick={updateSection}
                         type='sberDefaultGradient'
                         disabled={isEmpty(name)}
