@@ -11,25 +11,6 @@ const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 
 const logger = getLogger('adapterCache')
 
-/**
- * TODO (toplenboren) (DOMA-2681) move this to auto detection algorithm or env!
- * These tables are connected between each other in a way, that changing one table is changing other table.
- * 1. Two way realtions
- * 2. MTM relations
- */
-const ADAPTER_CACHE_CONNECTED_TABLES = {
-    // 'MultiPayment':['Payment'],
-    // 'Payment':['MultiPayment'],
-
-    // 'AcquiringIntegration':['BillingIntegration'],
-    // 'BillingIntegration':['AcquiringIntegration'],
-
-    'Division': ['OrganizationEmployee', 'Property'],
-    'OrganizationEmployee': ['Division', 'Property'],
-    'Meter': ['Division', 'Property'],
-    'Property': ['Division'],
-}
-
 
 class AdapterCacheMiddleware {
 
@@ -44,7 +25,7 @@ class AdapterCacheMiddleware {
 
             // Redis is used as State:
             // State: table_name -> lastUpdate
-            this.redisClient = getRedisClient('adapterCacheState')
+            this.redisClient = this.getStateRedisClient()
 
             // This mechanism allows to skip caching some lists.
             // Useful for hotfixes or disabling cache for business critical lists
@@ -72,14 +53,10 @@ class AdapterCacheMiddleware {
             this.cacheHistory = {}
             this.cacheCallHistory = []
             if (this.debugMode) {
-                logger.warn('ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON LOCAL ENVIRONMENT')
+                logger.warn(
+                    'ADAPTER CACHE HAS DEBUG MODE TURNED ON. THIS WILL LEAD TO MEMORY LEAK ERRORS IN NON LOCAL ENVIRONMENT')
             }
-
-            // This is just a hack that allows to drop state for more then one table for specific usecases.
-            this.connectedTables = ADAPTER_CACHE_CONNECTED_TABLES
-
-        }
-        catch (e) {
+        } catch (e) {
             this.enabled = false
             logger.warn(`ADAPTER_CACHE: Bad config! reason ${e}`)
         }
@@ -267,12 +244,6 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) 
     return async ( ...args ) => {
         const functionResult = await f.apply(listAdapter, args )
         await cache.setState(listName, functionResult[UPDATED_AT])
-
-        if (listName in cache.connectedTables) {
-            for (const connectedTable of cache.connectedTables[listName]) {
-                await cache.setState(connectedTable, functionResult[UPDATED_AT])
-            }
-        }
 
         if (cache.debugMode) {
             const cacheEvent = cache.getCacheEvent({ type: listName, table: listName })
