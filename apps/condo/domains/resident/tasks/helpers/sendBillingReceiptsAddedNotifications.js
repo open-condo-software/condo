@@ -189,7 +189,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
         // Store receipt.createdAt as lastDt in order to continue from this point on next execution
         if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
 
-        logger.info({ message: `Processed ${skip} receipts of ${receiptsCount}.` })
+        logger.info({ msg: `Processed ${skip} receipts of ${receiptsCount}.` })
     }
     logger.info({ msg: 'sent billing receipts', successCount, receiptsCount })
 }

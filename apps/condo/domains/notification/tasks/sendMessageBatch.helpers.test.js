@@ -1,9 +1,22 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { selectTarget, detectTransportType, getUniqKey, normalizeTarget, DATE_FORMAT, EMAIL_FROM } = require('./sendMessageBatch.helpers')
+const {
+    SMS_TRANSPORT,
+    EMAIL_TRANSPORT,
+    PUSH_TRANSPORT,
+    CUSTOM_CONTENT_MESSAGE_TYPE,
+} = require('@condo/domains/notification/constants/constants')
 
-const { SMS_TRANSPORT, EMAIL_TRANSPORT, PUSH_TRANSPORT } = require('../constants/constants')
+const {
+    selectTarget,
+    detectTransportType,
+    getUniqKey,
+    normalizeTarget,
+    prepareMessageData,
+    DATE_FORMAT,
+    EMAIL_FROM,
+} = require('./sendMessageBatch.helpers')
 
 describe('sendMessageBatch', () => {
     describe('helpers', () => {
@@ -97,6 +110,85 @@ describe('sendMessageBatch', () => {
             })
         })
 
+        describe('prepareMessageData', () => {
+            it('prepares proper push messageData', async () => {
+                const target = faker.datatype.uuid()
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: faker.random.alphaNumeric(20),
+                    message: faker.random.alphaNumeric(50),
+                    deepLink: faker.random.alphaNumeric(30),
+                }
+                const today = dayjs().format(DATE_FORMAT)
+                const messageData = prepareMessageData(target, batch, today)
 
+                expect(messageData).not.toBeNull()
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_TYPE)
+                expect(messageData.to).toMatchObject({ user: { id: target } } )
+                expect(messageData.meta.dv).toEqual(1)
+                expect(messageData.meta.body).toEqual(batch.message)
+                expect(messageData.meta.title).toEqual(batch.title)
+                expect(messageData.meta.data.target).toEqual(target)
+                expect(messageData.meta.data.userId).toEqual(target)
+                expect(messageData.meta.data.url).toEqual(batch.deepLink)
+                expect(messageData.meta.data.batchId).toEqual(batch.id)
+                expect(messageData.sender).toMatchObject({ dv: 1, fingerprint: 'send-message-batch-notification' })
+                expect(messageData.uniqKey).toEqual(getUniqKey(today, batch.title, target))
+            })
+
+            it('prepares proper email messageData', async () => {
+                const target = `${faker.random.alphaNumeric(8)}@${faker.random.alphaNumeric(8)}.com`
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: faker.random.alphaNumeric(20),
+                    message: faker.random.alphaNumeric(50),
+                    deepLink: faker.random.alphaNumeric(30),
+                }
+                const today = dayjs().format(DATE_FORMAT)
+                const messageData = prepareMessageData(target, batch, today)
+
+                console.log('messageData:', messageData)
+                console.log('batch:', batch)
+
+                expect(messageData).not.toBeNull()
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_TYPE)
+                expect(messageData.to).toMatchObject({ email: target } )
+                expect(messageData.meta.dv).toEqual(1)
+                expect(messageData.meta.body).toEqual(batch.message)
+                expect(messageData.meta.subject).toEqual(batch.title)
+                expect(messageData.meta.data.target).toEqual(target)
+                expect(messageData.meta.data.userId).toBeUndefined()
+                expect(messageData.meta.data.url).toEqual(batch.deepLink)
+                expect(messageData.meta.data.batchId).toEqual(batch.id)
+                expect(messageData.sender).toMatchObject({ dv: 1, fingerprint: 'send-message-batch-notification' })
+                expect(messageData.uniqKey).toEqual(getUniqKey(today, batch.title, target))
+            })
+
+            it('prepares proper sms messageData', async () => {
+                const target = faker.phone.phoneNumber('+79#########')
+                const batch = {
+                    id: faker.datatype.uuid(),
+                    title: faker.random.alphaNumeric(20),
+                    message: faker.random.alphaNumeric(50),
+                    deepLink: faker.random.alphaNumeric(30),
+                }
+                const today = dayjs().format(DATE_FORMAT)
+                const messageData = prepareMessageData(target, batch, today)
+
+                expect(messageData).not.toBeNull()
+                expect(messageData.type).toEqual(CUSTOM_CONTENT_MESSAGE_TYPE)
+                expect(messageData.to).toMatchObject({ phone: target } )
+                expect(messageData.meta.dv).toEqual(1)
+                expect(messageData.meta.body).toEqual(batch.message)
+                expect(messageData.meta.subject).toBeUndefined()
+                expect(messageData.meta.data.target).toEqual(target)
+                expect(messageData.meta.data.userId).toBeUndefined()
+                expect(messageData.meta.data.url).toEqual(batch.deepLink)
+                expect(messageData.meta.data.batchId).toEqual(batch.id)
+                expect(messageData.sender).toMatchObject({ dv: 1, fingerprint: 'send-message-batch-notification' })
+                expect(messageData.uniqKey).toEqual(getUniqKey(today, batch.title, target))
+            })
+
+        })
     })
 })

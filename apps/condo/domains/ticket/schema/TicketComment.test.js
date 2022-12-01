@@ -16,9 +16,9 @@ const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 
 const {
     MESSAGE_SENT_STATUS,
-    TICKET_COMMENT_ADDED_TYPE,
+    TICKET_COMMENT_ADDED_TYPE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID,
 } = require('@condo/domains/notification/constants/constants')
-const { Message } = require('@condo/domains/notification/utils/testSchema')
+const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -40,6 +40,7 @@ const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constan
 const { updateTestTicket } = require('../utils/testSchema')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 describe('TicketComment', () => {
     describe('employee', () => {
@@ -1072,6 +1073,14 @@ describe('TicketComment', () => {
             const unitName = faker.random.alphaNumeric(5)
             const unitName1 = faker.random.alphaNumeric(5)
             const content = faker.lorem.sentence()
+
+            const payload = getRandomTokenData({
+                devicePlatform: DEVICE_PLATFORM_ANDROID,
+                appId: APP_RESIDENT_ID_ANDROID,
+                pushToken: getRandomFakeSuccessToken(),
+            })
+
+            await syncRemoteClientByTestClient(residentClient, payload)
 
             const [resident] = await createTestResident(admin, residentClient.user, residentClient.property, { unitName })
 

@@ -30,7 +30,7 @@ const captchaCheck = async (response, action = '') => {
         })
 
         const result = await serverAnswer.json()
-        logger.info({ message: 'Captcha result', result })
+        logger.info({ msg: 'Captcha result', result })
 
         if (serverAnswer.ok) {
             const isError = THROW_ERRORS_ON_LOW_CAPTCHA_SCORE && result.score < SAFE_CAPTCHA_SCORE
@@ -42,7 +42,7 @@ const captchaCheck = async (response, action = '') => {
             return { error: 'captcha check failed' }
         }
     } catch (error) {
-        logger.error({ message: 'reCaptcha internal error', error })
+        logger.error({ msg: 'reCaptcha internal error', error })
         return { error: 'reCaptcha internal error' }
     }
 }

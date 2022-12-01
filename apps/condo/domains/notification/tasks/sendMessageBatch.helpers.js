@@ -51,12 +51,12 @@ const normalizeTarget = (target) => {
 
 const getUniqKey = (date, title, target) => `${date}:${title}:${normalizeTarget(target)}`
 
-const prepareAndSendMessage = async (context, target, batch, today) => {
+const prepareMessageData = (target, batch, today) => {
     const notificationKey = getUniqKey(today, batch.title, target)
     const transportType = detectTransportType(target)
     const to = selectTarget(target)
 
-    if (!to || !transportType) return 0
+    if (!to || !transportType) return null
 
     const messageData = {
         ...to,
@@ -79,6 +79,14 @@ const prepareAndSendMessage = async (context, target, batch, today) => {
     if (transportType === PUSH_TRANSPORT) messageData.meta.title = batch.title
     if (transportType === EMAIL_TRANSPORT) messageData.meta.subject = batch.title
 
+    return messageData
+}
+
+const prepareAndSendMessage = async (context, target, batch, today) => {
+    const messageData = prepareMessageData(target, batch, today)
+
+    if (!messageData) return 0
+
     try {
         const result = await sendMessage(context, messageData)
 
@@ -96,6 +104,7 @@ module.exports = {
     getUniqKey,
     selectTarget,
     detectTransportType,
+    prepareMessageData,
     prepareAndSendMessage,
     normalizeTarget,
 }

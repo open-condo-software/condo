@@ -37,7 +37,11 @@ const MESSAGE_SENDING_STATUSES = {
 }
 
 async function _sendMessageByAdapter (transport, adapter, messageContext) {
-    if (SEND_TO_CONSOLE) {
+    // NOTE: push adapters able to handle fake push tokens and working without credentials,
+    // to emulate real push transfer and API responses.
+    // Besides, this fakeAdapter thing prevents deep testing push transfer logic internals.
+    // So it should be skipped for push transport., но она не вызывается
+    if (SEND_TO_CONSOLE && transport !== PUSH_TRANSPORT) {
         if (!DISABLE_LOGGING) logger.info(`MESSAGE by ${transport.toUpperCase()} ADAPTER: ${JSON.stringify(messageContext)}`)
 
         return [true, { fakeAdapter: true, transport, messageContext }]
@@ -130,6 +134,7 @@ async function deliverMessage (messageId) {
 
     for (const transport of transports) {
         const transportMeta = { transport }
+
         processingMeta.transport = transport
         transportsMeta.push(transportMeta)
 
@@ -140,7 +145,6 @@ async function deliverMessage (messageId) {
             processingMeta.messageContext = messageContext
 
             const [isOk, deliveryMetadata] = await _sendMessageByAdapter(transport, adapter, messageContext)
-            processingMeta.deliveryMetadata = deliveryMetadata
             transportMeta.deliveryMetadata = deliveryMetadata
 
             if (isOk) {
