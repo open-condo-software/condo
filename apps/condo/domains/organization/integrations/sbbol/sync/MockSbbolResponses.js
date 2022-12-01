@@ -99,7 +99,6 @@ class MockSbbolResponses {
             ...dvSenderFields,
             name: userInfo.OrgName,
             importId: userInfo.userGuid,
-            importRemoteSystem: SBBOL_IMPORT_NAME,
             email: userInfo.email,
             phone: userInfo.phone_number,
             isPhoneVerified: true,

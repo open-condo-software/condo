@@ -87,7 +87,6 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
         ...dvSenderFields,
         name: userInfo.name || userInfo.OrgName,
         importId: userInfo.userGuid,
-        importRemoteSystem: SBBOL_IMPORT_NAME,
         email: normalizeEmail(userInfo.email),
         phone: normalizePhone(userInfo.phone_number),
         isPhoneVerified: true,

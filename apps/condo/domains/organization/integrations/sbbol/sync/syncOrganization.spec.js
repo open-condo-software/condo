@@ -12,6 +12,7 @@ const { OrganizationEmployee: OrganizationEmployeeApi, Organization: Organizatio
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncOrganization } = require('./syncOrganization')
+const { syncUser } = require('./syncUser')
 const index = require('@app/condo/index')
 const { keystone } = index
 
@@ -66,6 +67,35 @@ describe('syncOrganization from SBBOL', () => {
             await syncOrganization({
                 context,
                 user: user,
+                userData,
+                dvSenderFields,
+                organizationInfo: organizationData,
+            })
+            const [ newOrganization ] = await OrganizationApi.getAll(adminContext, {
+                importId: organizationData.importId,
+                importRemoteSystem: organizationData.importRemoteSystem,
+            })
+            expect(newOrganization).toBeDefined()
+            const [ existedEmployee ] = await OrganizationEmployeeApi.getAll(adminContext, {
+                organization: { id: newOrganization.id },
+                user: { id: user.id },
+            })
+            expect(existedEmployee).toBeDefined()
+            expect(existedEmployee.isAccepted).toBeTruthy()
+            expect(existedEmployee.role.canManageEmployees).toBeTruthy()
+        })
+
+        it('should create new organization and create new user', async () => {
+            const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
+            const adminContext = await keystone.createContext({ skipAccessControl: true })
+            const context = {
+                keystone,
+                context: adminContext,
+            }
+            const user = await syncUser({ context, userInfo: userData })
+            await syncOrganization({
+                context,
+                user,
                 userData,
                 dvSenderFields,
                 organizationInfo: organizationData,

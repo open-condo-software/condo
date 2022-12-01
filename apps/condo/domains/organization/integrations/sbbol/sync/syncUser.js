@@ -43,7 +43,7 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
         ...context,
         listKey: 'User',
         where: { email, id_not: userIdToExclude },
-        returnFields: 'id type name email phone importId importRemoteSystem',
+        returnFields: 'id type name email phone',
     })
     if (existingUser && existingUser.id !== userIdToExclude) {
         await updateItem({
