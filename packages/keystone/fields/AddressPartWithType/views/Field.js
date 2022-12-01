@@ -6,6 +6,7 @@ import { jsx } from '@emotion/react'
 import get from 'lodash/get'
 
 const AddressPartWithTypeField = ({ onChange, autoFocus, field, errors, value = '{}', isDisabled }) => {
+    //todo(AleX83Xpert) maybe add a boolean field to control displaying of some address part within address string (suggestion's value)
     const { name = '', typeShort = '', typeFull = '' } = JSON.parse(value || '{}')
 
     const canRead = errors.every(

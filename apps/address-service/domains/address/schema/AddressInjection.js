@@ -94,10 +94,27 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
             return {
                 // Actualize keywords on every data changing
                 ...resolvedData,
-                keywords: ['country', 'region.name', 'area.name', 'city.name', 'cityDistrict.name', 'settlement.name', 'street.name', 'house.name', 'block.name']
-                    .map((field) => get({ ...existingItem, ...resolvedData }, field))
-                    .filter(Boolean)
-                    .join(' '),
+
+                // I have to add full types for some address parts. To prevent loosing some search results.
+                // For example:
+                // If user finds address by string 'г Екатеринбург, улица Средняя, д 1', we don't know what is 'улица'.
+                keywords: [
+                    'country',
+                    'region.typeFull',
+                    'region.name',
+                    'area.name',
+                    'city.typeFull',
+                    'city.name',
+                    'cityDistrict.typeFull',
+                    'cityDistrict.name',
+                    'settlement.typeFull',
+                    'settlement.name',
+                    'street.typeFull',
+                    'street.name',
+                    'house.typeFull',
+                    'house.name',
+                    'block.name',
+                ].map((field) => get({ ...existingItem, ...resolvedData }, field)).filter(Boolean).join(' '),
                 // todo(AleX83Xpert) maybe create the `address` string (similar to dadata value)
             }
         },
