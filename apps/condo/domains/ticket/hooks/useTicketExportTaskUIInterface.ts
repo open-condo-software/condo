@@ -1,13 +1,12 @@
-import { useIntl } from '@open-condo/next/intl'
-import { get } from 'lodash'
 import { useRouter } from 'next/router'
+
+import { useIntl } from '@open-condo/next/intl'
+import { TicketExportTask } from '@app/condo/schema'
+
 import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { TaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
 import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
-import { TicketExportTask } from '@app/condo/schema'
 
 export const useTicketExportTaskUIInterface = () => {
     const intl = useIntl()
@@ -61,33 +60,5 @@ export const useTicketExportTaskUIInterface = () => {
         // This will be used to match this interface implementation with
         // initial loaded record on first page load
         TicketExportTask: TaskUIInterface,
-    }
-}
-
-export const useTicketExportTask = ({ where, sortBy, format, locale, timeZone, user }) => {
-    const intl = useIntl()
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const { TicketExportTask: TaskUIInterface } = useTicketExportTaskUIInterface()
-
-    return {
-        TaskUIInterface,
-        TaskLauncher: ({ disabled, hidden }) => (
-            <TaskLauncher
-                label={ExportAsExcelLabel}
-                taskUIInterface={TaskUIInterface}
-                attrs={{
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    where,
-                    format,
-                    sortBy: sortBy,
-                    locale,
-                    timeZone,
-                    user: { connect: { id: get(user, 'id', null) } },
-                }}
-                hidden={hidden}
-                disabled={disabled}
-            />
-        ),
     }
 }
