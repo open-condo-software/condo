@@ -28,7 +28,7 @@ const splitServices = (receipt: BillingReceipt) => {
     const services = get(receipt, 'services', [])
     const significantServices: Array<TableRecord> = []
     const insignificantServices: Array<TableRecord> = []
-    if (!services.length) return {
+    if (!services || !services.length) return {
         significantServices,
         insignificantServices,
     }
@@ -100,6 +100,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const unitName = get(receipt, ['account', 'unitName'])
     const unitType = get(receipt, ['account', 'unitType'])
     const fullName = get(receipt, ['account', 'fullName'])
+    const services = get(receipt, 'services', [])
 
     const UnitTypePrefix = intl.formatMessage({ id: `field.UnitType.prefix.${unitType}` }).toLocaleLowerCase()
 
@@ -128,6 +129,9 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
 
     const [expanded, setExpanded] = useState(false)
     const handleRowExpand = () => setExpanded(!expanded)
+
+    if (!services || !services.length) return null
+
     // TODO (savelevMatthew): Move modal to common width-expandable component?
     return (
         <>
