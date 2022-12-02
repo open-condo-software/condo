@@ -1,5 +1,8 @@
 import '@open-condo/ui/src/components/style/core/global.less'
 
+export { Alert } from './components/Alert'
+export type { AlertProps } from './components/Alert'
+
 export { Banner } from './components/Banner'
 export type { BannerProps } from './components/Banner'
 
