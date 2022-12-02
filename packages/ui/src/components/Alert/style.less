@@ -3,6 +3,15 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import "./mixins";
 
+@alert-success-bg-color: @condo-global-color-green-1;
+@alert-success-icon-color: @condo-global-color-green-5;
+@alert-info-bg-color: @condo-global-color-blue-1;
+@alert-info-icon-color: @condo-global-color-blue-5;
+@alert-warning-bg-color: @condo-global-color-orange-1;
+@alert-warning-icon-color: @condo-global-color-orange-5;
+@alert-error-bg-color: @condo-global-color-red-1;
+@alert-error-icon-color: @condo-global-color-red-5;
+
 .condo-alert {
   &-description {
     .condo-typography-text-medium();
@@ -10,22 +19,22 @@
 
   &-success {
     .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-green-1, @condo-global-color-green-5);
+    .condo-alert-colors(@condo-global-color-green-5);
   }
 
   &-info {
     .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-blue-1, @condo-global-color-blue-5);
+    .condo-alert-colors(@condo-global-color-blue-5);
   }
 
   &-warning {
     .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-orange-1, @condo-global-color-orange-5);
+    .condo-alert-colors(@condo-global-color-orange-5);
   }
 
   &-error {
     .condo-alert-border();
-    .condo-alert-colors(@condo-global-color-red-1, @condo-global-color-red-5);
+    .condo-alert-colors(@condo-global-color-red-5);
   }
 
   &-with-description {

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Alert as DefaultAlert, AlertProps as DefaultAlertProps } from 'antd'
-import classNames from 'classnames'
 
 type CondoAlertProps = {
     type: 'success' | 'info' | 'warning' | 'error';
@@ -8,24 +7,16 @@ type CondoAlertProps = {
 
 const ALERT_CLASS_PREFIX = 'condo-alert'
 
-export type AlertProps = Omit<DefaultAlertProps, 'type' | 'prefix' | 'prefixCls' | 'banner' | 'afterClose' | 'closable' | 'closeText' | 'closeIcon' | 'onClose'> & CondoAlertProps
+export type AlertProps = Pick<DefaultAlertProps, 'message' | 'showIcon' | 'description' | 'action'> & CondoAlertProps
 
 const Alert: React.FC<AlertProps> = (props) => {
-    const { type, className, ...rest } = props
-
-    const classes = classNames(
-        {
-            [`${ALERT_CLASS_PREFIX}-${type}`]: type,
-        },
-        className,
-    )
+    const { type, ...rest } = props
 
     return (
         <DefaultAlert
             {...rest}
             type = {type}
             prefixCls={ALERT_CLASS_PREFIX}
-            className={classes}
         />
     )
 }

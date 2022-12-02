@@ -19,17 +19,6 @@ export default {
     },
     argTypes: {
         type: { control: 'select' },
-        icon: {
-            options: Object.keys(icons),
-            mapping: icons,
-            control: {
-                type: 'select',
-                labels: {
-                    DeleteFilled: 'Delete',
-                    InfoCircleFilled: 'Info',
-                },
-            },
-        },
         action: {
             table: {
                 type: { 
