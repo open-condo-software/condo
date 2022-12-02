@@ -1,7 +1,7 @@
-const { Text, File, Checkbox, Select } = require('@keystonejs/fields')
+const { Text, File, Checkbox, Select, Integer } = require('@keystonejs/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Markdown } = require('@keystonejs/fields-markdown')
-const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS, B2B_APPS_LABELS } = require('@condo/domains/miniapp/constants')
 
 const APPS_FILE_ADAPTER = new FileAdapter('apps')
 
@@ -65,6 +65,24 @@ const CONTEXT_DEFAULT_STATUS_FIELD = {
     defaultValue: CONTEXT_IN_PROGRESS_STATUS,
 }
 
+const DISPLAY_PRIORITY_FIELD = {
+    schemaDoc: 'The number used to determine the position of the app among the others. ' +
+        'App with higher priority appear earlier in "All" category, as well as in it\'s own category. ' +
+        'Apps with the same priority are sorted from newest to oldest. The default value is 1.',
+    type: Integer,
+    isRequired: true,
+    defaultValue: 1,
+}
+
+const LABEL_FIELD = {
+    schemaDoc: 'App can be marked with one of the following labels in order to visually ' +
+        `stand out from other applications: [${B2B_APPS_LABELS.join(', ')}]`,
+    type: Select,
+    isRequired: false,
+    dataType: 'string',
+    options: B2B_APPS_LABELS,
+}
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
@@ -76,5 +94,7 @@ module.exports = {
     APPS_FILE_ADAPTER,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
+    DISPLAY_PRIORITY_FIELD,
+    LABEL_FIELD,
 }
 
