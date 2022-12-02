@@ -7,7 +7,7 @@ const ChevronIconSVG = () => (
     </svg>
 )
 
-export const ChevronIcon: React.FC = (props) => {
+export const ChevronIcon: React.FC<{ style?: React.CSSProperties }> = (props) => {
     return (
         <Icon component={ChevronIconSVG} {...props}/>
     )
