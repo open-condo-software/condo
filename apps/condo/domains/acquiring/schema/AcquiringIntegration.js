@@ -17,6 +17,8 @@ const {
     APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
+    DISPLAY_PRIORITY_FIELD,
+    LABEL_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
@@ -88,6 +90,8 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
+        displayPriority: DISPLAY_PRIORITY_FIELD,
+        label: LABEL_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

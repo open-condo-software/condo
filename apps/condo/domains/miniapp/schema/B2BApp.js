@@ -16,6 +16,8 @@ const {
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
+    LABEL_FIELD,
+    DISPLAY_PRIORITY_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const {
     B2B_APP_CATEGORIES,
@@ -75,6 +77,8 @@ const B2BApp = new GQLListSchema('B2BApp', {
             many: true,
         },
         features: GLOBAL_FEATURES_FIELD,
+        displayPriority: DISPLAY_PRIORITY_FIELD,
+        label: LABEL_FIELD,
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {

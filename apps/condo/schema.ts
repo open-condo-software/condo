@@ -63,6 +63,10 @@ export type AcquiringIntegration = {
   _supportedBillingIntegrationsMeta?: Maybe<_QueryMeta>;
   /**  Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient  */
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
+  /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
+  displayPriority?: Maybe<Scalars['Int']>;
+  /**  App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW]  */
+  label?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -912,6 +916,8 @@ export type AcquiringIntegrationCreateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -946,6 +952,8 @@ export type AcquiringIntegrationHistoryRecord = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -974,6 +982,8 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1007,6 +1017,8 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   canGroupReceipts?: Maybe<Scalars['Boolean']>;
   hostUrl?: Maybe<Scalars['String']>;
   explicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1152,6 +1164,32 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   explicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   explicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_contains?: Maybe<Scalars['String']>;
+  label_not_contains?: Maybe<Scalars['String']>;
+  label_starts_with?: Maybe<Scalars['String']>;
+  label_not_starts_with?: Maybe<Scalars['String']>;
+  label_ends_with?: Maybe<Scalars['String']>;
+  label_not_ends_with?: Maybe<Scalars['String']>;
+  label_i?: Maybe<Scalars['String']>;
+  label_not_i?: Maybe<Scalars['String']>;
+  label_contains_i?: Maybe<Scalars['String']>;
+  label_not_contains_i?: Maybe<Scalars['String']>;
+  label_starts_with_i?: Maybe<Scalars['String']>;
+  label_not_starts_with_i?: Maybe<Scalars['String']>;
+  label_ends_with_i?: Maybe<Scalars['String']>;
+  label_not_ends_with_i?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -1265,6 +1303,8 @@ export type AcquiringIntegrationUpdateInput = {
   hostUrl?: Maybe<Scalars['String']>;
   supportedBillingIntegrations?: Maybe<BillingIntegrationRelateToManyInput>;
   explicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1433,6 +1473,18 @@ export type AcquiringIntegrationWhereInput = {
   explicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   explicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
   explicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2112,6 +2164,10 @@ export type B2BApp = {
   _accessRightsMeta?: Maybe<_QueryMeta>;
   /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration]  */
   features?: Maybe<Array<B2BAppGlobalFeature>>;
+  /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
+  displayPriority?: Maybe<Scalars['Int']>;
+  /**  App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW]  */
+  label?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2846,6 +2902,8 @@ export type B2BAppCreateInput = {
   setupButtonMessage?: Maybe<Scalars['String']>;
   accessRights?: Maybe<B2BAppAccessRightRelateToManyInput>;
   features?: Maybe<Array<B2BAppGlobalFeature>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2886,6 +2944,8 @@ export type B2BAppHistoryRecord = {
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2916,6 +2976,8 @@ export type B2BAppHistoryRecordCreateInput = {
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2951,6 +3013,8 @@ export type B2BAppHistoryRecordUpdateInput = {
   category?: Maybe<Scalars['String']>;
   setupButtonMessage?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3132,6 +3196,32 @@ export type B2BAppHistoryRecordWhereInput = {
   features_not?: Maybe<Scalars['JSON']>;
   features_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   features_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_contains?: Maybe<Scalars['String']>;
+  label_not_contains?: Maybe<Scalars['String']>;
+  label_starts_with?: Maybe<Scalars['String']>;
+  label_not_starts_with?: Maybe<Scalars['String']>;
+  label_ends_with?: Maybe<Scalars['String']>;
+  label_not_ends_with?: Maybe<Scalars['String']>;
+  label_i?: Maybe<Scalars['String']>;
+  label_not_i?: Maybe<Scalars['String']>;
+  label_contains_i?: Maybe<Scalars['String']>;
+  label_not_contains_i?: Maybe<Scalars['String']>;
+  label_starts_with_i?: Maybe<Scalars['String']>;
+  label_not_starts_with_i?: Maybe<Scalars['String']>;
+  label_ends_with_i?: Maybe<Scalars['String']>;
+  label_not_ends_with_i?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3771,6 +3861,8 @@ export type B2BAppUpdateInput = {
   setupButtonMessage?: Maybe<Scalars['String']>;
   accessRights?: Maybe<B2BAppAccessRightRelateToManyInput>;
   features?: Maybe<Array<B2BAppGlobalFeature>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3941,6 +4033,18 @@ export type B2BAppWhereInput = {
   features_not?: Maybe<Array<B2BAppGlobalFeature>>;
   features_in?: Maybe<Array<Maybe<Array<B2BAppGlobalFeature>>>>;
   features_not_in?: Maybe<Array<Maybe<Array<B2BAppGlobalFeature>>>>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -9540,6 +9644,10 @@ export type BillingIntegration = {
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
+  /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
+  displayPriority?: Maybe<Scalars['Int']>;
+  /**  App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW]  */
+  label?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9879,6 +9987,8 @@ export type BillingIntegrationCreateInput = {
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9928,6 +10038,8 @@ export type BillingIntegrationHistoryRecord = {
   currencyCode?: Maybe<Scalars['String']>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -9958,6 +10070,8 @@ export type BillingIntegrationHistoryRecordCreateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -9993,6 +10107,8 @@ export type BillingIntegrationHistoryRecordUpdateInput = {
   currencyCode?: Maybe<Scalars['String']>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -10174,6 +10290,32 @@ export type BillingIntegrationHistoryRecordWhereInput = {
   isTrustedBankAccountSource_not?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_contains?: Maybe<Scalars['String']>;
+  label_not_contains?: Maybe<Scalars['String']>;
+  label_starts_with?: Maybe<Scalars['String']>;
+  label_not_starts_with?: Maybe<Scalars['String']>;
+  label_ends_with?: Maybe<Scalars['String']>;
+  label_not_ends_with?: Maybe<Scalars['String']>;
+  label_i?: Maybe<Scalars['String']>;
+  label_not_i?: Maybe<Scalars['String']>;
+  label_contains_i?: Maybe<Scalars['String']>;
+  label_not_contains_i?: Maybe<Scalars['String']>;
+  label_starts_with_i?: Maybe<Scalars['String']>;
+  label_not_starts_with_i?: Maybe<Scalars['String']>;
+  label_ends_with_i?: Maybe<Scalars['String']>;
+  label_not_ends_with_i?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -10866,6 +11008,8 @@ export type BillingIntegrationUpdateInput = {
   accessRights?: Maybe<BillingIntegrationAccessRightRelateToManyInput>;
   isTrustedBankAccountSource?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  label?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -11036,6 +11180,18 @@ export type BillingIntegrationWhereInput = {
   isTrustedBankAccountSource_not?: Maybe<Scalars['Boolean']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  displayPriority?: Maybe<Scalars['Int']>;
+  displayPriority_not?: Maybe<Scalars['Int']>;
+  displayPriority_lt?: Maybe<Scalars['Int']>;
+  displayPriority_lte?: Maybe<Scalars['Int']>;
+  displayPriority_gt?: Maybe<Scalars['Int']>;
+  displayPriority_gte?: Maybe<Scalars['Int']>;
+  displayPriority_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  displayPriority_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  label?: Maybe<Scalars['String']>;
+  label_not?: Maybe<Scalars['String']>;
+  label_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  label_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -45266,6 +45422,10 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   CanGroupReceiptsDesc = 'canGroupReceipts_DESC',
   HostUrlAsc = 'hostUrl_ASC',
   HostUrlDesc = 'hostUrl_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45307,6 +45467,10 @@ export enum SortAcquiringIntegrationsBy {
   HostUrlDesc = 'hostUrl_DESC',
   SupportedBillingIntegrationsAsc = 'supportedBillingIntegrations_ASC',
   SupportedBillingIntegrationsDesc = 'supportedBillingIntegrations_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45476,6 +45640,10 @@ export enum SortB2BAppHistoryRecordsBy {
   CategoryDesc = 'category_DESC',
   SetupButtonMessageAsc = 'setupButtonMessage_ASC',
   SetupButtonMessageDesc = 'setupButtonMessage_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45581,6 +45749,10 @@ export enum SortB2BAppsBy {
   SetupButtonMessageDesc = 'setupButtonMessage_DESC',
   AccessRightsAsc = 'accessRights_ASC',
   AccessRightsDesc = 'accessRights_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -46324,6 +46496,10 @@ export enum SortBillingIntegrationHistoryRecordsBy {
   IsTrustedBankAccountSourceDesc = 'isTrustedBankAccountSource_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -46438,6 +46614,10 @@ export enum SortBillingIntegrationsBy {
   IsTrustedBankAccountSourceDesc = 'isTrustedBankAccountSource_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  DisplayPriorityAsc = 'displayPriority_ASC',
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  LabelAsc = 'label_ASC',
+  LabelDesc = 'label_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
