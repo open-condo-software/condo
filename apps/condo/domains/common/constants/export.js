@@ -6,6 +6,7 @@ const CANCELLED = 'cancelled'
 const EXPORT_STATUS_VALUES = [PROCESSING, COMPLETED, ERROR, CANCELLED]
 
 const EXCEL = 'excel'
+const PDF = 'pdf'
 
 const EXPORT_FORMAT_VALUES = [EXCEL]
 
@@ -17,6 +18,7 @@ module.exports = {
     ERROR,
     CANCELLED,
     EXCEL,
+    PDF,
     EXPORT_STATUS_VALUES,
     EXPORT_FORMAT_VALUES,
     EXPORT_PROCESSING_BATCH_SIZE,

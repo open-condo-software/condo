@@ -138,6 +138,59 @@ const CommentStyle = css`
     }
 `
 
+const CommentPreviewStyle = css`
+    width: 100%;
+    background: white;
+    margin-bottom: 6px;
+    border: 1px solid ${colors.sberGrey};
+    border-radius: 8px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 22px;
+
+    .ant-comment-inner {
+      padding: 12px;
+
+      .ant-comment-content {
+        display: flex;
+        flex-flow: column nowrap;
+        
+        .ant-comment-content-author {
+          display: block;
+          margin-top: 0;
+          margin-bottom: 8px;
+          font-size: 12px;
+          
+          .ant-comment-content-author-name {
+            padding-right: 4px;
+            color: ${colors.textSecondary};
+          }
+
+          .ant-comment-content-author-time {
+            padding: 0;
+            
+            & > div > span {
+              color: ${colors.textSecondary};
+            }
+          }
+        }
+        
+        .ant-comment-content-detail > div {
+          margin-top: 20px;
+          
+          & > .ant-typography {
+            margin-bottom: 4px;
+            cursor: pointer;
+
+            & > .ant-typography {
+              margin-left: 8px;
+            }
+          }
+        }
+      }
+    }
+`
+
 const getFilePreviewByMimetype = (mimetype, url) => {
     if (mimetype.startsWith('image')) return <Image src={url} width={64} height={64} />
 
@@ -305,6 +358,36 @@ export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, 
             }
             actions={actions}
             css={CommentStyle}
+        />
+    )
+}
+
+export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }) => {
+    const intl = useIntl()
+
+    return (
+        <AntComment
+            content={
+                <>
+                    <Typography.Text>
+                        {comment.content}
+                    </Typography.Text>
+                </>
+            }
+            author={
+                <Typography.Text type='secondary'>
+                    <Typography.Text type='secondary' style={AUTHOR_TEXT_STYLES}>
+                        {comment.user.name}
+                    </Typography.Text>
+                    ({getCommentAuthorRoleMessage(comment.user, intl)}),
+                </Typography.Text>
+            }
+            datetime={
+                <Typography.Text type='secondary'>
+                    {dayjs(comment.createdAt).format('DD.MM.YYYY, HH:mm')}
+                </Typography.Text>
+            }
+            css={CommentPreviewStyle}
         />
     )
 }
