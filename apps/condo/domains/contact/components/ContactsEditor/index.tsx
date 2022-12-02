@@ -146,6 +146,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone
     const initialTab = (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
+    const initialAutoCompleteFieldsValue = manuallyTypedContact ? manuallyTypedContact : initialValue
 
     const {
         objs: fetchedContacts,
@@ -186,7 +187,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 [fields.phone]: initialValue.phone,
             })
         }
-    }, [])
+    }, [initialValue])
 
     // When `unitName` was changed from outside, selection is not relevant anymore
     useEffect(() => {
@@ -197,7 +198,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     useEffect(() => {
         form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
-    }, [activeTab, form])
+
+        if (activeTab === CONTACT_TYPE.NOT_RESIDENT) {
+            form.setFieldsValue({
+                [fields.id]: null,
+            })
+        }
+    }, [activeTab, fields.id, form])
 
     useEffect(() => {
         if (hasNotResidentTab) {
@@ -231,6 +238,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             [fields.name]: contact.name,
             [fields.phone]: contact.phone,
         })
+
         setValue(contact)
         setSelectedContact(contact)
         isFunction(onChange) && onChange(contact, isNew)
@@ -261,18 +269,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }
 
     const handleChangeEmployee = debounce((contact) => {
-        form.setFieldsValue({
-            [fields.id]: null,
-            [fields.name]: contact.name,
-            [fields.phone]: contact.phone,
-        })
         const employeeContact = { ...contact, id: null }
 
-        setValue(employeeContact)
+        triggerOnChange(employeeContact, false)
+
         setManuallyTypedContact(employeeContact)
         setEditableFieldsChecked(true)
-
-        onChange && onChange(employeeContact, false)
+        setSelectedContact(null)
     }, DEBOUNCE_TIMEOUT)
 
     const initialValueIsPresentedInFetchedContacts = useMemo(() => initialContacts &&
@@ -335,7 +338,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 <ContactSyncedAutocompleteFields
                                     refetch={refetchContacts}
                                     initialQuery={initialContactsQuery}
-                                    initialValue={initialValue.id ? initialValue : manuallyTypedContact}
+                                    initialValue={initialAutoCompleteFieldsValue}
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
                                 />
@@ -351,7 +354,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 <ContactSyncedAutocompleteFields
                                                     initialQuery={initialContactsQuery}
                                                     refetch={refetchContacts}
-                                                    initialValue={initialValue.id ? initialValue : manuallyTypedContact}
+                                                    initialValue={initialAutoCompleteFieldsValue}
                                                     onChange={handleChangeContact}
                                                     onChecked={handleSyncedFieldsChecked}
                                                     checked={editableFieldsChecked}
@@ -398,7 +401,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     <ContactSyncedAutocompleteFields
                                         initialQuery={initialEmployeesQuery}
                                         refetch={refetchEmployees}
-                                        initialValue={initialValue.id ? manuallyTypedContact : initialValue}
+                                        initialValue={initialAutoCompleteFieldsValue}
                                         onChange={handleChangeEmployee}
                                         contacts={fetchedEmployees}
                                     />
