@@ -6,7 +6,7 @@ const { Text, File, Url, Select, Integer } = require('@keystonejs/fields')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/miniapp/access/B2BAppPromoBlock')
-const { PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
+const { PROMO_BLOCK_TEXT_VARIANTS, PROMO_BLOCK_DARK_TEXT_VARIANT } = require('@condo/domains/miniapp/constants')
 const { HEX_CODE_REGEXP, LINEAR_GRADIENT_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
@@ -31,10 +31,10 @@ const B2BAppPromoBlock = new GQLListSchema('B2BAppPromoBlock', {
             isRequired: true,
         },
         textVariant: {
-            schemaDoc: `Variant of texts inside block. Can be one of the following: [${Object.keys(PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS).join(', ')}]`,
+            schemaDoc: `Variant of texts inside block. Can be one of the following: [${PROMO_BLOCK_TEXT_VARIANTS.join(', ')}]`,
             type: Select,
-            options: Object.keys(PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS),
-            defaultValue: 'BLACK',
+            options: PROMO_BLOCK_TEXT_VARIANTS,
+            defaultValue: PROMO_BLOCK_DARK_TEXT_VARIANT,
             isRequired: true,
         },
         backgroundColor: {

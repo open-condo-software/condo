@@ -18,6 +18,8 @@ const {
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
+    DISPLAY_PRIORITY_FIELD,
+    LABEL_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
@@ -81,6 +83,9 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
 
         // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
         isHidden: IS_HIDDEN_FIELD,
+
+        displayPriority: DISPLAY_PRIORITY_FIELD,
+        label: LABEL_FIELD,
     },
     hooks: {
         afterChange: logoMetaAfterChange,
