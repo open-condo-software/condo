@@ -143,9 +143,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         organization: { id: organization },
     }), [organization])
 
+    const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone
-
-    const initialTab = isNotResidentInitialValue ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
+    const initialTab = (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
 
     const {
         objs: fetchedContacts,
@@ -196,12 +196,22 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [unitName, unitType])
 
     useEffect(() => {
-        setActiveTab(initialTab)
-    }, [initialTab])
-
-    useEffect(() => {
         form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
     }, [activeTab, form])
+
+    useEffect(() => {
+        if (hasNotResidentTab) {
+            if (unitName) {
+                setActiveTab(CONTACT_TYPE.RESIDENT)
+            } else {
+                setActiveTab(CONTACT_TYPE.NOT_RESIDENT)
+            }
+        }
+    }, [hasNotResidentTab, unitName])
+
+    useEffect(() => {
+        setActiveTab(initialTab)
+    }, [initialTab])
 
     const handleClickOnPlusButton = useCallback(() => {
         setDisplayEditableContactFields(true)
@@ -315,7 +325,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     style={TABS_STYLE}
                     onChange={handleTabChange}
                 >
-                    <TabPane tab={TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT}>
+                    <TabPane tab={TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
                         <Row gutter={TAB_PANE_ROW_GUTTERS}>
                             <Labels
                                 left={PhoneLabel}
