@@ -9,7 +9,7 @@ const { allMiniAppsByTestClient, createTestB2BApp, createTestB2BAppContext, upda
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE } = require('@condo/domains/miniapp/constants')
+const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE, APP_NEW_LABEL } = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
@@ -253,6 +253,30 @@ describe('AllMiniAppsService', () => {
                     id: globalIntegration.id,
                     type: B2B_APP_TYPE,
                 }]))
+            })
+        })
+        describe('Display priority and labeling', () => {
+            test('All miniapps must be ordered by displayPriority', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [firstApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 6 })
+                const [billing] = await createTestBillingIntegration(admin, { isHidden: false, displayPriority: 3 })
+                const [acquiring] = await createTestAcquiringIntegration(admin, [billing], { isHidden: false, displayPriority: 4 })
+                const [secondApp] = await createTestB2BApp(admin, { isHidden: false, displayPriority: 3, label: APP_NEW_LABEL })
+
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [data] = await allMiniAppsByTestClient(admin, client.organization.id)
+                expect(data).toBeDefined()
+                expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: firstApp.id, type: B2B_APP_TYPE, label: null }),
+                    expect.objectContaining({ id: secondApp.id, type: B2B_APP_TYPE, label: APP_NEW_LABEL }),
+                    expect.objectContaining({ id: billing.id, type: BILLING_APP_TYPE, label: null }),
+                    expect.objectContaining({ id: acquiring.id, type: ACQUIRING_APP_TYPE, label: null }),
+                ]))
+
+                const expectedOrder = [firstApp.id, acquiring.id, secondApp.id, billing.id]
+                const indexedApps = data.filter(el => expectedOrder.includes(el.id))
+                const actualOrder = indexedApps.map(el => el.id)
+                expect(actualOrder).toEqual(expectedOrder)
             })
         })
     })

@@ -5696,6 +5696,8 @@ type BillingIntegrationHistoryRecord {
   currencyCode: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
+  displayPriority: Int
+  label: String
   id: ID!
   v: Int
   createdAt: String
@@ -5878,6 +5880,32 @@ input BillingIntegrationHistoryRecordWhereInput {
   isTrustedBankAccountSource_not: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  label: String
+  label_not: String
+  label_contains: String
+  label_not_contains: String
+  label_starts_with: String
+  label_not_starts_with: String
+  label_ends_with: String
+  label_not_ends_with: String
+  label_i: String
+  label_not_i: String
+  label_contains_i: String
+  label_not_contains_i: String
+  label_starts_with_i: String
+  label_not_starts_with_i: String
+  label_ends_with_i: String
+  label_not_ends_with_i: String
+  label_in: [String]
+  label_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5981,6 +6009,10 @@ enum SortBillingIntegrationHistoryRecordsBy {
   isTrustedBankAccountSource_DESC
   isHidden_ASC
   isHidden_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  label_ASC
+  label_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6014,6 +6046,8 @@ input BillingIntegrationHistoryRecordUpdateInput {
   currencyCode: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -6048,6 +6082,8 @@ input BillingIntegrationHistoryRecordCreateInput {
   currencyCode: String
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -6150,6 +6186,14 @@ type BillingIntegration {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
+
+  """ The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1. 
+  """
+  displayPriority: Int
+
+  """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
+  """
+  label: String
   id: ID!
   v: Int
   createdAt: String
@@ -6335,6 +6379,18 @@ input BillingIntegrationWhereInput {
   isTrustedBankAccountSource_not: Boolean
   isHidden: Boolean
   isHidden_not: Boolean
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  label: String
+  label_not: String
+  label_in: [String]
+  label_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6422,6 +6478,10 @@ enum SortBillingIntegrationsBy {
   isTrustedBankAccountSource_DESC
   isHidden_ASC
   isHidden_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  label_ASC
+  label_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6456,6 +6516,8 @@ input BillingIntegrationUpdateInput {
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -6488,6 +6550,8 @@ input BillingIntegrationCreateInput {
   accessRights: BillingIntegrationAccessRightRelateToManyInput
   isTrustedBankAccountSource: Boolean
   isHidden: Boolean
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -35741,6 +35805,8 @@ type AcquiringIntegrationHistoryRecord {
   canGroupReceipts: Boolean
   hostUrl: String
   explicitFeeDistributionSchema: JSON
+  displayPriority: Int
+  label: String
   id: ID!
   v: Int
   createdAt: String
@@ -35887,6 +35953,32 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   explicitFeeDistributionSchema_not: JSON
   explicitFeeDistributionSchema_in: [JSON]
   explicitFeeDistributionSchema_not_in: [JSON]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  label: String
+  label_not: String
+  label_contains: String
+  label_not_contains: String
+  label_starts_with: String
+  label_not_starts_with: String
+  label_ends_with: String
+  label_not_ends_with: String
+  label_i: String
+  label_not_i: String
+  label_contains_i: String
+  label_not_contains_i: String
+  label_starts_with_i: String
+  label_not_starts_with_i: String
+  label_ends_with_i: String
+  label_not_ends_with_i: String
+  label_in: [String]
+  label_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -35986,6 +36078,10 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   canGroupReceipts_DESC
   hostUrl_ASC
   hostUrl_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  label_ASC
+  label_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -36017,6 +36113,8 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   explicitFeeDistributionSchema: JSON
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36049,6 +36147,8 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   canGroupReceipts: Boolean
   hostUrl: String
   explicitFeeDistributionSchema: JSON
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36159,6 +36259,14 @@ type AcquiringIntegration {
   """ Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient 
   """
   explicitFeeDistributionSchema: [FeeDistributionField!]
+
+  """ The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1. 
+  """
+  displayPriority: Int
+
+  """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
+  """
+  label: String
   id: ID!
   v: Int
   createdAt: String
@@ -36345,6 +36453,18 @@ input AcquiringIntegrationWhereInput {
   explicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   explicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   explicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  label: String
+  label_not: String
+  label_in: [String]
+  label_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -36430,6 +36550,10 @@ enum SortAcquiringIntegrationsBy {
   hostUrl_DESC
   supportedBillingIntegrations_ASC
   supportedBillingIntegrations_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  label_ASC
+  label_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -36463,6 +36587,8 @@ input AcquiringIntegrationUpdateInput {
   hostUrl: String
   supportedBillingIntegrations: BillingIntegrationRelateToManyInput
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36494,6 +36620,8 @@ input AcquiringIntegrationCreateInput {
   hostUrl: String
   supportedBillingIntegrations: BillingIntegrationRelateToManyInput
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -39780,6 +39908,8 @@ type B2BAppHistoryRecord {
   category: String
   setupButtonMessage: String
   features: JSON
+  displayPriority: Int
+  label: String
   id: ID!
   v: Int
   createdAt: String
@@ -39962,6 +40092,32 @@ input B2BAppHistoryRecordWhereInput {
   features_not: JSON
   features_in: [JSON]
   features_not_in: [JSON]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  label: String
+  label_not: String
+  label_contains: String
+  label_not_contains: String
+  label_starts_with: String
+  label_not_starts_with: String
+  label_ends_with: String
+  label_not_ends_with: String
+  label_i: String
+  label_not_i: String
+  label_contains_i: String
+  label_not_contains_i: String
+  label_starts_with_i: String
+  label_not_starts_with_i: String
+  label_ends_with_i: String
+  label_not_ends_with_i: String
+  label_in: [String]
+  label_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40065,6 +40221,10 @@ enum SortB2BAppHistoryRecordsBy {
   category_DESC
   setupButtonMessage_ASC
   setupButtonMessage_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  label_ASC
+  label_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40098,6 +40258,8 @@ input B2BAppHistoryRecordUpdateInput {
   category: String
   setupButtonMessage: String
   features: JSON
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40132,6 +40294,8 @@ input B2BAppHistoryRecordCreateInput {
   category: String
   setupButtonMessage: String
   features: JSON
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40229,6 +40393,14 @@ type B2BApp {
   """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration] 
   """
   features: [B2BAppGlobalFeature!]
+
+  """ The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1. 
+  """
+  displayPriority: Int
+
+  """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
+  """
+  label: String
   id: ID!
   v: Int
   createdAt: String
@@ -40414,6 +40586,18 @@ input B2BAppWhereInput {
   features_not: [B2BAppGlobalFeature!]
   features_in: [[B2BAppGlobalFeature!]]
   features_not_in: [[B2BAppGlobalFeature!]]
+  displayPriority: Int
+  displayPriority_not: Int
+  displayPriority_lt: Int
+  displayPriority_lte: Int
+  displayPriority_gt: Int
+  displayPriority_gte: Int
+  displayPriority_in: [Int]
+  displayPriority_not_in: [Int]
+  label: String
+  label_not: String
+  label_in: [String]
+  label_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40501,6 +40685,10 @@ enum SortB2BAppsBy {
   setupButtonMessage_DESC
   accessRights_ASC
   accessRights_DESC
+  displayPriority_ASC
+  displayPriority_DESC
+  label_ASC
+  label_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40535,6 +40723,8 @@ input B2BAppUpdateInput {
   setupButtonMessage: String
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40567,6 +40757,8 @@ input B2BAppCreateInput {
   setupButtonMessage: String
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
+  displayPriority: Int
+  label: String
   v: Int
   createdAt: String
   updatedAt: String
