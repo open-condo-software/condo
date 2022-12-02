@@ -1,0 +1,14 @@
+.condo-alert-border() {
+  border: none;
+  border-radius: @condo-global-border-radius-large;
+}
+
+.condo-alert-colors(@background-color, @main-color) {
+  background-color: @background-color;
+  .@{alert-prefix-cls}-icon {
+    color: @main-color;
+  }
+  .@{alert-prefix-cls}-message {
+    color: @main-color;
+  }
+}
