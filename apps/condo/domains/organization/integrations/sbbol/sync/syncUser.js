@@ -1,7 +1,7 @@
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
-const { SBBOL_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { registerUserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -82,12 +82,12 @@ const registerIdentity = async ({ context, user, userInfo }) => {
 const syncUser = async ({ context, userInfo }) => {
     const returnFields = 'id phone email name'
     const identityWhereStatement = {
-        user: { type: 'staff' },
+        user: { type: STAFF },
         identityId: userInfo.importId,
         identityType: SBBOL_IDP_TYPE,
     }
     const userWhereStatement = {
-        type: 'staff',
+        type: STAFF,
         phone: userInfo.phone,
     }
 
