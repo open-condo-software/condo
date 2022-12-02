@@ -1,18 +1,19 @@
 /** @jsx jsx */
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
-import { get } from 'lodash'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+import get from 'lodash/get'
+import React, { CSSProperties, Key, useCallback, useMemo, useState } from 'react'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
-import { DiffOutlined, FilterFilled } from '@ant-design/icons'
+import { DiffOutlined, FilterFilled, CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import { TableRowSelection } from 'antd/lib/table/interface'
 
 import { jsx } from '@emotion/react'
-import { SortTicketsBy } from '@app/condo/schema'
+import { SortTicketsBy, Ticket as ITicket } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -39,7 +40,7 @@ import { EXCEL } from '@condo/domains/common/constants/export'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
 import { useAuth } from '@open-condo/next/auth'
-import { useTicketExportTask } from '@condo/domains/ticket/hooks/useTicketExportTask'
+import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { TableComponents } from 'rc-table/lib/interface'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
@@ -51,6 +52,9 @@ import { useImporterFunctions } from '@condo/domains/ticket/hooks/useImporterFun
 import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
+import ActionBar from '@condo/domains/common/components/ActionBar'
+import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
+import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -64,50 +68,57 @@ const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 const BUTTON_WRAPPER_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
 
-const TicketsTable = ({
-    baseQueryLoading,
-    filterMetas,
+const TicketTable = ({
     sortBy,
+    total,
+    tickets,
+    columns,
+    filters,
+    loading,
+    ticketsWithFiltersCount,
     searchTicketsQuery,
-    useTableColumns,
 }) => {
     const intl = useIntl()
+    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
+    const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
+
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
-    const router = useRouter()
-    const [isRefetching, setIsRefetching] = useState(false)
-
     const auth = useAuth() as { user: { id: string } }
+    const router = useRouter()
 
-    const { filters, offset } = parseQuery(router.query)
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const tooltipData = useFiltersTooltipData()
 
-    const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
+    const [selectedTicketKeys, setSelectedTicketKeys] = useState<Key[]>([])
 
-    const {
-        loading: isTicketsFetching,
-        count: total,
-        objs: tickets,
-        refetch,
-    } = Ticket.useObjects({
-        sortBy,
-        where: searchTicketsQuery,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    })
+    const selectedRowKeysByPage = useMemo(() => {
+        return tickets.filter(ticket => selectedTicketKeys.includes(ticket.id)).map(tickets => tickets.id)
+    }, [selectedTicketKeys, tickets])
 
-    const { TaskLauncher } = useTicketExportTask({
-        where: searchTicketsQuery,
+    const selectedOneTicketId = useMemo(() => {
+        if (selectedTicketKeys.length !== 1) return undefined
+        return String(selectedTicketKeys[0])
+    }, [selectedTicketKeys])
+
+    const { TicketsExportToXlsxButton: TicketsExportToXlsxButton } = useTicketExportToExcelTask({
+        where: { ...searchTicketsQuery },
         sortBy,
         format: EXCEL,
         locale: intl.locale,
         timeZone,
         user: auth.user,
     })
-
-    const { columns, loading: columnsLoading } = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
-
-    const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
+    
+    const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdfTask({
+        ticketId: selectedOneTicketId,
+        locale: intl.locale,
+        user: auth.user,
+        timeZone,
+        where: {
+            'id_in': selectedTicketKeys as string[],
+        },
+        sortBy,
+    })
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -117,7 +128,39 @@ const TicketsTable = ({
         }
     }, [router])
 
-    const tooltipData = useFiltersTooltipData()
+    const handleResetSelectedTickets = useCallback(() => {
+        setSelectedTicketKeys([])
+    }, [])
+
+    const rowSelection: TableRowSelection<ITicket> = useMemo(() => ({
+        selectedRowKeys: selectedRowKeysByPage,
+        fixed: true,
+        onSelect: (record, checked) => {
+            const selectedKey = record.id
+            if (checked) {
+                setSelectedTicketKeys(prevState => [...prevState, selectedKey])
+            } else {
+                setSelectedTicketKeys(prevState => prevState.filter(key => selectedKey !== key))
+            }
+        },
+        columnTitle: (
+            <Checkbox
+                checked={!loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === tickets.length}
+                indeterminate={!loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < tickets.length}
+                onChange={(e) => {
+                    const checked = e.target.checked
+                    if (checked) {
+                        const newSelectedTicketKeys = tickets
+                            .filter(ticket => !selectedRowKeysByPage.includes(ticket.id))
+                            .map(ticket => ticket.id)
+                        setSelectedTicketKeys(prevState => [...prevState, ...newSelectedTicketKeys])
+                    } else {
+                        setSelectedTicketKeys(prevState => prevState.filter(key => !selectedRowKeysByPage.includes(key)))
+                    }
+                }}
+            />
+        ),
+    }), [loading, selectedRowKeysByPage, tickets])
 
     const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
         body: {
@@ -133,21 +176,94 @@ const TicketsTable = ({
         },
     }), [tooltipData, filters, tickets, total])
 
+    const TicketTableContent = useMemo(() => (
+        <Col span={24}>
+            <Table
+                totalRows={total}
+                loading={loading}
+                dataSource={loading ? null : tickets}
+                columns={columns}
+                onRow={handleRowAction}
+                components={tableComponents}
+                data-cy='ticket__table'
+                rowSelection={rowSelection}
+                sticky
+            />
+        </Col>
+    ), [columns, handleRowAction, loading, rowSelection, tableComponents, tickets, total])
+
+    useDeepCompareEffect(() => {
+        setSelectedTicketKeys([])
+    }, [filters, sortBy])
+
     return (
         <>
-            <Col span={24}>
-                <Table
-                    totalRows={total}
-                    loading={loading}
-                    dataSource={tickets}
-                    columns={columns}
-                    onRow={handleRowAction}
-                    components={tableComponents}
-                    data-cy='ticket__table'
-                />
-            </Col>
-            <TaskLauncher hidden={loading} disabled={ticketsWithFiltersCount === 0}/>
+            {TicketTableContent}
+            <ActionBar hidden={loading || ticketsWithFiltersCount === 0}>
+                {selectedTicketKeys.length > 0 && (
+                    <Typography.Text strong>
+                        {CountSelectedTicketLabel}: {selectedTicketKeys.length}
+                    </Typography.Text>
+                )}
+                {selectedTicketKeys.length > 0 && <TicketBlanksExportToPdfButton />}
+                {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
+                {selectedTicketKeys.length > 0 && (
+                    <Button
+                        secondary
+                        type='sberBlack'
+                        children={CancelSelectedTicketLabel}
+                        onClick={handleResetSelectedTickets}
+                        icon={<CloseOutlined />}
+                    />
+                )}
+            </ActionBar>
+            {TicketBlanksExportToPdfModal}
         </>
+    )
+}
+
+const TicketsTableContainer = ({
+    filterMetas,
+    sortBy,
+    searchTicketsQuery,
+    useTableColumns,
+    baseQueryLoading,
+}) => {
+    const { count: ticketsWithFiltersCount } = Ticket.useCount({ where: searchTicketsQuery })
+
+    const router = useRouter()
+    const { filters, offset } = parseQuery(router.query)
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const {
+        loading: isTicketsFetching,
+        count: total,
+        objs: tickets,
+        refetch,
+    } = Ticket.useObjects({
+        sortBy,
+        where: searchTicketsQuery,
+        first: DEFAULT_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+    })
+
+    const [isRefetching, setIsRefetching] = useState(false)
+
+    const { columns, loading: columnsLoading } = useTableColumns(filterMetas, tickets, refetch, isRefetching, setIsRefetching)
+
+    const loading = (isTicketsFetching || columnsLoading || baseQueryLoading) && !isRefetching
+    
+    return (
+        <TicketTable
+            filters={filters}
+            total={total}
+            tickets={tickets}
+            loading={loading}
+            columns={columns}
+            ticketsWithFiltersCount={ticketsWithFiltersCount}
+            searchTicketsQuery={searchTicketsQuery}
+            sortBy={sortBy}
+        />
     )
 }
 
@@ -401,7 +517,7 @@ export const TicketsPageContent = ({
                                             filterMetas={filterMetas}
                                         />
                                     </Col>
-                                    <TicketsTable
+                                    <TicketsTableContainer
                                         useTableColumns={useTableColumns}
                                         filterMetas={filterMetas}
                                         sortBy={sortBy}

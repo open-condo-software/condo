@@ -52,7 +52,7 @@ import { BarSettingIcon } from '@condo/domains/common/components/icons/BarSettin
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { useMiniappTaskUIInterface } from '@condo/domains/common/hooks/useMiniappTaskUIInterface'
-import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTask'
+import { useTicketExportTaskUIInterface } from '@condo/domains/ticket/hooks/useTicketExportTaskUIInterface'
 import { useHotCodeReload } from '@condo/domains/common/hooks/useHotCodeReload'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
