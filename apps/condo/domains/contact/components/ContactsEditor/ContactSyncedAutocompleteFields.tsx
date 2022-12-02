@@ -1,5 +1,6 @@
+import styled from '@emotion/styled'
 import debounce from 'lodash/debounce'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { OptionProps } from 'antd/lib/mentions'
 import { AutoComplete, Col, Radio } from 'antd'
 import { get } from 'lodash'
@@ -26,7 +27,17 @@ interface IContactSyncedAutocompleteFieldsProps {
     contacts: TContact[],
     displayMinusButton?: boolean,
     onClickMinusButton?: () => void,
+    disableNameWhenPhoneMatches?: boolean,
+    unitName?: string
 }
+
+const StyledAutoComplete = styled(AutoComplete)<{ disabled?: boolean }>`
+  width: 100%;
+
+  &.ant-select-disabled > .ant-select-selector > .ant-select-selection-search > input {
+    color: ${colors.black} 
+  }
+`
 
 /**
  * Synchronized pair of "Phone" and "Name" fields.
@@ -34,10 +45,24 @@ interface IContactSyncedAutocompleteFieldsProps {
  * And vise-versa.
  * When value in fields are typed, not selected, `onChange` callback will be fired.
  */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({ refetch, initialQuery, initialValue, onChange, onChecked, checked, contacts, displayMinusButton, onClickMinusButton }) => {
+const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
+    refetch,
+    initialQuery,
+    initialValue,
+    onChange,
+    onChecked,
+    checked,
+    contacts,
+    displayMinusButton,
+    onClickMinusButton,
+    disableNameWhenPhoneMatches = true,
+    unitName,
+}) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
+
     const [value, setValue] = useState(initialValue)
+    const [searchByPhoneLoading, setSearchByPhoneLoading] = useState<boolean>(true)
 
     const searchSuggestions = useCallback(
         async (query) => {
@@ -58,10 +83,12 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     const searchContactByPhone = useCallback(async (query) => {
         const contactName = get(value, 'name', undefined)
 
+        setSearchByPhoneLoading(true)
         await debouncedSearch({
             phone_contains_i: query,
             name_contains_i: contactName,
         })
+        setSearchByPhoneLoading(false)
     }, [debouncedSearch, value])
 
     const searchContactByName = useCallback(async (query) => {
@@ -109,28 +136,53 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
 
     const phoneOptions = useMemo(() => renderOptionsBy('phone'), [renderOptionsBy])
     const nameOptions = useMemo(() => renderOptionsBy('name'), [renderOptionsBy])
+    const disabledNameAutoComplete = disableNameWhenPhoneMatches && (searchByPhoneLoading || phoneOptions.length > 0)
+    const isPhoneFieldFilled = useMemo(() => get(value, 'phone.length') === 12, [value])
+    const setContactByPhoneNumber = useCallback(() => {
+        if (isPhoneFieldFilled && disabledNameAutoComplete && phoneOptions.length > 0) {
+            setValueAndTriggerOnChange(contacts[0])
+        }
+    }, [contacts, disabledNameAutoComplete, isPhoneFieldFilled, phoneOptions.length, setValueAndTriggerOnChange])
+
+    useEffect(() => {
+        const phone = get(value, 'phone')
+
+        if (phone) {
+            setSearchByPhoneLoading(true)
+            debouncedSearch({
+                phone_contains_i: phone,
+            })
+            setSearchByPhoneLoading(false)
+
+            setContactByPhoneNumber()
+        }
+    }, [unitName])
+
+    const handlePhoneBlur = useCallback(() => {
+        setContactByPhoneNumber()
+    }, [setContactByPhoneNumber])
 
     return (
         <>
             <Col span={10}>
-                <AutoComplete
+                <StyledAutoComplete
                     allowClear
                     value={get(value, 'phone')}
                     options={phoneOptions}
                     onSelect={handleSelectContact}
                     onSearch={searchContactByPhone}
+                    onBlur={handlePhoneBlur}
                     onChange={handleChangeContact('phone')}
                     onClear={handleClearContact}
-                    style={{ width: '100%' }}
                 >
                     <PhoneInput
                         block
                         compatibilityWithAntAutoComplete={true}
                     />
-                </AutoComplete>
+                </StyledAutoComplete>
             </Col>
             <Col span={10}>
-                <AutoComplete
+                <StyledAutoComplete
                     allowClear
                     placeholder={NamePlaceholder}
                     value={get(value, 'name')}
@@ -139,7 +191,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     onSearch={searchContactByName}
                     onChange={handleChangeContact('name')}
                     onClear={handleClearContact}
-                    style={{ width: '100%' }}
+                    disabled={disabledNameAutoComplete}
                 />
             </Col>
             <Col span={2}>
@@ -171,7 +223,8 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
 ContactSyncedAutocompleteFields.defaultProps = {
     displayMinusButton: false,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    onClickMinusButton: () => {},
+    onClickMinusButton: () => {
+    },
     contacts: [],
 }
 

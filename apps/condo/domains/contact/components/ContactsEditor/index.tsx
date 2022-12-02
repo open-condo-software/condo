@@ -6,7 +6,6 @@ import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { Gutter } from 'antd/lib/grid/row'
 
-import pick from 'lodash/pick'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -146,7 +145,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone
     const initialTab = (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
-    const initialAutoCompleteFieldsValue = manuallyTypedContact ? manuallyTypedContact : initialValue
+    const initialNotResidentAutoCompleteFieldsValue = !initialValue.id && initialValue
 
     const {
         objs: fetchedContacts,
@@ -193,18 +192,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     useEffect(() => {
         setIsInitialContactsLoaded(false)
         setSelectedContact(null)
-        setManuallyTypedContact(null)
     }, [unitName, unitType])
 
     useEffect(() => {
         form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
-
-        if (activeTab === CONTACT_TYPE.NOT_RESIDENT) {
-            form.setFieldsValue({
-                [fields.id]: null,
-            })
-        }
-    }, [activeTab, fields.id, form])
+    }, [activeTab, fields.id, fields.name, fields.phone, form])
 
     useEffect(() => {
         if (hasNotResidentTab) {
@@ -221,8 +213,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [initialTab])
 
     const handleClickOnPlusButton = useCallback(() => {
-        setDisplayEditableContactFields(true)
+        setManuallyTypedContact(null)
         setSelectedContact(null)
+        setDisplayEditableContactFields(true)
         setEditableFieldsChecked(true)
     }, [])
 
@@ -253,7 +246,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleChangeContact = debounce((contact) => {
         // User can manually type phone and name, that will match already existing contact,
         // so, it should be connected with ticket
-        const fetchedContact = find(fetchedContacts, { ...pick(contact, 'phone'), unitName: unitName || null })
+        const fetchedContact = find(fetchedContacts, { ...get(contact, 'phone'), unitName: unitName || null })
         const contactToSet = fetchedContact || contact
 
         triggerOnChange(contactToSet, !fetchedContact)
@@ -338,9 +331,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 <ContactSyncedAutocompleteFields
                                     refetch={refetchContacts}
                                     initialQuery={initialContactsQuery}
-                                    initialValue={initialAutoCompleteFieldsValue}
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
+                                    initialValue={manuallyTypedContact}
                                 />
                             ) : (
                                 <>
@@ -354,13 +347,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 <ContactSyncedAutocompleteFields
                                                     initialQuery={initialContactsQuery}
                                                     refetch={refetchContacts}
-                                                    initialValue={initialAutoCompleteFieldsValue}
                                                     onChange={handleChangeContact}
                                                     onChecked={handleSyncedFieldsChecked}
                                                     checked={editableFieldsChecked}
                                                     contacts={fetchedContacts}
                                                     displayMinusButton={true}
                                                     onClickMinusButton={handleClickOnMinusButton}
+                                                    initialValue={manuallyTypedContact}
+                                                    unitName={unitName}
                                                 />
                                                 {(!get(role, 'canManageContacts')) && (
                                                     <Col span={24}>
@@ -401,9 +395,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     <ContactSyncedAutocompleteFields
                                         initialQuery={initialEmployeesQuery}
                                         refetch={refetchEmployees}
-                                        initialValue={initialAutoCompleteFieldsValue}
+                                        initialValue={initialNotResidentAutoCompleteFieldsValue}
                                         onChange={handleChangeEmployee}
                                         contacts={fetchedEmployees}
+                                        disableNameWhenPhoneMatches={false}
                                     />
                                 </Row>
                             </TabPane>
