@@ -33,7 +33,7 @@ const { get, cloneDeep } = require('lodash')
 const { getRedisClient } = require('./redis')
 const { getLogger } = require('./logging')
 
-const UPDATED_AT = 'updatedAt'
+const UPDATED_AT_FIELD = 'updatedAt'
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 
 const logger = getLogger('adapterCache')
@@ -64,9 +64,9 @@ class AdapterCacheMiddleware {
             // Else:
             // ==> only lists, that are in "includedLists" are cached.
             // ==> lists that are in "excludedLists" are NOT cached.
-            this.includeAllLists = true // get(parsedConfig, 'includeAllLists', false)
+            this.includeAllLists = (parsedConfig, 'includeAllLists', false)
             this.includedLists = get(parsedConfig, 'includedLists', [])
-            this.excludedLists = [] // get(parsedConfig, 'excludedLists', [])
+            this.excludedLists = get(parsedConfig, 'excludedLists', [])
 
             // Logging allows to get the percentage of cache hits
             this.logging = get(parsedConfig, 'logging', false)
@@ -214,9 +214,14 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         const listName = listAdapter.key
         cache[listName] = {}
 
+        const fields = listAdapter.fieldAdaptersByPath
+        if (!fields[UPDATED_AT_FIELD] || !fields[UPDATED_AT_FIELD]) {
+            logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName} -> No ${UPDATED_AT_FIELD} field`)
+        }
+
         if (excludedLists.includes(listName) ||
             !includeAllLists && !includedLists.includes(listName)) {
-            logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName}`)
+            logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName} -> Cache is not included by config`)
             continue
         }
 
@@ -298,7 +303,6 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) {
     return async ( ...args ) => {
         const functionResult = await f.apply(listAdapter, args )
-        await cache.setState(listName, functionResult[UPDATED_AT])
 
         if (cache.debugMode) {
             const cacheEvent = cache.getCacheEvent({ type: listName, table: listName })
