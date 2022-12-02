@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import { EditFilled, FilePdfFilled } from '@ant-design/icons'
+import { EditFilled } from '@ant-design/icons'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -61,6 +61,7 @@ import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -99,7 +100,6 @@ const HINT_CARD_STYLE = { maxHeight: '3em ' }
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
-    const PrintMessage = intl.formatMessage({ id: 'Print' })
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
@@ -113,6 +113,8 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
+
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
@@ -245,6 +247,15 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
 
         return timeSinceCreation.join(' ')
     }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, statusUpdatedAt])
+
+    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
+        ticketId: id,
+        locale: intl.locale,
+        user: auth.user,
+        timeZone,
+        where: { id },
+        sortBy: [],
+    })
 
     return (
         <>
@@ -380,17 +391,10 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                         </Button>
                                     </Link>
                                     {
-                                        !isSmall && (
-                                            <Button
-                                                type='sberDefaultGradient'
-                                                icon={<FilePdfFilled />}
-                                                href={`/ticket/${ticket.id}/pdf`}
-                                                target='_blank'
-                                                secondary
-                                            >
-                                                {PrintMessage}
-                                            </Button>
-                                        )
+                                        !isSmall && <>
+                                            <TicketBlanksExportToPdfButton />
+                                            {TicketBlanksExportToPdfModal}
+                                        </>
                                     }
                                     {
                                         canShareTickets
