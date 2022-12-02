@@ -33,7 +33,6 @@ describe('syncUser from SBBOL', () => {
             const newUser = await syncUser({ context, userInfo: userData })
             expect(newUser.name).toBeDefined()
             expect(newUser.id).toBeDefined()
-            expect(newUser.phone).toBeDefined()
             const [ checkUser ] = await UserApi.getAll(adminContext, { id: newUser.id })
             expect(checkUser).toBeDefined()
             const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
@@ -66,7 +65,6 @@ describe('syncUser from SBBOL', () => {
             userData.phone = existingUserPhone
             const user = await syncUser({ context, userInfo: userData })
             expect(user.id).toEqual(existingUser.id)
-            expect(user.phone).toEqual(existingUserPhone)
 
             const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
                 identityId: userData.importId,
@@ -133,8 +131,7 @@ describe('syncUser from SBBOL', () => {
                 const newUser = await syncUser({ context, userInfo: userData })
                 expect(newUser.name).toBeDefined()
                 expect(newUser.id).toBeDefined()
-                expect(newUser.phone).toEqual(userData.phone)
-                expect(newUser.email).toEqual(userData.email)
+                expect(newUser.id).not.toEqual(idOfFirstAnotherUser)
                 const [ updatedExistingUser ] = await getItems({
                     keystone,
                     listKey: 'User',
@@ -159,8 +156,7 @@ describe('syncUser from SBBOL', () => {
                 const syncedUser = await syncUser({ context, userInfo: userData })
                 expect(syncedUser.name).toBeDefined()
                 expect(syncedUser.id).toBeDefined()
-                expect(syncedUser.phone).toEqual(userData.phone)
-                expect(syncedUser.email).toEqual(userData.email)
+                expect(syncedUser.id).not.toEqual(idOfFirstAnotherUser)
                 const [ updatedExistingUser ] = await getItems({
                     keystone,
                     listKey: 'User',

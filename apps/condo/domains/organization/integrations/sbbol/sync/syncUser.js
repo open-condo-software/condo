@@ -1,5 +1,4 @@
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
-const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
 const { registerUserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
@@ -7,6 +6,7 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { dvSenderFields } = require('../constants')
+const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 
 const createOnboarding = async ({ keystone, user }) => {
     const userContext = await keystone.createContext({
@@ -39,30 +39,18 @@ const createOnboarding = async ({ keystone, user }) => {
  */
 const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToExclude, context }) => {
     if (!email) throw new Error('email argument is not specified')
-    const [ existingUser ] = await getItems({
-        ...context,
-        listKey: 'User',
-        where: { email, id_not: userIdToExclude },
-        returnFields: 'id type name email phone',
-    })
+
+    const [ existingUser ] = await User.getAll(context, { email, id_not: userIdToExclude })
     if (existingUser && existingUser.id !== userIdToExclude) {
-        await updateItem({
-            listKey: 'User',
-            item: {
-                id: existingUser.id,
-                data: {
-                    email: null,
-                    ...dvSenderFields,
-                },
-            },
-            returnFields: 'id',
-            ...context,
+        await User.update(context, existingUser.id, {
+            email: null,
+            ...dvSenderFields,
         })
     }
 }
 
 const registerIdentity = async ({ context, user, userInfo }) => {
-    await registerUserExternalIdentity(context.context, {
+    await registerUserExternalIdentity(context, {
         ...dvSenderFields,
         user: { id: user.id },
         identityId: userInfo.importId,
@@ -79,8 +67,7 @@ const registerIdentity = async ({ context, user, userInfo }) => {
  * @param dvSenderFields
  * @return {Promise<{importId}|*>}
  */
-const syncUser = async ({ context, userInfo }) => {
-    const returnFields = 'id phone email name'
+const syncUser = async ({ context: { context, keystone }, userInfo }) => {
     const identityWhereStatement = {
         user: { type: STAFF },
         identityId: userInfo.importId,
@@ -92,20 +79,12 @@ const syncUser = async ({ context, userInfo }) => {
     }
 
     // let's search users by UserExternalIdentity and phone
-    const importedUsers = (await getItems({
-        ...context,
-        listKey: 'UserExternalIdentity',
-        where: identityWhereStatement,
-        returnFields: `id user { ${returnFields} }`,
-    })).map(identity => identity.user)
-    const notImportedUsers = await getItems({
-        ...context,
-        listKey: 'User',
-        where: {
-            ...userWhereStatement,
-            id_not_in: importedUsers.map(identity => identity.user.id),
-        },
-        returnFields,
+
+    const importedUsers = (await UserExternalIdentity.getAll(context, identityWhereStatement))
+        .map(identity => identity.user)
+    const notImportedUsers = await User.getAll(context, {
+        ...userWhereStatement,
+        id_not_in: importedUsers.map(identity => identity.user.id),
     })
     const existingUsers = [...notImportedUsers, ...importedUsers]
     const existingUsersCount = existingUsers.length
@@ -122,12 +101,7 @@ const syncUser = async ({ context, userInfo }) => {
         }
 
         // create a user
-        const user = await createItem({
-            listKey: 'User',
-            item: { ...userInfo, ...dvSenderFields },
-            returnFields,
-            ...context,
-        })
+        const user = await User.create(context, { ...userInfo, ...dvSenderFields })
 
         // register a UserExternalIdentity
         await registerIdentity({
@@ -136,7 +110,7 @@ const syncUser = async ({ context, userInfo }) => {
 
         // SBBOL works only in Russia, another languages does not need t
         const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-        await sendMessage(context.context, {
+        await sendMessage(context, {
             lang,
             to: {
                 user: {
@@ -153,7 +127,7 @@ const syncUser = async ({ context, userInfo }) => {
             ...dvSenderFields,
         })
 
-        await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
+        await createOnboarding({ keystone, user, dvSenderFields })
         return user
     }
 
@@ -175,17 +149,9 @@ const syncUser = async ({ context, userInfo }) => {
         if (!user.isPhoneVerified && user.phone === phone) {
             update.isPhoneVerified = true
         }
-        const updatedUser = await updateItem({
-            listKey: 'User',
-            item: {
-                id: user.id,
-                data: {
-                    ...update,
-                    ...dvSenderFields,
-                },
-            },
-            returnFields,
-            ...context,
+        const updatedUser = await User.update(context, user.id, {
+            ...update,
+            ...dvSenderFields,
         })
 
         // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
