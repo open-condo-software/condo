@@ -64,7 +64,7 @@ class AdapterCacheMiddleware {
             // Else:
             // ==> only lists, that are in "includedLists" are cached.
             // ==> lists that are in "excludedLists" are NOT cached.
-            this.includeAllLists = get(parsedConfig, 'includeAllLists', false)
+            this.includeAllLists = !!get(parsedConfig, 'includeAllLists', false)
             this.includedLists = get(parsedConfig, 'includedLists', [])
             this.excludedLists = get(parsedConfig, 'excludedLists', [])
 
