@@ -1193,6 +1193,7 @@
   "You": "you",
   "contact.Contact.ContactsEditor.AddNewContact": "New contact",
   "contact.Contact.ContactsEditor.Phone": "Phone",
+  "contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists": "This unitName already has this phone number, select a contact from the list",
   "contact.Contact.ContactsEditor.Name": "Name",
   "contact.Contact.ContactsEditor.Name.placeholder": "Full name",
   "contact.Contact.ContactsEditor.AnotherContact": "Another contact",

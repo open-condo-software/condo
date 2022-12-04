@@ -1,3 +1,4 @@
+import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Row, Tabs } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -19,11 +20,13 @@ import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { normalizePhone } from '../../../common/utils/phone'
 
 import { Labels } from './Labels'
-import { ContactSyncedAutocompleteFields } from './ContactSyncedAutocompleteFields'
+import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
 import { ContactOption } from './ContactOption'
 import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
+import { NotResidentFields } from './NotResidentFields'
 
 const DEBOUNCE_TIMEOUT = 800
 
@@ -42,6 +45,11 @@ export type ContactFields = {
 export type ContactValue = ContactFields & {
     id?: string,
 }
+export type FieldsType = {
+    id: string,
+    phone: string,
+    name: string,
+}
 
 export interface IContactEditorProps {
     form: FormInstance<any>,
@@ -49,11 +57,7 @@ export interface IContactEditorProps {
     // Fields `clientName` and `clientPhone` are not hardcoded to make this component
     // usable in any form, where contact information fields may be different.
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
-    fields: {
-        id: string,
-        phone: string,
-        name: string,
-    },
+    fields: FieldsType,
     value?: ContactValue,
     onChange: (contact: ContactFields, isNew: boolean) => void,
 
@@ -90,7 +94,7 @@ const BUTTON_STYLE: CSSProperties = {
     paddingLeft: '5px',
 }
 
-enum CONTACT_TYPE {
+export enum CONTACT_TYPE {
     RESIDENT = 'resident',
     NOT_RESIDENT = 'notResident',
 }
@@ -115,7 +119,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         property,
         unitName,
         unitType,
-        allowLandLine,
         hasNotResidentTab = true,
     } = props
 
@@ -151,7 +154,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         objs: fetchedContacts,
         loading: contactsLoading,
         error,
-        refetch: refetchContacts,
     } = Contact.useObjects({
         where: initialContactsQuery,
         first: 100,
@@ -165,10 +167,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         first: 100,
     })
 
-    const { phoneValidator } = useValidations({ allowLandLine })
-    const validations = {
-        phone: [phoneValidator],
-    }
+    useEffect(() => {
+        if (!contactsLoading) {
+            form.validateFields([NEW_CONTACT_PHONE_FORM_ITEM_NAME])
+        }
+    }, [form, unitName, contactsLoading])
 
     useEffect(() => {
         if (!isInitialContactsLoaded && !contactsLoading) {
@@ -328,12 +331,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 right={FullNameLabel}
                             />
                             {isEmpty(initialContacts) || !unitName ? (
-                                <ContactSyncedAutocompleteFields
-                                    refetch={refetchContacts}
-                                    initialQuery={initialContactsQuery}
+                                <NewContactFields
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
                                     initialValue={manuallyTypedContact}
+                                    form={form}
+                                    fields={fields}
+                                    activeTab={activeTab}
                                 />
                             ) : (
                                 <>
@@ -344,9 +348,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                 <Labels
                                                     left={AnotherContactLabel}
                                                 />
-                                                <ContactSyncedAutocompleteFields
-                                                    initialQuery={initialContactsQuery}
-                                                    refetch={refetchContacts}
+                                                <NewContactFields
                                                     onChange={handleChangeContact}
                                                     onChecked={handleSyncedFieldsChecked}
                                                     checked={editableFieldsChecked}
@@ -354,7 +356,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     displayMinusButton={true}
                                                     onClickMinusButton={handleClickOnMinusButton}
                                                     initialValue={manuallyTypedContact}
-                                                    unitName={unitName}
+                                                    form={form}
+                                                    fields={fields}
+                                                    activeTab={activeTab}
                                                 />
                                                 {(!get(role, 'canManageContacts')) && (
                                                     <Col span={24}>
@@ -392,13 +396,12 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                         left={PhoneLabel}
                                         right={FullNameLabel}
                                     />
-                                    <ContactSyncedAutocompleteFields
+                                    <NotResidentFields
                                         initialQuery={initialEmployeesQuery}
                                         refetch={refetchEmployees}
                                         initialValue={initialNotResidentAutoCompleteFieldsValue}
                                         onChange={handleChangeEmployee}
-                                        contacts={fetchedEmployees}
-                                        disableNameWhenPhoneMatches={false}
+                                        employees={fetchedEmployees}
                                     />
                                 </Row>
                             </TabPane>
@@ -433,7 +436,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         <Form.Item
                             name={fields.phone}
                             validateFirst
-                            rules={validations.phone}>
+                        >
                             <Input value={get(value, 'phone')}/>
                         </Form.Item>
                     </ErrorContainerOfHiddenControl>

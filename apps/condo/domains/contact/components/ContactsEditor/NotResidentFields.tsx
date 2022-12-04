@@ -9,26 +9,24 @@ import { MinusCircleOutlined } from '@ant-design/icons'
 import { useIntl } from '@open-condo/next/intl'
 
 import { colors } from '@condo/domains/common/constants/style'
-import { Contact as TContact } from '@condo/domains/contact/schema'
+import { OrganizationEmployee } from '@condo/domains/contact/schema'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 
 import { ContactValue } from './index'
 
 const DEBOUNCE_TIMEOUT_IN_MS = 800
 
-interface IContactSyncedAutocompleteFieldsProps {
+interface INotResidentFieldsFieldsProps {
     refetch,
     initialQuery?,
-    initialValue?: TContact,
+    initialValue?: OrganizationEmployee,
     onChange: (contact: ContactValue) => void,
     onChecked?: () => void,
     checked?: boolean,
     // Used for autocomplete
-    contacts: TContact[],
+    employees: OrganizationEmployee[],
     displayMinusButton?: boolean,
     onClickMinusButton?: () => void,
-    disableNameWhenPhoneMatches?: boolean,
-    unitName?: string
 }
 
 const StyledAutoComplete = styled(AutoComplete)<{ disabled?: boolean }>`
@@ -39,30 +37,21 @@ const StyledAutoComplete = styled(AutoComplete)<{ disabled?: boolean }>`
   }
 `
 
-/**
- * Synchronized pair of "Phone" and "Name" fields.
- * When a phone will be selected, "Name" field should reflect appropriate value for selected contact
- * And vise-versa.
- * When value in fields are typed, not selected, `onChange` callback will be fired.
- */
-const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFieldsProps> = ({
+const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     refetch,
     initialQuery,
     initialValue,
     onChange,
     onChecked,
     checked,
-    contacts,
+    employees,
     displayMinusButton,
     onClickMinusButton,
-    disableNameWhenPhoneMatches = true,
-    unitName,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
 
     const [value, setValue] = useState(initialValue)
-    const [searchByPhoneLoading, setSearchByPhoneLoading] = useState<boolean>(true)
 
     const searchSuggestions = useCallback(
         async (query) => {
@@ -80,18 +69,16 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
         [searchSuggestions],
     )
 
-    const searchContactByPhone = useCallback(async (query) => {
+    const searchEmployeeByPhone = useCallback(async (query) => {
         const contactName = get(value, 'name', undefined)
 
-        setSearchByPhoneLoading(true)
         await debouncedSearch({
             phone_contains_i: query,
             name_contains_i: contactName,
         })
-        setSearchByPhoneLoading(false)
     }, [debouncedSearch, value])
 
-    const searchContactByName = useCallback(async (query) => {
+    const searchEmployeeByName = useCallback(async (query) => {
         const contactPhone = get(value, 'phone', undefined)
 
         await debouncedSearch({
@@ -126,41 +113,16 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     }
 
     const renderOptionsBy = useCallback((prop) =>
-        contacts.map(contact => ({
+        employees.map(contact => ({
             value: contact[prop],
             item: contact,
             children: null,
             key: contact.id,
         }))
-    , [contacts])
+    , [employees])
 
     const phoneOptions = useMemo(() => renderOptionsBy('phone'), [renderOptionsBy])
     const nameOptions = useMemo(() => renderOptionsBy('name'), [renderOptionsBy])
-    const disabledNameAutoComplete = disableNameWhenPhoneMatches && (searchByPhoneLoading || phoneOptions.length > 0)
-    const isPhoneFieldFilled = useMemo(() => get(value, 'phone.length') === 12, [value])
-    const setContactByPhoneNumber = useCallback(() => {
-        if (isPhoneFieldFilled && disabledNameAutoComplete && phoneOptions.length > 0) {
-            setValueAndTriggerOnChange(contacts[0])
-        }
-    }, [contacts, disabledNameAutoComplete, isPhoneFieldFilled, phoneOptions.length, setValueAndTriggerOnChange])
-
-    useEffect(() => {
-        const phone = get(value, 'phone')
-
-        if (phone) {
-            setSearchByPhoneLoading(true)
-            debouncedSearch({
-                phone_contains_i: phone,
-            })
-            setSearchByPhoneLoading(false)
-
-            setContactByPhoneNumber()
-        }
-    }, [unitName])
-
-    const handlePhoneBlur = useCallback(() => {
-        setContactByPhoneNumber()
-    }, [setContactByPhoneNumber])
 
     return (
         <>
@@ -170,8 +132,7 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     value={get(value, 'phone')}
                     options={phoneOptions}
                     onSelect={handleSelectContact}
-                    onSearch={searchContactByPhone}
-                    onBlur={handlePhoneBlur}
+                    onSearch={searchEmployeeByPhone}
                     onChange={handleChangeContact('phone')}
                     onClear={handleClearContact}
                 >
@@ -188,10 +149,9 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
                     value={get(value, 'name')}
                     options={nameOptions}
                     onSelect={handleSelectContact}
-                    onSearch={searchContactByName}
+                    onSearch={searchEmployeeByName}
                     onChange={handleChangeContact('name')}
                     onClear={handleClearContact}
-                    disabled={disabledNameAutoComplete}
                 />
             </Col>
             <Col span={2}>
@@ -220,14 +180,14 @@ const ContactSyncedAutocompleteFields: React.FC<IContactSyncedAutocompleteFields
     )
 }
 
-ContactSyncedAutocompleteFields.defaultProps = {
+NotResidentFields.defaultProps = {
     displayMinusButton: false,
     // eslint-disable-next-line @typescript-eslint/no-empty-function
     onClickMinusButton: () => {
     },
-    contacts: [],
+    employees: [],
 }
 
 export {
-    ContactSyncedAutocompleteFields,
+    NotResidentFields,
 }
