@@ -12,6 +12,7 @@ import {
     Typography,
     Space,
 } from 'antd'
+import omitBy from 'lodash/omitBy'
 import { Options } from 'scroll-into-view-if-needed'
 
 import { Modal } from '@condo/domains/common/components/Modal'
@@ -29,6 +30,7 @@ import { colors } from '@condo/domains/common/constants/style'
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
+const IGNORE_FIELD_PREFIX = 'IGNORE'
 
 class ValidationError extends Error {
     constructor (message, field = NON_FIELD_ERROR_NAME) {
@@ -311,7 +313,10 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
         try {
-            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
+            data = formValuesToMutationDataPreprocessor ?
+                formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) :
+                values
+            data = omitBy(data, (_, fieldName) => fieldName.startsWith(IGNORE_FIELD_PREFIX))
         } catch (err) {
             if (err instanceof ValidationError) {
                 let errors = []

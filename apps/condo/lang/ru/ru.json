@@ -1193,6 +1193,7 @@
   "You": "вы",
   "contact.Contact.ContactsEditor.AddNewContact": "Новый контакт",
   "contact.Contact.ContactsEditor.Phone": "Телефон",
+  "contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists": "Такой номер телефона уже есть у этого помещения, выберите контакт из списка",
   "contact.Contact.ContactsEditor.Name": "ФИО",
   "contact.Contact.ContactsEditor.Name.placeholder": "Фамилия Имя Отчество",
   "contact.Contact.ContactsEditor.AnotherContact": "Другой контакт",
