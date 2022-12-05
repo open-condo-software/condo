@@ -113,7 +113,11 @@ export const CreateTicketForm: React.FC = () => {
                 const isResidentTicket = !!get(ticket, 'contact')
                 if (clientPhone && ticketPropertyId) {
                     const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
-                    await router.push(`/phone/${clientPhone}?tab=${getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName)}`)
+                    await router.push(
+                        `/phone/${clientPhone}?tab=${
+                            getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName, ticket.unitType)
+                        }`
+                    )
                 }
             } else {
                 await router.push('/ticket')

@@ -147,7 +147,7 @@ const SearchByPhoneSelect = ({
         }
 
         return resultOptions
-    }, [EmployeesOptGroupMessage, NotResidentsOptGroupMessage, ResidentsOptGroupMessage])
+    }, [EmployeesOptGroupMessage, NotResidentsOptGroupMessage, ResidentsOptGroupMessage, phone])
     const handleSearch = useCallback((value) => setPhone(value), [])
 
     return (

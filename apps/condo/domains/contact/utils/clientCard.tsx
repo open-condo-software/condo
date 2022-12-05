@@ -11,6 +11,7 @@ import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { useIntl } from '@open-condo/next/intl'
+import { BuildingUnitSubType, BuildingUnitType } from '../../../schema'
 
 export enum ClientType {
     Resident,
@@ -30,6 +31,7 @@ const SEARCH_BY_PHONE = gql`
             phone
             property { ${TICKET_PROPERTY_FIELDS} }
             unitName
+            unitType
         }
       
         tickets: allTickets(
@@ -39,6 +41,7 @@ const SEARCH_BY_PHONE = gql`
           clientName
           clientPhone
           unitName
+          unitType
       }
       
         employees: allOrganizationEmployees(
@@ -62,7 +65,6 @@ async function _search (client, query, variables) {
 }
 
 export function searchByPhone (organizationId, ticketsWhereInput) {
-    console.log('ticketsWhereInput', ticketsWhereInput)
     if (!organizationId || !ticketsWhereInput) return
 
     return async function (client, phone) {
@@ -79,8 +81,8 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
         if (error) console.warn(error)
 
         const employees = []
-        const contacts = data.contacts.map(({ id, phone, property, unitName }) => ({
-            value: id, phone, property, unitName, type: ClientType.Resident,
+        const contacts = data.contacts.map(({ id, phone, property, unitName, unitType }) => ({
+            value: id, phone, property, unitName, unitType, type: ClientType.Resident,
         }))
         const tickets = data.tickets.filter(ticket => {
             const employee = data.employees.find(employee => employee.phone === ticket.clientPhone)
@@ -90,6 +92,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
                     phone: ticket.clientPhone,
                     property: ticket.property,
                     unitName: ticket.unitName,
+                    unitType: ticket.unitType,
                     type: ClientType.NotResident,
                     isEmployee: true,
                 })
@@ -101,6 +104,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
             phone: ticket.clientPhone,
             property: ticket.property,
             unitName: ticket.unitName,
+            unitType: ticket.unitType,
             type: ClientType.NotResident,
         }))
 
@@ -111,14 +115,17 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
 const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
 const LINK_STYLES = { fontSize: fontSizes.label, color: colors.black }
 
-const SearchByPhoneSelectOption = ({ phone, property, unitName, type }) => {
+const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ShortFlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const unitNameMessage = unitName && ` ${ShortFlatMessage} ${unitName}`
+    const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
+
+    const prefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : ShortFlatMessage
+    const unitNameMessage = unitName && ` ${prefix} ${unitName}`
 
     return (
-        <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(property.id, type, unitName)}`} style={LINK_STYLES}>
+        <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(property.id, type, unitName, unitType)}`} style={LINK_STYLES}>
             <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                 <Col>
                     <Typography.Text strong>
@@ -140,8 +147,8 @@ export const mapSearchItemToOption = (item, phone, type) => (
     </Select.Option>
 )
 
-export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string): string => {
-    const keyData = { property: propertyId, unitName, type }
+export const getClientCardTabKey = (propertyId: string, type: ClientType, unitName?: string, unitType?: string): string => {
+    const keyData = { property: propertyId, unitName, unitType, type }
 
     return JSON.stringify(keyData)
 }
