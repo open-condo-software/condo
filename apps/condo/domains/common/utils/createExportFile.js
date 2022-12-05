@@ -10,8 +10,8 @@ const EXCEL_FILE_META = {
     encoding: 'UTF-8',
 }
 
-const render = (pathToTemplate, replaces) => new Promise((resolve, reject) => {
-    carbone.render(pathToTemplate, replaces, (err, result) => {
+const render = (pathToTemplate, replaces, options = {}) => new Promise((resolve, reject) => {
+    carbone.render(pathToTemplate, replaces, options, (err, result) => {
         if (err) {
             return reject(err)
         } else {
@@ -49,10 +49,11 @@ async function createExportFile ({ fileName, templatePath, replaces, meta }) {
  * TODO(antonal): make this function to work with many formats, not only Excel
  * @param templatePath path to Excel file template
  * @param replaces
+ * @param options
  * @return {Promise<{ stream }>}
  */
-async function buildExportFile ({ templatePath, replaces }) {
-    const content = await render(path.resolve(templatePath), replaces)
+async function buildExportFile ({ templatePath, replaces, options }) {
+    const content = await render(path.resolve(templatePath), replaces, options)
     const stream = Readable.from(content)
     return { stream }
 }
@@ -61,4 +62,5 @@ module.exports = {
     EXCEL_FILE_META,
     createExportFile,
     buildExportFile,
+    render,
 }
