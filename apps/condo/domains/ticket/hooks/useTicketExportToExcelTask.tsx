@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react'
 import { FileExcelFilled } from '@ant-design/icons'
+import get from 'lodash/get'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -8,6 +9,7 @@ import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLaun
 import { Button } from '@condo/domains/common/components/Button'
 
 import { useTicketExportTaskUIInterface } from './useTicketExportTaskUIInterface'
+
 
 export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, timeZone, user }) => {
     const intl = useIntl()
@@ -23,7 +25,7 @@ export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, time
         sortBy,
         locale,
         timeZone,
-        user: { connect: { id: user.id } },
+        user: { connect: { id: get(user, 'id', null) } },
     })
 
     const TicketsExportToXlsxButton = useCallback(() => (
