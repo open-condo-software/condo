@@ -424,6 +424,7 @@ const NotResidentClientTabContent = ({ property, unitName, unitType, phone }) =>
         unitType,
         clientPhone: phone,
         clientName_not: null,
+        isResidentTicket: false,
     }), [phone, property, unitName, unitType])
 
     const handleTicketCreateClick = useCallback(async (ticket) => {
@@ -548,7 +549,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
         })
 
         return [addAddressTab, ...addressTabs].filter(Boolean)
-    }, [activeTab, handleTabChange, tabsData])
+    }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, tabsData])
 
     return (
         <>
@@ -596,6 +597,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
             ...baseQuery,
             clientPhone: phoneNumber,
             isResidentTicket: false,
+            contact_is_null: true,
         },
     })
 
