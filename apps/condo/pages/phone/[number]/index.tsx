@@ -1,4 +1,5 @@
 import Carousel from '@condo/domains/common/components/Carousel'
+import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { EllipsisConfig } from 'antd/es/typography/Base'
@@ -605,9 +606,14 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
             property: ticket.property,
             unitName: ticket.unitName,
         })), 'property.id')
+        const employeesData = uniqBy(employeeTickets.map(ticket => ({
+            type: ClientType.NotResident,
+            property: ticket.property,
+            unitName: ticket.unitName,
+        })), 'property.id')
 
-        return [...contactsData, ...notResidentData]
-    }, [contacts, notResidentTickets])
+        return [...contactsData, ...notResidentData, ...employeesData]
+    }, [contacts, employeeTickets, notResidentTickets])
 
     return (
         <ClientCardPageContent
@@ -623,7 +629,8 @@ const ClientCardPage = () => {
     const organizationId = get(organization, 'id', null)
     const canManageContacts = !!get(link, 'role.canManageContacts')
 
-    const baseQuery = { organization: { id: organizationId } }
+    const { ticketFilterQuery } = useTicketVisibility()
+    const baseQuery = { ...ticketFilterQuery, organization: { id: organizationId } }
 
     return (
         <ClientCardPageContentWrapper baseQuery={baseQuery} canManageContacts={canManageContacts}/>
