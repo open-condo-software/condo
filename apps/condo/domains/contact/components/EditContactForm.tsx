@@ -91,7 +91,7 @@ export const EditContactForm: React.FC = () => {
             const phone = contact.phone
             const propertyId = get(contact, 'property.id')
             if (phone && propertyId) {
-                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName)}`)
+                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName, contact.unitType)}`)
             }
         } else {
             await router.push('/contact/')

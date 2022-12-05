@@ -1,5 +1,5 @@
 import { isEmpty } from 'lodash'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Gutter } from 'antd/es/grid/row'
 import { useIntl } from '@open-condo/next/intl'
 import { Col, FormInstance, Row } from 'antd'
@@ -118,6 +118,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
             const sections = get(property, ['map', unitDestination], [])
             const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
 
+            if (setSelectedUnitType) setSelectedUnitType(unitType)
             if (setSelectedSectionType) setSelectedSectionType(sectionType)
 
             return form.setFieldsValue({ sectionName, sectionType, floorName, unitType, unitName })
@@ -125,6 +126,10 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
         form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
     }, [property, setSelectedSectionType])
+
+    useEffect(() => {
+        updateSectionAndFloor(form, get(initialValues, 'unitName'), get(initialValues, 'unitType'))
+    }, [form, initialValues, updateSectionAndFloor])
 
     const handleUnitNameInputChange = useCallback((_, option: UnitNameInputOption) => {
         if (!option) {
