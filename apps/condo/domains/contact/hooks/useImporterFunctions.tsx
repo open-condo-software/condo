@@ -188,7 +188,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             unitName,
             unitType,
         })
-        const alreadyCreated = data.objs.some(contact => phones.includes(contact.phone) && contact.name === row.addons.fullName)
+        const alreadyCreated = data.objs.some(contact => phones.includes(contact.phone))
 
         if (alreadyCreated) errors.push(AlreadyCreatedContactMessage)
 
