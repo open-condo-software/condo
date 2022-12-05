@@ -10,7 +10,6 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Col, Form, Row, Space, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import get from 'lodash/get'
@@ -55,7 +54,6 @@ export const EditContactForm: React.FC = () => {
 
     const { isSmall } = useLayoutContext()
     const router = useRouter()
-    const { organization, link } = useOrganization()
     const contactId = get(router, 'query.id', '')
 
     const {
@@ -66,9 +64,6 @@ export const EditContactForm: React.FC = () => {
     } = Contact.useObject({
         where: {
             id: String(contactId),
-            organization: {
-                id: String(organization.id),
-            },
         },
     })
 
@@ -78,7 +73,7 @@ export const EditContactForm: React.FC = () => {
         where: {
             OR: [
                 { organization_is_null: true },
-                { organization: { id: get(organization, 'id', null) } },
+                { organization: { id: get(contact, 'organization.id', null) } },
             ],
         },
     })
@@ -125,12 +120,6 @@ export const EditContactForm: React.FC = () => {
     }
     if (!contact) {
         return <LoadingOrErrorPage title={ContactNotFoundTitle} loading={false} error={ContactNotFoundMessage}/>
-    }
-
-    const isContactEditable = get(link, ['role', 'canManageContacts'], null)
-
-    if (!isContactEditable) {
-        return <LoadingOrErrorPage title={ProfileUpdateTitle} loading={false} error={NoPermissionMessage}/>
     }
 
     const formAction = (formValues) => {
