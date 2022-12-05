@@ -36,9 +36,7 @@ const suggestionContexts = {
     },
     userRuntime: {
         [DADATA_PROVIDER]: {
-            from_bound: {
-                value: 'country',
-            },
+            from_bound: { value: 'country' },
         },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
@@ -48,9 +46,11 @@ const suggestionContexts = {
      */
     serverSide: {
         [DADATA_PROVIDER]: {
-            from_bound: {
-                value: 'house',
-            },
+            // NOTE: Used search from house to house for preventing results for country only etc.
+            // Since we don't need such suggestions on server side
+            from_bound: { value: 'house' },
+            to_bound: { value: 'house' },
+            restrict_value: true,
         },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
