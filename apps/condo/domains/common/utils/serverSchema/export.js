@@ -182,4 +182,5 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 module.exports = {
     exportRecordsAsXlsxFile,
     exportRecordsAsCsvFile,
+    buildUploadInputFrom,
 }

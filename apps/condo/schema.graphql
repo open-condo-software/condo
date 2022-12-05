@@ -24247,6 +24247,7 @@ type TicketExportTaskHistoryRecord {
   locale: String
   timeZone: String
   user: String
+  parameters: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -24373,6 +24374,10 @@ input TicketExportTaskHistoryRecordWhereInput {
   user_not: String
   user_in: [String]
   user_not_in: [String]
+  parameters: JSON
+  parameters_not: JSON
+  parameters_in: [JSON]
+  parameters_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -24498,6 +24503,7 @@ input TicketExportTaskHistoryRecordUpdateInput {
   locale: String
   timeZone: String
   user: String
+  parameters: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -24529,6 +24535,7 @@ input TicketExportTaskHistoryRecordCreateInput {
   locale: String
   timeZone: String
   user: String
+  parameters: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -24556,6 +24563,23 @@ enum TicketExportTaskStatusType {
 
 enum TicketExportTaskFormatType {
   excel
+  pdf
+}
+
+type TicketExportParameters {
+  commentIds: [String]
+  haveAllComments: Boolean
+  haveListCompletedWorks: Boolean
+  haveConsumedMaterials: Boolean
+  haveTotalCostWork: Boolean
+}
+
+input TicketExportParametersInput {
+  commentIds: [String]
+  haveAllComments: Boolean
+  haveListCompletedWorks: Boolean
+  haveConsumedMaterials: Boolean
+  haveTotalCostWork: Boolean
 }
 
 """ Stores requested export format, status of export job, link to exported file and information about progress of export job 
@@ -24606,6 +24630,9 @@ type TicketExportTask {
   """ User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user 
   """
   user: User
+
+  """ Various options for exporting tickets """
+  parameters: TicketExportParameters
   id: ID!
   v: Int
   createdAt: String
@@ -24710,6 +24737,10 @@ input TicketExportTaskWhereInput {
   timeZone_not_in: [String]
   user: UserWhereInput
   user_is_null: Boolean
+  parameters: TicketExportParametersInput
+  parameters_not: TicketExportParametersInput
+  parameters_in: [TicketExportParametersInput]
+  parameters_not_in: [TicketExportParametersInput]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -24817,6 +24848,7 @@ input TicketExportTaskUpdateInput {
   locale: String
   timeZone: String
   user: UserRelateToOneInput
+  parameters: TicketExportParametersInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -24845,6 +24877,7 @@ input TicketExportTaskCreateInput {
   locale: String
   timeZone: String
   user: UserRelateToOneInput
+  parameters: TicketExportParametersInput
   v: Int
   createdAt: String
   updatedAt: String
