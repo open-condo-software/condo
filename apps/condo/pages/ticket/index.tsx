@@ -15,7 +15,6 @@ import { TableRowSelection } from 'antd/lib/table/interface'
 import { jsx } from '@emotion/react'
 import { SortTicketsBy, Ticket as ITicket } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
@@ -53,8 +52,8 @@ import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
