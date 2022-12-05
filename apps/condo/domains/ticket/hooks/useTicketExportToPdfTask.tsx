@@ -1,10 +1,11 @@
-import React, { Dispatch, Key, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import { FilePdfFilled, QuestionCircleOutlined } from '@ant-design/icons'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { ResolvedIntlConfig } from '@formatjs/intl/src/types'
 import styled from '@emotion/styled'
+import get from 'lodash/get'
 
 import {
     SortTicketCommentsBy,
@@ -221,7 +222,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
         sortBy,
         locale,
         timeZone,
-        user: { connect: { id: user.id } },
+        user: { connect: { id: get(user, 'id', null) } },
         parameters: {
             commentIds: checkedCommentIds,
             haveAllComments,
