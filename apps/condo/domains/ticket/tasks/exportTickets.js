@@ -19,8 +19,10 @@ const { i18n } = require('@open-condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { ERROR } = require('@condo/domains/common/constants/export')
+const { ERROR, PDF } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
+const { EXPORT_FORMAT_VALUES, EXCEL } = require('../../common/constants/export')
+const { exportTicketBlanksToPdf } = require('../utils/serverSchema/ticketBlankExport')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -186,12 +188,21 @@ async function exportTickets (taskId) {
     const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
     let task = await TicketExportTask.getOne(context, { id: taskId })
+    const { where, sortBy, format } = task
     const baseAttrs = {
         dv: 1,
         sender: {
             dv: 1,
             fingerprint: TASK_WORKER_FINGERPRINT,
         },
+    }
+
+    if (!EXPORT_FORMAT_VALUES.includes(format)) {
+        await TicketExportTask.update(context, task.id, {
+            ...baseAttrs,
+            status: ERROR,
+        })
+        throw new Error(`TicketExportTask with id "${task.id}" have invalid value for "format" field!`)
     }
 
     if (!task.locale) {
@@ -202,53 +213,70 @@ async function exportTickets (taskId) {
         throw new Error(`TicketExportTask with id "${task.id}" does not have value for "locale" field!`)
     }
 
-    // NOTE: A field `TicketStatus.name` of type `LocalizedText` depends on `context.req` to determine current locale,
-    // but here it is not used in scope of HTTP-request — it's a scope of the worker
-    // which determines user requested locale from `TicketExportTask.locale` field value
-    setLocaleForKeystoneContext(context, task.locale)
+    try {
+        // NOTE: A field `TicketStatus.name` of type `LocalizedText` depends on `context.req` to determine current locale,
+        // but here it is not used in scope of HTTP-request — it's a scope of the worker
+        // which determines user requested locale from `TicketExportTask.locale` field value
+        setLocaleForKeystoneContext(context, task.locale)
 
-    const statuses = await TicketStatus.getAll(context, {})
-    const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
+        const statuses = await TicketStatus.getAll(context, {})
+        const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
-    let classifier
+        let classifier
 
-    const { where, sortBy } = task
-    const ticketsLoader = await buildTicketsLoader({ where, sortBy })
-    const totalRecordsCount = await Ticket.count(context, where)
+        const ticketsLoader = await buildTicketsLoader({ where, sortBy })
+        const totalRecordsCount = await Ticket.count(context, where)
 
-    const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
-    const loadRecordsBatch = async (offset, limit) => {
-        const tickets = await ticketsLoader.loadChunk(offset, limit)
-        const classifierRuleIds = compact(map(tickets, 'classifier'))
-        classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
-        // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
-        this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
-        return tickets
-    }
+        const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
+        const loadRecordsBatch = async (offset, limit) => {
+            const tickets = await ticketsLoader.loadChunk(offset, limit)
+            const classifierRuleIds = compact(map(tickets, 'classifier'))
+            classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
+            // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
+            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
+            return tickets
+        }
 
-    if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
-        await exportRecordsAsCsvFile({
-            context,
-            loadRecordsBatch,
-            convertRecordToFileRow,
-            baseAttrs,
-            taskServerUtils: TicketExportTask,
-            totalRecordsCount,
-            taskId,
+        switch (format) {
+            case EXCEL: {
+                if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
+                    await exportRecordsAsCsvFile({
+                        context,
+                        loadRecordsBatch,
+                        convertRecordToFileRow,
+                        baseAttrs,
+                        taskServerUtils: TicketExportTask,
+                        totalRecordsCount,
+                        taskId,
+                    })
+                } else {
+                    await exportRecordsAsXlsxFile({
+                        context,
+                        loadRecordsBatch,
+                        convertRecordToFileRow,
+                        buildExportFile: (rows) => buildExportFile({ rows, task }),
+                        baseAttrs,
+                        taskServerUtils: TicketExportTask,
+                        totalRecordsCount,
+                        taskId,
+                    })
+                }
+                break
+            }
+            case PDF: {
+                await exportTicketBlanksToPdf({ context, task, baseAttrs, where, sortBy })
+                break
+            }
+        }
+
+    } catch (error) {
+        await TicketExportTask.update(context, task.id, {
+            ...baseAttrs,
+            status: ERROR,
         })
-    } else {
-        await exportRecordsAsXlsxFile({
-            context,
-            loadRecordsBatch,
-            convertRecordToFileRow,
-            buildExportFile: (rows) => buildExportFile({ rows, task }),
-            baseAttrs,
-            taskServerUtils: TicketExportTask,
-            totalRecordsCount,
-            taskId,
-        })
+        console.log('ERROR in Export!', error)
+        throw error
     }
-
 }
 
 module.exports = {
