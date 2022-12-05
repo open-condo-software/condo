@@ -1,5 +1,3 @@
-import { useRouter } from 'next/router'
-
 import { useIntl } from '@open-condo/next/intl'
 import { TicketExportTask } from '@app/condo/schema'
 
@@ -7,6 +5,7 @@ import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/ta
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
+import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 
 export const useTicketExportTaskUIInterface = () => {
     const intl = useIntl()
@@ -14,12 +13,13 @@ export const useTicketExportTaskUIInterface = () => {
     const TicketExportTaskProgressDescriptionPreparing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.preparing' })
     const TicketExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.processing' })
     const TicketExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.TicketExportTask.progress.description.completed' })
-    const router = useRouter()
 
-    const tryToDownloadFile = (taskRecord: TicketExportTask) => {
+    const { downloadFile } = useDownloadFileFromServer()
+
+    const tryToDownloadFile = async (taskRecord: TicketExportTask) => {
         if (taskRecord.file) {
             console.log('Downloading exported file TicketExportTask', taskRecord)
-            router.push(taskRecord.file.publicUrl)
+            await downloadFile({ url: taskRecord?.file?.publicUrl, name: taskRecord?.file?.originalFilename })
         } else {
             console.error('File is not presented in TicketExportTask', taskRecord)
         }
