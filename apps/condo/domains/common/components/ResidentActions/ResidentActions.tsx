@@ -16,6 +16,7 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
+import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 
 export const StyledMenu = styled(Menu)`
   box-sizing: border-box;
@@ -81,8 +82,14 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
 
     const { minified } = props
     const { organization, link } = useOrganization()
-    const searchByPhoneFn = useMemo(() => searchByPhone(get(organization, 'id', null)), [organization])
+    const { ticketFilterQuery } = useTicketVisibility()
+
+    const searchByPhoneFn = useMemo(
+        () => searchByPhone(get(organization, 'id', null), ticketFilterQuery),
+        [organization, ticketFilterQuery]
+    )
     const canManageContacts = useMemo(() => get(link, 'role.canManageContacts'), [link])
+
     const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal(searchByPhoneFn, canManageContacts)
     const { isMobile } = useLayoutContext()
 

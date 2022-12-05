@@ -248,18 +248,18 @@ const MyApp = ({ Component, pageProps }) => {
                                             <GlobalAppsFeaturesProvider>
                                                 <GlobalAppsContainer/>
                                                 <LayoutContextProvider>
-                                                    <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                        <RequiredAccess>
-                                                            <TicketVisibilityContextProvider>
+                                                    <TicketVisibilityContextProvider>
+                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                            <RequiredAccess>
                                                                 <Component {...pageProps} />
                                                                 {
                                                                     isEndTrialSubscriptionReminderPopupVisible && (
                                                                         <EndTrialSubscriptionReminderPopup/>
                                                                     )
                                                                 }
-                                                            </TicketVisibilityContextProvider>
-                                                        </RequiredAccess>
-                                                    </LayoutComponent>
+                                                            </RequiredAccess>
+                                                        </LayoutComponent>
+                                                    </TicketVisibilityContextProvider>
                                                 </LayoutContextProvider>
                                             </GlobalAppsFeaturesProvider>
                                         </TasksProvider>

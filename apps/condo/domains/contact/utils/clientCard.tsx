@@ -4,7 +4,6 @@ import { gql } from 'graphql-tag'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
 import React from 'react'
-import compact from 'lodash/compact'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
@@ -16,10 +15,11 @@ import { useIntl } from '@open-condo/next/intl'
 export enum ClientType {
     Resident,
     NotResident,
+    Employee,
 }
 
 const SEARCH_BY_PHONE = gql`
-    query searchByPhone ($organizationId: ID, $phone: String) {
+    query searchByPhone ($organizationId: ID, $phone: String, $ticketsWhere: TicketWhereInput) {
         contacts: allContacts(
           where: {
             organization: { id: $organizationId },
@@ -33,13 +33,7 @@ const SEARCH_BY_PHONE = gql`
         }
       
         tickets: allTickets(
-          where: {
-            organization: { id: $organizationId },
-            clientPhone_contains: $phone,
-            isResidentTicket: false,
-            clientPhone_not: null,
-            clientName_not: null,
-        }, first: 10) {
+          where: $ticketsWhere, first: 10) {
           id
           property { ${TICKET_PROPERTY_FIELDS} }
           clientName
@@ -67,11 +61,20 @@ async function _search (client, query, variables) {
     })
 }
 
-export function searchByPhone (organizationId) {
-    if (!organizationId) return
+export function searchByPhone (organizationId, ticketsWhereInput) {
+    console.log('ticketsWhereInput', ticketsWhereInput)
+    if (!organizationId || !ticketsWhereInput) return
 
     return async function (client, phone) {
-        const { data, error } = await _search(client, SEARCH_BY_PHONE, { phone, organizationId })
+        const ticketsWhere = {
+            ...ticketsWhereInput,
+            organization: { id: organizationId },
+            clientPhone_contains: phone,
+            isResidentTicket: false,
+            clientPhone_not: null,
+            clientName_not: null,
+        }
+        const { data, error } = await _search(client, SEARCH_BY_PHONE, { phone, organizationId, ticketsWhere })
 
         if (error) console.warn(error)
 
