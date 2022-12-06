@@ -11,6 +11,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import Carousel from '@condo/domains/common/components/Carousel'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
@@ -491,7 +492,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
 //#endregion
 
 //#region Page Content
-const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => {
+const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loading }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: phoneNumber,
@@ -541,7 +542,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
 
     const renderedCards = useMemo(() => {
         const addAddressTab = canManageContacts && <AddAddressCard onClick={handleAddAddressClick}/>
-        const addressTabs = tabsData.map(({ type, property, unitName, unitType }, index) => {
+        const addressTabs = tabsData.map(({ type, property, unitName, unitType }) => {
             const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
             const isActive = activeTab && activeTab === key
 
@@ -565,7 +566,6 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
         return [addAddressTab, initialTab, ...otherTabs].filter(Boolean)
     }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, initialActiveTab, tabsData])
 
-
     return (
         <>
             <Head>
@@ -577,11 +577,15 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
                         <Col span={24}>
                             <Typography.Title>{ClientCardTitle}</Typography.Title>
                         </Col>
-                        <StyledCarouselWrapper span={24}>
-                            <Carousel>
-                                {renderedCards}
-                            </Carousel>
-                        </StyledCarouselWrapper>
+                        {
+                            loading ? <Loader /> : (
+                                <StyledCarouselWrapper span={24}>
+                                    <Carousel>
+                                        {renderedCards}
+                                    </Carousel>
+                                </StyledCarouselWrapper>
+                            )
+                        }
                         <Col span={24}>
                             <ClientTabContent
                                 tabData={activeTabData}
@@ -600,14 +604,14 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 
-    const { objs: contacts } = Contact.useObjects({
+    const { objs: contacts, loading: contactsLoading } = Contact.useObjects({
         where: {
             ...baseQuery,
             phone: phoneNumber,
         },
     })
 
-    const { objs: tickets } = Ticket.useObjects({
+    const { objs: tickets, loading: ticketsLoading } = Ticket.useObjects({
         where: {
             ...baseQuery,
             clientPhone: phoneNumber,
@@ -616,7 +620,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
         },
     })
 
-    const { objs: employees } = OrganizationEmployee.useObjects({
+    const { objs: employees, loading: employeesLoading } = OrganizationEmployee.useObjects({
         where: {
             ...baseQuery,
             phone: phoneNumber,
@@ -658,6 +662,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
             phoneNumber={phoneNumber}
             tabsData={tabsData}
             canManageContacts={canManageContacts}
+            loading={ticketsLoading || contactsLoading || employeesLoading}
         />
     )
 }
