@@ -8,11 +8,11 @@ const { i18n } = require('@open-condo/locales/loader')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { render } = require('@condo/domains/common/utils/createExportFile')
+const { MAX_TICKET_BLANKS_EXPORT } = require('@condo/domains/ticket/constants/export')
 
 const { TicketExportTask, loadTicketsForPdfExport, loadTicketCommentsForPdfExport } = require('./index')
 
 
-const MAX_TICKET_BLANKS = 50
 const PDF_FILE_META = {
     mimetype: 'application/pdf',
     encoding: 'UTF-8',
@@ -256,7 +256,7 @@ const exportTicketBlanksToPdf = async ({ context, task, baseAttrs, where, sortBy
 
     const blankParameters = getTicketBlankParameters(parameters)
 
-    const tickets = await loadTicketsForPdfExport({ where, sortBy, limit: MAX_TICKET_BLANKS })
+    const tickets = await loadTicketsForPdfExport({ where, sortBy, limit: MAX_TICKET_BLANKS_EXPORT })
 
     const { stream } = await createPdfForTicketBlanks({ tickets, blankParameters, locale })
     const fileInput = {
