@@ -9,6 +9,7 @@ const { OrganizationEmployee } = require('@condo/domains/organization/utils/serv
 
 const { syncBankAccounts } = require('./syncBankAccounts')
 const { syncOrganization } = require('./syncOrganization')
+const { syncSbbolTransactions } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
 const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 const { syncTokens } = require('./syncTokens')
 const { syncUser } = require('./syncUser')
@@ -100,18 +101,17 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
         password: faker.internet.password(),
     }
 
+    const date = dayjs().format('YYYY-MM-DD')
     const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
     const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage()
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
+    await syncSbbolTransactions.delay(date, user.id)
 
-    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL)) {
-        await syncBankAccounts(user.id, organization)
-    }
-
-    const organizationEmployee = await OrganizationEmployee.getOne(adminContext, {
+    const { keystone: organizationContext } = await getSchemaCtx('Organization')
+    const organizationEmployee = await OrganizationEmployee.getOne(organizationContext, {
         user: { id: user.id },
         organization: {
             id: organization.id,
