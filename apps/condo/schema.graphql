@@ -47705,6 +47705,7 @@ input AllMiniAppsInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
+  search: String
 }
 
 type MiniAppOutput {

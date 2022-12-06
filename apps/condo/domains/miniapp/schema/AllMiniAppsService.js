@@ -34,7 +34,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput! }',
+            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, search: String }',
         },
         {
             access: true,
@@ -47,12 +47,17 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
             access: access.canExecuteAllMiniApps,
             schema: 'allMiniApps (data: AllMiniAppsInput!): [MiniAppOutput!]',
             resolver: async (parent, args) => {
-                const { data: { organization } } = args
+                const { data: { organization, search } } = args
                 const services = []
+
+                const searchFilters = search ? {
+                    name_contains_i: search,
+                } : {}
 
                 const billingIntegrations = await find('BillingIntegration', {
                     isHidden: false,
                     deletedAt: null,
+                    ...searchFilters,
                 })
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     organization,
@@ -79,6 +84,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 const acquiringIntegrations = await find('AcquiringIntegration', {
                     isHidden: false,
                     deletedAt: null,
+                    ...searchFilters,
                 })
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     organization,
@@ -106,6 +112,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                     isHidden: false,
                     isGlobal: false,
                     deletedAt: null,
+                    ...searchFilters,
                 })
                 const B2BAppContexts = await find('B2BAppContext', {
                     organization,
