@@ -54,6 +54,7 @@ import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBoole
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -204,7 +205,9 @@ const TicketTable = ({
                         {CountSelectedTicketLabel}: {selectedTicketKeys.length}
                     </Typography.Text>
                 )}
-                {selectedTicketKeys.length > 0 && <TicketBlanksExportToPdfButton />}
+                {selectedTicketKeys.length > 0 && (
+                    <TicketBlanksExportToPdfButton disabled={selectedTicketKeys.length > MAX_TICKET_BLANKS_EXPORT} />
+                )}
                 {selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton />}
                 {selectedTicketKeys.length > 0 && (
                     <Button
