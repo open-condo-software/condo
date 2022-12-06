@@ -245,7 +245,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
             if (cached) {
                 const cacheLastUpdate = cached.lastUpdate
-                if (cacheLastUpdate && cacheLastUpdate === tableLastUpdate) {
+                if (cacheLastUpdate && cacheLastUpdate.getTime() === tableLastUpdate.getTime()) {
                     middleware.cacheHits++
                     const cacheEvent = middleware.getCacheEvent({
                         type: 'HIT',
@@ -302,14 +302,21 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  */
 function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) {
     return async ( ...args ) => {
-        const functionResult = await f.apply(listAdapter, args )
+
+        if (functionName === 'UPDATE') {
+            console.log('HEY')
+        }
+
+        const functionResult = await f.apply(listAdapter, args)
+        await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
 
         if (cache.debugMode) {
             const cacheEvent = cache.getCacheEvent({ type: listName, table: listName })
             cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName })
         }
 
-        if (cache.logging) { logger.info(`CREATE: ${functionResult}`) }
+        if (cache.logging) { logger.info(`${functionName}: ${functionResult}`) }
+
         return functionResult
     }
 }
