@@ -1,0 +1,26 @@
+@import "antd/lib/card/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-card {
+  border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+  border-radius: @condo-global-border-radius-large;
+
+  &-head {
+    min-height: 0;
+    padding: @condo-global-spacing-24;
+    border-color: @condo-global-color-gray-3;
+  }
+
+  &-head-title {
+    padding: 0;
+  }
+
+  &-hoverable {
+    transition-duration: @condo-global-transition-duration-default, @condo-global-transition-duration-default;
+    transition-property: box-shadow, border-color;
+
+    &:hover {
+      box-shadow: @condo-global-box-shadow-default;
+    }
+  }
+}
