@@ -16,7 +16,7 @@ const {
 const AlertBody: React.FC = () => {
     const intl = useIntl()
     const CompanyName = intl.formatMessage({ id: 'CompanyName' })
-    const BillingSectionMessage = intl.formatMessage({ id: 'menu.Billing' })
+    const BillingSectionMessage = intl.formatMessage({ id: 'global.section.billing' })
     const AlertMessage = intl.formatMessage({ id: 'miniapps.billing.AlreadyConnected.message' }, {
         company: CompanyName,
         email: SUPPORT_EMAIL,

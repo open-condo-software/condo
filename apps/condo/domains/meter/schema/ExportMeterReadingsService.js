@@ -119,7 +119,7 @@ const ExportMeterReadingsService = new GQLCustomSchema('ExportMeterReadingsServi
                         meter: excelRows,
                         i18n: {
                             ...getHeadersTranslations(EXPORT_TYPE_METERS, locale),
-                            sheetName: i18n('menu.Meters', { locale }),
+                            sheetName: i18n('global.section.meters', { locale }),
                         },
                     },
                     meta: {

@@ -20,7 +20,7 @@ interface IndexBillingAppPageProps {
 export const IndexBillingAppPage: React.FC<IndexBillingAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
+    const BillingMessage = intl.formatMessage({ id: 'global.section.billing' })
     const TagMessage = intl.formatMessage({ id: `miniapps.category.${BILLING_APP_TYPE}` })
 
     const [title, setTitle] = useState(null)

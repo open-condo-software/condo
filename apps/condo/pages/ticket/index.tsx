@@ -328,7 +328,7 @@ export const TicketsPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
     const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
-    const TicketsMessage = intl.formatMessage({ id: 'menu.Tickets' })
+    const TicketsMessage = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
 
     const router = useRouter()

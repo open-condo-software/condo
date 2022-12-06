@@ -11,7 +11,7 @@ const PAGE_HEADER_TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const PaymentsPage = () => {
     const intl = useIntl()
-    const TheTitle = intl.formatMessage({ id: 'menu.Payments' })
+    const TheTitle = intl.formatMessage({ id: 'global.section.payments' })
 
     return (
         <>

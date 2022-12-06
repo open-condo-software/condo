@@ -13,7 +13,7 @@ import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 
 const MiniAppIndexPage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
+    const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
 
     const router = useRouter()

@@ -118,7 +118,7 @@ const ShareButton = styled.span`
 
 const Warning = (props) => {
     const intl = useIntl()
-    const EmployeesMessage = intl.formatMessage({ id: 'menu.Employees' })
+    const EmployeesMessage = intl.formatMessage({ id: 'global.section.employees' })
     const ShareWarningEmailMessage = intl.formatMessage({ id: 'ticket.shareWarningEmail' }, {
         link: <Link href='/employee'>{EmployeesMessage}</Link>,
         employees: `${props.children[0]} ${props.children[1] ? (`\n${props.children[1]}`) : ''}`,
