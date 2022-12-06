@@ -1,4 +1,3 @@
-import { Typography } from 'antd'
 import { differenceBy, get, isEmpty } from 'lodash'
 import React from 'react'
 
@@ -8,7 +7,6 @@ import {
 } from '@condo/domains/organization/constants/common'
 import {
     EmployeeNameAndSpecializations,
-    getEmployeeSpecializationsMessage,
 } from '@condo/domains/organization/utils/clientSchema/Renders'
 import { renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
 
@@ -55,10 +53,10 @@ export const getEmployeesSortedBySpecializations = (employees, organizationEmplo
  */
 export const getEmployeesSortedByTicketVisibilityType = (employees, organizationEmployeeSpecializations, categoryClassifier) => {
     const employeesWithPropertyAndSpecializationVisibility = employees
-        .filter(({ role }) => role.ticketVisibilityType === PROPERTY_AND_SPECIALIZATION_VISIBILITY)
+        .filter(employee => get(employee, 'role.ticketVisibilityType') === PROPERTY_AND_SPECIALIZATION_VISIBILITY)
 
     const employeesWithAssigneeVisibility = employees
-        .filter(({ role }) => role.ticketVisibilityType === ASSIGNED_TICKET_VISIBILITY)
+        .filter(employee => get(employee, 'role.ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY)
 
     const employeesWithOtherVisibility = differenceBy(
         employees,
