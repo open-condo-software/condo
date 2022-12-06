@@ -51,7 +51,6 @@ class AppsGenerator {
                     shortDescription: faker.commerce.productDescription(),
                     detailedDescription: faker.lorem.paragraphs(5),
                     hostUrl: faker.internet.url(),
-                    contextDefaultStatus: this.withFrames ? 'Finished' : 'InProgress',
                     supportedBillingIntegrations: { connect: [ { id: billings[0].id } ] },
                     explicitFeeDistributionSchema: [],
                 })
@@ -59,7 +58,7 @@ class AppsGenerator {
                 await B2BApp.create(this.context, {
                     dv: 1,
                     sender: { dv: 1, fingerprint: 'generator' },
-                    name: `${faker.company.companyName(0)} acquiring`,
+                    name: `${faker.company.companyName(0)} B2B app`,
                     developer: faker.company.companyName(),
                     shortDescription: faker.commerce.productDescription(),
                     detailedDescription: faker.lorem.paragraphs(5),

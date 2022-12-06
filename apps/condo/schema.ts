@@ -1780,6 +1780,7 @@ export type AllMiniAppsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
+  search?: Maybe<Scalars['String']>;
 };
 
 export type AppColorSchemaField = {
