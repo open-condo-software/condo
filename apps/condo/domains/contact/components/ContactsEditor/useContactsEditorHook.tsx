@@ -15,7 +15,7 @@ interface IContactsEditorHookResult {
     ContactsEditorComponent: React.FC<IContactEditorProps>
 }
 
-export const useContactsEditorHook = ({ initialQuery, organization, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ initialQuery, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     const shouldCreateContactRef = useRef(shouldCreateContact)

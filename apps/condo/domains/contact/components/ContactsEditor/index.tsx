@@ -1,3 +1,4 @@
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Row, Tabs } from 'antd'
@@ -122,8 +123,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         initialQuery,
     } = props
 
-    const isNotContact = useMemo(() => !initialValue.id && initialValue.phone, [initialValue.id, initialValue.phone])
-
     const [selectedContact, setSelectedContact] = useState(null)
     const [value, setValue] = useState(initialValue)
     const [editableFieldsChecked, setEditableFieldsChecked] = useState(false)
@@ -151,6 +150,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone
     const initialTab = hasNotResidentTab && (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
     const initialNotResidentAutoCompleteFieldsValue = !initialValue.id && initialValue
+    const isManuallyTypedContactEmpty = useMemo(
+        () => !manuallyTypedContact || isEmpty(manuallyTypedContact.id) && isEmpty(manuallyTypedContact.phone) && isEmpty(manuallyTypedContact.name),
+        [manuallyTypedContact]
+    )
 
     const {
         objs: fetchedContacts,
@@ -169,6 +172,18 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         first: 100,
     })
 
+    const triggerOnChange = useCallback((contact: ContactValue, isNew: boolean) => {
+        form.setFieldsValue({
+            [fields.id]: !isNew && contact.id,
+            [fields.name]: contact.name,
+            [fields.phone]: contact.phone,
+        })
+
+        setValue(contact)
+        setSelectedContact(contact)
+        isFunction(onChange) && onChange(contact, isNew)
+    }, [fields.id, fields.name, fields.phone, form, onChange])
+
     useEffect(() => {
         if (!contactsLoading) {
             form.validateFields([NEW_CONTACT_PHONE_FORM_ITEM_NAME])
@@ -182,22 +197,19 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         }
     }, [contactsLoading, fetchedContacts, isInitialContactsLoaded])
 
-    // It's not enough to have `value` props of `Input` set.
-    useEffect(() => {
-        if (initialValue) {
-            form.setFieldsValue({
-                [fields.id]: initialValue.id,
-                [fields.name]: initialValue.name,
-                [fields.phone]: initialValue.phone,
-            })
-        }
-    }, [fields.id, fields.name, fields.phone])
-
     // When `unitName` was changed from outside, selection is not relevant anymore
     useEffect(() => {
+        triggerOnChange(value, true)
         setIsInitialContactsLoaded(false)
         setSelectedContact(null)
-    }, [unitName, unitType])
+    }, [unitName, unitType, property])
+
+    // It's not enough to have `value` props of `Input` set.
+    useDeepCompareEffect(() => {
+        if (initialValue) {
+            triggerOnChange(initialValue, !initialValue.id)
+        }
+    }, [initialValue])
 
     useEffect(() => {
         form.setFieldValue('isResidentTicket', activeTab === CONTACT_TYPE.RESIDENT)
@@ -232,18 +244,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setSelectedContact(fetchedContacts[0])
         setEditableFieldsChecked(false)
     }, [fetchedContacts])
-
-    const triggerOnChange = useCallback((contact: ContactValue, isNew: boolean) => {
-        form.setFieldsValue({
-            [fields.id]: !isNew && contact.id,
-            [fields.name]: contact.name,
-            [fields.phone]: contact.phone,
-        })
-
-        setValue(contact)
-        setSelectedContact(contact)
-        isFunction(onChange) && onChange(contact, isNew)
-    }, [fields.id, fields.name, fields.phone, form, onChange])
 
     const handleSelectContact = useCallback((contact) => {
         setSelectedContact(contact)
@@ -339,9 +339,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                 <NewContactFields
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
-                                    initialValue={manuallyTypedContact}
+                                    initialValue={isManuallyTypedContactEmpty ? initialValue : manuallyTypedContact}
+                                    form={form}
+                                    fields={fields}
                                     activeTab={activeTab}
                                     contactsLoading={contactsLoading}
+                                    unitType={unitType}
+                                    unitName={unitName}
+                                    property={property}
                                 />
                             ) : (
                                 <>
@@ -359,8 +364,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     contacts={fetchedContacts}
                                                     displayMinusButton={true}
                                                     onClickMinusButton={handleClickOnMinusButton}
-                                                    initialValue={manuallyTypedContact}
+                                                    initialValue={isManuallyTypedContactEmpty ? initialValue : manuallyTypedContact}
+                                                    form={form}
+                                                    fields={fields}
                                                     activeTab={activeTab}
+                                                    unitType={unitType}
+                                                    unitName={unitName}
+                                                    property={property}
                                                     contactsLoading={contactsLoading}
                                                 />
                                                 {(!get(role, 'canManageContacts')) && (
@@ -433,7 +443,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         )
                     }
                     <Form.Item name={fields.id} hidden>
-                        <Input value={get(value, 'id')}/>
+                        <Input value={get(selectedContact, 'id')}/>
                     </Form.Item>
                     <ErrorContainerOfHiddenControl>
                         <Form.Item

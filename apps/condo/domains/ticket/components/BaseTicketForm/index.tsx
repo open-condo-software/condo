@@ -416,7 +416,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     })
 
     const { ContactsEditorComponent } = useContactsEditorHook({
-        organization: organization.id,
         role,
         allowLandLine: true,
         initialQuery: { organization: { id: organization.id } },

@@ -11,7 +11,7 @@ import { TICKET_PROPERTY_FIELDS } from '@condo/domains/ticket/gql'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { useIntl } from '@open-condo/next/intl'
-import { BuildingUnitSubType, BuildingUnitType } from '../../../schema'
+import { BuildingUnitSubType } from '@app/condo/schema'
 
 export enum ClientType {
     Resident,

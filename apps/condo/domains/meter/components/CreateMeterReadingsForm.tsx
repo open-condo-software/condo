@@ -210,7 +210,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     }
 
     const { ContactsEditorComponent } = useContactsEditorHook({
-        organization: organization.id,
         role,
         initialQuery: { organization: { id: organization } },
     })
