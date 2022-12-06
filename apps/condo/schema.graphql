@@ -47807,8 +47807,9 @@ type MiniAppOutput {
   connected: Boolean!
   name: String!
   shortDescription: String!
-  category: String
+  category: String!
   logo: String
+  label: String
 }
 
 enum TicketReportPeriodType {
