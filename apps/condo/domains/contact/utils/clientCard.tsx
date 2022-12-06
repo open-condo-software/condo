@@ -1,6 +1,7 @@
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
+import { get } from 'lodash'
 import { NextRouter } from 'next/router'
 import qs from 'qs'
 import React from 'react'
@@ -24,6 +25,7 @@ const SEARCH_BY_PHONE = gql`
         contacts: allContacts(
           where: {
             organization: { id: $organizationId },
+            property_is_null: false,
             phone_contains: $phone
           }, first: 10) {
             id
@@ -125,7 +127,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type }
     const unitNameMessage = unitName && ` ${prefix} ${unitName}`
 
     return (
-        <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(property.id, type, unitName, unitType)}`} style={LINK_STYLES}>
+        <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`} style={LINK_STYLES}>
             <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                 <Col>
                     <Typography.Text strong>
