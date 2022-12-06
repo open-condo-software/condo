@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
 import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
@@ -36,6 +36,9 @@ type IUseObjectsReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQL
     objs: GQLObject[]
     count: number | null
 }
+type IUseAllObjectsReturnType<GQLObject, QueryVariables> = IUseObjectsReturnType<GQLObject, QueryVariables> & {
+    allDataLoaded: boolean
+}
 type IUseObjectReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     obj: GQLObject | null
 }
@@ -57,7 +60,7 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
     useObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectsReturnType<GQLObject, QueryVariables>
     useAllObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
-    => IUseObjectsReturnType<GQLObject, QueryVariables>
+    => IUseAllObjectsReturnType<GQLObject, QueryVariables>
     useObject: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectReturnType<GQLObject, QueryVariables>
     useCount: (variables: QueryVariables, options?: QueryHookOptions<IUseCountQueryReturnType, QueryVariables>)
@@ -248,12 +251,17 @@ export function generateReactHooks<
     function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
         const [data, setData] = useState(objs)
+        const [allDataLoaded, setAllDataLoaded] = useState<boolean>(false)
 
         useDeepCompareEffect(() => {
             setData([])
         }, [variables])
 
         useDeepCompareEffect(() => {
+            if (data.length === count) {
+                setAllDataLoaded(true)
+            }
+
             if (!loading && fetchMore && count > data.length) {
                 fetchMore({
                     variables: {
@@ -267,6 +275,7 @@ export function generateReactHooks<
 
         return {
             loading,
+            allDataLoaded,
             objs: data,
             count,
             error,

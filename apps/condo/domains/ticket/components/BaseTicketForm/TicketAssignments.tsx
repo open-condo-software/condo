@@ -1,7 +1,10 @@
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { GraphQlSearchInput, renderBlockedOption } from '@condo/domains/common/components/GraphQlSearchInput'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
-import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import {
+    OrganizationEmployee,
+    OrganizationEmployeeSpecialization,
+} from '@condo/domains/organization/utils/clientSchema'
 import { searchEmployeeUserWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import {
     PropertyScope,
@@ -20,7 +23,7 @@ import { every } from 'lodash'
 import { differenceBy } from 'lodash'
 import get from 'lodash/get'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { AutoAssigner } from './AutoAssigner'
 import { TicketFormItem } from './index'
@@ -54,6 +57,10 @@ const TicketAssignments = ({
     const OtherMessage = intl.formatMessage({ id: 'pages.condo.ticket.select.group.other' })
 
     const { isSmall } = useLayoutContext()
+
+    const { objs: employees, allDataLoaded: allEmployeesLoaded } = OrganizationEmployee.useAllObjects({
+        where: { organization: { id: organizationId }, isBlocked: false, isRejected: false },
+    })
 
     const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
         where: {
@@ -89,8 +96,6 @@ const TicketAssignments = ({
         organizationEmployeeSpecializations.filter(scope => scope.employee && scope.specialization),
     [organizationEmployeeSpecializations])
 
-    const [matchedEmployees, setMatchedEmployees] = useState([])
-
     const renderOptionGroups = useCallback((employeeOptions, renderOption) => {
         const result = []
         const employees = employeeOptions
@@ -117,7 +122,6 @@ const TicketAssignments = ({
                 categoryClassifier,
             )
             const renderedOptions = convertEmployeesToOptions(intl, renderOption, sortedEmployees, filteredEmployeeSpecializations)
-            setMatchedEmployees(sortedEmployees)
 
             if (!isAllMatchesEmployeesIsBlocked) {
                 result.push(
@@ -132,8 +136,6 @@ const TicketAssignments = ({
                     </>
                 )
             }
-        } else {
-            setMatchedEmployees([])
         }
 
         if (otherEmployees.length > 0) {
@@ -187,10 +189,11 @@ const TicketAssignments = ({
                                 <AutoAssigner
                                     form={form}
                                     categoryClassifierId={categoryClassifier}
-                                    propertyId={propertyId}
-                                    matchedEmployees={matchedEmployees}
+                                    employees={employees}
+                                    allDataLoaded={allEmployeesLoaded}
                                     propertyScopeEmployees={filteredPropertyScopeEmployees}
                                     propertyScopes={propertyScopes}
+                                    organizationEmployeeSpecializations={filteredEmployeeSpecializations}
                                 />
                             )
                         }
