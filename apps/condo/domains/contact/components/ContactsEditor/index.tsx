@@ -222,6 +222,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
             } else {
                 setActiveTab(CONTACT_TYPE.NOT_RESIDENT)
             }
+        } else {
+            setActiveTab(CONTACT_TYPE.RESIDENT)
         }
     }, [hasNotResidentTab, unitName])
 

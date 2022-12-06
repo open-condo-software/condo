@@ -113,26 +113,6 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         },
     }), [ContactWithSamePhoneExistMessage, checked, contacts])
 
-    // useEffect(() => {
-    //     if (isContactWithSameNumberExists) {
-    //         console.log('exist')
-    //         form.setFields({
-    //             //@ts-ignore
-    //             [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: {
-    //                 errors: [ContactWithSamePhoneExistMessage],
-    //             },
-    //         })
-    //     } else {
-    //         console.log('not exist')
-    //         form.setFields({
-    //             //@ts-ignore
-    //             [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: {
-    //                 errors: [],
-    //             },
-    //         })
-    //     }
-    // }, [unitName, unitType, property, form])
-
     const validations = useMemo(() => ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [contactExistValidator] : [],
     }), [activeTab, contactExistValidator])

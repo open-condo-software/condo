@@ -86,7 +86,7 @@ export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId
                 hasNotResidentTab={hasNotResidentTab}
             />
         )
-    }, [ContactsEditorComponent, contactEditorComponentFields, form, selectedPropertyId, value])
+    }, [ContactsEditorComponent, contactEditorComponentFields, form, hasNotResidentTab, selectedPropertyId, value])
 
     return (
         <Col span={24}>
