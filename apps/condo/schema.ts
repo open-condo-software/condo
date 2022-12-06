@@ -20482,8 +20482,9 @@ export type MiniAppOutput = {
   connected: Scalars['Boolean'];
   name: Scalars['String'];
   shortDescription: Scalars['String'];
-  category?: Maybe<Scalars['String']>;
+  category: Scalars['String'];
   logo?: Maybe<Scalars['String']>;
+  label?: Maybe<Scalars['String']>;
 };
 
 /**  Information about resident's payment for single or multiple services/receipts  */

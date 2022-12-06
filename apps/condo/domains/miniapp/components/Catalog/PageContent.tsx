@@ -8,12 +8,12 @@ import { Typography, Carousel, Banner } from '@open-condo/ui'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useOrganization } from '@open-condo/next/organization'
 import { SortB2BAppPromoBlocksBy } from '@app/condo/schema'
-import { useDeepCompareEffect } from '@condo/domains/common/hooks/useDeepCompareEffect'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { B2BAppPromoBlock } from '@condo/domains/miniapp/utils/clientSchema'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
-import { PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS, ALL_APP_CATEGORIES } from '@condo/domains/miniapp/constants'
+import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES } from '@condo/domains/miniapp/constants'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { AppCard } from './AppCard'
@@ -29,7 +29,7 @@ const CONNECTED_APPS_CATEGORY = 'CONNECTED'
 const ALL_SECTIONS = [
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
-    ...ALL_APP_CATEGORIES,
+    ...ALL_APPS_CATEGORIES,
 ]
 
 
@@ -105,7 +105,7 @@ export const CatalogPageContent: React.FC = () => {
         for (const app of miniapps) {
             fetchedAppsCategories.add(app.category)
         }
-        for (const category of ALL_APP_CATEGORIES) {
+        for (const category of ALL_APPS_CATEGORIES) {
             if (fetchedAppsCategories.has(category)) {
                 categories.push(category)
             }
@@ -138,7 +138,7 @@ export const CatalogPageContent: React.FC = () => {
                                     backgroundColor={promoBlock.backgroundColor}
                                     actionText={BannerMoreMessage}
                                     imgUrl={get(promoBlock, ['backgroundImage', 'publicUrl'])}
-                                    {...PROMO_BLOCK_TEXTS_VARIANTS_TO_PROPS[promoBlock.textVariant]}
+                                    {...PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS[promoBlock.textVariant]}
                                     onClick={() => handleBannerClick(promoBlock.targetUrl, promoBlock.external)}
                                 />
                             ))}
