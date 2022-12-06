@@ -49,7 +49,7 @@ export const ContactsPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
     const CreateContact = intl.formatMessage({ id: 'AddContact' })
-    const ContactsMessage = intl.formatMessage({ id: 'menu.Contacts' })
+    const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
     const ContactTitle = intl.formatMessage({ id: 'pages.condo.contact.ImportTitle' })
 
     const router = useRouter()

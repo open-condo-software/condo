@@ -21,7 +21,7 @@ interface AboutBillingAppPageProps {
 export const AboutBillingAppPage: React.FC<AboutBillingAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const BillingMessage = intl.formatMessage({ id: 'menu.Billing' })
+    const BillingMessage = intl.formatMessage({ id: 'global.section.billing' })
     const TagMessage = intl.formatMessage({ id: `miniapps.category.${BILLING_APP_TYPE}` })
 
     const userOrganization = useOrganization()

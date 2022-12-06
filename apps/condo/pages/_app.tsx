@@ -92,51 +92,51 @@ const MenuItems: React.FC = () => {
         const itemsConfigs = [{
             path: 'reports',
             icon: BarChartIconNew,
-            label: 'menu.Analytics',
+            label: 'global.section.analytics',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'ticket',
             icon: BarTicketIcon,
-            label: 'menu.ControlRoom',
+            label: 'global.section.controlRoom',
         }, {
             path: 'property',
             icon: BarPropertyIcon,
-            label: 'menu.Property',
+            label: 'global.section.properties',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'contact',
             icon: BarUserIcon,
-            label: 'menu.Contacts',
+            label: 'global.section.contacts',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'employee',
             icon: BarEmployeeIcon,
-            label: 'menu.Employees',
+            label: 'global.section.employees',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'billing',
             icon: BarBillingIcon,
-            label: 'menu.Billing',
+            label: 'global.section.billing',
             access: () => get(role, 'canReadBillingReceipts', false ) && !isAssignedVisibilityType,
         }, {
             path: 'payments',
             icon: BarPaymentsIcon,
-            label: 'menu.Payments',
+            label: 'global.section.payments',
             access: () => get(role, 'canReadPayments', false ) && !isAssignedVisibilityType,
         }, {
             path: 'meter',
             icon: BarMeterIcon,
-            label: 'menu.Meters',
+            label: 'global.section.meters',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'miniapps',
             icon: BarMiniAppsIcon,
-            label: 'menu.MiniApps',
+            label: 'global.section.miniapps',
             access: () => !isAssignedVisibilityType,
         }, {
             path: 'settings',
             icon: BarSettingIcon,
-            label: 'menu.Settings',
+            label: 'global.section.settings',
             access: () => !isAssignedVisibilityType,
         }]
         return itemsConfigs.filter((item) => get(item, 'access', () => true)())
@@ -151,7 +151,7 @@ const MenuItems: React.FC = () => {
                             <MenuItem
                                 path='/onboarding'
                                 icon={OnBoardingProgress}
-                                label='menu.OnBoarding'
+                                label='global.section.onBoarding'
                                 isCollapsed={isCollapsed}
                             />
                         </OnBoardingProgressIconContainer>

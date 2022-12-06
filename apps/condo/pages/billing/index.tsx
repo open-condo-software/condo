@@ -12,7 +12,7 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 
 const BillingPage = () => {
     const intl = useIntl()
-    const BillingTitle = intl.formatMessage({ id:'menu.Billing' })
+    const BillingTitle = intl.formatMessage({ id:'global.section.billing' })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], '')

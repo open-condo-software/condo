@@ -36,7 +36,7 @@ const RemoveTabLineWrapper = styled.div`
 
 export const AppSelectPageContent: React.FC = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
+    const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
     const AlreadyConnectedSectionTitle = intl.formatMessage({ id: 'miniapps.AlreadyConnected' })
     const AvailableSectionTitle = intl.formatMessage({ id: 'miniapps.Available' })
     const AllCategoryMessage = intl.formatMessage({ id: 'miniapps.category.ALL' })

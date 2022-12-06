@@ -35,7 +35,7 @@ const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.Settings' })
+    const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
     const HintTitle = intl.formatMessage({ id: 'Hint' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })

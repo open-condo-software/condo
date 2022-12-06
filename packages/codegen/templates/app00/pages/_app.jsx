@@ -20,7 +20,7 @@ const MenuData = () => {
         <MenuItem
             path={'/'}
             icon={DashboardOutlined}
-            label={'menu.Analytics'}
+            label={'global.section.analytics'}
         />
     )
 }

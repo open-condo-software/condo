@@ -82,7 +82,7 @@ const ExportContactsService = new GQLCustomSchema('ExportContactsService', {
                         contacts: excelRows,
                         i18n: {
                             ...getHeadersTranslations(EXPORT_TYPE_CONTACTS, locale),
-                            sheetName: i18n('menu.Contacts', { locale }),
+                            sheetName: i18n('global.section.contacts', { locale }),
                         },
                     },
                     meta: {
