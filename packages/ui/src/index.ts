@@ -15,6 +15,9 @@ export type { MarkdownProps } from './components/Markdown'
 export { Modal } from './components/Modal'
 export type { ModalProps } from './components/Modal'
 
+export { Tag } from './components/Tag'
+export type { TagProps } from './components/Tag'
+
 export { Typography } from './components/Typography'
 export type {
     TypographyType,
