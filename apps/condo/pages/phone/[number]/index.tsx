@@ -1,13 +1,3 @@
-import Carousel from '@condo/domains/common/components/Carousel'
-import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
-import { Col, Row, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
-import { EllipsisConfig } from 'antd/es/typography/Base'
-import get from 'lodash/get'
-import uniqBy from 'lodash/uniqBy'
-import Head from 'next/head'
-import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import {
     BuildingUnitSubType,
     Contact as ContactType,
@@ -16,12 +6,9 @@ import {
     Ticket as TicketType,
 } from '@app/condo/schema'
 
-import styled from '@emotion/styled'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
-
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
+import Carousel from '@condo/domains/common/components/Carousel'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
@@ -36,8 +23,22 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
+import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+
+import styled from '@emotion/styled'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Col, Row, Typography } from 'antd'
+import { CarouselRef } from 'antd/es/carousel'
+import { Gutter } from 'antd/es/grid/row'
+import { EllipsisConfig } from 'antd/es/typography/Base'
+import get from 'lodash/get'
+import uniqBy from 'lodash/uniqBy'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 //#region Constants, types and styles
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
@@ -85,7 +86,7 @@ const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
     padding: 20px;
     background-color: ${colors.white};
   }
-  
+
   &:hover {
     cursor: pointer;
   }
@@ -499,8 +500,15 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
     const router = useRouter()
     const { tab } = parseQuery(router.query)
 
-    const [activeTab, setActiveTab] = useState(tab)
+    const [activeTab, setActiveTab] = useState<string>(tab)
     const [activeTabData, setActiveTabData] = useState<TabDataType>()
+    const [initialActiveTab, setInitialActiveTab] = useState<string>()
+
+    useEffect(() => {
+        if (!initialActiveTab && tab) {
+            setInitialActiveTab(tab)
+        }
+    }, [initialActiveTab, tab])
 
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(activeTab)
@@ -533,23 +541,30 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts }) => 
 
     const renderedCards = useMemo(() => {
         const addAddressTab = canManageContacts && <AddAddressCard onClick={handleAddAddressClick}/>
-        const addressTabs = tabsData.map(({ type, property, unitName, unitType }) => {
+        const addressTabs = tabsData.map(({ type, property, unitName, unitType }, index) => {
             const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
-            const isActive = activeTab === key
+            const isActive = activeTab && activeTab === key
 
-            return <ClientAddressCard
-                onClick={() => handleTabChange(key)}
-                key={key}
-                type={type}
-                property={property}
-                unitName={unitName}
-                unitType={unitType}
-                active={isActive}
-            />
+            return {
+                key,
+                component: <ClientAddressCard
+                    onClick={() => handleTabChange(key)}
+                    key={key}
+                    type={type}
+                    property={property}
+                    unitName={unitName}
+                    unitType={unitType}
+                    active={isActive}
+                />,
+            }
         })
 
-        return [addAddressTab, ...addressTabs].filter(Boolean)
-    }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, tabsData])
+        const initialTab = get(addressTabs.find(tab => tab.key === initialActiveTab), 'component')
+        const otherTabs = addressTabs.filter(tab => tab.key !== initialActiveTab).map(tab => tab.component)
+
+        return [addAddressTab, initialTab, ...otherTabs].filter(Boolean)
+    }, [activeTab, canManageContacts, handleAddAddressClick, handleTabChange, initialActiveTab, tabsData])
+
 
     return (
         <>
