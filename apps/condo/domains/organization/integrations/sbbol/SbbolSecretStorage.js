@@ -8,8 +8,8 @@ const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CO
 // All keys belonging to SBBOL integration will have this prefix in their names
 const SBBOL_REDIS_KEY_PREFIX = 'SBBOL'
 
-// Real TTL is 180 days, but we need to update it earlier
-const REFRESH_TOKEN_TTL_DAYS = 30
+// Real TTL is 180 days, but it is updated every time the accessToken expires and we get a new pair
+const REFRESH_TOKEN_TTL_DAYS = 180
 
 const logger = getLogger('sbbol/SbbolSecretStorage')
 
@@ -38,31 +38,40 @@ class SbbolSecretStorage {
         await this.#setValue('clientSecret:updatedAt', dayjs().toISOString())
     }
 
-    async getAccessToken () {
-        return this.#getValue('accessToken')
+    async getAccessToken (userId) {
+        return this.#getValue(`user:${userId}:accessToken`)
     }
 
-    async setAccessToken (value, options) {
-        await this.#setValue('accessToken', value, options)
-        await this.#setValue('accessToken:updatedAt', dayjs().toISOString())
+    async setAccessToken (
+        value,
+        userId,
+        options,
+    ) {
+        if (!value || !userId) return logger.error('value and userId is required for setAccessToken')
+        await this.#setValue(`user:${userId}:accessToken`, value, options)
+        await this.#setValue(`user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
     }
 
-    async isAccessTokenExpired () {
-        return await this.#isExpired('accessToken')
+    async isAccessTokenExpired (userId) {
+        return await this.#isExpired(`user:${userId}:accessToken`)
     }
 
-    async getRefreshToken () {
-        return this.#getValue('refreshToken')
+    async getRefreshToken (userId) {
+        return this.#getValue(`user:${userId}:refreshToken`)
     }
 
-    async setRefreshToken (value) {
+    async setRefreshToken (
+        value,
+        userId,
+    ) {
+        if (!value || !userId) return logger.error('value and userId is required for setRefreshToken')
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
-        await this.#setValue('refreshToken', value, options)
-        await this.#setValue('refreshToken:updatedAt', dayjs().toISOString())
+        await this.#setValue(`user:${userId}:refreshToken`, value, options)
+        await this.#setValue(`user:${userId}:refreshToken:updatedAt`, dayjs().toISOString())
     }
 
-    async isRefreshTokenExpired () {
-        return await this.#isExpired('refreshToken')
+    async isRefreshTokenExpired (userId) {
+        return await this.#isExpired(`user:${userId}:refreshToken`)
     }
 
     async setOrganization (id) {
@@ -72,14 +81,16 @@ class SbbolSecretStorage {
     /**
      * Used for inspection of stored values in case when there is no direct access to Redis
      */
-    async getRawKeyValues () {
+    async getRawKeyValues (userId) {
+        if (!userId) return logger.error('value is required for getRawKeyValues')
+
         const clientSecretScopedKey = this.#scopedKey('clientSecret')
-        const accessTokenScopedKey = this.#scopedKey('accessToken')
-        const refreshTokenScopedKey = this.#scopedKey('refreshToken')
+        const accessTokenScopedKey = this.#scopedKey(`user:${userId}:accessToken`)
+        const refreshTokenScopedKey = this.#scopedKey(`user:${userId}:refreshToken`)
 
         const clientSecretValue = await this.#getValue('clientSecret')
-        const accessTokenValue = await this.#getValue('accessToken')
-        const refreshTokenValue = await this.#getValue('refreshToken')
+        const accessTokenValue = await this.#getValue(`user:${userId}:accessToken`)
+        const refreshTokenValue = await this.#getValue(`user:${userId}:refreshToken`)
 
         return {
             [clientSecretScopedKey]: clientSecretValue,

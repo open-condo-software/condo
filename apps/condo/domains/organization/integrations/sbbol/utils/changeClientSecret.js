@@ -2,15 +2,22 @@ const querystring = require('querystring')
 const dayjs = require('dayjs')
 const conf = require('@open-condo/config')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
+const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
-    const accessToken = await getOrganizationAccessToken()
+async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret, userId }) {
     const sbbolSecretStorage = getSbbolSecretStorage()
+    const { keystone: userContext } = await getSchemaCtx('User')
+
+    // SBBOL API allows to use any `accessToken` to change `clientSecret` because it is not bound to specific user
+    const user = await User.getOne(userContext, { importRemoteSystem: SBBOL_IMPORT_NAME, deletedAt: null })
+    const accessToken = userId ? await getOrganizationAccessToken(userId) : await getOrganizationAccessToken(user.id)
 
     const requestApi = new SbbolRequestApi({
         accessToken,

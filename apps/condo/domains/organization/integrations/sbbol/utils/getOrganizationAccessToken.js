@@ -19,24 +19,24 @@ async function initializeSbbolAuthApi () {
  *
  * @return {Promise<string|*>}
  */
-async function getOrganizationAccessToken () {
+async function getOrganizationAccessToken (userId) {
     const sbbolSecretStorage = getSbbolSecretStorage()
-    if (await sbbolSecretStorage.isRefreshTokenExpired()) {
+    if (await sbbolSecretStorage.isRefreshTokenExpired(userId)) {
         const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
         throw new Error(`refreshToken is expired for clientId = ${sbbolSecretStorage.clientId}. ${instructionsMessage}`)
     }
 
-    if (await sbbolSecretStorage.isAccessTokenExpired()) {
+    if (await sbbolSecretStorage.isAccessTokenExpired(userId)) {
         const clientSecret = await sbbolSecretStorage.getClientSecret()
-        const currentRefreshToken = await sbbolSecretStorage.getRefreshToken()
+        const currentRefreshToken = await sbbolSecretStorage.getRefreshToken(userId)
         const oauth2 = new SbbolOauth2Api({ clientSecret })
         const { access_token, expires_at: expiresAt, refresh_token } = await oauth2.refreshToken(currentRefreshToken)
 
-        await sbbolSecretStorage.setAccessToken(access_token, { expiresAt })
-        await sbbolSecretStorage.setRefreshToken(refresh_token)
+        await sbbolSecretStorage.setAccessToken(access_token, userId, { expiresAt })
+        await sbbolSecretStorage.setRefreshToken(refresh_token, userId)
     }
 
-    return await sbbolSecretStorage.getAccessToken()
+    return await sbbolSecretStorage.getAccessToken(userId)
 }
 
 module.exports = {
