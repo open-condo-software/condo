@@ -64,23 +64,27 @@ export default function GlobalStyle () {
                   bottom: 4px;
                 }
                 
-                & .ant-checkbox-inner {
-                  background-color: inherit;
-                  border: 1px solid ${colors.inputBorderGrey};
-                  border-radius: 4px;
-                             
-                  width: 24px;
-                  height: 24px;
-                  
-                  &:focus {
+                .ant-checkbox {
+                  .ant-checkbox-inner {
                     background-color: inherit;
+                    border: 1px solid ${colors.inputBorderGrey};
+                    border-radius: 4px;
+                    
+                    width: 24px;
+                    height: 24px;
+                      
+                    &:focus {
+                      background-color: inherit;
+                    }                      
                   }
                   
-                  &::after {
-                    left: 36%;
-                    width: 7px;
-                    height: 12px;
-                  }
+                  &:not(.ant-checkbox-indeterminate) {
+                    .ant-checkbox-inner::after {
+                      left: 36%;
+                      width: 7px;
+                      height: 12px;
+                    }
+                  }                  
                 }
               }
               
