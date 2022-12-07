@@ -104,7 +104,7 @@ const PropertyScopeIdPage = () => {
 
         return properties.map(property => {
             const isDeleted = !!get(property, 'deletedAt')
-            const propertyMessage = property.name ? `\n${property.name}` : getAddressRender(property, DeletedMessage)
+            const propertyMessage = getAddressRender(property, null, DeletedMessage)
 
             return (
                 <Typography.Paragraph

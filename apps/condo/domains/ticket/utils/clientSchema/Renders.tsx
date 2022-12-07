@@ -284,13 +284,13 @@ export const getAddressRender = (property: Property, unitNameMessage?: string, D
     const title = `${text} ${isString(postfix) && postfix || ''}`
 
     const getPostfix = () => (
-        <Typography.Text {...ADDRESS_RENDER_POSTFIX_PROPS}>
+        <Typography.Text {...ADDRESS_RENDER_POSTFIX_PROPS} ellipsis>
             {postfix}
         </Typography.Text>
     )
 
     return (
-        <Typography.Text title={title}>
+        <Typography.Text title={title} ellipsis>
             {renderText} {postfix && getPostfix()}
         </Typography.Text>
     )
