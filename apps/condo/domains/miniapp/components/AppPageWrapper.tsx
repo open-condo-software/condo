@@ -10,7 +10,7 @@ import { useIntl } from '@open-condo/next/intl'
 export const AppPageWrapper: React.FC = ({ children }) => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
-    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+    const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
 
     const { query: { type, id } } = useRouter()
 
