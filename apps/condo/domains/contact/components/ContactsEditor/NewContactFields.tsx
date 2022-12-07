@@ -1,8 +1,7 @@
 import styled from '@emotion/styled'
-import debounce from 'lodash/debounce'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Col, Form, FormInstance, Radio } from 'antd'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Col, Form, Radio } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { MinusCircleOutlined } from '@ant-design/icons'
@@ -15,7 +14,7 @@ import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import Input from '@condo/domains/common/components/antd/Input'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 
-import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
+import { CONTACT_TYPE, ContactValue } from './index'
 
 interface INewContactFieldsFieldsProps {
     initialValue?: TContact,
@@ -25,8 +24,6 @@ interface INewContactFieldsFieldsProps {
     contacts: TContact[],
     displayMinusButton?: boolean,
     onClickMinusButton?: () => void,
-    form: FormInstance
-    fields: FieldsType
     activeTab: CONTACT_TYPE
 }
 
@@ -36,8 +33,8 @@ const MINUS_ICON_STYLE = {
     marginTop: '9px',
     marginLeft: '-4px',
 }
-
 const RADIO_STYLE = { marginTop: '8px' }
+const PHONE_FIELD_WRAPPER_COL = { span: 24 }
 
 const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
   .form-control {
@@ -54,8 +51,6 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     checked,
     displayMinusButton,
     onClickMinusButton,
-    form,
-    fields,
     contacts,
     activeTab,
 }) => {
@@ -114,7 +109,11 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     return (
         <>
             <Col span={10}>
-                <Form.Item name={NEW_CONTACT_PHONE_FORM_ITEM_NAME} rules={validations.phone}>
+                <Form.Item
+                    name={NEW_CONTACT_PHONE_FORM_ITEM_NAME}
+                    rules={validations.phone}
+                    wrapperCol={PHONE_FIELD_WRAPPER_COL}
+                >
                     <StyledPhoneInput
                         error={contactWithSamePhoneExistError}
                         allowClear
