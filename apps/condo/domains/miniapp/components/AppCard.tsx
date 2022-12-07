@@ -16,6 +16,7 @@ const CARD_HEAD_PADDINGS = '32px 40px'
 const TEXT_MARGIN = 8
 const BUTTON_MARGIN = 16
 const CARD_TEXT_STYLES: CSSProperties = { height: 100 }
+const CARD_SPACE_STYLES: CSSProperties = { width: '100%' }
 const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: 60 }
 const LABEL_TO_TAG_PROPS = {
     [APP_FREE_LABEL]: { textColor: colors.blue['5'], bgColor: colors.blue['1'] },
@@ -109,7 +110,7 @@ export const AppCard: React.FC<AppCardProps> = ({
             title={<AppCardTitle logoUrl={logoUrl} label={label} />}
             hoverable
         >
-            <Space direction='vertical' size={BUTTON_MARGIN}>
+            <Space direction='vertical' size={BUTTON_MARGIN} style={CARD_SPACE_STYLES}>
                 <Space direction='vertical' size={TEXT_MARGIN} style={CARD_TEXT_STYLES}>
                     <Typography.Title level={4} ellipsis={TEXT_ELLIPSIS_CONFIG}>
                         {name}
