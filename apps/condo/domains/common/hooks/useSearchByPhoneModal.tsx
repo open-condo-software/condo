@@ -173,10 +173,15 @@ const SearchByPhoneSelect = ({
             autoClearSearchValue
         >
             <StyledPhoneInput
-                autoFocus
+                inputProps={{
+                    autoFocus: true,
+                    tabIndex: 1,
+                }}
                 compatibilityWithAntAutoComplete
                 placeholder={EnterPhoneMessage}
                 masks={PHONE_INPUT_MASK}
+                tabIndex={1}
+                block
             />
         </GraphQlSearchInput>
     )

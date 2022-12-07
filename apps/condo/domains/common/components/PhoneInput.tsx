@@ -8,15 +8,15 @@ import React, {
     useContext,
     useCallback,
     useMemo,
-    forwardRef,
+    forwardRef, CSSProperties,
 } from 'react'
-import ReactPhoneInput from 'react-phone-input-2'
+import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
 import { colors } from '@condo/domains/common/constants/style'
 
-interface IPhoneInputProps extends InputProps {
+interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     block?: boolean
     autoFormat?: boolean
     /*
@@ -24,6 +24,11 @@ interface IPhoneInputProps extends InputProps {
      */
     compatibilityWithAntAutoComplete?: boolean,
     masks?: { ru?: string }
+
+    style?: CSSProperties
+    tabIndex?: number
+    onChange?: (data) => void
+    allowClear?: boolean
 }
 
 type PhoneInputRef = {

@@ -1,8 +1,7 @@
 import { InfoCircleOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
-import { Alert, Typography } from 'antd'
+import { Alert, Col, Typography } from 'antd'
 import { get } from 'lodash'
-import Link from 'next/link'
 import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -35,9 +34,10 @@ const StyledAlert = styled(Alert)`
 type TicketPropertyHintCardProps = {
     propertyId: string
     hintContentStyle?: CSSProperties
+    withCol?: boolean
 }
 
-export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle }) => {
+export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, withCol }) => {
     const intl = useIntl()
     const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
 
@@ -56,18 +56,35 @@ export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ 
 
     const AlertMessage = <Typography.Text strong>{PropertyHintMessage}</Typography.Text>
     const htmlContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
+
+    if (!ticketPropertyHintProperty || !ticketPropertyHint) {
+        return <></>
+    }
     
-    return ticketPropertyHintProperty && ticketPropertyHint && (
-        <StyledAlert
-            message={AlertMessage}
-            description={
-                <>
+    return withCol ? (
+        <Col span={24}>
+            <StyledAlert
+                message={AlertMessage}
+                description={
                     <TicketPropertyHintContent
                         html={htmlContent}
                         style={hintContentStyle}
                         linkToHint={`/property/${propertyId}/hint`}
                     />
-                </>
+                }
+                showIcon
+                icon={<InfoCircleOutlined/>}
+            />
+        </Col>
+    ) : (
+        <StyledAlert
+            message={AlertMessage}
+            description={
+                <TicketPropertyHintContent
+                    html={htmlContent}
+                    style={hintContentStyle}
+                    linkToHint={`/property/${propertyId}/hint`}
+                />
             }
             showIcon
             icon={<InfoCircleOutlined/>}
