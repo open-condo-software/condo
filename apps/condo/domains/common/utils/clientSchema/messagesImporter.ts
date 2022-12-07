@@ -1,4 +1,5 @@
 export async function messagesImporter (locale: string) {
-    const locale_data = await import(`@app/condo/lang/${locale}/${locale}`)
-    return locale_data.default
+    const localeData = await import(`@app/condo/lang/${locale}/${locale}`)
+    const pagesData = await import (`@app/condo/lang/${locale}/${locale}.pages`)
+    return { ...localeData.default, ...pagesData.default }
 }
