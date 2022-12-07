@@ -136,7 +136,7 @@ const fontSizes = {
 
 const shadows = {
     elevated: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
-    main: '0px 28px 65px rgba(208, 216, 225, 0.24), 0px 6px 15px rgba(208, 216, 225, 0.28), 0px 2px 6px rgba(208, 216, 225, 0.16)',
+    main: '0px 4px 14px rgba(178, 185, 217, 0.4)',
     big: '0px 14px 34px rgba(208, 216, 225, 0.4), 0px 15px 38px rgba(208, 216, 225, 0.4), 0px 7px 17px rgba(208, 216, 225, 0.6)',
     small: '0px 19px 45px rgba(208, 216, 225, 0.12), 0px 6px 10px rgba(208, 216, 225, 0.2), 0px 2px 2px rgba(208, 216, 225, 0.28)',
 }
