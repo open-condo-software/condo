@@ -133,7 +133,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
     return (
         <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`} style={LINK_STYLES}>
             <Row justify='space-between' style={{ paddingRight: '24px' }}>
-                <Col>
+                <Col span={21}>
                     <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                         <Col>
                             <Typography.Text strong>
@@ -141,8 +141,8 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
                             </Typography.Text>
 
                         </Col>
-                        <Col>
-                            {property ? getAddressRender(property, unitNameMessage) : DeletedMessage}
+                        <Col span={16}>
+                            {property ? getAddressRender(property, unitNameMessage, DeletedMessage) : DeletedMessage}
                         </Col>
                     </Row>
                 </Col>

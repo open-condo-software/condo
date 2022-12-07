@@ -23,6 +23,12 @@ export const StyledMenu = styled(Menu)`
   border-radius: 8px;
 `
 
+const StyledButton = styled(Button)`
+  &:hover {
+    cursor: initial;
+  }
+`
+
 export const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
     padding: '16px',
@@ -115,11 +121,11 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
             >
                 {
                     minified
-                        ? (<Button type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
+                        ? (<StyledButton type='sberGradient' icon={<PlusOutlined />} shape='circle'/>)
                         : (
-                            <Button type='sberGradient' icon={<PlusOutlined />}>
+                            <StyledButton type='sberGradient' icon={<PlusOutlined />}>
                                 {ResidentAppealMessage}
-                            </Button>
+                            </StyledButton>
                         )
                 }
             </Dropdown>
