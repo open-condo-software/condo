@@ -90,6 +90,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         allowClear = true,
         SearchInputComponentType = SearchComponentType.Select,
         showLoadingMessage = true,
+        notFoundContent: propsNotFoundContent,
         ...restProps
     } = props
 
@@ -131,13 +132,13 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             return <Loader size='small' delay={0} fill />
         }
 
-        if (props.notFoundContent) {
-            return props.notFoundContent
+        if (propsNotFoundContent) {
+            return propsNotFoundContent
         }
 
         return NotFoundMessage
     },
-    [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading, props.notFoundContent])
+    [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading, propsNotFoundContent])
 
     const renderOption = useCallback((option, index?) => {
         let optionLabel = option.text
@@ -186,7 +187,6 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const debounceSearch = useMemo(() => debounce(async (searchingValue) => {
         setIsAllDataLoaded(false)
-        setSearchLoading(true)
         const data = await search(client, searchingValue)
         setSearchData(data)
         setSearchLoading(false)
@@ -194,6 +194,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
 
     const handleSearch = useCallback(async searchingValue => {
         if (!search) return
+        setSearchLoading(true)
         if (isFunction(onSearch)) {
             onSearch(searchingValue)
         }
@@ -287,7 +288,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
         searchValue,
         value: selectedValue,
         placeholder,
-        loading: isInitialLoading || isSearchLoading || isSearchLoading,
+        loading: isInitialLoading || isSearchLoading,
         disabled: isDisabled,
         notFoundContent,
         ...restProps,

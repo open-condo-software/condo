@@ -18,6 +18,7 @@ import {
     redirectToForm,
 } from '@condo/domains/contact/utils/clientCard'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { Loader } from '../components/Loader'
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 
@@ -110,7 +111,7 @@ const SearchByPhoneSelect = ({
 
     const [phone, setPhone] = useState('')
 
-    const renderOptions = useCallback((searchData) => {
+    const renderOptions = useCallback((searchData, _) => {
         const resultOptions = []
         const contactOptions = searchData
             .filter(item => item.type === ClientType.Resident)
