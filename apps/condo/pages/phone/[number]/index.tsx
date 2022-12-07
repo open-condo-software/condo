@@ -53,7 +53,7 @@ const ROW_MEDIUM_GUTTER: [Gutter, Gutter] = [0, 40]
 const ROW_MEDIUM_SMALL_GUTTER: [Gutter, Gutter] = [0, 24]
 const ADD_ADDRESS_TEXT_STYLE: CSSProperties = { marginTop: '12px', marginBottom: '0' }
 const HINT_CARD_STYLE = { maxHeight: '3em' }
-const EMAIL_TEXT_STYLES = { fontSize: fontSizes.content }
+const CLIENT_TEXT_STYLE = { fontSize: fontSizes.content }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 const PLUS_ICON_WRAPPER_CLASS = 'plusIconWrapper'
 const ADD_ADDRESS_TAB_KEY = 'addAddress'
@@ -61,6 +61,7 @@ const ADD_ADDRESS_TAB_KEY = 'addAddress'
 interface IClientContactProps {
     lastTicket: TicketType,
     contact?: ContactType
+    showOrganizationMessage?: boolean
 }
 
 type TabDataType = {
@@ -73,15 +74,23 @@ type TabDataType = {
 const StyledCarouselWrapper = styled(Col)`
   & .ant-carousel {
     background: none;
-    padding-left: 0;
+    padding: 0;
+    
+    & .slick-list {
+      padding: 60px 0;
+
+      & .slick-slide {
+        padding: 0 24px 0 0;
+      }
+    }
   }
 `
 const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
   height: 150px;
-  box-shadow: ${shadows.small};
   border-radius: 12px;
   background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
   padding: 1px;
+  border: 1px solid ${colors.backgroundWhiteSecondary};
 
   & > div {
     border-radius: 11px;
@@ -92,6 +101,7 @@ const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
 
   &:hover {
     cursor: pointer;
+    box-shadow: ${shadows.small};
   }
 `
 const StyledAddressTabContent = styled.div`
@@ -102,7 +112,6 @@ const StyledAddressTabContent = styled.div`
 const StyledAddAddressButton = styled(Button)`
   width: 100%;
   height: 150px;
-  box-shadow: ${shadows.small};
   border-radius: 12px;
   border: 1px dashed ${colors.inputBorderHover};
   text-align: center;
@@ -118,7 +127,8 @@ const StyledAddAddressButton = styled(Button)`
 
   &:hover {
     border: inherit;
-
+    box-shadow: ${shadows.small};
+    
     & .${PLUS_ICON_WRAPPER_CLASS} {
       background-color: ${colors.black};
       color: ${colors.white};
@@ -222,12 +232,13 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
 //#endregion
 
 //#region Contact and Not resident client Tab content
-const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact }) => {
+const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, showOrganizationMessage }) => {
     const name = get(contact, 'name', get(lastTicket, 'clientName'))
     const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
+    const organizationName = get(lastTicket, 'organization.name')
 
     return (
-        <Row>
+        <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
                 <Row justify='space-between'>
                     <Typography.Title level={3}>{name}</Typography.Title>
@@ -241,8 +252,17 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact }) =
             {
                 email && (
                     <Col span={24}>
-                        <Typography.Text style={EMAIL_TEXT_STYLES}>
+                        <Typography.Text style={CLIENT_TEXT_STYLE}>
                             {email}
+                        </Typography.Text>
+                    </Col>
+                )
+            }
+            {
+                showOrganizationMessage && (
+                    <Col span={24}>
+                        <Typography.Text style={CLIENT_TEXT_STYLE}>
+                            {organizationName}
                         </Typography.Text>
                     </Col>
                 )
@@ -258,6 +278,7 @@ const ClientCardTabContent = ({
     canManageContacts,
     handleContactEditClick = null,
     contact = null,
+    showOrganizationMessage = false,
 }) => {
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'pages.clientCard.showAllPropertyTickets' })
@@ -310,7 +331,11 @@ const ClientCardTabContent = ({
                         </StyledLink>
                     </Col>
                     <Col span={24}>
-                        <ClientContent lastTicket={lastCreatedTicket} contact={contact}/>
+                        <ClientContent
+                            lastTicket={lastCreatedTicket}
+                            contact={contact}
+                            showOrganizationMessage={showOrganizationMessage}
+                        />
                     </Col>
                     <TicketPropertyHintCard
                         propertyId={get(property, 'id', null)}
@@ -363,7 +388,7 @@ const ClientCardTabContent = ({
     )
 }
 
-const ContactClientTabContent = ({ property, unitName, unitType, phone, canManageContacts }) => {
+const ContactClientTabContent = ({ property, unitName, unitType, phone, canManageContacts, showOrganizationMessage = false }) => {
     const router = useRouter()
 
     const { objs: contacts } = Contact.useObjects({
@@ -416,11 +441,12 @@ const ContactClientTabContent = ({ property, unitName, unitType, phone, canManag
             handleContactEditClick={handleContactEditClick}
             canManageContacts={canManageContacts}
             contact={contact}
+            showOrganizationMessage={showOrganizationMessage}
         />
     )
 }
 
-const NotResidentClientTabContent = ({ property, unitName, unitType, phone }) => {
+const NotResidentClientTabContent = ({ property, unitName, unitType, phone, showOrganizationMessage = false }) => {
     const router = useRouter()
 
     const searchTicketsQuery = useMemo(() => ({
@@ -455,6 +481,7 @@ const NotResidentClientTabContent = ({ property, unitName, unitType, phone }) =>
             searchTicketsQuery={searchTicketsQuery}
             handleTicketCreateClick={handleTicketCreateClick}
             canManageContacts={false}
+            showOrganizationMessage={showOrganizationMessage}
         />
     )
 }
@@ -469,7 +496,7 @@ const parseCardDataFromQuery = (stringCard) => {
     }
 }
 
-const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
+const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationMessage = false }) => {
     const property = get(tabData, 'property')
     const unitName = get(tabData, 'unitName')
     const unitType = get(tabData, 'unitType')
@@ -482,6 +509,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
             unitName={unitName}
             unitType={unitType}
             canManageContacts={canManageContacts}
+            showOrganizationMessage={showOrganizationMessage}
         />
     ) : (
         <NotResidentClientTabContent
@@ -489,13 +517,14 @@ const ClientTabContent = ({ tabData, phone, canManageContacts }) => {
             property={property}
             unitName={unitName}
             unitType={unitType}
+            showOrganizationMessage={showOrganizationMessage}
         />
     )
 }
 //#endregion
 
 //#region Page Content
-const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loading }) => {
+const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loading, showOrganizationMessage = false }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: phoneNumber,
@@ -606,29 +635,26 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={ROW_BIG_GUTTER}>
+                    <Row>
                         <Col span={24}>
                             <Typography.Title>{ClientCardTitle}</Typography.Title>
                         </Col>
+                        {
+                            loading ? <Loader /> : (
+                                <StyledCarouselWrapper span={24}>
+                                    <Carousel ref={carouselRef} slidesToShow={slidesToShow}>
+                                        {renderedCards}
+                                    </Carousel>
+                                </StyledCarouselWrapper>
+                            )
+                        }
                         <Col span={24}>
-                            <Row gutter={ROW_MEDIUM_GUTTER}>
-                                {
-                                    loading ? <Loader /> : (
-                                        <StyledCarouselWrapper span={24}>
-                                            <Carousel ref={carouselRef} slidesToShow={slidesToShow}>
-                                                {renderedCards}
-                                            </Carousel>
-                                        </StyledCarouselWrapper>
-                                    )
-                                }
-                                <Col span={24}>
-                                    <ClientTabContent
-                                        tabData={activeTabData}
-                                        phone={phoneNumber}
-                                        canManageContacts={canManageContacts}
-                                    />
-                                </Col>
-                            </Row>
+                            <ClientTabContent
+                                tabData={activeTabData}
+                                phone={phoneNumber}
+                                canManageContacts={canManageContacts}
+                                showOrganizationMessage={showOrganizationMessage}
+                            />
                         </Col>
                     </Row>
                 </PageContent>
@@ -637,7 +663,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
     )
 }
 
-export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) => {
+export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts, showOrganizationMessage = false }) => {
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
 
@@ -700,6 +726,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
             tabsData={tabsData}
             canManageContacts={canManageContacts}
             loading={ticketsLoading || contactsLoading || employeesLoading}
+            showOrganizationMessage={showOrganizationMessage}
         />
     )
 }
@@ -713,7 +740,10 @@ const ClientCardPage = () => {
     const baseQuery = { ...ticketFilterQuery, organization: { id: organizationId } }
 
     return (
-        <ClientCardPageContentWrapper baseQuery={baseQuery} canManageContacts={canManageContacts}/>
+        <ClientCardPageContentWrapper
+            baseQuery={baseQuery}
+            canManageContacts={canManageContacts}
+        />
     )
 }
 //#endregion
