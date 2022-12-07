@@ -147,7 +147,7 @@ const StyledLink = styled.span`
   display: block;
   width: max-content;
 
-  font-size: ${fontSizes.label};
+  font-size: ${fontSizes.content};
   text-decoration: none;
   border-bottom: 1px solid ${colors.lightGrey[6]};
 `
@@ -303,19 +303,20 @@ const ClientCardTabContent = ({
             <Col span={24}>
                 <Row gutter={ROW_MEDIUM_GUTTER}>
                     <Col span={24}>
-                        <StyledLink onClick={handleShowAllPropertyTicketsMessage}>
+                        <StyledLink
+                            onClick={handleShowAllPropertyTicketsMessage}
+                        >
                             {ShowAllPropertyTicketsMessage}
                         </StyledLink>
                     </Col>
                     <Col span={24}>
                         <ClientContent lastTicket={lastCreatedTicket} contact={contact}/>
                     </Col>
-                    <Col span={24}>
-                        <TicketPropertyHintCard
-                            propertyId={get(property, 'id', null)}
-                            hintContentStyle={HINT_CARD_STYLE}
-                        />
-                    </Col>
+                    <TicketPropertyHintCard
+                        propertyId={get(property, 'id', null)}
+                        hintContentStyle={HINT_CARD_STYLE}
+                        withCol
+                    />
                 </Row>
             </Col>
             <Col span={24}>
@@ -609,21 +610,25 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
                         <Col span={24}>
                             <Typography.Title>{ClientCardTitle}</Typography.Title>
                         </Col>
-                        {
-                            loading ? <Loader /> : (
-                                <StyledCarouselWrapper span={24}>
-                                    <Carousel ref={carouselRef} slidesToShow={slidesToShow}>
-                                        {renderedCards}
-                                    </Carousel>
-                                </StyledCarouselWrapper>
-                            )
-                        }
                         <Col span={24}>
-                            <ClientTabContent
-                                tabData={activeTabData}
-                                phone={phoneNumber}
-                                canManageContacts={canManageContacts}
-                            />
+                            <Row gutter={ROW_MEDIUM_GUTTER}>
+                                {
+                                    loading ? <Loader /> : (
+                                        <StyledCarouselWrapper span={24}>
+                                            <Carousel ref={carouselRef} slidesToShow={slidesToShow}>
+                                                {renderedCards}
+                                            </Carousel>
+                                        </StyledCarouselWrapper>
+                                    )
+                                }
+                                <Col span={24}>
+                                    <ClientTabContent
+                                        tabData={activeTabData}
+                                        phone={phoneNumber}
+                                        canManageContacts={canManageContacts}
+                                    />
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                 </PageContent>
@@ -680,7 +685,7 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts }) =
             unitType: ticket.unitType,
         })), 'property.id')
         const employeesData = uniqBy(employeeTickets.map(ticket => ({
-            type: ClientType.NotResident,
+            type: ClientType.Employee,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
