@@ -217,6 +217,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
         const fields = listAdapter.fieldAdaptersByPath
         if (!fields[UPDATED_AT_FIELD] || !fields[UPDATED_AT_FIELD]) {
             logger.info(`ADAPTER_CACHE: Cache is NOT enabled for list: ${listName} -> No ${UPDATED_AT_FIELD} field`)
+            continue
         }
 
         if (excludedLists.includes(listName) ||
@@ -303,11 +304,8 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) {
     return async ( ...args ) => {
 
-        if (functionName === 'UPDATE') {
-            console.log('HEY')
-        }
-
         const functionResult = await f.apply(listAdapter, args)
+
         await cache.setState(listName, functionResult[UPDATED_AT_FIELD])
 
         if (cache.debugMode) {
