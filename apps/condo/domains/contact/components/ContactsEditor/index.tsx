@@ -147,7 +147,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])
     const isNotResidentInitialValue = !initialValue.id && initialValue.phone
-    const initialTab = (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
+    const initialTab = hasNotResidentTab && (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
     const initialNotResidentAutoCompleteFieldsValue = !initialValue.id && initialValue
 
     const {
@@ -189,7 +189,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 [fields.phone]: initialValue.phone,
             })
         }
-    }, [initialValue])
+    }, [fields.id, fields.name, fields.phone])
 
     // When `unitName` was changed from outside, selection is not relevant anymore
     useEffect(() => {
@@ -335,8 +335,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
                                     initialValue={manuallyTypedContact}
-                                    form={form}
-                                    fields={fields}
                                     activeTab={activeTab}
                                 />
                             ) : (
@@ -356,8 +354,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     displayMinusButton={true}
                                                     onClickMinusButton={handleClickOnMinusButton}
                                                     initialValue={manuallyTypedContact}
-                                                    form={form}
-                                                    fields={fields}
                                                     activeTab={activeTab}
                                                 />
                                                 {(!get(role, 'canManageContacts')) && (
