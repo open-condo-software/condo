@@ -11,7 +11,7 @@ import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/Pa
 const AllMiniAppsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
-    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+    const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
 
     const userOrganization = useOrganization()
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)

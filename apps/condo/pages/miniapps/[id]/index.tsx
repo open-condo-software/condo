@@ -14,7 +14,7 @@ import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 const MiniAppIndexPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
-    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+    const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
 
     const router = useRouter()
     const { query: { type, id } } = router
