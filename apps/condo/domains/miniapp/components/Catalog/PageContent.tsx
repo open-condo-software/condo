@@ -1,11 +1,11 @@
 import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import get from 'lodash/get'
-import { useIntl } from 'react-intl'
 import { useRouter } from 'next/router'
 import { Row, Col } from 'antd'
 import type { RowProps, ColProps } from 'antd'
 import { Typography, Carousel, Banner } from '@open-condo/ui'
 import { useLazyQuery } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { SortB2BAppPromoBlocksBy } from '@app/condo/schema'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -16,7 +16,7 @@ import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
 import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES } from '@condo/domains/miniapp/constants'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { AppCard } from './AppCard'
+import { AppCard } from '../AppCard'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 60]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]
@@ -40,7 +40,7 @@ export const CatalogPageContent: React.FC = () => {
     const CategoriesTitles = Object.assign({}, ...ALL_SECTIONS.map(category => ({
         [category]: intl.formatMessage({ id: `miniapps.categories.${category}.name` }),
     })))
-    const SearchPlaceHolder = intl.formatMessage({ id: 'miniapps.search.placeholder' })
+    const SearchPlaceHolder = intl.formatMessage({ id: 'miniapps.catalog.search.placeholder' })
 
     const router = useRouter()
     const { query: { tab } } = router
@@ -166,7 +166,15 @@ export const CatalogPageContent: React.FC = () => {
                                 <Row gutter={CONTENT_SPACING}>
                                     {miniapps.map(app => (
                                         <Col span={8} key={`${app.category}:${app.name}`}>
-                                            <AppCard name={app.name}/>
+                                            <AppCard
+                                                id={app.id}
+                                                type={app.type}
+                                                label={app.label}
+                                                logoUrl={app.logo}
+                                                connected={app.connected}
+                                                name={app.name}
+                                                description={app.shortDescription}
+                                            />
                                         </Col>
                                     ))}
                                 </Row>
