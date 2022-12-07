@@ -1,10 +1,12 @@
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import {
-    SettingsTab,
     SettingsTabPaneDescriptor,
-    SettingsTabs,
-    SettingsTabsSmall,
 } from '@condo/domains/common/components/settings/Tabs'
+import {
+    Tab,
+    TopRowTabs,
+    SideBlockTabs,
+} from '@condo/domains/common/components/Tabs'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
@@ -31,7 +33,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
     const settingsTabPanes = useMemo(() => settingsTabs.map(tab => (
         <Tabs.TabPane
             key={tab.key}
-            tab={<SettingsTab title={tab.title} eventName={tab.eventName}/>}
+            tab={<Tab title={tab.title} eventName={tab.eventName}/>}
             {...tab}
         >
             {tab.content}
@@ -40,7 +42,7 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
 
     const { isSmall } = useLayoutContext()
 
-    const SettingsTabsComponent = isSmall ? SettingsTabsSmall : SettingsTabs
+    const SettingsTabsComponent = isSmall ? TopRowTabs : SideBlockTabs
 
     return settingsTabs.length === 1 ? (
         settingsTabs[0].content
