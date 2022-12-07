@@ -102,7 +102,7 @@ const addressService = (fieldsHooks = {}) => plugin(({
                 ? createTestAddressServiceClientInstance({ ...existingItem, ...resolvedData })
                 : createAddressServiceClientInstance(get(conf, 'ADDRESS_SERVICE_URL'))
 
-            const result = await client.search(get(resolvedData, ['address']))
+            const result = await client.search(get({ ...existingItem, ...resolvedData }, ['address']))
 
             resolvedData['address'] = get(result, 'address')
             resolvedData['addressKey'] = get(result, 'addressKey')
