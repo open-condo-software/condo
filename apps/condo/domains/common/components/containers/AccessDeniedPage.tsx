@@ -27,7 +27,7 @@ interface IAccessDeniedPageProps {
 export const AccessDeniedPage: React.FC<IAccessDeniedPageProps> = ({ title }) => {
     const intl = useIntl()
     const ContactTheAdministratorMessage = intl.formatMessage({ id: 'ContactTheAdministrator' })
-    const NoPermissionMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
+    const NoPermissionMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
     const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
 
     return (
