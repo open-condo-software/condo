@@ -9,29 +9,33 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { SortB2BAppPromoBlocksBy } from '@app/condo/schema'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import type { MiniAppOutput } from '@app/condo/schema'
 import { PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { B2BAppPromoBlock } from '@condo/domains/miniapp/utils/clientSchema'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
-import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES } from '@condo/domains/miniapp/constants'
+import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES, ALL_APPS_CATEGORY, CONNECTED_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { AppCard } from '../AppCard'
+import type { TabContent } from './CardGrid'
+import { CardGrid } from './CardGrid'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 60]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN: ColProps['span'] = 24
-const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'row', alignItems: 'center' }
+const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }
+const SEARCH_FIXED_STYLES: CSSProperties = { width: 280 }
 const BANNER_CHANGE_DELAY = 6000 // 6 sec
 const BANNER_CHANGE_SPEED = 1200 // 1.2 sec
-const ALL_APPS_CATEGORY = 'RECOMMENDED'
-const CONNECTED_APPS_CATEGORY = 'CONNECTED'
 const ALL_SECTIONS = [
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
     ...ALL_APPS_CATEGORIES,
 ]
 
+type QueryResult = {
+    objs: Array<MiniAppOutput>
+}
 
 export const CatalogPageContent: React.FC = () => {
     const intl = useIntl()
@@ -41,6 +45,7 @@ export const CatalogPageContent: React.FC = () => {
         [category]: intl.formatMessage({ id: `miniapps.categories.${category}.name` }),
     })))
     const SearchPlaceHolder = intl.formatMessage({ id: 'miniapps.catalog.search.placeholder' })
+    const SearchResultsTitle = intl.formatMessage({ id: 'miniapps.catalog.search.results.title' })
 
     const router = useRouter()
     const { query: { tab } } = router
@@ -66,9 +71,11 @@ export const CatalogPageContent: React.FC = () => {
     // APPS HOOKS
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const [miniapps, setMiniapps] = useState([])
+    const [miniapps, setMiniapps] = useState<Array<MiniAppOutput>>([])
     const [appsCategories, setAppsCategories] = useState<Array<string>>([])
-    const [fetchMiniapps] = useLazyQuery(ALL_MINI_APPS_QUERY, {
+    const [appsTabs, setAppsTabs] = useState<Array<TabContent>>([])
+
+    const [fetchMiniapps] = useLazyQuery<QueryResult>(ALL_MINI_APPS_QUERY, {
         onCompleted: (data) => {
             const fetchedApps = get(data, 'objs', [])
             setMiniapps(fetchedApps)
@@ -77,6 +84,7 @@ export const CatalogPageContent: React.FC = () => {
             setMiniapps([])
         },
     })
+
     useEffect(() => {
         if (userOrganizationId) {
             fetchMiniapps({
@@ -93,31 +101,26 @@ export const CatalogPageContent: React.FC = () => {
             setMiniapps([])
         }
     }, [search, userOrganizationId, fetchMiniapps])
+
     useDeepCompareEffect(() => {
-        const categories = []
-        if (miniapps.length > 0) {
-            categories.push(ALL_APPS_CATEGORY)
-        }
-        if (miniapps.some(app => app.connected)) {
-            categories.push(CONNECTED_APPS_CATEGORY)
-        }
-        const fetchedAppsCategories = new Set()
-        for (const app of miniapps) {
-            fetchedAppsCategories.add(app.category)
+        const tabs = [{ category: ALL_APPS_CATEGORY, apps: miniapps }]
+
+        const connectedApps = miniapps.filter(app => app.connected)
+        if (connectedApps.length) {
+            tabs.push({ category: CONNECTED_APPS_CATEGORY, apps: connectedApps })
         }
         for (const category of ALL_APPS_CATEGORIES) {
-            if (fetchedAppsCategories.has(category)) {
-                categories.push(category)
+            const categoryApps = miniapps.filter(app => app.category === category)
+            if (categoryApps.length) {
+                tabs.push({ category, apps: categoryApps })
             }
         }
+        setAppsTabs(tabs)
+        const categories = tabs.map(tab => tab.category)
         setAppsCategories(categories)
     }, [miniapps])
-    // TAB HOOKS
+
     const selectedTab = (tab && !Array.isArray(tab) && appsCategories.includes(tab.toUpperCase())) ? tab.toUpperCase() : ALL_APPS_CATEGORY
-    const handleTabChange = useCallback((newTab) => {
-        const newPath = `${router.route}?tab=${newTab}`
-        router.push(newPath)
-    }, [router])
 
     return (
         <>
@@ -148,41 +151,20 @@ export const CatalogPageContent: React.FC = () => {
                 {Boolean(miniapps.length || search) && (
                     <Col span={FULL_COL_SPAN}>
                         <Row gutter={CONTENT_SPACING}>
-                            {/*TODO: Replace constant with breakpoints*/}
-                            <Col span={18} style={VERT_ALIGN_STYLES}>
+                            <Col span={FULL_COL_SPAN} style={VERT_ALIGN_STYLES}>
                                 <Typography.Title level={2}>
-                                    {CategoriesTitles[selectedTab]}
+                                    {search ? SearchResultsTitle : CategoriesTitles[selectedTab]}
                                 </Typography.Title>
-                            </Col>
-                            <Col span={6}>
                                 <Input
                                     placeholder={SearchPlaceHolder}
                                     onChange={handleSearchInputChange}
                                     value={search}
                                     allowClear
+                                    style={SEARCH_FIXED_STYLES}
                                 />
                             </Col>
-                            <Col span={18}>
-                                <Row gutter={CONTENT_SPACING}>
-                                    {miniapps.map(app => (
-                                        <Col span={8} key={`${app.category}:${app.name}`}>
-                                            <AppCard
-                                                id={app.id}
-                                                type={app.type}
-                                                label={app.label}
-                                                logoUrl={app.logo}
-                                                connected={app.connected}
-                                                name={app.name}
-                                                description={app.shortDescription}
-                                            />
-                                        </Col>
-                                    ))}
-                                </Row>
-                            </Col>
-                            <Col span={6}>
-                                {appsCategories.map(category => (
-                                    <div key={category}>{category}</div>
-                                ))}
+                            <Col span={FULL_COL_SPAN}>
+                                <CardGrid tabs={appsTabs}/>
                             </Col>
                         </Row>
                     </Col>
