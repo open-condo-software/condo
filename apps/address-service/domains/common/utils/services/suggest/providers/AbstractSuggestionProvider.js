@@ -33,15 +33,21 @@ class AbstractSuggestionProvider {
     }
 
     /**
+     * @typedef {Object} SuggestionHelpersType
+     * @property {string} tin The organization's tin (inn)
+     */
+
+    /**
      * Sends search string to external suggestions service
      * @param {string} query
      * @param {?string} context {@see suggestionContexts}
      * @param {number|NaN} count
+     * @param {SuggestionHelpersType} helpers
      * @returns {Promise<Array>} the array of denormalized suggestions
      * @abstract
      * @public
      */
-    async get ({ query, context = null, count = NaN }) {
+    async get ({ query, context = null, count = NaN, helpers = {} }) {
         throw new Error('Method still not implemented.')
     }
 

@@ -1,4 +1,4 @@
-const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/AbstractSuggestionProvider')
+const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 class GoogleSuggestionProvider extends AbstractSuggestionProvider {

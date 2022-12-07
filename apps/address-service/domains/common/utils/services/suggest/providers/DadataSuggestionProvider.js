@@ -1,8 +1,11 @@
-const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/AbstractSuggestionProvider')
+const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 const conf = require('@open-condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { getRedisClient } = require('@open-condo/keystone/redis')
+
+const ORGANIZATION_TIN_CACHE_TTL = 60 // in seconds
 
 /**
  * @typedef {Object} DadataObjectData
@@ -149,11 +152,13 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
     }
 
     /**
-     * @returns {Promise<DadataObject[]>}
+     * @param {string} url
+     * @param {Object} body
+     * @returns {Promise<*|null>}
      */
-    async get ({ query, context = null, count = 20 }) {
+    async callToDadata (url, body) {
         const result = await fetch(
-            this.url,
+            url,
             {
                 method: 'POST',
                 headers: {
@@ -161,13 +166,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     'Accept': 'application/json',
                     'Authorization': `Token ${this.token}`,
                 },
-                body: JSON.stringify(
-                    {
-                        query,
-                        ...this.getContext(context),
-                        ...(isNaN(count) ? {} : { count }),
-                    },
-                ),
+                body: JSON.stringify(body),
             },
         )
 
@@ -175,8 +174,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
 
         const status = result.status
         if (status === 200) {
-            const response = await result.json()
-            return get(response, 'suggestions', [])
+            return await result.json()
         } else if (status === 403) {
             /**
              * See all cases for 403 error
@@ -188,10 +186,65 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
              * If yes, we should create a separate token rotator for dadata provider (search & suggest)
              * @link https://dadata.ru/api/stat/
              */
-        } else {
-            //TODO(AleX83Xpert) maybe need to log erroneous status
-            return []
         }
+
+        //TODO(AleX83Xpert) maybe need to log erroneous status
+        return null
+    }
+
+    /**
+     * @param {string} tin
+     * @returns {Promise<*|null>}
+     */
+    async getOrganization (tin) {
+        const redis = getRedisClient('organization', 'tin')
+        const cached = await redis.get(tin)
+        if (cached) {
+            return JSON.parse(cached)
+        }
+
+        const result = await this.callToDadata(`${this.url}/findById/party`, { query: tin })
+
+        if (result) {
+            const data = get(result, ['suggestions', 0], null)
+            if (data) {
+                await redis.set(tin, JSON.stringify(data), 'EX', ORGANIZATION_TIN_CACHE_TTL)
+            }
+            return data
+        }
+
+        return null
+    }
+
+    /**
+     * @returns {Promise<DadataObject[]>}
+     */
+    async get ({ query, context = null, count = 20, helpers }) {
+        const { tin = null } = helpers
+
+        const body = {
+            query,
+            ...this.getContext(context),
+            ...(isNaN(count) ? {} : { count }),
+        }
+
+        if (tin) {
+            const organizationInfo = await this.getOrganization(tin)
+            if (organizationInfo) {
+                body.locations_boost = ['settlement_kladr_id', 'city_kladr_id', 'region_kladr_id']
+                    .map(fieldName => get(organizationInfo, `data.address.data.${fieldName}`))
+                    .filter(Boolean)
+                    .map((kladr_id) => ({ kladr_id }))
+            }
+        }
+
+        const result = await this.callToDadata(`${this.url}/suggest/address`, body)
+
+        if (result) {
+            return get(result, 'suggestions', [])
+        }
+
+        return []
     }
 
     /**
@@ -199,7 +252,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {(NormalizedBuilding & {rawValue: string})[]}
      */
     normalize (data) {
-        // I wanna to decrease a dependency from possible data changes got from dadata
+        // I wanna decrease a dependency from possible data changes got from dadata
         // So, transform data field-by-field
         // Yes, at the beginning it will be 1-to-1 copying
         return data.map((item) => (
