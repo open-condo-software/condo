@@ -44,6 +44,7 @@ const SEARCH_BY_PHONE = gql`
           clientPhone
           unitName
           unitType
+          number
       }
       
         employees: allOrganizationEmployees(
@@ -96,6 +97,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
                     unitName: ticket.unitName,
                     unitType: ticket.unitType,
                     type: ClientType.NotResident,
+                    number: ticket.number,
                     isEmployee: true,
                 })
             }
@@ -108,6 +110,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
             unitName: ticket.unitName,
             unitType: ticket.unitType,
             type: ClientType.NotResident,
+            number: ticket.number,
         }))
 
         return [...contacts, ...tickets, ...employees]
@@ -117,27 +120,39 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
 const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
 const LINK_STYLES = { fontSize: fontSizes.label, color: colors.black }
 
-const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type }) => {
+const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, number }) => {
     const intl = useIntl()
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ShortFlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
     const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
+    const TicketMessage = intl.formatMessage({ id: 'Ticket' })
 
     const prefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : ShortFlatMessage
     const unitNameMessage = unitName && ` ${prefix} ${unitName}`
 
     return (
         <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`} style={LINK_STYLES}>
-            <Row gutter={SELECT_OPTION_ROW_GUTTER}>
+            <Row justify='space-between' style={{ paddingRight: '24px' }}>
                 <Col>
-                    <Typography.Text strong>
-                        {renderPhone(phone)}
-                    </Typography.Text>
+                    <Row gutter={SELECT_OPTION_ROW_GUTTER}>
+                        <Col>
+                            <Typography.Text strong>
+                                {renderPhone(phone)}
+                            </Typography.Text>
 
+                        </Col>
+                        <Col>
+                            {property ? getAddressRender(property, unitNameMessage) : DeletedMessage}
+                        </Col>
+                    </Row>
                 </Col>
-                <Col>
-                    {property ? getAddressRender(property, unitNameMessage) : DeletedMessage}
-                </Col>
+                {
+                    type !== ClientType.Resident && (
+                        <Col span={3}>
+                            {TicketMessage} №{number}
+                        </Col>
+                    )
+                }
             </Row>
         </Typography.Link>
     )

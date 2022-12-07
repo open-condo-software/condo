@@ -9,13 +9,14 @@ interface IContactsEditorHookArgs {
     role?: OrganizationEmployeeRole,
     allowLandLine?: boolean,
     initialQuery?: Pick<ContactWhereInput, 'organization'>
+    loading?: boolean
 }
 
 interface IContactsEditorHookResult {
     ContactsEditorComponent: React.FC<IContactEditorProps>
 }
 
-export const useContactsEditorHook = ({ initialQuery, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
+export const useContactsEditorHook = ({ initialQuery, loading, role, allowLandLine }: IContactsEditorHookArgs): IContactsEditorHookResult => {
     const [shouldCreateContact, setShouldCreateContact] = useState(false)
 
     const shouldCreateContactRef = useRef(shouldCreateContact)
@@ -43,7 +44,7 @@ export const useContactsEditorHook = ({ initialQuery, role, allowLandLine }: ICo
             />
         )
         return ContactsEditorWrapper
-    }, [])
+    }, [loading])
 
     return {
         ContactsEditorComponent,

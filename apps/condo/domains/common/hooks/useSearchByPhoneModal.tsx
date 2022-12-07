@@ -18,7 +18,12 @@ import {
     redirectToForm,
 } from '@condo/domains/contact/utils/clientCard'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { Loader } from '../components/Loader'
+
+const StyledModal = styled(Modal)`
+    .ant-modal-header {
+      border-bottom: none;
+    }
+`
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 
@@ -85,7 +90,6 @@ const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) =>
 }
 
 const SELECT_STYLES = { width: '100%' }
-const SEARCH_ICON_STYLES = { fontSize: fontSizes.content }
 const PHONE_INPUT_MASK = { ru: '... ... .. ..' }
 
 const StyledPhoneInput = styled(PhoneInput)`
@@ -154,9 +158,8 @@ const SearchByPhoneSelect = ({
     return (
         <GraphQlSearchInput
             search={searchByPhoneFn}
-            suffixIcon={<SearchOutlined style={SEARCH_ICON_STYLES}/>}
             showSearch
-            allowClear={false}
+            allowClear
             style={SELECT_STYLES}
             notFoundContent={
                 <NotFoundSearchByPhoneContent
@@ -176,13 +179,10 @@ const SearchByPhoneSelect = ({
             <StyledPhoneInput
                 inputProps={{
                     autoFocus: true,
-                    tabIndex: 1,
                 }}
                 compatibilityWithAntAutoComplete
                 placeholder={EnterPhoneMessage}
                 masks={PHONE_INPUT_MASK}
-                tabIndex={1}
-                block
             />
         </GraphQlSearchInput>
     )
@@ -197,7 +197,7 @@ export const useSearchByPhoneModal = (searchByPhoneFn, canManageContacts) => {
     const handleCloseModal = useCallback(() => setIsSearchByPhoneModalVisible(false), [])
 
     const SearchByPhoneModal = useMemo(() => (
-        <Modal
+        <StyledModal
             visible={isSearchByPhoneModalVisible}
             title={SearchByPhoneMessage}
             onCancel={handleCloseModal}
@@ -210,7 +210,7 @@ export const useSearchByPhoneModal = (searchByPhoneFn, canManageContacts) => {
                 searchByPhoneFn={searchByPhoneFn}
                 canManageContacts={canManageContacts}
             />
-        </Modal>
+        </StyledModal>
     ), [SearchByPhoneMessage, canManageContacts, handleCloseModal,
         isSearchByPhoneModalVisible, searchByPhoneFn])
 
