@@ -120,7 +120,6 @@ registerSchemas(keystone, [
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time
-    const { registerTriggers } = require('@open-condo/triggers')
     const { registerTasks } = require('@open-condo/keystone/tasks')
 
     registerTasks([
@@ -130,10 +129,6 @@ if (!IS_BUILD_PHASE) {
         require('@condo/domains/resident/tasks'),
         require('@condo/domains/scope/tasks'),
         require('@open-condo/webhooks/tasks'),
-    ])
-
-    registerTriggers([
-        require('@condo/domains/ticket/triggers'),
     ])
 }
 
