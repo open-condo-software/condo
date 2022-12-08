@@ -10,7 +10,7 @@ const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/un
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
 
@@ -263,6 +263,14 @@ async function setDeadline (resolvedData) {
     }
 }
 
+function updateStatusAfterResidentReview (resolvedData) {
+    if (resolvedData.reviewValue === REVIEW_VALUES.RETURN) {
+        resolvedData.status = STATUS_IDS.OPEN
+    } else {
+        resolvedData.status = STATUS_IDS.CLOSED
+    }
+}
+
 
 module.exports = {
     calculateReopenedCounter,
@@ -279,4 +287,5 @@ module.exports = {
     calculateDeferredUntil,
     calculateDefaultDeferredUntil,
     setDeadline,
+    updateStatusAfterResidentReview,
 }
