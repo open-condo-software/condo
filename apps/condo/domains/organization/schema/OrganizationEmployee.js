@@ -79,8 +79,8 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             type: Relationship,
             ref: 'OrganizationEmployeeRole',
             isRequired: true,
-            knexOptions: { isNotNullable: false }, // Relationship only!
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            knexOptions: { isNotNullable: true }, // Relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
         position: {
             schemaDoc: 'Free-form description of the employee\'s position',

@@ -25,7 +25,6 @@ const { createTestUser, createTestPhone, createTestEmail } = require('@condo/dom
 const { OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
-const { SpecializationScope } = require('../../scope/utils/testSchema')
 
 describe('InviteNewOrganizationEmployeeService', () => {
     describe('inviteNewOrganizationEmployee', () => {
@@ -259,6 +258,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
                     canInviteNewOrganizationEmployees: true,
+                    canManageRoles: true,
                 })
                 const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
                 const employeeUserAttrs = {

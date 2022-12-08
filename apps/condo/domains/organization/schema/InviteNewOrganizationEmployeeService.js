@@ -88,7 +88,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: [TicketCategoryClassifierWhereUniqueInput], hasAllSpecializations: Boolean }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput!, position: String, specializations: [TicketCategoryClassifierWhereUniqueInput], hasAllSpecializations: Boolean }',
         },
         {
             access: true,
@@ -155,7 +155,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const employee = await OrganizationEmployee.create(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: userOrganization.id } },
-                    ...role && { role: { connect: { id: role.id } } },
+                    role: { connect: { id: role.id } },
                     position,
                     email,
                     name,
