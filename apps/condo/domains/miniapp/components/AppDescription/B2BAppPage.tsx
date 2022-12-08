@@ -43,6 +43,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
             <PageWrapper>
                 <PageContentWrapper>
                     <PageContent
+                        id={app.id}
                         name={app.name}
                         category={app.category}
                         label={app.label}
