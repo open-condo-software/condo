@@ -49121,14 +49121,6 @@ export enum SortTicketChangesBy {
   ContactDisplayNameFromDesc = 'contactDisplayNameFrom_DESC',
   ContactDisplayNameToAsc = 'contactDisplayNameTo_ASC',
   ContactDisplayNameToDesc = 'contactDisplayNameTo_DESC',
-  OperatorIdFromAsc = 'operatorIdFrom_ASC',
-  OperatorIdFromDesc = 'operatorIdFrom_DESC',
-  OperatorIdToAsc = 'operatorIdTo_ASC',
-  OperatorIdToDesc = 'operatorIdTo_DESC',
-  OperatorDisplayNameFromAsc = 'operatorDisplayNameFrom_ASC',
-  OperatorDisplayNameFromDesc = 'operatorDisplayNameFrom_DESC',
-  OperatorDisplayNameToAsc = 'operatorDisplayNameTo_ASC',
-  OperatorDisplayNameToDesc = 'operatorDisplayNameTo_DESC',
   AssigneeIdFromAsc = 'assigneeIdFrom_ASC',
   AssigneeIdFromDesc = 'assigneeIdFrom_DESC',
   AssigneeIdToAsc = 'assigneeIdTo_ASC',
@@ -49965,8 +49957,6 @@ export enum SortTicketsBy {
   ClientEmailDesc = 'clientEmail_DESC',
   ClientPhoneAsc = 'clientPhone_ASC',
   ClientPhoneDesc = 'clientPhone_DESC',
-  OperatorAsc = 'operator_ASC',
-  OperatorDesc = 'operator_DESC',
   AssigneeAsc = 'assignee_ASC',
   AssigneeDesc = 'assignee_DESC',
   ExecutorAsc = 'executor_ASC',
@@ -50361,8 +50351,6 @@ export type Ticket = {
   clientEmail?: Maybe<Scalars['String']>;
   /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
   clientPhone?: Maybe<Scalars['String']>;
-  /**  Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
-  operator?: Maybe<User>;
   /**  Assignee/responsible employee/user who must ensure that the issue is fulfilled  */
   assignee?: Maybe<User>;
   /**  Executor employee/user who perform the issue  */
@@ -50953,14 +50941,6 @@ export type TicketChange = {
   contactDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Contact, that reported issue, described in this ticket  */
   contactDisplayNameTo?: Maybe<Scalars['String']>;
-  /**  Old id of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
-  operatorIdFrom?: Maybe<Scalars['ID']>;
-  /**  New id of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
-  operatorIdTo?: Maybe<Scalars['ID']>;
-  /**  Old display name of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
-  operatorDisplayNameFrom?: Maybe<Scalars['String']>;
-  /**  New display name of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him  */
-  operatorDisplayNameTo?: Maybe<Scalars['String']>;
   /**  Old id of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled  */
   assigneeIdFrom?: Maybe<Scalars['ID']>;
   /**  New id of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled  */
@@ -51097,10 +51077,6 @@ export type TicketChangeCreateInput = {
   contactIdTo?: Maybe<Scalars['ID']>;
   contactDisplayNameFrom?: Maybe<Scalars['String']>;
   contactDisplayNameTo?: Maybe<Scalars['String']>;
-  operatorIdFrom?: Maybe<Scalars['ID']>;
-  operatorIdTo?: Maybe<Scalars['ID']>;
-  operatorDisplayNameFrom?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo?: Maybe<Scalars['String']>;
   assigneeIdFrom?: Maybe<Scalars['ID']>;
   assigneeIdTo?: Maybe<Scalars['ID']>;
   assigneeDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -51216,10 +51192,6 @@ export type TicketChangeUpdateInput = {
   contactIdTo?: Maybe<Scalars['ID']>;
   contactDisplayNameFrom?: Maybe<Scalars['String']>;
   contactDisplayNameTo?: Maybe<Scalars['String']>;
-  operatorIdFrom?: Maybe<Scalars['ID']>;
-  operatorIdTo?: Maybe<Scalars['ID']>;
-  operatorDisplayNameFrom?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo?: Maybe<Scalars['String']>;
   assigneeIdFrom?: Maybe<Scalars['ID']>;
   assigneeIdTo?: Maybe<Scalars['ID']>;
   assigneeDisplayNameFrom?: Maybe<Scalars['String']>;
@@ -51942,50 +51914,6 @@ export type TicketChangeWhereInput = {
   contactDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   contactDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contactDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operatorIdFrom?: Maybe<Scalars['ID']>;
-  operatorIdFrom_not?: Maybe<Scalars['ID']>;
-  operatorIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  operatorIdFrom_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  operatorIdTo?: Maybe<Scalars['ID']>;
-  operatorIdTo_not?: Maybe<Scalars['ID']>;
-  operatorIdTo_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  operatorIdTo_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  operatorDisplayNameFrom?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_contains?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_contains?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_starts_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_starts_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_ends_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_ends_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_contains_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_contains_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_starts_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_starts_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_ends_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_not_ends_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameFrom_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operatorDisplayNameFrom_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operatorDisplayNameTo?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_contains?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_contains?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_starts_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_starts_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_ends_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_ends_with?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_contains_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_contains_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_starts_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_starts_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_ends_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
-  operatorDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operatorDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   assigneeIdFrom?: Maybe<Scalars['ID']>;
   assigneeIdFrom_not?: Maybe<Scalars['ID']>;
   assigneeIdFrom_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -53742,7 +53670,6 @@ export type TicketCreateInput = {
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
-  operator?: Maybe<UserRelateToOneInput>;
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
@@ -55081,7 +55008,6 @@ export type TicketHistoryRecord = {
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
-  operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
@@ -55141,7 +55067,6 @@ export type TicketHistoryRecordCreateInput = {
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
-  operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
@@ -55206,7 +55131,6 @@ export type TicketHistoryRecordUpdateInput = {
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
-  operator?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   categoryClassifier?: Maybe<Scalars['String']>;
@@ -55433,10 +55357,6 @@ export type TicketHistoryRecordWhereInput = {
   clientPhone_not_ends_with_i?: Maybe<Scalars['String']>;
   clientPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operator?: Maybe<Scalars['String']>;
-  operator_not?: Maybe<Scalars['String']>;
-  operator_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operator_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   assignee?: Maybe<Scalars['String']>;
   assignee_not?: Maybe<Scalars['String']>;
   assignee_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -58378,7 +58298,6 @@ export type TicketUpdateInput = {
   clientName?: Maybe<Scalars['String']>;
   clientEmail?: Maybe<Scalars['String']>;
   clientPhone?: Maybe<Scalars['String']>;
-  operator?: Maybe<UserRelateToOneInput>;
   assignee?: Maybe<UserRelateToOneInput>;
   executor?: Maybe<UserRelateToOneInput>;
   categoryClassifier?: Maybe<TicketCategoryClassifierRelateToOneInput>;
@@ -58584,8 +58503,6 @@ export type TicketWhereInput = {
   clientPhone_not_ends_with_i?: Maybe<Scalars['String']>;
   clientPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  operator?: Maybe<UserWhereInput>;
-  operator_is_null?: Maybe<Scalars['Boolean']>;
   assignee?: Maybe<UserWhereInput>;
   assignee_is_null?: Maybe<Scalars['Boolean']>;
   executor?: Maybe<UserWhereInput>;

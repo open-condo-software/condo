@@ -15069,7 +15069,6 @@ type TicketHistoryRecord {
   clientName: String
   clientEmail: String
   clientPhone: String
-  operator: String
   assignee: String
   executor: String
   categoryClassifier: String
@@ -15297,10 +15296,6 @@ input TicketHistoryRecordWhereInput {
   clientPhone_not_ends_with_i: String
   clientPhone_in: [String]
   clientPhone_not_in: [String]
-  operator: String
-  operator_not: String
-  operator_in: [String]
-  operator_not_in: [String]
   assignee: String
   assignee_not: String
   assignee_in: [String]
@@ -15665,7 +15660,6 @@ input TicketHistoryRecordUpdateInput {
   clientName: String
   clientEmail: String
   clientPhone: String
-  operator: String
   assignee: String
   executor: String
   categoryClassifier: String
@@ -15729,7 +15723,6 @@ input TicketHistoryRecordCreateInput {
   clientName: String
   clientEmail: String
   clientPhone: String
-  operator: String
   assignee: String
   executor: String
   categoryClassifier: String
@@ -15908,10 +15901,6 @@ type Ticket {
   """ Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it 
   """
   clientPhone: String
-
-  """ Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him 
-  """
-  operator: User
 
   """ Assignee/responsible employee/user who must ensure that the issue is fulfilled 
   """
@@ -16190,8 +16179,6 @@ input TicketWhereInput {
   clientPhone_not_ends_with_i: String
   clientPhone_in: [String]
   clientPhone_not_in: [String]
-  operator: UserWhereInput
-  operator_is_null: Boolean
   assignee: UserWhereInput
   assignee_is_null: Boolean
   executor: UserWhereInput
@@ -16437,8 +16424,6 @@ enum SortTicketsBy {
   clientEmail_DESC
   clientPhone_ASC
   clientPhone_DESC
-  operator_ASC
-  operator_DESC
   assignee_ASC
   assignee_DESC
   executor_ASC
@@ -16520,7 +16505,6 @@ input TicketUpdateInput {
   clientName: String
   clientEmail: String
   clientPhone: String
-  operator: UserRelateToOneInput
   assignee: UserRelateToOneInput
   executor: UserRelateToOneInput
   categoryClassifier: TicketCategoryClassifierRelateToOneInput
@@ -16581,7 +16565,6 @@ input TicketCreateInput {
   clientName: String
   clientEmail: String
   clientPhone: String
-  operator: UserRelateToOneInput
   assignee: UserRelateToOneInput
   executor: UserRelateToOneInput
   categoryClassifier: TicketCategoryClassifierRelateToOneInput
@@ -18160,22 +18143,6 @@ type TicketChange {
   """
   contactDisplayNameTo: String
 
-  """ Old id of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him 
-  """
-  operatorIdFrom: ID
-
-  """ New id of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him 
-  """
-  operatorIdTo: ID
-
-  """ Old display name of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him 
-  """
-  operatorDisplayNameFrom: String
-
-  """ New display name of related entity. Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him 
-  """
-  operatorDisplayNameTo: String
-
   """ Old id of related entity. Assignee/responsible employee/user who must ensure that the issue is fulfilled 
   """
   assigneeIdFrom: ID
@@ -18981,50 +18948,6 @@ input TicketChangeWhereInput {
   contactDisplayNameTo_not_ends_with_i: String
   contactDisplayNameTo_in: [String]
   contactDisplayNameTo_not_in: [String]
-  operatorIdFrom: ID
-  operatorIdFrom_not: ID
-  operatorIdFrom_in: [ID]
-  operatorIdFrom_not_in: [ID]
-  operatorIdTo: ID
-  operatorIdTo_not: ID
-  operatorIdTo_in: [ID]
-  operatorIdTo_not_in: [ID]
-  operatorDisplayNameFrom: String
-  operatorDisplayNameFrom_not: String
-  operatorDisplayNameFrom_contains: String
-  operatorDisplayNameFrom_not_contains: String
-  operatorDisplayNameFrom_starts_with: String
-  operatorDisplayNameFrom_not_starts_with: String
-  operatorDisplayNameFrom_ends_with: String
-  operatorDisplayNameFrom_not_ends_with: String
-  operatorDisplayNameFrom_i: String
-  operatorDisplayNameFrom_not_i: String
-  operatorDisplayNameFrom_contains_i: String
-  operatorDisplayNameFrom_not_contains_i: String
-  operatorDisplayNameFrom_starts_with_i: String
-  operatorDisplayNameFrom_not_starts_with_i: String
-  operatorDisplayNameFrom_ends_with_i: String
-  operatorDisplayNameFrom_not_ends_with_i: String
-  operatorDisplayNameFrom_in: [String]
-  operatorDisplayNameFrom_not_in: [String]
-  operatorDisplayNameTo: String
-  operatorDisplayNameTo_not: String
-  operatorDisplayNameTo_contains: String
-  operatorDisplayNameTo_not_contains: String
-  operatorDisplayNameTo_starts_with: String
-  operatorDisplayNameTo_not_starts_with: String
-  operatorDisplayNameTo_ends_with: String
-  operatorDisplayNameTo_not_ends_with: String
-  operatorDisplayNameTo_i: String
-  operatorDisplayNameTo_not_i: String
-  operatorDisplayNameTo_contains_i: String
-  operatorDisplayNameTo_not_contains_i: String
-  operatorDisplayNameTo_starts_with_i: String
-  operatorDisplayNameTo_not_starts_with_i: String
-  operatorDisplayNameTo_ends_with_i: String
-  operatorDisplayNameTo_not_ends_with_i: String
-  operatorDisplayNameTo_in: [String]
-  operatorDisplayNameTo_not_in: [String]
   assigneeIdFrom: ID
   assigneeIdFrom_not: ID
   assigneeIdFrom_in: [ID]
@@ -19466,14 +19389,6 @@ enum SortTicketChangesBy {
   contactDisplayNameFrom_DESC
   contactDisplayNameTo_ASC
   contactDisplayNameTo_DESC
-  operatorIdFrom_ASC
-  operatorIdFrom_DESC
-  operatorIdTo_ASC
-  operatorIdTo_DESC
-  operatorDisplayNameFrom_ASC
-  operatorDisplayNameFrom_DESC
-  operatorDisplayNameTo_ASC
-  operatorDisplayNameTo_DESC
   assigneeIdFrom_ASC
   assigneeIdFrom_DESC
   assigneeIdTo_ASC
@@ -19608,10 +19523,6 @@ input TicketChangeUpdateInput {
   contactIdTo: ID
   contactDisplayNameFrom: String
   contactDisplayNameTo: String
-  operatorIdFrom: ID
-  operatorIdTo: ID
-  operatorDisplayNameFrom: String
-  operatorDisplayNameTo: String
   assigneeIdFrom: ID
   assigneeIdTo: ID
   assigneeDisplayNameFrom: String
@@ -19720,10 +19631,6 @@ input TicketChangeCreateInput {
   contactIdTo: ID
   contactDisplayNameFrom: String
   contactDisplayNameTo: String
-  operatorIdFrom: ID
-  operatorIdTo: ID
-  operatorDisplayNameFrom: String
-  operatorDisplayNameTo: String
   assigneeIdFrom: ID
   assigneeIdTo: ID
   assigneeDisplayNameFrom: String

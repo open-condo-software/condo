@@ -146,17 +146,6 @@ const Ticket = new GQLListSchema('Ticket', {
         clientEmail:  CLIENT_EMAIL_FIELD,
         clientPhone: CLIENT_PHONE_LANDLINE_FIELD,
 
-        operator: {
-            schemaDoc: 'Staff/person who created the issue (submitter). This may be a call center operator or an employee who speaks to a inhabitant/client and filled out an issue for him',
-            type: Relationship,
-            ref: 'User',
-            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
-        },
-        // operatorMeta: {
-        //     type: Json,
-        //     schemaDoc: 'For external analytics about the operator who created the issue. Example: geolocation, contact type, ...',
-        // },
-
         // Integrations!?
         // hookStatus
         // hookResult
