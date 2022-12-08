@@ -9,7 +9,7 @@ const { allMiniAppsByTestClient, createTestB2BApp, createTestB2BAppContext, upda
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE, APP_NEW_LABEL } = require('@condo/domains/miniapp/constants')
+const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE, APP_NEW_LABEL, OTHER_CATEGORY } = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
@@ -277,6 +277,63 @@ describe('AllMiniAppsService', () => {
                 const indexedApps = data.filter(el => expectedOrder.includes(el.id))
                 const actualOrder = indexedApps.map(el => el.id)
                 expect(actualOrder).toEqual(expectedOrder)
+            })
+        })
+        describe('Filtering', () => {
+            test('Connected, id_not and category should work', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [app] = await createTestB2BApp(admin, { isHidden: false })
+                const [billing] = await createTestBillingIntegration(admin, { isHidden: false })
+                const [acquiring] = await createTestAcquiringIntegration(admin, [billing], { isHidden: false })
+
+                const client = await makeEmployeeUserClientWithAbilities()
+                const [apps] = await allMiniAppsByTestClient(client, client.organization.id)
+
+                expect(apps).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: app.id }),
+                    expect.objectContaining({ id: billing.id }),
+                    expect.objectContaining({ id: acquiring.id }),
+                ]))
+
+                await createTestB2BAppContext(admin, app, client.organization)
+                await createTestBillingIntegrationOrganizationContext(admin, client.organization, billing)
+                await createTestAcquiringIntegrationContext(admin, client.organization, acquiring)
+                const [connectedApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true },
+                })
+                const [notConnectedApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: false },
+                })
+                expect(connectedApps).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: app.id }),
+                    expect.objectContaining({ id: billing.id }),
+                    expect.objectContaining({ id: acquiring.id }),
+                ]))
+                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: app.id })]))
+                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: billing.id })]))
+                expect(notConnectedApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: acquiring.id })]))
+
+                const [noBillingApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true, id_not: billing.id },
+                })
+                expect(noBillingApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: billing.id })]))
+
+                const [noAcquiringApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true, id_not: acquiring.id },
+                })
+                expect(noAcquiringApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: acquiring.id })]))
+
+                const [noB2BApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { connected: true, id_not: app.id },
+                })
+                expect(noB2BApps).not.toEqual(expect.arrayContaining([expect.objectContaining({ id: app.id })]))
+
+                const [otherApps] = await allMiniAppsByTestClient(client, client.organization.id, {
+                    where: { category: OTHER_CATEGORY },
+                })
+                expect(otherApps).not.toEqual(expect.arrayContaining([
+                    expect.not.objectContaining({ category: OTHER_CATEGORY }),
+                ]))
             })
         })
     })
