@@ -109,27 +109,26 @@ const addressService = (fieldsHooks = {}) => plugin(({
             const result = await client.search(get({ ...existingItem, ...resolvedData }, ['address']))
 
             if (result) {
-                resolvedData['address'] = get(result, 'address')
+                /**
+                 * We have restriction for updating some fields for existing resident
+                 * @see apps/condo/domains/resident/schema/RegisterResidentService.js:65
+                 * @see apps/condo/domains/resident/schema/Resident.js:213
+                 */
+                if (!(operation === 'update' && listKey === 'Resident')) {
+                    resolvedData['address'] = get(result, 'address')
+                    resolvedData['addressMeta'] = {
+                        dv: 1,
+                        value: get(result, ['addressMeta', 'value'], ''),
+                        unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
+                        data: get(result, ['addressMeta', 'data'], null),
+                    }
+                }
                 resolvedData['addressKey'] = get(result, 'addressKey')
                 resolvedData['addressSources'] = get(result, 'addressSources', [])
-
-                resolvedData['addressMeta'] = {
-                    dv: 1,
-                    value: get(result, ['addressMeta', 'value'], ''),
-                    unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
-                    data: get(result, ['addressMeta', 'data'], null),
-                }
             }
         }
 
-        /**
-         * We have restriction for updating next fields for existing resident
-         * @see apps/condo/domains/resident/schema/RegisterResidentService.js:65
-         * @see apps/condo/domains/resident/schema/Resident.js:213
-         */
-        return (listKey === 'Resident' && operation === 'update')
-            ? omit(resolvedData, ['address', 'addressMeta'])
-            : resolvedData
+        return resolvedData
     }
     hooks.resolveInput = composeResolveInputHook(hooks.resolveInput, newResolveInput)
 
