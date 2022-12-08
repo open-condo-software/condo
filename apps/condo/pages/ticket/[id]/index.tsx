@@ -114,8 +114,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
 
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
     const { isSmall } = useLayoutContext()
@@ -250,9 +248,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
 
     const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
         ticketId: id,
-        locale: intl.locale,
-        user: auth.user,
-        timeZone,
         where: { id },
         sortBy: [],
     })
