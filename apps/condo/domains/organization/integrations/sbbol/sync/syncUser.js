@@ -136,21 +136,21 @@ const syncUser = async ({ context: { context, keystone }, userInfo }) => {
     // user already registered by phone number, but not imported
     if (notImportedUsers.length > 0) {
         const { email, phone } = userInfo
-        const update = {}
+        const updateInput = {}
         if (email) {
             await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, userIdToExclude: user.id, context })
             if (!user.isEmailVerified && user.email === email) {
-                update.isEmailVerified = true
+                updateInput.isEmailVerified = true
             }
             if (!user.email || user.email !== email) {
-                update.email = email
+                updateInput.email = email
             }
         }
         if (!user.isPhoneVerified && user.phone === phone) {
-            update.isPhoneVerified = true
+            updateInput.isPhoneVerified = true
         }
         const updatedUser = await User.update(context, user.id, {
-            ...update,
+            ...updateInput,
             ...dvSenderFields,
         })
 
