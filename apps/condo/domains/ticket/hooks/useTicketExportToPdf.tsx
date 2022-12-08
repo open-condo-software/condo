@@ -116,6 +116,17 @@ const CheckListComments: React.FC<CheckListCommentsPropsType> = (props) => {
         )
     }, [])
 
+    const CommentPreviews = useMemo(() => {
+        return comments.map((comment) => (
+            <Col key={comment.id} span={24}>
+                <CommentPreviewWithCheckbox
+                    onChange={handleSelectComment(comment.id)}
+                    comment={comment}
+                />
+            </Col>
+        ))
+    }, [comments, handleSelectComment])
+
     useEffect(() => {
         setCheckedCommentIds(comments
             .filter((comment) => comment.checked)
@@ -152,16 +163,7 @@ const CheckListComments: React.FC<CheckListCommentsPropsType> = (props) => {
                 {showAllComments && (
                     <Col span={24}>
                         <Row gutter={COMMENT_PREVIEWS_VERTICAL_GUTTER}>
-                            {
-                                comments.map((comment) => (
-                                    <Col key={comment.id} span={24}>
-                                        <CommentPreviewWithCheckbox
-                                            onChange={handleSelectComment(comment.id)}
-                                            comment={comment}
-                                        />
-                                    </Col>
-                                ))
-                            }
+                            {CommentPreviews}
                         </Row>
                     </Col>
                 )}
@@ -206,7 +208,7 @@ const updateQuery: UpdateQueryType = async ({ data }) => {
     window.open('/ticket/pdf' + query, '_blank')
 }
 
-export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  => {
+export const useTicketExportToPdf: UseTicketExportToPdfTaskType = (props)  => {
     const { ticketId, where, sortBy } = props
 
     const intl = useIntl()
@@ -261,7 +263,6 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
                 },
             },
         })
-
 
         handleCloseModal()
     }, [checkedCommentIds, handleCloseModal, haveAllComments, haveConsumedMaterials, haveListCompletedWorks, haveTotalCostWork, sortBy, where])

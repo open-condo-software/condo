@@ -52,7 +52,7 @@ import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
+import { useTicketExportToPdf } from '@condo/domains/ticket/hooks/useTicketExportToPdf'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 
@@ -101,7 +101,7 @@ const TicketTable = ({
     }, [selectedTicketKeys])
 
     const { TicketsExportToXlsxButton: TicketsExportToXlsxButton } = useTicketExportToExcelTask({
-        where: { ...searchTicketsQuery },
+        where: searchTicketsQuery,
         sortBy,
         format: EXCEL,
         locale: intl.locale,
@@ -109,7 +109,7 @@ const TicketTable = ({
         user: auth.user,
     })
     
-    const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdfTask({
+    const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdf({
         ticketId: selectedOneTicketId,
         where: {
             'id_in': selectedTicketKeys as string[],

@@ -61,7 +61,7 @@ import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
-import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
+import { useTicketExportToPdf } from '@condo/domains/ticket/hooks/useTicketExportToPdf'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -246,7 +246,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         return timeSinceCreation.join(' ')
     }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, statusUpdatedAt])
 
-    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
+    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdf({
         ticketId: id,
         where: { id },
         sortBy: [],

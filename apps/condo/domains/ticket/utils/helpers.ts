@@ -543,22 +543,14 @@ const getUnitDetails = ({ ticket, intl }) => {
 }
 
 export const getFullAddressByTicket = ({ ticket, intl }: { ticket: Ticket, intl: IntlShape }) => {
-    const {
-        streetPart,
-        areaPart,
-        settlementPart,
-        regionPart,
-        cityPart,
-        renderData: renderAddress,
-    } = getAddressDetails(ticket.propertyAddressMeta)
+    const { renderData: renderAddress } = getAddressDetails(ticket.propertyAddressMeta)
 
-    const { renderData: renderUnit, unitPart, sectionPart, floorPart } = getUnitDetails({ ticket, intl })
+    const { renderData: renderUnit } = getUnitDetails({ ticket, intl })
 
     let fullAddress = renderAddress
     if (renderUnit) {
         fullAddress += renderUnit
     }
 
-    console.debug('getFullAddressByPropertyMeta', { ticket, streetPart, areaPart, settlementPart, regionPart, cityPart, renderAddress, unitPart, sectionPart, floorPart, renderUnit, fullAddress })
     return fullAddress
 }
