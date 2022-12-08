@@ -1,8 +1,7 @@
 const { AddressInjection } = require('@address-service/domains/address/utils/serverSchema')
 const get = require('lodash/get')
 const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
-
-const SPECIAL_SYMBOLS_REGEX = /[!@#$%^&*)(+=.,\-_:;"'`[\]]/g
+const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('@address-service/domains/address/constants')
 
 /**
  * A class used to search injections within database.
@@ -23,7 +22,7 @@ class InjectionsSeeker {
      */
     extractSearchParts () {
         return this.s
-            .replace(SPECIAL_SYMBOLS_REGEX, '')
+            .replace(KEYWORDS_SPECIAL_SYMBOLS_REGEX, '')
             .split(' ')
             .filter(Boolean)
             .filter((x) => x.length > 1) // to allow search by house numbers contains 2 digits

@@ -9,6 +9,7 @@ const access = require('@address-service/domains/address/access/AddressInjection
 const get = require('lodash/get')
 const { Json, AddressPartWithType } = require('@open-condo/keystone/fields')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
+const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('../constants')
 
 const readOnlyAccess = {
     read: true,
@@ -106,16 +107,23 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
                     'city.typeFull',
                     'city.name',
                     'cityDistrict.typeFull',
+                    'cityDistrict.typeShort',
                     'cityDistrict.name',
                     'settlement.typeFull',
+                    'settlement.typeShort',
                     'settlement.name',
                     'street.typeFull',
+                    'street.typeShort',
                     'street.name',
                     'house.typeFull',
+                    'house.typeShort',
                     'house.name',
                     'block.name',
-                ].map((field) => get({ ...existingItem, ...resolvedData }, field)).filter(Boolean).join(' '),
-                // todo(AleX83Xpert) maybe create the `address` string (similar to dadata value)
+                ]
+                    .map((field) => get({ ...existingItem, ...resolvedData }, field))
+                    .filter(Boolean)
+                    .join(' ')
+                    .replace(KEYWORDS_SPECIAL_SYMBOLS_REGEX, ''),
             }
         },
     },
