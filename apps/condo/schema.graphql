@@ -47120,7 +47120,7 @@ input InviteNewOrganizationEmployeeInput {
   email: String
   phone: String!
   name: String
-  role: OrganizationEmployeeRoleWhereUniqueInput
+  role: OrganizationEmployeeRoleWhereUniqueInput!
   position: String
   specializations: [TicketCategoryClassifierWhereUniqueInput]
   hasAllSpecializations: Boolean

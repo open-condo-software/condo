@@ -21,7 +21,8 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, { role })
                 const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
 
                 expect(accepted).toEqual(expect.objectContaining({
@@ -40,7 +41,8 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, { role })
 
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite))
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite, { isRejected: true }))
@@ -53,7 +55,8 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const anonymous = await makeClient()
 
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, { role })
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await acceptOrRejectOrganizationInviteById(anonymous, invite)
