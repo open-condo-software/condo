@@ -34,7 +34,11 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, search: String }',
+            type: 'input AllMiniAppsWhereInput { connected: Boolean, id_not: String, category: String }',
+        },
+        {
+            access: true,
+            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, search: String, where: AllMiniAppsWhereInput }',
         },
         {
             access: true,
@@ -47,8 +51,8 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
             access: access.canExecuteAllMiniApps,
             schema: 'allMiniApps (data: AllMiniAppsInput!): [MiniAppOutput!]',
             resolver: async (parent, args) => {
-                const { data: { organization, search } } = args
-                const services = []
+                const { data: { organization, search, where: { connected, category, ...restWhere } = {} } } = args
+                let services = []
 
                 const searchFilters = search ? {
                     name_contains_i: search,
@@ -58,6 +62,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                     isHidden: false,
                     deletedAt: null,
                     ...searchFilters,
+                    ...restWhere,
                 })
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     organization,
@@ -85,6 +90,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                     isHidden: false,
                     deletedAt: null,
                     ...searchFilters,
+                    ...restWhere,
                 })
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     organization,
@@ -113,6 +119,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                     isGlobal: false,
                     deletedAt: null,
                     ...searchFilters,
+                    ...restWhere,
                 })
                 const B2BAppContexts = await find('B2BAppContext', {
                     organization,
@@ -134,6 +141,12 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                         displayPriority: app.displayPriority,
                         createdAt: app.createdAt,
                     })
+                }
+                if (connected !== undefined) {
+                    services = services.filter(service => service.connected === connected)
+                }
+                if (category !== undefined) {
+                    services = services.filter(service => service.category === category)
                 }
                 services.sort(priorityCompare)
                 return services
