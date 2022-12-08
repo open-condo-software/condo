@@ -78,7 +78,10 @@ const addressService = (fieldsHooks = {}) => plugin(({
 
             // In some update cases...
             || (
-                operation === 'update' && (
+                operation === 'update'
+                // When we do not try to delete
+                && !resolvedData['deletedAt']
+                && (
                     // ... When existing item has no address key (a database row was created before the address service was launched)
                     !existingItem['addressKey']
 
@@ -104,15 +107,17 @@ const addressService = (fieldsHooks = {}) => plugin(({
 
             const result = await client.search(get({ ...existingItem, ...resolvedData }, ['address']))
 
-            resolvedData['address'] = get(result, 'address')
-            resolvedData['addressKey'] = get(result, 'addressKey')
-            resolvedData['addressSources'] = get(result, 'addressSources', [])
+            if (result) {
+                resolvedData['address'] = get(result, 'address')
+                resolvedData['addressKey'] = get(result, 'addressKey')
+                resolvedData['addressSources'] = get(result, 'addressSources', [])
 
-            resolvedData['addressMeta'] = {
-                dv: 1,
-                value: get(result, ['addressMeta', 'value'], ''),
-                unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
-                data: get(result, ['addressMeta', 'data'], null),
+                resolvedData['addressMeta'] = {
+                    dv: 1,
+                    value: get(result, ['addressMeta', 'value'], ''),
+                    unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
+                    data: get(result, ['addressMeta', 'data'], null),
+                }
             }
         }
 
