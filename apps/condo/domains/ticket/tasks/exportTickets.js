@@ -21,7 +21,7 @@ const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const { ERROR } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
-const { EXPORT_FORMAT_VALUES, EXCEL } = require('../../common/constants/export')
+const { EXPORT_FORMAT_VALUES, EXCEL } = require('@condo/domains/common/constants/export')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 

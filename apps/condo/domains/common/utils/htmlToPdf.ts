@@ -54,7 +54,6 @@ class HtmlToPdf {
             y: 0,
             width: pdfWidth,
             height: pdfImageHeight,
-
         }
 
         this.doc.addImage(imageOptions)
