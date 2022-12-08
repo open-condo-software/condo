@@ -5,7 +5,7 @@ const fetch = require('node-fetch')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
-const ORGANIZATION_TIN_CACHE_TTL = 60 // in seconds
+const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
 
 /**
  * @typedef {Object} DadataObjectData
