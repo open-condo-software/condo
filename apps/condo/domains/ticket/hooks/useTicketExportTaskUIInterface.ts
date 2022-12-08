@@ -6,6 +6,7 @@ import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 import { TicketExportTask as TicketExportTaskApi } from '@condo/domains/ticket/utils/clientSchema'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
+import get from 'lodash/get'
 
 export const useTicketExportTaskUIInterface = () => {
     const intl = useIntl()
@@ -19,7 +20,9 @@ export const useTicketExportTaskUIInterface = () => {
     const tryToDownloadFile = async (taskRecord: TicketExportTask) => {
         if (taskRecord.file) {
             console.log('Downloading exported file TicketExportTask', taskRecord)
-            await downloadFile({ url: taskRecord?.file?.publicUrl, name: taskRecord?.file?.originalFilename })
+            const url = get(taskRecord, 'file.publicUrl')
+            const name = get(taskRecord, 'file.originalFilename')
+            await downloadFile({ url, name })
         } else {
             console.error('File is not presented in TicketExportTask', taskRecord)
         }
