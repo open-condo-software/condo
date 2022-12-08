@@ -1,9 +1,10 @@
-import { get, isNull } from 'lodash'
+import { get, isEmpty, isNull } from 'lodash'
 import dayjs  from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
 import { ParsedUrlQuery } from 'querystring'
 import { SortOrder } from 'antd/es/table/interface'
+import { IntlShape } from '@formatjs/intl'
 
 import {
     Ticket,
@@ -462,4 +463,102 @@ export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetti
 export function isCompletedTicket (ticket: Ticket): boolean {
     const ticketStatusType = get(ticket, ['status', 'type'])
     return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE
+}
+
+const getAddressDetails = (propertyAddressMeta) => {
+    const addressMeta = get(propertyAddressMeta, 'data')
+
+    const streetWithType = get(addressMeta, 'street_with_type')
+
+    const houseType = get(addressMeta, 'house_type')
+    const houseName = get(addressMeta, 'house')
+
+    const blockType = get(addressMeta, 'block_type')
+    const blockName = get(addressMeta, 'block')
+
+    const regionType = get(addressMeta, 'region_type')
+    const regionName = get(addressMeta, 'region')
+    const regionWithType = get(addressMeta, 'region_with_type')
+    const regionNamePosition = regionWithType && regionWithType.split(' ')[0] === regionName ? 0 : 1
+    const regionWithFullType = regionNamePosition === 0 ? `${regionName} ${regionType}` : `${regionType} ${regionName}`
+
+    const cityWithType = get(addressMeta, 'city_with_type')
+    const cityName = get(addressMeta, 'city')
+
+    const settlementPart = get(addressMeta, 'settlement_with_type')
+
+    const block = blockType ? ` ${blockType} ${blockName}` : ''
+    const settlement = streetWithType ? streetWithType : settlementPart
+    const streetPart = settlement && `${settlement}, ${houseType} ${houseName}${block}`
+    const regionPart = regionName && regionName !== cityName && regionWithFullType
+    const cityPart = cityWithType && cityWithType
+
+    const areaWithType = get(addressMeta, 'area_with_type')
+    const areaPart = areaWithType && areaWithType !== cityPart && areaWithType
+
+    const regionLine = regionPart ? `${regionPart}` : ''
+    const areaLine = areaPart ? `${regionLine ? ',' : ''} ${areaPart}` : ''
+    const cityLine = cityPart ? `${regionLine ? ',' : ''} ${cityPart}` : ''
+    const settlementLine = settlementPart ? `, ${settlementPart}` : ''
+    const renderData = regionLine + areaLine + settlementLine + cityLine + streetPart
+
+    return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData }
+}
+
+const getUnitDetails = ({ ticket, intl }) => {
+    const FloorMessage = intl.formatMessage({ id: 'ticketBlankExport.address.floor' })
+
+    const unitName = ticket.unitName
+    const unitType = ticket.unitType ?? 'flat'
+
+    const sectionType = ticket.sectionType ?? 'section'
+    const sectionName = ticket.sectionName
+
+    const floorName = ticket.floorName
+
+    const unitPart = unitName ? `${intl.formatMessage({ id: `ticketBlankExport.address.unitType.${unitType}` })} ${unitName}` : ''
+    const sectionPart = sectionName ? `${intl.formatMessage({ id: `ticketBlankExport.address.sectionType.${sectionType}` })} ${sectionName}` : ''
+    const floorPart = floorName ? `${FloorMessage} ${floorName}` : ''
+
+    let sectionAndFloor = `${sectionPart}, ${floorPart}`
+    if (!isEmpty(unitPart) && !isEmpty(sectionPart) && !isEmpty(floorPart)) {
+        sectionAndFloor = `(${sectionAndFloor})`
+    } else if (isEmpty(unitPart) && !isEmpty(sectionPart)) {
+        if (isEmpty(floorPart)) {
+            sectionAndFloor = sectionPart
+        }
+    } else {
+        sectionAndFloor = ''
+    }
+
+    let renderData = ''
+    if (unitPart) {
+        renderData += ` ${unitPart}`
+    }
+    if (sectionAndFloor) {
+        renderData += ` ${sectionAndFloor}`
+    }
+
+    return { renderData, unitPart, sectionPart, floorPart }
+}
+
+export const getFullAddressByTicket = ({ ticket, intl }: { ticket: Ticket, intl: IntlShape }) => {
+    const {
+        streetPart,
+        areaPart,
+        settlementPart,
+        regionPart,
+        cityPart,
+        renderData: renderAddress,
+    } = getAddressDetails(ticket.propertyAddressMeta)
+
+    const { renderData: renderUnit, unitPart, sectionPart, floorPart } = getUnitDetails({ ticket, intl })
+
+    let fullAddress = renderAddress
+    if (renderUnit) {
+        fullAddress += renderUnit
+    }
+
+    console.debug('getFullAddressByPropertyMeta', { ticket, streetPart, areaPart, settlementPart, regionPart, cityPart, renderAddress, unitPart, sectionPart, floorPart, renderUnit, fullAddress })
+    return fullAddress
 }
