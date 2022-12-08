@@ -102,9 +102,13 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
                 keywords: [
                     'country',
                     'region.typeFull',
+                    'region.typeShort',
                     'region.name',
+                    'area.typeFull',
+                    'area.typeShort',
                     'area.name',
                     'city.typeFull',
+                    'city.typeShort',
                     'city.name',
                     'cityDistrict.typeFull',
                     'cityDistrict.typeShort',
@@ -118,6 +122,8 @@ const AddressInjection = new GQLListSchema('AddressInjection', {
                     'house.typeFull',
                     'house.typeShort',
                     'house.name',
+                    'block.typeFull',
+                    'block.typeShort',
                     'block.name',
                 ]
                     .map((field) => get({ ...existingItem, ...resolvedData }, field))
