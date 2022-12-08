@@ -15,6 +15,7 @@ import { HtmlToPdf } from '@condo/domains/common/utils/htmlToPdf'
 import { Ticket, TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 import { ParametersType } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { getFullAddressByTicket } from '@condo/domains/ticket/utils/helpers'
+import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 
 
 type BlockRefsType = {
@@ -476,8 +477,8 @@ const PdfView = () => {
 
     const commentsWhere = useMemo(() => params.haveAllComments ? { ticket: { ...where } } : { id_in: params?.commentIds ?? [] }, [])
 
-    const { loading: ticketsLoading, objs: tickets, count } = Ticket.useObjects({ where, sortBy } )
-    const { loading: commentsLoading, objs: comments } = TicketComment.useObjects({ where: commentsWhere })
+    const { loading: ticketsLoading, objs: tickets, count } = Ticket.useObjects({ where, sortBy, first: MAX_TICKET_BLANKS_EXPORT }  )
+    const { loading: commentsLoading, objs: comments } = TicketComment.useObjects({ where: commentsWhere, first: MAX_TICKET_BLANKS_EXPORT * 20 })
 
     const loading = ticketsLoading || commentsLoading
 
