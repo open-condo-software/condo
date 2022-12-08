@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const APP_FIELDS = '{ id name shortDescription connected type category logo }'
+const APP_FIELDS = '{ id name shortDescription connected type category logo label }'
  
 const ALL_MINI_APPS_QUERY = gql`
     query getAllMiniApps ($data: AllMiniAppsInput!) {
@@ -18,7 +18,7 @@ const ALL_MINI_APPS_QUERY = gql`
     }
 `
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription about developer partnerUrl instruction appUrl category setupButtonMessage features ${COMMON_FIELDS} }`
+const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription detailedDescription about developer partnerUrl appUrl category label setupButtonMessage features ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
 const B2B_APP_CONTEXT_FIELDS = `{ app { id } organization { id } status ${COMMON_FIELDS} }`

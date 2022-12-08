@@ -8,7 +8,11 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/PageContent'
 
-const AllMiniAppsPage = () => {
+type PageType = React.FC & {
+    requiredAccess: React.ReactNode
+}
+
+const MiniappsCatalogPage: PageType = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
     const NoPermissionsMessage = intl.formatMessage({ id: 'global.noPageViewPermission' })
@@ -34,6 +38,6 @@ const AllMiniAppsPage = () => {
     )
 }
 
-AllMiniAppsPage.requiredAccess = OrganizationRequired
+MiniappsCatalogPage.requiredAccess = OrganizationRequired
 
-export default AllMiniAppsPage
+export default MiniappsCatalogPage
