@@ -5,9 +5,7 @@ import get from 'lodash/get'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Button, Tag } from '@open-condo/ui'
-// TODO(DOMA-4844): Replace with @open-condo/ui/colors
-import { colors } from '@open-condo/ui/dist/colors'
-import { APP_NEW_LABEL, APP_POPULAR_LABEL, APP_DISCOUNT_LABEL, APP_FREE_LABEL } from '@condo/domains/miniapp/constants'
+import { LABEL_TO_TAG_PROPS } from '@condo/domains/miniapp/constants'
 
 const FALLBACK_IMAGE_URL = '/greyLogo.svg'
 const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
@@ -18,12 +16,6 @@ const BUTTON_MARGIN = 16
 const CARD_TEXT_STYLES: CSSProperties = { height: 100 }
 const CARD_SPACE_STYLES: CSSProperties = { width: '100%' }
 const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: 60 }
-const LABEL_TO_TAG_PROPS = {
-    [APP_FREE_LABEL]: { textColor: colors.blue['5'], bgColor: colors.blue['1'] },
-    [APP_DISCOUNT_LABEL]: { textColor: colors.red['5'], bgColor: colors.red['1'] },
-    [APP_POPULAR_LABEL]: { textColor: colors.green['7'], bgColor: colors.green['1'] },
-    [APP_NEW_LABEL]: { textColor: colors.orange['5'], bgColor: colors.orange['1'] },
-}
 
 type AppCardTitleProps = {
     logoUrl?: string
