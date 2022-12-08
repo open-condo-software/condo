@@ -106,14 +106,6 @@ describe('Ticket', () => {
             expect(obj.deferredUntil).toEqual(null)
         })
 
-        test('user: create Ticket without status', async () => {
-            const client = await makeClientWithProperty()
-            const [obj] = await createTestTicket(client, client.organization, client.property, { status: null })
-            const TICKET_OPEN_STATUS_ID = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
-
-            expect(obj.status).toEqual(expect.objectContaining({ id: TICKET_OPEN_STATUS_ID }))
-        })
-
         test('user with resident type without resident: cannot create Ticket', async () => {
             const admin = await makeLoggedInAdminClient()
             const userClient = await makeClientWithResidentAccessAndProperty()
@@ -1532,6 +1524,15 @@ describe('Ticket', () => {
     })
 
     describe('Validations', () => {
+        describe('new ticket without status', () => {
+            test('user: can create Ticket without status and status set to OPEN on server-side', async () => {
+                const client = await makeClientWithProperty()
+                const [obj] = await createTestTicket(client, client.organization, client.property, { status: null })
+
+                expect(obj.status).toEqual(expect.objectContaining({ id: STATUS_IDS.OPEN }))
+            })
+        })
+
         describe('propertyAddress and propertyAddressMeta', () => {
             test('Should be filled resolved automatically on ticket creation', async () => {
                 const client = await makeClientWithProperty()
