@@ -83,6 +83,19 @@ DROP TABLE IF EXISTS "OrganizationEmployee_specializations_many" CASCADE;
 DROP TABLE "TokenSet" CASCADE;
 DROP TABLE "TokenSetHistoryRecord" CASCADE;
 
+--
+-- 20221208114036-0198_remove_ticket_operator_and_more.js: remove unused Ticket.operator column
+--
+
+SET CONSTRAINTS "Ticket_operator_22582fe1_fk_User_id" IMMEDIATE; 
+ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_operator_22582fe1_fk_User_id";
+ALTER TABLE "Ticket" DROP COLUMN if exists "operator" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorDisplayNameFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorDisplayNameTo" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdTo" CASCADE;
+ALTER TABLE "TicketHistoryRecord" DROP COLUMN if exists "operator" CASCADE;
+
 COMMIT;
     `))
 }
