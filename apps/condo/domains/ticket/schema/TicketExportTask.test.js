@@ -495,7 +495,7 @@ describe('exportTickets', () => {
                 formatDate(ticket.updatedAt),
                 indexedStatuses[ticket.status.type],
                 ticket.deferredUntil ? formatDate(ticket.deferredUntil) : empty,
-                ticket.operator && ticket.operator.name || ticket.createdBy.name || empty,
+                ticket.createdBy.name || empty,
                 ticket.executor && ticket.executor.name || empty,
                 ticket.assignee && ticket.assignee.name || empty,
                 empty, // organizationComments

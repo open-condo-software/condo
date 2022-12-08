@@ -99,7 +99,6 @@ describe('Ticket', () => {
             expect(obj.meta).toEqual(null)
             expect(obj.client).toEqual(null)
             expect(obj.contact).toEqual(expect.objectContaining({ id: attrs.contact.connect.id }))
-            expect(obj.operator).toEqual(null)
             expect(obj.assignee).toEqual(null)
             expect(obj.executor).toEqual(null)
             expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
