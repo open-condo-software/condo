@@ -19,10 +19,9 @@ const { i18n } = require('@open-condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { ERROR, PDF } = require('@condo/domains/common/constants/export')
+const { ERROR } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { EXPORT_FORMAT_VALUES, EXCEL } = require('../../common/constants/export')
-const { exportTicketBlanksToPdf } = require('../utils/serverSchema/ticketBlankExport')
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -261,10 +260,6 @@ async function exportTickets (taskId) {
                         taskId,
                     })
                 }
-                break
-            }
-            case PDF: {
-                await exportTicketBlanksToPdf({ context, task, baseAttrs, where, sortBy })
                 break
             }
         }
