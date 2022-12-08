@@ -54,6 +54,7 @@ const {
 const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -395,6 +396,10 @@ const Ticket = new GQLListSchema('Ticket', {
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
+
+            if (operation === 'create' && !resolvedStatusId) {
+                resolvedData.status = STATUS_IDS.OPEN
+            }
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
