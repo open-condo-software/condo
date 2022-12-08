@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const faker = require('faker')
+const { sample } = require('lodash')
 
 const conf = require('@open-condo/config')
 
@@ -9,6 +10,7 @@ const {
     FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
     PUSH_TYPE_SILENT_DATA,
     PUSH_TYPE_DEFAULT,
+    MESSAGE_TYPES,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
@@ -247,5 +249,16 @@ describe('Firebase adapter utils', () => {
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })
 
+    it('makes sure that data payload of PUSH notification contains type', async () => {
+        const data = {
+            ticketId: faker.datatype.uuid(),
+            ticketNumber: faker.datatype.number(8), // number type
+            userId: faker.datatype.uuid(),
+        }
+        const type = sample(MESSAGE_TYPES)
+        const preparedData = FirebaseAdapter.prepareData(data, undefined, type)
+
+        expect(preparedData.type).toEqual(type)
+    })
 
 })
