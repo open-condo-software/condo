@@ -1,7 +1,6 @@
 import React, { createRef, forwardRef, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Typography, notification } from 'antd'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import { IntlShape } from '@formatjs/intl'
 import dayjs from 'dayjs'
@@ -13,9 +12,12 @@ import { PageContent } from '@condo/domains/common/components/containers/BaseLay
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { HtmlToPdf } from '@condo/domains/common/utils/htmlToPdf'
 import { Ticket, TicketComment } from '@condo/domains/ticket/utils/clientSchema'
-import { ParametersType } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
+import { ParametersType } from '@condo/domains/ticket/hooks/useTicketExportToPdf'
 import { getFullAddressByTicket } from '@condo/domains/ticket/utils/helpers'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
+import { colors } from '@condo/domains/common/constants/style'
+import { useQueryParams } from '@condo/domains/common/hooks/useQueryParams'
+import { DOMAIcon } from '@condo/domains/common/components/icons/DOMAIcon'
 
 
 type BlockRefsType = {
@@ -27,65 +29,71 @@ type BlockRefsType = {
 type TextStyleKeys = 'MAIN_TITLE' | 'SECOND_TITLE' | 'SUBTITLE' | 'TEXT_SIZE_14' | 'TEXT_SIZE_12' | 'TEXT_SIZE_13' | 'TEXT_SIZE_11'
 
 
-const resolutionMultiplier = 3
+const RESOLUTION_MULTIPLIER = 1
+
+const GREY_7 = '#707695'
+const LIGHT_GREY = '#E1E5ED'
+const BLACK = colors.black
+
 const BLOCK_COMMON_STYLE: React.CSSProperties = {
     width: '100%',
-    paddingLeft: 24 * resolutionMultiplier,
-    paddingRight: 24 * resolutionMultiplier,
+    paddingLeft: 24 * RESOLUTION_MULTIPLIER,
+    paddingRight: 24 * RESOLUTION_MULTIPLIER,
 }
 const TEXT_STYLES: Record<TextStyleKeys, React.CSSProperties> = {
-    MAIN_TITLE: { fontSize: 24 * resolutionMultiplier, lineHeight: `${32 * resolutionMultiplier}px`, fontWeight: 700 },
-    SECOND_TITLE: { fontSize: 16 * resolutionMultiplier, lineHeight: `${24 * resolutionMultiplier}px`, fontWeight: 600 },
-    TEXT_SIZE_11: { fontSize: 11 * resolutionMultiplier, lineHeight: `${15 * resolutionMultiplier}px`, fontWeight: 600 },
-    SUBTITLE: { fontSize: 11 * resolutionMultiplier, lineHeight: `${20 * resolutionMultiplier}px`, fontWeight: 600, color: 'grey' },
-    TEXT_SIZE_12: { fontSize: 12 * resolutionMultiplier, lineHeight: `${18 * resolutionMultiplier}px`, fontWeight: 400 },
-    TEXT_SIZE_13: { fontSize: 13 * resolutionMultiplier, lineHeight: `${20 * resolutionMultiplier}px`, fontWeight: 400 },
-    TEXT_SIZE_14: { fontSize: 14 * resolutionMultiplier, lineHeight: `${22 * resolutionMultiplier}px`, fontWeight: 400 },
+    MAIN_TITLE: { fontSize: 24 * RESOLUTION_MULTIPLIER, lineHeight: `${32 * RESOLUTION_MULTIPLIER}px`, fontWeight: 700 },
+    SECOND_TITLE: { fontSize: 16 * RESOLUTION_MULTIPLIER, lineHeight: `${24 * RESOLUTION_MULTIPLIER}px`, fontWeight: 600 },
+    TEXT_SIZE_11: { fontSize: 11 * RESOLUTION_MULTIPLIER, lineHeight: `${15 * RESOLUTION_MULTIPLIER}px`, fontWeight: 600 },
+    SUBTITLE: { fontSize: 11 * RESOLUTION_MULTIPLIER, lineHeight: `${20 * RESOLUTION_MULTIPLIER}px`, fontWeight: 600, color: GREY_7 },
+    TEXT_SIZE_12: { fontSize: 12 * RESOLUTION_MULTIPLIER, lineHeight: `${18 * RESOLUTION_MULTIPLIER}px`, fontWeight: 400 },
+    TEXT_SIZE_13: { fontSize: 13 * RESOLUTION_MULTIPLIER, lineHeight: `${20 * RESOLUTION_MULTIPLIER}px`, fontWeight: 400 },
+    TEXT_SIZE_14: { fontSize: 14 * RESOLUTION_MULTIPLIER, lineHeight: `${22 * RESOLUTION_MULTIPLIER}px`, fontWeight: 400 },
 }
 
+const COMMENT_DAYTIME_FORMAT = 'DD.MM.YYYY, HH:mm'
+const COMMON_DATE_FORMAT = 'DD.MM.YYYY'
 
-const useQueryParams = (): Record<string, any> => {
-    const router = useRouter()
-    const { query } = router
-    const parsed = {}
 
-    for (const key in query) {
-        parsed[key] = JSON.parse((query as Record<string, string>)[key])
-    }
-
-    return parsed
-}
+const SPLIT_BLOCK_STYLE = { width: RESOLUTION_MULTIPLIER, height: 934 * RESOLUTION_MULTIPLIER, backgroundColor: LIGHT_GREY }
 
 const SplitBlock = forwardRef<HTMLDivElement>((props, ref) => {
-    const view = (
-        <div style={{ width: 1 * resolutionMultiplier, height: 934 * resolutionMultiplier, backgroundColor: '#E1E5ED' }} ref={ref}></div>
+    return (
+        <div style={SPLIT_BLOCK_STYLE} ref={ref} />
     )
-
-    return view
 })
+SplitBlock.displayName = 'SplitBlock'
 
-const TicketAndOrganizationBlock = forwardRef<HTMLDivElement, { organizationName: string, ticketNumber: string }>(({ organizationName, ticketNumber }, ref) => {
+const TICKET_ORGANIZATION_BLOCK_STYLE = { ...BLOCK_COMMON_STYLE, display: 'flex', justifyContent: 'space-between' }
+const TICKET_NUMBER_STYLE = { ...TEXT_STYLES.MAIN_TITLE, width: 450 * RESOLUTION_MULTIPLIER }
+const ORGANIZATION_NAME_STYLE: React.CSSProperties = { ...TEXT_STYLES.SECOND_TITLE, color: GREY_7, textAlign: 'end' }
+
+type TicketAndOrganizationBlockPropsType = { organizationName: string, ticketNumber: string }
+
+const TicketAndOrganizationBlock = forwardRef<HTMLDivElement, TicketAndOrganizationBlockPropsType>(({ organizationName, ticketNumber }, ref) => {
     const intl = useIntl()
     const ticketMessage = intl.formatMessage({ id: 'ticketBlankExport.label.ticket' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', justifyContent: 'space-between' }} ref={ref}>
-            <Typography.Title level={3} style={{ ...TEXT_STYLES.MAIN_TITLE, width: 450 * resolutionMultiplier }}>{ticketMessage} №{ticketNumber}</Typography.Title>
-            <Typography.Text style={{ ...TEXT_STYLES.SECOND_TITLE, color: 'grey', textAlign: 'end' }}>
+    return (
+        <div style={TICKET_ORGANIZATION_BLOCK_STYLE} ref={ref}>
+            <Typography.Title level={3} style={TICKET_NUMBER_STYLE}>{ticketMessage} №{ticketNumber}</Typography.Title>
+            <Typography.Text style={ORGANIZATION_NAME_STYLE}>
                 {organizationName}
             </Typography.Text>
         </div>
     )
-
-    return view
 })
+TicketAndOrganizationBlock.displayName = 'TicketAndOrganizationBlock'
 
-const AddressBlock = forwardRef<HTMLDivElement, { address: string }>(({ address }, ref) => {
+const ADDRESS_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column', gap: 4 * RESOLUTION_MULTIPLIER }
+
+type AddressBlockPropsType = { address: string }
+
+const AddressBlock = forwardRef<HTMLDivElement, AddressBlockPropsType>(({ address }, ref) => {
     const intl = useIntl()
     const AddressTitle = intl.formatMessage({ id: 'ticketBlankExport.heading.address' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column', gap: 4 * resolutionMultiplier }} ref={ref}>
+    return (
+        <div style={ADDRESS_BLOCK_STYLE} ref={ref}>
             <Typography.Title level={5} style={TEXT_STYLES.SUBTITLE}>
                 {AddressTitle}
             </Typography.Title>
@@ -94,39 +102,47 @@ const AddressBlock = forwardRef<HTMLDivElement, { address: string }>(({ address 
             </Typography.Text>
         </div>
     )
-
-    return view
 })
+AddressBlock.displayName = 'AddressBlock'
 
-const ClientBlock = forwardRef<HTMLDivElement, { clientName: string, clientPhone: string }>(({ clientName, clientPhone }, ref) => {
+const CLIENT_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column', gap: 4 * RESOLUTION_MULTIPLIER }
+const CLIENT_CONTENT_WRAPPER_STYLE = { display: 'flex', justifyContent: 'space-between' }
+const CLIENT_PHONE_STYLE: React.CSSProperties = { ...TEXT_STYLES.TEXT_SIZE_14, width: 175 * RESOLUTION_MULTIPLIER, textAlign: 'end' }
+
+type ClientBlockPropsType = { clientName: string, clientPhone: string }
+
+const ClientBlock = forwardRef<HTMLDivElement, ClientBlockPropsType>(({ clientName, clientPhone }, ref) => {
     const intl = useIntl()
     const ClientNameTitle = intl.formatMessage({ id: 'ticketBlankExport.heading.clientName' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column', gap: 4 * resolutionMultiplier }} ref={ref}>
+    return (
+        <div style={CLIENT_BLOCK_STYLE} ref={ref}>
             <Typography.Title level={5} style={TEXT_STYLES.SUBTITLE}>
                 {ClientNameTitle}
             </Typography.Title>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={CLIENT_CONTENT_WRAPPER_STYLE}>
                 <Typography.Text style={TEXT_STYLES.TEXT_SIZE_14}>
                     {clientName}
                 </Typography.Text>
-                <Typography.Text style={{ ...TEXT_STYLES.TEXT_SIZE_14, width: 175 * resolutionMultiplier, textAlign: 'end' }}>
+                <Typography.Text style={CLIENT_PHONE_STYLE}>
                     {clientPhone}
                 </Typography.Text>
             </div>
         </div>
     )
-
-    return view
 })
+ClientBlock.displayName = 'ClientBlock'
 
-const DetailsBlock = forwardRef<HTMLDivElement, { details: string }>(({ details }, ref) => {
+const DETAILS_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column', gap: 4 * RESOLUTION_MULTIPLIER }
+
+type DetailsBlockPropsType = { details: string }
+
+const DetailsBlock = forwardRef<HTMLDivElement, DetailsBlockPropsType>(({ details }, ref) => {
     const intl = useIntl()
     const DetailsTitle = intl.formatMessage({ id: 'ticketBlankExport.heading.details' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column', gap: 4 * resolutionMultiplier }} ref={ref}>
+    return (
+        <div style={DETAILS_BLOCK_STYLE} ref={ref}>
             <Typography.Title level={5} style={TEXT_STYLES.SUBTITLE}>
                 {DetailsTitle}
             </Typography.Title>
@@ -135,89 +151,108 @@ const DetailsBlock = forwardRef<HTMLDivElement, { details: string }>(({ details 
             </Typography.Text>
         </div>
     )
-
-    return view
 })
+DetailsBlock.displayName = 'DetailsBlock'
+
+const COMMENTS_SUBTITLE_BLOCK_STYLE = { ...BLOCK_COMMON_STYLE, paddingBottom: 12 * RESOLUTION_MULTIPLIER }
 
 const CommentsSubtitleBlock = forwardRef<HTMLDivElement>((props, ref) => {
     const intl = useIntl()
     const CommentsTitle = intl.formatMessage({ id: 'ticketBlankExport.heading.comments' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, paddingBottom: 12 * resolutionMultiplier }} ref={ref}>
+    return (
+        <div style={COMMENTS_SUBTITLE_BLOCK_STYLE} ref={ref}>
             <Typography.Title level={5} style={TEXT_STYLES.SUBTITLE}>
                 {CommentsTitle}
             </Typography.Title>
         </div>
     )
-
-    return view
 })
+CommentsSubtitleBlock.displayName = 'CommentsSubtitleBlock'
 
-const CommentBlock = forwardRef<HTMLDivElement, { content: string, createdAt: string }>(({ content, createdAt }, ref) => {
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE }} ref={ref}>
+type CommentBlockPropsType = { content: string, createdAt: string }
+
+const CommentBlock = forwardRef<HTMLDivElement, CommentBlockPropsType>(({ content, createdAt }, ref) => {
+    return (
+        <div style={BLOCK_COMMON_STYLE} ref={ref}>
             <Typography.Title level={5} style={TEXT_STYLES.TEXT_SIZE_12}>
                 {createdAt} {content}
             </Typography.Title>
         </div>
     )
-
-    return view
 })
+CommentBlock.displayName = 'CommentBlock'
 
-const EmptyLinesBlock = forwardRef<HTMLDivElement, { title: string, countLine: number }>(({ title, countLine }, ref) => {
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }} ref={ref}>
+const EMPTY_LINES_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }
+const EMPTY_LINES_WRAPPER_STYLE: React.CSSProperties = { display: 'flex', flexDirection: 'column' }
+const EMPTY_LINE_STYLE = { width: '100%', height: RESOLUTION_MULTIPLIER, backgroundColor: GREY_7, marginTop: 18 * RESOLUTION_MULTIPLIER }
+
+type EmptyLinesBlockPropsType = { title: string, countLine: number }
+
+const EmptyLinesBlock = forwardRef<HTMLDivElement, EmptyLinesBlockPropsType>(({ title, countLine }, ref) => {
+    return (
+        <div style={EMPTY_LINES_BLOCK_STYLE} ref={ref}>
             <Typography.Title level={5} style={TEXT_STYLES.SUBTITLE}>
                 {title}
             </Typography.Title>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={EMPTY_LINES_WRAPPER_STYLE}>
                 {new Array(countLine).fill(1).map((_, index) => (
-                    <div key={index} style={{ width: '100%', height: 1 * resolutionMultiplier, backgroundColor: 'black', marginTop: 18 * resolutionMultiplier }}></div>
+                    <div key={index} style={EMPTY_LINE_STYLE} />
                 ))}
             </div>
         </div>
     )
-
-    return view
 })
+EmptyLinesBlock.displayName = 'EmptyLinesBlock'
 
-const TextBlock = forwardRef<HTMLDivElement, { text: string }>(({ text }, ref) => {
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE }} ref={ref}>
+type TextBlockPropsType = { text: string }
+
+const TextBlock = forwardRef<HTMLDivElement, TextBlockPropsType>(({ text }, ref) => {
+    return (
+        <div style={BLOCK_COMMON_STYLE} ref={ref}>
             <Typography.Text style={TEXT_STYLES.TEXT_SIZE_13}>
                 {text}
             </Typography.Text>
         </div>
     )
-
-    return view
 })
+TextBlock.displayName = 'TextBlock'
 
-const EmptyBlock = forwardRef<HTMLDivElement, { height: number }>(({ height = 16 }, ref) => {
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, height: height * resolutionMultiplier }} ref={ref}>
-        </div>
+type EmptyBlockPropsType = { height: number }
+
+const EmptyBlock = forwardRef<HTMLDivElement, EmptyBlockPropsType>(({ height = 16 }, ref) => {
+    const style = useMemo(() => ({ ...BLOCK_COMMON_STYLE, height: height * RESOLUTION_MULTIPLIER }), [height])
+
+    return (
+        <div style={style} ref={ref} />
     )
-
-    return view
 })
+EmptyBlock.displayName = 'EmptyBlock'
 
-const SignatureLineBlock = forwardRef<HTMLDivElement, { label: string, width: number }>(({ label, width }, ref) => {
-    const view = (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 * resolutionMultiplier, width: width * resolutionMultiplier }} ref={ref}>
-            <div style={{ width: '100%', paddingTop: 32 * resolutionMultiplier }}>
-                <div style={{ width: '100%', height: 1 * resolutionMultiplier, backgroundColor: 'black' }}></div>
+const SIGNATURE_LINE_WRAPPER_STYLE = { width: '100%', paddingTop: 32 * RESOLUTION_MULTIPLIER }
+const SIGNATURE_LINE_STYLE = { width: '100%', height: RESOLUTION_MULTIPLIER, backgroundColor: BLACK }
+const SIGNATURE_LABEL_STYLE: React.CSSProperties = { ...TEXT_STYLES.TEXT_SIZE_11, whiteSpace: 'nowrap' }
+
+type SignatureLineBlockPropsType = { label: string, width: number }
+
+const SignatureLineBlock = forwardRef<HTMLDivElement, SignatureLineBlockPropsType>(({ label, width }, ref) => {
+    const blockStyle: React.CSSProperties = useMemo(() => ({ display: 'flex', flexDirection: 'column', gap: 6 * RESOLUTION_MULTIPLIER, width: width * RESOLUTION_MULTIPLIER }), [width])
+
+    return (
+        <div style={blockStyle} ref={ref}>
+            <div style={SIGNATURE_LINE_WRAPPER_STYLE}>
+                <div style={SIGNATURE_LINE_STYLE} />
             </div>
-            <Typography.Text style={{ ...TEXT_STYLES.TEXT_SIZE_11, whiteSpace: 'nowrap' }}>
+            <Typography.Text style={SIGNATURE_LABEL_STYLE}>
                 {label}
             </Typography.Text>
         </div>
     )
-
-    return view
 })
+SignatureLineBlock.displayName = 'SignatureLineBlock'
+
+const SIGNATURE_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }
+const SIGNATURE_WRAPPER_STYLE = { display: 'flex', width: '100%', gap: 25 * RESOLUTION_MULTIPLIER }
 
 const SignatureBlock = forwardRef<HTMLDivElement>((props, ref) => {
     const intl = useIntl()
@@ -227,84 +262,82 @@ const SignatureBlock = forwardRef<HTMLDivElement>((props, ref) => {
     const ClientSignatureLabel = intl.formatMessage({ id: 'ticketBlankExport.field.clientSignature' })
     const CompletionDateLabel = intl.formatMessage({ id: 'ticketBlankExport.field.completionDate' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }} ref={ref}>
-            <div style={{ display: 'flex', width: '100%', gap: 25 * resolutionMultiplier }}>
+    return (
+        <div style={SIGNATURE_BLOCK_STYLE} ref={ref}>
+            <div style={SIGNATURE_WRAPPER_STYLE}>
                 <SignatureLineBlock label={ExecutorFullNameLabel} width={226} />
                 <SignatureLineBlock label={ExecutorSignatureLabel} width={198} />
             </div>
-            <div style={{ display: 'flex', width: '100%', gap: 25 * resolutionMultiplier }}>
+            <div style={SIGNATURE_WRAPPER_STYLE}>
                 <SignatureLineBlock label={ClientFullNameLabel} width={226} />
                 <SignatureLineBlock label={ClientSignatureLabel} width={198} />
                 <SignatureLineBlock label={CompletionDateLabel} width={136} />
             </div>
         </div>
     )
-
-    return view
 })
+SignatureBlock.displayName = 'SignatureBlock'
 
-const DomaIconBlock = ({ width = 63, height = 20 }) => {
-    return (
-        <svg width={width * resolutionMultiplier} height={height * resolutionMultiplier} viewBox='0 0 63 20' fill='none' xmlns='http://www.w3.org/2000/svg'>
-            <path d='M34.8757 13.2672V16.9695H32.8536V15.0315H26.1944V16.9695H24.1724L24.1858 13.2672H24.5633C25.1295 13.2494 25.5294 12.8395 25.763 12.0375C25.9967 11.2356 26.1405 10.0906 26.1944 8.60254L26.3022 5.67543H33.5546V13.2672H34.8757ZM28.1221 8.80302C28.0771 9.91686 27.9828 10.8525 27.839 11.6098C27.6952 12.3583 27.475 12.9108 27.1785 13.2672H31.3978V7.43971H28.1625L28.1221 8.80302ZM39.4889 15.1384C38.725 15.1384 38.0375 14.9825 37.4264 14.6706C36.8243 14.3498 36.3525 13.9088 36.011 13.3474C35.6694 12.786 35.4987 12.1489 35.4987 11.4361C35.4987 10.7232 35.6694 10.0861 36.011 9.52478C36.3525 8.96341 36.8243 8.52682 37.4264 8.21493C38.0375 7.89415 38.725 7.73376 39.4889 7.73376C40.2527 7.73376 40.9358 7.89415 41.5379 8.21493C42.1399 8.52682 42.6118 8.96341 42.9533 9.52478C43.2948 10.0861 43.4655 10.7232 43.4655 11.4361C43.4655 12.1489 43.2948 12.786 42.9533 13.3474C42.6118 13.9088 42.1399 14.3498 41.5379 14.6706C40.9358 14.9825 40.2527 15.1384 39.4889 15.1384ZM39.4889 13.4276C40.0281 13.4276 40.4684 13.2494 40.8099 12.893C41.1604 12.5276 41.3356 12.042 41.3356 11.4361C41.3356 10.8302 41.1604 10.349 40.8099 9.99258C40.4684 9.62723 40.0281 9.44458 39.4889 9.44458C38.9496 9.44458 38.5048 9.62723 38.1543 9.99258C37.8038 10.349 37.6286 10.8302 37.6286 11.4361C37.6286 12.042 37.8038 12.5276 38.1543 12.893C38.5048 13.2494 38.9496 13.4276 39.4889 13.4276ZM51.989 15.0315V10.7277L49.8187 14.3365H48.929L46.8126 10.7143V15.0315H44.9119V7.84069H47.1092L49.4278 11.9974L51.8947 7.84069H53.8628L53.8897 15.0315H51.989ZM58.789 7.73376C59.912 7.73376 60.7747 8.00108 61.3773 8.53571C61.9792 9.06145 62.2804 9.85892 62.2804 10.9282V15.0315H60.3123V14.136C59.9167 14.8043 59.18 15.1384 58.1016 15.1384C57.5442 15.1384 57.0589 15.0448 56.6455 14.8577C56.2411 14.6706 55.9311 14.4122 55.7154 14.0825C55.4997 13.7528 55.3918 13.3786 55.3918 12.9598C55.3918 12.2915 55.6435 11.7658 56.1467 11.3826C56.659 10.9995 57.4454 10.8079 58.506 10.8079H60.1775C60.1775 10.3535 60.038 10.0059 59.7596 9.76536C59.4806 9.51589 59.0628 9.39112 58.506 9.39112C58.1191 9.39112 57.7374 9.45347 57.36 9.57824C56.9915 9.69406 56.677 9.85445 56.4163 10.0594L55.6615 8.60254C56.0569 8.32633 56.5287 8.11248 57.0769 7.96098C57.6341 7.80948 58.2047 7.73376 58.789 7.73376ZM58.6273 13.735C58.9866 13.735 59.3054 13.6548 59.5844 13.4944C59.8628 13.3251 60.0603 13.0801 60.1775 12.7593V12.0242H58.7351C57.8722 12.0242 57.4408 12.3049 57.4408 12.8662C57.4408 13.1335 57.5442 13.3474 57.7509 13.5078C57.9668 13.6593 58.2586 13.735 58.6273 13.735ZM59.5979 4.99377H61.8625L59.4226 6.91845H57.7779L59.5979 4.99377Z' fill='#222222'/>
-            <path fillRule='evenodd' clipRule='evenodd' d='M7.98154 4.29605C7.52966 3.93142 6.88067 3.93325 6.4309 4.3004L0.444981 9.18659C0.163206 9.4166 0 9.75923 0 10.1208V18.2785C0 18.9472 0.547558 19.4894 1.223 19.4894H13.2696C13.945 19.4894 14.4926 18.9472 14.4926 18.2785V10.125C14.4926 9.76103 14.3272 9.41643 14.0423 9.18648L7.98154 4.29605ZM12.0466 17.0677V10.7002L7.2134 6.80028L2.44601 10.6918V17.0677H12.0466Z' fill='url(#paint0_linear_508_3035)'/>
-            <path d='M15.317 5.11458C16.7414 5.11458 17.8962 3.96964 17.8962 2.55729C17.8962 1.14494 16.7414 0 15.317 0C13.8925 0 12.7378 1.14494 12.7378 2.55729C12.7378 3.96964 13.8925 5.11458 15.317 5.11458Z' fill='#FF9500'/>
-            <defs>
-                <linearGradient id='paint0_linear_508_3035' x1='0' y1='11.7566' x2='11.6239' y2='17.5312' gradientUnits='userSpaceOnUse'>
-                    <stop stopColor='#2ABB56'/>
-                    <stop offset='1' stopColor='#3996DD'/>
-                </linearGradient>
-            </defs>
-        </svg>
-    )
-}
 
-const HeaderBlock = forwardRef<HTMLDivElement, { printDate: string }>(({ printDate }, ref) => {
+
+const HEADER_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }
+const HEADER_CONTENT_WRAPPER_STYLE = { width: '100%', paddingTop: 13 * RESOLUTION_MULTIPLIER, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }
+const HEADER_BORDER_WRAPPER_STYLE = { width: '100%', paddingTop: 11 * RESOLUTION_MULTIPLIER, paddingBottom: 24 * RESOLUTION_MULTIPLIER }
+const HEADER_BORDER_STYLE = { width: '100%', height: RESOLUTION_MULTIPLIER, backgroundColor: LIGHT_GREY }
+
+type HeaderBlockPropsType = { printDate: string }
+
+const HeaderBlock = forwardRef<HTMLDivElement, HeaderBlockPropsType>(({ printDate }, ref) => {
     const intl = useIntl()
     const PrintDateLabel = intl.formatMessage({ id: 'ticketBlankExport.label.printDate' }, { printDate })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }} ref={ref}>
-            <div style={{ width: '100%', paddingTop: 13 * resolutionMultiplier, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <DomaIconBlock />
+    return (
+        <div style={HEADER_BLOCK_STYLE} ref={ref}>
+            <div style={HEADER_CONTENT_WRAPPER_STYLE}>
+                <DOMAIcon width={63 * RESOLUTION_MULTIPLIER} height={20 * RESOLUTION_MULTIPLIER} />
                 <Typography.Text style={TEXT_STYLES.TEXT_SIZE_11}>
                     {PrintDateLabel}
                 </Typography.Text>
             </div>
-            <div style={{ width: '100%', paddingTop: 11 * resolutionMultiplier, paddingBottom: 24 * resolutionMultiplier }}>
-                <div style={{ width: '100%', height: 1 * resolutionMultiplier, backgroundColor: '#E1E5ED' }}></div>
+            <div style={HEADER_BORDER_WRAPPER_STYLE}>
+                <div style={HEADER_BORDER_STYLE} />
             </div>
         </div>
     )
-
-    return view
 })
+HeaderBlock.displayName = 'HeaderBlock'
 
-const FooterBlock = forwardRef<HTMLDivElement, { ticketNumber: string, createdAt: string }>(({ ticketNumber, createdAt }, ref) => {
+const FOOTER_BLOCK_STYLE: React.CSSProperties = { ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }
+const FOOTER_BORDER_WRAPPER_STYLE = { width: '100%', paddingTop: 16 * RESOLUTION_MULTIPLIER, paddingBottom: 12 * RESOLUTION_MULTIPLIER }
+const FOOTER_BORDER_STYLE = { width: '100%', height: RESOLUTION_MULTIPLIER, backgroundColor: LIGHT_GREY }
+const FOOTER_CONTENT_WRAPPER_STYLE = { width: '100%', paddingBottom: 16 * RESOLUTION_MULTIPLIER, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }
+
+type FooterBlockPropsType = { ticketNumber: string, createdAt: string }
+
+const FooterBlock = forwardRef<HTMLDivElement, FooterBlockPropsType>(({ ticketNumber, createdAt }, ref) => {
     const intl = useIntl()
     const ticketWithNumberAndDatedLabel = intl.formatMessage({ id: 'ticketBlankExport.label.ticketWithNumberAndDated' }, { number: ticketNumber, createdAt })
     const PageLabel = intl.formatMessage({ id: 'ticketBlankExport.label.page' })
 
-    const view = (
-        <div style={{ ...BLOCK_COMMON_STYLE, display: 'flex', flexDirection: 'column' }} ref={ref}>
-            <div style={{ width: '100%', paddingTop: 16 * resolutionMultiplier, paddingBottom: 12 * resolutionMultiplier }}>
-                <div style={{ width: '100%', height: 1 * resolutionMultiplier, backgroundColor: '#E1E5ED' }}></div>
+    return (
+        <div style={FOOTER_BLOCK_STYLE} ref={ref}>
+            <div style={FOOTER_BORDER_WRAPPER_STYLE}>
+                <div style={FOOTER_BORDER_STYLE} />
             </div>
-            <div style={{ width: '100%', paddingBottom: 16 * resolutionMultiplier, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={FOOTER_CONTENT_WRAPPER_STYLE}>
                 <Typography.Text style={TEXT_STYLES.TEXT_SIZE_11}>
                     {ticketWithNumberAndDatedLabel}
                 </Typography.Text>
                 <Typography.Text style={TEXT_STYLES.TEXT_SIZE_11}>
-                    {PageLabel} <span id='pageNumber'></span>
+                    {PageLabel} <span id='pageNumber' />
                 </Typography.Text>
             </div>
         </div>
     )
-
-    return view
 })
+FooterBlock.displayName = 'FooterBlock'
 
+// NOTE This function is for convenient auto-completion of props
 const createBlock = <T extends unknown>({ Component, props }: { Component: React.ForwardRefExoticComponent<T & React.RefAttributes<HTMLDivElement>>, props: T }) => ({
     Component,
     props,
@@ -324,7 +357,7 @@ const getOptionsBlock = (ticket: ITicket, comments: ITicketComment[], parameters
             createBlock({ Component: CommentsSubtitleBlock, props: {} }),
             ...commentsByTicket
                 .map(comment => [
-                    createBlock({ Component: CommentBlock, props: { createdAt: dayjs(comment.createdAt).format('DD.MM.YYYY, HH:mm'), content: comment.content } }),
+                    createBlock({ Component: CommentBlock, props: { createdAt: dayjs(comment.createdAt).format(COMMENT_DAYTIME_FORMAT), content: comment.content } }),
                     createBlock({ Component: EmptyBlock, props: { height: 16 } }),
                 ])
                 .flat(1)
@@ -384,8 +417,8 @@ const getTicketBlocks = (ticket: ITicket, comments: ITicketComment[], parameters
         createBlock({ Component: EmptyBlock, props: { height: 4 } }),
         createBlock({ Component: SignatureBlock, props: {} }),
     ]
-    const header = createBlock({ Component: HeaderBlock, props: { printDate: dayjs().format('DD.MM.YYYY') } })
-    const footer = createBlock({ Component: FooterBlock, props: { ticketNumber: String(number), createdAt: dayjs(createdAt).format('DD.MM.YYYY') } })
+    const header = createBlock({ Component: HeaderBlock, props: { printDate: dayjs().format(COMMON_DATE_FORMAT) } })
+    const footer = createBlock({ Component: FooterBlock, props: { ticketNumber: String(number), createdAt: dayjs(createdAt).format(COMMON_DATE_FORMAT) } })
 
     return { blocks, header, footer }
 }
@@ -398,7 +431,7 @@ const useTicketsToBlankPdf = (props: { tickets: ITicket[], comments: ITicketComm
 
     const [progress, setProgress] = useState(0)
 
-    const elementsByTickets = useMemo(() => tickets.map((ticket) => getTicketBlocks(ticket, comments, parameters, intl)), [tickets])
+    const elementsByTickets = useMemo(() => tickets.map((ticket) => getTicketBlocks(ticket, comments, parameters, intl)), [comments, intl, parameters, tickets])
 
     const blockRefs = useRef<BlockRefsType[]>([])
     const splitRef = useRef<HTMLDivElement>(null)
@@ -426,7 +459,6 @@ const useTicketsToBlankPdf = (props: { tickets: ITicket[], comments: ITicketComm
                 const blockRef = createRef<HTMLDivElement>()
                 blocksRefs.push(blockRef)
 
-                // @ts-ignore
                 const renderBlock = <Block ref={blockRef} {...blockProps} key={`block_${ticketIndex}_${blockIndex}`} />
 
                 renders.push(renderBlock)
@@ -446,12 +478,10 @@ const useTicketsToBlankPdf = (props: { tickets: ITicket[], comments: ITicketComm
 
         let counter = 0
         setProgress(counter / blockRefs.current.length)
-        console.log(counter, 'from', blockRefs.current.length)
         for (const part of blockRefs.current) {
             await pdf.addPart(part.blocksRefs.map((block) => block.current), part.headerRef.current, part.footerRef.current)
             counter++
             setProgress(counter / blockRefs.current.length)
-            console.log(counter, 'from', blockRefs.current.length)
         }
         await pdf.save(`ticket_blanks_${dayjs().format('DD_MM_YYYY__HH_mm_ss')}`)
     }, [])
@@ -475,7 +505,7 @@ const PdfView = () => {
     const { where, sortBy, parameters } = useQueryParams()
     const params = parameters as ParametersType
 
-    const commentsWhere = useMemo(() => params.haveAllComments ? { ticket: { ...where } } : { id_in: params?.commentIds ?? [] }, [])
+    const commentsWhere = useMemo(() => params?.haveAllComments ? { ticket: { ...where } } : { id_in: params?.commentIds ?? [] }, [params?.commentIds, params?.haveAllComments, where])
 
     const { loading: ticketsLoading, objs: tickets, count } = Ticket.useObjects({ where, sortBy, first: MAX_TICKET_BLANKS_EXPORT }  )
     const { loading: commentsLoading, objs: comments } = TicketComment.useObjects({ where: commentsWhere, first: MAX_TICKET_BLANKS_EXPORT * 20 })
@@ -489,7 +519,7 @@ const PdfView = () => {
             <div>Exporting ticket blank: {progress * 100}%</div>
             {progress === 1 && <div>Export done!</div>}
             <div
-                style={{ position: 'absolute', top: -10000, left: 10000, width: 658 * resolutionMultiplier }}
+                style={{ position: 'absolute', top: -10000, left: 10000, width: 658 * RESOLUTION_MULTIPLIER }}
             >
                 {renderBlocks}
                 {renderSplit}
@@ -502,7 +532,7 @@ const DynamicPdfView = dynamic(() => Promise.resolve(PdfView), {
     ssr: false,
 })
 
-function TicketsPdfPage () {
+function TicketsPdfPage (): JSX.Element {
     return (
         <PageContent>
             <DynamicPdfView/>

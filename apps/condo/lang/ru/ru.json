@@ -584,7 +584,7 @@
   "pages.condo.ticket.exportBlank.HaveConsumedMaterials.label": "Затраченные материалы",
   "pages.condo.ticket.exportBlank.HaveTotalCostWork.label": "Стоимость выполненных работ",
   "pages.condo.ticket.exportBlank.HaveAllComments.label": "Все комментарии из заявки",
-  "pages.condo.ticket.exportBlank.HaveAllCommentsFromTickets.label": "Ккомментарии из заявки",
+  "pages.condo.ticket.exportBlank.HaveAllCommentsFromTickets.label": "Комментарии из заявки",
   "pages.condo.ticket.exportBlank.HaveAllComments.tooltip": "Если выбрано несколько заявок — в печать уйдут все комментарии. Выбрать конкретные не получится.",
   "pages.condo.ticket.exportBlank.ShowAllComments.label": "Показать комментарии",
   "pages.condo.ticket.exportBlank.HideAllComments.label": "Скрыть комментарии",

@@ -12,7 +12,7 @@ type DownloadFileType = (file: FileType) => Promise<void>
 type UseDownloadFileFromServerType = () => { downloadFile: DownloadFileType }
 
 const ERROR_DOWNLOAD_FILE = 'Failed to download file'
-const DIRECT_DOWNLOAD_FILE_TYPES_REGEX = /.*\.(svg|html|htm|xml|txt|pdf)$/i
+const DIRECT_DOWNLOAD_FILE_TYPES_REGEX = /.*\.(svg|html|htm|xml|txt)$/i
 
 export const useDownloadFileFromServer: UseDownloadFileFromServerType = () => {
     const intl = useIntl()
@@ -50,7 +50,6 @@ export const useDownloadFileFromServer: UseDownloadFileFromServerType = () => {
     }, [])
 
     const downloadFile: DownloadFileType = useCallback(async (file: FileType) => {
-        console.log(file)
         if (DIRECT_DOWNLOAD_FILE_TYPES_REGEX.test(file.name)) {
             try {
                 await handleDownloadFile(file)

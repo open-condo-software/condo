@@ -368,11 +368,9 @@ export const CommentPreview: React.FC<{ comment: TicketComment }> = ({ comment }
     return (
         <AntComment
             content={
-                <>
-                    <Typography.Text>
-                        {comment.content}
-                    </Typography.Text>
-                </>
+                <Typography.Text>
+                    {comment.content}
+                </Typography.Text>
             }
             author={
                 <Typography.Text type='secondary'>
