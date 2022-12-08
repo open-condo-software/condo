@@ -59,7 +59,6 @@
     "@open-condo/keystone": "workspace:^",
     "@open-condo/locales": "workspace:^",
     "@open-condo/next": "workspace:^",
-    "@open-condo/triggers": "workspace:^",
     "@open-condo/webhooks": "workspace:^",
     "@tinymce/tinymce-react": "^4.1.0",
     "@types/lodash": "4.14.186",

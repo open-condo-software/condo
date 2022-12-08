@@ -6,7 +6,6 @@ const dayjs = require('dayjs')
 const isNull = require('lodash/isNull')
 const get = require('lodash/get')
 
-const { triggersManager } = require('@open-condo/triggers')
 const { Text, Relationship, Integer, DateTimeUtc, Checkbox, Select } = require('@keystonejs/fields')
 const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
@@ -388,8 +387,7 @@ const Ticket = new GQLListSchema('Ticket', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
-        resolveInput: async ({ operation, listKey, context, resolvedData, existingItem }) => {
-            await triggersManager.executeTrigger({ operation, data: { resolvedData, existingItem }, listKey, context }, context)
+        resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
@@ -397,7 +395,7 @@ const Ticket = new GQLListSchema('Ticket', {
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
 
-            if (operation === 'create' && !resolvedStatusId) {
+            if (operation === 'create' && isNull(resolvedStatusId)) {
                 resolvedData.status = STATUS_IDS.OPEN
             }
 
