@@ -9,6 +9,7 @@ const {
     createTestInstance: createTestAddressServiceClientInstance,
 } = require('@open-condo/keystone/plugins/utils/address-service-client')
 const get = require('lodash/get')
+const omit = require('lodash/omit')
 
 const readOnlyAccess = {
     read: true,
@@ -69,7 +70,7 @@ const addressService = (fieldsHooks = {}) => plugin(({
     //
     // Modify hooks
     //
-    const newResolveInput = async ({ resolvedData, operation, existingItem, originalInput, context }) => {
+    const newResolveInput = async ({ resolvedData, operation, existingItem, originalInput, context, listKey }) => {
         const existingAddressSources = get(existingItem, 'addressSources', [])
         // We will call to address service in the following cases:
         if (
@@ -121,7 +122,14 @@ const addressService = (fieldsHooks = {}) => plugin(({
             }
         }
 
-        return resolvedData
+        /**
+         * We have restriction for updating next fields for existing resident
+         * @see apps/condo/domains/resident/schema/RegisterResidentService.js:65
+         * @see apps/condo/domains/resident/schema/Resident.js:213
+         */
+        return (listKey === 'Resident' && operation === 'update')
+            ? omit(resolvedData, ['address', 'addressMeta'])
+            : resolvedData
     }
     hooks.resolveInput = composeResolveInputHook(hooks.resolveInput, newResolveInput)
 
