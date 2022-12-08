@@ -58981,9 +58981,9 @@ export type User = {
   avatar?: Maybe<File>;
   /**  User metadata. Example: `city`, `country`, ...  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  External provider for users  */
+  /**  External provider for users. Deprecated: Use UserExternalIdentity instead  */
   importRemoteSystem?: Maybe<Scalars['String']>;
-  /**  External system user id. Used for integrations  */
+  /**  External system user id. Used for integrations.  Deprecated: Use UserExternalIdentity instead  */
   importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
