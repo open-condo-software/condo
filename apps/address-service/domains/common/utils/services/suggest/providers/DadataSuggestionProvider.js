@@ -200,7 +200,9 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      */
     async getOrganization (tin) {
         const redis = getRedisClient('organization', 'tin')
+
         const cached = await redis.get(tin)
+
         if (cached) {
             return JSON.parse(cached)
         }
@@ -209,9 +211,11 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
 
         if (result) {
             const data = get(result, ['suggestions', 0], null)
+
             if (data) {
                 await redis.set(tin, JSON.stringify(data), 'EX', ORGANIZATION_TIN_CACHE_TTL)
             }
+
             return data
         }
 
@@ -232,6 +236,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
 
         if (tin) {
             const organizationInfo = await this.getOrganization(tin)
+
             if (organizationInfo) {
                 body.locations_boost = ORGANIZATION_KLADR_FIELDS
                     .map(fieldName => get(organizationInfo, `data.address.data.${fieldName}`))
