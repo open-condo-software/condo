@@ -9,7 +9,7 @@ const access = require('@address-service/domains/address/access/AddressInjection
 const get = require('lodash/get')
 const { Json, AddressPartWithType } = require('@open-condo/keystone/fields')
 const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
-const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('../constants')
+const { KEYWORDS_SPECIAL_SYMBOLS_REGEX } = require('@address-service/domains/address/constants')
 
 const readOnlyAccess = {
     read: true,
