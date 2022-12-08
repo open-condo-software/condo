@@ -29,10 +29,10 @@ class SuggestionKeystoneApp {
             const reqBody = get(req, 'body', {})
 
             /**
-             * @param {string} param
-             * @param {*} [def]
+             * @param {string} param Parameter to extract from body or query
+             * @param {*} [defaultValue] Default value
              */
-            const getParam = (param, def) => get(reqBody, param, get(reqQuery, param, def))
+            const getParam = (param, defaultValue) => get(reqBody, param, get(reqQuery, param, defaultValue))
 
             /**
              * Using to detect a proper suggestion provider
