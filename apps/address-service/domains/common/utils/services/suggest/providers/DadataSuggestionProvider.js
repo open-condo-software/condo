@@ -115,6 +115,8 @@ const CONFIG_KEY = 'DADATA_SUGGESTIONS'
 const CONFIG_KEY_URL = 'url'
 const CONFIG_KEY_TOKEN = 'token'
 
+const ORGANIZATION_KLADR_FIELDS = ['settlement_kladr_id', 'city_kladr_id', 'region_kladr_id']
+
 /**
  * The dadata suggestions provider
  * @link https://dadata.ru/api/suggest/address/
@@ -231,7 +233,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         if (tin) {
             const organizationInfo = await this.getOrganization(tin)
             if (organizationInfo) {
-                body.locations_boost = ['settlement_kladr_id', 'city_kladr_id', 'region_kladr_id']
+                body.locations_boost = ORGANIZATION_KLADR_FIELDS
                     .map(fieldName => get(organizationInfo, `data.address.data.${fieldName}`))
                     .filter(Boolean)
                     .map((kladr_id) => ({ kladr_id }))
