@@ -4,6 +4,8 @@ const get = require('lodash/get')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 
+const ALLOWED_METHODS = ['GET', 'POST']
+
 class SuggestionKeystoneApp {
     /**
      * @param {{ keystone, distDir, dev }} params
@@ -19,7 +21,7 @@ class SuggestionKeystoneApp {
         }
 
         app.all('/suggest', setNoCache, async (req, res, next) => {
-            if (!['GET', 'POST'].includes(req.method)) {
+            if (!ALLOWED_METHODS.includes(req.method)) {
                 res.send(404)
             }
 
