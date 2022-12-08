@@ -135,7 +135,7 @@ const handledTerminalStatesOfTasksIds = []
  * Polls tasks record for updates and handles its transition to completed status.
  */
 export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task }) => {
-    const { storage, removeStrategy, calculateProgress, onComplete, onCancel, translations } = task
+    const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
     const { deleteTask: deleteTaskFromContext } = useContext(TasksContext)
@@ -176,6 +176,10 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
                 if (record?.status === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onCancel(record)
+                }
+                if (record?.status === TASK_ERROR_STATUS && isFunction(onError)) {
+                    handledTerminalStatesOfTasksIds.push(record.id)
+                    onError(record)
                 }
             }
         }

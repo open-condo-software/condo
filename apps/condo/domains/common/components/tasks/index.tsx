@@ -65,6 +65,7 @@ export type CalculateProgressFunc = (taskRecord: unknown) => TaskRecordProgress
 
 export type OnCompleteFunc = (taskRecord: unknown) => void
 export type OnCancelFunc = (taskRecord: unknown) => void
+export type OnErrorFunc = (taskRecord: unknown) => void
 
 type StopPollingFunction = () => void
 
@@ -108,6 +109,7 @@ export interface ITask {
     calculateProgress: CalculateProgressFunc
     onComplete: OnCompleteFunc
     onCancel: OnCancelFunc
+    onError?: OnErrorFunc
 }
 
 /**
