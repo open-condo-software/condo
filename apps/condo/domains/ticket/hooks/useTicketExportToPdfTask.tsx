@@ -203,7 +203,7 @@ const updateQuery: UpdateQueryType = async ({ data }) => {
         where: JSON.stringify(data.where),
     }
     const query = qs.stringify(queryData, { arrayFormat: 'comma', addQueryPrefix: true })
-    window.open('ticket/pdf' + query, '_blank')
+    window.open('/ticket/pdf' + query, '_blank')
 }
 
 export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  => {
