@@ -3,8 +3,6 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const { isEmpty } = require('lodash')
-
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
@@ -27,7 +25,6 @@ const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ti
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
-const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields/AddressMetaField')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -165,39 +162,6 @@ const loadClassifiersForExcelExport = async ({ classifierRuleIds = [] }) => {
     return await ticketClassifiersLoader.load()
 }
 
-const loadTicketsForPdfExport = async ({ where = {}, sortBy = ['createdAt_DESC'], limit = 50 }) => {
-    const ticketsLoader = new GqlWithKnexLoadList({
-        listKey: 'Ticket',
-        fields: `id number createdAt clientName clientPhone details unitName floorName sectionName sectionType unitType propertyAddressMeta { data { ${Object.keys(AddressMetaDataFields).join(' ')} } }`,
-        singleRelations: [
-            ['Organization', 'organization', 'name'],
-            ['User', 'createdBy', 'name'],
-        ],
-        sortBy,
-        where,
-    })
-
-    return await ticketsLoader.loadChunk(0, limit)
-}
-
-const loadTicketCommentsForPdfExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    if (isEmpty(where)) {
-        return []
-    }
-
-    const ticketCommentsLoader = new GqlWithKnexLoadList({
-        listKey: 'TicketComment',
-        fields: 'id content createdAt',
-        singleRelations: [
-            ['Ticket', 'ticket', 'id'],
-        ],
-        sortBy,
-        where,
-    })
-
-    return await ticketCommentsLoader.load()
-}
-
 module.exports = {
     Ticket,
     TicketStatus,
@@ -213,8 +177,6 @@ module.exports = {
     buildTicketsLoader,
     loadTicketCommentsForExcelExport,
     loadClassifiersForExcelExport,
-    loadTicketsForPdfExport,
-    loadTicketCommentsForPdfExport,
     TicketFilterTemplate,
     predictTicketClassification,
     TicketCommentFile,
