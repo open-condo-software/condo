@@ -36,11 +36,9 @@ const {
 
 const {
     MESSAGE_BATCH_CREATED_STATUS,
-    MESSAGE_BATCH_PROCESSING_STATUS,
     MESSAGE_BATCH_FAILED_STATUS,
     MESSAGE_BATCH_DONE_STATUS,
     CUSTOM_CONTENT_MESSAGE_TYPE,
-    MESSAGE_BATCH_TYPE_OPTIONS,
 } = require('../constants/constants')
 
 const { DATE_FORMAT, getUniqKey } = require('../tasks/sendMessageBatch.helpers')
