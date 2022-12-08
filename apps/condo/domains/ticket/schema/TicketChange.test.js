@@ -49,7 +49,6 @@ describe('TicketChange', () => {
                 status: { connect: { id: openedStatus.id } },
                 client: { connect: { id: client.user.id } },
                 contact: { connect: { id: contact.id } },
-                operator: { connect: { id: client.user.id } },
                 assignee: { connect: { id: client.user.id } },
                 executor: { connect: { id: client.user.id } },
                 source: { connect: { id: sources[0].id } },
@@ -75,7 +74,6 @@ describe('TicketChange', () => {
                 status: { connect: { id: inProgressStatus.id } },
                 client: { connect: { id: client2.user.id } },
                 contact: { connect: { id: contact2.id } },
-                operator: { connect: { id: client2.user.id } },
                 assignee: { connect: { id: client2.user.id } },
                 executor: { connect: { id: client2.user.id } },
                 source: { connect: { id: sources[1].id } },
@@ -139,11 +137,6 @@ describe('TicketChange', () => {
             expect(ticket1.contactIdTo).toEqual(payload.contact.connect.id)
             expect(ticket1.contactDisplayNameFrom).toEqual(contact.name)
             expect(ticket1.contactDisplayNameTo).toEqual(contact2.name)
-
-            expect(ticket1.operatorIdFrom).toEqual(ticket.operator.id)
-            expect(ticket1.operatorIdTo).toEqual(payload.operator.connect.id)
-            expect(ticket1.operatorDisplayNameFrom).toEqual(client.user.name)
-            expect(ticket1.operatorDisplayNameTo).toEqual(client2.user.name)
 
             expect(ticket1.assigneeIdFrom).toEqual(ticket.assignee.id)
             expect(ticket1.assigneeIdTo).toEqual(payload.assignee.connect.id)

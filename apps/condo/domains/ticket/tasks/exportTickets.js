@@ -114,7 +114,7 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         updatedAt: formatDate(ticket.updatedAt),
         status: indexedStatuses[ticket.status],
         deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
-        operator: ticket.operator || ticket.createdBy || EMPTY_VALUE,
+        operator: ticket.createdBy || EMPTY_VALUE,
         executor: ticket.executor || EMPTY_VALUE,
         assignee: ticket.assignee || EMPTY_VALUE,
         organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
