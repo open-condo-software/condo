@@ -111,9 +111,6 @@ const TicketTable = ({
     
     const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdfTask({
         ticketId: selectedOneTicketId,
-        locale: intl.locale,
-        user: auth.user,
-        timeZone,
         where: {
             'id_in': selectedTicketKeys as string[],
         },
