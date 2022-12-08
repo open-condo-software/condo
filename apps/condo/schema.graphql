@@ -464,10 +464,12 @@ type User {
   """ User metadata. Example: `city`, `country`, ... """
   meta: JSON
 
-  """ External provider for users """
+  """ External provider for users. Deprecated: Use UserExternalIdentity instead 
+  """
   importRemoteSystem: String
 
-  """ External system user id. Used for integrations """
+  """ External system user id. Used for integrations.  Deprecated: Use UserExternalIdentity instead 
+  """
   importId: String
   id: ID!
   v: Int
