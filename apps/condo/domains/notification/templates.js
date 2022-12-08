@@ -141,7 +141,7 @@ function pushRenderer ({ message, env }) {
             title: i18n(translationStringKeyForPushTitle(type), { locale, meta }),
             body: nunjucks.render(getTemplate(locale, type, PUSH_TRANSPORT), { message, env }),
         },
-        data: { ...get(message, ['meta', 'data'], {}), notificationId },
+        data: { ...get(message, ['meta', 'data'], {}), notificationId, type },
     }
 }
 
