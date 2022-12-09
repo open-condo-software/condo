@@ -18,7 +18,6 @@ export default {
         description: 'Description',
     },
     argTypes: {
-        type: { control: 'select' },
         action: {
             table: {
                 type: { 
