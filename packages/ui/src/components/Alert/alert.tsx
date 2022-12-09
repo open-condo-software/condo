@@ -7,7 +7,7 @@ type CondoAlertProps = {
 
 const ALERT_CLASS_PREFIX = 'condo-alert'
 
-export type AlertProps = Pick<DefaultAlertProps, 'message' | 'showIcon' | 'description' | 'action'> & CondoAlertProps
+export type AlertProps = Pick<DefaultAlertProps, 'message' | 'showIcon' | 'description'> & CondoAlertProps
 
 const Alert: React.FC<AlertProps> = (props) => {
     return (
