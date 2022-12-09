@@ -1,4 +1,4 @@
-import React, { CSSProperties } from 'react'
+import React, { CSSProperties, useCallback, useRef, useState } from 'react'
 import get from 'lodash/get'
 import { Col, Row, Space, Image } from 'antd'
 import type { RowProps } from 'antd'
@@ -14,6 +14,7 @@ const TAG_SPACING = 8
 const IMAGE_STYLES: CSSProperties = { width: '100%', height: 400, objectFit: 'cover' }
 const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', cursor: 'pointer' }
 const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', justifyContent: 'center' }
+const HIDE_GALLERY_STYLES: CSSProperties = { display: 'none' }
 
 type TopCardProps = {
     name: string
@@ -22,6 +23,17 @@ type TopCardProps = {
     description: string
     price?: string
     gallery?: Array<string>
+}
+
+const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
+    // TODO (DOMA-4666): Move to icons pack
+    return (
+        <div {...props} className='preview-arrow'>
+            <svg  width='9' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                <path d='M1 2.374 5.414 7 1 11.626 2.293 13 8 7 2.293 1 1 2.374Z' fill='currentColor' stroke='currentColor' strokeWidth='.7'/>
+            </svg>
+        </div>
+    )
 }
 
 export const TopCard: React.FC<TopCardProps> = ({
@@ -38,6 +50,30 @@ export const TopCard: React.FC<TopCardProps> = ({
 
     const labelTagProps = label && get(LABEL_TO_TAG_PROPS, label, {})
     const images = gallery || []
+    const imagesAmount = images.length
+    const [currentSlide, setCurrentSlide] = useState(0)
+    const [previewVisible, setPreviewVisible] = useState(false)
+    const sliderRef = useRef(null)
+
+    const handleSlideChange = useCallback((current, next) => {
+        setCurrentSlide(next)
+    }, [])
+    const enablePreview = useCallback(() => {
+        setPreviewVisible(true)
+    }, [])
+
+    const handleNextSlide = useCallback(() => {
+        setCurrentSlide(curr => (curr + 1) % imagesAmount)
+        if (sliderRef.current) {
+            sliderRef.current.next()
+        }
+    }, [imagesAmount])
+    const handlePrevSlide = useCallback(() => {
+        setCurrentSlide(curr => (imagesAmount + curr - 1) % imagesAmount)
+        if (sliderRef.current) {
+            sliderRef.current.prev()
+        }
+    }, [imagesAmount])
 
     return (
         <Row gutter={ROW_GUTTER}>
@@ -66,21 +102,46 @@ export const TopCard: React.FC<TopCardProps> = ({
             </Col>
             <Col span={COL_SPAN_HALF} style={VERT_ALIGN_STYLES}>
                 {Boolean(images.length) && (
-                    <Carousel
-                        slidesToShow={1}
-                        autoplay
-                        infinite
-                    >
-                        {images.map((src, idx) => (
-                            <Image
-                                style={IMAGE_STYLES}
-                                wrapperStyle={IMAGE_WRAPPER_STYLES}
-                                key={idx}
-                                src={src}
-                                preview={false}
-                            />
-                        ))}
-                    </Carousel>
+                    <>
+                        <Carousel
+                            slidesToShow={1}
+                            autoplay={!previewVisible}
+                            infinite
+                            beforeChange={handleSlideChange}
+                            ref={sliderRef}
+                        >
+                            {images.map((src, idx) => (
+                                <Image
+                                    style={IMAGE_STYLES}
+                                    wrapperStyle={IMAGE_WRAPPER_STYLES}
+                                    key={idx}
+                                    src={src}
+                                    preview={false}
+                                    onClick={enablePreview}
+                                />
+                            ))}
+                        </Carousel>
+                        <div style={HIDE_GALLERY_STYLES}>
+                            <Image.PreviewGroup
+                                icons={{
+                                    right: <Arrow onClick={handleNextSlide}/>,
+                                    left: <Arrow onClick={handlePrevSlide}/>,
+                                }}
+                                preview={{
+                                    visible: previewVisible,
+                                    onVisibleChange: setPreviewVisible,
+                                    current: currentSlide,
+                                }}>
+                                {images.map((src, idx) => (
+                                    <Image
+                                        wrapperStyle={IMAGE_WRAPPER_STYLES}
+                                        key={idx}
+                                        src={src}
+                                    />
+                                ))}
+                            </Image.PreviewGroup>
+                        </div>
+                    </>
                 )}
             </Col>
         </Row>
