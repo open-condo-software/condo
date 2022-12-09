@@ -294,7 +294,7 @@ const Property = new GQLListSchema('Property', {
             },
         },
     },
-    plugins: [uuided(), addressService({ address: addressFieldHooks }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         auth: true,
         delete: false,
