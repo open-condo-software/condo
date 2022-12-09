@@ -44,7 +44,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         specializations: [{ id: categoryClassifier1.id }, { id: categoryClassifier2.id }],
                     }
                     const client = await makeClientWithRegisteredOrganization()
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, extraAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role, extraAttrs)
 
                     expect(employee.email).toEqual(userAttrs.email)
                     expect(employee.phone).toEqual(userAttrs.phone)
@@ -88,7 +89,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const extraAttrs = {
                         specializations: [{ id: categoryClassifier1.id }],
                     }
-                    const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, role, extraAttrs)
 
                     expect(employee.email).toEqual(client1.userAttrs.email)
                     expect(employee.user.id).toEqual(client.user.id)
@@ -107,7 +109,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         email: createTestEmail(),
                     }
 
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, role)
 
                     expect(employee.email).toEqual(employeeUserAttrs.email)
                     expect(employee.user.id).toEqual(obj.id)
@@ -126,7 +129,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
 
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, role)
 
                     expect(employee.email).toEqual(employeeUserAttrs.email)
                     expect(employee.user.id).toEqual(obj.id)
@@ -144,14 +148,15 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
 
-                    await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
                     const secondUserAttrs = {
                         ...userAttrs,
                         email: createTestEmail(),
                     }
 
                     await catchErrorFrom(async () => {
-                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {})
+                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
                             message: 'Already invited into the organization',
@@ -176,14 +181,15 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
 
-                    await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
                     const secondUserAttrs = {
                         ...userAttrs,
                         phone: createTestPhone(),
                     }
 
                     await catchErrorFrom(async () => {
-                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, {})
+                        await inviteNewOrganizationEmployee(client, client.organization, secondUserAttrs, role)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
                             message: 'Already invited into the organization',
@@ -205,6 +211,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const [categoryClassifier1] = await createTestTicketCategoryClassifier(admin)
                     const client = await makeClientWithRegisteredOrganization()
                     const inviteClient = await makeClientWithRegisteredOrganization()
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
 
                     const userAttrs = {
                         name: client.userAttrs.name,
@@ -215,7 +222,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         specializations: [{ id: categoryClassifier1.id }],
                     }
                     await catchErrorFrom(async () => {
-                        await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, extraAttrs)
+                        await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, role, extraAttrs)
                     }, ({ errors }) => {
                         expect(errors).toMatchObject([{
                             message: 'Already invited into the organization',
@@ -237,6 +244,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 const anonymousClient = await makeClient()
                 const client = await makeClientWithRegisteredOrganization()
                 const admin = await makeLoggedInAdminClient()
+                const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
                 const [userAttrs] = await createTestUser(admin)
                 const employeeUserAttrs = {
                     ...userAttrs,
@@ -245,7 +253,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 }
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs, {})
+                    await inviteNewOrganizationEmployee(anonymousClient, client.organization, employeeUserAttrs,  role, {})
                 })
             })
         })
@@ -267,7 +275,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     phone: createTestPhone(),
                 }
 
-                await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, {})
+                await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
             })
             it('cannot without granted "canInviteNewOrganizationEmployees" permission', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -286,7 +294,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                 }
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, {})
+                    await inviteNewOrganizationEmployee(client, employee.organization, employeeUserAttrs, role)
                 })
             })
         })
@@ -303,7 +311,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         phone: createTestPhone(),
                     }
                     const client = await makeClientWithRegisteredOrganization()
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
                     const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
@@ -333,8 +342,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         ...userAttrs,
                         email: createTestEmail(),
                     }
-
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, role)
                     const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
@@ -350,8 +359,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         ...userAttrs,
                         phone: createTestPhone(),
                     }
-
-                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, employeeUserAttrs, role)
                     const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
 
                     expect(reInvitedEmployee.id).toStrictEqual(employee.id)
@@ -363,7 +372,8 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const client1 = await makeClientWithRegisteredOrganization()
                     const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                    const [employee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                    const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
                     const [acceptedInvite] = await acceptOrRejectOrganizationInviteById(client2, employee)
 
                     expect(acceptedInvite).toEqual(expect.objectContaining({
@@ -398,7 +408,9 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     phone: createTestPhone(),
                 }
                 const client = await makeClientWithRegisteredOrganization()
-                await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+
+                await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await reInviteNewOrganizationEmployee(anonymousClient, client.organization, userAttrs)
                 })
