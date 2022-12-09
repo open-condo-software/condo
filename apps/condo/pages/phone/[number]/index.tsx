@@ -1,3 +1,4 @@
+import { renderPhone } from '@condo/domains/common/utils/Renders'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -235,7 +236,7 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
 const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, showOrganizationMessage }) => {
     const name = get(contact, 'name', get(lastTicket, 'clientName'))
     const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
-    const organizationName = get(lastTicket, 'organization.name')
+    const organizationName = get(contact, 'organization.name', get(lastTicket, 'organization.name'))
 
     return (
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
@@ -243,7 +244,7 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
                 <Row justify='space-between'>
                     <Typography.Title level={3}>{name}</Typography.Title>
                     {
-                        contact && lastTicket && (
+                        lastTicket && (
                             <TicketResidentFeatures ticket={lastTicket}/>
                         )
                     }
@@ -527,7 +528,7 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
 const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loading, showOrganizationMessage = false }) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
-        phone: phoneNumber,
+        phone: renderPhone(phoneNumber),
     })
 
     const router = useRouter()
