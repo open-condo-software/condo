@@ -6,12 +6,11 @@ let instance
 /**
  * Singleton. Returns the client instance
  * @param {string} url The URL of the address service
- * @param {AddressServiceParams?} params
  * @returns {AddressServiceClient}
  */
-function createInstance (url, params) {
+function createInstance (url) {
     if (!instance) {
-        instance = new AddressServiceClient(url, params)
+        instance = new AddressServiceClient(url)
     }
 
     return instance
