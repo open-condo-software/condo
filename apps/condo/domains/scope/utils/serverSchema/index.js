@@ -118,26 +118,22 @@ async function getPropertyScopes (employeeIds) {
  */
 async function createOrDeleteAssigneeScope ({ assigneeField, otherAssigneeField, context, existingItem, updatedItem }) {
     const existingAssigneeFieldId = get(existingItem, assigneeField)
-    const existingOtherAssigneeFieldId = get(existingItem, otherAssigneeField)
     const updatedAssigneeFieldId = get(updatedItem, assigneeField)
-    const updatedOtherAssigneeFieldId = get(updatedItem, otherAssigneeField)
-    
     const isAssigneeFieldChanged = existingAssigneeFieldId !== updatedAssigneeFieldId
-    const isOtherAssigneeFieldChanged = existingOtherAssigneeFieldId !== updatedOtherAssigneeFieldId
-
-    if (!isAssigneeFieldChanged && !isOtherAssigneeFieldChanged) {
-        return
-    }
-    
-    const ticketId = updatedItem.id
-    const { dv, sender } = updatedItem
-    
-    const assigneeScopes = await find('AssigneeScope', {
-        ticket: { id: ticketId },
-        deletedAt: null,
-    })
 
     if (isAssigneeFieldChanged) {
+        const existingOtherAssigneeFieldId = get(existingItem, otherAssigneeField)
+        const updatedOtherAssigneeFieldId = get(updatedItem, otherAssigneeField)
+        const isOtherAssigneeFieldChanged = existingOtherAssigneeFieldId !== updatedOtherAssigneeFieldId
+
+        const ticketId = updatedItem.id
+        const { dv, sender } = updatedItem
+
+        const assigneeScopes = await find('AssigneeScope', {
+            ticket: { id: ticketId },
+            deletedAt: null,
+        })
+
         const isAssigneeFieldConnected = !existingAssigneeFieldId && updatedAssigneeFieldId
         const isAssigneeFieldDisconnected = existingAssigneeFieldId && !updatedAssigneeFieldId
         const isAssigneeFieldUpdated = existingAssigneeFieldId && updatedAssigneeFieldId
@@ -161,14 +157,17 @@ async function createOrDeleteAssigneeScope ({ assigneeField, otherAssigneeField,
                     dv, sender,
                 })
             }
-        } else if (isAssigneeFieldUpdated && existedAssigneeFieldAssigneeScope) {
+        } else if (isAssigneeFieldUpdated) {
             const isSameUserInOtherAssigneeField = existingOtherAssigneeFieldId && isOtherAssigneeFieldChanged ?
-                existingAssigneeFieldId === updatedOtherAssigneeFieldId : existingAssigneeFieldId === existingOtherAssigneeFieldId
+                updatedAssigneeFieldId === updatedOtherAssigneeFieldId : updatedAssigneeFieldId === existingOtherAssigneeFieldId
 
-            if (!isSameUserInOtherAssigneeField) {
+            if (existedAssigneeFieldAssigneeScope) {
                 await AssigneeScope.softDelete(context, existedAssigneeFieldAssigneeScope.id, {
                     dv, sender,
                 })
+            }
+
+            if (!isSameUserInOtherAssigneeField) {
                 await AssigneeScope.create(context, {
                     user: { connect: { id: updatedAssigneeFieldId } },
                     ticket: { connect: { id: ticketId } },

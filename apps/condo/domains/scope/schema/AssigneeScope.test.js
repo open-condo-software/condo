@@ -319,5 +319,46 @@ describe('AssigneeScope', () => {
 
             expect(readAssigneeScopes).toHaveLength(1)
         })
+
+        it('don\'t create AssigneeScope after update ticket executor to user, who already ticket assignee', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const userClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canBeAssignedAsExecutor: true,
+            })
+            await createTestOrganizationEmployee(admin, organization, userClient.user, role)
+
+            const [ticket] = await createTestTicket(admin, organization, property, {
+                assignee: { connect: { id: userClient.user.id } },
+                executor: { connect: { id: userClient1.user.id } },
+            })
+
+            const ticketAssigneeScopes = await AssigneeScope.getAll(admin, {
+                ticket: { id: ticket.id },
+            })
+
+            expect(ticketAssigneeScopes).toHaveLength(2)
+
+            const user1AssigneeScope = ticketAssigneeScopes.find(scope => scope.user.id === userClient.user.id)
+            const user2AssigneeScope = ticketAssigneeScopes.find(scope => scope.user.id === userClient1.user.id)
+
+            expect(user1AssigneeScope).toBeDefined()
+            expect(user2AssigneeScope).toBeDefined()
+
+            await updateTestTicket(admin, ticket.id, {
+                executor: { connect: { id: userClient.user.id } },
+            })
+
+            const ticketAfterUpdateAssigneeScopes = await AssigneeScope.getAll(admin, {
+                ticket: { id: ticket.id },
+            })
+
+            expect(ticketAfterUpdateAssigneeScopes).toHaveLength(1)
+            expect(ticketAfterUpdateAssigneeScopes[0].user.id).toEqual(userClient.user.id)
+        })
     })
 })
