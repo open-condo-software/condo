@@ -61,7 +61,7 @@ import { TicketPropertyField } from '@condo/domains/ticket/components/TicketId/T
 import { TicketReviewField } from '@condo/domains/ticket/components/TicketId/TicketReviewField'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
-import { useTicketExportToPdf } from '@condo/domains/ticket/hooks/useTicketExportToPdf'
+import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 
 const COMMENT_RE_FETCH_INTERVAL = 5 * 1000
 
@@ -113,6 +113,8 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
+
+    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
@@ -246,10 +248,13 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         return timeSinceCreation.join(' ')
     }, [DaysShortMessage, HoursShortMessage, LessThanMinuteMessage, MinutesShortMessage, statusUpdatedAt])
 
-    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdf({
+    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
         ticketId: id,
         where: { id },
         sortBy: [],
+        user,
+        timeZone,
+        locale: intl.locale,
     })
 
     return (
