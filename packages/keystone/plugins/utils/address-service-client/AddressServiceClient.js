@@ -1,6 +1,11 @@
 const fetch = require('node-fetch')
 
 /**
+ * @typedef {Object} SuggestionHelpersType
+ * @property {string} tin The organization's tin (inn)
+ */
+
+/**
  * @typedef {Object} AddressServiceParams
  * @property {string?} geo
  * @property {number?} count Number of results to return (20 by default)
@@ -13,40 +18,13 @@ const fetch = require('node-fetch')
 class AddressServiceClient {
     /**
      * @param {string} url The address service url (root)
-     * @param {AddressServiceParams?} params Additional parameters. Ability to set query parameters for all queries
      */
-    constructor (url, params = {}) {
+    constructor (url) {
         if (!url) {
             throw new Error('The `url` parameter is mandatory')
         }
 
         this.url = url
-
-        // The next fields allow to define some query parameters for all queries made by this client instance
-        const { geo = null, count = 20, context = null } = params
-
-        this.possibleUrlParams = {
-            geo,
-            count,
-            context,
-        }
-    }
-
-    /**
-     * @param {AddressServiceParams} params
-     * @returns {string}
-     * @private
-     */
-    urlifyParams (params) {
-        const urlParams = []
-        Object.keys(this.possibleUrlParams).forEach((paramName) => {
-            const paramValue = params[paramName] || this.possibleUrlParams[paramName] || null
-            if (paramValue) {
-                urlParams.push(`${paramName}=${paramValue}`)
-            }
-        })
-
-        return urlParams.join('&')
     }
 
     /**
@@ -75,25 +53,41 @@ class AddressServiceClient {
     }
 
     /**
+     * @typedef {Object} AddressServiceSuggestHelpersParams
+     * @property {string} tin The organization's tin (inn)
+     */
+
+    /**
+     * @typedef {Object} AddressServiceSuggestParams
+     * @property {string} [geo]
+     * @property {boolean} [bypass]
+     * @property {string} [context]
+     * @property {AddressServiceSuggestHelpersParams} [helpers]
+     */
+
+    /**
      * @param {string} s The string to search suggestions by
-     * @param {AddressServiceParams?} params
+     * @param {AddressServiceSuggestParams} [params]
      * @returns {Promise<*>}
      * @public
      */
-    async suggest (s, params) {
+    async suggest (s, params = {}) {
         if (!s) {
             throw new Error('The `s` parameter is mandatory')
         }
 
-        const urlParams = [`s=${s}`, this.urlifyParams(params)].filter(Boolean)
-
-        return this.call(`${this.url}/suggest?${urlParams.join('&')}`)
+        return this.call(`${this.url}/suggest?`, 'POST', { s, ...params })
     }
 
     /**
-     *
+     * @typedef {Object} AddressServiceSearchParams
+     * @property {string} [geo]
+     * @property {string} [context]
+     */
+
+    /**
      * @param {string} s
-     * @param {AddressServiceParams?} params
+     * @param {AddressServiceSearchParams} [params]
      * @returns {Promise<*>}
      * @public
      */
@@ -102,9 +96,9 @@ class AddressServiceClient {
             throw new Error('The `s` parameter is mandatory')
         }
 
-        const urlParams = [`s=${s}`, this.urlifyParams(params)].filter(Boolean)
+        const urlParams = new URLSearchParams({ s, ...params }).toString()
 
-        return this.call(`${this.url}/search?${urlParams.join('&')}`)
+        return this.call(`${this.url}/search?${urlParams}`)
     }
 }
 
