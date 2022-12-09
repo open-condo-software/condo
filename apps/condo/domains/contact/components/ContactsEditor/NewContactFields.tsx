@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { useCallback, useMemo, useState } from 'react'
-import { Col, Form, Radio } from 'antd'
+import { AutoComplete, Col, Form, Radio } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { MinusCircleOutlined } from '@ant-design/icons'
@@ -86,7 +86,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
 
     const contactExistValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
-            if (!value || isEmpty(contacts)) {
+            if (!value || isEmpty(contacts) || !checked) {
                 setContactWithSamePhoneExistError(false)
                 return Promise.resolve()
             }
@@ -100,7 +100,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
             setContactWithSamePhoneExistError(false)
             return Promise.resolve()
         },
-    }), [ContactWithSamePhoneExistMessage, contacts])
+    }), [ContactWithSamePhoneExistMessage, checked, contacts])
 
     const validations = useMemo(() => ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [contactExistValidator] : [],
@@ -127,7 +127,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                     allowClear
                     placeholder={NamePlaceholder}
                     onInput={handleNameInput}
-                    disabled={!isPhoneFieldFilled || contactWithSamePhoneExistError}
+                    disabled={!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked}
                 />
             </Col>
             <Col span={2}>

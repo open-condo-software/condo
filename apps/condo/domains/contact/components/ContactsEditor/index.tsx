@@ -171,7 +171,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         if (!contactsLoading) {
             form.validateFields([NEW_CONTACT_PHONE_FORM_ITEM_NAME])
         }
-    }, [form, unitName, contactsLoading])
+    }, [form, unitName, contactsLoading, editableFieldsChecked])
 
     useEffect(() => {
         if (!isInitialContactsLoaded && !contactsLoading) {
