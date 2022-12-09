@@ -16,6 +16,7 @@ const { makeClientWithRegisteredOrganization, inviteNewOrganizationEmployee } = 
 const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE, MESSAGE_ERROR_STATUS } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_TYPE_IN_USER_BLACK_LIST, EMPTY_MESSAGE_USER_BLACK_LIST_FIELDS_ERROR } = require('@condo/domains/notification/constants/errors')
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
+const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
 describe('MessageUserBlackList', () => {
     describe('accesses', () => {
@@ -149,7 +150,8 @@ describe('MessageUserBlackList', () => {
                 email: userAttrs.email,
             })
 
-            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+            const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
 
             await waitFor(async () => {
                 const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }
@@ -173,7 +175,8 @@ describe('MessageUserBlackList', () => {
                 email: userAttrs.email,
             })
 
-            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs)
+            const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+            const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
 
             await waitFor(async () => {
                 const messageWhere = { user: { id: employee.user.id }, type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE }

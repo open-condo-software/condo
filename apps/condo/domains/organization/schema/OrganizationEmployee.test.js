@@ -325,7 +325,8 @@ describe('OrganizationEmployee', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
 
         const email = createTestEmail()
         const phone = createTestPhone()
@@ -344,7 +345,8 @@ describe('OrganizationEmployee', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
         await acceptOrRejectOrganizationInviteById(client2, invitedEmployee)
 
         const email = createTestEmail()
@@ -364,7 +366,8 @@ describe('OrganizationEmployee', () => {
         const client1 = await makeClientWithRegisteredOrganization()
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+        const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+        const [invitedEmployee] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
         await acceptOrRejectOrganizationInviteById(client2, invitedEmployee, {
             isAccepted: false,
             isRejected: true,
@@ -416,8 +419,10 @@ describe('OrganizationEmployee', () => {
         const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
         const client1 = await makeClientWithRegisteredOrganization()
 
+        const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+
         // client1 invite client2 by phone with wrong name!
-        const [invite2_0] = await inviteNewOrganizationEmployee(client1, client1.organization, { phone: client2.userAttrs.phone, name: 'TEST1', email })
+        const [invite2_0] = await inviteNewOrganizationEmployee(client1, client1.organization, { phone: client2.userAttrs.phone, name: 'TEST1', email }, role)
         expect(invite2_0).toMatchObject({
             name: 'TEST1',
             phone: client2.userAttrs.phone,

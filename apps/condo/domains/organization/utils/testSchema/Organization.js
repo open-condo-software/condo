@@ -10,7 +10,6 @@ const {
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
 const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -54,17 +53,13 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     return [data.obj, attrs]
 }
 
-async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}) {
+async function inviteNewOrganizationEmployee (client, organization, user, role, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const { role: roleFromAttrs, ...otherAttrs } = extraAttrs
+    if (!role) throw new Error('no role')
 
-    let role = roleFromAttrs
-    if (!role) {
-        [role] = await createTestOrganizationEmployeeRole(client, organization)
-    }
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
@@ -74,7 +69,7 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
         name: user.name,
         organization: { id: organization.id },
         role: { id: role.id },
-        ...otherAttrs,
+        ...extraAttrs,
     }
     const { data, errors } = await client.mutate(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, {
         data: { ...attrs },
