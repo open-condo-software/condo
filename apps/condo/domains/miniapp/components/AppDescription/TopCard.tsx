@@ -1,10 +1,11 @@
-import React, { CSSProperties, useCallback, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 import get from 'lodash/get'
+import { CheckOutlined } from '@ant-design/icons'
 import { Col, Row, Space, Image } from 'antd'
 import type { RowProps } from 'antd'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Tag, Carousel } from '@open-condo/ui'
-import { LABEL_TO_TAG_PROPS } from '@condo/domains/miniapp/constants'
+import { Typography, Tag, Carousel, Button, ButtonProps } from '@open-condo/ui'
+import { LABEL_TO_TAG_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 
 const ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const COL_SPAN_HALF = 12
@@ -23,6 +24,8 @@ type TopCardProps = {
     description: string
     price?: string
     gallery?: Array<string>
+    contextStatus: string | null
+    appUrl?: string
 }
 
 const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
@@ -43,10 +46,29 @@ export const TopCard: React.FC<TopCardProps> = ({
     description,
     price,
     gallery,
+    contextStatus,
+    appUrl,
 }) => {
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
     const LabelMessage = label && intl.formatMessage({ id: `miniapps.labels.${label}.name` })
+
+    const buttonProps = useMemo<ButtonProps>(() => {
+        const btnProps: ButtonProps = { type: 'primary' }
+        if (!contextStatus) {
+            btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
+        } else if (contextStatus === CONTEXT_IN_PROGRESS_STATUS) {
+            btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.inProgress' })
+            btnProps.disabled = true
+        } else if (appUrl) {
+            btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.open' })
+        } else {
+            btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
+            btnProps.icon = <CheckOutlined/>
+        }
+
+        return btnProps
+    }, [appUrl, contextStatus, intl])
 
     const labelTagProps = label && get(LABEL_TO_TAG_PROPS, label, {})
     const images = gallery || []
@@ -98,6 +120,7 @@ export const TopCard: React.FC<TopCardProps> = ({
                             </Typography.Title>
                         )}
                     </Space>
+                    <Button {...buttonProps}/>
                 </Space>
             </Col>
             <Col span={COL_SPAN_HALF} style={VERT_ALIGN_STYLES}>
