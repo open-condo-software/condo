@@ -6069,7 +6069,6 @@ type BillingIntegrationHistoryRecord {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -6082,6 +6081,8 @@ type BillingIntegrationHistoryRecord {
   isHidden: Boolean
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -6140,10 +6141,6 @@ input BillingIntegrationHistoryRecordWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  about: JSON
-  about_not: JSON
-  about_in: [JSON]
-  about_not_in: [JSON]
   developer: String
   developer_not: String
   developer_contains: String
@@ -6290,6 +6287,28 @@ input BillingIntegrationHistoryRecordWhereInput {
   label_not_ends_with_i: String
   label_in: [String]
   label_not_in: [String]
+  gallery: JSON
+  gallery_not: JSON
+  gallery_in: [JSON]
+  gallery_not_in: [JSON]
+  price: String
+  price_not: String
+  price_contains: String
+  price_not_contains: String
+  price_starts_with: String
+  price_not_starts_with: String
+  price_ends_with: String
+  price_not_ends_with: String
+  price_i: String
+  price_not_i: String
+  price_contains_i: String
+  price_not_contains_i: String
+  price_starts_with_i: String
+  price_not_starts_with_i: String
+  price_ends_with_i: String
+  price_not_ends_with_i: String
+  price_in: [String]
+  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6397,6 +6416,8 @@ enum SortBillingIntegrationHistoryRecordsBy {
   displayPriority_DESC
   label_ASC
   label_DESC
+  price_ASC
+  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6419,7 +6440,6 @@ input BillingIntegrationHistoryRecordUpdateInput {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -6432,6 +6452,8 @@ input BillingIntegrationHistoryRecordUpdateInput {
   isHidden: Boolean
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -6455,7 +6477,6 @@ input BillingIntegrationHistoryRecordCreateInput {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -6468,6 +6489,8 @@ input BillingIntegrationHistoryRecordCreateInput {
   isHidden: Boolean
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -6527,10 +6550,6 @@ type BillingIntegration {
   """
   shortDescription: String
 
-  """ JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented 
-  """
-  about: JSON
-
   """ Developer company name """
   developer: String
 
@@ -6578,6 +6597,14 @@ type BillingIntegration {
   """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
   """
   label: String
+
+  """ Array containing links to promotional images, which will be shown to user on app's page 
+  """
+  gallery: [String!]
+
+  """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
+  """
+  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -6644,10 +6671,6 @@ input BillingIntegrationWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  about: JSON
-  about_not: JSON
-  about_in: [JSON]
-  about_not_in: [JSON]
   developer: String
   developer_not: String
   developer_contains: String
@@ -6775,6 +6798,28 @@ input BillingIntegrationWhereInput {
   label_not: String
   label_in: [String]
   label_not_in: [String]
+  gallery: [String!]
+  gallery_not: [String!]
+  gallery_in: [[String!]]
+  gallery_not_in: [[String!]]
+  price: String
+  price_not: String
+  price_contains: String
+  price_not_contains: String
+  price_starts_with: String
+  price_not_starts_with: String
+  price_ends_with: String
+  price_not_ends_with: String
+  price_i: String
+  price_not_i: String
+  price_contains_i: String
+  price_not_contains_i: String
+  price_starts_with_i: String
+  price_not_starts_with_i: String
+  price_ends_with_i: String
+  price_not_ends_with_i: String
+  price_in: [String]
+  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6866,6 +6911,8 @@ enum SortBillingIntegrationsBy {
   displayPriority_DESC
   label_ASC
   label_DESC
+  price_ASC
+  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6888,7 +6935,6 @@ input BillingIntegrationUpdateInput {
   name: String
   logo: Upload
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: String
@@ -6902,6 +6948,8 @@ input BillingIntegrationUpdateInput {
   isHidden: Boolean
   displayPriority: Int
   label: String
+  gallery: [String!]
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -6922,7 +6970,6 @@ input BillingIntegrationCreateInput {
   name: String
   logo: Upload
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: String
@@ -6936,6 +6983,8 @@ input BillingIntegrationCreateInput {
   isHidden: Boolean
   displayPriority: Int
   label: String
+  gallery: [String!]
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -35634,7 +35683,6 @@ type AcquiringIntegrationHistoryRecord {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -35645,6 +35693,8 @@ type AcquiringIntegrationHistoryRecord {
   explicitFeeDistributionSchema: JSON
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -35703,10 +35753,6 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  about: JSON
-  about_not: JSON
-  about_in: [JSON]
-  about_not_in: [JSON]
   developer: String
   developer_not: String
   developer_contains: String
@@ -35817,6 +35863,28 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   label_not_ends_with_i: String
   label_in: [String]
   label_not_in: [String]
+  gallery: JSON
+  gallery_not: JSON
+  gallery_in: [JSON]
+  gallery_not_in: [JSON]
+  price: String
+  price_not: String
+  price_contains: String
+  price_not_contains: String
+  price_starts_with: String
+  price_not_starts_with: String
+  price_ends_with: String
+  price_not_ends_with: String
+  price_i: String
+  price_not_i: String
+  price_contains_i: String
+  price_not_contains_i: String
+  price_starts_with_i: String
+  price_not_starts_with_i: String
+  price_ends_with_i: String
+  price_not_ends_with_i: String
+  price_in: [String]
+  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -35920,6 +35988,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   displayPriority_DESC
   label_ASC
   label_DESC
+  price_ASC
+  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -35942,7 +36012,6 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -35953,6 +36022,8 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   explicitFeeDistributionSchema: JSON
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -35976,7 +36047,6 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -35987,6 +36057,8 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   explicitFeeDistributionSchema: JSON
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36057,10 +36129,6 @@ type AcquiringIntegration {
   """
   shortDescription: String
 
-  """ JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented 
-  """
-  about: JSON
-
   """ Developer company name """
   developer: String
 
@@ -36105,6 +36173,14 @@ type AcquiringIntegration {
   """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
   """
   label: String
+
+  """ Array containing links to promotional images, which will be shown to user on app's page 
+  """
+  gallery: [String!]
+
+  """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
+  """
+  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -36171,10 +36247,6 @@ input AcquiringIntegrationWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  about: JSON
-  about_not: JSON
-  about_in: [JSON]
-  about_not_in: [JSON]
   developer: String
   developer_not: String
   developer_contains: String
@@ -36303,6 +36375,28 @@ input AcquiringIntegrationWhereInput {
   label_not: String
   label_in: [String]
   label_not_in: [String]
+  gallery: [String!]
+  gallery_not: [String!]
+  gallery_in: [[String!]]
+  gallery_not_in: [[String!]]
+  price: String
+  price_not: String
+  price_contains: String
+  price_not_contains: String
+  price_starts_with: String
+  price_not_starts_with: String
+  price_ends_with: String
+  price_not_ends_with: String
+  price_i: String
+  price_not_i: String
+  price_contains_i: String
+  price_not_contains_i: String
+  price_starts_with_i: String
+  price_not_starts_with_i: String
+  price_ends_with_i: String
+  price_not_ends_with_i: String
+  price_in: [String]
+  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -36392,6 +36486,8 @@ enum SortAcquiringIntegrationsBy {
   displayPriority_DESC
   label_ASC
   label_DESC
+  price_ASC
+  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -36414,7 +36510,6 @@ input AcquiringIntegrationUpdateInput {
   name: String
   logo: Upload
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: String
@@ -36427,6 +36522,8 @@ input AcquiringIntegrationUpdateInput {
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   displayPriority: Int
   label: String
+  gallery: [String!]
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36447,7 +36544,6 @@ input AcquiringIntegrationCreateInput {
   name: String
   logo: Upload
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: String
@@ -36460,6 +36556,8 @@ input AcquiringIntegrationCreateInput {
   explicitFeeDistributionSchema: [FeeDistributionFieldInput!]
   displayPriority: Int
   label: String
+  gallery: [String!]
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -39735,7 +39833,6 @@ type B2BAppHistoryRecord {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -39744,10 +39841,11 @@ type B2BAppHistoryRecord {
   isGlobal: Boolean
   contextDefaultStatus: String
   category: String
-  setupButtonMessage: String
   features: JSON
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -39806,10 +39904,6 @@ input B2BAppHistoryRecordWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  about: JSON
-  about_not: JSON
-  about_in: [JSON]
-  about_not_in: [JSON]
   developer: String
   developer_not: String
   developer_contains: String
@@ -39908,24 +40002,6 @@ input B2BAppHistoryRecordWhereInput {
   category_not_ends_with_i: String
   category_in: [String]
   category_not_in: [String]
-  setupButtonMessage: String
-  setupButtonMessage_not: String
-  setupButtonMessage_contains: String
-  setupButtonMessage_not_contains: String
-  setupButtonMessage_starts_with: String
-  setupButtonMessage_not_starts_with: String
-  setupButtonMessage_ends_with: String
-  setupButtonMessage_not_ends_with: String
-  setupButtonMessage_i: String
-  setupButtonMessage_not_i: String
-  setupButtonMessage_contains_i: String
-  setupButtonMessage_not_contains_i: String
-  setupButtonMessage_starts_with_i: String
-  setupButtonMessage_not_starts_with_i: String
-  setupButtonMessage_ends_with_i: String
-  setupButtonMessage_not_ends_with_i: String
-  setupButtonMessage_in: [String]
-  setupButtonMessage_not_in: [String]
   features: JSON
   features_not: JSON
   features_in: [JSON]
@@ -39956,6 +40032,28 @@ input B2BAppHistoryRecordWhereInput {
   label_not_ends_with_i: String
   label_in: [String]
   label_not_in: [String]
+  gallery: JSON
+  gallery_not: JSON
+  gallery_in: [JSON]
+  gallery_not_in: [JSON]
+  price: String
+  price_not: String
+  price_contains: String
+  price_not_contains: String
+  price_starts_with: String
+  price_not_starts_with: String
+  price_ends_with: String
+  price_not_ends_with: String
+  price_i: String
+  price_not_i: String
+  price_contains_i: String
+  price_not_contains_i: String
+  price_starts_with_i: String
+  price_not_starts_with_i: String
+  price_ends_with_i: String
+  price_not_ends_with_i: String
+  price_in: [String]
+  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40057,12 +40155,12 @@ enum SortB2BAppHistoryRecordsBy {
   contextDefaultStatus_DESC
   category_ASC
   category_DESC
-  setupButtonMessage_ASC
-  setupButtonMessage_DESC
   displayPriority_ASC
   displayPriority_DESC
   label_ASC
   label_DESC
+  price_ASC
+  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40085,7 +40183,6 @@ input B2BAppHistoryRecordUpdateInput {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -40094,10 +40191,11 @@ input B2BAppHistoryRecordUpdateInput {
   isGlobal: Boolean
   contextDefaultStatus: String
   category: String
-  setupButtonMessage: String
   features: JSON
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40121,7 +40219,6 @@ input B2BAppHistoryRecordCreateInput {
   name: String
   logo: JSON
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: JSON
@@ -40130,10 +40227,11 @@ input B2BAppHistoryRecordCreateInput {
   isGlobal: Boolean
   contextDefaultStatus: String
   category: String
-  setupButtonMessage: String
   features: JSON
   displayPriority: Int
   label: String
+  gallery: JSON
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40184,10 +40282,6 @@ type B2BApp {
   """
   shortDescription: String
 
-  """ Information about promo-blocks which we'll be shown on app detailed page. JSON interpretation of visual about app field written in KS6 document-field notation (https://keystonejs.com/docs/guides/document-fields). For now only aboutAppBlock implemented 
-  """
-  about: JSON
-
   """ Developer company name """
   developer: String
 
@@ -40219,10 +40313,6 @@ type B2BApp {
   """
   category: String
 
-  """ Text, which will be displayed instead of default "Set up" text if app has it's own frontend (appUrl) 
-  """
-  setupButtonMessage: String
-
   """ Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application 
   """
   accessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight!]!
@@ -40239,6 +40329,14 @@ type B2BApp {
   """ App can be marked with one of the following labels in order to visually stand out from other applications: [FREE, DISCOUNT, POPULAR, NEW] 
   """
   label: String
+
+  """ Array containing links to promotional images, which will be shown to user on app's page 
+  """
+  gallery: [String!]
+
+  """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
+  """
+  price: String
   id: ID!
   v: Int
   createdAt: String
@@ -40305,10 +40403,6 @@ input B2BAppWhereInput {
   shortDescription_not_ends_with_i: String
   shortDescription_in: [String]
   shortDescription_not_in: [String]
-  about: JSON
-  about_not: JSON
-  about_in: [JSON]
-  about_not_in: [JSON]
   developer: String
   developer_not: String
   developer_contains: String
@@ -40393,24 +40487,6 @@ input B2BAppWhereInput {
   category_not: String
   category_in: [String]
   category_not_in: [String]
-  setupButtonMessage: String
-  setupButtonMessage_not: String
-  setupButtonMessage_contains: String
-  setupButtonMessage_not_contains: String
-  setupButtonMessage_starts_with: String
-  setupButtonMessage_not_starts_with: String
-  setupButtonMessage_ends_with: String
-  setupButtonMessage_not_ends_with: String
-  setupButtonMessage_i: String
-  setupButtonMessage_not_i: String
-  setupButtonMessage_contains_i: String
-  setupButtonMessage_not_contains_i: String
-  setupButtonMessage_starts_with_i: String
-  setupButtonMessage_not_starts_with_i: String
-  setupButtonMessage_ends_with_i: String
-  setupButtonMessage_not_ends_with_i: String
-  setupButtonMessage_in: [String]
-  setupButtonMessage_not_in: [String]
 
   """ condition must be true for all nodes """
   accessRights_every: B2BAppAccessRightWhereInput
@@ -40436,6 +40512,28 @@ input B2BAppWhereInput {
   label_not: String
   label_in: [String]
   label_not_in: [String]
+  gallery: [String!]
+  gallery_not: [String!]
+  gallery_in: [[String!]]
+  gallery_not_in: [[String!]]
+  price: String
+  price_not: String
+  price_contains: String
+  price_not_contains: String
+  price_starts_with: String
+  price_not_starts_with: String
+  price_ends_with: String
+  price_not_ends_with: String
+  price_i: String
+  price_not_i: String
+  price_contains_i: String
+  price_not_contains_i: String
+  price_starts_with_i: String
+  price_not_starts_with_i: String
+  price_ends_with_i: String
+  price_not_ends_with_i: String
+  price_in: [String]
+  price_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -40519,14 +40617,14 @@ enum SortB2BAppsBy {
   contextDefaultStatus_DESC
   category_ASC
   category_DESC
-  setupButtonMessage_ASC
-  setupButtonMessage_DESC
   accessRights_ASC
   accessRights_DESC
   displayPriority_ASC
   displayPriority_DESC
   label_ASC
   label_DESC
+  price_ASC
+  price_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -40549,7 +40647,6 @@ input B2BAppUpdateInput {
   name: String
   logo: Upload
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: String
@@ -40558,11 +40655,12 @@ input B2BAppUpdateInput {
   isGlobal: Boolean
   contextDefaultStatus: String
   category: String
-  setupButtonMessage: String
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
   label: String
+  gallery: [String!]
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -40583,7 +40681,6 @@ input B2BAppCreateInput {
   name: String
   logo: Upload
   shortDescription: String
-  about: JSON
   developer: String
   partnerUrl: String
   detailedDescription: String
@@ -40592,11 +40689,12 @@ input B2BAppCreateInput {
   isGlobal: Boolean
   contextDefaultStatus: String
   category: String
-  setupButtonMessage: String
   accessRights: B2BAppAccessRightRelateToManyInput
   features: [B2BAppGlobalFeature!]
   displayPriority: Int
   label: String
+  gallery: [String!]
+  price: String
   v: Int
   createdAt: String
   updatedAt: String
