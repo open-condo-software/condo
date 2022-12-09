@@ -52,6 +52,8 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         developer={app.developer}
                         publishedAt={app.createdAt}
                         partnerUrl={app.partnerUrl}
+                        price={app.price}
+                        gallery={app.gallery}
                     />
                 </PageContentWrapper>
             </PageWrapper>
