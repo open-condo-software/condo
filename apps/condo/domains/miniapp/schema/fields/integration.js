@@ -83,6 +83,12 @@ const LABEL_FIELD = {
     options: B2B_APPS_LABELS,
 }
 
+const PRICE_FIELD = {
+    schemaDoc: 'String representing a base price of app. Usually it\'s something like "Free", "Individual", "$50 / year"',
+    type: Text,
+    isRequired: false,
+}
+
 module.exports = {
     DEVELOPER_FIELD,
     LOGO_FIELD,
@@ -96,5 +102,6 @@ module.exports = {
     CONTEXT_DEFAULT_STATUS_FIELD,
     DISPLAY_PRIORITY_FIELD,
     LABEL_FIELD,
+    PRICE_FIELD,
 }
 

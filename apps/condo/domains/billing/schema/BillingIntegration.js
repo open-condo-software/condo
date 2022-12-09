@@ -14,12 +14,15 @@ const {
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
     SHORT_DESCRIPTION_FIELD,
-    INSTRUCTION_TEXT_FIELD,
+    APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
+    DISPLAY_PRIORITY_FIELD,
+    LABEL_FIELD,
+    PRICE_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
+const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
@@ -37,13 +40,11 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
 
         shortDescription: SHORT_DESCRIPTION_FIELD,
 
-        about: ABOUT_DOCUMENT_FIELD,
-
         developer: DEVELOPER_FIELD,
 
         partnerUrl: PARTNER_URL_FIELD,
 
-        instruction: INSTRUCTION_TEXT_FIELD,
+        detailedDescription: APP_DETAILS_FIELD,
 
         appUrl: IFRAME_URL_FIELD,
 
@@ -81,6 +82,11 @@ const BillingIntegration = new GQLListSchema('BillingIntegration', {
 
         // TODO(DOMA-1647): Need better solution, used to test UPS flow for now
         isHidden: IS_HIDDEN_FIELD,
+
+        displayPriority: DISPLAY_PRIORITY_FIELD,
+        label: LABEL_FIELD,
+        gallery: GALLERY_FIELD,
+        price: PRICE_FIELD,
     },
     hooks: {
         afterChange: logoMetaAfterChange,
