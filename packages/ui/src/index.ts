@@ -12,6 +12,9 @@ export type { CardProps } from './components/Card'
 export { Carousel } from './components/Carousel'
 export type { CarouselProps } from './components/Carousel'
 
+export { Checkbox } from './components/Checkbox'
+export type { CheckboxProps } from './components/Checkbox'
+
 export { Markdown } from './components/Markdown'
 export type { MarkdownProps } from './components/Markdown'
 
