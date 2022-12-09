@@ -1,12 +1,6 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { DeleteFilled, InfoCircleFilled } from '@ant-design/icons'
 import { Alert } from '@open-condo/ui/src'
-
-const icons = {
-    DeleteFilled: <DeleteFilled/>,
-    InfoCircleFilled: <InfoCircleFilled />,
-}
 
 export default {
     title: 'Components/Alert',
@@ -16,18 +10,6 @@ export default {
         message: 'Message',
         showIcon: true,
         description: 'Description',
-    },
-    argTypes: {
-        action: {
-            table: {
-                type: { 
-                    summary: 'ReactNode',
-                },
-            },
-            control: {
-                type: null,
-            },
-        },
     },
 } as ComponentMeta<typeof Alert>
 
