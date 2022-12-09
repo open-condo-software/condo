@@ -3,6 +3,7 @@ import {
     Carousel as DefaultCarousel,
     CarouselProps as DefaultCarouselProps,
 } from 'antd'
+import { CarouselRef } from 'antd/lib/carousel'
 import { CarouselArrow } from './arrow'
 
 const CAROUSEL_CLASS_PREFIX = 'condo-carousel'
@@ -20,9 +21,13 @@ export type CarouselProps = Pick<DefaultCarouselProps,
 | 'draggable'
 | 'infinite'
 | 'speed'
-> & { dots?: boolean }
+| 'beforeChange'
+| 'children'
+> & {
+    dots?: boolean
+}
 
-export const Carousel: React.FC<CarouselProps> = (props) => {
+const Carousel = React.forwardRef<CarouselRef, CarouselProps>((props, ref) => {
     const {
         children,
         autoplaySpeed = DEFAULT_AUTOPLAY_SPEED,
@@ -35,6 +40,7 @@ export const Carousel: React.FC<CarouselProps> = (props) => {
             {...DEFAULT_ARROW_PROPS}
             autoplaySpeed={autoplaySpeed}
             prefixCls={CAROUSEL_CLASS_PREFIX}
+            ref={ref}
         >
             {React.Children.map(children, (child, index) => {
                 return (
@@ -45,4 +51,10 @@ export const Carousel: React.FC<CarouselProps> = (props) => {
             })}
         </DefaultCarousel>
     )
+})
+
+Carousel.displayName = 'Carousel'
+
+export {
+    Carousel,
 }
