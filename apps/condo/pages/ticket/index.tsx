@@ -52,7 +52,7 @@ import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
-import { useTicketExportToPdf } from '@condo/domains/ticket/hooks/useTicketExportToPdf'
+import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 
@@ -85,6 +85,8 @@ const TicketTable = ({
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
+    const user = get(auth, 'user')
+
     const router = useRouter()
 
     const tooltipData = useFiltersTooltipData()
@@ -108,13 +110,16 @@ const TicketTable = ({
         timeZone,
         user: auth.user,
     })
-    
-    const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdf({
+
+    const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdfTask({
         ticketId: selectedOneTicketId,
         where: {
             'id_in': selectedTicketKeys as string[],
         },
         sortBy,
+        user,
+        timeZone,
+        locale: intl.locale,
     })
 
     const handleRowAction = useCallback((record) => {

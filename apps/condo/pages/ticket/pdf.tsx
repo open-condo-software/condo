@@ -12,7 +12,7 @@ import { PageContent } from '@condo/domains/common/components/containers/BaseLay
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { HtmlToPdf } from '@condo/domains/common/utils/htmlToPdf'
 import { Ticket, TicketComment } from '@condo/domains/ticket/utils/clientSchema'
-import { ParametersType } from '@condo/domains/ticket/hooks/useTicketExportToPdf'
+import { ParametersType } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { getFullAddressByTicket } from '@condo/domains/ticket/utils/helpers'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 import { colors } from '@condo/domains/common/constants/style'
