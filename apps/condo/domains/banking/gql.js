@@ -17,14 +17,14 @@ const BankCategory = generateGqlQueries('BankCategory', BANK_CATEGORY_FIELDS)
 const BANK_COST_ITEM_FIELDS = `{ name isOutcome category { id name } ${COMMON_FIELDS} }`
 const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
 
-const BANK_ACCOUNT_FIELDS = `{ organization { id } integrationContext { id enabled } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
+const BANK_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
+const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_FIELDS)
+
+const BANK_ACCOUNT_FIELDS = `{ organization { id } integrationContext { id enabled integration ${BANK_INTEGRATION_FIELDS} } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id } tin country routingNumber number currencyCode importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankContractorAccount = generateGqlQueries('BankContractorAccount', BANK_CONTRACTOR_ACCOUNT_FIELDS)
-
-const BANK_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
-const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_FIELDS)
 
 const BANK_INTEGRATION_CONTEXT_FIELDS = `{ integration { id } organization { id } enabled ${COMMON_FIELDS} }`
 const BankIntegrationContext = generateGqlQueries('BankIntegrationContext', BANK_INTEGRATION_CONTEXT_FIELDS)
@@ -35,6 +35,12 @@ const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_F
 const CREATE_BANK_ACCOUNT_REQUEST_MUTATION = gql`
     mutation createBankAccountRequest ($data: CreateBankAccountRequestInput!) {
         result: createBankAccountRequest(data: $data) { status id }
+    }
+`
+
+const IMPORT_BANK_TRANSACTIONS_MUTATION = gql`
+    mutation importBankTransactions ($data: ImportBankTransactionsInput!) {
+        result: importBankTransactions(data: $data) { bankAccount ${BANK_ACCOUNT_FIELDS} }
     }
 `
 
@@ -49,5 +55,6 @@ module.exports = {
     BankIntegrationContext,
     BankTransaction,
     CREATE_BANK_ACCOUNT_REQUEST_MUTATION,
+    IMPORT_BANK_TRANSACTIONS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

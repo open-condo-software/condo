@@ -11,6 +11,7 @@ const { BankIntegration } = require('./BankIntegration')
 const { BankIntegrationContext } = require('./BankIntegrationContext')
 const { BankTransaction } = require('./BankTransaction')
 const { CreateBankAccountRequestService } = require('./CreateBankAccountRequestService')
+const { ImportBankTransactionsService } = require('./ImportBankTransactionsService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -22,5 +23,6 @@ module.exports = {
     BankIntegrationContext,
     CreateBankAccountRequestService,
     BankTransaction,
+    ImportBankTransactionsService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

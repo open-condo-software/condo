@@ -13,7 +13,7 @@ const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
-const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
+const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION, IMPORT_BANK_TRANSACTIONS_MUTATION } = require('@condo/domains/banking/gql')
 const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -281,6 +281,20 @@ async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors, {query: CREATE_BANK_ACCOUNT_REQUEST_MUTATION, variables: { data: attrs }})
     return [data.result, attrs]
 }
+
+async function importBankTransactionsByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(IMPORT_BANK_TRANSACTIONS_MUTATION, { data: attrs })
+    throwIfError(data, errors, {query: IMPORT_BANK_TRANSACTIONS_MUTATION, variables: { data: attrs }})
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -290,7 +304,8 @@ module.exports = {
     BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
     BankIntegration, createTestBankIntegration, updateTestBankIntegration,
     BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext,
-    createBankAccountRequestByTestClient,
     BankTransaction, createTestBankTransaction, updateTestBankTransaction,
+    createBankAccountRequestByTestClient,
+    importBankTransactionsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
