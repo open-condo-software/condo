@@ -34,6 +34,8 @@ type PageContentProps = {
     publishedAt: string
     partnerUrl?: string
     gallery?: Array<string>
+    contextStatus: string | null
+    appUrl?: string
 }
 
 export const PageContent: React.FC<PageContentProps> = ({
@@ -48,6 +50,8 @@ export const PageContent: React.FC<PageContentProps> = ({
     publishedAt,
     partnerUrl,
     gallery,
+    contextStatus,
+    appUrl,
 }) => {
     const intl = useIntl()
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
@@ -95,6 +99,8 @@ export const PageContent: React.FC<PageContentProps> = ({
                     description={shortDescription}
                     price={price}
                     gallery={gallery}
+                    contextStatus={contextStatus}
+                    appUrl={appUrl}
                 />
             </Col>
             <Col span={contentSpan}>

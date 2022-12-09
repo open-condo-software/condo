@@ -54,6 +54,8 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         partnerUrl={app.partnerUrl}
                         price={app.price}
                         gallery={app.gallery}
+                        contextStatus={get(context, 'status', null)}
+                        appUrl={app.appUrl}
                     />
                 </PageContentWrapper>
             </PageWrapper>
