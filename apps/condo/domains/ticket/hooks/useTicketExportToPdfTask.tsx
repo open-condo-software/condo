@@ -4,16 +4,19 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import styled from '@emotion/styled'
-import qs from 'qs'
+import get from 'lodash/get'
+import { ResolvedIntlConfig } from 'react-intl'
 
 import {
     SortTicketCommentsBy,
     SortTicketsBy,
     TicketComment as TicketCommentType,
     TicketWhereInput,
+    User as IUser,
 } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 
+import { PDF } from '@condo/domains/common/constants/export'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import { TicketComment } from '@condo/domains/ticket/utils/clientSchema'
 import { Modal } from '@condo/domains/common/components/Modal'
@@ -21,6 +24,10 @@ import { Button } from '@condo/domains/common/components/Button'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { ChevronIcon as ChevronIconBase } from '@condo/domains/common/components/icons/ChevronIcon'
 import { CommentPreview } from '@condo/domains/common/components/Comments/Comment'
+import { useTaskLauncher } from '@condo/domains/common/components/tasks/TaskLauncher'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+
+import { useTicketExportTaskUIInterface } from './useTicketExportTaskUIInterface'
 
 
 type TicketCommentWithChecked = TicketCommentType & { checked: boolean }
@@ -176,9 +183,12 @@ const CheckListComments: React.FC<CheckListCommentsPropsType> = (props) => {
 type ExportToPdfButtonType = (props: { disabled?: boolean }) => JSX.Element
 
 type UseTicketExportToPdfTaskInputType = {
+    user: IUser
     ticketId?: string
     where: TicketWhereInput
     sortBy: SortTicketsBy[]
+    locale: Pick<ResolvedIntlConfig, 'locale'>
+    timeZone: string
 }
 
 type UseTicketExportToPdfTaskType = (props: UseTicketExportToPdfTaskInputType) => {
@@ -193,23 +203,9 @@ export type ParametersType = {
     haveConsumedMaterials: boolean
     haveTotalCostWork: boolean
 }
-type DataType = Pick<UseTicketExportToPdfTaskInputType, 'where' | 'sortBy'> & { parameters: ParametersType }
-type UpdateQueryType = (props: {
-    data: DataType
-}) => Promise<void>
 
-const updateQuery: UpdateQueryType = async ({ data }) => {
-    const queryData: Record<keyof DataType, string> = {
-        parameters: JSON.stringify(data.parameters),
-        sortBy: JSON.stringify(data.sortBy),
-        where: JSON.stringify(data.where),
-    }
-    const query = qs.stringify(queryData, { arrayFormat: 'comma', addQueryPrefix: true })
-    window.open('/ticket/pdf' + query, '_blank')
-}
-
-export const useTicketExportToPdf: UseTicketExportToPdfTaskType = (props)  => {
-    const { ticketId, where, sortBy } = props
+export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  => {
+    const { ticketId, where, sortBy, locale, timeZone, user } = props
 
     const intl = useIntl()
     const SaveInPdfTitle = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.title' })
@@ -226,6 +222,26 @@ export const useTicketExportToPdf: UseTicketExportToPdfTaskType = (props)  => {
     const [haveTotalCostWork, setHaveTotalCostWork] = useState<boolean>(false)
     const [haveAllComments, setHaveAllComments] = useState<boolean>(false)
     const [checkedCommentIds, setCheckedCommentIds] = useState<string[]>([])
+
+    const { TicketExportTask: TaskUIInterface } = useTicketExportTaskUIInterface()
+
+    const { loading, handleRunTask } = useTaskLauncher(TaskUIInterface, {
+        dv: 1,
+        sender: getClientSideSenderInfo(),
+        where,
+        format: PDF,
+        sortBy,
+        locale,
+        timeZone,
+        user: { connect: { id: get(user, 'id', null) } },
+        parameters: {
+            commentIds: checkedCommentIds,
+            haveAllComments,
+            haveListCompletedWorks,
+            haveConsumedMaterials,
+            haveTotalCostWork,
+        },
+    })
 
     const resetModal = useCallback(() => {
         setVisibleModal(false)
@@ -251,21 +267,9 @@ export const useTicketExportToPdf: UseTicketExportToPdfTaskType = (props)  => {
     }, [])
 
     const handleSaveToPdfTask = useCallback(() => {
-        updateQuery({
-            data: {
-                where, sortBy,
-                parameters: {
-                    commentIds: checkedCommentIds,
-                    haveAllComments,
-                    haveListCompletedWorks,
-                    haveConsumedMaterials,
-                    haveTotalCostWork,
-                },
-            },
-        })
-
+        handleRunTask()
         handleCloseModal()
-    }, [checkedCommentIds, handleCloseModal, haveAllComments, haveConsumedMaterials, haveListCompletedWorks, haveTotalCostWork, sortBy, where])
+    }, [handleCloseModal, handleRunTask])
 
     const TicketBlanksExportToPdfButton = useCallback<ExportToPdfButtonType>(({ disabled }) => (
         <Button
@@ -273,11 +277,12 @@ export const useTicketExportToPdf: UseTicketExportToPdfTaskType = (props)  => {
             secondary
             icon={<FilePdfFilled />}
             disabled={disabled}
+            loading={loading}
             onClick={handleOpenModal}
             eventName='TicketsToPdfClick'
             children={SaveInPdfLabel}
         />
-    ), [handleOpenModal, SaveInPdfLabel])
+    ), [loading, handleOpenModal, SaveInPdfLabel])
 
     const TicketBlanksExportToPdfModal = (
         <Modal
