@@ -9,7 +9,6 @@ const {
     createTestInstance: createTestAddressServiceClientInstance,
 } = require('@open-condo/keystone/plugins/utils/address-service-client')
 const get = require('lodash/get')
-const omit = require('lodash/omit')
 
 const readOnlyAccess = {
     read: true,
@@ -49,8 +48,9 @@ const getFieldsToAdd = (fieldsHooks) => ({
 /**
  * Plugin to extend address field with address service
  * @param {Object} fieldsHooks
+ * @param resolveAddressFields
  */
-const addressService = (fieldsHooks = {}) => plugin(({
+const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFields }) => addressFields }) => plugin(({
     fields = {},
     hooks = {},
     ...rest
@@ -71,6 +71,7 @@ const addressService = (fieldsHooks = {}) => plugin(({
     // Modify hooks
     //
     const newResolveInput = async ({ resolvedData, operation, existingItem, originalInput, context, listKey }) => {
+        const addressFields = {}
         const existingAddressSources = get(existingItem, 'addressSources', [])
         // We will call to address service in the following cases:
         if (
@@ -114,21 +115,21 @@ const addressService = (fieldsHooks = {}) => plugin(({
                  * @see apps/condo/domains/resident/schema/RegisterResidentService.js:65
                  * @see apps/condo/domains/resident/schema/Resident.js:213
                  */
-                if (!(operation === 'update' && listKey === 'Resident')) {
-                    resolvedData['address'] = get(result, 'address')
-                    resolvedData['addressMeta'] = {
-                        dv: 1,
-                        value: get(result, ['addressMeta', 'value'], ''),
-                        unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
-                        data: get(result, ['addressMeta', 'data'], null),
-                    }
+
+                addressFields['address'] = get(result, 'address')
+                addressFields['addressMeta'] = {
+                    dv: 1,
+                    value: get(result, ['addressMeta', 'value'], ''),
+                    unrestricted_value: get(result, ['addressMeta', 'unrestricted_value'], ''),
+                    data: get(result, ['addressMeta', 'data'], null),
                 }
-                resolvedData['addressKey'] = get(result, 'addressKey')
-                resolvedData['addressSources'] = get(result, 'addressSources', [])
+
+                addressFields['addressKey'] = get(result, 'addressKey')
+                addressFields['addressSources'] = get(result, 'addressSources', [])
             }
         }
 
-        return resolvedData
+        return { ...resolvedData, ...resolveAddressFields({ addressFields, operation }) }
     }
     hooks.resolveInput = composeResolveInputHook(hooks.resolveInput, newResolveInput)
 
