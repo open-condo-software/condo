@@ -25,15 +25,15 @@ import {
 
 const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const ParkingNameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
-    const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
-    const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.floorCount' })
-    const ParkingOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.parkingOnFloor' })
-    const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
-    const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
+    const ParkingNameLabel = intl.formatMessage({ id: 'property.parking.form.numberOfParkingSection' })
+    const MinFloorLabel = intl.formatMessage({ id: 'property.section.form.minfloor' })
+    const FloorCountLabel = intl.formatMessage({ id: 'property.parking.form.floorCount' })
+    const ParkingOnFloorLabel = intl.formatMessage({ id: 'property.parking.form.parkingOnFloor' })
+    const ShowMinFloor = intl.formatMessage({ id: 'property.parking.form.showMinFloor' })
+    const HideMinFloor = intl.formatMessage({ id: 'property.parking.form.hideMinFloor' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
-    const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
-    const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.mode.copy' })
+    const CreateNewLabel = intl.formatMessage({ id: 'property.section.form.mode.create' })
+    const CopyLabel = intl.formatMessage({ id: 'property.parking.form.mode.copy' })
 
     const [minFloor, setMinFloor] = useState<number>(1)
     const [floorCount, setFloorCount] = useState<number | null>(null)
@@ -183,10 +183,10 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 
 const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.parking.form.numberOfParkingSection' })
+    const NameLabel = intl.formatMessage({ id: 'property.parking.form.numberOfParkingSection' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParking' })
+    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'property.modal.RenameNextParking' })
 
     const [parkingName, setParkingName] = useState<string>('')
     const renameNextUnits = useRef(true)

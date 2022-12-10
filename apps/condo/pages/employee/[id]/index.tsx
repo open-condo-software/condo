@@ -33,7 +33,7 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
     const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
-    const EmployeeRejectedMessage = intl.formatMessage({ id: 'pages.users.status.Rejected' })
+    const EmployeeRejectedMessage = intl.formatMessage({ id: 'users.status.Rejected' })
 
     const isEmployeeRejected = get(employee, 'isRejected')
 

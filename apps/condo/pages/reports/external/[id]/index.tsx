@@ -21,7 +21,7 @@ const IFRAME_STYLE: React.CSSProperties = { border: 'none', width: '100%', heigh
 const ExternalReportDetailPage = () => {
     const intl = useIntl()
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
-    const DefaultPageTitle = intl.formatMessage({ id: 'pages.condo.analytics.index.PageTitle' })
+    const DefaultPageTitle = intl.formatMessage({ id: 'analytics.index.PageTitle' })
 
     const [externalReport, setExternalReport] = useState<GetExternalReportIframeUrlOutput>(null)
 

@@ -17,7 +17,7 @@ const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 const CreatePropertyMapPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyMapTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'property.id.EditPropertyMapTitle' })
     const { query: { id } } = useRouter()
 
     return (

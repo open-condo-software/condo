@@ -20,11 +20,11 @@ import { IFilters } from '@condo/domains/ticket/utils/helpers'
 
 export function usePropertyScopeColumns (filterMetas, propertyScopes) {
     const intl = useIntl()
-    const PropertyScopeNameMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertyScopeName' })
-    const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
-    const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
-    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allProperties' })
-    const AllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allEmployees' })
+    const PropertyScopeNameMessage = intl.formatMessage({ id: 'settings.propertyScope.propertyScopeName' })
+    const PropertiesMessage = intl.formatMessage({ id: 'settings.propertyScope.properties' })
+    const EmployeesMessage = intl.formatMessage({ id: 'settings.propertyScope.employees' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'settings.propertyScope.allProperties' })
+    const AllEmployeesMessage = intl.formatMessage({ id: 'settings.propertyScope.allEmployees' })
 
     const propertyScopeIds = useMemo(() => propertyScopes.map(propertyScope => propertyScope.id), [propertyScopes])
 

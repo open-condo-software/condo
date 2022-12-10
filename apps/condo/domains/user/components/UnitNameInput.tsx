@@ -98,11 +98,11 @@ const getOptionGroupBySectionType: React.FC<IGetOptionGroupBySectionType> = (pro
 
 export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const intl = useIntl()
-    const FlatGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.flat' })
-    const ParkingGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.parking' })
-    const WarehouseGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.warehouse' })
-    const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
-    const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
+    const FlatGroupLabel = intl.formatMessage({ id: 'ticket.select.group.flat' })
+    const ParkingGroupLabel = intl.formatMessage({ id: 'ticket.select.group.parking' })
+    const WarehouseGroupLabel = intl.formatMessage({ id: 'ticket.select.group.warehouse' })
+    const CommercialGroupLabel = intl.formatMessage({ id: 'ticket.select.group.commercial' })
+    const ApartmentGroupLabel = intl.formatMessage({ id: 'ticket.select.group.apartment' })
     const {
         placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
     } = props

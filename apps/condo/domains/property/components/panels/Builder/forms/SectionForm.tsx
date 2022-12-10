@@ -28,16 +28,16 @@ import {
 
 const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.numberOfSection' })
-    const MinFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.minfloor' })
-    const FloorCountLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.floorCount' })
-    const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
-    const CreateNewLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.create' })
-    const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
-    const CopyLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.mode.copy' })
+    const SectionNameLabel = intl.formatMessage({ id: 'property.section.form.numberOfSection' })
+    const MinFloorLabel = intl.formatMessage({ id: 'property.section.form.minfloor' })
+    const FloorCountLabel = intl.formatMessage({ id: 'property.section.form.floorCount' })
+    const UnitsOnFloorLabel = intl.formatMessage({ id: 'property.section.form.unitsOnFloor' })
+    const CreateNewLabel = intl.formatMessage({ id: 'property.section.form.mode.create' })
+    const UnitTypeLabel = intl.formatMessage({ id: 'property.modal.UnitType' })
+    const CopyLabel = intl.formatMessage({ id: 'property.section.form.mode.copy' })
     const AddLabel = intl.formatMessage({ id: 'Add' })
-    const ShowMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.showMinFloor' })
-    const HideMinFloor = intl.formatMessage({ id: 'pages.condo.property.parking.form.hideMinFloor' })
+    const ShowMinFloor = intl.formatMessage({ id: 'property.parking.form.showMinFloor' })
+    const HideMinFloor = intl.formatMessage({ id: 'property.parking.form.hideMinFloor' })
 
     const [minFloor, setMinFloor] = useState(1)
     const [floorCount, setFloorCount] = useState(null)
@@ -125,7 +125,7 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
             .filter(unitType => unitType !== BuildingUnitSubType.Parking)
             .map((unitType, key) => (
                 <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                    {intl.formatMessage({ id: `property.modal.unitType.${unitType}` })}
                 </Select.Option>
             ))
     ), [BuildingUnitSubType])
@@ -227,11 +227,11 @@ const AddSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 
 const EditSectionForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
-    const NamePlaceholderLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.name.placeholder' })
+    const NameLabel = intl.formatMessage({ id: 'property.section.form.name' })
+    const NamePlaceholderLabel = intl.formatMessage({ id: 'property.section.form.name.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextSections' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'property.modal.RenameNextSections' })
 
     const [name, setName] = useState<string>('')
     const renameNextUnits = useRef(true)

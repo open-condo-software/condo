@@ -8,8 +8,11 @@ const get = require('lodash/get')
 const conf = require('@open-condo/config')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    catchErrorFrom,
+    expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -313,7 +316,8 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
             await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestTicketExportTask(userClient, obj.id, { [field]: forbiddenFieldsToUpdateByUser[field] })
+                await updateTestTicketExportTask(userClient, obj.id, {
+                    [field]: forbiddenFieldsToUpdateByUser[field] })
             })
         })
 
@@ -331,7 +335,8 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [obj] = await createTestTicketExportTask(adminClient, adminClient.user)
             await catchErrorFrom(async () => {
-                await updateTestTicketExportTask(userClient, obj.id, { [field]: forbiddenFieldsToUpdateByUser[field] })
+                await updateTestTicketExportTask(userClient, obj.id, {
+                    [field]: forbiddenFieldsToUpdateByUser[field] })
             }, ({ errors }) => {
                 // TODO(antonal): figure out how to get name of restricted field
                 expect(errors).toMatchObject([{
@@ -477,7 +482,7 @@ describe('exportTickets', () => {
                 ticket.organization.name,
                 ticket.property.address,
                 ticket.unitName,
-                ticket.unitType ? i18n(`pages.condo.ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
+                ticket.unitType ? i18n(`ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
                 (ticket.sectionType && ticket.sectionName) ? `${i18n(`field.sectionType.${ticket.sectionType}`, { locale })} ${ticket.sectionName}` : '',
                 ticket.floorName || '',
                 ticket.clientName || '',

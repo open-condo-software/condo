@@ -15,9 +15,9 @@ const LINK_STYLE = { color: colors.black }
 export const TicketDeadlineSettingsAbout: React.FC = () => {
     const intl = useIntl()
     const DescriptionLabel = intl.formatMessage({ id: 'Description' })
-    const LinkMessage = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.about.description.link.message' })
+    const LinkMessage = intl.formatMessage({ id: 'settings.ticketDeadlines.about.description.link.message' })
     const DescriptionMessage = intl.formatMessage(
-        { id: 'pages.condo.settings.ticketDeadlines.about.description.message' },
+        { id: 'settings.ticketDeadlines.about.description.message' },
         {
             link: (
                 <Link href='/ticket/create'>

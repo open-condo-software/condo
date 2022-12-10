@@ -45,7 +45,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
 
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const CreateLabel = intl.formatMessage({ id: 'property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const PropertiesMessage = intl.formatMessage({ id: 'global.section.properties' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })

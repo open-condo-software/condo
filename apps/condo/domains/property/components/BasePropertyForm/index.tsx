@@ -51,11 +51,11 @@ const FORM_WITH_ACTION_VALIDATION_TRIGGERS = ['onBlur', 'onSubmit']
 
 const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const intl = useIntl()
-    const AddressLabel = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
-    const AddressTitle = intl.formatMessage({ id: 'pages.condo.property.form.AddressTitle' })
-    const NameMsg = intl.formatMessage({ id: 'pages.condo.property.form.field.Name' })
-    const AreaTitle = intl.formatMessage({ id: 'pages.condo.property.form.AreaTitle' })
-    const YearOfConstructionTitle = intl.formatMessage({ id: 'pages.condo.property.form.YearOfConstructionTitle' })
+    const AddressLabel = intl.formatMessage({ id: 'property.field.Address' })
+    const AddressTitle = intl.formatMessage({ id: 'property.form.AddressTitle' })
+    const NameMsg = intl.formatMessage({ id: 'property.form.field.Name' })
+    const AreaTitle = intl.formatMessage({ id: 'property.form.AreaTitle' })
+    const YearOfConstructionTitle = intl.formatMessage({ id: 'property.form.YearOfConstructionTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })

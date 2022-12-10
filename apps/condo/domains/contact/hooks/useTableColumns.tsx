@@ -27,7 +27,7 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
     const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.field.Address' })
+    const AddressMessage = intl.formatMessage({ id: 'property.field.Address' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const RoleMessage = intl.formatMessage({ id: 'ContactRole' })

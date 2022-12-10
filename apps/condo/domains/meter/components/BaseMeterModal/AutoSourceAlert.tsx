@@ -9,8 +9,8 @@ type IAutoSourceAlertProps = {
 
 export const AutoSourceAlert: React.FC<IAutoSourceAlertProps> = ({ sourceAppName }) => {
     const intl = useIntl()
-    const Title = intl.formatMessage({ id: 'pages.condo.meter.AutoSourceAlert.title' })
-    const Message = intl.formatMessage({ id: 'pages.condo.meter.AutoSourceAlert.message' }, {
+    const Title = intl.formatMessage({ id: 'meter.AutoSourceAlert.title' })
+    const Message = intl.formatMessage({ id: 'meter.AutoSourceAlert.message' }, {
         app: sourceAppName,
     })
     return (

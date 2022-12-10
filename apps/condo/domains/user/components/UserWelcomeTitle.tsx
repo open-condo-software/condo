@@ -72,7 +72,7 @@ const ROW_TITLE_STYLE: React.CSSProperties = { display: 'inline-flex' }
 
 export const WelcomeHeaderTitle: React.FC = () => {
     const intl = useIntl()
-    const WelcomeTitleMessage = intl.formatMessage({ id: 'pages.auth.IAmResident' })
+    const WelcomeTitleMessage = intl.formatMessage({ id: 'auth.IAmResident' })
 
     return (
         <Row style={ROW_TITLE_STYLE} gutter={ITEMS_HEADER_GUTTER}>

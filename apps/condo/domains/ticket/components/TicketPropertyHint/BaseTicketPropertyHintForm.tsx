@@ -44,9 +44,9 @@ type TicketPropertyHintAlertProps = {
 
 const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintFilters }) => {
     const intl = useIntl()
-    const AlertMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.title' })
-    const AlertContent = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.content' })
-    const ShowHintsMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.alert.showHints' })
+    const AlertMessage = intl.formatMessage({ id: 'settings.hint.alert.title' })
+    const AlertContent = intl.formatMessage({ id: 'settings.hint.alert.content' })
+    const ShowHintsMessage = intl.formatMessage({ id: 'settings.hint.alert.showHints' })
 
     const queryFilters = useMemo(() => hintFilters ? { filters: hintFilters } : {}, [hintFilters])
     const query = useMemo(() => qs.stringify(
@@ -108,9 +108,9 @@ type BaseTicketPropertyHintFormProps = {
 
 export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProps> = ({ hintFilters, children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
-    const NameMessage  = intl.formatMessage({ id: 'pages.condo.property.section.form.name' })
+    const NameMessage  = intl.formatMessage({ id: 'property.section.form.name' })
     const HintMessage = intl.formatMessage({ id: 'Hint' })
-    const BuildingsMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Buildings' })
+    const BuildingsMessage = intl.formatMessage({ id: 'property.index.TableField.Buildings' })
 
     const router = useRouter()
 

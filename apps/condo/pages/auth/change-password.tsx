@@ -49,17 +49,17 @@ const ChangePasswordPage: AuthPage = () => {
 
     const intl = useIntl()
     const SaveMsg = intl.formatMessage({ id: 'Save' })
-    const ResetTitle = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
-    const CreateNewPasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.CreateNewPasswordMsg' })
-    const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
-    const AndSignInMsg = intl.formatMessage({ id: 'pages.auth.reset.AndSignInMsg' })
-    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
-    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
-    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
-    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
-    const ChangePasswordTokenErrorLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorLabel' })
-    const ChangePasswordTokenErrorMessage = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorMessage' })
-    const ChangePasswordTokenErrorConfirmLabel = intl.formatMessage({ id: 'pages.auth.ChangePasswordTokenErrorConfirmLabel' })
+    const ResetTitle = intl.formatMessage({ id: 'auth.ResetTitle' })
+    const CreateNewPasswordMsg = intl.formatMessage({ id: 'auth.reset.CreateNewPasswordMsg' })
+    const ConfirmPasswordMsg = intl.formatMessage({ id: 'auth.register.field.ConfirmPassword' })
+    const AndSignInMsg = intl.formatMessage({ id: 'auth.reset.AndSignInMsg' })
+    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'auth.PleaseInputYourPassword' })
+    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'auth.PasswordIsTooShort' })
+    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'auth.PleaseConfirmYourPassword' })
+    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'auth.TwoPasswordDontMatch' })
+    const ChangePasswordTokenErrorLabel = intl.formatMessage({ id: 'auth.ChangePasswordTokenErrorLabel' })
+    const ChangePasswordTokenErrorMessage = intl.formatMessage({ id: 'auth.ChangePasswordTokenErrorMessage' })
+    const ChangePasswordTokenErrorConfirmLabel = intl.formatMessage({ id: 'auth.ChangePasswordTokenErrorConfirmLabel' })
 
     const CREATE_NEW_PASSWORD_SPAN = <span style={{ alignSelf: 'flex-end' }}>{CreateNewPasswordMsg}</span>
     const CONFIRM_NEW_PASSWORD_SPAN = <span style={{ alignSelf: 'flex-end' }}>{ConfirmPasswordMsg}</span>

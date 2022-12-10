@@ -15,8 +15,8 @@ interface IPromptProps {
 
 const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: formSubmit }) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.SaveLabel' })
-    const LeaveLabel = intl.formatMessage({ id: 'pages.condo.warning.modal.LeaveLabel' })
+    const SaveLabel = intl.formatMessage({ id: 'warning.modal.SaveLabel' })
+    const LeaveLabel = intl.formatMessage({ id: 'warning.modal.LeaveLabel' })
     const [next, setNext] = useState(null)
     const [isModalVisible, setIsModalVisible] = useState(false)
     const isIgnoringPrompt = useRef(false)

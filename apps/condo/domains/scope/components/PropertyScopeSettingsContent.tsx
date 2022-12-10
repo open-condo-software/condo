@@ -29,8 +29,8 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const PropertyScopeSettingsContent = () => {
     const intl = useIntl()
-    const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
-    const CreatePropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.create' })
+    const PropertyScopeTitle = intl.formatMessage({ id: 'settings.propertyScope.title' })
+    const CreatePropertyScopeMessage = intl.formatMessage({ id: 'settings.propertyScope.create' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])

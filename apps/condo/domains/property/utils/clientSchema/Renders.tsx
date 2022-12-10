@@ -36,7 +36,7 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
 export const getOneAddressAndPropertiesCountRender = (search: FilterValue) => {
     return function render (intl, properties) {
         const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-        const MoreAddressesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.propertiesCount' })
+        const MoreAddressesMessage = intl.formatMessage({ id: 'settings.propertyScope.propertiesCount' })
         const AndMessage = intl.formatMessage({ id: 'And' })
 
         if (isEmpty(properties)) {

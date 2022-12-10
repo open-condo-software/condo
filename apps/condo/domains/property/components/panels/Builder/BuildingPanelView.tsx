@@ -74,8 +74,8 @@ const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh, canManageProperties = false }) => {
     const intl = useIntl()
-    const ParkingTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const SectionNamePrefixTitle = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
+    const ParkingTitlePrefix = intl.formatMessage({ id: 'property.select.option.parking' })
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'property.section.Name' })
 
     const { query: { id } } = useRouter()
     const { obj: property } = Property.useObject({ where: { id: id as string } })
@@ -103,7 +103,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
             .map((unitType, unitTypeKey) => (
                 <Col key={unitTypeKey} flex={0}>
                     <UnitTypeLegendItem unitType={unitType}>
-                        {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                        {intl.formatMessage({ id: `property.modal.unitType.${unitType}` })}
                     </UnitTypeLegendItem>
                 </Col>
             ))}

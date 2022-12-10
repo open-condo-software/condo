@@ -73,7 +73,7 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
                 ],
                 message: (
                     <FormattedMessage
-                        id='pages.users.InviteMessageTitle'
+                        id='users.InviteMessageTitle'
                         values={{
                             name: invite.organization.name,
                         }}

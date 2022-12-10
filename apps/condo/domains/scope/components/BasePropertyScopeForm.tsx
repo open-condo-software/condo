@@ -79,11 +79,11 @@ type BasePropertyScopeFormProps = {
 export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ children, action, organizationId, initialValues = {}, loading }) => {
     const intl = useIntl()
     const PropertyScopeNameMessage = intl.formatMessage({ id: 'field.Name' })
-    const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
-    const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
-    const CheckAllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
-    const CheckAllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllEmployees' })
-    const NameValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.validation.name' }, {
+    const PropertiesMessage = intl.formatMessage({ id: 'settings.propertyScope.properties' })
+    const EmployeesMessage = intl.formatMessage({ id: 'settings.propertyScope.employees' })
+    const CheckAllPropertiesMessage = intl.formatMessage({ id: 'settings.propertyScope.form.chooseAllProperties' })
+    const CheckAllEmployeesMessage = intl.formatMessage({ id: 'settings.propertyScope.form.chooseAllEmployees' })
+    const NameValidationErrorMessage = intl.formatMessage({ id: 'settings.propertyScope.form.validation.name' }, {
         max: MAX_NAME_LENGTH,
     })
 

@@ -20,9 +20,9 @@ const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 const PropertyHintPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
+    const PropertyHintMessage = intl.formatMessage({ id: 'settings.hint.ticketPropertyHint' })
 
     const router = useRouter()
     const propertyId = get(router, ['query', 'id'], null)

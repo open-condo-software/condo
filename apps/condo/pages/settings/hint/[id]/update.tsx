@@ -16,7 +16,7 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const UpdateTicketPropertyHintPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.settings.hint.editTicketPropertyHint' })
+    const PageTitleMsg = intl.formatMessage({ id:'settings.hint.editTicketPropertyHint' })
     const { query } = useRouter()
 
     return (

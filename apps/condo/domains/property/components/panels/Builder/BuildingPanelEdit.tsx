@@ -173,7 +173,7 @@ const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }) => {
     const intl = useIntl()
     const ChangesSaved = intl.formatMessage({ id: 'ChangesSaved' })
-    const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const MapValidationError = intl.formatMessage({ id: 'property.warning.modal.SameUnitNamesErrorMsg' })
 
     const quickSave = Property.useUpdate({}, () => notification.success({
         message: ChangesSaved,
@@ -206,11 +206,11 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelLabel = intl.formatMessage({ id: 'Cancel' })
-    const AllSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.AllTitle' })
-    const AllParkingSectionsTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.AllTitle' })
-    const SectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.SectionSelect.OptionPrefix' })
-    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'pages.condo.property.ParkingSectionSelect.OptionPrefix' })
-    const MapValidationError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const AllSectionsTitle = intl.formatMessage({ id: 'property.SectionSelect.AllTitle' })
+    const AllParkingSectionsTitle = intl.formatMessage({ id: 'property.ParkingSectionSelect.AllTitle' })
+    const SectionPrefixTitle = intl.formatMessage({ id: 'property.SectionSelect.OptionPrefix' })
+    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'property.ParkingSectionSelect.OptionPrefix' })
+    const MapValidationError = intl.formatMessage({ id: 'property.warning.modal.SameUnitNamesErrorMsg' })
 
     const { mapValidationError, map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
 
@@ -357,7 +357,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                                 .map((unitType, unitTypeKey) => (
                                     <Col key={unitTypeKey} flex={0}>
                                         <UnitTypeLegendItem unitType={unitType}>
-                                            {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                                            {intl.formatMessage({ id: `property.modal.unitType.${unitType}` })}
                                         </UnitTypeLegendItem>
                                     </Col>
                                 ))}
@@ -367,7 +367,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                 <BuildingPanelTopModal
                     visible={!isNull(mode)}
                     title={!isNull(mode) ?
-                        intl.formatMessage({ id: `pages.condo.property.modal.title.${mode}` })
+                        intl.formatMessage({ id: `property.modal.title.${mode}` })
                         : null
                     }
                     onClose={onModalCancel}
@@ -601,8 +601,8 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
     const { section, children, builder, refresh, isParkingSection = false } = props
     const intl = useIntl()
     const SectionTitle = isParkingSection
-        ? `${intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })} ${section.name}`
-        : `${intl.formatMessage({ id: 'pages.condo.property.section.Name' })} ${section.name}`
+        ? `${intl.formatMessage({ id: 'property.select.option.parking' })} ${section.name}`
+        : `${intl.formatMessage({ id: 'property.section.Name' })} ${section.name}`
 
     const chooseSection = useCallback(() => {
         if (isParkingSection) {

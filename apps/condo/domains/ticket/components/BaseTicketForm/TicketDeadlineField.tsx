@@ -27,7 +27,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
     const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
     const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion.today' })
-    const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.WithoutDeadline' })
+    const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'ticket.WithoutDeadline' })
 
     const { breakpoints } = useLayoutContext()
     const COL_SPAN = useMemo(() => !breakpoints.TABLET_LARGE ? 24 : 11, [breakpoints.TABLET_LARGE])

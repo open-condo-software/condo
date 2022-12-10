@@ -7,7 +7,7 @@ import { PageContent, PageHeader, PageWrapper } from '@app/condo/containers/Base
 
 const IndexPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'index.PageTitle' })
     const WeAreStillDevelopingThisPageMsg = intl.formatMessage({ id: 'WeAreStillDevelopingThisPage' })
 
     return <>

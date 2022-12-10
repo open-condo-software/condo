@@ -49,7 +49,7 @@ const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
 
 const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) => {
     const intl = useIntl()
-    const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
+    const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'meter.create.AddMeterReadingPlaceholder' })
 
     const meterId = get(record, ['meter', 'id'])
     const tariffNumber = get(record, 'tariffNumber')
@@ -92,18 +92,18 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
 
 export const useMeterTableColumns = (meterType: MeterPageTypes) => {
     const intl = useIntl()
-    const AccountMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
-    const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
-    const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterNumber' })
-    const PlaceMessage = intl.formatMessage({ id: 'pages.condo.meter.Place' })
+    const AccountMessage = intl.formatMessage({ id: 'meter.Account' })
+    const ResourceMessage = intl.formatMessage({ id: 'meter.Resource' })
+    const MeterNumberMessage = intl.formatMessage({ id: 'meter.MeterNumber' })
+    const PlaceMessage = intl.formatMessage({ id: 'meter.Place' })
     const SourceMessage = intl.formatMessage({ id: 'field.Source' })
-    const VerificationDateMessage = intl.formatMessage({ id: 'pages.condo.meter.VerificationDate' })
-    const MeterReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MeterReadings' })
-    const LastReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.create.LastReading' })
-    const FirstTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff1Message' })
-    const SecondTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff2Message' })
-    const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
-    const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
+    const VerificationDateMessage = intl.formatMessage({ id: 'meter.VerificationDate' })
+    const MeterReadingsMessage = intl.formatMessage({ id: 'meter.create.MeterReadings' })
+    const LastReadingMessage = intl.formatMessage({ id: 'meter.create.LastReading' })
+    const FirstTariffMessage = intl.formatMessage({ id: 'meter.Tariff1Message' })
+    const SecondTariffMessage = intl.formatMessage({ id: 'meter.Tariff2Message' })
+    const ThirdTariffMessage = intl.formatMessage({ id: 'meter.Tariff3Message' })
+    const FourthTariffMessage = intl.formatMessage({ id: 'meter.Tariff4Message' })
 
     const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})

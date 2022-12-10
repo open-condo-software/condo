@@ -46,7 +46,7 @@ interface IOrganizationEmployeeItem {
 
 const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
     const intl = useIntl()
-    const OrganizationMessage = intl.formatMessage({ id: 'pages.condo.property.field.Organization' })
+    const OrganizationMessage = intl.formatMessage({ id: 'property.field.Organization' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
 

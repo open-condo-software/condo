@@ -32,7 +32,7 @@ type TicketPropertyHintCardProps = {
 
 export const TicketPropertyHintCard: React.FC<TicketPropertyHintCardProps> = ({ propertyId, hintContentStyle, colProps }) => {
     const intl = useIntl()
-    const PropertyHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.ticketPropertyHint' })
+    const PropertyHintMessage = intl.formatMessage({ id: 'settings.hint.ticketPropertyHint' })
 
     const { obj: ticketPropertyHintProperty } = TicketPropertyHintProperty.useObject({
         where: {

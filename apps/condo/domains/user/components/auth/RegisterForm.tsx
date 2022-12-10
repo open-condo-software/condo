@@ -36,15 +36,15 @@ const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
     const intl = useIntl()
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const ExampleNameMsg = intl.formatMessage({ id: 'example.Name' })
     const EmailPlaceholder = intl.formatMessage({ id: 'example.Email' })
-    const NameMsg = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
-    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.Password' })
-    const ConfirmPasswordMsg = intl.formatMessage({ id: 'pages.auth.register.field.ConfirmPassword' })
-    const EmailMsg = intl.formatMessage({ id: 'pages.auth.register.field.Email' })
-    const RegistrationTitle = intl.formatMessage({ id: 'pages.auth.RegistrationTitle' })
+    const NameMsg = intl.formatMessage({ id: 'auth.register.field.Name' })
+    const PasswordMsg = intl.formatMessage({ id: 'auth.register.field.Password' })
+    const ConfirmPasswordMsg = intl.formatMessage({ id: 'auth.register.field.ConfirmPassword' })
+    const EmailMsg = intl.formatMessage({ id: 'auth.register.field.Email' })
+    const RegistrationTitle = intl.formatMessage({ id: 'auth.RegistrationTitle' })
 
     const validators = useRegisterFormValidators()
 

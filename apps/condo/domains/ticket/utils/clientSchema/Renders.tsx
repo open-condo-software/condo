@@ -208,7 +208,7 @@ const getUnitMessage = (unit, unitNamePrefix, postfix) => {
 
 const getUnitExtraTitle = (unit, unitType, sectionName, sectionType, floorName, intl): string => {
     const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` })
-    const UnitTypeMessage = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+    const UnitTypeMessage = intl.formatMessage({ id: `ticket.field.unitType.${unitType}` })
     const FloorMessage = intl.formatMessage({ id: 'field.floorName' })
 
     const sectionNameTitle = sectionName ? `${SectionTypeMessage} ${sectionName}` : ''
@@ -244,7 +244,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
 
         if (unit) {
             if (unitType !== 'flat') {
-                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+                unitNamePrefix = intl.formatMessage({ id: `ticket.field.unitType.prefix.${unitType}` })
             }
         }
 

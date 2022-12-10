@@ -39,16 +39,16 @@ const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
 
 const PropertyScopeIdPage = () => {
     const intl = useIntl()
-    const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
+    const PropertyScopeTitle = intl.formatMessage({ id: 'settings.propertyScope' })
     const NameMessage = intl.formatMessage({ id: 'field.Name' })
-    const PropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.properties' })
-    const EmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employees' })
+    const PropertiesMessage = intl.formatMessage({ id: 'settings.propertyScope.properties' })
+    const EmployeesMessage = intl.formatMessage({ id: 'settings.propertyScope.employees' })
     const DeleteMessage = intl.formatMessage({ id: 'Delete' })
     const EditMessage = intl.formatMessage({ id: 'Edit' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.alert.delete.Title' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.alert.delete.Message' })
-    const AllPropertiesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allProperties' })
-    const AllEmployeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.allEmployees' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'settings.propertyScope.alert.delete.Title' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'settings.propertyScope.alert.delete.Message' })
+    const AllPropertiesMessage = intl.formatMessage({ id: 'settings.propertyScope.allProperties' })
+    const AllEmployeesMessage = intl.formatMessage({ id: 'settings.propertyScope.allEmployees' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
 
     const router = useRouter()

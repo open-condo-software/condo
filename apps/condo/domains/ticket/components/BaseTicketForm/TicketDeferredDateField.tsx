@@ -17,7 +17,7 @@ const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 
 export const TicketDeferredDateField: React.FC = () => {
     const intl = useIntl()
-    const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.TicketDefer.DeferredDate.field' })
+    const DeferredUntilMessage = intl.formatMessage({ id: 'ticket.id.TicketDefer.DeferredDate.field' })
 
     const { breakpoints } = useLayoutContext()
 

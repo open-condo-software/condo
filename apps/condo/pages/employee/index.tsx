@@ -41,7 +41,7 @@ export const EmployeesPageContent = ({
     total,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'employee.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })

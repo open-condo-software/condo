@@ -45,7 +45,7 @@ const SettingsPage: React.FC = () => {
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
-    const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
+    const PropertyScopeTitle = intl.formatMessage({ id: 'settings.propertyScope.title' })
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
 
     const hasSubscriptionFeature = hasFeature('subscription')

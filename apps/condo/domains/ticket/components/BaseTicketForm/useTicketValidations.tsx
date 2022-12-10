@@ -59,7 +59,7 @@ export function useTicketValidations (): IFormFieldsRuleMap {
         clientEmail: [
             {
                 type: 'email',
-                message: intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' }),
+                message: intl.formatMessage({ id: 'auth.EmailIsNotValid' }),
             },
         ],
         placeClassifier: [

@@ -23,12 +23,12 @@ const { Option } = Select
 const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Add' })
-    const UnitTypeAtFloorLabel = intl.formatMessage({ id: 'pages.condo.property.modal.title.unitTypeAtFloor' })
-    const UnitsOnFloorLabel = intl.formatMessage({ id: 'pages.condo.property.section.form.unitsOnFloor' })
-    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.parkingSection.name' })
-    const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-    const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
+    const UnitTypeAtFloorLabel = intl.formatMessage({ id: 'property.modal.title.unitTypeAtFloor' })
+    const UnitsOnFloorLabel = intl.formatMessage({ id: 'property.section.form.unitsOnFloor' })
+    const SectionLabel = intl.formatMessage({ id: 'property.parkingSection.name' })
+    const FloorLabel = intl.formatMessage({ id: 'property.floor.Name' })
+    const SectionTitlePrefix = intl.formatMessage({ id: 'property.select.option.section' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'property.modal.RenameNextUnits' })
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState<number | null>(null)
@@ -95,7 +95,7 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
             .filter(unitType => unitType !== BuildingUnitSubType.Parking)
             .map((unitType, key) => (
                 <Select.Option key={`${key}-${unitType}`} value={unitType} title={unitType}>
-                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                    {intl.formatMessage({ id: `property.modal.unitType.${unitType}` })}
                 </Select.Option>
             ))
     ), [BuildingUnitSubType])

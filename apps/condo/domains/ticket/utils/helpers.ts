@@ -41,11 +41,11 @@ export const getTicketTitleMessage = (intl, ticket) => {
         return
     }
 
-    return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })} № ${ticket.number}`
+    return `${intl.formatMessage({ id: 'ticket.id.PageTitle' })} № ${ticket.number}`
 }
 
 export const getTicketPdfName = (intl, ticket) => {
-    return `${intl.formatMessage({ id: 'pages.condo.ticket.id.PageTitle' })}_${ticket.number}.pdf`
+    return `${intl.formatMessage({ id: 'ticket.id.PageTitle' })}_${ticket.number}.pdf`
 }
 
 export const getTicketLabel = (intl, ticket) => {

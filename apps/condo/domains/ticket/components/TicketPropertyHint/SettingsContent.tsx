@@ -44,7 +44,7 @@ export const SettingsContent = () => {
     const intl = useIntl()
     const TicketPropertyHintTitle = intl.formatMessage({ id: 'Hint' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.createTicketPropertyHint' })
+    const CreateHintMessage = intl.formatMessage({ id: 'settings.hint.createTicketPropertyHint' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])

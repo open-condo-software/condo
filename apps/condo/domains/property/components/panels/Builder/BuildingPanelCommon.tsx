@@ -92,10 +92,10 @@ const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {
 
 export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view', canManageProperties = false }) => {
     const intl = useIntl()
-    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
-    const MapManualCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
-    const MapAutoCreateTitle = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle' })
-    const MapEditEmptyBuildingDescription = intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.edit.EmptyBuildingDescription' })
+    const EmptyPropertyBuildingHeader = intl.formatMessage({ id: `property.EmptyBuildingBlock.${mode}.EmptyBuildingHeader` })
+    const MapManualCreateTitle = intl.formatMessage({ id: 'property.EmptyBuildingBlock.view.CreateMapManuallyTitle' })
+    const MapAutoCreateTitle = intl.formatMessage({ id: 'property.EmptyBuildingBlock.view.CreateMapAutomaticallyTitle' })
+    const MapEditEmptyBuildingDescription = intl.formatMessage({ id: 'property.EmptyBuildingBlock.edit.EmptyBuildingDescription' })
 
     const { push, asPath, query: { id: propertyId } } = useRouter()
     const createMapCallback = useCallback(() => {
@@ -106,10 +106,10 @@ export const EmptyBuildingBlock: React.FC<IEmptyBuildingBlock> = ({ mode = 'view
 
     const EmptyPropertyBuildingDescription = useMemo(() => {
         const services = generatorAppOrigin
-            ? intl.formatMessage({ id: 'pages.condo.property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services' })
+            ? intl.formatMessage({ id: 'property.EmptyBuildingBlock.view.auto.EmptyBuildingDescription.services' })
             : ''
         const prefix = `${mode}.${generatorAppOrigin ? 'auto' : 'manual'}`
-        const MapViewEmptyBuildingDescription = intl.formatMessage({ id: `pages.condo.property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` }, { services })
+        const MapViewEmptyBuildingDescription = intl.formatMessage({ id: `property.EmptyBuildingBlock.${prefix}.EmptyBuildingDescription` }, { services })
 
         return mode === 'edit' ? MapEditEmptyBuildingDescription : MapViewEmptyBuildingDescription
     }, [
@@ -320,8 +320,8 @@ const BuildingViewModeSelectCss = css`
 
 export const BuildingViewModeSelect: React.FC<RadioProps> = (props) => {
     const intl = useIntl()
-    const ParkingBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const ResidentialBuildingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.residentialBuilding' })
+    const ParkingBuildingLabel = intl.formatMessage({ id: 'property.select.option.parking' })
+    const ResidentialBuildingLabel = intl.formatMessage({ id: 'property.select.option.residentialBuilding' })
 
     return (
         <Radio.Group

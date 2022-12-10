@@ -22,7 +22,7 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+    const EnterUnitNameLabel = intl.formatMessage({ id: 'ticket.filters.EnterUnitName' })
 
     return useMemo(() => {
         return [

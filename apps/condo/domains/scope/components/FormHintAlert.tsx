@@ -11,9 +11,9 @@ const EMPLOYEES_LIST_LINK_CLICK_EVENT_NAME = 'PropertyScopeUpdateToEmployeeList'
 
 export const FormHintAlert = () => {
     const intl = useIntl()
-    const AlertTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.alert.message' })
-    const AlertDescriptionMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.alert.description' })
-    const AlertDescriptionLink = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.alert.descriptionLink' })
+    const AlertTitle = intl.formatMessage({ id: 'settings.propertyScope.form.alert.message' })
+    const AlertDescriptionMessage = intl.formatMessage({ id: 'settings.propertyScope.form.alert.description' })
+    const AlertDescriptionLink = intl.formatMessage({ id: 'settings.propertyScope.form.alert.descriptionLink' })
 
     const { getTrackingWrappedCallback } = useTracking()
     const handleLinkClick = useMemo(() => getTrackingWrappedCallback(EMPLOYEES_LIST_LINK_CLICK_EVENT_NAME),

@@ -10,7 +10,7 @@ import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/d
 
 export function useCreateMeterModal (organizationId: string, propertyId: string, meterType: MeterPageTypes, unitName: string, unitType: BuildingUnitSubType, refetch) {
     const intl = useIntl()
-    const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
+    const AddMeterMessage = intl.formatMessage({ id: 'meter.AddMeter' })
 
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
 

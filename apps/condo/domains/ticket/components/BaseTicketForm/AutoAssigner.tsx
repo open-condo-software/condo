@@ -28,8 +28,8 @@ export const AutoAssigner = ({
     organizationEmployeeSpecializations,
 }) => {
     const intl = useIntl()
-    const AutoAssignAlertTitle = intl.formatMessage({ id: 'pages.condo.ticket.autoAssignAlert.title' })
-    const AutoAssignAlertMessage = intl.formatMessage({ id: 'pages.condo.ticket.autoAssignAlert.message' })
+    const AutoAssignAlertTitle = intl.formatMessage({ id: 'ticket.autoAssignAlert.title' })
+    const AutoAssignAlertMessage = intl.formatMessage({ id: 'ticket.autoAssignAlert.message' })
 
     const { user } = useAuth()
 

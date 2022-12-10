@@ -11,7 +11,7 @@ import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTi
 
 const SignInPage: AuthPage = () => {
     const intl = useIntl()
-    const SignInTitleMsg = intl.formatMessage({ id: 'pages.auth.SignInTitle' })
+    const SignInTitleMsg = intl.formatMessage({ id: 'auth.SignInTitle' })
 
     return (
         <>

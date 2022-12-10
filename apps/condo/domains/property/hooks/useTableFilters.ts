@@ -8,7 +8,7 @@ import { getFilter } from '@condo/domains/common/utils/tables.utils'
 
 export const useTableFilters = () => {
     const intl = useIntl()
-    const AddressMessage = intl.formatMessage({ id: 'pages.condo.property.index.TableField.Address' })
+    const AddressMessage = intl.formatMessage({ id: 'property.index.TableField.Address' })
 
     const addressFilter = getFilter('address', 'single', 'string', 'contains_i')
     const unitsCountFilter = getFilter('unitsCount', 'single', 'number')

@@ -8,9 +8,9 @@ type useTicketCancelModalType = (updateTicket: (id: string) => void) => { openMo
 
 export const useTicketCancelModal: useTicketCancelModalType = (updateTicket) => {
     const intl = useIntl()
-    const CancelModalTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.title' })
-    const CancelButtonLabelMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.cancelButtonLabel' })
-    const CancelModalContentMessage = intl.formatMessage({ id: 'pages.condo.ticket.id.CancelModal.content' })
+    const CancelModalTitleMessage = intl.formatMessage({ id: 'ticket.id.CancelModal.title' })
+    const CancelButtonLabelMessage = intl.formatMessage({ id: 'ticket.id.CancelModal.cancelButtonLabel' })
+    const CancelModalContentMessage = intl.formatMessage({ id: 'ticket.id.CancelModal.content' })
 
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false)
     const [statusCanceledId, setStatusCanceledId] = useState<string | null>(null)

@@ -15,7 +15,7 @@ const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
 
 const RecipientRow = ({ recipientKey, recipientValue, styleText = RECIPIENT_TEXT_CSS }) => {
     const intl = useIntl()
-    const recipientTitle = intl.formatMessage({ id: 'pages.condo.settings.recipient.' + recipientKey })
+    const recipientTitle = intl.formatMessage({ id: 'settings.recipient.' + recipientKey })
 
     return (
         <>

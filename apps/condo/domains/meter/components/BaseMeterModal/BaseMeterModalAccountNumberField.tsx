@@ -16,7 +16,7 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 const AccountNumberFormItem = ({ children, initialValues, rules, validateFirst = false }) => {
     const intl = useIntl()
-    const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.AccountNumber' })
+    const AccountNumberMessage = intl.formatMessage({ id: 'meter.AccountNumber' })
 
     return (
         <BaseMeterModalFormItem

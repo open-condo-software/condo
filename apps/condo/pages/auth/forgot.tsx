@@ -36,11 +36,11 @@ const FORM_PHONE_STYLES: React.CSSProperties = {
 function ResetPageView () {
     const intl = useIntl()
     const router = useRouter()
-    const RestorePasswordMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetPasswordTitle' })
-    const ResetTitleMsg = intl.formatMessage({ id: 'pages.auth.ResetTitle' })
-    const InstructionsMsg = intl.formatMessage({ id: 'pages.auth.reset.ResetHelp' })
-    const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotRegistered' })
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
+    const RestorePasswordMsg = intl.formatMessage({ id: 'auth.reset.ResetPasswordTitle' })
+    const ResetTitleMsg = intl.formatMessage({ id: 'auth.ResetTitle' })
+    const InstructionsMsg = intl.formatMessage({ id: 'auth.reset.ResetHelp' })
+    const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'auth.PhoneIsNotRegistered' })
+    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const TooManyRequestsMsg = intl.formatMessage({ id: 'TooManyRequests' })
 

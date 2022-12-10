@@ -98,10 +98,10 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const StartDateMessage = intl.formatMessage({ id: 'pages.condo.meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'pages.condo.meter.EndDate' })
+    const StartDateMessage = intl.formatMessage({ id: 'meter.StartDate' })
+    const EndDateMessage = intl.formatMessage({ id: 'meter.EndDate' })
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
-    const TotalsSumTitle = intl.formatMessage({ id: 'pages.condo.payments.TotalSum' })
+    const TotalsSumTitle = intl.formatMessage({ id: 'payments.TotalSum' })
     const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
 

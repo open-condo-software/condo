@@ -11,7 +11,7 @@ import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 
 const TicketUpdatePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.EditTicketModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'ticket.index.EditTicketModalTitle' })
     const { query } = useRouter()
 
     return (

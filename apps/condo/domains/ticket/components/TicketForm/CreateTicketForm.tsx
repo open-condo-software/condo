@@ -85,7 +85,7 @@ const LINK_STYLES = { color: colors.black, textDecoration: 'underline', textDeco
 
 export const CreateTicketForm: React.FC = () => {
     const intl = useIntl()
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description' })
+    const SuccessNotificationDescription = intl.formatMessage({ id: 'ticket.notification.success.description' })
 
     const { organization, link } = useOrganization()
     const router = useRouter()
@@ -150,7 +150,7 @@ export const CreateTicketForm: React.FC = () => {
     const getCompletedNotification = useCallback((data) => ({
         message: (
             <Typography.Text strong>
-                {intl.formatMessage({ id: 'pages.condo.ticket.notification.success.message' }, { number: data.number })}
+                {intl.formatMessage({ id: 'ticket.notification.success.message' }, { number: data.number })}
             </Typography.Text>
         ),
         description: (

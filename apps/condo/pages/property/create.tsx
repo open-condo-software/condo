@@ -13,7 +13,7 @@ const PROPERTY_CREATE_PAGE_TITLE_STYLE: React.CSSProperties = { margin: 0 }
 
 export default function CreatePropertyPage () {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'property.index.CreatePropertyTitle' })
     return (
         <>
             <Head>

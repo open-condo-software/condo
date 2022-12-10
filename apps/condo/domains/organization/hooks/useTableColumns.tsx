@@ -28,7 +28,7 @@ export const useTableColumns = (
     employees
 ) => {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
+    const NameMessage = intl.formatMessage({ id: 'auth.register.field.Name' })
     const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
     const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
     const PhoneMessage =  intl.formatMessage({ id: 'Phone' })

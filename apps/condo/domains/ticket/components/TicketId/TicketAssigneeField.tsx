@@ -19,7 +19,7 @@ type TicketAssigneeFieldProps = {
 export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
-    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
+    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'ticket.field.EmployeeIsNullOrWasDeleted' })
 
     const ticketOrganizationId = useMemo(() => get(ticket, ['organization', 'id'], null), [ticket])
     const ticketAssigneeUserId = useMemo(() => get(ticket, ['assignee', 'id'], null), [ticket])

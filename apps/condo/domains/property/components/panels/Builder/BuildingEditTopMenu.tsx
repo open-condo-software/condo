@@ -74,14 +74,14 @@ interface IBuildingTopModalProps {
 
 const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapEdit }) => {
     const intl = useIntl()
-    const AddElementTitle = intl.formatMessage({ id: 'pages.condo.property.menu.MenuPlaceholder' })
-    const AddSection = intl.formatMessage({ id: 'pages.condo.property.select.option.section' })
-    const AddUnit = intl.formatMessage({ id: 'pages.condo.property.select.option.unit' })
-    const AddFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.floor' })
-    const AddParkingLabel = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
-    const AddInterFloorRoom = intl.formatMessage({ id: 'pages.condo.property.select.option.interfloorroom' })
-    const AddParkingFloor = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingFloor' })
-    const AddParkingPlace = intl.formatMessage({ id: 'pages.condo.property.select.option.parkingPlace' })
+    const AddElementTitle = intl.formatMessage({ id: 'property.menu.MenuPlaceholder' })
+    const AddSection = intl.formatMessage({ id: 'property.select.option.section' })
+    const AddUnit = intl.formatMessage({ id: 'property.select.option.unit' })
+    const AddFloor = intl.formatMessage({ id: 'property.select.option.floor' })
+    const AddParkingLabel = intl.formatMessage({ id: 'property.select.option.parking' })
+    const AddInterFloorRoom = intl.formatMessage({ id: 'property.select.option.interfloorroom' })
+    const AddParkingFloor = intl.formatMessage({ id: 'property.select.option.parkingFloor' })
+    const AddParkingPlace = intl.formatMessage({ id: 'property.select.option.parkingPlace' })
 
     const addSectionFloorDisabled = mapEdit.isEmptySections || !hasFeature('add_section_floor')
 

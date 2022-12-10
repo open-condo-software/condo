@@ -83,8 +83,8 @@ const ExportPropertyScopeToExcelService = new GQLCustomSchema('ExportPropertySco
             resolver: async (parent, args, context) => {
                 const { where, sortBy } = args.data
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-                const allPropertiesMessage = i18n('pages.condo.settings.propertyScope.allProperties', { locale })
-                const allEmployeesMessage = i18n('pages.condo.settings.propertyScope.allEmployees', { locale })
+                const allPropertiesMessage = i18n('settings.propertyScope.allProperties', { locale })
+                const allEmployeesMessage = i18n('settings.propertyScope.allEmployees', { locale })
                 const headerMessage = i18n('excelExport.headers.propertyScopes.title', { locale, meta: { date: dayjs().format('DD.MM.YYYY') } })
 
                 const propertyScopes = await loadPropertyScopesForExcelExport({ where, sortBy })

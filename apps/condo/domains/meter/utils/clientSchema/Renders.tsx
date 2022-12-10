@@ -16,9 +16,9 @@ export const getUnitRender = (intl, search: FilterValue) => {
         let unitNamePrefix = null
         let extraTitle = null
         if (text) {
-            extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+            extraTitle = intl.formatMessage({ id: `ticket.field.unitType.${unitType}` })
             if (unitType !== 'flat') {
-                unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+                unitNamePrefix = intl.formatMessage({ id: `ticket.field.unitType.prefix.${unitType}` })
             }
         }
         const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
@@ -28,7 +28,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
 
 export const getResourceRender = (intl, search?: FilterValue | string) => {
     return function render (text, meterReading): RenderReturnType {
-        const AutoMessage = intl.formatMessage({ id: 'pages.condo.meter.AutoPrefix' })
+        const AutoMessage = intl.formatMessage({ id: 'meter.AutoPrefix' })
         const value = get(meterReading, ['meter', 'resource', 'name'])
         const isAutomatic = get(meterReading, ['meter', 'isAutomatic'], false)
         const isExternalSource = Boolean(get(meterReading, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)

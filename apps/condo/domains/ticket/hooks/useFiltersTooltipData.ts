@@ -8,8 +8,8 @@ import { FiltersTooltipDataObject } from '@condo/domains/common/hooks/useMultipl
 export function useFiltersTooltipData (): FiltersTooltipDataObject<Ticket>[] {
     const intl = useIntl()
     const SourceMessage = intl.formatMessage({ id: 'field.Source' })
-    const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.ClientPhone' })
-    const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
+    const ClientPhoneMessage = intl.formatMessage({ id: 'ticket.filters.ClientPhone' })
+    const AuthorMessage = intl.formatMessage({ id: 'ticket.filters.Author' })
 
     return useMemo(() => [
         { name: 'source', label: SourceMessage, getFilteredValue: (ticket) => ticket.source.id, getTooltipValue: (ticket) => ticket.source.name },

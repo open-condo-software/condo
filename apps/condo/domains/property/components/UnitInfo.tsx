@@ -84,8 +84,8 @@ const UNIT_FIELDS_GUTTER: [Gutter, Gutter] = [40, 0]
 export const UnitInfo: React.FC<IUnitInfo> = (props) => {
     const intl = useIntl()
     const FlatNumberLabel = intl.formatMessage({ id: 'field.FlatNumber' })
-    const SectionNameLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorNameLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
+    const SectionNameLabel = intl.formatMessage({ id: 'property.section.Name' })
+    const FloorNameLabel = intl.formatMessage({ id: 'property.floor.Name' })
     const {
         initialValues = {},
         property,

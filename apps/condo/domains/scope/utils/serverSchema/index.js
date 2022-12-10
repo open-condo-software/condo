@@ -39,7 +39,7 @@ async function exportPropertyScope (context, data) {
 
 async function createDefaultPropertyScopeForNewOrganization (context, organization, dvSenderData) {
     await PropertyScope.create(context, {
-        name: 'pages.condo.settings.propertyScope.default.name',
+        name: 'settings.propertyScope.default.name',
         organization: { connect: { id: organization.id } },
         hasAllProperties: true,
         hasAllEmployees: true,
