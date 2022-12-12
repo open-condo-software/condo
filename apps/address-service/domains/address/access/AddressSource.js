@@ -17,7 +17,7 @@ async function canManageAddressSources ({ authentication: { item: user }, origin
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    return !!user.isAdmin
+    return user.isAdmin || user.isSupport
 }
 
 /*
