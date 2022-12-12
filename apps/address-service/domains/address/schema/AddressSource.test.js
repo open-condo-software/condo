@@ -58,10 +58,19 @@ describe('AddressSource', () => {
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
-            test('support can\'t', async () => {
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestAddressSource(supportClient)
-                })
+            test('support can', async () => {
+                const [obj, attrs] = await createTestAddressSource(supportClient)
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(1)
+                expect(obj.newId).toEqual(null)
+                expect(obj.deletedAt).toEqual(null)
+                expect(obj.createdBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+                expect(obj.createdAt).toMatch(DATETIME_RE)
+                expect(obj.updatedAt).toMatch(DATETIME_RE)
             })
 
             test('user can\'t', async () => {
@@ -101,12 +110,14 @@ describe('AddressSource', () => {
                 expect(obj.v).toEqual(2)
             })
 
-            test('support can\'t', async () => {
+            test('support can', async () => {
                 const [objCreated] = await createTestAddressSource(adminClient)
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestAddressSource(supportClient, objCreated.id)
-                })
+                const [obj, attrs] = await updateTestAddressSource(supportClient, objCreated.id)
+
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
             })
 
             test('user can\'t', async () => {
