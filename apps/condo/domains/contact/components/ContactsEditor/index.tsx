@@ -14,13 +14,11 @@ import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { normalizePhone } from '../../../common/utils/phone'
 
 import { Labels } from './Labels'
 import { NEW_CONTACT_PHONE_FORM_ITEM_NAME, NewContactFields } from './NewContactFields'
@@ -171,7 +169,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         if (!contactsLoading) {
             form.validateFields([NEW_CONTACT_PHONE_FORM_ITEM_NAME])
         }
-    }, [form, unitName, contactsLoading, editableFieldsChecked])
+    }, [form, unitName, property, contactsLoading, editableFieldsChecked])
 
     useEffect(() => {
         if (!isInitialContactsLoaded && !contactsLoading) {
@@ -216,11 +214,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [initialTab])
 
     const handleClickOnPlusButton = useCallback(() => {
+        form.setFieldsValue({
+            [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+        })
         setManuallyTypedContact(null)
         setSelectedContact(null)
         setDisplayEditableContactFields(true)
         setEditableFieldsChecked(true)
-    }, [])
+    }, [form])
 
     const handleClickOnMinusButton = useCallback(() => {
         setDisplayEditableContactFields(false)
@@ -336,6 +337,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     contacts={fetchedContacts}
                                     initialValue={manuallyTypedContact}
                                     activeTab={activeTab}
+                                    contactsLoading={contactsLoading}
                                 />
                             ) : (
                                 <>
@@ -355,6 +357,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     onClickMinusButton={handleClickOnMinusButton}
                                                     initialValue={manuallyTypedContact}
                                                     activeTab={activeTab}
+                                                    contactsLoading={contactsLoading}
                                                 />
                                                 {(!get(role, 'canManageContacts')) && (
                                                     <Col span={24}>
