@@ -28,6 +28,9 @@ export const useTaskLauncher: UseTaskLauncherType = (taskUIInterface, attrs) => 
                 setLoading(false)
                 taskUIInterface.onComplete(result)
             },
+            onCancel: () => {
+                setLoading(false)
+            },
             onError: () => {
                 setLoading(false)
             },
