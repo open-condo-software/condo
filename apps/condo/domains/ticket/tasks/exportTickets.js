@@ -2,27 +2,35 @@ const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const map = require('lodash/map')
 const compact = require('lodash/compact')
-const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchema')
-const { exportRecordsAsXlsxFile, exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
+const dayjs = require('dayjs')
+
 const { createTask } = require('@open-condo/keystone/tasks')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { i18n } = require('@open-condo/locales/loader')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+const { exportRecordsAsXlsxFile, exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
 const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
 const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const dayjs = require('dayjs')
 const {
     getHeadersTranslations,
     EXPORT_TYPE_TICKETS,
     ticketStatusesTranslations,
 } = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@open-condo/locales/loader')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const { ERROR, PDF } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
-const { EXPORT_FORMAT_VALUES, EXCEL } = require('../../common/constants/export')
+const { EXCEL } = require('@condo/domains/common/constants/export')
+
 const { exportTicketBlanksToPdf } = require('../utils/serverSchema/ticketBlankExport')
+const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchema')
+
+
+const appLogger = getLogger('condo')
+const taskLogger = appLogger.child({ module: 'exportTickets' })
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -197,14 +205,6 @@ async function exportTickets (taskId) {
         },
     }
 
-    if (!EXPORT_FORMAT_VALUES.includes(format)) {
-        await TicketExportTask.update(context, task.id, {
-            ...baseAttrs,
-            status: ERROR,
-        })
-        throw new Error(`TicketExportTask with id "${task.id}" have invalid value for "format" field!`)
-    }
-
     if (!task.locale) {
         await TicketExportTask.update(context, task.id, {
             ...baseAttrs,
@@ -270,11 +270,11 @@ async function exportTickets (taskId) {
         }
 
     } catch (error) {
-        await TicketExportTask.update(context, task.id, {
-            ...baseAttrs,
-            status: ERROR,
+        taskLogger.error({
+            msg: 'Failed to export tickets',
+            data: { id: task.id },
+            error,
         })
-        console.log('ERROR in Export!', error)
         throw error
     }
 }
