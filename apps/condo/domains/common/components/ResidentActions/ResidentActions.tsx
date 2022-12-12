@@ -31,7 +31,7 @@ const StyledButton = styled(Button)`
 
 export const ResidentAppealDropDownMenuItemWrapperProps = {
     labelFontSize: fontSizes.label,
-    padding: '16px',
+    padding: '16px 24px 16px 16px',
 }
 
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }

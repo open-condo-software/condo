@@ -1,5 +1,4 @@
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
-import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 import { Col, Form, FormInstance, Row, Tabs } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -342,13 +341,9 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     onChange={handleChangeContact}
                                     contacts={fetchedContacts}
                                     initialValue={isManuallyTypedContactEmpty ? initialValue : manuallyTypedContact}
-                                    form={form}
                                     fields={fields}
                                     activeTab={activeTab}
                                     contactsLoading={contactsLoading}
-                                    unitType={unitType}
-                                    unitName={unitName}
-                                    property={property}
                                 />
                             ) : (
                                 <>
@@ -367,12 +362,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     displayMinusButton={true}
                                                     onClickMinusButton={handleClickOnMinusButton}
                                                     initialValue={isManuallyTypedContactEmpty ? initialValue : manuallyTypedContact}
-                                                    form={form}
                                                     fields={fields}
                                                     activeTab={activeTab}
-                                                    unitType={unitType}
-                                                    unitName={unitName}
-                                                    property={property}
                                                     contactsLoading={contactsLoading}
                                                 />
                                                 {(!get(role, 'canManageContacts')) && (
