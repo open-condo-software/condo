@@ -250,7 +250,11 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
 
     const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
         ticketId: id,
-        where: { id },
+        where: {
+            id,
+            organization: { id: organization.id },
+            deletedAt: null,
+        },
         sortBy: [],
         user,
         timeZone,

@@ -117,6 +117,7 @@ const TicketTable = ({
     const { TicketBlanksExportToPdfModal, TicketBlanksExportToPdfButton } = useTicketExportToPdfTask({
         ticketId: selectedOneTicketId,
         where: {
+            ...searchTicketsQuery,
             'id_in': selectedTicketKeys as string[],
         },
         sortBy,
