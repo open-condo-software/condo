@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useMemo, useState } from 'react'
-import { AutoComplete, Col, Form, Radio } from 'antd'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { Col, Form, Radio } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { MinusCircleOutlined } from '@ant-design/icons'
@@ -25,6 +25,7 @@ interface INewContactFieldsFieldsProps {
     displayMinusButton?: boolean,
     onClickMinusButton?: () => void,
     activeTab: CONTACT_TYPE
+    contactsLoading?: boolean
 }
 
 const MINUS_ICON_STYLE = {
@@ -53,6 +54,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     onClickMinusButton,
     contacts,
     activeTab,
+    contactsLoading,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -106,6 +108,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [contactExistValidator] : [],
     }), [activeTab, contactExistValidator])
 
+    const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
+
     return (
         <>
             <Col span={10}>
@@ -115,6 +119,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                     wrapperCol={PHONE_FIELD_WRAPPER_COL}
                 >
                     <StyledPhoneInput
+                        value={get(value, 'phone')}
                         error={contactWithSamePhoneExistError}
                         allowClear
                         onChange={handleChangeContact('phone')}
@@ -124,10 +129,11 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
             </Col>
             <Col span={10}>
                 <Input
+                    value={get(value, 'name')}
                     allowClear
                     placeholder={NamePlaceholder}
                     onInput={handleNameInput}
-                    disabled={!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked}
+                    disabled={contactsLoading || isNameDisabled}
                 />
             </Col>
             <Col span={2}>
