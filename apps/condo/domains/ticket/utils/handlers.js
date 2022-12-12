@@ -28,6 +28,8 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
+const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
+const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -243,6 +245,10 @@ const sendTicketNotifications = async (requestData) => {
         if (isFeatureEnabled) {
             const today = dayjs().format('YYYY-MM-DD')
             const uniqKey = `${today}_${clientPhone}`
+            const ticketOrganizationName = get(organization, 'name', '')
+                .replace(ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP, ' ')
+                .trim()
+                .replace(TWO_OR_MORE_SPACES_REGEXP, ' ')
 
             await sendMessage(context, {
                 lang,
@@ -251,6 +257,9 @@ const sendTicketNotifications = async (requestData) => {
                 uniqKey,
                 meta: {
                     dv: 1,
+                    data: {
+                        organization: ticketOrganizationName,
+                    },
                 },
                 sender: updatedItem.sender,
                 organization: { id: organization.id },
