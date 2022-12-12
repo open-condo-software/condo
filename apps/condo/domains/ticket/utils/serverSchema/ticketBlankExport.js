@@ -19,12 +19,20 @@ const PDF_FILE_META = {
     encoding: 'UTF-8',
 }
 
+// NOTE "padmake" can only use two properties per font: "normal" and "bold".
+//      Therefore, two fonts are used to use different font weights.
 const PDF_FONTS = {
     OpenSans: {
-        normal: './public/fonts/open-sans/OpenSans-Regular.ttf',
-        bold: './public/fonts/open-sans/OpenSans-Bold.ttf',
-        italics: './public/fonts/open-sans/OpenSans-Italic.ttf',
-        bolditalics: './public/fonts/open-sans/OpenSans-BoldItalic.ttf',
+        normal: './public/fonts/open-sans/OpenSans-Regular.ttf',  // 400
+        bold: './public/fonts/open-sans/OpenSans-Bold.ttf',  // 700
+        italics: './public/fonts/open-sans/OpenSans-Italic.ttf',  // 400
+        bolditalics: './public/fonts/open-sans/OpenSans-BoldItalic.ttf',  // 700
+    },
+    BoldOpenSans: {
+        normal: './public/fonts/open-sans/OpenSans-SemiBold.ttf',  // 600
+        bold: './public/fonts/open-sans/OpenSans-ExtraBold.ttf',
+        italics: './public/fonts/open-sans/OpenSans-SemiBoldItalic.ttf',  // 600
+        bolditalics: './public/fonts/open-sans/OpenSans-ExtraBoldBoldItalic.ttf',
     },
 }
 
@@ -227,39 +235,35 @@ const generatePdf = (replaces) => {
                 {
                     stack: blank.comments.map((comment) => ({
                         text: `${comment.createdAt} ${comment.content}`,
-                        fontSize: 7,
-                        marginBottom: 10,
+                        fontSize: 8,
+                        marginBottom: 6,
                     })),
                 },
             ],
         }
     }
 
-    const addLines = (count) => {
+    const addLines = (count, startPosition) => {
         if (!count || !isNumber(count)) return null
 
-        return new Array(count).fill(1).map(() => ({
-            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="15" viewBox="0 0 400 15" fill="none">
-                    <rect x="0" y="14" width="400" height="1" fill="#707695"/>
-                  </svg>`,
-        }))
+        return new Array(count).fill(1).map((_, index) => `<rect x="0" y="${startPosition + 14 + 15 * index}" width="400" height="1" fill="#707695"/>`)
     }
 
     const addBlockWithLines = (title, countLines) => {
         if (!title || !isString(title) || !countLines || !isNumber(countLines)) return null
 
         return {
-            marginBottom: 16,
-            stack: [
-                {
-                    style: 'subtitle',
-                    text: title,
-                    marginBottom: 2,
-                },
-                {
-                    stack: addLines(countLines),
-                },
-            ],
+            marginBottom: 12,
+            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="${10 + countLines * 15}" viewBox="0 0 400 ${10 + countLines * 15}">
+                      <style>
+                        .subtitile {
+                          fill: #707695;
+                          font-size: 7px;
+                        }
+                      </style>
+                    <text x="0" y="7" class="subtitile">${title}</text>
+                    ${addLines(countLines, 10).join('\n')}
+                  </svg>`,
         }
     }
 
@@ -271,34 +275,43 @@ const generatePdf = (replaces) => {
 
     const addSignatures = () => {
         return {
-            svg: `<svg viewBox="0 0 400 70" xmlns="http://www.w3.org/2000/svg">
+            marginTop: 8,
+            svg: `<svg viewBox="0 0 400 75" xmlns="http://www.w3.org/2000/svg">
                       <style>
+                          .big {
+                            width: 400px;
+                            font-size: 9px;
+                          }
                           .small {
                             font-size: 7px;
+                            font-weight: 500;
                           }
                       </style>
+                      
+                      <!-- NOTE This text does not wrap, only one line -->
+                      <text x="0" y="10" class="big">${i18n.workCompleted}</text>
                     
-                      <rect x="0" y="20" width="144" height="1" fill="#222222"/>
-                      <text x="0" y="30" class="small">${i18n.executorFullName}</text>
+                      <rect x="0" y="30" width="144" height="1" fill="#222222"/>
+                      <text x="0" y="40" class="small">${i18n.executorFullName}</text>
                       
-                      <rect x="161" y="20" width="125" height="1" fill="#222222"/>
-                      <text x="161" y="30" class="small">${i18n.executorSignature}</text>
+                      <rect x="161" y="30" width="125" height="1" fill="#222222"/>
+                      <text x="161" y="40" class="small">${i18n.executorSignature}</text>
                       
-                      <rect x="0" y="50" width="144" height="1" fill="#222222"/>
-                      <text x="0" y="60" class="small">${i18n.clientFullName}</text>
+                      <rect x="0" y="60" width="144" height="1" fill="#222222"/>
+                      <text x="0" y="70" class="small">${i18n.clientFullName}</text>
                       
-                      <rect x="161" y="50" width="125" height="1" fill="#222222"/>
-                      <text x="161" y="60" class="small">${i18n.clientSignature}</text>
+                      <rect x="161" y="60" width="125" height="1" fill="#222222"/>
+                      <text x="161" y="70" class="small">${i18n.clientSignature}</text>
                       
-                      <rect x="303" y="50" width="87" height="1" fill="#222222"/>
-                      <text x="303" y="60" class="small">${i18n.completionDate}</text>
-                    </svg>`,
+                      <rect x="303" y="60" width="87" height="1" fill="#222222"/>
+                      <text x="303" y="70" class="small">${i18n.completionDate}</text>
+                  </svg>`,
         }
     }
 
     return printer.createPdfKitDocument({
         pageSize: 'a5',
-        pageMargins: [10, 40, 10, 40],
+        pageMargins: [10, 43, 10, 43],
         pageOrientation: 'portrait',
         defaultStyle: {
             font: 'OpenSans',
@@ -325,6 +338,7 @@ const generatePdf = (replaces) => {
                     },
                     {
                         text: i18n.printDate,
+                        font: 'BoldOpenSans',
                         alignment: 'right',
                         fontSize: 7,
                     },
@@ -353,6 +367,7 @@ const generatePdf = (replaces) => {
                 },
                 {
                     color: '#222222',
+                    font: 'BoldOpenSans',
                     fontSize: 7,
                     margin: [10, 10, 10, 10],
                     alignment: 'justify',
@@ -371,7 +386,7 @@ const generatePdf = (replaces) => {
         content: [
             // ticket number & organization name
             {
-                marginBottom: 16,
+                marginBottom: 12,
                 columns: [
                     {
                         text: `${i18n.ticket} №${blank.number}`,
@@ -381,6 +396,7 @@ const generatePdf = (replaces) => {
                     },
                     {
                         text: blank.organization,
+                        font: 'BoldOpenSans',
                         fontSize: 10,
                         alignment: 'right',
                         marginTop: 5,
@@ -391,7 +407,7 @@ const generatePdf = (replaces) => {
 
             // address
             {
-                marginBottom: 16,
+                marginBottom: 12,
                 stack: [
                     {
                         style: 'subtitle',
@@ -399,14 +415,15 @@ const generatePdf = (replaces) => {
                     },
                     {
                         text: blank.address,
-                        fontSize: 8,
+                        font: 'BoldOpenSans',
+                        fontSize: 9,
                     },
                 ],
             },
 
             // client
             {
-                marginBottom: 16,
+                marginBottom: 12,
                 stack: [
                     {
                         style: 'subtitle',
@@ -417,12 +434,14 @@ const generatePdf = (replaces) => {
                         columns: [
                             {
                                 text: blank.clientName,
-                                fontSize: 8,
+                                font: 'BoldOpenSans',
+                                fontSize: 9,
                                 width: '*',
                             },
                             {
                                 text: blank.clientPhone,
-                                fontSize: 8,
+                                font: 'BoldOpenSans',
+                                fontSize: 9,
                                 alignment: 'right',
                                 width: 120,
                             },
@@ -433,7 +452,7 @@ const generatePdf = (replaces) => {
 
             // details
             {
-                marginBottom: 16,
+                marginBottom: 12,
                 stack: [
                     {
                         style: 'subtitle',
@@ -461,21 +480,14 @@ const generatePdf = (replaces) => {
             // totalCostWork
             addOptionBlockWithLine(blank.parameters.haveTotalCostWork, i18n.totalCostWork, 1),
 
-            // work done
-            {
-                text: i18n.workCompleted,
-                fontSize: 9,
-                marginBottom: 10,
-            },
-
-            // signature
+            // work done & signature
             addSignatures(),
         ],
         styles: {
             subtitle: {
                 color: '#707695',
                 fontSize: 7,
-                marginBottom: 5,
+                marginBottom: 4,
             },
         },
     }, {})
