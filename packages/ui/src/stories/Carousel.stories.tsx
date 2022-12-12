@@ -30,6 +30,14 @@ export default {
             type: 'boolean',
             defaultValue: true,
         },
+        effect: {
+            type: 'string',
+            defaultValue: 'scrollx',
+            control: {
+                type: 'select',
+                options: ['scrollx', 'fade'],
+            },
+        },
         autoplay: {
             type: 'boolean',
             defaultValue: false,

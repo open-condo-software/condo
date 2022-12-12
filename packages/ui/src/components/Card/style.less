@@ -2,13 +2,25 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 
 .condo-card {
-  border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+  border: none;
   border-radius: @condo-global-border-radius-large;
 
   &-head {
     min-height: 0;
     padding: @condo-global-spacing-24;
-    border-color: @condo-global-color-gray-3;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-radius: @condo-global-border-radius-large @condo-global-border-radius-large 0 0;
+  }
+
+  &-body {
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-radius: @condo-global-border-radius-large;
+
+    &:not(:first-child) {
+      border-top: 0;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
   }
 
   &-head-title {
@@ -17,11 +29,30 @@
   }
 
   &-hoverable {
-    transition-duration: @condo-global-transition-duration-default, @condo-global-transition-duration-default;
-    transition-property: box-shadow, border-color;
+    transition-duration: @condo-global-transition-duration-default;
+    transition-property: box-shadow;
+
+    .condo-card-head {
+      transition-duration: @condo-global-transition-duration-default, @condo-global-transition-duration-default;
+      transition-property: border-color, background-color;
+    }
+
+    .condo-card-body {
+      transition-duration: @condo-global-transition-duration-default;
+      transition-property: border-color;
+    }
 
     &:hover {
       box-shadow: @condo-global-box-shadow-default;
+
+      .condo-card-head {
+        background-color: @condo-global-color-gray-1;
+        border-color: @condo-global-color-gray-1;
+      }
+
+      .condo-card-body {
+        border-color: @condo-global-color-white;
+      }
     }
   }
 }
