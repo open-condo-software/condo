@@ -243,13 +243,17 @@ export const PAGE_HEADER_CSS = css`
 `
 /** @deprecated */
 export const pageHeaderCss = css` 
-    padding: 0 0 40px;
-    background: ${colors.white};
+  padding: 0 0 40px;
+  background: ${colors.white};
+
+  & .ant-page-header-heading-title {
+    white-space: normal;
+  }
 `
 
 export const SPACED_PAGE_HEADER_CSS = css`
-    padding: 0 0 60px;
-    background: ${colors.white};
+  padding: 0 0 60px;
+  background: ${colors.white};
 
   & .ant-page-header-heading-title {
     white-space: normal;

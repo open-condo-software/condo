@@ -14,8 +14,9 @@ import { TopCard } from './TopCard'
 import { DeveloperCard } from './DeveloperCard'
 import { AppCard } from '../AppCard'
 
-const SECTION_SPACING: RowProps['gutter'] = [40, 60]
-const TITLE_SPACING: RowProps['gutter'] = [0, 40]
+const SECTION_SPACING: RowProps['gutter'] = [0, 60]
+const SMALL_SECTION_SPACING: RowProps['gutter'] = [40, 40]
+const TITLE_SPACING: RowProps['gutter'] = [0, 20]
 const FULL_COL_SPAN: ColProps['span'] = 24
 
 type QueryResult = {
@@ -94,29 +95,33 @@ const PageContent = React.memo<PageContentProps>(({
     return (
         <Row gutter={SECTION_SPACING}>
             <Col span={FULL_COL_SPAN}>
-                <TopCard
-                    name={name}
-                    category={category}
-                    label={label}
-                    description={shortDescription}
-                    price={price}
-                    gallery={gallery}
-                    contextStatus={contextStatus}
-                    appUrl={appUrl}
-                    connectAction={connectAction}
-                />
-            </Col>
-            <Col span={contentSpan}>
-                <Markdown>
-                    {detailedDescription}
-                </Markdown>
-            </Col>
-            <Col span={developerSpan}>
-                <DeveloperCard
-                    developer={developer}
-                    publishedAt={publishedAt}
-                    partnerUrl={partnerUrl}
-                />
+                <Row gutter={SMALL_SECTION_SPACING}>
+                    <Col span={FULL_COL_SPAN}>
+                        <TopCard
+                            name={name}
+                            category={category}
+                            label={label}
+                            description={shortDescription}
+                            price={price}
+                            gallery={gallery}
+                            contextStatus={contextStatus}
+                            appUrl={appUrl}
+                            connectAction={connectAction}
+                        />
+                    </Col>
+                    <Col span={contentSpan}>
+                        <Markdown>
+                            {detailedDescription}
+                        </Markdown>
+                    </Col>
+                    <Col span={developerSpan}>
+                        <DeveloperCard
+                            developer={developer}
+                            publishedAt={publishedAt}
+                            partnerUrl={partnerUrl}
+                        />
+                    </Col>
+                </Row>
             </Col>
             {Boolean(moreApps.length) && (
                 <Col span={FULL_COL_SPAN}>
