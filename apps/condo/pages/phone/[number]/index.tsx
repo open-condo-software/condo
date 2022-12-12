@@ -78,8 +78,9 @@ const StyledCarouselWrapper = styled(Col)`
     padding: 0;
     
     & .slick-list {
-      padding: 60px 0;
-
+      padding: 60px 0 60px 20px;
+      transform: translateX(-20px);
+    
       & .slick-slide {
         padding: 0 24px 0 0;
       }
@@ -92,6 +93,7 @@ const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
   background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
   padding: 1px;
   border: 1px solid ${colors.backgroundWhiteSecondary};
+  box-shadow:  ${props => props.active ? shadows.main : 'inherit'};
 
   & > div {
     border-radius: 11px;
@@ -102,7 +104,7 @@ const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
 
   &:hover {
     cursor: pointer;
-    box-shadow: ${shadows.small};
+    box-shadow: ${shadows.main};
   }
 `
 const StyledAddressTabContent = styled.div`
@@ -113,8 +115,8 @@ const StyledAddressTabContent = styled.div`
 const StyledAddAddressButton = styled(Button)`
   width: 100%;
   height: 150px;
-  border-radius: 12px;
   border: 1px dashed ${colors.inputBorderHover};
+  border-radius: 12px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -128,7 +130,7 @@ const StyledAddAddressButton = styled(Button)`
 
   &:hover {
     border: inherit;
-    box-shadow: ${shadows.small};
+    box-shadow: ${shadows.main};
     
     & .${PLUS_ICON_WRAPPER_CLASS} {
       background-color: ${colors.black};
@@ -540,6 +542,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
     const [activeTab, setActiveTab] = useState<string>(tab)
     const [activeTabData, setActiveTabData] = useState<TabDataType>()
     const [initialActiveTab, setInitialActiveTab] = useState<string>()
+    const [isInitialSlideScrolled, setIsInitialSlideScrolled] = useState<boolean>()
 
     const { breakpoints } = useLayoutContext()
 
@@ -562,8 +565,9 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
         }
     }, [initialActiveTab, tab])
 
+
     useDeepCompareEffect(() => {
-        if (carouselRef.current) {
+        if (carouselRef.current && !isInitialSlideScrolled) {
             let slideToGo = slidesToShow - (activeTabIndexRef.current + 1)
             if (slideToGo > 0) {
                 slideToGo = 0
@@ -573,8 +577,9 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
             }
 
             carouselRef.current.goTo(slideToGo, true)
+            setIsInitialSlideScrolled(true)
         }
-    }, [tabsData, slidesToShow])
+    }, [tabsData, slidesToShow, carouselRef.current])
 
     useEffect(() => {
         const { type, property: propertyId, unitName, unitType } = parseCardDataFromQuery(activeTab)

@@ -1,4 +1,3 @@
-import { SearchOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { Col, Row, Typography } from 'antd'
@@ -11,18 +10,31 @@ import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Modal } from '@condo/domains/common/components/Modal'
-import { fontSizes } from '@condo/domains/common/constants/style'
 import {
     ClientType,
     mapSearchItemToOption,
     redirectToForm,
 } from '@condo/domains/contact/utils/clientCard'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 
 const StyledModal = styled(Modal)`
-    .ant-modal-header {
-      border-bottom: none;
-    }
+  animation-duration: 0s !important;
+  
+  .ant-modal-close {
+    top: 26px;
+    right: 26px;
+    color: ${colors.black}
+  }
+  
+  .ant-modal-header {
+    border-bottom: none;
+    padding: 40px 40px 0 40px;
+  }
+
+  .ant-modal-body {
+    padding: 24px 40px 40px 40px;
+  }
 `
 
 const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
