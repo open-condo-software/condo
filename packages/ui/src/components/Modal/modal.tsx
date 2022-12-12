@@ -21,6 +21,7 @@ export type ModalProps = Pick<DefaultModalProps,
 | 'destroyOnClose'
 | 'getContainer'
 | 'zIndex'
+| 'onCancel'
 > & CondoModalProps
 
 const MODAL_CLASS_PREFIX = 'condo-modal'
