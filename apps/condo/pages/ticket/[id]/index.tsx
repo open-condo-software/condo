@@ -443,7 +443,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
 const TicketIdPage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    const NoPermissionToPageMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
 
     const { link, organization } = useOrganization()
 
