@@ -23,6 +23,7 @@ export type CarouselProps = Pick<DefaultCarouselProps,
 | 'speed'
 | 'beforeChange'
 | 'children'
+| 'effect'
 > & {
     dots?: boolean
 }
