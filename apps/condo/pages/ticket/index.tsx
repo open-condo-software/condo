@@ -97,6 +97,9 @@ const TicketTable = ({
         return tickets.filter(ticket => selectedTicketKeys.includes(ticket.id)).map(tickets => tickets.id)
     }, [selectedTicketKeys, tickets])
 
+    const isSelectedAllRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === tickets.length
+    const isSelectedSomeRowsByPage = !loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < tickets.length
+
     const selectedOneTicketId = useMemo(() => {
         if (selectedTicketKeys.length !== 1) return undefined
         return String(selectedTicketKeys[0])
@@ -134,6 +137,18 @@ const TicketTable = ({
         setSelectedTicketKeys([])
     }, [])
 
+    const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
+        const checked = e.target.checked
+        if (checked) {
+            const newSelectedTicketKeys = tickets
+                .filter(ticket => !selectedRowKeysByPage.includes(ticket.id))
+                .map(ticket => ticket.id)
+            setSelectedTicketKeys(prevState => [...prevState, ...newSelectedTicketKeys])
+        } else {
+            setSelectedTicketKeys(prevState => prevState.filter(key => !selectedRowKeysByPage.includes(key)))
+        }
+    }, [selectedRowKeysByPage, tickets])
+
     const rowSelection: TableRowSelection<ITicket> = useMemo(() => ({
         selectedRowKeys: selectedRowKeysByPage,
         fixed: true,
@@ -147,22 +162,12 @@ const TicketTable = ({
         },
         columnTitle: (
             <Checkbox
-                checked={!loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length === tickets.length}
-                indeterminate={!loading && selectedRowKeysByPage.length > 0 && selectedRowKeysByPage.length < tickets.length}
-                onChange={(e) => {
-                    const checked = e.target.checked
-                    if (checked) {
-                        const newSelectedTicketKeys = tickets
-                            .filter(ticket => !selectedRowKeysByPage.includes(ticket.id))
-                            .map(ticket => ticket.id)
-                        setSelectedTicketKeys(prevState => [...prevState, ...newSelectedTicketKeys])
-                    } else {
-                        setSelectedTicketKeys(prevState => prevState.filter(key => !selectedRowKeysByPage.includes(key)))
-                    }
-                }}
+                checked={isSelectedAllRowsByPage}
+                indeterminate={isSelectedSomeRowsByPage}
+                onChange={handleSelectAllRowsByPage}
             />
         ),
-    }), [loading, selectedRowKeysByPage, tickets])
+    }), [handleSelectAllRowsByPage, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
         body: {

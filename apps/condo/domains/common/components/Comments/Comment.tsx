@@ -13,7 +13,7 @@ import { User, TicketComment } from '@app/condo/schema'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 
-import { colors, shadows } from '@condo/domains/common/constants/style'
+import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
 
@@ -63,7 +63,7 @@ const CommentStyle = css`
     border-radius: 8px;
     padding: 0;
     box-shadow: rgba(0,0,0,0.15) 0 1px 3px;
-    font-size: 14px;
+    font-size: ${fontSizes.label};
     line-height: 22px;
 
     &:hover {
@@ -97,7 +97,7 @@ const CommentStyle = css`
           display: block;
           margin-top: 0.6em;
           margin-bottom: 8px;
-          font-size: 12px;
+          font-size: ${fontSizes.small};
           
           .ant-comment-content-author-name {
             display: block;
@@ -145,7 +145,7 @@ const CommentPreviewStyle = css`
     border: 1px solid ${colors.sberGrey};
     border-radius: 8px;
     padding: 0;
-    font-size: 14px;
+    font-size: ${fontSizes.label};
     line-height: 22px;
 
     .ant-comment-inner {
@@ -159,7 +159,7 @@ const CommentPreviewStyle = css`
           display: block;
           margin-top: 0;
           margin-bottom: 8px;
-          font-size: 12px;
+          font-size: ${fontSizes.small};
           
           .ant-comment-content-author-name {
             padding-right: 4px;

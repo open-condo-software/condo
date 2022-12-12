@@ -2,12 +2,16 @@
 import { css, jsx } from '@emotion/react'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from '@emotion/styled'
-import { InfoCircleOutlined, MinusOutlined } from '@ant-design/icons'
+import { InfoCircleOutlined } from '@ant-design/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Col, List, notification, Progress, Row, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
+import get from 'lodash/get'
+
 import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
 import { colors } from '@condo/domains/common/constants/style'
+import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
+
 import {
     ITaskTrackableItem,
     TASK_PROGRESS_UNKNOWN,
@@ -21,7 +25,7 @@ import {
 import { CheckIcon } from '../icons/Check'
 import { CrossIcon } from '../icons/CrossIcon'
 import { CloseCircleIcon } from '../icons/CloseCircleIcon'
-import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
+
 
 const InfiniteSpinningStyle = css`
   @keyframes rotate {
@@ -166,18 +170,19 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
     }, [record, removeTaskFromUI])
 
     useEffect(() => {
-        if (record && record.status !== TASK_PROCESSING_STATUS) {
+        const recordStatus = get(record, 'status')
+        if (record && recordStatus !== TASK_PROCESSING_STATUS) {
             stopPolling()
             if (!handledTerminalStatesOfTasksIds.includes(record.id)) {
-                if (record?.status === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
+                if (recordStatus === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onComplete(record)
                 }
-                if (record?.status === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
+                if (recordStatus === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onCancel(record)
                 }
-                if (record?.status === TASK_ERROR_STATUS && isFunction(onError)) {
+                if (recordStatus === TASK_ERROR_STATUS && isFunction(onError)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onError(record)
                 }
