@@ -24,12 +24,8 @@ interface INewContactFieldsFieldsProps {
     contacts: TContact[],
     displayMinusButton?: boolean,
     onClickMinusButton?: () => void,
-    form: FormInstance
     fields: FieldsType
     activeTab: CONTACT_TYPE
-    property: string,
-    unitName: string,
-    unitType: string,
     contactsLoading?: boolean
 }
 
@@ -48,7 +44,7 @@ const StyledPhoneInput = styled(PhoneInput)<{ error: boolean }>`
   }
 `
 
-const NEW_CONTACT_PHONE_FORM_ITEM_NAME = 'IGNORE_FIELD_NEW_CONTACT_PHONE'
+export const NEW_CONTACT_PHONE_FORM_ITEM_NAME = 'IGNORE_FIELD_NEW_CONTACT_PHONE'
 
 const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     initialValue,
@@ -59,10 +55,6 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     onClickMinusButton,
     contacts,
     activeTab,
-    form,
-    property,
-    unitName,
-    unitType,
     contactsLoading,
 }) => {
     const intl = useIntl()
@@ -81,7 +73,9 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     }
 
     const handleNameInput = useCallback(
-        (e) => handleChangeContact('name')(get(e, 'target.value')),
+        (e) => {
+            return handleChangeContact('name')(get(e, 'target.value'))
+        },
         [handleChangeContact])
 
     const setValueAndTriggerOnChange = (contact) => {

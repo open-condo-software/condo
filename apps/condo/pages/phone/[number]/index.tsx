@@ -78,17 +78,16 @@ const StyledCarouselWrapper = styled(Col)`
     padding: 0;
     
     & .slick-list {
-      padding: 60px 0 60px 20px;
-      transform: translateX(-20px);
+      padding: 60px 0;
     
       & .slick-slide {
-        padding: 0 24px 0 0;
+        padding: 0 10px;
       }
     }
   }
 `
 const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
-  height: 150px;
+  height: 165px;
   border-radius: 12px;
   background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
   padding: 1px;
@@ -114,7 +113,7 @@ const StyledAddressTabContent = styled.div`
 `
 const StyledAddAddressButton = styled(Button)`
   width: 100%;
-  height: 150px;
+  height: 165px;
   border: 1px dashed ${colors.inputBorderHover};
   border-radius: 12px;
   text-align: center;
@@ -129,7 +128,7 @@ const StyledAddAddressButton = styled(Button)`
   }
 
   &:hover {
-    border: inherit;
+    border-color: ${colors.black};
     box-shadow: ${shadows.main};
     
     & .${PLUS_ICON_WRAPPER_CLASS} {
@@ -183,7 +182,7 @@ const AddAddressCard = ({ onClick }) => {
     )
 }
 
-const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType }) => {
+const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType, isEmployee }) => {
     const intl = useIntl()
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
     const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
@@ -194,9 +193,8 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
 
     const typeToMessage = useMemo(() => ({
         [ClientType.Resident]: ContactMessage,
-        [ClientType.NotResident]: NotResidentMessage,
-        [ClientType.Employee]: EmployeeMessage,
-    }), [ContactMessage, EmployeeMessage, NotResidentMessage])
+        [ClientType.NotResident]: isEmployee ? EmployeeMessage : NotResidentMessage,
+    }), [ContactMessage, EmployeeMessage, NotResidentMessage, isEmployee])
 
     const { text, postfix } = getPropertyAddressParts(property, DeletedMessage)
     const unitNamePrefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : FlatMessage
@@ -565,7 +563,6 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
         }
     }, [initialActiveTab, tab])
 
-
     useDeepCompareEffect(() => {
         if (carouselRef.current && !isInitialSlideScrolled) {
             let slideToGo = slidesToShow - (activeTabIndexRef.current + 1)
@@ -612,7 +609,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
 
     const renderedCards = useMemo(() => {
         const addAddressTab = canManageContacts && <AddAddressCard onClick={handleAddAddressClick}/>
-        const addressTabs = tabsData.map(({ type, property, unitName, unitType }, index) => {
+        const addressTabs = tabsData.map(({ type, property, unitName, unitType, isEmployee }, index) => {
             const key = getClientCardTabKey(get(property, 'id', null), type, unitName, unitType)
             const isActive = activeTab && activeTab === key
 
@@ -622,6 +619,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
 
             return <ClientAddressCard
                 onClick={() => handleTabChange(key)}
+                isEmployee={isEmployee}
                 key={key}
                 type={type}
                 property={property}
@@ -717,7 +715,8 @@ export const ClientCardPageContentWrapper = ({ baseQuery, canManageContacts, sho
             unitType: ticket.unitType,
         })), 'property.id')
         const employeesData = uniqBy(employeeTickets.map(ticket => ({
-            type: ClientType.Employee,
+            type: ClientType.NotResident,
+            isEmployee: true,
             property: ticket.property,
             unitName: ticket.unitName,
             unitType: ticket.unitType,
