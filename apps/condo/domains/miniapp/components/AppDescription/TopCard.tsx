@@ -26,6 +26,7 @@ type TopCardProps = {
     gallery?: Array<string>
     contextStatus: string | null
     appUrl?: string
+    connectAction: () => void
 }
 
 const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
@@ -38,8 +39,7 @@ const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
         </div>
     )
 }
-
-export const TopCard: React.FC<TopCardProps> = ({
+const TopCard = React.memo<TopCardProps>(({
     name,
     category,
     label,
@@ -48,6 +48,7 @@ export const TopCard: React.FC<TopCardProps> = ({
     gallery,
     contextStatus,
     appUrl,
+    connectAction,
 }) => {
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
@@ -57,6 +58,9 @@ export const TopCard: React.FC<TopCardProps> = ({
         const btnProps: ButtonProps = { type: 'primary' }
         if (!contextStatus) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
+            btnProps.onClick = () => {
+                connectAction()
+            }
         } else if (contextStatus === CONTEXT_IN_PROGRESS_STATUS) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.inProgress' })
             btnProps.disabled = true
@@ -65,10 +69,11 @@ export const TopCard: React.FC<TopCardProps> = ({
         } else {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
             btnProps.icon = <CheckOutlined/>
+            btnProps.disabled = true
         }
 
         return btnProps
-    }, [appUrl, contextStatus, intl])
+    }, [appUrl, contextStatus, intl, connectAction])
 
     const labelTagProps = label && get(LABEL_TO_TAG_PROPS, label, {})
     const images = gallery || []
@@ -169,4 +174,10 @@ export const TopCard: React.FC<TopCardProps> = ({
             </Col>
         </Row>
     )
+})
+
+TopCard.displayName = 'TopCard'
+
+export {
+    TopCard,
 }
