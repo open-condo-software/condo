@@ -7,7 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography, Button, Tag } from '@open-condo/ui'
 import { LABEL_TO_TAG_PROPS } from '@condo/domains/miniapp/constants'
 
-const FALLBACK_IMAGE_URL = '/greyLogo.svg'
+const FALLBACK_IMAGE_URL = '/homeWithSun.svg'
 const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
 const CARD_BODY_PADDINGS = 20
 const CARD_HEAD_PADDINGS = '32px 40px'
@@ -112,7 +112,7 @@ export const AppCard: React.FC<AppCardProps> = ({
                     </Typography.Paragraph>
                 </Space>
                 <Button
-                    type={connected ? 'primary' : 'secondary'}
+                    type='secondary'
                     block
                 >
                     {ButtonLabel}
