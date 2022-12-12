@@ -8,6 +8,7 @@ const QUERY_SPLIT_REGEX = /[\s.,]+/gm
 const SPECIAL_CHAR_REGEXP = /[^\p{L}\s-]/ui
 const LINEAR_GRADIENT_REGEXP = /^linear-gradient\([^(]*(\([^)]*\)[^(]*)*[^)]*\)$/
 const HEX_CODE_REGEXP = /^#(([0-9a-f]){3}){1,2}$/i
+const TWO_OR_MORE_SPACES_REGEXP = /\s\s+/g
 
 module.exports = {
     ALPHANUMERIC_REGEXP,
@@ -20,4 +21,5 @@ module.exports = {
     SPECIAL_CHAR_REGEXP,
     LINEAR_GRADIENT_REGEXP,
     HEX_CODE_REGEXP,
+    TWO_OR_MORE_SPACES_REGEXP,
 }

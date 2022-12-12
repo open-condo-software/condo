@@ -12,6 +12,8 @@ const TICKET_VISIBILITY_OPTIONS = [
 const TIN_LENGTH = 10
 const DEFAULT_ORGANIZATION_TIMEZONE = 'Europe/Moscow'
 
+const ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP = /ООО|"|«|»|“|”|„|‟/ig
+
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic
     'Administrator': {
@@ -173,4 +175,5 @@ module.exports = {
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     ASSIGNED_TICKET_VISIBILITY,
     TICKET_VISIBILITY_OPTIONS,
+    ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP,
 }

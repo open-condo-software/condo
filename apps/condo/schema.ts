@@ -24042,6 +24042,12 @@ export type Mutation = {
    * 		"dv": {
    * 			"defaultValue": "",
    * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"organization": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
    * 		}
    * 	},
    * 	"TICKET_STATUS_OPENED": {

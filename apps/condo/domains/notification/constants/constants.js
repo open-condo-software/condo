@@ -163,6 +163,9 @@ const MESSAGE_META = {
     },
     [TRACK_TICKET_IN_DOMA_APP_TYPE]: {
         dv: { defaultValue: '', required: true },
+        data: {
+            organization: { defaultValue: '', required: true },
+        },
     },
     [TICKET_STATUS_OPENED_TYPE]: {
         dv: { defaultValue: '', required: true },
