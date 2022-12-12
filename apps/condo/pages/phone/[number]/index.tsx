@@ -76,13 +76,24 @@ const StyledCarouselWrapper = styled(Col)`
   & .ant-carousel {
     background: none;
     padding: 0;
-    
+    transform: translateX(-24px);
+
     & .slick-list {
       padding: 60px 0;
-    
-      & .slick-slide {
-        padding: 0 10px;
+
+      & .slick-track {
+        & .slick-slide {
+          padding: 0 0 0 24px;
+        }
       }
+    }
+
+    & div[type="prev"] {
+      left: 4px;
+    }
+
+    & div[type="next"] {
+       right: -20px;
     }
   }
 `
@@ -92,7 +103,7 @@ const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
   background: ${props => props.active ? gradients.sberActionGradient : 'inherit'};
   padding: 1px;
   border: 1px solid ${colors.backgroundWhiteSecondary};
-  box-shadow:  ${props => props.active ? shadows.main : 'inherit'};
+  box-shadow: ${props => props.active ? shadows.main : 'inherit'};
 
   & > div {
     border-radius: 11px;
@@ -112,8 +123,8 @@ const StyledAddressTabContent = styled.div`
   row-gap: 12px;
 `
 const StyledAddAddressButton = styled(Button)`
-  width: 100%;
   height: 165px;
+  width: 100%;
   border: 1px dashed ${colors.inputBorderHover};
   border-radius: 12px;
   text-align: center;
@@ -128,9 +139,9 @@ const StyledAddAddressButton = styled(Button)`
   }
 
   &:hover {
-    border-color: ${colors.black};
+    border-color: ${colors.inputBorderHover};
     box-shadow: ${shadows.main};
-    
+
     & .${PLUS_ICON_WRAPPER_CLASS} {
       background-color: ${colors.black};
       color: ${colors.white};
@@ -389,7 +400,14 @@ const ClientCardTabContent = ({
     )
 }
 
-const ContactClientTabContent = ({ property, unitName, unitType, phone, canManageContacts, showOrganizationMessage = false }) => {
+const ContactClientTabContent = ({
+    property,
+    unitName,
+    unitType,
+    phone,
+    canManageContacts,
+    showOrganizationMessage = false,
+}) => {
     const router = useRouter()
 
     const { objs: contacts } = Contact.useObjects({
@@ -525,7 +543,13 @@ const ClientTabContent = ({ tabData, phone, canManageContacts, showOrganizationM
 //#endregion
 
 //#region Page Content
-const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loading, showOrganizationMessage = false }) => {
+const ClientCardPageContent = ({
+    phoneNumber,
+    tabsData,
+    canManageContacts,
+    loading,
+    showOrganizationMessage = false,
+}) => {
     const intl = useIntl()
     const ClientCardTitle = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
         phone: renderPhone(phoneNumber),
@@ -644,7 +668,7 @@ const ClientCardPageContent = ({ phoneNumber, tabsData, canManageContacts, loadi
                             <Typography.Title>{ClientCardTitle}</Typography.Title>
                         </Col>
                         {
-                            loading ? <Loader /> : (
+                            loading ? <Loader/> : (
                                 <StyledCarouselWrapper span={24}>
                                     <Carousel ref={carouselRef} slidesToShow={slidesToShow}>
                                         {renderedCards}
