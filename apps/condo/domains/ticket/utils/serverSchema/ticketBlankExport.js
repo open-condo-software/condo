@@ -21,10 +21,10 @@ const PDF_FILE_META = {
 
 const PDF_FONTS = {
     OpenSans: {
-        normal: './public/fonts/OpenSans-Regular.ttf',
-        bold: './public/fonts/OpenSans-Bold.ttf',
-        italics: './public/fonts/OpenSans-Italic.ttf',
-        bolditalics: './public/fonts/OpenSans-BoldItalic.ttf',
+        normal: './public/fonts/open-sans/OpenSans-Regular.ttf',
+        bold: './public/fonts/open-sans/OpenSans-Bold.ttf',
+        italics: './public/fonts/open-sans/OpenSans-Italic.ttf',
+        bolditalics: './public/fonts/open-sans/OpenSans-BoldItalic.ttf',
     },
 }
 
@@ -337,7 +337,7 @@ const generatePdf = (replaces) => {
                     '</svg>',
             },
             {
-                absolutePosition: { x: 0, y: 0 },
+                absolutePosition: { x: 419, y: 0 },
                 svg: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="594" viewBox="0 0 1 594" fill="none">\n' +
                     '<path d="M0 -1H1V594H0V-1Z" fill="#E1E5ED"/>\n' +
                     '</svg>',
