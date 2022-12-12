@@ -36,9 +36,10 @@ type PageContentProps = {
     gallery?: Array<string>
     contextStatus: string | null
     appUrl?: string
+    connectAction: () => void
 }
 
-export const PageContent: React.FC<PageContentProps> = ({
+const PageContent = React.memo<PageContentProps>(({
     id,
     name,
     category,
@@ -52,6 +53,7 @@ export const PageContent: React.FC<PageContentProps> = ({
     gallery,
     contextStatus,
     appUrl,
+    connectAction,
 }) => {
     const intl = useIntl()
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
@@ -101,6 +103,7 @@ export const PageContent: React.FC<PageContentProps> = ({
                     gallery={gallery}
                     contextStatus={contextStatus}
                     appUrl={appUrl}
+                    connectAction={connectAction}
                 />
             </Col>
             <Col span={contentSpan}>
@@ -149,4 +152,10 @@ export const PageContent: React.FC<PageContentProps> = ({
             )}
         </Row>
     )
+})
+
+PageContent.displayName = 'AboutAppPageContent'
+
+export {
+    PageContent,
 }

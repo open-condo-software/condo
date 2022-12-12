@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import get from 'lodash/get'
 import Error from 'next/error'
 import Head from 'next/head'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { Modal } from '@open-condo/ui'
 import { B2BApp, B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -18,13 +19,24 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
+    const [modalOpen, setModalOpen] = useState(false)
 
     const { obj: app, error: appError, loading: appLoading } = B2BApp.useObject({ where: { id } })
     const {
         obj: context,
         error: contextError,
         loading: contextLoading,
+        refetch,
     } = B2BAppContext.useObject({ where: { app: { id }, organization: { id: organizationId } } })
+    const appId = get(app, 'id', null)
+
+    const initialAction = B2BAppContext.useCreate({}, () => {
+        refetch()
+        setModalOpen(true)
+    })
+    const createContextAction = useCallback(() => {
+        initialAction({ organization: { connect: { id: organizationId } }, app: { connect: { id: appId } } })
+    }, [initialAction, organizationId, appId])
 
 
 
@@ -56,6 +68,15 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         gallery={app.gallery}
                         contextStatus={get(context, 'status', null)}
                         appUrl={app.appUrl}
+                        connectAction={createContextAction}
+                    />
+                    <Modal
+                        title='123'
+                        open={modalOpen}
+                        children='123'
+                        onCancel={() => {
+                            setModalOpen(false)
+                        }}
                     />
                 </PageContentWrapper>
             </PageWrapper>
