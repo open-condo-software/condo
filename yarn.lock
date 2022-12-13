@@ -652,14 +652,11 @@ __metadata:
     react-indiana-drag-scroll: ^2.0.1
     react-infinite-scroller: 1.2.6
     react-intl: ^5.7.1
-    react-markdown: 6
     react-phone-input-2: ^2.14.0
     react-progressive-image: ^0.6.0
     react-test-renderer: ^16.13.1
     react-yandex-metrika: ^2.6.0
     redlock: ^5.0.0-beta.2
-    rehype-raw: 5
-    remark-gfm: 1
     serialize-error: ^8.1.0
     swr: ^1.3.0
     tslib: ^1.9.3
@@ -23261,25 +23258,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hast-util-raw@npm:^6.1.0":
-  version: 6.1.0
-  resolution: "hast-util-raw@npm:6.1.0"
-  dependencies:
-    "@types/hast": ^2.0.0
-    hast-util-from-parse5: ^6.0.0
-    hast-util-to-parse5: ^6.0.0
-    html-void-elements: ^1.0.0
-    parse5: ^6.0.0
-    unist-util-position: ^3.0.0
-    unist-util-visit: ^2.0.0
-    vfile: ^4.0.0
-    web-namespaces: ^1.0.0
-    xtend: ^4.0.0
-    zwitch: ^1.0.0
-  checksum: dfa4da83ce718bae8a91a88ee4c5ef43e0091dcd32775de633669b412f2ada35a71bb79c4e4b2851175a5a50861d7abe2049d45b97176b892b861d71591a18e6
-  languageName: node
-  linkType: hard
-
 "hast-util-to-parse5@npm:^6.0.0":
   version: 6.0.0
   resolution: "hast-util-to-parse5@npm:6.0.0"
@@ -35433,30 +35411,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-markdown@npm:6, react-markdown@npm:^6":
-  version: 6.0.3
-  resolution: "react-markdown@npm:6.0.3"
-  dependencies:
-    "@types/hast": ^2.0.0
-    "@types/unist": ^2.0.3
-    comma-separated-tokens: ^1.0.0
-    prop-types: ^15.7.2
-    property-information: ^5.3.0
-    react-is: ^17.0.0
-    remark-parse: ^9.0.0
-    remark-rehype: ^8.0.0
-    space-separated-tokens: ^1.1.0
-    style-to-object: ^0.3.0
-    unified: ^9.0.0
-    unist-util-visit: ^2.0.0
-    vfile: ^4.0.0
-  peerDependencies:
-    "@types/react": ">=16"
-    react: ">=16"
-  checksum: 5176e6a314a397b4747570213ae6c092f76c5c3dc67c748731243a0d4108e002134a9061cea87df1bea00db46cc7d238e092bae1609de74983c844e8386c0554
-  languageName: node
-  linkType: hard
-
 "react-markdown@npm:6.0.0":
   version: 6.0.0
   resolution: "react-markdown@npm:6.0.0"
@@ -35495,6 +35449,30 @@ __metadata:
   peerDependencies:
     react: ^15.0.0 || ^16.0.0
   checksum: 0e500c3ca24162ba693f73f4ce928d8a7cf038a8f806307f7fa6c095209625cf6f1434f07fe1bc6e9a43d376f70eda7ee7f697887dcf87f00832b762e827f7c8
+  languageName: node
+  linkType: hard
+
+"react-markdown@npm:^6":
+  version: 6.0.3
+  resolution: "react-markdown@npm:6.0.3"
+  dependencies:
+    "@types/hast": ^2.0.0
+    "@types/unist": ^2.0.3
+    comma-separated-tokens: ^1.0.0
+    prop-types: ^15.7.2
+    property-information: ^5.3.0
+    react-is: ^17.0.0
+    remark-parse: ^9.0.0
+    remark-rehype: ^8.0.0
+    space-separated-tokens: ^1.1.0
+    style-to-object: ^0.3.0
+    unified: ^9.0.0
+    unist-util-visit: ^2.0.0
+    vfile: ^4.0.0
+  peerDependencies:
+    "@types/react": ">=16"
+    react: ">=16"
+  checksum: 5176e6a314a397b4747570213ae6c092f76c5c3dc67c748731243a0d4108e002134a9061cea87df1bea00db46cc7d238e092bae1609de74983c844e8386c0554
   languageName: node
   linkType: hard
 
@@ -36581,15 +36559,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rehype-raw@npm:5":
-  version: 5.1.0
-  resolution: "rehype-raw@npm:5.1.0"
-  dependencies:
-    hast-util-raw: ^6.1.0
-  checksum: 6149926eba079f957a8681d8379d42497b2b1248aabc8d4028cad68f1e6331b8c8947aa33df1f1c21107ec7eb1919bba45adcb7f1c9ea0f0e9b4ca359cee397b
-  languageName: node
-  linkType: hard
-
 "relateurl@npm:^0.2.7":
   version: 0.2.7
   resolution: "relateurl@npm:0.2.7"
@@ -36635,7 +36604,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"remark-gfm@npm:1, remark-gfm@npm:^1":
+"remark-gfm@npm:^1":
   version: 1.0.0
   resolution: "remark-gfm@npm:1.0.0"
   dependencies:
