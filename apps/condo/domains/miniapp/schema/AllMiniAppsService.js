@@ -5,7 +5,14 @@
 const dayjs = require('dayjs')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
-const { ACQUIRING_APP_TYPE, BILLING_APP_TYPE, APP_TYPES, B2B_APP_TYPE } = require('@condo/domains/miniapp/constants')
+const {
+    ACQUIRING_APP_TYPE,
+    BILLING_APP_TYPE,
+    APP_TYPES,
+    B2B_APP_TYPE,
+    ACCRUALS_AND_PAYMENTS_CATEGORY,
+    ALL_APPS_CATEGORIES,
+} = require('@condo/domains/miniapp/constants')
 const { find } = require('@open-condo/keystone/schema')
 const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
 
@@ -34,6 +41,10 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
+            type: `enum AppCategory { ${ALL_APPS_CATEGORIES.join(' ')} }`,
+        },
+        {
+            access: true,
             type: 'input AllMiniAppsWhereInput { connected: Boolean, id_not: String, category: String }',
         },
         {
@@ -42,7 +53,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'type MiniAppOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: String!, logo: String, label: String }',
+            type: 'type MiniAppOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String }',
         },
     ],
     
@@ -77,7 +88,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                         name: billing.name,
                         shortDescription: billing.shortDescription,
                         connected: connectedBillingIntegrations.includes(billing.id),
-                        category: BILLING_APP_TYPE,
+                        category: ACCRUALS_AND_PAYMENTS_CATEGORY,
                         logo: logoUrl,
                         label: billing.label,
                         // NOTE: Extra props for sort that will be omitted
@@ -105,7 +116,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                         name: acquiring.name,
                         shortDescription: acquiring.shortDescription,
                         connected: connectedAcquiringIntegrations.includes(acquiring.id),
-                        category: ACQUIRING_APP_TYPE,
+                        category: ACCRUALS_AND_PAYMENTS_CATEGORY,
                         logo: logoUrl,
                         label: acquiring.label,
                         // NOTE: Extra props for sort that will be omitted
