@@ -54,6 +54,7 @@ import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
 import { useTicketValidations } from './useTicketValidations'
 import { TicketDeferredDateField } from './TicketDeferredDateField'
+import omit from 'lodash/omit'
 
 export const ContactsInfo = ({ ContactsEditorComponent, form, selectedPropertyId, initialValues = {}, hasNotResidentTab = true }) => {
     const contactId = useMemo(() => get(initialValues, 'contact'), [initialValues])
@@ -370,7 +371,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             id: organization ? organization.id : null,
         },
         deletedAt: null,
-
     }), [organization])
     if (selectedPropertyId) {
         propertyWhereQuery['id_in'] = [selectedPropertyId]
@@ -384,9 +384,12 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const property = useMemo(() => organizationProperties.find(property => property.id === selectedPropertyId), [organizationProperties, selectedPropertyId])
 
-    const [selectedUnitName, setSelectedUnitName] = useState(get(initialValues, 'unitName'))
-    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialValues, 'unitType'))
-    const [selectedSectionType, setSelectedSectionType] = useState(get(initialValues, 'sectionType'))
+    const [isPropertyChanged, setIsPropertyChanged] = useState<boolean>(false)
+    const initialTicketValues = useMemo(() => isPropertyChanged ? omit(initialValues, ['unitName', 'unitType']) : initialValues,
+        [initialValues, isPropertyChanged])
+    const [selectedUnitName, setSelectedUnitName] = useState(get(initialTicketValues, 'unitName'))
+    const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialTicketValues, 'unitType'))
+    const [selectedSectionType, setSelectedSectionType] = useState(get(initialTicketValues, 'sectionType'))
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
@@ -395,10 +398,14 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
         refetch()
-    }, [selectedPropertyId])
+    }, [refetch, selectedPropertyId])
 
     useEffect(() => {
         selectedUnitNameRef.current = selectedUnitName
+
+        if (isNull(selectedUnitName)) {
+            setSelectedUnitType(null)
+        }
     }, [selectedUnitName])
 
     useEffect(() => {
@@ -495,15 +502,26 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     ) : null, [AddMessage, NoPropertiesMessage, handleAddPropertiesClick, isSmall, organizationProperties, organizationPropertiesLoading])
 
     const handlePropertySelectChange = useCallback((form) => (_, option) => {
+        setIsPropertyChanged(true)
         form.setFieldsValue({
             unitName: null,
+            unitType: null,
             sectionName: null,
             floorName: null,
         })
+        setSelectedUnitName(null)
         setSelectedPropertyId(option.key)
     }, [])
 
-    const handlePropertiesSelectClear = useCallback(() => {
+    const handlePropertiesSelectClear = useCallback((form) => () => {
+        setIsPropertyChanged(true)
+        form.setFieldsValue({
+            unitName: null,
+            unitType: null,
+            sectionName: null,
+            floorName: null,
+        })
+        setSelectedUnitName(null)
         setSelectedPropertyId(null)
     }, [])
 
@@ -513,7 +531,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         <>
             <FormWithAction
                 action={action}
-                initialValues={initialValues}
+                initialValues={initialTicketValues}
                 validateTrigger={FORM_VALIDATE_TRIGGER}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
@@ -552,7 +570,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     organization={organization}
                                                                     autoFocus
                                                                     onSelect={handlePropertySelectChange(form)}
-                                                                    onClear={handlePropertiesSelectClear}
+                                                                    onClear={handlePropertiesSelectClear(form)}
                                                                     placeholder={AddressPlaceholder}
                                                                     notFoundContent={AddressNotFoundContent}
                                                                     setIsMatchSelectedProperty={setIsMatchSelectedProperty}
@@ -569,7 +587,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 setSelectedSectionType={setSelectedSectionType}
                                                                 selectedSectionType={selectedSectionType}
                                                                 mode={UnitInfoMode.All}
-                                                                initialValues={initialValues}
+                                                                initialValues={initialTicketValues}
                                                                 form={form}
                                                             />
                                                         )}
@@ -588,7 +606,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                 <ContactsInfo
                                                     ContactsEditorComponent={ContactsEditorComponent}
                                                     form={form}
-                                                    initialValues={initialValues}
+                                                    initialValues={initialTicketValues}
                                                     selectedPropertyId={selectedPropertyId}
                                                 />
                                             </Row>

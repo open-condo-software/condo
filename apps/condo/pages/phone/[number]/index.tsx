@@ -613,6 +613,11 @@ const ClientCardPageContent = ({
     }, [initialActiveTab, tab])
 
     useDeepCompareEffect(() => {
+        const { tab } = parseQuery(router.query)
+        setActiveTab(tab)
+    }, [router.query])
+
+    useDeepCompareEffect(() => {
         if (carouselRef.current && !isInitialSlideScrolled) {
             let slideToGo = slidesToShow - (activeTabIndexRef.current + 1)
             if (slideToGo > 0) {
