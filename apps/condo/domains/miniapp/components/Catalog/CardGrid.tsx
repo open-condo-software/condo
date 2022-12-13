@@ -3,7 +3,7 @@ import { Tabs, Col, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import { useIntl } from '@open-condo/next/intl'
 import type { MiniAppOutput } from '@app/condo/schema'
-import { SideBlockTabs, Tab } from '@condo/domains/common/components/Tabs'
+import { SideBlockTabs, TopRowTabs, Tab } from '@condo/domains/common/components/Tabs'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { ALL_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
@@ -11,7 +11,8 @@ import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 const TAB_GUTTER = 8
 const CARD_GAP = 40
 const CONTENT_SPACING: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
-const TAB_BAR_STYLES: CSSProperties = { marginLeft: 20 }
+const SIDE_TAB_SIDE_BAR_STYLES: CSSProperties = { marginLeft: 20 }
+const TAB_SWITCH_THRESHOLD = 890
 
 export type TabContent = {
     category: string
@@ -59,7 +60,11 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs }) => {
     const router = useRouter()
     const { query: { tab } } = router
 
-    const TabComponent = SideBlockTabs
+    const sectionRef = useRef<HTMLElement>(null)
+    const { width } = useContainerSize(sectionRef)
+    const sideTabs = width > TAB_SWITCH_THRESHOLD
+
+    const TabComponent = sideTabs ? SideBlockTabs : TopRowTabs
     const categories = tabs.map(tab => tab.category)
     const selectedTab = (tab && !Array.isArray(tab) && categories.includes(tab.toUpperCase())) ? tab.toUpperCase() : ALL_APPS_CATEGORY
 
@@ -79,16 +84,18 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs }) => {
     }, [router])
 
     return (
-        <TabComponent
-            tabPosition='right'
-            type='card'
-            tabBarGutter={TAB_GUTTER}
-            defaultActiveKey={selectedTab}
-            activeKey={selectedTab}
-            tabBarStyle={TAB_BAR_STYLES}
-            onChange={handleTabChange}
-        >
-            {tabPanes}
-        </TabComponent>
+        <section ref={sectionRef}>
+            <TabComponent
+                tabPosition={sideTabs ? 'right' : 'top'}
+                type='card'
+                tabBarGutter={TAB_GUTTER}
+                defaultActiveKey={selectedTab}
+                activeKey={selectedTab}
+                tabBarStyle={sideTabs ? SIDE_TAB_SIDE_BAR_STYLES : undefined}
+                onChange={handleTabChange}
+            >
+                {tabPanes}
+            </TabComponent>
+        </section>
     )
 }
