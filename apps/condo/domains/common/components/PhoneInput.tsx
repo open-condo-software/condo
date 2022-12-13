@@ -73,7 +73,6 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
 
     useEffect(() => {
         inputRef.current.numberInputRef.tabIndex = props.tabIndex
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.tabIndex])
 
     const onChange = useCallback((value) => {

@@ -58,10 +58,10 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { GlobalAppsContainer } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsContainer'
 import { GlobalAppsFeaturesProvider } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsContext'
-import { uniqBy } from 'lodash'
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
+import '@open-condo/ui/dist/styles.min.css'
 
 
 const ANT_LOCALES = {
