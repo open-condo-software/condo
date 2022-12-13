@@ -10,6 +10,7 @@ import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 import Select from '@condo/domains/common/components/antd/Select'
+import { transitions, colors } from '@condo/domains/common/constants/style'
 
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 import { TicketStatusTypeType } from '@app/condo/schema'
@@ -30,23 +31,29 @@ const StyledSelect = styled(Select)<IStyledSelect>`
   border-radius: 8px;
   color: ${({ color }) => color};
   background-color: ${({ backgroundColor }) => backgroundColor};
+  transition: ${transitions.easeInOut};
 
-  &.ant-select-disabled {
-    .ant-select-selection-item {
-      color: ${({ color }) => color};
-    }
+  &.ant-select-disabled .ant-select-selector .ant-select-selection-item {
+    color: ${({ color }) => color};
+  }
+
+  &.ant-select-open .ant-select-selector .ant-select-selection-item {
+    color: ${({ color }) => color};
+  }
+
+  .ant-select-selector .ant-select-selection-item {
+    font-weight: 600;
+    color: ${colors.white};
+    transition: ${transitions.easeInOut};
   }
   
   .ant-select-arrow svg {
     fill: ${({ color }) => color};
-  }
-  
-  &.ant-select-open .ant-select-selector .ant-select-selection-item {
-    color: ${({ color }) => color};
+    transition: ${transitions.easeInOut};
   }
 `
 
-export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, loading: parentLoading, ...props }) => {
+export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
     const intl = useIntl()
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
@@ -116,7 +123,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
         [ticket.status.id, getTicketLabel, intl, ticket]
     )
 
-    const isLoading = parentLoading || loading || isUpdating
+    const isLoading = loading || isUpdating
     const isDisabled = isEmpty(statuses) || isLoading
 
     return (

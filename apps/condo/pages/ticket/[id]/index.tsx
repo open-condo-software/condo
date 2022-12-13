@@ -315,7 +315,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                                                                 employee={employee}
                                                                 ticket={ticket}
                                                                 onUpdate={handleTicketStatusChanged}
-                                                                loading={loading}
                                                                 data-cy='ticket__status-select'
                                                             />
                                                         </Col>
