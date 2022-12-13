@@ -40309,7 +40309,7 @@ type B2BApp {
   """
   contextDefaultStatus: String
 
-  """ Category of app. Can be one of the following: ["OTHER"] By default set to "OTHER" 
+  """ Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "OTHER"] By default set to "OTHER" 
   """
   category: String
 
@@ -47799,6 +47799,15 @@ enum AppType {
   B2B
 }
 
+enum AppCategory {
+  ACCRUALS_AND_PAYMENTS
+  DISPATCHING
+  GIS
+  SMART_HOME
+  BUSINESS_DEVELOPMENT
+  OTHER
+}
+
 input AllMiniAppsWhereInput {
   connected: Boolean
   id_not: String
@@ -47819,7 +47828,7 @@ type MiniAppOutput {
   connected: Boolean!
   name: String!
   shortDescription: String!
-  category: String!
+  category: AppCategory!
   logo: String
   label: String
 }
