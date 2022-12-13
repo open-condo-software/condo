@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Row, Col } from 'antd'
@@ -17,14 +17,18 @@ import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
 import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES, ALL_APPS_CATEGORY, CONNECTED_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
 import Input from '@condo/domains/common/components/antd/Input'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import type { TabContent } from './CardGrid'
 import { CardGrid } from './CardGrid'
 
 const SECTION_SPACING: RowProps['gutter'] = [0, 40]
 const CONTENT_SPACING: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN: ColProps['span'] = 24
-const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }
+const TITLE_ROW_HOR_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }
+const TITLE_ROW_VERT_ALIGN_STYLES: CSSProperties = {}
 const SEARCH_FIXED_STYLES: CSSProperties = { width: 280 }
+const SEARCH_FULL_STYLES: CSSProperties = { width: '100%', marginTop: 20 }
+const TITLE_COL_THRESHOLD = 500
 const BANNER_CHANGE_DELAY = 6000 // 6 sec
 const BANNER_CHANGE_SPEED = 1200 // 1.2 sec
 const ALL_SECTIONS = [
@@ -46,6 +50,9 @@ export const CatalogPageContent: React.FC = () => {
     })))
     const SearchPlaceHolder = intl.formatMessage({ id: 'miniapps.catalog.search.placeholder' })
     const SearchResultsTitle = intl.formatMessage({ id: 'miniapps.catalog.search.results.title' })
+
+    const rowRef = useRef<HTMLDivElement>(null)
+    const { width } = useContainerSize(rowRef)
 
     const router = useRouter()
     const { query: { tab } } = router
@@ -123,7 +130,7 @@ export const CatalogPageContent: React.FC = () => {
     return (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>}/>
-            <Row gutter={SECTION_SPACING}>
+            <Row gutter={SECTION_SPACING} ref={rowRef}>
                 {Boolean(promoBlocks.length) && (
                     <Col span={FULL_COL_SPAN}>
                         <Carousel
@@ -150,7 +157,10 @@ export const CatalogPageContent: React.FC = () => {
                 {Boolean(miniapps.length || search) && (
                     <Col span={FULL_COL_SPAN}>
                         <Row gutter={CONTENT_SPACING}>
-                            <Col span={FULL_COL_SPAN} style={VERT_ALIGN_STYLES}>
+                            <Col
+                                span={FULL_COL_SPAN}
+                                style={width > TITLE_COL_THRESHOLD ? TITLE_ROW_HOR_ALIGN_STYLES : TITLE_ROW_VERT_ALIGN_STYLES}
+                            >
                                 <Typography.Title level={2}>
                                     {search ? SearchResultsTitle : CategoriesTitles[selectedTab]}
                                 </Typography.Title>
@@ -159,7 +169,7 @@ export const CatalogPageContent: React.FC = () => {
                                     onChange={handleSearchInputChange}
                                     value={search}
                                     allowClear
-                                    style={SEARCH_FIXED_STYLES}
+                                    style={width > TITLE_COL_THRESHOLD ? SEARCH_FIXED_STYLES : SEARCH_FULL_STYLES}
                                 />
                             </Col>
                             <Col span={FULL_COL_SPAN}>
