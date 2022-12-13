@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Row, Col } from 'antd'
 import type { RowProps, ColProps } from 'antd'
 import get from 'lodash/get'
@@ -9,11 +9,14 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { MiniAppOutput } from '@app/condo/schema'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 
 import { TopCard } from './TopCard'
 import { DeveloperCard } from './DeveloperCard'
-import { AppCard } from '../AppCard'
+import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 
+
+const CAROUSEL_GAP = 40
 const SECTION_SPACING: RowProps['gutter'] = [0, 60]
 const SMALL_SECTION_SPACING: RowProps['gutter'] = [40, 40]
 const TITLE_SPACING: RowProps['gutter'] = [0, 20]
@@ -41,7 +44,16 @@ type PageContentProps = {
     connectAction: () => void
 }
 
-const PageContent = React.memo<PageContentProps>(({
+const getCardsAmount = (width: number) => {
+    if (width <= MIN_CARD_WIDTH) {
+        return 1
+    }
+    const widthLeft = width - MIN_CARD_WIDTH
+    const fitCardsAmount = Math.floor(widthLeft / (MIN_CARD_WIDTH + CAROUSEL_GAP))
+    return 1 + fitCardsAmount
+}
+
+const PageContent: React.FC<PageContentProps> = ({
     id,
     type,
     name,
@@ -62,6 +74,11 @@ const PageContent = React.memo<PageContentProps>(({
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
+
+    const rowRef = useRef<HTMLDivElement>(null)
+    const { width } = useContainerSize(rowRef)
+
+
     const [moreApps, setMoreApps] = useState<Array<MiniAppOutput>>([])
     const [fetchMiniapps] = useLazyQuery<QueryResult>(ALL_MINI_APPS_QUERY, {
         onCompleted: (data) => {
@@ -90,12 +107,12 @@ const PageContent = React.memo<PageContentProps>(({
         }
     }, [userOrganizationId, fetchMiniapps, id, category])
 
-    const carouselSlides = 4
+    const carouselSlides = getCardsAmount(width)
     const contentSpan = 18
     const developerSpan = (FULL_COL_SPAN - contentSpan) || FULL_COL_SPAN
 
     return (
-        <Row gutter={SECTION_SPACING}>
+        <Row gutter={SECTION_SPACING} ref={rowRef}>
             <Col span={FULL_COL_SPAN}>
                 <Row gutter={SMALL_SECTION_SPACING}>
                     <Col span={FULL_COL_SPAN}>
@@ -161,7 +178,7 @@ const PageContent = React.memo<PageContentProps>(({
             )}
         </Row>
     )
-})
+}
 
 PageContent.displayName = 'AboutAppPageContent'
 
