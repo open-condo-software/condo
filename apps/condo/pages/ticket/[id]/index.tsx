@@ -259,6 +259,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         user,
         timeZone,
         locale: intl.locale,
+        eventNamePrefix: 'TicketDetail',
     })
 
     return (
