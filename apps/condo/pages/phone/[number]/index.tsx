@@ -31,7 +31,7 @@ import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
-import { colors, fontSizes, gradients, shadows } from '@condo/domains/common/constants/style'
+import { colors, fontSizes, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { updateQuery } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -78,16 +78,17 @@ const StyledCarouselWrapper = styled(Col)`
   & .condo-carousel {
     background: none;
     padding: 0;
-    //transform: translateX(-24px);
+    transform: translateX(-24px);
 
     & .slick-list {
-      padding: 60px 0;
+      padding: 60px 0 40px 0;
+      width: calc(100% + 24px);
       margin: 0;
 
       & .slick-track {
         & .slick-slide {
-          padding-right: 24px;
-
+          padding: 0 0 0 24px;
+          
           & > div {
             margin: 0;
             overflow: initial;
@@ -97,11 +98,11 @@ const StyledCarouselWrapper = styled(Col)`
     }
 
     & .slick-prev {
-      left: -8px;
+      left: 4px;
     }
 
     & .slick-next {
-      right: 3px;
+      right: -44px;
     }
   }
 `
@@ -112,6 +113,7 @@ const StyledAddressTabWrapper = styled.div<{ active: boolean }>`
   padding: 1px;
   border: 1px solid ${colors.backgroundWhiteSecondary};
   box-shadow: ${props => props.active ? shadows.main : 'inherit'};
+  transition: ${transitions.allDefault};
 
   & > div {
     border-radius: 11px;
@@ -169,6 +171,11 @@ const PlusIconWrapper = styled.div`
 `
 const StyledLink = styled.span`
   color: ${colors.black};
+  transition: ${transitions.allDefault};
+  
+  .anticon {
+    padding-top: 3px;
+  }
 
   &:hover {
     cursor: pointer;
@@ -340,10 +347,14 @@ const ClientCardTabContent = ({
     const handleRowAction = useCallback((record) => {
         return {
             onClick: async () => {
+                logEvent({
+                    eventName: 'ClientCardTicketIndexClick',
+                    eventProperties: { ticketId: record.id } }
+                )
                 await router.push(`/ticket/${record.id}/`)
             },
         }
-    }, [router])
+    }, [logEvent, router])
 
     const handleCreateTicket = useCallback(() => handleTicketCreateClick(lastCreatedTicket),
         [handleTicketCreateClick, lastCreatedTicket])
