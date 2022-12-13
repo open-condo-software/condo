@@ -1,5 +1,6 @@
 import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 import { CheckOutlined } from '@ant-design/icons'
 import { Col, Row, Space, Image } from 'antd'
 import type { RowProps } from 'antd'
@@ -18,6 +19,8 @@ const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'colu
 const HIDE_GALLERY_STYLES: CSSProperties = { display: 'none' }
 
 type TopCardProps = {
+    id: string
+    type: string
     name: string
     category: string
     label?: string
@@ -40,6 +43,8 @@ const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
     )
 }
 const TopCard = React.memo<TopCardProps>(({
+    id,
+    type,
     name,
     category,
     label,
@@ -53,6 +58,7 @@ const TopCard = React.memo<TopCardProps>(({
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
     const LabelMessage = label && intl.formatMessage({ id: `miniapps.labels.${label}.name` })
+    const router = useRouter()
 
     const buttonProps = useMemo<ButtonProps>(() => {
         const btnProps: ButtonProps = { type: 'primary' }
@@ -66,6 +72,9 @@ const TopCard = React.memo<TopCardProps>(({
             btnProps.disabled = true
         } else if (appUrl) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.open' })
+            btnProps.onClick = () => {
+                router.push(`/miniapps/${id}?type=${type}`)
+            }
         } else {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
             btnProps.icon = <CheckOutlined/>
@@ -73,7 +82,7 @@ const TopCard = React.memo<TopCardProps>(({
         }
 
         return btnProps
-    }, [appUrl, contextStatus, intl, connectAction])
+    }, [id, type, appUrl, contextStatus, connectAction, intl, router])
 
     const labelTagProps = label && get(LABEL_TO_TAG_PROPS, label, {})
     const images = gallery || []
