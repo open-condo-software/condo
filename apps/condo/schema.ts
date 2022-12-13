@@ -16113,7 +16113,7 @@ export type InviteNewOrganizationEmployeeInput = {
   email?: Maybe<Scalars['String']>;
   phone: Scalars['String'];
   name?: Maybe<Scalars['String']>;
-  role?: Maybe<OrganizationEmployeeRoleWhereUniqueInput>;
+  role: OrganizationEmployeeRoleWhereUniqueInput;
   position?: Maybe<Scalars['String']>;
   specializations?: Maybe<Array<Maybe<TicketCategoryClassifierWhereUniqueInput>>>;
   hasAllSpecializations?: Maybe<Scalars['Boolean']>;

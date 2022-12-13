@@ -111,9 +111,7 @@ export const CatalogPageContent: React.FC = () => {
         }
         for (const category of ALL_APPS_CATEGORIES) {
             const categoryApps = miniapps.filter(app => app.category === category)
-            if (categoryApps.length) {
-                tabs.push({ category, apps: categoryApps })
-            }
+            tabs.push({ category, apps: categoryApps })
         }
         setAppsTabs(tabs)
         const categories = tabs.map(tab => tab.category)
