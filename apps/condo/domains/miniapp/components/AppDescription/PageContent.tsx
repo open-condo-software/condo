@@ -25,6 +25,7 @@ type QueryResult = {
 
 type PageContentProps = {
     id: string
+    type: string
     name: string
     category: string
     label?: string
@@ -42,6 +43,7 @@ type PageContentProps = {
 
 const PageContent = React.memo<PageContentProps>(({
     id,
+    type,
     name,
     category,
     label,
@@ -98,6 +100,8 @@ const PageContent = React.memo<PageContentProps>(({
                 <Row gutter={SMALL_SECTION_SPACING}>
                     <Col span={FULL_COL_SPAN}>
                         <TopCard
+                            id={id}
+                            type={type}
                             name={name}
                             category={category}
                             label={label}
