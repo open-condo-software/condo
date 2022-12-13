@@ -1833,6 +1833,15 @@ export type AllMiniAppsWhereInput = {
   category?: Maybe<Scalars['String']>;
 };
 
+export enum AppCategory {
+  AccrualsAndPayments = 'ACCRUALS_AND_PAYMENTS',
+  Dispatching = 'DISPATCHING',
+  Gis = 'GIS',
+  SmartHome = 'SMART_HOME',
+  BusinessDevelopment = 'BUSINESS_DEVELOPMENT',
+  Other = 'OTHER'
+}
+
 export type AppColorSchemaField = {
   __typename?: 'AppColorSchemaField';
   main: Scalars['String'];
@@ -2204,7 +2213,7 @@ export type B2BApp = {
   isGlobal?: Maybe<Scalars['Boolean']>;
   /**  Status, which context will have by default after creation if no overwriting option provided  */
   contextDefaultStatus?: Maybe<Scalars['String']>;
-  /**  Category of app. Can be one of the following: ["OTHER"] By default set to "OTHER"  */
+  /**  Category of app. Can be one of the following: ["DISPATCHING", "GIS", "SMART_HOME", "BUSINESS_DEVELOPMENT", "OTHER"] By default set to "OTHER"  */
   category?: Maybe<Scalars['String']>;
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
@@ -20575,7 +20584,7 @@ export type MiniAppOutput = {
   connected: Scalars['Boolean'];
   name: Scalars['String'];
   shortDescription: Scalars['String'];
-  category: Scalars['String'];
+  category: AppCategory;
   logo?: Maybe<Scalars['String']>;
   label?: Maybe<Scalars['String']>;
 };
