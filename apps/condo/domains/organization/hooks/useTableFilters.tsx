@@ -1,13 +1,13 @@
 import { PropertyWhereInput } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 
-import { getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
+import { getStringContainsFilter, getFilter } from '@condo/domains/common/utils/tables.utils'
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 
 const filterName = getStringContainsFilter('name')
 const filterPhone = getStringContainsFilter('phone')
 const filterPosition = getStringContainsFilter('position')
-const filterRole = getStringContainsFilter(['role', 'name'])
+const filterRole = getFilter(['role', 'id'], 'array', 'string', 'in')
 
 export const useTableFilters = () => {
     const intl = useIntl()
@@ -19,7 +19,7 @@ export const useTableFilters = () => {
     const propertyFilterMetas: FiltersMeta<PropertyWhereInput>[] = [
         {
             keyword: 'search',
-            filters: [filterName, filterPhone, filterPosition, filterRole],
+            filters: [filterName, filterPhone, filterPosition],
             combineType: 'OR',
         },
         {
