@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { AutoComplete, Col, Form, Radio, FormInstance } from 'antd'
+import React, { useCallback, useMemo, useState } from 'react'
+import { AutoComplete, Col, Form, Radio } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { MinusCircleOutlined } from '@ant-design/icons'
@@ -11,7 +11,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { colors } from '@condo/domains/common/constants/style'
 import { Contact as TContact } from '@condo/domains/contact/schema'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import Input from '@condo/domains/common/components/antd/Input'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
@@ -73,9 +72,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     }
 
     const handleNameInput = useCallback(
-        (e) => {
-            return handleChangeContact('name')(get(e, 'target.value'))
-        },
+        (e) => handleChangeContact('name')(e),
         [handleChangeContact])
 
     const setValueAndTriggerOnChange = (contact) => {
@@ -132,11 +129,12 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                 </Form.Item>
             </Col>
             <Col span={10}>
-                <Input
+                <AutoComplete
+                    style={{ width: '100%' }}
                     value={get(value, 'name')}
                     allowClear
                     placeholder={NamePlaceholder}
-                    onInput={handleNameInput}
+                    onChange={handleNameInput}
                     disabled={contactsLoading || isNameDisabled}
                 />
             </Col>

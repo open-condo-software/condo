@@ -1,3 +1,4 @@
+import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
@@ -23,7 +24,7 @@ import {
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import Carousel from '@condo/domains/common/components/Carousel'
+import { Carousel } from '@open-condo/ui'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -73,27 +74,33 @@ type TabDataType = {
 }
 
 const StyledCarouselWrapper = styled(Col)`
-  & .ant-carousel {
+  & .condo-carousel {
     background: none;
     padding: 0;
-    transform: translateX(-24px);
+    //transform: translateX(-24px);
 
     & .slick-list {
       padding: 60px 0;
+      margin: 0;
 
       & .slick-track {
         & .slick-slide {
-          padding: 0 0 0 24px;
+          padding-right: 24px;
+
+          & > div {
+            margin: 0;
+            overflow: initial;
+          }
         }
       }
     }
 
-    & div[type="prev"] {
-      left: 4px;
+    & .slick-prev {
+      left: -8px;
     }
 
-    & div[type="next"] {
-       right: -20px;
+    & .slick-next {
+      right: 3px;
     }
   }
 `
@@ -163,9 +170,16 @@ const StyledLink = styled.span`
   color: ${colors.black};
 
   &:hover {
-    color: ${colors.black};
     cursor: pointer;
+    color: #00b538;
+
+    & > .ant-row > div:last-child > span {
+      border-bottom: 1px solid #00b538;
+    }
   }
+`
+const StyledLinkText = styled.span`
+  color: inherit;
 
   display: block;
   width: max-content;
@@ -336,11 +350,22 @@ const ClientCardTabContent = ({
             <Col span={24}>
                 <Row gutter={ROW_MEDIUM_GUTTER}>
                     <Col span={24}>
-                        <StyledLink
-                            onClick={handleShowAllPropertyTicketsMessage}
-                        >
-                            {ShowAllPropertyTicketsMessage}
-                        </StyledLink>
+                        <Row>
+                            <Col>
+                                <StyledLink onClick={handleShowAllPropertyTicketsMessage}>
+                                    <Row gutter={[12, 0]}>
+                                        <Col>
+                                            <BuildingIcon/>
+                                        </Col>
+                                        <Col>
+                                            <StyledLinkText>
+                                                {ShowAllPropertyTicketsMessage}
+                                            </StyledLinkText>
+                                        </Col>
+                                    </Row>
+                                </StyledLink>
+                            </Col>
+                        </Row>
                     </Col>
                     <Col span={24}>
                         <ClientContent
@@ -670,7 +695,11 @@ const ClientCardPageContent = ({
                         {
                             loading ? <Loader/> : (
                                 <StyledCarouselWrapper span={24}>
-                                    <Carousel ref={carouselRef} slidesToShow={slidesToShow}>
+                                    <Carousel
+                                        infinite={false}
+                                        ref={carouselRef}
+                                        slidesToShow={slidesToShow}
+                                    >
                                         {renderedCards}
                                     </Carousel>
                                 </StyledCarouselWrapper>
