@@ -6,10 +6,11 @@ import type { MiniAppOutput } from '@app/condo/schema'
 import { SideBlockTabs, Tab } from '@condo/domains/common/components/Tabs'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { ALL_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
-import { AppCard } from '../AppCard'
+import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 
 const TAB_GUTTER = 8
-const CONTENT_SPACING: RowProps['gutter'] = [40, 40]
+const CARD_GAP = 40
+const CONTENT_SPACING: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
 const TAB_BAR_STYLES: CSSProperties = { marginLeft: 20 }
 
 export type TabContent = {
@@ -26,13 +27,7 @@ type CardGridProps = {
 }
 
 const getCardsAmount = (width: number) => {
-    if (width > 768) {
-        return 3
-    } else if (width > 520) {
-        return 2
-    } else {
-        return 1
-    }
+    return Math.max(1, Math.floor(width / (MIN_CARD_WIDTH + CARD_GAP)))
 }
 
 const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab }) => {

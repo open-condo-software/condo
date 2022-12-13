@@ -17,6 +17,8 @@ const CARD_TEXT_STYLES: CSSProperties = { height: 100 }
 const CARD_SPACE_STYLES: CSSProperties = { width: '100%' }
 const IMAGE_STYLES: CSSProperties = { objectFit: 'contain', height: 60 }
 
+export const MIN_CARD_WIDTH = 250
+
 type AppCardTitleProps = {
     logoUrl?: string
     label?: string
