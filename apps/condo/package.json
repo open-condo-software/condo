@@ -8,7 +8,7 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
     "build:ui": "yarn workspace @open-condo/ui build",
-    "build": "cross-env PHASE=build build:ui keystone build",
+    "build": "yarn workspace @app/condo build:ui && cross-env PHASE=build keystone build",
     "start": "keystone start",
     "worker": "cross-env PHASE=worker node worker.js",
     "kmigrator": "./../../bin/kmigrator.py",

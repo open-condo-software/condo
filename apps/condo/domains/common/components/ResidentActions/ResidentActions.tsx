@@ -2,7 +2,7 @@ import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Divider, Dropdown, DropDownProps, Menu } from 'antd'
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -36,10 +36,11 @@ export const ResidentAppealDropDownMenuItemWrapperProps = {
 
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }
 
-const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchByPhoneModalVisible }) => {
+const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchByPhoneModalVisible, setDropdownVisible }) => {
     const handleButtonClick = useCallback(() => {
+        setDropdownVisible(false)
         setIsSearchByPhoneModalVisible(true)
-    }, [setIsSearchByPhoneModalVisible])
+    }, [setIsSearchByPhoneModalVisible, setDropdownVisible])
 
     return (
         <StyledMenu>
@@ -96,16 +97,22 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     )
     const canManageContacts = useMemo(() => get(link, 'role.canManageContacts'), [link])
 
-    const { setIsSearchByPhoneModalVisible, SearchByPhoneModal } = useSearchByPhoneModal(searchByPhoneFn, canManageContacts)
+    const {
+        setIsSearchByPhoneModalVisible,
+        SearchByPhoneModal,
+    } = useSearchByPhoneModal(searchByPhoneFn, canManageContacts)
     const { isMobile } = useLayoutContext()
 
     const role = get(link, 'role', {})
     const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
 
+    const [dropdownVisible, setDropdownVisible] = useState<boolean>()
+
     const Overlay = useMemo(() => (
         <ResidentAppealDropdownOverlay
             setIsSearchByPhoneModalVisible={setIsSearchByPhoneModalVisible}
             isAssignedVisibilityType={isAssignedVisibilityType}
+            setDropdownVisible={setDropdownVisible}
         />
     ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType])
 
@@ -118,6 +125,8 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
                 placement={minified ? 'bottomRight' : 'bottomCenter'}
                 getPopupContainer={getPopupContainer}
                 trigger={trigger}
+                visible={dropdownVisible}
+                onVisibleChange={setDropdownVisible}
             >
                 {
                     minified

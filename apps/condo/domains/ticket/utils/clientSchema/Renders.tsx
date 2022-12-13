@@ -272,7 +272,7 @@ export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
     }
 }
 
-export const getAddressRender = (property: Property, unitNameMessage?: string, DeletedMessage?: string) => {
+export const getAddressRender = (property: Property, unitNameMessage?: string, DeletedMessage?: string, ellipsis?: boolean) => {
     const { postfix, text } = getPropertyAddressParts(property, DeletedMessage)
     let renderText = ''
     if (text) {
@@ -284,13 +284,13 @@ export const getAddressRender = (property: Property, unitNameMessage?: string, D
     const title = `${text} ${isString(postfix) && postfix || ''}`
 
     const getPostfix = () => (
-        <Typography.Text {...ADDRESS_RENDER_POSTFIX_PROPS} ellipsis>
+        <Typography.Text {...ADDRESS_RENDER_POSTFIX_PROPS} ellipsis={ellipsis}>
             {postfix}
         </Typography.Text>
     )
 
     return (
-        <Typography.Text title={title} ellipsis>
+        <Typography.Text title={title} ellipsis={ellipsis}>
             {renderText} {postfix && getPostfix()}
         </Typography.Text>
     )

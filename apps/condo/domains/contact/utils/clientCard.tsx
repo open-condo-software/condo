@@ -2,9 +2,10 @@ import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { gql } from 'graphql-tag'
 import { get } from 'lodash'
-import { NextRouter } from 'next/router'
+import { router } from 'next/client'
+import { NextRouter, useRouter } from 'next/router'
 import qs from 'qs'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import Select from '@condo/domains/common/components/antd/Select'
 import { colors, fontSizes } from '@condo/domains/common/constants/style'
@@ -13,6 +14,7 @@ import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Rende
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { useIntl } from '@open-condo/next/intl'
 import { BuildingUnitSubType } from '@app/condo/schema'
+import { useLayoutContext } from '../../common/components/LayoutContext'
 
 export enum ClientType {
     Resident,
@@ -118,7 +120,6 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
 }
 
 const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
-const LINK_STYLES = { fontSize: fontSizes.label, color: colors.black }
 
 const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, number }) => {
     const intl = useIntl()
@@ -130,31 +131,36 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
     const prefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : ShortFlatMessage
     const unitNameMessage = unitName && ` ${prefix} ${unitName}`
 
-    return (
-        <Typography.Link href={`/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`} style={LINK_STYLES}>
-            <Row justify='space-between' style={{ paddingRight: '24px' }}>
-                <Col span={21}>
-                    <Row gutter={SELECT_OPTION_ROW_GUTTER}>
-                        <Col>
-                            <Typography.Text strong>
-                                {renderPhone(phone)}
-                            </Typography.Text>
+    const router = useRouter()
+    const { isSmall } = useLayoutContext()
 
-                        </Col>
-                        <Col span={16}>
-                            {property ? getAddressRender(property, unitNameMessage, DeletedMessage) : DeletedMessage}
-                        </Col>
-                    </Row>
-                </Col>
-                {
-                    type !== ClientType.Resident && (
-                        <Col span={3}>
-                            {TicketMessage} №{number}
-                        </Col>
-                    )
-                }
-            </Row>
-        </Typography.Link>
+    const handleClick = useCallback(
+        () => router.push(`/phone/${phone}?tab=${getClientCardTabKey(get(property, 'id'), type, unitName, unitType)}`),
+        [phone, property, router, type, unitName, unitType])
+
+    return (
+        <Row justify='space-between' style={{ paddingRight: '24px' }} onClick={handleClick}>
+            <Col span={isSmall ? 24 : 21}>
+                <Row gutter={SELECT_OPTION_ROW_GUTTER}>
+                    <Col>
+                        <Typography.Text strong>
+                            {renderPhone(phone)}
+                        </Typography.Text>
+
+                    </Col>
+                    <Col span={16}>
+                        {property ? getAddressRender(property, unitNameMessage, DeletedMessage, !isSmall) : DeletedMessage}
+                    </Col>
+                </Row>
+            </Col>
+            {
+                type !== ClientType.Resident && (
+                    <Col span={isSmall ? 24 : 3}>
+                        {TicketMessage} №{number}
+                    </Col>
+                )
+            }
+        </Row>
     )
 }
 
