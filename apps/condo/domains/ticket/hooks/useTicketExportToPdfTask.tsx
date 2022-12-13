@@ -5,6 +5,7 @@ import { Gutter } from 'antd/lib/grid/row'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import styled from '@emotion/styled'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { ResolvedIntlConfig } from 'react-intl'
 
 import {
@@ -140,6 +141,10 @@ const CheckListComments: React.FC<CheckListCommentsPropsType> = (props) => {
             .map((comment) => comment.id)
         )
     }, [comments, setCheckedCommentIds])
+
+    if (!loading && isEmpty(comments)) {
+        return null
+    }
 
     return (
         <Col span={24}>
