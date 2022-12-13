@@ -55,6 +55,7 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -82,6 +83,7 @@ const TicketTable = ({
     const CancelSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
     const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
 
+    const { getTrackingWrappedCallback } = useTracking()
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
     const auth = useAuth() as { user: { id: string } }
@@ -124,6 +126,7 @@ const TicketTable = ({
         user,
         timeZone,
         locale: intl.locale,
+        eventNamePrefix: 'TicketIndex',
     })
 
     const handleRowAction = useCallback((record) => {
@@ -150,25 +153,32 @@ const TicketTable = ({
         }
     }, [selectedRowKeysByPage, tickets])
 
+    const handleSelectRow: (record: ITicket, checked: boolean) => void = useCallback((record, checked) => {
+        const selectedKey = record.id
+        if (checked) {
+            setSelectedTicketKeys(prevState => [...prevState, selectedKey])
+        } else {
+            setSelectedTicketKeys(prevState => prevState.filter(key => selectedKey !== key))
+        }
+    }, [])
+
+    const handleSelectRowWithTracking = useMemo(
+        () => getTrackingWrappedCallback('TicketTableCheckboxSelectRow', null, handleSelectRow),
+        [getTrackingWrappedCallback, handleSelectRow])
+
     const rowSelection: TableRowSelection<ITicket> = useMemo(() => ({
         selectedRowKeys: selectedRowKeysByPage,
         fixed: true,
-        onSelect: (record, checked) => {
-            const selectedKey = record.id
-            if (checked) {
-                setSelectedTicketKeys(prevState => [...prevState, selectedKey])
-            } else {
-                setSelectedTicketKeys(prevState => prevState.filter(key => selectedKey !== key))
-            }
-        },
+        onSelect: handleSelectRowWithTracking,
         columnTitle: (
             <Checkbox
                 checked={isSelectedAllRowsByPage}
                 indeterminate={isSelectedSomeRowsByPage}
                 onChange={handleSelectAllRowsByPage}
+                eventName='TicketTableCheckboxSelectAll'
             />
         ),
-    }), [handleSelectAllRowsByPage, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
+    }), [handleSelectAllRowsByPage, handleSelectRowWithTracking, isSelectedAllRowsByPage, isSelectedSomeRowsByPage, selectedRowKeysByPage])
 
     const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
         body: {
