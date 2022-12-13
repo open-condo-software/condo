@@ -580,6 +580,7 @@
   "pages.condo.ticket.index.CountSelectedTicket": "Выбрано элементов",
   "pages.condo.ticket.exportBlank.title": "Добавить в бланк для печати",
   "pages.condo.ticket.exportBlank.SaveToPDF.label": "Сохранить в PDF",
+  "pages.condo.ticket.exportBlank.SaveToPDF.tooltip": "За один раз можно сохранить не более 50 заявок",
   "pages.condo.ticket.exportBlank.HaveListCompletedWorks.label": "Перечень выполненных работ",
   "pages.condo.ticket.exportBlank.HaveConsumedMaterials.label": "Затраченные материалы",
   "pages.condo.ticket.exportBlank.HaveTotalCostWork.label": "Стоимость выполненных работ",
