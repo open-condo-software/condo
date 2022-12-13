@@ -1,4 +1,5 @@
 import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
@@ -196,7 +197,7 @@ const AddAddressCard = ({ onClick }) => {
     const AddAddressMessage = intl.formatMessage({ id: 'pages.clientCard.addAddress' })
 
     return (
-        <StyledAddAddressButton onClick={onClick}>
+        <StyledAddAddressButton onClick={onClick} eventName='ClientCardAddAddressClick'>
             <PlusIconWrapper className={PLUS_ICON_WRAPPER_CLASS}>
                 <PlusIcon/>
             </PlusIconWrapper>
@@ -329,10 +330,12 @@ const ClientCardTabContent = ({
     const lastCreatedTicket = get(tickets, 0)
 
     const columns = useClientCardTicketTableColumns(tickets)
+    const { logEvent } = useTracking()
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
+        logEvent({ eventName: 'ClientCardShowAllPropertyTicketsClick' })
         await updateQuery(router, { property: [get(property, 'id', null)] }, null, null, '/ticket')
-    }, [property, router])
+    }, [logEvent, property, router])
 
     const handleRowAction = useCallback((record) => {
         return {
@@ -405,6 +408,7 @@ const ClientCardTabContent = ({
                     key='submit'
                     onClick={handleCreateTicket}
                     type='sberDefaultGradient'
+                    eventName='ClientCardCreateTicketClick'
                 >
                     {CreateTicketMessage}
                 </Button>
@@ -415,6 +419,7 @@ const ClientCardTabContent = ({
                             onClick={handleContactEditClick}
                             type='sberDefaultGradient'
                             secondary
+                            eventName='ClientCardEditContactClick'
                         >
                             {EditContactMessage}
                         </Button>

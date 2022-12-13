@@ -1,15 +1,16 @@
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { transitions } from '@condo/domains/common/constants/style'
+import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import styled from '@emotion/styled'
+import { useIntl } from '@open-condo/next/intl'
 import { Space, Typography } from 'antd'
 import classnames from 'classnames'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
-import { useIntl } from '@open-condo/next/intl'
-import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { colors } from '../constants/style'
-import { transitions } from '@condo/domains/common/constants/style'
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { TrackingEventType, useTracking } from './TrackingContext'
 
 const IconWrapper = styled.div``
 
@@ -71,6 +72,7 @@ interface IMenuItemProps {
     menuItemWrapperProps?: IMenuItemWrapperProps
     isCollapsed?: boolean
     onClick?: () => void
+    eventName?: string
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
@@ -102,9 +104,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         isCollapsed,
         toolTipDecorator = null,
         onClick,
+        eventName,
     } = props
     const { route } = useRouter()
     const intl = useIntl()
+    const { getTrackingWrappedCallback } = useTracking()
 
     const [isActive, setIsActive] = useState(false)
 
@@ -112,6 +116,11 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         const regex = new RegExp(`^${path}`)
         setIsActive(path === '/' ? route === path : regex.test(route))
     }, [route, path])
+
+    const handleClick = useMemo(
+        () => getTrackingWrappedCallback(eventName, null, onClick),
+        [eventName, getTrackingWrappedCallback, onClick]
+    )
 
     if (hideInMenu) {
         return null
@@ -142,7 +151,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
         )
 
     const menuItem = (
-        <MenuItemWrapper onClick={onClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
+        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
             {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
         </MenuItemWrapper>
     )
