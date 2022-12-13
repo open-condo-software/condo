@@ -592,6 +592,7 @@
   "pages.condo.ticket.index.CountSelectedTicket": "Items selected",
   "pages.condo.ticket.exportBlank.title": "Add to Form for Printing",
   "pages.condo.ticket.exportBlank.SaveToPDF.label": "Save to PDF",
+  "pages.condo.ticket.exportBlank.SaveToPDF.tooltip": "You can save up to 50 tickets at a time",
   "pages.condo.ticket.exportBlank.HaveListCompletedWorks.label": "List of completed works",
   "pages.condo.ticket.exportBlank.HaveConsumedMaterials.label": "Consumed materials",
   "pages.condo.ticket.exportBlank.HaveTotalCostWork.label": "Cost of work performed",

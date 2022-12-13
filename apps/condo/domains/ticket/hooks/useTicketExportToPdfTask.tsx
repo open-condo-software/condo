@@ -201,13 +201,9 @@ type UseTicketExportToPdfTaskType = (props: UseTicketExportToPdfTaskInputType) =
     TicketBlanksExportToPdfModal: JSX.Element
 }
 
-export type ParametersType = {
-    commentIds: string[]
-    haveAllComments: boolean
-    haveListCompletedWorks: boolean
-    haveConsumedMaterials: boolean
-    haveTotalCostWork: boolean
-}
+const StyledModal = styled(Modal)`
+  animation-duration: 0s !important;
+`
 
 export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  => {
     const { ticketId, where, sortBy, locale, timeZone, user } = props
@@ -215,6 +211,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     const intl = useIntl()
     const SaveInPdfTitle = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.title' })
     const SaveInPdfLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.SaveToPDF.label' })
+    const SaveToPDFTooltipMessage = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.SaveToPDF.tooltip' })
     const HaveListCompletedWorksLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveListCompletedWorks.label' })
     const HaveConsumedMaterialsLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveConsumedMaterials.label' })
     const HaveTotalCostWorkLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveTotalCostWork.label' })
@@ -276,25 +273,31 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
         handleCloseModal()
     }, [handleCloseModal, handleRunTask])
 
-    const TicketBlanksExportToPdfButton = useCallback<ExportToPdfButtonType>(({ disabled }) => (
-        <Button
-            type='sberBlack'
-            secondary
-            icon={<FilePdfFilled />}
-            disabled={disabled}
-            loading={loading}
-            onClick={handleOpenModal}
-            eventName='TicketsToPdfClick'
-            children={SaveInPdfLabel}
-        />
-    ), [loading, handleOpenModal, SaveInPdfLabel])
+    const TicketBlanksExportToPdfButton = useCallback<ExportToPdfButtonType>(({ disabled }) => {
+        return (
+            <Tooltip title={disabled ? SaveToPDFTooltipMessage : null}>
+                <div style={{ cursor: disabled ? 'not-allowed' : 'auto' }}>
+                    <Button
+                        type='sberBlack'
+                        secondary
+                        icon={<FilePdfFilled/>}
+                        loading={loading}
+                        disabled={disabled}
+                        onClick={handleOpenModal}
+                        eventName='TicketsToPdfClick'
+                        children={SaveInPdfLabel}
+                        style={{ pointerEvents: disabled ? 'none' : 'auto' }}
+                    />
+                </div>
+            </Tooltip>
+        )
+    }, [SaveToPDFTooltipMessage, loading, handleOpenModal, SaveInPdfLabel])
 
     const TicketBlanksExportToPdfModal = (
-        <Modal
+        <StyledModal
             visible={visibleModal}
             onCancel={handleCloseModal}
             title={`${SaveInPdfTitle}:`}
-            forceRender
             focusTriggerAfterClose={false}
             footer={
                 <Button
@@ -305,6 +308,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
                     children={SaveInPdfLabel}
                 />
             }
+            destroyOnClose
         >
             <Col span={24}>
                 <Row gutter={CHECKBOXES_VERTICAL_GUTTER}>
@@ -329,16 +333,16 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
                             onChange={handleChangeCheckbox(setHaveTotalCostWork)}
                         />
                     </Col>
-                    <Col span={24}>
-                        {ticketId && visibleModal
-                            ? (
-                                <CheckListComments
-                                    ticketId={String(ticketId)}
-                                    setCheckedCommentIds={setCheckedCommentIds}
-                                    checkedCommentIds={checkedCommentIds}
-                                />
-                            )
-                            : (
+                    {ticketId && visibleModal
+                        ? (
+                            <CheckListComments
+                                ticketId={String(ticketId)}
+                                setCheckedCommentIds={setCheckedCommentIds}
+                                checkedCommentIds={checkedCommentIds}
+                            />
+                        )
+                        : (
+                            <Col span={24}>
                                 <Row align='middle'>
                                     <Checkbox
                                         checked={haveAllComments}
@@ -351,11 +355,11 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
                                         children={<QuestionCircleOutlined/>}
                                     />
                                 </Row>
-                            )}
-                    </Col>
+                            </Col>
+                        )}
                 </Row>
             </Col>
-        </Modal>
+        </StyledModal>
     )
 
     return {
