@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useState } from 'react'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { Row, Col } from 'antd'
@@ -51,8 +51,7 @@ export const CatalogPageContent: React.FC = () => {
     const SearchPlaceHolder = intl.formatMessage({ id: 'miniapps.catalog.search.placeholder' })
     const SearchResultsTitle = intl.formatMessage({ id: 'miniapps.catalog.search.results.title' })
 
-    const rowRef = useRef<HTMLDivElement>(null)
-    const { width } = useContainerSize(rowRef)
+    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
     const router = useRouter()
     const { query: { tab } } = router
@@ -130,7 +129,7 @@ export const CatalogPageContent: React.FC = () => {
     return (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>}/>
-            <Row gutter={SECTION_SPACING} ref={rowRef}>
+            <Row gutter={SECTION_SPACING}>
                 {Boolean(promoBlocks.length) && (
                     <Col span={FULL_COL_SPAN}>
                         <Carousel
@@ -159,6 +158,7 @@ export const CatalogPageContent: React.FC = () => {
                         <Row gutter={CONTENT_SPACING}>
                             <Col
                                 span={FULL_COL_SPAN}
+                                ref={setRef}
                                 style={width > TITLE_COL_THRESHOLD ? TITLE_ROW_HOR_ALIGN_STYLES : TITLE_ROW_VERT_ALIGN_STYLES}
                             >
                                 <Typography.Title level={2}>
