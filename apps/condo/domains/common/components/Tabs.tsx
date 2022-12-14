@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import { Tabs } from 'antd'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
-import React, { CSSProperties } from 'react'
+import React from 'react'
 import { ITrackingComponent, TrackingEventType, useTracking } from './TrackingContext'
 import { StarIcon } from './icons/Star'
 
@@ -51,7 +51,14 @@ export const SideBlockTabs = styled(Tabs)`
   }
 `
 
-const TAB_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center' }
+const TabWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  & > *:not(:last-child) {
+    margin-right: 12px;
+  }
+`
 
 interface TabProps extends ITrackingComponent {
     title: string
@@ -73,11 +80,13 @@ export const Tab: React.FC<TabProps> = ({
     const onClickCallback = eventName ? getTrackingWrappedCallback(eventName, {}, onClick) : onClick
 
     return (
-        <div style={TAB_STYLES} onClick={onClickCallback}>
+        <TabWrapper onClick={onClickCallback}>
             {showIcon && (
                 icon
             )}
-            {title}
-        </div>
+            <span>
+                {title}
+            </span>
+        </TabWrapper>
     )
 }

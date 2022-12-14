@@ -180,6 +180,7 @@
   "global.section.payments": "Реестр оплат",
   "global.section.miniapps": "Сервисы",
   "miniapps.catalog.banner.more": "Подробнее",
+  "miniapps.catalog.noServicesInCategory": "Сервисов в этой категории пока нет",
   "miniapps.catalog.search.placeholder": "Поиск по сервисам",
   "miniapps.catalog.search.results.title": "Результаты поиска",
   "miniapps.categories.RECOMMENDED.name": "Рекомендованные",
