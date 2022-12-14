@@ -1,4 +1,4 @@
-const { isEmpty, isString, isNil, isFunction } = require('lodash')
+const { isEmpty, isString, isNil, isFunction, get } = require('lodash')
 
 const { plugin } = require('./utils/typing')
 const { composeResolveInputHook } = require('./utils')
@@ -12,7 +12,7 @@ const SEARCH_OPTIONS = {
     type: 'Text',
     kmigratorOptions: { null: false },
     defaultValue: SEARCH_FIELD_DEFAULT_VALUE, // ???
-    knexOptions: { defaultTo: knex => SEARCH_FIELD_DEFAULT_VALUE }, // ???
+    knexOptions: { defaultTo: _ => SEARCH_FIELD_DEFAULT_VALUE }, // ???
 }
 
 const checkPathsToFields = (pathsToFields) => {
@@ -73,14 +73,14 @@ const getValueByPathToField = async (pathToFieldToArray, item, schemaFields) => 
 }
 
 // TODO (DOMA-4545)
-//  [ ] Need add index for search field (!!)
+//  [✔] Need add index for search field (!!)
 //  [ ] Add a check for changes to tracked fields (!)
 //  [ ] Add search field update when related entities update (!)
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
 
 const searchBy = ({ searchField = 'search', pathsToFields = [], preprocessorsForFields = {} } = {}) => plugin((props) => {
-    const { fields = {}, hooks = {}, ...rest } = props
+    const { fields = {}, hooks = {}, kmigratorOptions = {}, ...rest } = props
 
     if (!isString(searchField) || !searchField) throw new Error('Еhe name of the search field must be of type "string"!')
     checkPathsToFields(pathsToFields)
@@ -110,7 +110,17 @@ const searchBy = ({ searchField = 'search', pathsToFields = [], preprocessorsFor
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
 
-    return { fields, hooks, ...rest }
+    kmigratorOptions.indexes = [
+        ...get(kmigratorOptions, 'indexes', []),
+        {
+            type: 'GinIndex',
+            opclasses: ['gin_trgm_ops'],
+            fields: [searchField],
+            name: 'Ticket_searchField_idx',
+        },
+    ]
+
+    return { fields, hooks, kmigratorOptions, ...rest }
 })
 
 module.exports = {

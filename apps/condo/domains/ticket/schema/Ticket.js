@@ -393,7 +393,10 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), searchBy({ pathsToFields: SEARCH_FIELD_PATHS, preprocessorsForFields: SEARCH_PREPROCESSORS })],
+    plugins: [
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
+        searchBy({ pathsToFields: SEARCH_FIELD_PATHS, preprocessorsForFields: SEARCH_PREPROCESSORS }),
+    ],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
