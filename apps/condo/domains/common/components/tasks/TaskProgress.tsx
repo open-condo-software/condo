@@ -170,19 +170,18 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
     }, [record, removeTaskFromUI])
 
     useEffect(() => {
-        const recordStatus = get(record, 'status')
-        if (record && recordStatus !== TASK_PROCESSING_STATUS) {
+        if (record && record.status !== TASK_PROCESSING_STATUS) {
             stopPolling()
             if (!handledTerminalStatesOfTasksIds.includes(record.id)) {
-                if (recordStatus === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
+                if (record.status === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onComplete(record)
                 }
-                if (recordStatus === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
+                if (record.status === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onCancel(record)
                 }
-                if (recordStatus === TASK_ERROR_STATUS && isFunction(onError)) {
+                if (record.status === TASK_ERROR_STATUS && isFunction(onError)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onError(record)
                 }

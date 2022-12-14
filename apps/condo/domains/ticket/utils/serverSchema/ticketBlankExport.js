@@ -138,7 +138,7 @@ const convertCommentsToTicketBlank = (comments) => {
     }))
 }
 
-const convertTicketToTicketBlank = ({ ticket, comments, blankParameters, locale }) => {
+const convertTicketToTicketBlank = ({ ticket, comments, blankOptions, locale }) => {
     return {
         number: ticket.number,
         printDate: dayjs().format('DD.MM.YYYY'),
@@ -149,11 +149,11 @@ const convertTicketToTicketBlank = ({ ticket, comments, blankParameters, locale 
         clientPhone: ticket.clientPhone,
         details: ticket.details,
         comments: convertCommentsToTicketBlank(comments),
-        parameters: {
+        options: {
             haveComments: !isEmpty(comments),
-            haveListCompletedWorks: blankParameters.haveListCompletedWorks,
-            haveConsumedMaterials: blankParameters.haveConsumedMaterials,
-            haveTotalCostWork: blankParameters.haveTotalCostWork,
+            haveListCompletedWorks: blankOptions.haveListCompletedWorks,
+            haveConsumedMaterials: blankOptions.haveConsumedMaterials,
+            haveTotalCostWork: blankOptions.haveTotalCostWork,
             locale: locale,
         },
     }
@@ -176,16 +176,16 @@ const mergePdfBuffers = async (ticketPdfBuffers) => {
     return [buffer]
 }
 
-const getComments = async ({ ticket, blankParameters }) => {
-    if (!blankParameters.haveAllComments && isEmpty(blankParameters.commentIds)) {
+const getComments = async ({ ticket, blankOptions }) => {
+    if (!blankOptions.haveAllComments && isEmpty(blankOptions.commentIds)) {
         return []
     }
 
     const commentsWhere = {
         ticket: { id_in: [ticket.id] },
     }
-    if (!isEmpty(blankParameters.commentIds)) {
-        commentsWhere.id_in = blankParameters.commentIds
+    if (!isEmpty(blankOptions.commentIds)) {
+        commentsWhere.id_in = blankOptions.commentIds
     }
 
     return await loadTicketCommentsForPdfExport({ where: commentsWhere })
@@ -472,13 +472,13 @@ const generatePdf = (replaces) => {
             addBlockWithLines(i18n.notes, 3),
 
             // listCompletedWorks
-            addOptionBlockWithLine(blank.parameters.haveListCompletedWorks, i18n.listCompletedWorks, 3),
+            addOptionBlockWithLine(blank.options.haveListCompletedWorks, i18n.listCompletedWorks, 3),
 
             // consumedMaterials
-            addOptionBlockWithLine(blank.parameters.haveConsumedMaterials, i18n.consumedMaterials, 3),
+            addOptionBlockWithLine(blank.options.haveConsumedMaterials, i18n.consumedMaterials, 3),
 
             // totalCostWork
-            addOptionBlockWithLine(blank.parameters.haveTotalCostWork, i18n.totalCostWork, 1),
+            addOptionBlockWithLine(blank.options.haveTotalCostWork, i18n.totalCostWork, 1),
 
             // work done & signature
             addSignatures(),
@@ -508,12 +508,12 @@ const pdfToBuffer = (pdfDoc) => new Promise((resolve, reject) => {
     }
 })
 
-const createPdfForTicketBlanks = async ({ tickets, blankParameters, locale }) => {
+const createPdfForTicketBlanks = async ({ tickets, blankOptions, locale }) => {
     const ticketPdfBuffers = []
 
     for (const ticket of tickets) {
-        const comments = await getComments({ ticket, blankParameters })
-        const ticketBlankData = convertTicketToTicketBlank({ ticket, comments, blankParameters, locale })
+        const comments = await getComments({ ticket, blankOptions })
+        const ticketBlankData = convertTicketToTicketBlank({ ticket, comments, blankOptions, locale })
         const translations = getTranslations({ locale, ticketBlankData })
         const replaces = {
             blank: ticketBlankData,
@@ -531,12 +531,12 @@ const createPdfForTicketBlanks = async ({ tickets, blankParameters, locale }) =>
     return { stream }
 }
 
-const getTicketBlankParameters = (parameters) => {
-    const commentIds = get(parameters, 'commentIds')
-    const haveAllComments = get(parameters, 'haveAllComments')
-    const haveListCompletedWorks = get(parameters, 'haveListCompletedWorks')
-    const haveConsumedMaterials = get(parameters, 'haveConsumedMaterials')
-    const haveTotalCostWork = get(parameters, 'haveTotalCostWork')
+const getTicketBlankOptions = (options) => {
+    const commentIds = get(options, 'commentIds')
+    const haveAllComments = get(options, 'haveAllComments')
+    const haveListCompletedWorks = get(options, 'haveListCompletedWorks')
+    const haveConsumedMaterials = get(options, 'haveConsumedMaterials')
+    const haveTotalCostWork = get(options, 'haveTotalCostWork')
 
     return {
         commentIds: isArray(commentIds) ? commentIds : [],
@@ -548,13 +548,13 @@ const getTicketBlankParameters = (parameters) => {
 }
 
 const exportTicketBlanksToPdf = async ({ context, task, baseAttrs, where, sortBy }) => {
-    const { id: taskId, parameters, locale } = task
+    const { id: taskId, options, locale } = task
 
-    const blankParameters = getTicketBlankParameters(parameters)
+    const blankOptions = getTicketBlankOptions(options)
 
     const tickets = await loadTicketsForPdfExport({ where, sortBy, limit: MAX_TICKET_BLANKS_EXPORT })
 
-    const { stream } = await createPdfForTicketBlanks({ tickets, blankParameters, locale })
+    const { stream } = await createPdfForTicketBlanks({ tickets, blankOptions, locale })
 
     const fileInput = {
         stream,

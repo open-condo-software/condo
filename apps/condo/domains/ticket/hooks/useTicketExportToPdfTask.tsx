@@ -247,7 +247,7 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
         locale,
         timeZone,
         user: { connect: { id: get(user, 'id', null) } },
-        parameters: {
+        options: {
             commentIds: checkedCommentIds,
             haveAllComments,
             haveListCompletedWorks,

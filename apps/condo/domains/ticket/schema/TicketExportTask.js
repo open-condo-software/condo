@@ -17,7 +17,7 @@ const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/c
 const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { exportTickets } = require('../tasks')
 const { getFileMetaAfterChange } = require('../../common/utils/fileAdapter')
-const { TICKET_EXPORT_PARAMETERS_FIELD } = require('./fields/TicketExportParameters')
+const { TICKET_EXPORT_OPTIONS_FIELD } = require('./fields/TicketExportParameters')
 
 const TICKET_EXPORT_TASK_FOLDER_NAME = 'TicketExportTask'
 const TicketExportTaskFileAdapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
@@ -169,7 +169,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             },
         },
 
-        parameters: TICKET_EXPORT_PARAMETERS_FIELD,
+        options: TICKET_EXPORT_OPTIONS_FIELD,
 
     },
     hooks: {
