@@ -1,4 +1,4 @@
-import React, { CSSProperties, useCallback, useRef } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 import get from 'lodash/get'
 import { Tabs, Col, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
@@ -56,8 +56,7 @@ const getCardsAmount = (width: number) => {
 const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab }) => {
     const intl = useIntl()
     const NoAppsMessage = intl.formatMessage({ id: 'miniapps.catalog.noServicesInCategory' })
-    const rowRef = useRef<HTMLDivElement>(null)
-    const { width } = useContainerSize(rowRef)
+    const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(width)
 
     if (!tab.apps.length) {
@@ -73,23 +72,21 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab }) => {
     }
 
     return (
-        <div ref={rowRef}>
-            <Row gutter={CONTENT_SPACING}>
-                {tab.apps.map(app => (
-                    <Col span={24 / cardsPerRow} key={app.id}>
-                        <AppCard
-                            id={app.id}
-                            type={app.type}
-                            connected={app.connected}
-                            name={app.name}
-                            description={app.shortDescription}
-                            logoUrl={app.logo}
-                            label={app.label}
-                        />
-                    </Col>
-                ))}
-            </Row>
-        </div>
+        <Row gutter={CONTENT_SPACING} ref={refCallback} className={tab.category}>
+            {tab.apps.map(app => (
+                <Col span={24 / cardsPerRow} key={`${cardsPerRow}:${app.id}`}>
+                    <AppCard
+                        id={app.id}
+                        type={app.type}
+                        connected={app.connected}
+                        name={app.name}
+                        description={app.shortDescription}
+                        logoUrl={app.logo}
+                        label={app.label}
+                    />
+                </Col>
+            ))}
+        </Row>
     )
 }
 
@@ -98,8 +95,7 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs }) => {
     const router = useRouter()
     const { query: { tab } } = router
 
-    const sectionRef = useRef<HTMLElement>(null)
-    const { width } = useContainerSize(sectionRef)
+    const [{ width }, setRef] = useContainerSize<HTMLElement>()
     const sideTabs = width > TAB_SWITCH_THRESHOLD
 
     const TabComponent = sideTabs ? SideBlockTabs : TopRowTabs
@@ -112,7 +108,7 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs }) => {
     }, [router])
 
     return (
-        <section ref={sectionRef}>
+        <section ref={setRef}>
             <TabComponent
                 tabPosition={sideTabs ? 'right' : 'top'}
                 type='card'
