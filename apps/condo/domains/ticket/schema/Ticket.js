@@ -391,13 +391,23 @@ const Ticket = new GQLListSchema('Ticket', {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
+
+            if (operation === 'create' && !resolvedData.status) {
+                resolvedData.status = STATUS_IDS.OPEN
+            }
+
+            if (
+                userType === RESIDENT
+                && operation === 'update'
+                && resolvedData.reviewValue
+                && resolvedData.status === STATUS_IDS.COMPLETED
+            ) {
+                updateStatusAfterResidentReview(resolvedData)
+            }
+
             const newItem = { ...existingItem, ...resolvedData }
             const resolvedStatusId = get(newItem, 'status', null)
             const resolvedClient = get(newItem, 'client', null)
-
-            if (operation === 'create' && isNull(resolvedStatusId)) {
-                resolvedData.status = STATUS_IDS.OPEN
-            }
 
             if (resolvedStatusId) {
                 calculateTicketOrder(resolvedData, resolvedStatusId)
@@ -415,8 +425,6 @@ const Ticket = new GQLListSchema('Ticket', {
 
                 // todo (DOMA-4092) delete this code when in mob. app will add feature deferred ticket with selecting date
                 calculateDefaultDeferredUntil(newItem, resolvedData, resolvedStatusId)
-            } else {
-                calculateTicketOrder(resolvedData, resolvedData.status || STATUS_IDS.OPEN)
             }
 
             if (userType === RESIDENT) {
