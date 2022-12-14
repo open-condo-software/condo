@@ -25,7 +25,7 @@ import {
 
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Button } from '@condo/domains/common/components/Button'
-import { Carousel } from '@open-condo/ui'
+import { Carousel, Typography as UITypography } from '@open-condo/ui'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -48,7 +48,7 @@ import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 
 //#region Constants, types and styles
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0 }
+const STREET_PARAGRAPH_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.content }
 const ADDRESS_POSTFIX_ELLIPSIS: EllipsisConfig = { rows: 2 }
 const ADDRESS_POSTFIX_STYLE: CSSProperties = { margin: 0, fontSize: fontSizes.label }
 const ROW_BIG_GUTTER: [Gutter, Gutter] = [0, 60]
@@ -78,16 +78,15 @@ const StyledCarouselWrapper = styled(Col)`
   & .condo-carousel {
     background: none;
     padding: 0;
-    transform: translateX(-24px);
+    transform: translateX(-12px);
 
     & .slick-list {
-      padding: 60px 0 40px 0;
       width: calc(100% + 24px);
       margin: 0;
 
       & .slick-track {
         & .slick-slide {
-          padding: 0 0 0 24px;
+          padding: 0 12px;
           
           & > div {
             margin: 0;
@@ -98,11 +97,11 @@ const StyledCarouselWrapper = styled(Col)`
     }
 
     & .slick-prev {
-      left: 4px;
+      left: -8px;
     }
 
     & .slick-next {
-      right: -44px;
+      right: -32px;
     }
   }
 `
@@ -169,32 +168,13 @@ const PlusIconWrapper = styled.div`
   justify-content: center;
   align-items: center;
 `
-const StyledLink = styled.span`
-  color: ${colors.black};
-  transition: ${transitions.allDefault};
+const StyledCol = styled(Col)`
+  font-size: ${fontSizes.content};
   
-  .anticon {
+  & > a > .ant-row > .ant-col:first-child {
+    padding-right: 3px !important;
     padding-top: 3px;
   }
-
-  &:hover {
-    cursor: pointer;
-    color: #00b538;
-
-    & > .ant-row > div:last-child > span {
-      border-bottom: 1px solid #00b538;
-    }
-  }
-`
-const StyledLinkText = styled.span`
-  color: inherit;
-
-  display: block;
-  width: max-content;
-
-  font-size: ${fontSizes.content};
-  text-decoration: none;
-  border-bottom: 1px solid ${colors.lightGrey[6]};
 `
 //#endregion
 
@@ -365,20 +345,18 @@ const ClientCardTabContent = ({
                 <Row gutter={ROW_MEDIUM_GUTTER}>
                     <Col span={24}>
                         <Row>
-                            <Col>
-                                <StyledLink onClick={handleShowAllPropertyTicketsMessage}>
+                            <StyledCol>
+                                <UITypography.Link onClick={handleShowAllPropertyTicketsMessage}>
                                     <Row gutter={[12, 0]}>
                                         <Col>
                                             <BuildingIcon/>
                                         </Col>
                                         <Col>
-                                            <StyledLinkText>
-                                                {ShowAllPropertyTicketsMessage}
-                                            </StyledLinkText>
+                                            {ShowAllPropertyTicketsMessage}
                                         </Col>
                                     </Row>
-                                </StyledLink>
-                            </Col>
+                                </UITypography.Link>
+                            </StyledCol>
                         </Row>
                     </Col>
                     <Col span={24}>
@@ -709,30 +687,35 @@ const ClientCardPageContent = ({
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <Row>
+                    <Row gutter={ROW_MEDIUM_GUTTER}>
                         <Col span={24}>
                             <Typography.Title>{ClientCardTitle}</Typography.Title>
                         </Col>
-                        {
-                            loading ? <Loader/> : (
-                                <StyledCarouselWrapper span={24}>
-                                    <Carousel
-                                        infinite={false}
-                                        ref={carouselRef}
-                                        slidesToShow={slidesToShow}
-                                    >
-                                        {renderedCards}
-                                    </Carousel>
-                                </StyledCarouselWrapper>
-                            )
-                        }
                         <Col span={24}>
-                            <ClientTabContent
-                                tabData={activeTabData}
-                                phone={phoneNumber}
-                                canManageContacts={canManageContacts}
-                                showOrganizationMessage={showOrganizationMessage}
-                            />
+                            <Row gutter={[0, 20]}>
+                                {
+                                    loading ? <Loader/> : (
+                                        <StyledCarouselWrapper span={24}>
+                                            <Carousel
+                                                infinite={false}
+                                                ref={carouselRef}
+                                                slidesToShow={slidesToShow}
+                                                dots={false}
+                                            >
+                                                {renderedCards}
+                                            </Carousel>
+                                        </StyledCarouselWrapper>
+                                    )
+                                }
+                                <Col span={24}>
+                                    <ClientTabContent
+                                        tabData={activeTabData}
+                                        phone={phoneNumber}
+                                        canManageContacts={canManageContacts}
+                                        showOrganizationMessage={showOrganizationMessage}
+                                    />
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                 </PageContent>

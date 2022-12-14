@@ -1,6 +1,6 @@
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
-import { Col, Row, Typography } from 'antd'
+import { AutoComplete, Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
@@ -114,6 +114,11 @@ const StyledPhoneInput = styled(PhoneInput)`
   }
 `
 
+const DROPDOWN_POPUP_CONTAINER_ID = 'searchByPhonePopupContainer'
+function getPopupContainer (): HTMLElement {
+    return document.getElementById(DROPDOWN_POPUP_CONTAINER_ID)
+}
+
 const SearchByPhoneSelect = ({
     searchByPhoneFn,
     onSelect,
@@ -168,35 +173,38 @@ const SearchByPhoneSelect = ({
     const handleSearch = useCallback((value) => setPhone(value), [])
 
     return (
-        <GraphQlSearchInput
-            search={searchByPhoneFn}
-            showSearch
-            allowClear
-            style={SELECT_STYLES}
-            notFoundContent={
-                <NotFoundSearchByPhoneContent
-                    canManageContacts={canManageContacts}
-                    onSelect={onSelect}
-                    phone={phone}
+        <div id={DROPDOWN_POPUP_CONTAINER_ID}>
+            <GraphQlSearchInput
+                search={searchByPhoneFn}
+                showSearch
+                allowClear
+                style={SELECT_STYLES}
+                notFoundContent={
+                    <NotFoundSearchByPhoneContent
+                        canManageContacts={canManageContacts}
+                        onSelect={onSelect}
+                        phone={phone}
+                    />
+                }
+                renderOptions={renderOptions}
+                optionFilterProp='title'
+                onSearch={handleSearch}
+                SearchInputComponentType={SearchComponentType.AutoComplete}
+                onSelect={onSelect}
+                showLoadingMessage={false}
+                autoClearSearchValue
+                getPopupContainer={getPopupContainer}
+            >
+                <StyledPhoneInput
+                    inputProps={{
+                        autoFocus: true,
+                    }}
+                    compatibilityWithAntAutoComplete
+                    placeholder={EnterPhoneMessage}
+                    masks={PHONE_INPUT_MASK}
                 />
-            }
-            renderOptions={renderOptions}
-            optionFilterProp='title'
-            onSearch={handleSearch}
-            SearchInputComponentType={SearchComponentType.AutoComplete}
-            onSelect={onSelect}
-            showLoadingMessage={false}
-            autoClearSearchValue
-        >
-            <StyledPhoneInput
-                inputProps={{
-                    autoFocus: true,
-                }}
-                compatibilityWithAntAutoComplete
-                placeholder={EnterPhoneMessage}
-                masks={PHONE_INPUT_MASK}
-            />
-        </GraphQlSearchInput>
+            </GraphQlSearchInput>
+        </div>
     )
 }
 
