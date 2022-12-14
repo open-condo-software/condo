@@ -15049,6 +15049,768 @@ input BankContractorAccountsCreateInput {
   data: BankContractorAccountCreateInput
 }
 
+enum BankTransactionHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type BankTransactionHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankTransactionHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the BankTransactionHistoryRecord List config, or
+   3. As an alias to a 'name' field on the BankTransactionHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the BankTransactionHistoryRecord List.
+  """
+  _label_: String
+  account: String
+  contractorAccount: String
+  costItem: String
+  organization: String
+  number: String
+  date: String
+  amount: String
+  currencyCode: String
+  purpose: String
+  dateWithdrawed: String
+  dateReceived: String
+  meta: JSON
+  importId: String
+  importRemoteSystem: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankTransactionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankTransactionHistoryRecordWhereInput {
+  AND: [BankTransactionHistoryRecordWhereInput]
+  OR: [BankTransactionHistoryRecordWhereInput]
+  account: String
+  account_not: String
+  account_in: [String]
+  account_not_in: [String]
+  contractorAccount: String
+  contractorAccount_not: String
+  contractorAccount_in: [String]
+  contractorAccount_not_in: [String]
+  costItem: String
+  costItem_not: String
+  costItem_in: [String]
+  costItem_not_in: [String]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  date: String
+  date_not: String
+  date_lt: String
+  date_lte: String
+  date_gt: String
+  date_gte: String
+  date_in: [String]
+  date_not_in: [String]
+  amount: String
+  amount_not: String
+  amount_lt: String
+  amount_lte: String
+  amount_gt: String
+  amount_gte: String
+  amount_in: [String]
+  amount_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_contains: String
+  currencyCode_not_contains: String
+  currencyCode_starts_with: String
+  currencyCode_not_starts_with: String
+  currencyCode_ends_with: String
+  currencyCode_not_ends_with: String
+  currencyCode_i: String
+  currencyCode_not_i: String
+  currencyCode_contains_i: String
+  currencyCode_not_contains_i: String
+  currencyCode_starts_with_i: String
+  currencyCode_not_starts_with_i: String
+  currencyCode_ends_with_i: String
+  currencyCode_not_ends_with_i: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
+  purpose: String
+  purpose_not: String
+  purpose_contains: String
+  purpose_not_contains: String
+  purpose_starts_with: String
+  purpose_not_starts_with: String
+  purpose_ends_with: String
+  purpose_not_ends_with: String
+  purpose_i: String
+  purpose_not_i: String
+  purpose_contains_i: String
+  purpose_not_contains_i: String
+  purpose_starts_with_i: String
+  purpose_not_starts_with_i: String
+  purpose_ends_with_i: String
+  purpose_not_ends_with_i: String
+  purpose_in: [String]
+  purpose_not_in: [String]
+  dateWithdrawed: String
+  dateWithdrawed_not: String
+  dateWithdrawed_lt: String
+  dateWithdrawed_lte: String
+  dateWithdrawed_gt: String
+  dateWithdrawed_gte: String
+  dateWithdrawed_in: [String]
+  dateWithdrawed_not_in: [String]
+  dateReceived: String
+  dateReceived_not: String
+  dateReceived_lt: String
+  dateReceived_lte: String
+  dateReceived_gt: String
+  dateReceived_gte: String
+  dateReceived_in: [String]
+  dateReceived_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  importRemoteSystem: String
+  importRemoteSystem_not: String
+  importRemoteSystem_contains: String
+  importRemoteSystem_not_contains: String
+  importRemoteSystem_starts_with: String
+  importRemoteSystem_not_starts_with: String
+  importRemoteSystem_ends_with: String
+  importRemoteSystem_not_ends_with: String
+  importRemoteSystem_i: String
+  importRemoteSystem_not_i: String
+  importRemoteSystem_contains_i: String
+  importRemoteSystem_not_contains_i: String
+  importRemoteSystem_starts_with_i: String
+  importRemoteSystem_not_starts_with_i: String
+  importRemoteSystem_ends_with_i: String
+  importRemoteSystem_not_ends_with_i: String
+  importRemoteSystem_in: [String]
+  importRemoteSystem_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: BankTransactionHistoryRecordHistoryActionType
+  history_action_not: BankTransactionHistoryRecordHistoryActionType
+  history_action_in: [BankTransactionHistoryRecordHistoryActionType]
+  history_action_not_in: [BankTransactionHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input BankTransactionHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankTransactionHistoryRecordsBy {
+  number_ASC
+  number_DESC
+  date_ASC
+  date_DESC
+  amount_ASC
+  amount_DESC
+  currencyCode_ASC
+  currencyCode_DESC
+  purpose_ASC
+  purpose_DESC
+  dateWithdrawed_ASC
+  dateWithdrawed_DESC
+  dateReceived_ASC
+  dateReceived_DESC
+  importId_ASC
+  importId_DESC
+  importRemoteSystem_ASC
+  importRemoteSystem_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input BankTransactionHistoryRecordUpdateInput {
+  account: String
+  contractorAccount: String
+  costItem: String
+  organization: String
+  number: String
+  date: String
+  amount: String
+  currencyCode: String
+  purpose: String
+  dateWithdrawed: String
+  dateReceived: String
+  meta: JSON
+  importId: String
+  importRemoteSystem: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankTransactionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankTransactionHistoryRecordsUpdateInput {
+  id: ID!
+  data: BankTransactionHistoryRecordUpdateInput
+}
+
+input BankTransactionHistoryRecordCreateInput {
+  account: String
+  contractorAccount: String
+  costItem: String
+  organization: String
+  number: String
+  date: String
+  amount: String
+  currencyCode: String
+  purpose: String
+  dateWithdrawed: String
+  dateReceived: String
+  meta: JSON
+  importId: String
+  importRemoteSystem: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: BankTransactionHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input BankTransactionHistoryRecordsCreateInput {
+  data: BankTransactionHistoryRecordCreateInput
+}
+
+input BankAccountRelateToOneInput {
+  create: BankAccountCreateInput
+  connect: BankAccountWhereUniqueInput
+  disconnect: BankAccountWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+input BankContractorAccountRelateToOneInput {
+  create: BankContractorAccountCreateInput
+  connect: BankContractorAccountWhereUniqueInput
+  disconnect: BankContractorAccountWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Transaction related to costs of Organization with BankAccount. Full fields set from data import will be stored in "meta" 
+"""
+type BankTransaction {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the BankTransaction List config, or
+   2. As an alias to the field set on 'labelField' in the BankTransaction List config, or
+   3. As an alias to a 'name' field on the BankTransaction List (if one exists), or
+   4. As an alias to the 'id' field on the BankTransaction List.
+  """
+  _label_: String
+
+  """ Related BankAccount of Organization which payed  """
+  account: BankAccount
+
+  """ Related account of contractor, which has received the payment via this transaction 
+  """
+  contractorAccount: BankContractorAccount
+
+  """ Related costs class """
+  costItem: BankCostItem
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Number of transaction, obtained from external system """
+  number: String
+
+  """ When payment order was created """
+  date: String
+
+  """ Amount of transaction in specified currency """
+  amount: String
+
+  """ Code of currency in ISO-4217 format """
+  currencyCode: String
+
+  """ Textual description of payment purpose in free form """
+  purpose: String
+
+  """ Date when this payment was withdrawed from BankAccount of Organization. If filled, then this payment is an outcome 
+  """
+  dateWithdrawed: String
+
+  """ Date when this payment was received by BankAccount of Organization. If filled, then this payment is an income 
+  """
+  dateReceived: String
+
+  """ Stores data, obtained from external source """
+  meta: JSON
+
+  """ Identifier of corresponding record in external system, from that this record was copied 
+  """
+  importId: String
+
+  """ Name of external system, from that this record was copied """
+  importRemoteSystem: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input BankTransactionWhereInput {
+  AND: [BankTransactionWhereInput]
+  OR: [BankTransactionWhereInput]
+  account: BankAccountWhereInput
+  account_is_null: Boolean
+  contractorAccount: BankContractorAccountWhereInput
+  contractorAccount_is_null: Boolean
+  costItem: BankCostItemWhereInput
+  costItem_is_null: Boolean
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  date: String
+  date_not: String
+  date_lt: String
+  date_lte: String
+  date_gt: String
+  date_gte: String
+  date_in: [String]
+  date_not_in: [String]
+  amount: String
+  amount_not: String
+  amount_lt: String
+  amount_lte: String
+  amount_gt: String
+  amount_gte: String
+  amount_in: [String]
+  amount_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
+  purpose: String
+  purpose_not: String
+  purpose_contains: String
+  purpose_not_contains: String
+  purpose_starts_with: String
+  purpose_not_starts_with: String
+  purpose_ends_with: String
+  purpose_not_ends_with: String
+  purpose_i: String
+  purpose_not_i: String
+  purpose_contains_i: String
+  purpose_not_contains_i: String
+  purpose_starts_with_i: String
+  purpose_not_starts_with_i: String
+  purpose_ends_with_i: String
+  purpose_not_ends_with_i: String
+  purpose_in: [String]
+  purpose_not_in: [String]
+  dateWithdrawed: String
+  dateWithdrawed_not: String
+  dateWithdrawed_lt: String
+  dateWithdrawed_lte: String
+  dateWithdrawed_gt: String
+  dateWithdrawed_gte: String
+  dateWithdrawed_in: [String]
+  dateWithdrawed_not_in: [String]
+  dateReceived: String
+  dateReceived_not: String
+  dateReceived_lt: String
+  dateReceived_lte: String
+  dateReceived_gt: String
+  dateReceived_gte: String
+  dateReceived_in: [String]
+  dateReceived_not_in: [String]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  importId: String
+  importId_not: String
+  importId_contains: String
+  importId_not_contains: String
+  importId_starts_with: String
+  importId_not_starts_with: String
+  importId_ends_with: String
+  importId_not_ends_with: String
+  importId_i: String
+  importId_not_i: String
+  importId_contains_i: String
+  importId_not_contains_i: String
+  importId_starts_with_i: String
+  importId_not_starts_with_i: String
+  importId_ends_with_i: String
+  importId_not_ends_with_i: String
+  importId_in: [String]
+  importId_not_in: [String]
+  importRemoteSystem: String
+  importRemoteSystem_not: String
+  importRemoteSystem_contains: String
+  importRemoteSystem_not_contains: String
+  importRemoteSystem_starts_with: String
+  importRemoteSystem_not_starts_with: String
+  importRemoteSystem_ends_with: String
+  importRemoteSystem_not_ends_with: String
+  importRemoteSystem_i: String
+  importRemoteSystem_not_i: String
+  importRemoteSystem_contains_i: String
+  importRemoteSystem_not_contains_i: String
+  importRemoteSystem_starts_with_i: String
+  importRemoteSystem_not_starts_with_i: String
+  importRemoteSystem_ends_with_i: String
+  importRemoteSystem_not_ends_with_i: String
+  importRemoteSystem_in: [String]
+  importRemoteSystem_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input BankTransactionWhereUniqueInput {
+  id: ID!
+}
+
+enum SortBankTransactionsBy {
+  account_ASC
+  account_DESC
+  contractorAccount_ASC
+  contractorAccount_DESC
+  costItem_ASC
+  costItem_DESC
+  organization_ASC
+  organization_DESC
+  number_ASC
+  number_DESC
+  date_ASC
+  date_DESC
+  amount_ASC
+  amount_DESC
+  currencyCode_ASC
+  currencyCode_DESC
+  purpose_ASC
+  purpose_DESC
+  dateWithdrawed_ASC
+  dateWithdrawed_DESC
+  dateReceived_ASC
+  dateReceived_DESC
+  importId_ASC
+  importId_DESC
+  importRemoteSystem_ASC
+  importRemoteSystem_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input BankTransactionUpdateInput {
+  account: BankAccountRelateToOneInput
+  contractorAccount: BankContractorAccountRelateToOneInput
+  costItem: BankCostItemRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  number: String
+  date: String
+  amount: String
+  currencyCode: String
+  purpose: String
+  dateWithdrawed: String
+  dateReceived: String
+  meta: JSON
+  importId: String
+  importRemoteSystem: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankTransactionsUpdateInput {
+  id: ID!
+  data: BankTransactionUpdateInput
+}
+
+input BankTransactionCreateInput {
+  account: BankAccountRelateToOneInput
+  contractorAccount: BankContractorAccountRelateToOneInput
+  costItem: BankCostItemRelateToOneInput
+  organization: OrganizationRelateToOneInput
+  number: String
+  date: String
+  amount: String
+  currencyCode: String
+  purpose: String
+  dateWithdrawed: String
+  dateReceived: String
+  meta: JSON
+  importId: String
+  importRemoteSystem: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input BankTransactionsCreateInput {
+  data: BankTransactionCreateInput
+}
+
 enum TicketHistoryRecordHistoryActionType {
   c
   u
@@ -48481,6 +49243,34 @@ type Query {
   """ Retrieve the meta-data for the BankContractorAccount list. """
   _BankContractorAccountsMeta: _ListMeta
 
+  """ Search for all BankTransactionHistoryRecord items which match the where clause. 
+  """
+  allBankTransactionHistoryRecords(where: BankTransactionHistoryRecordWhereInput, search: String, sortBy: [SortBankTransactionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [BankTransactionHistoryRecord]
+
+  """ Search for the BankTransactionHistoryRecord item with the matching ID. 
+  """
+  BankTransactionHistoryRecord(where: BankTransactionHistoryRecordWhereUniqueInput!): BankTransactionHistoryRecord
+
+  """ Perform a meta-query on all BankTransactionHistoryRecord items which match the where clause. 
+  """
+  _allBankTransactionHistoryRecordsMeta(where: BankTransactionHistoryRecordWhereInput, search: String, sortBy: [SortBankTransactionHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankTransactionHistoryRecord list. """
+  _BankTransactionHistoryRecordsMeta: _ListMeta
+
+  """ Search for all BankTransaction items which match the where clause. """
+  allBankTransactions(where: BankTransactionWhereInput, search: String, sortBy: [SortBankTransactionsBy!], orderBy: String, first: Int, skip: Int): [BankTransaction]
+
+  """ Search for the BankTransaction item with the matching ID. """
+  BankTransaction(where: BankTransactionWhereUniqueInput!): BankTransaction
+
+  """ Perform a meta-query on all BankTransaction items which match the where clause. 
+  """
+  _allBankTransactionsMeta(where: BankTransactionWhereInput, search: String, sortBy: [SortBankTransactionsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the BankTransaction list. """
+  _BankTransactionsMeta: _ListMeta
+
   """ Search for all TicketHistoryRecord items which match the where clause. 
   """
   allTicketHistoryRecords(where: TicketHistoryRecordWhereInput, search: String, sortBy: [SortTicketHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [TicketHistoryRecord]
@@ -51131,6 +51921,42 @@ type Mutation {
 
   """ Delete multiple BankContractorAccount items by ID. """
   deleteBankContractorAccounts(ids: [ID!]): [BankContractorAccount]
+
+  """ Create a single BankTransactionHistoryRecord item. """
+  createBankTransactionHistoryRecord(data: BankTransactionHistoryRecordCreateInput): BankTransactionHistoryRecord
+
+  """ Create multiple BankTransactionHistoryRecord items. """
+  createBankTransactionHistoryRecords(data: [BankTransactionHistoryRecordsCreateInput]): [BankTransactionHistoryRecord]
+
+  """ Update a single BankTransactionHistoryRecord item by ID. """
+  updateBankTransactionHistoryRecord(id: ID!, data: BankTransactionHistoryRecordUpdateInput): BankTransactionHistoryRecord
+
+  """ Update multiple BankTransactionHistoryRecord items by ID. """
+  updateBankTransactionHistoryRecords(data: [BankTransactionHistoryRecordsUpdateInput]): [BankTransactionHistoryRecord]
+
+  """ Delete a single BankTransactionHistoryRecord item by ID. """
+  deleteBankTransactionHistoryRecord(id: ID!): BankTransactionHistoryRecord
+
+  """ Delete multiple BankTransactionHistoryRecord items by ID. """
+  deleteBankTransactionHistoryRecords(ids: [ID!]): [BankTransactionHistoryRecord]
+
+  """ Create a single BankTransaction item. """
+  createBankTransaction(data: BankTransactionCreateInput): BankTransaction
+
+  """ Create multiple BankTransaction items. """
+  createBankTransactions(data: [BankTransactionsCreateInput]): [BankTransaction]
+
+  """ Update a single BankTransaction item by ID. """
+  updateBankTransaction(id: ID!, data: BankTransactionUpdateInput): BankTransaction
+
+  """ Update multiple BankTransaction items by ID. """
+  updateBankTransactions(data: [BankTransactionsUpdateInput]): [BankTransaction]
+
+  """ Delete a single BankTransaction item by ID. """
+  deleteBankTransaction(id: ID!): BankTransaction
+
+  """ Delete multiple BankTransaction items by ID. """
+  deleteBankTransactions(ids: [ID!]): [BankTransaction]
 
   """ Create a single TicketHistoryRecord item. """
   createTicketHistoryRecord(data: TicketHistoryRecordCreateInput): TicketHistoryRecord
