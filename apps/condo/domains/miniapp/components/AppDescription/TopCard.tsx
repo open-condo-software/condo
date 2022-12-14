@@ -3,20 +3,25 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { CheckOutlined } from '@ant-design/icons'
 import { Col, Row, Space, Image } from 'antd'
-import type { RowProps } from 'antd'
+import type { RowProps, ColProps } from 'antd'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tag, Carousel, Button, ButtonProps } from '@open-condo/ui'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { LABEL_TO_TAG_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 
+const CAROUSEL_CHANGE_DELAY = 6000 // 6 sec
+const CAROUSEL_CHANGE_SPEED = 1200 // 1.2 sec
 const ROW_GUTTER: RowProps['gutter'] = [40, 40]
-const COL_SPAN_HALF = 12
+const HALF_COL_SPAN: ColProps['span'] = 12
+const FULL_COL_SPAN: ColProps['span'] = 24
 const BUTTON_SPACING = 60
 const TEXT_SPACING = 24
 const TAG_SPACING = 8
 const IMAGE_STYLES: CSSProperties = { width: '100%', height: 400, objectFit: 'cover' }
-const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', cursor: 'pointer' }
+const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', cursor: 'pointer', width: '100%' }
 const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', justifyContent: 'center' }
 const HIDE_GALLERY_STYLES: CSSProperties = { display: 'none' }
+const WIDE_DISPLAY_THRESHOLD = 768
 
 type TopCardProps = {
     id: string
@@ -59,6 +64,7 @@ const TopCard = React.memo<TopCardProps>(({
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
     const LabelMessage = label && intl.formatMessage({ id: `miniapps.labels.${label}.name` })
     const router = useRouter()
+    const [{ width }, setRef] = useContainerSize()
 
     const buttonProps = useMemo<ButtonProps>(() => {
         const btnProps: ButtonProps = { type: 'primary' }
@@ -111,9 +117,11 @@ const TopCard = React.memo<TopCardProps>(({
         }
     }, [imagesAmount])
 
+    const sectionSpan = width <= WIDE_DISPLAY_THRESHOLD ? FULL_COL_SPAN : HALF_COL_SPAN
+
     return (
-        <Row gutter={ROW_GUTTER}>
-            <Col span={COL_SPAN_HALF} style={VERT_ALIGN_STYLES}>
+        <Row gutter={ROW_GUTTER} ref={setRef}>
+            <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
                 <Space direction='vertical' size={BUTTON_SPACING}>
                     <Space direction='vertical' size={TEXT_SPACING}>
                         <Space direction='horizontal' size={TAG_SPACING}>
@@ -137,15 +145,18 @@ const TopCard = React.memo<TopCardProps>(({
                     <Button {...buttonProps}/>
                 </Space>
             </Col>
-            <Col span={COL_SPAN_HALF} style={VERT_ALIGN_STYLES}>
+            <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
                 {Boolean(images.length) && (
                     <>
                         <Carousel
                             slidesToShow={1}
                             autoplay={!previewVisible}
+                            autoplaySpeed={CAROUSEL_CHANGE_DELAY}
+                            speed={CAROUSEL_CHANGE_SPEED}
                             infinite
                             beforeChange={handleSlideChange}
                             ref={sliderRef}
+                            effect='fade'
                         >
                             {images.map((src, idx) => (
                                 <Image
