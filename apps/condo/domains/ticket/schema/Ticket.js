@@ -434,10 +434,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     setClientNamePhoneEmailFieldsByDataFromUser(get(context, ['req', 'user']), resolvedData)
                     await setDeadline(resolvedData)
                 }
-
-                if (operation === 'update' && resolvedData.reviewValue && newItem.status === STATUS_IDS.COMPLETED) {
-                    updateStatusAfterResidentReview(resolvedData)
-                }
             }
 
             await connectContactToTicket(context, resolvedData, existingItem)
