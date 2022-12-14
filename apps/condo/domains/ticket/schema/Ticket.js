@@ -415,6 +415,8 @@ const Ticket = new GQLListSchema('Ticket', {
 
                 // todo (DOMA-4092) delete this code when in mob. app will add feature deferred ticket with selecting date
                 calculateDefaultDeferredUntil(newItem, resolvedData, resolvedStatusId)
+            } else {
+                calculateTicketOrder(resolvedData, resolvedData.status || STATUS_IDS.OPEN)
             }
 
             if (userType === RESIDENT) {
