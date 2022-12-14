@@ -6,6 +6,7 @@ export default {
     title: 'Components/Checkbox',
     component: Component,
     args: {
+        children: 'Label',
         disabled: false,
         autoFocus: false,
         defaultChecked: false,
@@ -27,6 +28,3 @@ export default {
 const Template: ComponentStory<typeof Component> = (props) => <Component {...props}/>
 
 export const Checkbox = Template.bind({})
-// Checked.args = {
-//     defaultChecked: true,
-// }
