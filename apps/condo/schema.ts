@@ -53992,8 +53992,8 @@ export type TicketCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
-export type TicketExportParameters = {
-  __typename?: 'TicketExportParameters';
+export type TicketExportOptions = {
+  __typename?: 'TicketExportOptions';
   commentIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   haveAllComments?: Maybe<Scalars['Boolean']>;
   haveListCompletedWorks?: Maybe<Scalars['Boolean']>;
@@ -54001,7 +54001,7 @@ export type TicketExportParameters = {
   haveTotalCostWork?: Maybe<Scalars['Boolean']>;
 };
 
-export type TicketExportParametersInput = {
+export type TicketExportOptionsInput = {
   commentIds?: Maybe<Array<Maybe<Scalars['String']>>>;
   haveAllComments?: Maybe<Scalars['Boolean']>;
   haveListCompletedWorks?: Maybe<Scalars['Boolean']>;
@@ -54042,8 +54042,8 @@ export type TicketExportTask = {
   timeZone?: Maybe<Scalars['String']>;
   /**  User that requested this exporting operation. Will be used for read access checks to display all exported tasks somewhere and to display progress indicator of ongoing exporting task for current user  */
   user?: Maybe<User>;
-  /**  Various options for exporting tickets  */
-  parameters?: Maybe<TicketExportParameters>;
+  /**  Options for exporting tickets into PDF format  */
+  options?: Maybe<TicketExportOptions>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -54072,7 +54072,7 @@ export type TicketExportTaskCreateInput = {
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
-  parameters?: Maybe<TicketExportParametersInput>;
+  options?: Maybe<TicketExportOptionsInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54111,7 +54111,7 @@ export type TicketExportTaskHistoryRecord = {
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
-  parameters?: Maybe<Scalars['JSON']>;
+  options?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -54139,7 +54139,7 @@ export type TicketExportTaskHistoryRecordCreateInput = {
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
-  parameters?: Maybe<Scalars['JSON']>;
+  options?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54172,7 +54172,7 @@ export type TicketExportTaskHistoryRecordUpdateInput = {
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<Scalars['String']>;
-  parameters?: Maybe<Scalars['JSON']>;
+  options?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54298,10 +54298,10 @@ export type TicketExportTaskHistoryRecordWhereInput = {
   user_not?: Maybe<Scalars['String']>;
   user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  parameters?: Maybe<Scalars['JSON']>;
-  parameters_not?: Maybe<Scalars['JSON']>;
-  parameters_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  parameters_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  options?: Maybe<Scalars['JSON']>;
+  options_not?: Maybe<Scalars['JSON']>;
+  options_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  options_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -54412,7 +54412,7 @@ export type TicketExportTaskUpdateInput = {
   locale?: Maybe<Scalars['String']>;
   timeZone?: Maybe<Scalars['String']>;
   user?: Maybe<UserRelateToOneInput>;
-  parameters?: Maybe<TicketExportParametersInput>;
+  options?: Maybe<TicketExportOptionsInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54505,10 +54505,10 @@ export type TicketExportTaskWhereInput = {
   timeZone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   user?: Maybe<UserWhereInput>;
   user_is_null?: Maybe<Scalars['Boolean']>;
-  parameters?: Maybe<TicketExportParametersInput>;
-  parameters_not?: Maybe<TicketExportParametersInput>;
-  parameters_in?: Maybe<Array<Maybe<TicketExportParametersInput>>>;
-  parameters_not_in?: Maybe<Array<Maybe<TicketExportParametersInput>>>;
+  options?: Maybe<TicketExportOptionsInput>;
+  options_not?: Maybe<TicketExportOptionsInput>;
+  options_in?: Maybe<Array<Maybe<TicketExportOptionsInput>>>;
+  options_not_in?: Maybe<Array<Maybe<TicketExportOptionsInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

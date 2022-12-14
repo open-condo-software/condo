@@ -6,10 +6,10 @@ const { getValidator, render } = require('@condo/domains/common/schema/json.util
 
 const ajv = new Ajv()
 
-const TICKET_EXPORT_PARAMETERS_TYPE_NAME = 'TicketExportParameters'
-const TICKET_EXPORT_PARAMETERS_INPUT_NAME = 'TicketExportParametersInput'
+const TICKET_EXPORT_OPTIONS_TYPE_NAME = 'TicketExportOptions'
+const TICKET_EXPORT_OPTIONS_INPUT_NAME = 'TicketExportOptionsInput'
 
-const TicketExportParametersFields = {
+const TicketExportOptionsFields = {
     commentIds: '[String]',
     haveAllComments: 'Boolean',
     haveListCompletedWorks: 'Boolean',
@@ -17,17 +17,17 @@ const TicketExportParametersFields = {
     haveTotalCostWork: 'Boolean',
 }
 
-const TICKET_EXPORT_PARAMETERS_TYPES = `
-    type ${TICKET_EXPORT_PARAMETERS_TYPE_NAME} {
-        ${render(TicketExportParametersFields)}
+const TICKET_EXPORT_OPTIONS_TYPES = `
+    type ${TICKET_EXPORT_OPTIONS_TYPE_NAME} {
+        ${render(TicketExportOptionsFields)}
     }
     
-    input ${TICKET_EXPORT_PARAMETERS_INPUT_NAME} {
-        ${render(TicketExportParametersFields)}
+    input ${TICKET_EXPORT_OPTIONS_INPUT_NAME} {
+        ${render(TicketExportOptionsFields)}
     }
 `
 
-const TicketExportParametersSchema = {
+const TicketExportOptionsSchema = {
     type: 'object',
     properties: {
         commentIds: { type: 'array', items: { type: 'string' } },
@@ -39,16 +39,16 @@ const TicketExportParametersSchema = {
     additionalProperties: false,
 }
 
-const ticketExportParameterValidator = getValidator(ajv.compile(TicketExportParametersSchema))
+const ticketExportOptionValidator = getValidator(ajv.compile(TicketExportOptionsSchema))
 
-const TICKET_EXPORT_PARAMETERS_FIELD = {
-    schemaDoc: 'Various options for exporting tickets',
+const TICKET_EXPORT_OPTIONS_FIELD = {
+    schemaDoc: 'Options for exporting tickets into PDF format',
     type: Json,
-    graphQLInputType: TICKET_EXPORT_PARAMETERS_INPUT_NAME,
-    graphQLReturnType: TICKET_EXPORT_PARAMETERS_TYPE_NAME,
-    extendGraphQLTypes: [TICKET_EXPORT_PARAMETERS_TYPES],
+    graphQLInputType: TICKET_EXPORT_OPTIONS_INPUT_NAME,
+    graphQLReturnType: TICKET_EXPORT_OPTIONS_TYPE_NAME,
+    extendGraphQLTypes: [TICKET_EXPORT_OPTIONS_TYPES],
     hooks: {
-        validateInput: ticketExportParameterValidator,
+        validateInput: ticketExportOptionValidator,
     },
     access: {
         read: true,
@@ -58,5 +58,5 @@ const TICKET_EXPORT_PARAMETERS_FIELD = {
 }
 
 module.exports = {
-    TICKET_EXPORT_PARAMETERS_FIELD,
+    TICKET_EXPORT_OPTIONS_FIELD,
 }

@@ -168,14 +168,14 @@ const TicketPropertyHint = generateGqlQueries('TicketPropertyHint', TICKET_PROPE
 const TICKET_PROPERTY_HINT_PROPERTY_FIELDS = `{ organization { id } ticketPropertyHint { id } property { ${TICKET_PROPERTY_FIELDS} } ${COMMON_FIELDS} }`
 const TicketPropertyHintProperty = generateGqlQueries('TicketPropertyHintProperty', TICKET_PROPERTY_HINT_PROPERTY_FIELDS)
 
-const TICKET_EXPORT_TASK_PARAMETERS_FIELDS = [
+const TICKET_EXPORT_TASK_OPTIONS_FIELDS = [
     'commentIds',
     'haveAllComments',
     'haveListCompletedWorks',
     'haveConsumedMaterials',
     'haveTotalCostWork',
 ]
-const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename ${COMMON_FIELDS} parameters {${TICKET_EXPORT_TASK_PARAMETERS_FIELDS.join(' ')}} }`
+const TICKET_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone __typename ${COMMON_FIELDS} options {${TICKET_EXPORT_TASK_OPTIONS_FIELDS.join(' ')}} }`
 const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TASK_FIELDS)
 
 const TICKET_ORGANIZATION_SETTING_FIELDS = `{ organization { id } defaultDeadlineDuration paidDeadlineDuration emergencyDeadlineDuration warrantyDeadlineDuration ${COMMON_FIELDS} }`
