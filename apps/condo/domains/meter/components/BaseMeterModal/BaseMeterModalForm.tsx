@@ -123,18 +123,20 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const [installationDate, setInstallationDate] = useState<Dayjs>(initialInstallationDate)
     const [verificationDate, setVerificationDate] = useState<Dayjs>(initialVerificationDate)
 
+    const initialMeterNumber = get(initialValues, ['number'], null)
+
     const { requiredValidator } = useValidations()
     const {
         meterWithSameNumberValidator,
         earlierThanInstallationValidator,
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
-    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId)
+        meterWithExistingNumberValidator,
+    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber)
 
-    const initialMeterNumber = get(initialValues, ['number'])
     const meterNumberValidations = useMemo(() =>
-        initialMeterNumber ? [requiredValidator] : [requiredValidator, meterWithSameNumberValidator],
-    [initialMeterNumber, meterWithSameNumberValidator, requiredValidator])
+        initialMeterNumber ? [requiredValidator, meterWithExistingNumberValidator] : [requiredValidator, meterWithSameNumberValidator],
+    [initialMeterNumber, meterWithSameNumberValidator, meterWithExistingNumberValidator, requiredValidator])
 
     const validations = useMemo(() => ({
         accountNumber: [requiredValidator, meterWithSameAccountNumberInOtherUnitValidation],
