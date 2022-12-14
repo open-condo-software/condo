@@ -172,6 +172,7 @@
   "global.section.payments": "Payments",
   "global.section.miniapps": "Services",
   "miniapps.catalog.banner.more": "More",
+  "miniapps.catalog.noServicesInCategory": "There are no services in this category yet",
   "miniapps.catalog.search.placeholder": "Search for services",
   "miniapps.catalog.search.results.title": "Search results",
   "miniapps.categories.RECOMMENDED.name": "Recommended",
