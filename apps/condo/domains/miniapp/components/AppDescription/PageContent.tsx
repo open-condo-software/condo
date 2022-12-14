@@ -21,6 +21,8 @@ const SECTION_SPACING: RowProps['gutter'] = [0, 60]
 const SMALL_SECTION_SPACING: RowProps['gutter'] = [40, 40]
 const TITLE_SPACING: RowProps['gutter'] = [0, 20]
 const FULL_COL_SPAN: ColProps['span'] = 24
+const DESKTOP_CONTENT_COL_SPAN: ColProps['span'] = 18
+const DEV_CARD_FULL_WIDTH_THRESHOLD = 850
 
 type QueryResult = {
     objs: Array<MiniAppOutput>
@@ -74,8 +76,6 @@ const PageContent: React.FC<PageContentProps> = ({
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
-
 
     const [moreApps, setMoreApps] = useState<Array<MiniAppOutput>>([])
     const [fetchMiniapps] = useLazyQuery<QueryResult>(ALL_MINI_APPS_QUERY, {
@@ -105,12 +105,16 @@ const PageContent: React.FC<PageContentProps> = ({
         }
     }, [userOrganizationId, fetchMiniapps, id, category])
 
+    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
     const carouselSlides = getCardsAmount(width)
-    const contentSpan = 18
+    const isDevCardWide = width <= DEV_CARD_FULL_WIDTH_THRESHOLD
+    const contentSpan = isDevCardWide ? FULL_COL_SPAN : DESKTOP_CONTENT_COL_SPAN
     const developerSpan = (FULL_COL_SPAN - contentSpan) || FULL_COL_SPAN
+    const contentOrder = isDevCardWide ? 2 : 1
+    const developerOrder = isDevCardWide ? 1 : 2
 
     return (
-        <Row gutter={SECTION_SPACING}>
+        <Row gutter={SECTION_SPACING} ref={setRef}>
             <Col span={FULL_COL_SPAN}>
                 <Row gutter={SMALL_SECTION_SPACING}>
                     <Col span={FULL_COL_SPAN}>
@@ -128,16 +132,17 @@ const PageContent: React.FC<PageContentProps> = ({
                             connectAction={connectAction}
                         />
                     </Col>
-                    <Col span={contentSpan}>
+                    <Col span={contentSpan} order={contentOrder}>
                         <Markdown>
                             {detailedDescription}
                         </Markdown>
                     </Col>
-                    <Col span={developerSpan}>
+                    <Col span={developerSpan} order={developerOrder}>
                         <DeveloperCard
                             developer={developer}
                             publishedAt={publishedAt}
                             partnerUrl={partnerUrl}
+                            display={isDevCardWide ? 'row' : 'col'}
                         />
                     </Col>
                 </Row>
@@ -150,7 +155,7 @@ const PageContent: React.FC<PageContentProps> = ({
                                 {MoreAppsMessage}
                             </Typography.Title>
                         </Col>
-                        <Col span={FULL_COL_SPAN} ref={setRef}>
+                        <Col span={FULL_COL_SPAN}>
                             <Carousel
                                 dots={false}
                                 autoplay={false}

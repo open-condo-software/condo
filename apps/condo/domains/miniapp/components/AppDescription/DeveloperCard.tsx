@@ -1,9 +1,11 @@
 import React from 'react'
 import { Space } from 'antd'
+import type { SpaceProps } from 'antd'
 import { useIntl } from '@open-condo/next/intl'
 import { Card, Typography } from '@open-condo/ui'
 
-const SECTION_SPACING = 20
+const SECTION_VERT_SPACING = 20
+const SECTION_HOR_SPACING = 100
 const LABEL_SPACING = 4
 
 type SectionProps = {
@@ -15,6 +17,7 @@ type DeveloperCardProps = {
     developer: string
     publishedAt: string
     partnerUrl?: string
+    display: 'row' | 'col'
 }
 
 const Section: React.FC<SectionProps> = ({ label, value }) => {
@@ -26,15 +29,28 @@ const Section: React.FC<SectionProps> = ({ label, value }) => {
     )
 }
 
-export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer, publishedAt, partnerUrl }) => {
+export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer, publishedAt, partnerUrl, display }) => {
     const intl = useIntl()
     const DeveloperLabel = intl.formatMessage({ id: 'miniapps.developerCard.developer' })
     const PublishedLabel = intl.formatMessage({ id: 'miniapps.developerCard.publishedAt' })
     const PartnerLabel = intl.formatMessage({ id: 'miniapps.developerCard.partnerSite' })
+
     const publishDate = intl.formatDate(publishedAt)
+
+    const spaceProps: SpaceProps = display === 'col' ? {
+        direction: 'vertical',
+        size: SECTION_VERT_SPACING,
+        wrap: false,
+    } : {
+        direction: 'horizontal',
+        size: [SECTION_HOR_SPACING, SECTION_VERT_SPACING],
+        wrap: true,
+        align: 'start',
+    }
+
     return (
         <Card>
-            <Space direction='vertical' size={SECTION_SPACING}>
+            <Space {...spaceProps}>
                 <Section label={DeveloperLabel} value={developer}/>
                 <Section label={PublishedLabel} value={publishDate}/>
                 {Boolean(partnerUrl) && (
