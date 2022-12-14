@@ -1,4 +1,5 @@
 import React, { CSSProperties, useCallback } from 'react'
+import { css, Global } from '@emotion/react'
 import get from 'lodash/get'
 import { Tabs, Col, Row, RowProps } from 'antd'
 import { useRouter } from 'next/router'
@@ -21,6 +22,7 @@ import {
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
 import { Star, List, Wallet, House, SmartHome, Rocket, CircleEllipsis } from '../icons'
 
+const SEARCH_TAB_KEY = 'search'
 const TAB_GUTTER = 8
 const CARD_GAP = 40
 const CONTENT_SPACING: RowProps['gutter'] = [CARD_GAP, CARD_GAP]
@@ -35,6 +37,18 @@ const TAB_ICONS = {
     [BUSINESS_DEVELOPMENT_CATEGORY]: <Rocket/>,
     [OTHER_CATEGORY]: <CircleEllipsis/>,
 }
+const HIDE_SEARCH_CSS = css`
+  .tabs-hide-first {
+    .ant-tabs-tab:first-child {
+      display: none;
+    }
+    
+    .ant-tabs-tab:nth-child(2) {
+      margin-left: 0 !important;
+    }
+    .ant-tabs-nav-operations { display: none !important; }
+  }
+`
 
 export type TabContent = {
     category: string
@@ -43,36 +57,43 @@ export type TabContent = {
 
 type TabPaneContentProps = {
     tab: TabContent
+    fallback?: React.ReactElement
 }
 
 type CardGridProps = {
     tabs: Array<TabContent>
+    search: string
+    resetSearch: () => void
 }
 
 const getCardsAmount = (width: number) => {
     return Math.max(1, Math.floor(width / (MIN_CARD_WIDTH + CARD_GAP)))
 }
 
-const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab }) => {
+const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
     const intl = useIntl()
     const NoAppsMessage = intl.formatMessage({ id: 'miniapps.catalog.noServicesInCategory' })
     const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(width)
 
     if (!tab.apps.length) {
-        return (
-            <BasicEmptyListView
-                image='dino/playing@2x.png'
-            >
-                <Typography.Title level={3}>
-                    {NoAppsMessage}
-                </Typography.Title>
-            </BasicEmptyListView>
+        return fallback ? (
+            fallback
+        ) : (
+            (
+                <BasicEmptyListView
+                    image='dino/playing@2x.png'
+                >
+                    <Typography.Title level={3}>
+                        {NoAppsMessage}
+                    </Typography.Title>
+                </BasicEmptyListView>
+            )
         )
     }
 
     return (
-        <Row gutter={CONTENT_SPACING} ref={refCallback} className={tab.category}>
+        <Row gutter={CONTENT_SPACING} ref={refCallback}>
             {tab.apps.map(app => (
                 <Col span={24 / cardsPerRow} key={`${cardsPerRow}:${app.id}`}>
                     <AppCard
@@ -90,8 +111,9 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab }) => {
     )
 }
 
-export const CardGrid: React.FC<CardGridProps> = ({ tabs }) => {
+export const CardGrid: React.FC<CardGridProps> = ({ tabs, search, resetSearch }) => {
     const intl = useIntl()
+    const NoAppsFoundMessage = intl.formatMessage({ id: 'miniapps.catalog.noServicesFound' })
     const router = useRouter()
     const { query: { tab } } = router
 
@@ -100,24 +122,50 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs }) => {
 
     const TabComponent = sideTabs ? SideBlockTabs : TopRowTabs
     const categories = tabs.map(tab => tab.category)
-    const selectedTab = (tab && !Array.isArray(tab) && categories.includes(tab.toUpperCase())) ? tab.toUpperCase() : ALL_APPS_CATEGORY
+    const tabFromQuery = (tab && !Array.isArray(tab) && categories.includes(tab.toUpperCase())) ? tab.toUpperCase() : ALL_APPS_CATEGORY
+    const selectedTab = search ? SEARCH_TAB_KEY : tabFromQuery
 
     const handleTabChange = useCallback((newKey) => {
         const newRoute = `${router.route}?tab=${newKey}`
-        return router.push(newRoute)
-    }, [router])
+        return router.push(newRoute).then(resetSearch)
+    }, [router, resetSearch])
+
+    const searchTab: TabContent = {
+        apps: get(tabs.filter(tab => tab.category === ALL_APPS_CATEGORY), ['0', 'apps'], []),
+        category: SEARCH_TAB_KEY,
+    }
 
     return (
         <section ref={setRef}>
+            <Global styles={HIDE_SEARCH_CSS}/>
             <TabComponent
                 tabPosition={sideTabs ? 'right' : 'top'}
                 type='card'
                 tabBarGutter={TAB_GUTTER}
-                defaultActiveKey={selectedTab}
+                defaultActiveKey={tabFromQuery}
                 activeKey={selectedTab}
                 tabBarStyle={sideTabs ? SIDE_TAB_SIDE_BAR_STYLES : undefined}
                 onChange={handleTabChange}
+                className='tabs-hide-first'
             >
+                <Tabs.TabPane
+                    key={SEARCH_TAB_KEY}
+                    tabKey={SEARCH_TAB_KEY}
+                    tab={null}
+                >
+                    <TabPaneContent
+                        tab={searchTab}
+                        fallback={(
+                            <BasicEmptyListView
+                                image='dino/searching@2x.png'
+                            >
+                                <Typography.Title level={3}>
+                                    {NoAppsFoundMessage}
+                                </Typography.Title>
+                            </BasicEmptyListView>
+                        )}
+                    />
+                </Tabs.TabPane>
                 {tabs.map(tab => (
                     <Tabs.TabPane
                         key={tab.category}

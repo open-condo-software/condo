@@ -69,7 +69,7 @@ export const CatalogPageContent: React.FC = () => {
         }
     }, [router])
 
-    const [search, handleSearchChange] = useSearch()
+    const [search, handleSearchChange, handleResetSearch] = useSearch()
     const handleSearchInputChange: React.ChangeEventHandler<HTMLInputElement> = useCallback((event) => {
         handleSearchChange(event.target.value)
     }, [handleSearchChange])
@@ -173,7 +173,11 @@ export const CatalogPageContent: React.FC = () => {
                                 />
                             </Col>
                             <Col span={FULL_COL_SPAN}>
-                                <CardGrid tabs={appsTabs}/>
+                                <CardGrid
+                                    search={search}
+                                    resetSearch={handleResetSearch}
+                                    tabs={appsTabs}
+                                />
                             </Col>
                         </Row>
                     </Col>
