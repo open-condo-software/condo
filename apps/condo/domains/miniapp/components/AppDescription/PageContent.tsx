@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Row, Col } from 'antd'
 import type { RowProps, ColProps } from 'antd'
 import get from 'lodash/get'
@@ -74,9 +74,7 @@ const PageContent: React.FC<PageContentProps> = ({
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const rowRef = useRef<HTMLDivElement>(null)
-    const { width } = useContainerSize(rowRef)
+    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
 
     const [moreApps, setMoreApps] = useState<Array<MiniAppOutput>>([])
@@ -112,7 +110,7 @@ const PageContent: React.FC<PageContentProps> = ({
     const developerSpan = (FULL_COL_SPAN - contentSpan) || FULL_COL_SPAN
 
     return (
-        <Row gutter={SECTION_SPACING} ref={rowRef}>
+        <Row gutter={SECTION_SPACING}>
             <Col span={FULL_COL_SPAN}>
                 <Row gutter={SMALL_SECTION_SPACING}>
                     <Col span={FULL_COL_SPAN}>
@@ -152,7 +150,7 @@ const PageContent: React.FC<PageContentProps> = ({
                                 {MoreAppsMessage}
                             </Typography.Title>
                         </Col>
-                        <Col span={FULL_COL_SPAN}>
+                        <Col span={FULL_COL_SPAN} ref={setRef}>
                             <Carousel
                                 dots={false}
                                 autoplay={false}
