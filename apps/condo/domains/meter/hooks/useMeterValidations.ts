@@ -4,9 +4,9 @@ import { Rule } from 'rc-field-form/lib/interface'
 import { useIntl } from '@open-condo/next/intl'
 import isEmpty from 'lodash/isEmpty'
 
-import { Meter } from '../utils/clientSchema'
+import { Meter } from '@condo/domains/meter/utils/clientSchema'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string ) => {
+export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: number | null ) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
@@ -63,6 +63,24 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         },
     }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
 
+    const meterWithExistingNumberValidator: Rule = useMemo(() => ({
+        validator: async (_, value) => {
+            if (!value || value === initialNumber) return Promise.resolve()
+            const { data: { objs } } = await refetch({
+                where: {
+                    organization: { id: organizationId },
+                    number: value,
+                },
+            })
+
+            if (!isEmpty(objs)) {
+                return Promise.reject(MeterWithSameNumberIsExistMessage)
+            }
+
+            return Promise.resolve()
+        },
+    }), [refetch, initialNumber, MeterWithSameNumberIsExistMessage])
+
     const meterWithSameAccountNumberInOtherUnitValidation: Rule = useMemo(() => ({
         validator: async (_, value) => {
             if (!value) return Promise.resolve()
@@ -86,7 +104,17 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         },
     }), [MeterWithSameNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
 
-    return useMemo(() => (
-        { meterWithSameAccountNumberInOtherUnitValidation, meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
-    ), [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameAccountNumberInOtherUnitValidation, meterWithSameNumberValidator])
+    return useMemo(() => ({
+        meterWithSameAccountNumberInOtherUnitValidation,
+        meterWithSameNumberValidator,
+        earlierThanFirstVerificationDateValidator,
+        earlierThanInstallationValidator,
+        meterWithExistingNumberValidator,
+    }), [
+        earlierThanFirstVerificationDateValidator,
+        earlierThanInstallationValidator,
+        meterWithSameAccountNumberInOtherUnitValidation,
+        meterWithSameNumberValidator,
+        meterWithExistingNumberValidator,
+    ])
 }
