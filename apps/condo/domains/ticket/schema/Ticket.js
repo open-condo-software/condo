@@ -400,7 +400,7 @@ const Ticket = new GQLListSchema('Ticket', {
                 userType === RESIDENT
                 && operation === 'update'
                 && resolvedData.reviewValue
-                && resolvedData.status === STATUS_IDS.COMPLETED
+                && existingItem.status === STATUS_IDS.COMPLETED
             ) {
                 updateStatusAfterResidentReview(resolvedData)
             }
