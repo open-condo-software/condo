@@ -6,6 +6,7 @@ export const useContainerSize = (ref: React.MutableRefObject<HTMLElement | null>
     const [size, setSize] = useState<SizeType>({ width: 1200, height: 1000 })
     useEffect(() => {
         if (!ref || !ref.current) return
+        setSize({ width: ref.current.offsetWidth, height: ref.current.offsetHeight })
         const observer = new ResizeObserver((entries) => {
             if (entries.length == 1) {
                 const entry = entries[0]
@@ -15,5 +16,6 @@ export const useContainerSize = (ref: React.MutableRefObject<HTMLElement | null>
         observer.observe(ref.current)
         return () => observer.disconnect()
     }, [ref])
+
     return size
 }
