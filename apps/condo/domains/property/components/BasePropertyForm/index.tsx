@@ -1,3 +1,10 @@
+import React, { useCallback, useState } from 'react'
+import { Col, Form, FormInstance, notification, Row, RowProps, Typography } from 'antd'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import { useIntl } from '@open-condo/next/intl'
+import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -6,13 +13,7 @@ import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
-import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
-import { useIntl } from '@open-condo/next/intl'
-import { Col, Form, FormInstance, notification, Row, RowProps, Typography } from 'antd'
-import dayjs from 'dayjs'
-import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useState } from 'react'
-import { PROPERTY_WITH_SAME_ADDRESS_EXIST } from '../../constants/errors'
+import { usePropertyValidations } from '@condo/domains/property/hooks/usePropertyValidations'
 
 interface IOrganization {
     id: string
@@ -54,14 +55,14 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
-    const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
-    const WrongYearErrorMsg = intl.formatMessage({ id: 'pages.condo.property.form.YearValidationError' })
 
     const { isSmall } = useLayoutContext()
     const { addressApi } = useAddressApi()
-    const { action, initialValues } = props
+    const { action, initialValues, organization } = props
 
+    const organizationId = get(organization, 'id')
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
+
     const formValuesToMutationDataPreprocessor = useCallback((formData, _, form) => {
         const isAddressFieldTouched = form.isFieldsTouched(['address'])
         const yearOfConstruction = formData.yearOfConstruction && !isEmpty(formData.yearOfConstruction)
@@ -91,38 +92,14 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         const cleanedFormData = omitRecursively(formData, '__typename')
         return { ...cleanedFormData, yearOfConstruction, area }
     }, [initialValues])
+
     const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
-    const addressValidator = {
-        validator () {
-            if (!addressValidatorError) {
-                return Promise.resolve()
-            }
-            return Promise.reject(addressValidatorError)
-        },
-    }
-    const yearOfConstructionValidator = {
-        validator (_, val) {
-            if (val === null) {
-                return Promise.resolve()
-            }
-            const receivedDate = dayjs().year(val)
-            if (val.length === 0 || val.length === 4 && receivedDate.isValid() && receivedDate.isBefore(dayjs().add(1, 'day'))) {
-                return Promise.resolve()
-            }
-            return Promise.reject(WrongYearErrorMsg)
-        },
-    }
+    const { addressValidator, yearOfConstructionValidator } = usePropertyValidations({ organizationId, addressValidatorError })
+
     const validations = {
         address: [requiredValidator, addressValidator],
         area: [numberValidator, maxLengthValidator(12)],
         yearOfConstruction: [yearOfConstructionValidator],
-    }
-
-    const ErrorToFormFieldMsgMapping = {
-        [PROPERTY_WITH_SAME_ADDRESS_EXIST]: {
-            name: 'address',
-            errors: [SamePropertyErrorMsg],
-        },
     }
 
     return (
@@ -132,7 +109,6 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                 initialValues={initialValues}
                 validateTrigger={FORM_WITH_ACTION_VALIDATION_TRIGGERS}
                 formValuesToMutationDataPreprocessor={formValuesToMutationDataPreprocessor}
-                ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 style={FORM_WITH_ACTION_STYLES}
             >
                 {({ handleSave, isLoading, form }) => {
