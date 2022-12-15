@@ -3,7 +3,7 @@ import get from 'lodash/get'
 import { styled } from '@storybook/theming'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { colors } from '@open-condo/ui/src/colors'
-import { Typography } from '@open-condo/ui/src'
+import { Typography, Card } from '@open-condo/ui/src'
 import tokens from '@open-condo/ui/src/tokens/tokens.json'
 import { identity } from 'lodash'
 
@@ -69,23 +69,28 @@ type ColorItemProps = {
 
 const ColorBox = styled.div`
   width: 100%;
-  height: 80px;
-  border-radius: 12px;
-  box-shadow: 0 4px 14px #E6E8F1;
+  height: 100px;
 `
 
 const ColorItem: React.FC<ColorItemProps> = ({ name, value, description }) => {
     return (
-        <Space direction='vertical' size={20} prefixCls='condo-space'>
-            <ColorBox style={{ background: value }} />
-            <Typography.Paragraph>
-                <Typography.Text strong>{name}&nbsp;</Typography.Text>
-                <Typography.Text type='secondary'>{value}</Typography.Text>
-            </Typography.Paragraph>
-            <Typography.Paragraph type='secondary'>
-                {description}
-            </Typography.Paragraph>
-        </Space>
+        <Card
+            title={<ColorBox style={{ background: value }}/>}
+            titlePadding={0}
+            bodyPadding={12}
+        >
+            <Space direction='vertical' size={12} prefixCls='condo-space'>
+                <Typography.Paragraph>
+                    <Typography.Text strong>{name}&nbsp;</Typography.Text>
+                    <Typography.Text type='secondary'>{value}</Typography.Text>
+                </Typography.Paragraph>
+                {Boolean(description) && (
+                    <Typography.Paragraph type='secondary' size='medium'>
+                        {description}
+                    </Typography.Paragraph>
+                )}
+            </Space>
+        </Card>
     )
 }
 
