@@ -18,8 +18,6 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         organization: { id: organizationId },
     })
 
-    console.debug('>>>>> employeeRole', employeeRole)
-
     if (!employeeRole) return false
     return employeeRole[permission] || false
 }
