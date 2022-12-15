@@ -258,9 +258,9 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
 
     const resetModal = useCallback(() => {
         setVisibleModal(false)
-        setHaveListCompletedWorks(false)
-        setHaveConsumedMaterials(false)
-        setHaveTotalCostWork(false)
+        setHaveListCompletedWorks(true)
+        setHaveConsumedMaterials(true)
+        setHaveTotalCostWork(true)
         setHaveAllComments(false)
         setCheckedCommentIds([])
     }, [])
