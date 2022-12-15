@@ -46,7 +46,7 @@ DOCKER_COMPOSE_SERVER_URL=http://localhost:3003
 OIDC_CONFIG='{"serverUrl":"insert condo url", "clientId":"<insert client id>", "clientSecret":"<insert secret>"}'
 
 # Config for dadata suggestions api
-DADATA_SUGGESTIONS='{"url": "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address", "token": "<insert your token>"}'
+DADATA_SUGGESTIONS='{"url": "https://suggestions.dadata.ru/suggestions/api/4_1/rs", "token": "<insert your token>"}'
 
 ENDOFFILE
 
