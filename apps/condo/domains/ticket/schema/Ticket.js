@@ -56,7 +56,16 @@ const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { searchBy } = require('@open-condo/keystone/plugins/searchBy')
 
-const SEARCH_FIELD_PATHS = ['number', 'clientName', 'propertyAddress', 'details', 'executor.name', 'assignee.name', 'createdAt', 'classifier.category.name']
+const SEARCH_FIELD_PATHS = [
+    'number',
+    'clientName',
+    'propertyAddress',
+    'details',
+    'executor.name',
+    'assignee.name',
+    'createdAt',
+    'classifier.category.name',
+]
 const SEARCH_PREPROCESSORS = {
     'createdAt': (value) => dayjs(value).toISOString(),
 }

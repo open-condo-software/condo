@@ -1,19 +1,46 @@
-const { isEmpty, isString, isNil, isFunction, get } = require('lodash')
+const { isEmpty, isString, isNil, isFunction, get, isNumber } = require('lodash')
 
 const { plugin } = require('./utils/typing')
 const { composeResolveInputHook } = require('./utils')
 const { getByCondition, getSchemaCtx } = require('../schema')
 
-const SEARCH_FIELD_DEFAULT_VALUE = '""' // ???
+
+const SEARCH_FIELD_DEFAULT_VALUE = '""'
 const FIELD_NAME_REGEX = /^[a-z]+$/i
 
 const SEARCH_OPTIONS = {
     schemaDoc: 'Service field for searching by different fields',
     type: 'Text',
     kmigratorOptions: { null: false },
-    defaultValue: SEARCH_FIELD_DEFAULT_VALUE, // ???
-    knexOptions: { defaultTo: _ => SEARCH_FIELD_DEFAULT_VALUE }, // ???
+    defaultValue: SEARCH_FIELD_DEFAULT_VALUE,
+    access: {
+        create: false,
+        read: true,
+        update: true,
+    },
+    knexOptions: { defaultTo: () => SEARCH_FIELD_DEFAULT_VALUE },
 }
+const SEARCH_VERSION_OPTIONS = {
+    schemaDoc: 'Service field for versioning the search field by different fields',
+    type: 'Integer',
+    isRequired: true,
+    defaultValue: 1,
+    access: {
+        create: false,
+        read: true,
+        update: true,
+    },
+    knexOptions: { defaultTo: () => 1 },
+}
+
+const getSearchIndexOptions = (searchField) => ({
+    type: 'GinIndex',
+    opclasses: ['gin_trgm_ops'],
+    fields: [searchField],
+    name: 'Ticket_searchField_idx',
+})
+
+const getPathToFieldInArray = (pathToField) => pathToField.split('.')
 
 const checkPathsToFields = (pathsToFields) => {
     if (isEmpty(pathsToFields)) throw new Error('The search must occur on at least one field!')
@@ -36,6 +63,7 @@ const checkPreprocessors = (preprocessorsForFields) => {
 const getRefSchemaByField = async (schemaName, nextFieldName) => {
     try {
         const schema = await getSchemaCtx(schemaName)
+        console.log('getRefSchemaByField', schema.keystone.getListByKey(schemaName).adapter.update)
         return schema.keystone.getListByKey(schemaName)._fields[nextFieldName].ref
     } catch (e) {
         return null
@@ -58,24 +86,76 @@ const getValueFromRelatedSchema = async (schemaName, id, pathToFieldToArray) => 
     return await getValueFromRelatedSchema(nextFieldRef, nextFieldValue, pathToFieldToArray.slice(1))
 }
 
-const getValueByPathToField = async (pathToFieldToArray, item, schemaFields) => {
-    const fieldName = pathToFieldToArray[0]
+const getValueByPathToField = async (pathToFieldInArray, item, schemaFields) => {
+    const fieldName = pathToFieldInArray[0]
     const fieldParams = schemaFields[fieldName]
     if (!fieldParams) return null
 
     const fieldRef = fieldParams.ref
     const fieldValue = item[fieldName]
     if (!fieldRef) return fieldValue
-    if (pathToFieldToArray.length === 1) return null
+    if (pathToFieldInArray.length === 1) return null
     if (!fieldValue) return null
 
-    return await getValueFromRelatedSchema(fieldRef, fieldValue, pathToFieldToArray.slice(1))
+    return await getValueFromRelatedSchema(fieldRef, fieldValue, pathToFieldInArray.slice(1))
+}
+
+// const addTrackingRelatedEntities = (pathsToFields) => {
+//     const pathsToRelatedFieldsToArray = pathsToFields
+//         .map(item =>  item.split('.'))
+//         .filter(item => item.length > 1)
+//
+//     console.log({pathsToRelatedFieldsToArray})
+//
+// }
+
+const updateSearchFieldVersion = (props) => {
+    const { operation, pathsToFields, existingItem, resolvedData, searchVersionField } = props
+
+    if (operation === 'update') {
+        const fieldsForSearch = pathsToFields.map(item => getPathToFieldInArray(item)[0])
+        const newItem = { ...existingItem, ...resolvedData }
+        if (fieldsForSearch.some(field => isUpdatedField({ field, existingItem, newItem }))) {
+            const prevSearchVersion = get(existingItem, searchVersionField)
+            if (prevSearchVersion && isNumber(prevSearchVersion)) {
+                resolvedData[searchVersionField] = prevSearchVersion + 1
+                console.log('updateSearchFieldVersion', prevSearchVersion, '-->', prevSearchVersion + 1)
+            }
+        }
+    }
+}
+
+const updateSearchField = async (props) => {
+    const { resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchVersionField } = props
+
+    const prevSearchVersion = get(existingItem, searchVersionField, 1)
+    const nextSearchVersion = get(resolvedData, searchVersionField, 1)
+
+    if ((operation === 'update' && prevSearchVersion < nextSearchVersion) || operation === 'create') {
+        const values = []
+
+        for (const pathToField of pathsToFields) {
+            const pathToFieldInArray = getPathToFieldInArray(pathToField)
+            const value = await getValueByPathToField(pathToFieldInArray, newItem, fields)
+            const preprocessor = preprocessorsForFields[pathToField]
+            const preprocessedValue = preprocessor ? preprocessor(value) : value
+            values.push(preprocessedValue)
+        }
+        console.log('updateSearchField', values.filter(item => !isNil(item)).join(' '))
+
+        resolvedData[searchField] = values.filter(item => !isNil(item)).join(' ')
+    }
+}
+
+const isUpdatedField = ({ field, existingItem, newItem }) => {
+    return get(existingItem, field) !== get(newItem, field)
 }
 
 // TODO (DOMA-4545)
 //  [✔] Need add index for search field (!!)
-//  [ ] Add a check for changes to tracked fields (!)
-//  [ ] Add search field update when related entities update (!)
+//  [✔] Add a check for changes to tracked fields (!)
+//  [✔] Add search field update when related entities update (!)
+//  [ ] "await schemaGql.update" change to execGqlWithoutAccess and custom gql
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
 
@@ -86,24 +166,23 @@ const searchBy = ({ searchField = 'search', pathsToFields = [], preprocessorsFor
     checkPathsToFields(pathsToFields)
     checkPreprocessors(preprocessorsForFields)
 
+    const searchVersionField = `${searchField}Version`
+
     fields[searchField] = { ...SEARCH_OPTIONS }
+    fields[searchVersionField] = { ...SEARCH_VERSION_OPTIONS }
 
     const newResolveInput = async (props) => {
-        const { resolvedData, existingItem } = props
+        const { resolvedData, existingItem, operation } = props
         const newItem = { ...existingItem, ...resolvedData }
 
-        const values = []
+        console.log('newResolveInput', 1)
 
-        for (const pathToField of pathsToFields) {
-            const pathToFieldToArray = pathToField.split('.')
-            const value = await getValueByPathToField(pathToFieldToArray, newItem, fields)
-            const preprocessor = preprocessorsForFields[pathToField]
-            const preprocessedValue = preprocessor ? preprocessor(value) : value
-            values.push(preprocessedValue)
-        }
+        updateSearchFieldVersion({ operation, pathsToFields, existingItem, resolvedData, searchVersionField })
 
-        resolvedData[searchField] = values.filter(item => !isNil(item)).join(' ')
+        console.log('newResolveInput', 2)
+        await updateSearchField({ resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchVersionField })
 
+        console.log('newResolveInput', 3, resolvedData)
         return resolvedData
     }
 
@@ -112,12 +191,7 @@ const searchBy = ({ searchField = 'search', pathsToFields = [], preprocessorsFor
 
     kmigratorOptions.indexes = [
         ...get(kmigratorOptions, 'indexes', []),
-        {
-            type: 'GinIndex',
-            opclasses: ['gin_trgm_ops'],
-            fields: [searchField],
-            name: 'Ticket_searchField_idx',
-        },
+        getSearchIndexOptions(searchField),
     ]
 
     return { fields, hooks, kmigratorOptions, ...rest }

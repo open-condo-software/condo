@@ -50398,8 +50398,6 @@ export enum SortTicketHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
-  SearchAsc = 'search_ASC',
-  SearchDesc = 'search_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -50823,8 +50821,6 @@ export enum SortTicketsBy {
   SourceDesc = 'source_DESC',
   DeferredUntilAsc = 'deferredUntil_ASC',
   DeferredUntilDesc = 'deferredUntil_DESC',
-  SearchAsc = 'search_ASC',
-  SearchDesc = 'search_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -50840,7 +50836,11 @@ export enum SortTicketsBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
+  DvDesc = 'dv_DESC',
+  SearchAsc = 'search_ASC',
+  SearchDesc = 'search_DESC',
+  SearchVersionAsc = 'searchVersion_ASC',
+  SearchVersionDesc = 'searchVersion_DESC'
 }
 
 export enum SortUserHistoryRecordsBy {
@@ -51225,8 +51225,6 @@ export type Ticket = {
   sourceMeta?: Maybe<Scalars['JSON']>;
   /**  Date until which the ticket is deferred  */
   deferredUntil?: Maybe<Scalars['String']>;
-  /**  Service field for searching by different fields  */
-  search?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -51241,6 +51239,10 @@ export type Ticket = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  Service field for searching by different fields  */
+  search?: Maybe<Scalars['String']>;
+  /**  Service field for versioning the search field by different fields  */
+  searchVersion?: Maybe<Scalars['Int']>;
 };
 
 export enum TicketAnalyticsGroupBy {
@@ -54521,7 +54523,6 @@ export type TicketCreateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
-  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -54531,6 +54532,8 @@ export type TicketCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  search?: Maybe<Scalars['String']>;
+  searchVersion?: Maybe<Scalars['Int']>;
 };
 
 export type TicketExportOptions = {
@@ -55893,7 +55896,6 @@ export type TicketHistoryRecord = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
-  search?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -55953,7 +55955,6 @@ export type TicketHistoryRecordCreateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
-  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -56018,7 +56019,6 @@ export type TicketHistoryRecordUpdateInput = {
   source?: Maybe<Scalars['String']>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
-  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -56412,24 +56412,6 @@ export type TicketHistoryRecordWhereInput = {
   deferredUntil_gte?: Maybe<Scalars['String']>;
   deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  search?: Maybe<Scalars['String']>;
-  search_not?: Maybe<Scalars['String']>;
-  search_contains?: Maybe<Scalars['String']>;
-  search_not_contains?: Maybe<Scalars['String']>;
-  search_starts_with?: Maybe<Scalars['String']>;
-  search_not_starts_with?: Maybe<Scalars['String']>;
-  search_ends_with?: Maybe<Scalars['String']>;
-  search_not_ends_with?: Maybe<Scalars['String']>;
-  search_i?: Maybe<Scalars['String']>;
-  search_not_i?: Maybe<Scalars['String']>;
-  search_contains_i?: Maybe<Scalars['String']>;
-  search_not_contains_i?: Maybe<Scalars['String']>;
-  search_starts_with_i?: Maybe<Scalars['String']>;
-  search_not_starts_with_i?: Maybe<Scalars['String']>;
-  search_ends_with_i?: Maybe<Scalars['String']>;
-  search_not_ends_with_i?: Maybe<Scalars['String']>;
-  search_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  search_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -59204,7 +59186,6 @@ export type TicketUpdateInput = {
   source?: Maybe<TicketSourceRelateToOneInput>;
   sourceMeta?: Maybe<Scalars['JSON']>;
   deferredUntil?: Maybe<Scalars['String']>;
-  search?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -59214,6 +59195,8 @@ export type TicketUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  search?: Maybe<Scalars['String']>;
+  searchVersion?: Maybe<Scalars['Int']>;
 };
 
 export type TicketWhereInput = {
@@ -59531,24 +59514,6 @@ export type TicketWhereInput = {
   deferredUntil_gte?: Maybe<Scalars['String']>;
   deferredUntil_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   deferredUntil_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  search?: Maybe<Scalars['String']>;
-  search_not?: Maybe<Scalars['String']>;
-  search_contains?: Maybe<Scalars['String']>;
-  search_not_contains?: Maybe<Scalars['String']>;
-  search_starts_with?: Maybe<Scalars['String']>;
-  search_not_starts_with?: Maybe<Scalars['String']>;
-  search_ends_with?: Maybe<Scalars['String']>;
-  search_not_ends_with?: Maybe<Scalars['String']>;
-  search_i?: Maybe<Scalars['String']>;
-  search_not_i?: Maybe<Scalars['String']>;
-  search_contains_i?: Maybe<Scalars['String']>;
-  search_not_contains_i?: Maybe<Scalars['String']>;
-  search_starts_with_i?: Maybe<Scalars['String']>;
-  search_not_starts_with_i?: Maybe<Scalars['String']>;
-  search_ends_with_i?: Maybe<Scalars['String']>;
-  search_not_ends_with_i?: Maybe<Scalars['String']>;
-  search_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  search_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -59605,6 +59570,32 @@ export type TicketWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  search?: Maybe<Scalars['String']>;
+  search_not?: Maybe<Scalars['String']>;
+  search_contains?: Maybe<Scalars['String']>;
+  search_not_contains?: Maybe<Scalars['String']>;
+  search_starts_with?: Maybe<Scalars['String']>;
+  search_not_starts_with?: Maybe<Scalars['String']>;
+  search_ends_with?: Maybe<Scalars['String']>;
+  search_not_ends_with?: Maybe<Scalars['String']>;
+  search_i?: Maybe<Scalars['String']>;
+  search_not_i?: Maybe<Scalars['String']>;
+  search_contains_i?: Maybe<Scalars['String']>;
+  search_not_contains_i?: Maybe<Scalars['String']>;
+  search_starts_with_i?: Maybe<Scalars['String']>;
+  search_not_starts_with_i?: Maybe<Scalars['String']>;
+  search_ends_with_i?: Maybe<Scalars['String']>;
+  search_not_ends_with_i?: Maybe<Scalars['String']>;
+  search_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  search_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  searchVersion?: Maybe<Scalars['Int']>;
+  searchVersion_not?: Maybe<Scalars['Int']>;
+  searchVersion_lt?: Maybe<Scalars['Int']>;
+  searchVersion_lte?: Maybe<Scalars['Int']>;
+  searchVersion_gt?: Maybe<Scalars['Int']>;
+  searchVersion_gte?: Maybe<Scalars['Int']>;
+  searchVersion_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  searchVersion_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
 };
 
 export type TicketWhereUniqueInput = {

@@ -16477,6 +16477,12 @@ type Ticket {
   """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
+
+  """ Service field for searching by different fields """
+  search: String
+
+  """ Service field for versioning the search field by different fields """
+  searchVersion: Int
 }
 
 input TicketWhereInput {
@@ -16850,6 +16856,32 @@ input TicketWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
+  search: String
+  search_not: String
+  search_contains: String
+  search_not_contains: String
+  search_starts_with: String
+  search_not_starts_with: String
+  search_ends_with: String
+  search_not_ends_with: String
+  search_i: String
+  search_not_i: String
+  search_contains_i: String
+  search_not_contains_i: String
+  search_starts_with_i: String
+  search_not_starts_with_i: String
+  search_ends_with_i: String
+  search_not_ends_with_i: String
+  search_in: [String]
+  search_not_in: [String]
+  searchVersion: Int
+  searchVersion_not: Int
+  searchVersion_lt: Int
+  searchVersion_lte: Int
+  searchVersion_gt: Int
+  searchVersion_gte: Int
+  searchVersion_in: [Int]
+  searchVersion_not_in: [Int]
 }
 
 input TicketWhereUniqueInput {
@@ -16953,6 +16985,10 @@ enum SortTicketsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
+  search_ASC
+  search_DESC
+  searchVersion_ASC
+  searchVersion_DESC
 }
 
 input TicketUpdateInput {
@@ -17008,6 +17044,8 @@ input TicketUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  search: String
+  searchVersion: Int
 }
 
 input TicketsUpdateInput {
@@ -17068,6 +17106,8 @@ input TicketCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
+  search: String
+  searchVersion: Int
 }
 
 input TicketsCreateInput {
