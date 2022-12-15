@@ -113,6 +113,7 @@
     "less": "^3.12.2",
     "lodash": "^4.17.21",
     "minimatch": "^5.1.1",
+    "nanoid": "^3.3.4",
     "next": "^9.5.5",
     "next-cookies": "^2.0.3",
     "next-transpile-modules": "^7.0.0",
