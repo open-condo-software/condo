@@ -35695,6 +35695,7 @@ type AcquiringIntegrationHistoryRecord {
   label: String
   gallery: JSON
   price: String
+  contextDefaultStatus: String
   id: ID!
   v: Int
   createdAt: String
@@ -35885,6 +35886,24 @@ input AcquiringIntegrationHistoryRecordWhereInput {
   price_not_ends_with_i: String
   price_in: [String]
   price_not_in: [String]
+  contextDefaultStatus: String
+  contextDefaultStatus_not: String
+  contextDefaultStatus_contains: String
+  contextDefaultStatus_not_contains: String
+  contextDefaultStatus_starts_with: String
+  contextDefaultStatus_not_starts_with: String
+  contextDefaultStatus_ends_with: String
+  contextDefaultStatus_not_ends_with: String
+  contextDefaultStatus_i: String
+  contextDefaultStatus_not_i: String
+  contextDefaultStatus_contains_i: String
+  contextDefaultStatus_not_contains_i: String
+  contextDefaultStatus_starts_with_i: String
+  contextDefaultStatus_not_starts_with_i: String
+  contextDefaultStatus_ends_with_i: String
+  contextDefaultStatus_not_ends_with_i: String
+  contextDefaultStatus_in: [String]
+  contextDefaultStatus_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -35990,6 +36009,8 @@ enum SortAcquiringIntegrationHistoryRecordsBy {
   label_DESC
   price_ASC
   price_DESC
+  contextDefaultStatus_ASC
+  contextDefaultStatus_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -36024,6 +36045,7 @@ input AcquiringIntegrationHistoryRecordUpdateInput {
   label: String
   gallery: JSON
   price: String
+  contextDefaultStatus: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36059,6 +36081,7 @@ input AcquiringIntegrationHistoryRecordCreateInput {
   label: String
   gallery: JSON
   price: String
+  contextDefaultStatus: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36181,6 +36204,10 @@ type AcquiringIntegration {
   """ String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year" 
   """
   price: String
+
+  """ Status, which context will have by default after creation if no overwriting option provided 
+  """
+  contextDefaultStatus: String
   id: ID!
   v: Int
   createdAt: String
@@ -36397,6 +36424,10 @@ input AcquiringIntegrationWhereInput {
   price_not_ends_with_i: String
   price_in: [String]
   price_not_in: [String]
+  contextDefaultStatus: String
+  contextDefaultStatus_not: String
+  contextDefaultStatus_in: [String]
+  contextDefaultStatus_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -36488,6 +36519,8 @@ enum SortAcquiringIntegrationsBy {
   label_DESC
   price_ASC
   price_DESC
+  contextDefaultStatus_ASC
+  contextDefaultStatus_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -36524,6 +36557,7 @@ input AcquiringIntegrationUpdateInput {
   label: String
   gallery: [String!]
   price: String
+  contextDefaultStatus: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36558,6 +36592,7 @@ input AcquiringIntegrationCreateInput {
   label: String
   gallery: [String!]
   price: String
+  contextDefaultStatus: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -36961,6 +36996,7 @@ type AcquiringIntegrationContextHistoryRecord {
   email: String
   recipient: JSON
   implicitFeeDistributionSchema: JSON
+  status: String
   id: ID!
   v: Int
   createdAt: String
@@ -37039,6 +37075,24 @@ input AcquiringIntegrationContextHistoryRecordWhereInput {
   implicitFeeDistributionSchema_not: JSON
   implicitFeeDistributionSchema_in: [JSON]
   implicitFeeDistributionSchema_not_in: [JSON]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -37126,6 +37180,8 @@ enum SortAcquiringIntegrationContextHistoryRecordsBy {
   reason_DESC
   email_ASC
   email_DESC
+  status_ASC
+  status_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -37153,6 +37209,7 @@ input AcquiringIntegrationContextHistoryRecordUpdateInput {
   email: String
   recipient: JSON
   implicitFeeDistributionSchema: JSON
+  status: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -37181,6 +37238,7 @@ input AcquiringIntegrationContextHistoryRecordCreateInput {
   email: String
   recipient: JSON
   implicitFeeDistributionSchema: JSON
+  status: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -37260,6 +37318,10 @@ type AcquiringIntegrationContext {
   """ Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored 
   """
   implicitFeeDistributionSchema: [FeeDistributionField!]
+
+  """ Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model 
+  """
+  status: String
   id: ID!
   v: Int
   createdAt: String
@@ -37342,6 +37404,10 @@ input AcquiringIntegrationContextWhereInput {
   implicitFeeDistributionSchema_not: [FeeDistributionFieldInput!]
   implicitFeeDistributionSchema_in: [[FeeDistributionFieldInput!]]
   implicitFeeDistributionSchema_not_in: [[FeeDistributionFieldInput!]]
+  status: String
+  status_not: String
+  status_in: [String]
+  status_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -37413,6 +37479,8 @@ enum SortAcquiringIntegrationContextsBy {
   reason_DESC
   email_ASC
   email_DESC
+  status_ASC
+  status_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -37440,6 +37508,7 @@ input AcquiringIntegrationContextUpdateInput {
   email: String
   recipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  status: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -37465,6 +37534,7 @@ input AcquiringIntegrationContextCreateInput {
   email: String
   recipient: RecipientFieldInput
   implicitFeeDistributionSchema: [FeeDistributionFieldInput!]
+  status: String
   v: Int
   createdAt: String
   updatedAt: String

@@ -15,7 +15,6 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
-const { DOCUMENT_BLOCK_SINGLE_EXAMPLE, DOCUMENT_BLOCK_MULTIPLE_EXAMPLE } = require('@condo/domains/miniapp/utils/testSchema')
 const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
 
 describe('AcquiringIntegration', () => {
@@ -224,23 +223,6 @@ describe('AcquiringIntegration', () => {
                     supportedBillingIntegrations: { disconnectAll: true },
                 })
             }, INTEGRATION_NO_BILLINGS_ERROR)
-        })
-    })
-    describe('KS6 Mock', () => {
-        describe('Can be created with about pseudo-document-field', () => {
-            const cases = [
-                [1, DOCUMENT_BLOCK_SINGLE_EXAMPLE],
-                [3, DOCUMENT_BLOCK_MULTIPLE_EXAMPLE],
-            ]
-            test.each(cases)('%p sections', async (amount, block) => {
-                const admin = await makeLoggedInAdminClient()
-                const [billing] = await createTestBillingIntegration(admin)
-                const [integration] = await createTestAcquiringIntegration(admin, [billing], {
-                    about: block,
-                })
-                expect(integration).toBeDefined()
-                expect(integration).toHaveProperty('about', block)
-            })
         })
     })
 })

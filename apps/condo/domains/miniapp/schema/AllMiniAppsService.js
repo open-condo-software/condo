@@ -12,6 +12,7 @@ const {
     B2B_APP_TYPE,
     ACCRUALS_AND_PAYMENTS_CATEGORY,
     ALL_APPS_CATEGORIES,
+    CONTEXT_FINISHED_STATUS,
 } = require('@condo/domains/miniapp/constants')
 const { find } = require('@open-condo/keystone/schema')
 const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
@@ -77,6 +78,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 })
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     organization,
+                    status: CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
                 })
                 const connectedBillingIntegrations = billingContexts.map(context => context.integration)
@@ -105,6 +107,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 })
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
                     organization,
+                    status: CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
                 })
                 const connectedAcquiringIntegrations = acquiringContexts.map(context => context.integration)
@@ -135,6 +138,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 const B2BAppContexts = await find('B2BAppContext', {
                     organization,
                     deletedAt: null,
+                    status: CONTEXT_FINISHED_STATUS,
                 })
                 const connectedB2BApps = B2BAppContexts.map(context => context.app)
                 for (const app of B2BApps) {

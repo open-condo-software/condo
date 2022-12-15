@@ -20,6 +20,7 @@ const {
     DISPLAY_PRIORITY_FIELD,
     LABEL_FIELD,
     PRICE_FIELD,
+    CONTEXT_DEFAULT_STATUS_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
 const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
@@ -93,6 +94,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         label: LABEL_FIELD,
         gallery: GALLERY_FIELD,
         price: PRICE_FIELD,
+        contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
