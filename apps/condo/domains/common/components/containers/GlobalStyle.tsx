@@ -298,6 +298,7 @@ export default function GlobalStyle () {
               ${inputControlCss}
               ${page}
               ${cardCSS}
+              ${previewCSS}
               
               .ant-notification-notice.tasks {
                 padding: 17px;
@@ -448,5 +449,21 @@ const cardCSS = css`
   }
   .ant-card-head {
     border-color: ${colors.backgroundWhiteSecondary};
+  }
+`
+
+const previewCSS = css`
+  .ant-image-preview-switch-left,
+  .ant-image-preview-switch-right {
+    width: 40px;
+    height: 40px;
+    background: transparent;
+  }
+  .ant-image-preview-img {
+    width: auto;
+    //border-radius: 12px;
+    max-width: calc(100vw - 120px) !important;
+    height: 600px;
+    object-fit: contain;
   }
 `
