@@ -9,7 +9,16 @@ const { allMiniAppsByTestClient, createTestB2BApp, createTestB2BAppContext, upda
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestBillingIntegration, createTestBillingIntegrationOrganizationContext, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { BILLING_APP_TYPE, ACQUIRING_APP_TYPE, B2B_APP_TYPE, APP_NEW_LABEL, OTHER_CATEGORY } = require('@condo/domains/miniapp/constants')
+const {
+    BILLING_APP_TYPE,
+    ACQUIRING_APP_TYPE,
+    B2B_APP_TYPE,
+    APP_NEW_LABEL,
+    OTHER_CATEGORY,
+    CONTEXT_FINISHED_STATUS,
+    CONTEXT_IN_PROGRESS_STATUS,
+    ACCRUALS_AND_PAYMENTS_CATEGORY,
+} = require('@condo/domains/miniapp/constants')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
@@ -71,15 +80,29 @@ describe('AllMiniAppsService', () => {
                     connected: false,
                     name: integration.name,
                     shortDescription: integration.shortDescription,
-                    category: BILLING_APP_TYPE,
+                    category: ACCRUALS_AND_PAYMENTS_CATEGORY,
                 })]))
             })
-            test('Shows connected with context', async () => {
+            test(`Shows connected with context in ${CONTEXT_FINISHED_STATUS} status`, async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration)
+                const [context] = await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: BILLING_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+                await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [newData] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(newData).toBeDefined()
+                expect(newData).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: integration.id,
                         type: BILLING_APP_TYPE,
@@ -89,7 +112,9 @@ describe('AllMiniAppsService', () => {
             })
             test('Shows unconnected with deleted context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [context] = await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration)
+                const [context] = await createTestBillingIntegrationOrganizationContext(admin, client.organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
                 await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
                     deletedAt: dayjs().toISOString(),
                 })
@@ -136,15 +161,29 @@ describe('AllMiniAppsService', () => {
                     connected: false,
                     name: integration.name,
                     shortDescription: integration.shortDescription,
-                    category: ACQUIRING_APP_TYPE,
+                    category: ACCRUALS_AND_PAYMENTS_CATEGORY,
                 })]))
             })
-            test('Shows connected with context', async () => {
+            test(`Shows connected with context in ${CONTEXT_FINISHED_STATUS} status`, async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                await createTestAcquiringIntegrationContext(admin, client.organization, integration)
+                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: integration.id,
+                        type: ACQUIRING_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+                await updateTestAcquiringIntegrationContext(admin, context.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [newData] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(newData).toBeDefined()
+                expect(newData).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: integration.id,
                         type: ACQUIRING_APP_TYPE,
@@ -154,7 +193,9 @@ describe('AllMiniAppsService', () => {
             })
             test('Shows unconnected with deleted context', async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration)
+                const [context] = await createTestAcquiringIntegrationContext(admin, client.organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
                 await updateTestAcquiringIntegrationContext(admin, context.id, {
                     deletedAt: dayjs().toISOString(),
                 })
@@ -201,12 +242,26 @@ describe('AllMiniAppsService', () => {
                     category: app.category,
                 })]))
             })
-            test('Shows connected with context', async () => {
+            test(`Shows connected with context in ${CONTEXT_FINISHED_STATUS} status`, async () => {
                 const client = await makeEmployeeUserClientWithAbilities()
-                await createTestB2BAppContext(admin, app, client.organization)
+                const [context] = await createTestB2BAppContext(admin, app, client.organization, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
                 const [data] = await allMiniAppsByTestClient(client, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: app.id,
+                        type: B2B_APP_TYPE,
+                        connected: false,
+                    }),
+                ]))
+                await updateTestB2BAppContext(admin, context.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+                const [newData] = await allMiniAppsByTestClient(client, client.organization.id)
+                expect(newData).toBeDefined()
+                expect(newData).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: app.id,
                         type: B2B_APP_TYPE,
@@ -295,9 +350,9 @@ describe('AllMiniAppsService', () => {
                     expect.objectContaining({ id: acquiring.id }),
                 ]))
 
-                await createTestB2BAppContext(admin, app, client.organization)
-                await createTestBillingIntegrationOrganizationContext(admin, client.organization, billing)
-                await createTestAcquiringIntegrationContext(admin, client.organization, acquiring)
+                await createTestB2BAppContext(admin, app, client.organization, { status: CONTEXT_FINISHED_STATUS })
+                await createTestBillingIntegrationOrganizationContext(admin, client.organization, billing, { status: CONTEXT_FINISHED_STATUS })
+                await createTestAcquiringIntegrationContext(admin, client.organization, acquiring, { status: CONTEXT_FINISHED_STATUS })
                 const [connectedApps] = await allMiniAppsByTestClient(client, client.organization.id, {
                     where: { connected: true },
                 })

@@ -100,7 +100,7 @@ async function createTestAcquiringIntegration (client, billings, extraAttrs = {}
         hostUrl,
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
-        instruction: faker.datatype.string(),
+        detailedDescription: faker.lorem.paragraphs(5),
         supportedBillingIntegrations: { connect: billingsIds },
         explicitFeeDistributionSchema: getRandomExplicitFeeDistribution(),
         ...extraAttrs

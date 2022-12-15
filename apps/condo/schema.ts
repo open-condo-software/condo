@@ -69,6 +69,8 @@ export type AcquiringIntegration = {
   gallery?: Maybe<Array<Scalars['String']>>;
   /**  String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year"  */
   price?: Maybe<Scalars['String']>;
+  /**  Status, which context will have by default after creation if no overwriting option provided  */
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -470,6 +472,8 @@ export type AcquiringIntegrationContext = {
   recipient?: Maybe<RecipientField>;
   /**  Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored  */
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionField>>;
+  /**  Status of AcquiringIntegration connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related AcquiringIntegration model  */
+  status?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -495,6 +499,7 @@ export type AcquiringIntegrationContextCreateInput = {
   email?: Maybe<Scalars['String']>;
   recipient?: Maybe<RecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -525,6 +530,7 @@ export type AcquiringIntegrationContextHistoryRecord = {
   email?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -549,6 +555,7 @@ export type AcquiringIntegrationContextHistoryRecordCreateInput = {
   email?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -578,6 +585,7 @@ export type AcquiringIntegrationContextHistoryRecordUpdateInput = {
   email?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -655,6 +663,24 @@ export type AcquiringIntegrationContextHistoryRecordWhereInput = {
   implicitFeeDistributionSchema_not?: Maybe<Scalars['JSON']>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   implicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -762,6 +788,7 @@ export type AcquiringIntegrationContextUpdateInput = {
   email?: Maybe<Scalars['String']>;
   recipient?: Maybe<RecipientFieldInput>;
   implicitFeeDistributionSchema?: Maybe<Array<FeeDistributionFieldInput>>;
+  status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -832,6 +859,10 @@ export type AcquiringIntegrationContextWhereInput = {
   implicitFeeDistributionSchema_not?: Maybe<Array<FeeDistributionFieldInput>>;
   implicitFeeDistributionSchema_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
   implicitFeeDistributionSchema_not_in?: Maybe<Array<Maybe<Array<FeeDistributionFieldInput>>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -921,6 +952,7 @@ export type AcquiringIntegrationCreateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Array<Scalars['String']>>;
   price?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -958,6 +990,7 @@ export type AcquiringIntegrationHistoryRecord = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -989,6 +1022,7 @@ export type AcquiringIntegrationHistoryRecordCreateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1025,6 +1059,7 @@ export type AcquiringIntegrationHistoryRecordUpdateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1214,6 +1249,24 @@ export type AcquiringIntegrationHistoryRecordWhereInput = {
   price_not_ends_with_i?: Maybe<Scalars['String']>;
   price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not?: Maybe<Scalars['String']>;
+  contextDefaultStatus_contains?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_contains?: Maybe<Scalars['String']>;
+  contextDefaultStatus_starts_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_starts_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_ends_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_ends_with?: Maybe<Scalars['String']>;
+  contextDefaultStatus_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_contains_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_contains_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_starts_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_starts_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_ends_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not_ends_with_i?: Maybe<Scalars['String']>;
+  contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -1330,6 +1383,7 @@ export type AcquiringIntegrationUpdateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Array<Scalars['String']>>;
   price?: Maybe<Scalars['String']>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -1528,6 +1582,10 @@ export type AcquiringIntegrationWhereInput = {
   price_not_ends_with_i?: Maybe<Scalars['String']>;
   price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus?: Maybe<Scalars['String']>;
+  contextDefaultStatus_not?: Maybe<Scalars['String']>;
+  contextDefaultStatus_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  contextDefaultStatus_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -45475,6 +45533,8 @@ export enum SortAcquiringIntegrationContextHistoryRecordsBy {
   ReasonDesc = 'reason_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45502,6 +45562,8 @@ export enum SortAcquiringIntegrationContextsBy {
   ReasonDesc = 'reason_DESC',
   EmailAsc = 'email_ASC',
   EmailDesc = 'email_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45543,6 +45605,8 @@ export enum SortAcquiringIntegrationHistoryRecordsBy {
   LabelDesc = 'label_DESC',
   PriceAsc = 'price_ASC',
   PriceDesc = 'price_DESC',
+  ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
+  ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -45590,6 +45654,8 @@ export enum SortAcquiringIntegrationsBy {
   LabelDesc = 'label_DESC',
   PriceAsc = 'price_ASC',
   PriceDesc = 'price_DESC',
+  ContextDefaultStatusAsc = 'contextDefaultStatus_ASC',
+  ContextDefaultStatusDesc = 'contextDefaultStatus_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

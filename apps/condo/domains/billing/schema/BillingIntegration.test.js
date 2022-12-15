@@ -3,7 +3,6 @@
  */
 import { catchErrorFrom } from '@open-condo/keystone/test.utils'
 import { v4 } from 'uuid'
-import { DOCUMENT_BLOCK_MULTIPLE_EXAMPLE, DOCUMENT_BLOCK_SINGLE_EXAMPLE } from '@condo/domains/miniapp/utils/testSchema'
 
 const { getRandomString } = require('@open-condo/keystone/test.utils')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -171,23 +170,6 @@ describe('BillingIntegration', () => {
             const client = await makeClient()
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await BillingIntegration.delete(client, objCreated.id)
-            })
-        })
-    })
-
-    describe('KS6 Mock', () => {
-        describe('Can be created with about pseudo-document-field', () => {
-            const cases = [
-                [1, DOCUMENT_BLOCK_SINGLE_EXAMPLE],
-                [3, DOCUMENT_BLOCK_MULTIPLE_EXAMPLE],
-            ]
-            test.each(cases)('%p sections', async (amount, block) => {
-                const admin = await makeLoggedInAdminClient()
-                const [integration] = await createTestBillingIntegration(admin, {
-                    about: block,
-                })
-                expect(integration).toBeDefined()
-                expect(integration).toHaveProperty('about', block)
             })
         })
     })

@@ -16,7 +16,9 @@ export function useContainerSize<K extends HTMLElement> (): HookReturnType<K> {
             }
         })
         observer.observe(refElement)
-        return () => observer.disconnect()
+        return () => {
+            observer.unobserve(refElement)
+        }
     }, [refElement])
 
     return [size, setRefElement]
