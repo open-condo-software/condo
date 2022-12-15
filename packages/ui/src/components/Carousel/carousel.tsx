@@ -59,3 +59,7 @@ Carousel.displayName = 'Carousel'
 export {
     Carousel,
 }
+
+export type {
+    CarouselRef,
+}
