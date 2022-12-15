@@ -4,8 +4,7 @@ import {
     ButtonProps as DefaultButtonProps,
 } from 'antd'
 import classNames from 'classnames'
-import isString from 'lodash/isString'
-import { sendAnalyticsClickEvent } from '../_utils/analytics'
+import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analytics'
 
 const BUTTON_CLASS_PREFIX = 'condo-btn'
 
@@ -33,8 +32,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => 
         : null
 
     const handleClick = useCallback((event) => {
-        if (isString(children)) {
-            sendAnalyticsClickEvent('Button', { value: children, type })
+        const stringContent = extractChildrenContent(children)
+        if (stringContent) {
+            sendAnalyticsClickEvent('Button', { value: stringContent, type })
         }
 
         if (onClick) {
