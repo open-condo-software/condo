@@ -5,12 +5,16 @@ import { CheckOutlined } from '@ant-design/icons'
 import { Col, Row, Space, Image } from 'antd'
 import type { RowProps, ColProps } from 'antd'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Tag, Carousel, Button, ButtonProps } from '@open-condo/ui'
+import { Typography, Tag, Carousel, Button } from '@open-condo/ui'
+import type { ButtonProps, CarouselRef } from '@open-condo/ui'
+// TODO(DOMA-4844): Replace with @open-condo/ui/colors
+import { colors } from '@open-condo/ui/dist/colors'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { LABEL_TO_TAG_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
+import styled from '@emotion/styled'
 
 const CAROUSEL_CHANGE_DELAY = 6000 // 6 sec
-const CAROUSEL_CHANGE_SPEED = 1200 // 1.2 sec
+const CAROUSEL_CHANGE_SPEED = 800 // 0.8 sec
 const ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const HALF_COL_SPAN: ColProps['span'] = 12
 const FULL_COL_SPAN: ColProps['span'] = 24
@@ -19,11 +23,13 @@ const SHRINKED_BUTTON_SPACING = 40
 const TEXT_SPACING = 24
 const TAG_SPACING = 8
 const IMAGE_STYLES: CSSProperties = { width: '100%', height: 400, objectFit: 'cover' }
-const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', cursor: 'pointer', width: '100%' }
+const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', width: '100%' }
+const IMAGE_WRAPPER_CLICKABLE: CSSProperties = { ...IMAGE_WRAPPER_STYLES, cursor: 'pointer' }
 const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', justifyContent: 'center' }
 const HIDE_GALLERY_STYLES: CSSProperties = { display: 'none' }
 const SPACED_ROW_STYLES: CSSProperties = { marginTop: 24 }
 const WIDE_DISPLAY_THRESHOLD = 768
+const ARROW_REVERSE_STYLES: CSSProperties = { transform: 'scaleX(-1)' }
 
 type TopCardProps = {
     id: string
@@ -39,14 +45,34 @@ type TopCardProps = {
     connectAction: () => void
 }
 
+const ArrowWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  border: 1px solid ${colors.white};
+  background: ${colors.white};
+  color: ${colors.gray['7']};
+  transition-duration: 0.15s, 0.15s;
+  transition-property: border-color, color;
+  cursor: pointer;
+  
+  &:hover {
+    border-color: ${colors.gray['3']};
+    color: ${colors.black};
+  }
+`
+
 const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
     // TODO (DOMA-4666): Move to icons pack
     return (
-        <div {...props} className='preview-arrow'>
+        <ArrowWrapper {...props} className='preview-arrow'>
             <svg  width='9' height='14' fill='none' xmlns='http://www.w3.org/2000/svg'>
                 <path d='M1 2.374 5.414 7 1 11.626 2.293 13 8 7 2.293 1 1 2.374Z' fill='currentColor' stroke='currentColor' strokeWidth='.7'/>
             </svg>
-        </div>
+        </ArrowWrapper>
     )
 }
 const TopCard = React.memo<TopCardProps>(({
@@ -96,30 +122,35 @@ const TopCard = React.memo<TopCardProps>(({
     const images = gallery || []
     const imagesAmount = images.length
     const [currentSlide, setCurrentSlide] = useState(0)
+    const [currentPreview, setCurrentPreview] = useState(0)
     const [previewVisible, setPreviewVisible] = useState(false)
-    const sliderRef = useRef(null)
+    const sliderRef = useRef<CarouselRef>(null)
+    const isWide = width > WIDE_DISPLAY_THRESHOLD
+
+    // NOTE: Carousel / preview logic
+    // Clicking on carousel slide opens preview at the same picture and stops carousel from autoplay
+    // Changing preview images does not affect carousel slide
+    // Closing preview resuming carousel autoplay
 
     const handleSlideChange = useCallback((current, next) => {
         setCurrentSlide(next)
     }, [])
+
     const enablePreview = useCallback(() => {
-        setPreviewVisible(true)
-    }, [])
+        if (isWide) {
+            setPreviewVisible(true)
+            setCurrentPreview(currentSlide)
+        }
+    }, [isWide, currentSlide])
 
-    const handleNextSlide = useCallback(() => {
-        setCurrentSlide(curr => (curr + 1) % imagesAmount)
-        if (sliderRef.current) {
-            sliderRef.current.next()
-        }
-    }, [imagesAmount])
-    const handlePrevSlide = useCallback(() => {
-        setCurrentSlide(curr => (imagesAmount + curr - 1) % imagesAmount)
-        if (sliderRef.current) {
-            sliderRef.current.prev()
-        }
+    const handleNextPreview = useCallback(() => {
+        setCurrentPreview(curr => (curr + 1) % imagesAmount)
     }, [imagesAmount])
 
-    const isWide = width > WIDE_DISPLAY_THRESHOLD
+    const handlePrevPreview = useCallback(() => {
+        setCurrentPreview(curr => (curr + imagesAmount - 1) % imagesAmount)
+    }, [imagesAmount])
+
     const sectionSpan = isWide ? HALF_COL_SPAN : FULL_COL_SPAN
     const buttonSpacing = isWide ? SPACED_BUTTON_SPACING : SHRINKED_BUTTON_SPACING
     const rowStyles = isWide ? undefined : SPACED_ROW_STYLES
@@ -166,7 +197,7 @@ const TopCard = React.memo<TopCardProps>(({
                             {images.map((src, idx) => (
                                 <Image
                                     style={IMAGE_STYLES}
-                                    wrapperStyle={IMAGE_WRAPPER_STYLES}
+                                    wrapperStyle={isWide ? IMAGE_WRAPPER_CLICKABLE : IMAGE_WRAPPER_STYLES}
                                     key={idx}
                                     src={src}
                                     preview={false}
@@ -177,13 +208,13 @@ const TopCard = React.memo<TopCardProps>(({
                         <div style={HIDE_GALLERY_STYLES}>
                             <Image.PreviewGroup
                                 icons={{
-                                    right: <Arrow onClick={handleNextSlide}/>,
-                                    left: <Arrow onClick={handlePrevSlide}/>,
+                                    right: <Arrow onClick={handleNextPreview}/>,
+                                    left: <Arrow style={ARROW_REVERSE_STYLES} onClick={handlePrevPreview}/>,
                                 }}
                                 preview={{
                                     visible: previewVisible,
                                     onVisibleChange: setPreviewVisible,
-                                    current: currentSlide,
+                                    current: currentPreview,
                                 }}>
                                 {images.map((src, idx) => (
                                     <Image

@@ -13,7 +13,7 @@ export { Card } from './components/Card'
 export type { CardProps } from './components/Card'
 
 export { Carousel } from './components/Carousel'
-export type { CarouselProps } from './components/Carousel'
+export type { CarouselProps, CarouselRef } from './components/Carousel'
 
 export { Markdown } from './components/Markdown'
 export type { MarkdownProps } from './components/Markdown'
