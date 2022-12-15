@@ -36,11 +36,20 @@ const PDF_FONTS = {
     },
 }
 
+const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+
 const printer = new PDFMake(PDF_FONTS)
 
 const getTranslateWithLocale = ({ locale }) => (key = '', meta = {}) => {
     return i18n(key, { locale, meta })
 }
+
+/**
+ * Formats a phone, convert it from number string to string with dividers
+ * for example: 01234567890 -> 0 123 456 78 90
+ */
+const formatPhone = (phone) =>
+    phone ? phone.replace(PHONE_FORMAT_REGEXP, '$1 $2 $3 $4 $5') : phone
 
 const getAddressDetails = (propertyAddressMeta) => {
     const addressMeta = get(propertyAddressMeta, 'data')
@@ -77,7 +86,8 @@ const getAddressDetails = (propertyAddressMeta) => {
     const areaLine = areaPart ? `${regionLine ? ',' : ''} ${areaPart}` : ''
     const cityLine = cityPart ? `${regionLine ? ',' : ''} ${cityPart}` : ''
     const settlementLine = settlementPart ? `, ${settlementPart}` : ''
-    const renderData = regionLine + areaLine + settlementLine + cityLine + streetPart
+    const streetLine = streetPart ? `, ${streetPart}` : ''
+    const renderData = regionLine + areaLine + settlementLine + cityLine + streetLine
 
     return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData }
 }
@@ -146,7 +156,7 @@ const convertTicketToTicketBlank = ({ ticket, comments, blankOptions, locale }) 
         organization: ticket.organization,
         address: getFullAddressByTicket({ ticket, locale }),
         clientName: ticket.clientName || ticket.createdBy,
-        clientPhone: ticket.clientPhone,
+        clientPhone: formatPhone(ticket.clientPhone),
         details: ticket.details,
         comments: convertCommentsToTicketBlank(comments),
         options: {
