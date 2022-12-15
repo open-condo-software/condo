@@ -24,9 +24,8 @@ const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tas
 const { ERROR, PDF } = require('@condo/domains/common/constants/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
 const { EXCEL } = require('@condo/domains/common/constants/export')
-
-const { exportTicketBlanksToPdf } = require('../utils/serverSchema/ticketBlankExport')
-const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchema')
+const { exportTicketBlanksToPdf } = require('@condo/domains/ticket/utils/serverSchema/exportTicketBlanksToPdf')
+const { TicketExportTask, TicketStatus, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 
 const appLogger = getLogger('condo')

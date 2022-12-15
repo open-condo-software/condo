@@ -232,7 +232,7 @@ const getTranslations = ({ locale, ticketBlankData }) => {
 const generatePdf = (replaces) => {
     const { i18n, blank } = replaces
 
-    const addComments = (comments) => {
+    const renderComments = (comments) => {
         if (!comments || comments.length < 1) return null
 
         return {
@@ -259,12 +259,12 @@ const generatePdf = (replaces) => {
         return new Array(count).fill(1).map((_, index) => `<rect x="0" y="${startPosition + 14 + 15 * index}" width="400" height="1" fill="#707695"/>`)
     }
 
-    const addBlockWithLines = (title, countLines) => {
-        if (!title || !isString(title) || !countLines || !isNumber(countLines)) return null
+    const renderBlockWithLines = (title, count) => {
+        if (!title || !isString(title) || !count || !isNumber(count)) return null
 
         return {
             marginBottom: 12,
-            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="${10 + countLines * 15}" viewBox="0 0 400 ${10 + countLines * 15}">
+            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="${10 + count * 15}" viewBox="0 0 400 ${10 + count * 15}">
                       <style>
                         .subtitile {
                           fill: #707695;
@@ -272,18 +272,18 @@ const generatePdf = (replaces) => {
                         }
                       </style>
                     <text x="0" y="7" class="subtitile">${title}</text>
-                    ${addLines(countLines, 10).join('\n')}
+                    ${addLines(count, 10).join('\n')}
                   </svg>`,
         }
     }
 
-    const addOptionBlockWithLine = (isShow, title, countLines) => {
+    const renderOptionBlockWithLine = (isShow, title, countLines) => {
         if (!isShow || !isBoolean(isShow) || !title || !isString(title) || !countLines || !isNumber(countLines)) return null
 
-        return addBlockWithLines(title, countLines)
+        return renderBlockWithLines(title, countLines)
     }
 
-    const addSignatures = () => {
+    const renderSignatures = () => {
         return {
             marginTop: 8,
             svg: `<svg viewBox="0 0 400 75" xmlns="http://www.w3.org/2000/svg">
@@ -476,22 +476,22 @@ const generatePdf = (replaces) => {
             },
 
             // comments
-            addComments(blank.comments),
+            renderComments(blank.comments),
 
             // notes
-            addBlockWithLines(i18n.notes, 3),
+            renderBlockWithLines(i18n.notes, 3),
 
             // listCompletedWorks
-            addOptionBlockWithLine(blank.options.haveListCompletedWorks, i18n.listCompletedWorks, 3),
+            renderOptionBlockWithLine(blank.options.haveListCompletedWorks, i18n.listCompletedWorks, 3),
 
             // consumedMaterials
-            addOptionBlockWithLine(blank.options.haveConsumedMaterials, i18n.consumedMaterials, 3),
+            renderOptionBlockWithLine(blank.options.haveConsumedMaterials, i18n.consumedMaterials, 3),
 
             // totalCostWork
-            addOptionBlockWithLine(blank.options.haveTotalCostWork, i18n.totalCostWork, 1),
+            renderOptionBlockWithLine(blank.options.haveTotalCostWork, i18n.totalCostWork, 1),
 
             // work done & signature
-            addSignatures(),
+            renderSignatures(),
         ],
         styles: {
             subtitle: {
