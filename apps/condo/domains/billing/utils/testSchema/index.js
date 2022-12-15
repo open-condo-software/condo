@@ -63,10 +63,10 @@ async function createTestBillingIntegration (client, extraAttrs = {}) {
         sender,
         name,
         currencyCode,
-        instruction: faker.datatype.string(),
         isHidden: true,
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
+        detailedDescription: faker.lorem.paragraphs(5),
         ...extraAttrs,
     }
     const obj = await BillingIntegration.create(client, attrs)

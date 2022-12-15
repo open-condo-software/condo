@@ -15,6 +15,7 @@ const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/dom
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { isEmpty, isUndefined, isNull } = require('lodash')
+const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -94,6 +95,13 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             isRequired: false,
             schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
+        },
+        status: {
+            ...STATUS_FIELD,
+            schemaDoc: getStatusDescription('AcquiringIntegration'),
+            hooks: {
+                resolveInput: getStatusResolver('AcquiringIntegration', 'integration'),
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

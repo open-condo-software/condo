@@ -11,6 +11,7 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import {
     ALL_APPS_CATEGORY,
+    CONNECTED_APPS_CATEGORY,
     DISPATCHING_CATEGORY,
     ACCRUALS_AND_PAYMENTS_CATEGORY,
     GIS_CATEGORY,
@@ -20,7 +21,7 @@ import {
 } from '@condo/domains/miniapp/constants'
 
 import { AppCard, MIN_CARD_WIDTH } from '../AppCard'
-import { Star, List, Wallet, House, SmartHome, Rocket, CircleEllipsis } from '../icons'
+import { Star, List, Wallet, House, SmartHome, Rocket, CircleEllipsis, CheckSquare } from '../icons'
 
 const SEARCH_TAB_KEY = 'search'
 const TAB_GUTTER = 8
@@ -30,6 +31,7 @@ const SIDE_TAB_SIDE_BAR_STYLES: CSSProperties = { marginLeft: 20 }
 const TAB_SWITCH_THRESHOLD = 890
 const TAB_ICONS = {
     [ALL_APPS_CATEGORY]: <Star/>,
+    [CONNECTED_APPS_CATEGORY]: <CheckSquare/>,
     [DISPATCHING_CATEGORY]: <List/>,
     [ACCRUALS_AND_PAYMENTS_CATEGORY]: <Wallet/>,
     [GIS_CATEGORY]: <House/>,
@@ -39,11 +41,11 @@ const TAB_ICONS = {
 }
 const HIDE_SEARCH_CSS = css`
   .tabs-hide-first {
-    .ant-tabs-tab:first-child {
+    .ant-tabs-tab:first-of-type {
       display: none;
     }
     
-    .ant-tabs-tab:nth-child(2) {
+    .ant-tabs-tab:nth-of-type(2) {
       margin-left: 0 !important;
     }
     .ant-tabs-nav-operations { display: none !important; }

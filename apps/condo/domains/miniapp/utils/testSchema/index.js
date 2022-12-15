@@ -23,32 +23,6 @@ const {
 } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
-    {
-        type: 'component-block',
-        component: 'aboutAppBlock',
-        props: {
-            sections: [
-                { title: 'Text', description: 'Longer text', imageSrc: faker.image.imageUrl() }
-            ]
-        }
-    }
-]
-
-const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
-    {
-        type: 'component-block',
-        component: 'aboutAppBlock',
-        props: {
-            sections: [
-                { title: 'First card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
-                { title: 'Second card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
-                { title: 'Third card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
-            ]
-        }
-    }
-]
-
 function randomChoice(options) {
     const index = Math.floor(Math.random() * options.length);
     return options[index];
@@ -95,7 +69,7 @@ async function createTestB2BApp (client, extraAttrs = {}) {
         name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
         shortDescription: faker.commerce.productDescription(),
         developer: faker.company.companyName(),
-        instruction: faker.datatype.string(),
+        detailedDescription: faker.lorem.paragraphs(5),
         isHidden: true,
         ...extraAttrs,
     }
@@ -363,8 +337,6 @@ function getFakeAddress(validAddress = true, validHouse = true) {
 
 module.exports = {
     allMiniAppsByTestClient,
-    DOCUMENT_BLOCK_SINGLE_EXAMPLE,
-    DOCUMENT_BLOCK_MULTIPLE_EXAMPLE,
     B2BApp, createTestB2BApp, updateTestB2BApp,
     B2BAppContext, createTestB2BAppContext, updateTestB2BAppContext,
     B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
