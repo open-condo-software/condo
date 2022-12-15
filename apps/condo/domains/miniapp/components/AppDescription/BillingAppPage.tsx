@@ -6,38 +6,41 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { B2BApp, B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
-import { B2B_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { BillingIntegration, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
+import { BILLING_APP_TYPE, ACCRUALS_AND_PAYMENTS_CATEGORY } from '@condo/domains/miniapp/constants'
 
 import { PageContent } from './PageContent'
 import { ConnectModal } from './ConnectModal'
 
-type B2BPageProps = {
+type BillingAppPageProps = {
     id: string
 }
 
-export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
+export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const [modalOpen, setModalOpen] = useState(false)
 
-    const { obj: app, error: appError, loading: appLoading } = B2BApp.useObject({ where: { id } })
+    const { obj: app, error: appError, loading: appLoading } = BillingIntegration.useObject({ where: { id } })
     const {
         obj: context,
         error: contextError,
         loading: contextLoading,
         refetch,
-    } = B2BAppContext.useObject({ where: { app: { id }, organization: { id: organizationId } } })
+    } = BillingIntegrationOrganizationContext.useObject({ where: { integration: { id }, organization: { id: organizationId } } })
     const appId = get(app, 'id', null)
 
-    const initialAction = B2BAppContext.useCreate({}, () => {
+    const initialAction = BillingIntegrationOrganizationContext.useCreate({
+        settings: { dv: 1 },
+        state: { dv: 1 },
+    }, () => {
         refetch()
         setModalOpen(true)
     })
     const createContextAction = useCallback(() => {
-        initialAction({ organization: { connect: { id: organizationId } }, app: { connect: { id: appId } } })
+        initialAction({ organization: { connect: { id: organizationId } }, integration: { connect: { id: appId } } })
     }, [initialAction, organizationId, appId])
 
     const handleCloseModal = useCallback(() => {
@@ -60,9 +63,9 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                 <PageContentWrapper>
                     <PageContent
                         id={app.id}
-                        type={B2B_APP_TYPE}
+                        type={BILLING_APP_TYPE}
                         name={app.name}
-                        category={app.category}
+                        category={ACCRUALS_AND_PAYMENTS_CATEGORY}
                         label={app.label}
                         shortDescription={app.shortDescription}
                         detailedDescription={app.detailedDescription}
