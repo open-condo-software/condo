@@ -14,13 +14,15 @@ const CAROUSEL_CHANGE_SPEED = 1200 // 1.2 sec
 const ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const HALF_COL_SPAN: ColProps['span'] = 12
 const FULL_COL_SPAN: ColProps['span'] = 24
-const BUTTON_SPACING = 60
+const SPACED_BUTTON_SPACING = 60
+const SHRINKED_BUTTON_SPACING = 40
 const TEXT_SPACING = 24
 const TAG_SPACING = 8
 const IMAGE_STYLES: CSSProperties = { width: '100%', height: 400, objectFit: 'cover' }
 const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', cursor: 'pointer', width: '100%' }
 const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', justifyContent: 'center' }
 const HIDE_GALLERY_STYLES: CSSProperties = { display: 'none' }
+const SPACED_ROW_STYLES: CSSProperties = { marginTop: 24 }
 const WIDE_DISPLAY_THRESHOLD = 768
 
 type TopCardProps = {
@@ -117,12 +119,15 @@ const TopCard = React.memo<TopCardProps>(({
         }
     }, [imagesAmount])
 
-    const sectionSpan = width <= WIDE_DISPLAY_THRESHOLD ? FULL_COL_SPAN : HALF_COL_SPAN
+    const isWide = width > WIDE_DISPLAY_THRESHOLD
+    const sectionSpan = isWide ? HALF_COL_SPAN : FULL_COL_SPAN
+    const buttonSpacing = isWide ? SPACED_BUTTON_SPACING : SHRINKED_BUTTON_SPACING
+    const rowStyles = isWide ? undefined : SPACED_ROW_STYLES
 
     return (
-        <Row gutter={ROW_GUTTER} ref={setRef}>
+        <Row gutter={ROW_GUTTER} ref={setRef} style={rowStyles}>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
-                <Space direction='vertical' size={BUTTON_SPACING}>
+                <Space direction='vertical' size={buttonSpacing}>
                     <Space direction='vertical' size={TEXT_SPACING}>
                         <Space direction='horizontal' size={TAG_SPACING}>
                             <Tag>{CategoryMessage}</Tag>
