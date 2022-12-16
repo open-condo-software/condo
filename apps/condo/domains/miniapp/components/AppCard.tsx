@@ -1,11 +1,11 @@
 import React, { CSSProperties, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { Space, Image } from 'antd'
-import get from 'lodash/get'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Typography, Button, Tag } from '@open-condo/ui'
-import { LABEL_TO_TAG_PROPS } from '@condo/domains/miniapp/constants'
+import { Card, Typography, Button } from '@open-condo/ui'
+
+import { AppLabelTag } from './AppLabelTag'
 
 const FALLBACK_IMAGE_URL = '/homeWithSun.svg'
 const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
@@ -50,10 +50,6 @@ const AppCardTitleLabelContainer = styled.div`
 `
 
 const AppCardTitle: React.FC<AppCardTitleProps> = ({ logoUrl, label }) => {
-    const intl = useIntl()
-    const AppLabel = label && intl.formatMessage({ id: `miniapps.labels.${label}.name` })
-    const tagProps = label && get(LABEL_TO_TAG_PROPS, label, {})
-
     return (
         <AppCardTitleWrapper>
             <Image
@@ -65,7 +61,7 @@ const AppCardTitle: React.FC<AppCardTitleProps> = ({ logoUrl, label }) => {
             />
             {Boolean(label) && (
                 <AppCardTitleLabelContainer>
-                    <Tag {...tagProps}>{AppLabel}</Tag>
+                    <AppLabelTag type={label}/>
                 </AppCardTitleLabelContainer>
             )}
         </AppCardTitleWrapper>

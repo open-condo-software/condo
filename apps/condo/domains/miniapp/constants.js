@@ -1,6 +1,3 @@
-// TODO(DOMA-4844): Replace with @open-condo/ui/colors
-const { colors } = require('@open-condo/ui/dist/colors')
-
 const BILLING_APP_TYPE = 'BILLING'
 const ACQUIRING_APP_TYPE = 'ACQUIRING'
 const B2B_APP_TYPE = 'B2B'
@@ -56,13 +53,6 @@ const B2B_APPS_LABELS = [
     APP_POPULAR_LABEL,
     APP_NEW_LABEL,
 ]
-
-const LABEL_TO_TAG_PROPS = {
-    [APP_FREE_LABEL]: { textColor: colors.blue['5'], bgColor: colors.blue['1'] },
-    [APP_DISCOUNT_LABEL]: { textColor: colors.red['5'], bgColor: colors.red['1'] },
-    [APP_POPULAR_LABEL]: { textColor: colors.green['7'], bgColor: colors.green['1'] },
-    [APP_NEW_LABEL]: { textColor: colors.orange['5'], bgColor: colors.orange['1'] },
-}
 
 const CONTEXT_IN_PROGRESS_STATUS = 'InProgress'
 const CONTEXT_ERROR_STATUS = 'Error'
@@ -136,5 +126,4 @@ module.exports = {
     APP_POPULAR_LABEL,
     APP_NEW_LABEL,
     B2B_APPS_LABELS,
-    LABEL_TO_TAG_PROPS,
 }
