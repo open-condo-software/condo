@@ -14,6 +14,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { BankAccount, createTestBankAccount, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 const ISO_8601_FULL = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?$/i
 
@@ -23,8 +24,9 @@ describe('BankAccount', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [bankAccount] = await createTestBankAccount(admin, organization)
+                const [bankAccount] = await createTestBankAccount(admin, organization, property)
 
                 expect(bankAccount.organization.id).toEqual(organization.id)
                 expect(bankAccount.tin).toBeDefined()
@@ -37,8 +39,9 @@ describe('BankAccount', () => {
             test('support can', async () => {
                 const support = await makeClientWithSupportUser()
                 const [organization] = await createTestOrganization(support)
+                const [property] = await createTestProperty(support, organization)
 
-                const [bankAccount] = await createTestBankAccount(support, organization)
+                const [bankAccount] = await createTestBankAccount(support, organization, property)
 
                 expect(bankAccount.organization.id).toEqual(organization.id)
                 expect(bankAccount.tin).toBeDefined()
@@ -52,10 +55,11 @@ describe('BankAccount', () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [ organization ] = await createTestOrganization(admin)
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestBankAccount(user, organization)
+                    await createTestBankAccount(user, organization, property)
                 })
             })
 
@@ -63,10 +67,11 @@ describe('BankAccount', () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymous = await makeClient()
 
-                const [ organization ] = await createTestOrganization(admin)
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestBankAccount(anonymous, organization)
+                    await createTestBankAccount(anonymous, organization, property)
                 })
             })
         })
@@ -75,8 +80,9 @@ describe('BankAccount', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [createdObj] = await createTestBankAccount(admin, organization, property)
                 const [readObj] = await BankAccount.getAll(admin, { id: createdObj.id })
 
                 expect(createdObj.organization.id).toEqual(readObj.organization.id)
@@ -90,10 +96,11 @@ describe('BankAccount', () => {
             test('support can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
                 const support = await makeClientWithSupportUser()
 
-                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [createdObj] = await createTestBankAccount(admin, organization, property)
                 const [readObj] = await BankAccount.getAll(support, { id: createdObj.id })
 
                 expect(createdObj.organization.id).toEqual(readObj.organization.id)
@@ -109,10 +116,11 @@ describe('BankAccount', () => {
                 const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [ organization ] = await createTestOrganization(admin)
+                const [ property ] = await createTestProperty(admin, organization)
                 const [ role ] = await createTestOrganizationEmployeeRole(admin, organization)
                 await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
 
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
+                const [ createdObj ] = await createTestBankAccount(admin, organization, property)
 
                 const [ readObj ] = await BankAccount.getAll(employeeUserClient, {})
 
@@ -129,12 +137,13 @@ describe('BankAccount', () => {
                 const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [ organization ] = await createTestOrganization(admin)
+                const [ property ] = await createTestProperty(admin, organization)
 
                 const [ anotherOrganization ] = await createTestOrganization(admin)
                 const [ role ] = await createTestOrganizationEmployeeRole(admin, anotherOrganization)
                 await createTestOrganizationEmployee(admin, anotherOrganization, employeeUserClient.user, role)
 
-                await createTestBankAccount(admin, organization)
+                await createTestBankAccount(admin, organization, property)
 
                 const readObj = await BankAccount.getAll(employeeUserClient, {})
 
@@ -146,8 +155,9 @@ describe('BankAccount', () => {
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [ organization ] = await createTestOrganization(admin)
+                const [ property ] = await createTestProperty(admin, organization)
 
-                await createTestBankAccount(admin, organization)
+                await createTestBankAccount(admin, organization, property)
 
                 const readObjects = await BankAccount.getAll(user, {})
 
@@ -159,8 +169,9 @@ describe('BankAccount', () => {
                 const anonymous = await makeClient()
 
                 const [ organization ] = await createTestOrganization(admin)
+                const [ property ] = await createTestProperty(admin, organization)
 
-                await createTestBankAccount(admin, organization)
+                await createTestBankAccount(admin, organization, property)
 
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await BankAccount.getAll(anonymous, {})
@@ -172,8 +183,9 @@ describe('BankAccount', () => {
             test('admin can', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
+                const [ createdObj ] = await createTestBankAccount(admin, organization, property)
                 const [ updatedObj ] = await updateTestBankAccount(admin, createdObj.id, { bankName: 'NewBankName' })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
@@ -183,8 +195,9 @@ describe('BankAccount', () => {
             test('support can', async () => {
                 const support = await makeClientWithSupportUser()
                 const [organization] = await createTestOrganization(support)
+                const [property] = await createTestProperty(support, organization)
 
-                const [ createdObj ] = await createTestBankAccount(support, organization)
+                const [ createdObj ] = await createTestBankAccount(support, organization, property)
                 const [ updatedObj ] = await updateTestBankAccount(support, createdObj.id, { bankName: 'NewBankName' })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
@@ -195,8 +208,9 @@ describe('BankAccount', () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
+                const [ createdObj ] = await createTestBankAccount(admin, organization, property)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {await updateTestBankAccount(user,
                     createdObj.id, { bankName: 'NewBankName' })
@@ -207,8 +221,9 @@ describe('BankAccount', () => {
                 const admin = await makeLoggedInAdminClient()
                 const anonymous = await makeClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
+                const [ createdObj ] = await createTestBankAccount(admin, organization, property)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {await updateTestBankAccount(anonymous,
                     createdObj.id, { bankName: 'NewBankName' })
@@ -220,8 +235,9 @@ describe('BankAccount', () => {
             test('admin can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [createdObj] = await createTestBankAccount(admin, organization, property)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankAccount.delete(admin, createdObj.id)
@@ -231,8 +247,9 @@ describe('BankAccount', () => {
             test('support can\'t', async () => {
                 const support = await makeClientWithSupportUser()
                 const [organization] = await createTestOrganization(support)
+                const [property] = await createTestProperty(support, organization)
 
-                const [createdObj] = await createTestBankAccount(support, organization)
+                const [createdObj] = await createTestBankAccount(support, organization, property)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankAccount.delete(support, createdObj.id)
@@ -243,8 +260,9 @@ describe('BankAccount', () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [ createdObj ] = await createTestBankAccount(admin, organization)
+                const [ createdObj ] = await createTestBankAccount(admin, organization, property)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await BankAccount.delete(user, createdObj.id)
@@ -258,8 +276,9 @@ describe('BankAccount', () => {
             test('can create approved bankAccount', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization, { approvedAt: 'true'  })
+                const [createdObj] = await createTestBankAccount(admin, organization, property, { approvedAt: 'true'  })
 
                 expect(createdObj.approvedAt).toMatch(ISO_8601_FULL)
                 expect(createdObj.approvedBy.id).toEqual(admin.user.id)
@@ -268,8 +287,9 @@ describe('BankAccount', () => {
             test('setting approvedAt automatically sets approvedBy', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [createdObj] = await createTestBankAccount(admin, organization, property)
                 const [updatedObj] = await updateTestBankAccount(admin, createdObj.id, { approvedAt: 'true'  })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
@@ -283,8 +303,9 @@ describe('BankAccount', () => {
             test('when model is updated, approvedAt and approvedBy are set to NULL', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization, { approvedAt: 'true' })
+                const [createdObj] = await createTestBankAccount(admin, organization, property, { approvedAt: 'true' })
                 const [updatedObj] = await updateTestBankAccount(admin, createdObj.id, { bankName: 'NewBankName' })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
@@ -298,8 +319,9 @@ describe('BankAccount', () => {
             test('support can update approved fields', async () => {
                 const support = await makeClientWithSupportUser()
                 const [organization] = await createTestOrganization(support)
+                const [property] = await createTestProperty(support, organization)
 
-                const [createdObj] = await createTestBankAccount(support, organization)
+                const [createdObj] = await createTestBankAccount(support, organization, property)
                 const [updatedObj] = await updateTestBankAccount(support, createdObj.id, { approvedAt: 'true' })
 
                 expect(createdObj.id).toEqual(updatedObj.id)
@@ -312,8 +334,9 @@ describe('BankAccount', () => {
                 const admin = await makeLoggedInAdminClient()
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [createdObj] = await createTestBankAccount(admin, organization, property)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestBankAccount(user, createdObj.id, { approvedAt: 'true' })
@@ -325,10 +348,11 @@ describe('BankAccount', () => {
             test('approvedBy field is not creatable', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
                 await catchErrorFrom(
                     async () => {
-                        await createTestBankAccount(admin, organization, { approvedBy: { connect: { id: admin.user.id } } })
+                        await createTestBankAccount(admin, organization, property, { approvedBy: { connect: { id: admin.user.id } } })
                     }, (e) => {
                         const msg = e.errors[0].message
                         expect(msg).toContain('Field "approvedBy" is not defined by type "BankAccountCreateInput"')
@@ -339,8 +363,9 @@ describe('BankAccount', () => {
             test('approvedBy field is not updatable', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
 
-                const [createdObj] = await createTestBankAccount(admin, organization)
+                const [createdObj] = await createTestBankAccount(admin, organization, property)
 
                 await catchErrorFrom(
                     async () => {
@@ -358,12 +383,13 @@ describe('BankAccount', () => {
         test('can\'t create same BankAccount', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
 
-            const [bankAccount] = await createTestBankAccount(admin, organization)
+            const [bankAccount] = await createTestBankAccount(admin, organization, property)
 
             await catchErrorFrom(
                 async () => {
-                    await createTestBankAccount(admin, organization, {
+                    await createTestBankAccount(admin, organization, property, {
                         tin: bankAccount.tin,
                         routingNumber: bankAccount.routingNumber,
                         number: bankAccount.number,
@@ -378,12 +404,13 @@ describe('BankAccount', () => {
         test('can delete and then create another BankAccount with same requisites', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
+            const [property] = await createTestProperty(admin, organization)
 
-            const [firstBankAccount] = await createTestBankAccount(admin, organization)
+            const [firstBankAccount] = await createTestBankAccount(admin, organization, property)
 
             await updateTestBankAccount(admin, firstBankAccount.id, { deletedAt: 'true' })
 
-            const [secondBankAccount] = await createTestBankAccount(admin, organization, {
+            const [secondBankAccount] = await createTestBankAccount(admin, organization, property,  {
                 tin: firstBankAccount.tin,
                 routingNumber: firstBankAccount.routingNumber,
                 number: firstBankAccount.number,

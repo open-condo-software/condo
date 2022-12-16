@@ -5772,6 +5772,8 @@ export type BankAccount = {
   _label_?: Maybe<Scalars['String']>;
   /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organization?: Maybe<Organization>;
+  /**  Property to which this bank account is connected  */
+  property?: Maybe<Property>;
   /**  Tax Identification Number  */
   tin?: Maybe<Scalars['String']>;
   /**  Structured metadata found by tin  */
@@ -5821,6 +5823,7 @@ export enum BankAccountCountryType {
 
 export type BankAccountCreateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
   country?: Maybe<BankAccountCountryType>;
@@ -5857,6 +5860,7 @@ export type BankAccountHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
   country?: Maybe<Scalars['String']>;
@@ -5887,6 +5891,7 @@ export type BankAccountHistoryRecord = {
 
 export type BankAccountHistoryRecordCreateInput = {
   organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
   country?: Maybe<Scalars['String']>;
@@ -5922,6 +5927,7 @@ export enum BankAccountHistoryRecordHistoryActionType {
 
 export type BankAccountHistoryRecordUpdateInput = {
   organization?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
   country?: Maybe<Scalars['String']>;
@@ -5956,6 +5962,10 @@ export type BankAccountHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   tin?: Maybe<Scalars['String']>;
   tin_not?: Maybe<Scalars['String']>;
   tin_contains?: Maybe<Scalars['String']>;
@@ -6217,6 +6227,7 @@ export type BankAccountHistoryRecordsUpdateInput = {
 
 export type BankAccountUpdateInput = {
   organization?: Maybe<OrganizationRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
   tin?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
   country?: Maybe<BankAccountCountryType>;
@@ -6246,6 +6257,8 @@ export type BankAccountWhereInput = {
   OR?: Maybe<Array<Maybe<BankAccountWhereInput>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
   tin?: Maybe<Scalars['String']>;
   tin_not?: Maybe<Scalars['String']>;
   tin_contains?: Maybe<Scalars['String']>;
@@ -46188,6 +46201,8 @@ export enum SortBankAccountHistoryRecordsBy {
 export enum SortBankAccountsBy {
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
   TinAsc = 'tin_ASC',
   TinDesc = 'tin_DESC',
   CountryAsc = 'country_ASC',
