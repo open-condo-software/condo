@@ -1,5 +1,4 @@
 import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import { CheckOutlined } from '@ant-design/icons'
 import { Col, Row, Space, Image } from 'antd'
@@ -10,8 +9,10 @@ import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
 import { colors } from '@open-condo/ui/dist/colors'
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
-import { LABEL_TO_TAG_PROPS, CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
+import { CONTEXT_IN_PROGRESS_STATUS } from '@condo/domains/miniapp/constants'
 import styled from '@emotion/styled'
+
+import { AppLabelTag } from '../AppLabelTag'
 
 const CAROUSEL_CHANGE_DELAY = 6000 // 6 sec
 const CAROUSEL_CHANGE_SPEED = 800 // 0.8 sec
@@ -90,7 +91,6 @@ const TopCard = React.memo<TopCardProps>(({
 }) => {
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
-    const LabelMessage = label && intl.formatMessage({ id: `miniapps.labels.${label}.name` })
     const router = useRouter()
     const [{ width }, setRef] = useContainerSize()
 
@@ -118,7 +118,6 @@ const TopCard = React.memo<TopCardProps>(({
         return btnProps
     }, [id, type, appUrl, contextStatus, connectAction, intl, router])
 
-    const labelTagProps = label && get(LABEL_TO_TAG_PROPS, label, {})
     const images = gallery || []
     const imagesAmount = images.length
     const [currentSlide, setCurrentSlide] = useState(0)
@@ -163,7 +162,7 @@ const TopCard = React.memo<TopCardProps>(({
                         <Space direction='horizontal' size={TAG_SPACING}>
                             <Tag>{CategoryMessage}</Tag>
                             {Boolean(label) && (
-                                <Tag {...labelTagProps}>{LabelMessage}</Tag>
+                                <AppLabelTag type={label}/>
                             )}
                         </Space>
                         <Typography.Title level={1}>
