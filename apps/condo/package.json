@@ -111,7 +111,7 @@
     "jwt-decode": "3.1.2",
     "less": "^3.12.2",
     "lodash": "^4.17.21",
-    "minimatch": "^3.0.4",
+    "minimatch": "^5.1.1",
     "next": "^9.5.5",
     "next-cookies": "^2.0.3",
     "next-transpile-modules": "^7.0.0",
