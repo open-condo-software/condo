@@ -11,6 +11,7 @@ import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { TableRowSelection } from 'antd/lib/table/interface'
+import styled from '@emotion/styled'
 
 import { jsx } from '@emotion/react'
 import { SortTicketsBy, Ticket as ITicket } from '@app/condo/schema'
@@ -68,6 +69,20 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 const BUTTON_WRAPPER_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
+
+const StyledTable = styled(Table)`
+  .ant-checkbox-input {
+    width: 50px;
+    height: calc(100% + 32px);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: red;
+  }
+  .ant-table-scroll-horizontal .ant-checkbox-input {
+    width: 40px;
+  }
+`
 
 const TicketTable = ({
     sortBy,
@@ -196,7 +211,7 @@ const TicketTable = ({
 
     const TicketTableContent = useMemo(() => (
         <Col span={24}>
-            <Table
+            <StyledTable
                 totalRows={total}
                 loading={loading}
                 dataSource={loading ? null : tickets}
