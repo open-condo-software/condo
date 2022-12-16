@@ -8,6 +8,7 @@ const { generators } = require('openid-client')
 const conf = require('@open-condo/config')
 
 const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { USER_EXTERNAL_IDENTITY_CALLBACK_PATH } = require('@condo/domains/user/constants/links')
 const AbstractIdentityIntegration = require('@condo/domains/user/integration/identity/AbstractIdentityIntegration')
 
 // get sber id configuration params
@@ -24,7 +25,9 @@ const {
     key,
     verifyServerSsl,
 } = SBER_ID_CONFIG
-const callbackUri = redirectUri || `${conf.SERVER_URL}/user-external-identity/${SBER_ID_IDP_TYPE}/callback`
+const callbackPath = USER_EXTERNAL_IDENTITY_CALLBACK_PATH.replace(':type', SBER_ID_IDP_TYPE)
+const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
+const axiosTimeout = 10000
 
 // instantiate httpsAgent in order to support mTLS communication with sber id servers
 const httpsAgent = new https.Agent({
@@ -82,6 +85,7 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
 
         // send a request
         const tokenResponse = await axios.create({
+            timeout: axiosTimeout,
             headers: {
                 'x-ibm-client-id': clientId,
                 'rquid': this.generateRequestId(),
@@ -115,6 +119,7 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
     async getUserInfo ({ accessToken }) {
         // send a request
         const response = await axios.create({
+            timeout: axiosTimeout,
             headers: {
                 'Authorization': `Bearer ${accessToken}`,
                 'x-ibm-client-id': clientId,
