@@ -475,7 +475,6 @@ __metadata:
     "@open-condo/keystone": "workspace:^"
     "@open-condo/locales": "workspace:^"
     "@open-condo/next": "workspace:^"
-    "@open-condo/ui": "workspace:^"
     "@types/lodash": 4.14.182
     "@types/node": ^14.18.21
     "@types/react": 16.9.17
@@ -630,7 +629,7 @@ __metadata:
     node-fetch: ^2.6.7
     numeral: 2.0.6
     nunjucks: ^3.2.2
-    oidc-provider: ^7.10.6
+    oidc-provider: 7.14.3
     openid-client: 4.7.4
     phone: 3.1.29
     pino: ^6.13.3
@@ -8076,12 +8075,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@koa/cors@npm:^3.1.0":
-  version: 3.4.1
-  resolution: "@koa/cors@npm:3.4.1"
+"@koa/cors@npm:^3.3.0":
+  version: 3.4.3
+  resolution: "@koa/cors@npm:3.4.3"
   dependencies:
     vary: ^1.1.2
-  checksum: 8359f19e156f36016ae3f174ef374bd377eee271b29b9106d595f53fb8c80b63d6b8db7471a466fdc68f62f06286722c5351b5463ed2d46fe88256a568045af6
+  checksum: 51a5b89b4ea19078272ea2702916c90375853b6cfb9b65bf7720653e99b36950c1fd90df66a77fb17839bb130dc7c9f83ccc0bcec40f9d09769f9ed77ced5f23
   languageName: node
   linkType: hard
 
@@ -15442,7 +15441,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cacheable-lookup@npm:^6.0.1":
+"cacheable-lookup@npm:^6.0.4":
   version: 6.1.0
   resolution: "cacheable-lookup@npm:6.1.0"
   checksum: 4e37afe897219b1035335b0765106a2c970ffa930497b43cac5000b860f3b17f48d004187279fae97e2e4cbf6a3693709b6d64af65279c7d6c8453321d36d118
@@ -19489,7 +19488,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ejs@npm:^3.1.6":
+"ejs@npm:^3.1.8":
   version: 3.1.8
   resolution: "ejs@npm:3.1.8"
   dependencies:
@@ -22518,7 +22517,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"got@npm:^11.8.0, got@npm:^11.8.2":
+"got@npm:^11.8.0":
   version: 11.8.5
   resolution: "got@npm:11.8.5"
   dependencies:
@@ -22534,6 +22533,25 @@ __metadata:
     p-cancelable: ^2.0.0
     responselike: ^2.0.0
   checksum: 2de8a1bbda4e9b6b2b72b2d2100bc055a59adc1740529e631f61feb44a8b9a1f9f8590941ed9da9df0090b6d6d0ed8ffee94cd9ac086ec3409b392b33440f7d2
+  languageName: node
+  linkType: hard
+
+"got@npm:^11.8.5":
+  version: 11.8.6
+  resolution: "got@npm:11.8.6"
+  dependencies:
+    "@sindresorhus/is": ^4.0.0
+    "@szmarczak/http-timer": ^4.0.5
+    "@types/cacheable-request": ^6.0.1
+    "@types/responselike": ^1.0.0
+    cacheable-lookup: ^5.0.3
+    cacheable-request: ^7.0.2
+    decompress-response: ^6.0.0
+    http2-wrapper: ^1.0.0-beta.5.2
+    lowercase-keys: ^2.0.0
+    p-cancelable: ^2.0.0
+    responselike: ^2.0.0
+  checksum: bbc783578a8d5030c8164ef7f57ce41b5ad7db2ed13371e1944bef157eeca5a7475530e07c0aaa71610d7085474d0d96222c9f4268d41db333a17e39b463f45d
   languageName: node
   linkType: hard
 
@@ -26222,10 +26240,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jose@npm:^4.1.4":
-  version: 4.9.0
-  resolution: "jose@npm:4.9.0"
-  checksum: fc1e71f49327206eb58b23a2c5d463c3b1c84cd60ba2b8f8ab74db4a96ec079915fc71bc8b7d57d77b25d1426cd02eb218bf426738e803ab1a52adc1d96d0912
+"jose@npm:^4.10.3":
+  version: 4.11.1
+  resolution: "jose@npm:4.11.1"
+  checksum: cd15cba258d0fd20f6168631ce2e94fda8442df80e43c1033c523915cecdf390a1cc8efe0eab0c2d65935ca973d791c668aea80724d2aa9c2879d4e70f3081d7
   languageName: node
   linkType: hard
 
@@ -26937,9 +26955,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"koa@npm:^2.13.3":
-  version: 2.13.4
-  resolution: "koa@npm:2.13.4"
+"koa@npm:^2.13.4":
+  version: 2.14.1
+  resolution: "koa@npm:2.14.1"
   dependencies:
     accepts: ^1.3.5
     cache-content-type: ^1.0.0
@@ -26964,7 +26982,7 @@ __metadata:
     statuses: ^1.5.0
     type-is: ^1.6.16
     vary: ^1.1.2
-  checksum: c9a6f9c803433b2d143a0788308048c1432a71c5febcfea2af7f2e8bd732b9bfd75c2c220d553752ee9ab9a3f52490f006cfd521db97cd01d8461d67cc1ccc1f
+  checksum: 84cfce48d72cf434831bd9f4f06beb3815da030325a7e89b13ee684f5afd158221e16c2d450ca637b221aa0c4a0ab235edd129e4efea656dc5d8384801d3e90f
   languageName: node
   linkType: hard
 
@@ -29668,7 +29686,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.1.28, nanoid@npm:^3.3.1, nanoid@npm:^3.3.4":
+"nanoid@npm:^3.3.1, nanoid@npm:^3.3.4":
   version: 3.3.4
   resolution: "nanoid@npm:3.3.4"
   bin:
@@ -30742,7 +30760,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^2.0.1, object-hash@npm:^2.1.1, object-hash@npm:^2.2.0":
+"object-hash@npm:^2.0.1, object-hash@npm:^2.1.1":
   version: 2.2.0
   resolution: "object-hash@npm:2.2.0"
   checksum: 55ba841e3adce9c4f1b9b46b41983eda40f854e0d01af2802d3ae18a7085a17168d6b81731d43fdf1d6bcbb3c9f9c56d22c8fea992203ad90a38d7d919bc28f1
@@ -30890,30 +30908,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"oidc-provider@npm:^7.10.6":
-  version: 7.11.5
-  resolution: "oidc-provider@npm:7.11.5"
+"oidc-provider@npm:7.14.3":
+  version: 7.14.3
+  resolution: "oidc-provider@npm:7.14.3"
   dependencies:
-    "@koa/cors": ^3.1.0
-    cacheable-lookup: ^6.0.1
-    debug: ^4.3.2
-    ejs: ^3.1.6
-    got: ^11.8.2
-    jose: ^4.1.4
+    "@koa/cors": ^3.3.0
+    cacheable-lookup: ^6.0.4
+    debug: ^4.3.4
+    ejs: ^3.1.8
+    got: ^11.8.5
+    jose: ^4.10.3
     jsesc: ^3.0.2
-    koa: ^2.13.3
+    koa: ^2.13.4
     koa-compose: ^4.1.0
-    nanoid: ^3.1.28
-    object-hash: ^2.2.0
+    nanoid: ^3.3.4
+    object-hash: ^3.0.0
     oidc-token-hash: ^5.0.1
     paseto: ^2.1.3
     paseto3: "npm:paseto@^3.1.0"
     quick-lru: ^5.1.1
-    raw-body: ^2.4.1
+    raw-body: ^2.5.1
   dependenciesMeta:
     paseto3:
       optional: true
-  checksum: 052666ecc5d1522a69204f9903e6337a32c2e464dd389a186cf31387e9212fc7d52ff2c00dec2dcf5d4e864cb082f8eabd68aff3d82e323a5e570069581be12c
+  checksum: 4cd13518c66a3a66e0e93b9a2060554ec3314b9b1abb1c2c65d41dfa62cf32e66f0c9707bd867c9ea5cf6e7bb97492fc14326a59c9d73564860da8367ed7d298
   languageName: node
   linkType: hard
 
@@ -31746,9 +31764,9 @@ __metadata:
   linkType: hard
 
 "paseto3@npm:paseto@^3.1.0":
-  version: 3.1.0
-  resolution: "paseto@npm:3.1.0"
-  checksum: 31924b8ec251cde0faed30f72ecb50c2c1af1077c7d11aa376a4c51de4dbf0177ac26051460a1c68e574e313ba8cad25f9297f114b95e571f25475762bb51015
+  version: 3.1.2
+  resolution: "paseto@npm:3.1.2"
+  checksum: 807484f930375c5fdb6e2e003e19061897739c05d6bd07f7e238b12bf2c686cd02e6542d7ba0205199076b1181c112b2cf690fe5e9da3cf1b5e392ac7e9d862c
   languageName: node
   linkType: hard
 
@@ -34117,7 +34135,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"raw-body@npm:2.5.1, raw-body@npm:^2.2.0, raw-body@npm:^2.4.1":
+"raw-body@npm:2.5.1, raw-body@npm:^2.2.0, raw-body@npm:^2.4.1, raw-body@npm:^2.5.1":
   version: 2.5.1
   resolution: "raw-body@npm:2.5.1"
   dependencies:

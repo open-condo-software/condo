@@ -118,7 +118,7 @@
     "node-fetch": "^2.6.7",
     "numeral": "2.0.6",
     "nunjucks": "^3.2.2",
-    "oidc-provider": "^7.10.6",
+    "oidc-provider": "7.14.3",
     "openid-client": "4.7.4",
     "phone": "3.1.29",
     "pino": "^6.13.3",
