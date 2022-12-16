@@ -16,6 +16,7 @@ const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquirin
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { isEmpty, isUndefined, isNull } = require('lodash')
 const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -113,10 +114,12 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         auth: true,
     },
     hooks: {
-        validateInput: async ({ resolvedData, context, addValidationError, operation }) => {
-            if (operation === 'create') {
+        validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
+            if (resolvedData['status'] === CONTEXT_FINISHED_STATUS && !resolvedData['deletedAt']) {
+                const newItem = { ...existingItem, ...resolvedData }
                 const activeContexts = await ContextServerSchema.getAll(context, {
-                    organization: { id: resolvedData['organization'] },
+                    organization: { id: newItem['organization'] },
+                    status: CONTEXT_FINISHED_STATUS,
                     deletedAt: null,
                 })
                 if (activeContexts.length) {

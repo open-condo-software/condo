@@ -23,7 +23,7 @@ const {
     createTestBillingIntegrationOrganizationContext,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
-const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_STATUSES, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 describe('BillingIntegrationOrganizationContext', () => {
     describe('CRUD tests', () => {
@@ -37,9 +37,15 @@ describe('BillingIntegrationOrganizationContext', () => {
             const { context, integration, organization, admin } = await makeContextWithOrganizationAndIntegrationAsAdmin()
 
             await updateTestBillingIntegration(admin, integration.id, { isHidden: false })
+            const [updatedContext] = await updateTestBillingIntegrationOrganizationContext(admin, context.id, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
+            expect(updatedContext).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
 
             await catchErrorFrom(async () => {
-                await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+                await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
             }, (e) => {
                 expect(e.errors[0].data.messages[0]).toContain('Can\'t create two BillingIntegrationOrganizationContexts')
             })
