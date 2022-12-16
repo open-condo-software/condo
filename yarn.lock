@@ -622,7 +622,7 @@ __metadata:
     less: ^3.12.2
     less-loader: ^4.0.0
     lodash: ^4.17.21
-    minimatch: ^3.0.4
+    minimatch: ^5.1.1
     mkdirp: ^1.0.4
     next: ^9.5.5
     next-cookies: ^2.0.3
@@ -8700,7 +8700,7 @@ __metadata:
     graphql-tag: ^2.12.6
     ioredis: ^4.28.5
     lodash: ^4.17.21
-    minimatch: ^3.1.2
+    minimatch: ^5.1.1
     node-fetch: ^2.6.7
     ow: ^0.19.0
     pino: ^6.13.3
@@ -29211,6 +29211,15 @@ __metadata:
   dependencies:
     brace-expansion: ^2.0.1
   checksum: 15ce53d31a06361e8b7a629501b5c75491bc2b59712d53e802b1987121d91b433d73fcc5be92974fde66b2b51d8fb28d75a9ae900d249feb792bb1ba2a4f0a90
+  languageName: node
+  linkType: hard
+
+"minimatch@npm:^5.1.1":
+  version: 5.1.1
+  resolution: "minimatch@npm:5.1.1"
+  dependencies:
+    brace-expansion: ^2.0.1
+  checksum: 215edd0978320a3354188f84a537d45841f2449af4df4379f79b9b777e71aa4f5722cc9d1717eabd2a70d38ef76ab7b708d24d83ea6a6c909dfd8833de98b437
   languageName: node
   linkType: hard
 
