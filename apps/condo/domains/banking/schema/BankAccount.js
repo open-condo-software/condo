@@ -4,7 +4,7 @@
 
 const { get } = require('lodash')
 
-const { Text, DateTimeUtc, Select } = require('@keystonejs/fields')
+const { Text, DateTimeUtc, Select, Relationship } = require('@keystonejs/fields')
 const { Json } = require('@open-condo/keystone/fields')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -23,6 +23,15 @@ const BankAccount = new GQLListSchema('BankAccount', {
     schemaDoc: 'Bank account, that will have transactions, pulled from various integrated data sources',
     fields: {
         organization: ORGANIZATION_OWNED_FIELD,
+
+        property: {
+            schemaDoc: 'Property to which this bank account is connected',
+            type: Relationship,
+            ref: 'Property',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
 
         tin: {
             schemaDoc: 'Tax Identification Number',

@@ -12759,6 +12759,7 @@ type BankAccountHistoryRecord {
   """
   _label_: String
   organization: String
+  property: String
   tin: String
   tinMeta: JSON
   country: String
@@ -12794,6 +12795,10 @@ input BankAccountHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
   tin: String
   tin_not: String
   tin_contains: String
@@ -13083,6 +13088,7 @@ enum SortBankAccountHistoryRecordsBy {
 
 input BankAccountHistoryRecordUpdateInput {
   organization: String
+  property: String
   tin: String
   tinMeta: JSON
   country: String
@@ -13117,6 +13123,7 @@ input BankAccountHistoryRecordsUpdateInput {
 
 input BankAccountHistoryRecordCreateInput {
   organization: String
+  property: String
   tin: String
   tinMeta: JSON
   country: String
@@ -13148,6 +13155,13 @@ input BankAccountHistoryRecordsCreateInput {
   data: BankAccountHistoryRecordCreateInput
 }
 
+input PropertyRelateToOneInput {
+  create: PropertyCreateInput
+  connect: PropertyWhereUniqueInput
+  disconnect: PropertyWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 enum BankAccountCountryType {
   en
   ru
@@ -13168,6 +13182,9 @@ type BankAccount {
   """ Ref to the organization. The object will be deleted if the organization ceases to exist 
   """
   organization: Organization
+
+  """ Property to which this bank account is connected """
+  property: Property
 
   """ Tax Identification Number """
   tin: String
@@ -13238,6 +13255,8 @@ input BankAccountWhereInput {
   OR: [BankAccountWhereInput]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  property: PropertyWhereInput
+  property_is_null: Boolean
   tin: String
   tin_not: String
   tin_contains: String
@@ -13441,6 +13460,8 @@ input BankAccountWhereUniqueInput {
 enum SortBankAccountsBy {
   organization_ASC
   organization_DESC
+  property_ASC
+  property_DESC
   tin_ASC
   tin_DESC
   country_ASC
@@ -13481,6 +13502,7 @@ enum SortBankAccountsBy {
 
 input BankAccountUpdateInput {
   organization: OrganizationRelateToOneInput
+  property: PropertyRelateToOneInput
   tin: String
   tinMeta: JSON
   country: BankAccountCountryType
@@ -13512,6 +13534,7 @@ input BankAccountsUpdateInput {
 
 input BankAccountCreateInput {
   organization: OrganizationRelateToOneInput
+  property: PropertyRelateToOneInput
   tin: String
   tinMeta: JSON
   country: BankAccountCountryType
@@ -15891,13 +15914,6 @@ input TicketRelateToOneInput {
   create: TicketCreateInput
   connect: TicketWhereUniqueInput
   disconnect: TicketWhereUniqueInput
-  disconnectAll: Boolean
-}
-
-input PropertyRelateToOneInput {
-  create: PropertyCreateInput
-  connect: PropertyWhereUniqueInput
-  disconnect: PropertyWhereUniqueInput
   disconnectAll: Boolean
 }
 
