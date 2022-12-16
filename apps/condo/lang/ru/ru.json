@@ -203,7 +203,7 @@
   "miniapps.developerCard.partnerSite": "Сайт партнера",
   "miniapps.appDescription.moreAppsInThisCategory": "Другие сервисы в этой категории",
   "miniapps.addDescription.action.connect": "Подключить",
-  "miniapps.addDescription.action.inProgress": "Заявка отправлена",
+  "miniapps.addDescription.action.inProgress": "Заявка обрабатывается",
   "miniapps.addDescription.action.open": "Открыть",
   "miniapps.addDescription.action.connected": "Подключено",
   "miniapp.loadingError.title": "Улучшаем сервис",

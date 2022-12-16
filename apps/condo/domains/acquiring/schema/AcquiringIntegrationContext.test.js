@@ -27,6 +27,7 @@ const {
 
 const { createTestBillingIntegration, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 
 const dayjs = require('dayjs')
 
@@ -111,14 +112,36 @@ describe('AcquiringIntegrationContext', () => {
                             const [billingIntegration] = await createTestBillingIntegration(admin)
                             const [integration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                             const [secondIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
+                            const [thirdIntegration] = await createTestAcquiringIntegration(admin, [billingIntegration])
                             await createTestAcquiringIntegrationAccessRight(admin, integration, client.user)
 
                             const [organization] = await registerNewOrganization(client)
 
-                            await createTestAcquiringIntegrationContext(admin, organization, secondIntegration)
+                            const [initialApplication] = await createTestAcquiringIntegrationContext(admin, organization, secondIntegration, {
+                                status: CONTEXT_IN_PROGRESS_STATUS,
+                            })
+                            expect(initialApplication).toHaveProperty('id')
+                            const [secondApplication] = await createTestAcquiringIntegrationContext(admin, organization, thirdIntegration, {
+                                status: CONTEXT_IN_PROGRESS_STATUS,
+                            })
+                            expect(secondApplication).toHaveProperty('id')
+                            await updateTestAcquiringIntegrationContext(admin, initialApplication.id, {
+                                status: CONTEXT_FINISHED_STATUS,
+                            })
                             await expectToThrowValidationFailureError(async () => {
-                                await createTestAcquiringIntegrationContext(client, organization, integration)
+                                await updateTestAcquiringIntegrationContext(admin, secondApplication.id, {
+                                    status: CONTEXT_FINISHED_STATUS,
+                                })
                             }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+                            await expectToThrowValidationFailureError(async () => {
+                                await createTestAcquiringIntegrationContext(client, organization, integration, {
+                                    status: CONTEXT_FINISHED_STATUS,
+                                })
+                            }, CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
+                            const [thirdApplication] = await createTestAcquiringIntegrationContext(client, organization, integration, {
+                                status: CONTEXT_IN_PROGRESS_STATUS,
+                            })
+                            expect(thirdApplication).toHaveProperty('id')
                         })
                     })
                 })
