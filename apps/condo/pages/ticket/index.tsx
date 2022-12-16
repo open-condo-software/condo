@@ -1,6 +1,8 @@
 /** @jsx jsx */
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import get from 'lodash/get'
+import debounce from 'lodash/debounce'
+import isString from 'lodash/isString'
 import React, { CSSProperties, Key, useCallback, useMemo, useState } from 'react'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -9,13 +11,15 @@ import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import { DiffOutlined, FilterFilled, CloseOutlined } from '@ant-design/icons'
 import { Gutter } from 'antd/lib/grid/row'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
+import { NextRouter, useRouter } from 'next/router'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import styled from '@emotion/styled'
+import qs from 'qs'
 
 import { jsx } from '@emotion/react'
 import { SortTicketsBy, Ticket as ITicket } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
@@ -54,7 +58,6 @@ import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
@@ -69,6 +72,7 @@ const TAP_BAR_ROW_GUTTER: [Gutter, Gutter] = [0, 20]
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 const TOP_BAR_FIRST_COLUMN_GUTTER: [Gutter, Gutter] = [40, 20]
 const BUTTON_WRAPPER_ROW_GUTTER: [Gutter, Gutter] = [10, 0]
+const DEBOUNCE_TIMEOUT = 400
 
 const StyledTable = styled(Table)`
   .ant-checkbox-input {
@@ -83,6 +87,25 @@ const StyledTable = styled(Table)`
     width: 40px;
   }
 `
+
+const updateQuery = async (router: NextRouter, selectedTicketIds: Key[]) => {
+    const route = router.route
+    const payload = { ...router.query, selectedTicketIds: JSON.stringify(selectedTicketIds) }
+    const query = qs.stringify(payload, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
+    await router.push(route + query)
+}
+
+const getInitialSelectedTicketKeys = (router: NextRouter) => {
+    if ('selectedTicketIds' in router.query && isString(router.query.selectedTicketIds)) {
+        try {
+            return JSON.parse(router.query.selectedTicketIds as string)
+        } catch (error) {
+            console.warn('Failed to parse property value "selectedTicketIds"', error)
+            return []
+        }
+    }
+    return []
+}
 
 const TicketTable = ({
     sortBy,
@@ -108,7 +131,16 @@ const TicketTable = ({
 
     const tooltipData = useFiltersTooltipData()
 
-    const [selectedTicketKeys, setSelectedTicketKeys] = useState<Key[]>([])
+    const [selectedTicketKeys, setSelectedTicketKeys] = useState<Key[]>(() => getInitialSelectedTicketKeys(router))
+
+    const changeQuery = useMemo(() => debounce(async (router: NextRouter, selectedTicketKeys: React.Key[]) => {
+        await updateQuery(router, selectedTicketKeys)
+    }, DEBOUNCE_TIMEOUT), [])
+
+    const updateSelectedTicketKeys = useCallback((selectedTicketKeys: Key[]) => {
+        setSelectedTicketKeys(selectedTicketKeys)
+        changeQuery(router, selectedTicketKeys)
+    }, [changeQuery, router])
 
     const selectedRowKeysByPage = useMemo(() => {
         return tickets.filter(ticket => selectedTicketKeys.includes(ticket.id)).map(tickets => tickets.id)
@@ -153,8 +185,8 @@ const TicketTable = ({
     }, [router])
 
     const handleResetSelectedTickets = useCallback(() => {
-        setSelectedTicketKeys([])
-    }, [])
+        updateSelectedTicketKeys([])
+    }, [updateSelectedTicketKeys])
 
     const handleSelectAllRowsByPage = useCallback((e: CheckboxChangeEvent) => {
         const checked = e.target.checked
@@ -162,20 +194,20 @@ const TicketTable = ({
             const newSelectedTicketKeys = tickets
                 .filter(ticket => !selectedRowKeysByPage.includes(ticket.id))
                 .map(ticket => ticket.id)
-            setSelectedTicketKeys(prevState => [...prevState, ...newSelectedTicketKeys])
+            updateSelectedTicketKeys([...selectedTicketKeys, ...newSelectedTicketKeys])
         } else {
-            setSelectedTicketKeys(prevState => prevState.filter(key => !selectedRowKeysByPage.includes(key)))
+            updateSelectedTicketKeys(selectedTicketKeys.filter(key => !selectedRowKeysByPage.includes(key)))
         }
-    }, [selectedRowKeysByPage, tickets])
+    }, [tickets, updateSelectedTicketKeys, selectedTicketKeys, selectedRowKeysByPage])
 
     const handleSelectRow: (record: ITicket, checked: boolean) => void = useCallback((record, checked) => {
         const selectedKey = record.id
         if (checked) {
-            setSelectedTicketKeys(prevState => [...prevState, selectedKey])
+            updateSelectedTicketKeys([...selectedTicketKeys, selectedKey])
         } else {
-            setSelectedTicketKeys(prevState => prevState.filter(key => selectedKey !== key))
+            updateSelectedTicketKeys(selectedTicketKeys.filter(key => selectedKey !== key))
         }
-    }, [])
+    }, [selectedTicketKeys, updateSelectedTicketKeys])
 
     const handleSelectRowWithTracking = useMemo(
         () => getTrackingWrappedCallback('TicketTableCheckboxSelectRow', null, handleSelectRow),
@@ -226,6 +258,7 @@ const TicketTable = ({
     ), [columns, handleRowAction, loading, rowSelection, tableComponents, tickets, total])
 
     useDeepCompareEffect(() => {
+        if (total === null) return
         setSelectedTicketKeys([])
     }, [filters, sortBy])
 
