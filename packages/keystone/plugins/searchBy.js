@@ -63,7 +63,6 @@ const checkPreprocessors = (preprocessorsForFields) => {
 const getRefSchemaByField = async (schemaName, nextFieldName) => {
     try {
         const schema = await getSchemaCtx(schemaName)
-        console.log('getRefSchemaByField', schema.keystone.getListByKey(schemaName).adapter.update)
         return schema.keystone.getListByKey(schemaName)._fields[nextFieldName].ref
     } catch (e) {
         return null
@@ -100,15 +99,6 @@ const getValueByPathToField = async (pathToFieldInArray, item, schemaFields) => 
     return await getValueFromRelatedSchema(fieldRef, fieldValue, pathToFieldInArray.slice(1))
 }
 
-// const addTrackingRelatedEntities = (pathsToFields) => {
-//     const pathsToRelatedFieldsToArray = pathsToFields
-//         .map(item =>  item.split('.'))
-//         .filter(item => item.length > 1)
-//
-//     console.log({pathsToRelatedFieldsToArray})
-//
-// }
-
 const updateSearchFieldVersion = (props) => {
     const { operation, pathsToFields, existingItem, resolvedData, searchVersionField } = props
 
@@ -119,7 +109,6 @@ const updateSearchFieldVersion = (props) => {
             const prevSearchVersion = get(existingItem, searchVersionField)
             if (prevSearchVersion && isNumber(prevSearchVersion)) {
                 resolvedData[searchVersionField] = prevSearchVersion + 1
-                console.log('updateSearchFieldVersion', prevSearchVersion, '-->', prevSearchVersion + 1)
             }
         }
     }
@@ -141,7 +130,6 @@ const updateSearchField = async (props) => {
             const preprocessedValue = preprocessor ? preprocessor(value) : value
             values.push(preprocessedValue)
         }
-        console.log('updateSearchField', values.filter(item => !isNil(item)).join(' '))
 
         resolvedData[searchField] = values.filter(item => !isNil(item)).join(' ')
     }
@@ -155,10 +143,16 @@ const isUpdatedField = ({ field, existingItem, newItem }) => {
 //  [✔] Need add index for search field (!!)
 //  [✔] Add a check for changes to tracked fields (!)
 //  [✔] Add search field update when related entities update (!)
-//  [ ] "await schemaGql.update" change to execGqlWithoutAccess and custom gql
+//  [✔] Add search field update when related entities was deleted (!)
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
 
+/**
+ * @param {object} obj
+ * @param {string?} obj.searchField
+ * @param {string[]} obj.pathsToFields
+ * @param {Object<string, function>} obj.preprocessorsForFields
+ */
 const searchBy = ({ searchField = 'search', pathsToFields = [], preprocessorsForFields = {} } = {}) => plugin((props) => {
     const { fields = {}, hooks = {}, kmigratorOptions = {}, ...rest } = props
 
@@ -174,15 +168,8 @@ const searchBy = ({ searchField = 'search', pathsToFields = [], preprocessorsFor
     const newResolveInput = async (props) => {
         const { resolvedData, existingItem, operation } = props
         const newItem = { ...existingItem, ...resolvedData }
-
-        console.log('newResolveInput', 1)
-
         updateSearchFieldVersion({ operation, pathsToFields, existingItem, resolvedData, searchVersionField })
-
-        console.log('newResolveInput', 2)
         await updateSearchField({ resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchVersionField })
-
-        console.log('newResolveInput', 3, resolvedData)
         return resolvedData
     }
 
