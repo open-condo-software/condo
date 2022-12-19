@@ -17,6 +17,8 @@ export const SideBlockTabs = styled(Tabs)`
   }
 
   & > .ant-tabs-nav {
+    position: sticky;
+    top: 40px;
     margin-left: 72px;
     width: 280px;
     height: fit-content;
@@ -82,7 +84,9 @@ export const Tab: React.FC<TabProps> = ({
     return (
         <TabWrapper onClick={onClickCallback}>
             {showIcon && (
-                icon
+                <span>
+                    {icon}
+                </span>
             )}
             <span>
                 {title}
