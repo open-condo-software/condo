@@ -461,7 +461,6 @@ const previewCSS = css`
   }
   .ant-image-preview-img {
     width: auto;
-    //border-radius: 12px;
     max-width: calc(100vw - 120px) !important;
     height: 600px;
     object-fit: contain;

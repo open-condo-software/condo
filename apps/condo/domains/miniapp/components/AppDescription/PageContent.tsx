@@ -74,6 +74,7 @@ const PageContent: React.FC<PageContentProps> = ({
 }) => {
     const intl = useIntl()
     const MoreAppsMessage = intl.formatMessage({ id: 'miniapps.appDescription.moreAppsInThisCategory' })
+
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 

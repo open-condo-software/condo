@@ -19,6 +19,7 @@ type B2BPageProps = {
 export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const [modalOpen, setModalOpen] = useState(false)
@@ -76,7 +77,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         connectAction={createContextAction}
                     />
                     <ConnectModal
-                        miniappHasFrame={!!app.appUrl}
+                        miniappHasFrame={Boolean(app.appUrl)}
                         contextStatus={get(context, 'status', null)}
                         open={modalOpen}
                         closeModal={handleCloseModal}

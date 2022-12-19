@@ -29,8 +29,8 @@ const TITLE_ROW_VERT_ALIGN_STYLES: CSSProperties = {}
 const SEARCH_FIXED_STYLES: CSSProperties = { width: 280 }
 const SEARCH_FULL_STYLES: CSSProperties = { width: '100%', marginTop: 20 }
 const TITLE_COL_THRESHOLD = 500
-const BANNER_CHANGE_DELAY = 6000 // 6 sec
-const BANNER_CHANGE_SPEED = 1200 // 1.2 sec
+const BANNER_CHANGE_DELAY_IN_MS = 6000 // 6 sec
+const BANNER_CHANGE_SPEED_IN_MS = 1200 // 1.2 sec
 const ALL_SECTIONS = [
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
@@ -61,11 +61,13 @@ export const CatalogPageContent: React.FC = () => {
         sortBy: [SortB2BAppPromoBlocksBy.PriorityDesc, SortB2BAppPromoBlocksBy.CreatedAtDesc],
     })
 
-    const handleBannerClick = useCallback((targetUrl, isExternal) => {
-        if (!isExternal) {
-            router.push(targetUrl)
-        } else if (typeof window !== 'undefined') {
-            window.open(targetUrl, '_blank')
+    const getBannerOnClickEvent = useCallback((targetUrl, isExternal) => {
+        return function onClick () {
+            if (!isExternal) {
+                router.push(targetUrl)
+            } else if (typeof window !== 'undefined') {
+                window.open(targetUrl, '_blank')
+            }
         }
     }, [router])
 
@@ -134,8 +136,8 @@ export const CatalogPageContent: React.FC = () => {
                     <Col span={FULL_COL_SPAN}>
                         <Carousel
                             autoplay
-                            autoplaySpeed={BANNER_CHANGE_DELAY}
-                            speed={BANNER_CHANGE_SPEED}
+                            autoplaySpeed={BANNER_CHANGE_DELAY_IN_MS}
+                            speed={BANNER_CHANGE_SPEED_IN_MS}
                             effect='fade'
                         >
                             {promoBlocks.map(promoBlock => (
@@ -147,7 +149,7 @@ export const CatalogPageContent: React.FC = () => {
                                     actionText={BannerMoreMessage}
                                     imgUrl={get(promoBlock, ['backgroundImage', 'publicUrl'])}
                                     {...PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS[promoBlock.textVariant]}
-                                    onClick={() => handleBannerClick(promoBlock.targetUrl, promoBlock.external)}
+                                    onClick={getBannerOnClickEvent(promoBlock.targetUrl, promoBlock.external)}
                                 />
                             ))}
                         </Carousel>

@@ -36,11 +36,7 @@ const MiniappDescriptionPage: PageType = () => {
         return <LoadingOrErrorPage title={PageTitle} error={NoPermissionsMessage}/>
     }
 
-    return (
-        <>
-            {pageContent}
-        </>
-    )
+    return pageContent
 }
 
 MiniappDescriptionPage.requiredAccess = OrganizationRequired
