@@ -186,7 +186,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
                             <Button
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section && label.trim())}
+                                disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                             > {SaveLabel} </Button>
                         </Col>
                         {
@@ -197,6 +197,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, se
                                         onClick={deleteUnit}
                                         type='sberDangerGhost'
                                         icon={<DeleteFilled />}
+                                        disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                                     >{DeleteLabel}</Button>
                                 </Col>
                             )
