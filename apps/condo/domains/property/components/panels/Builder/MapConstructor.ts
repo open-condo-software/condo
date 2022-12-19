@@ -11,7 +11,6 @@ import {
 import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
 import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import Ajv from 'ajv'
-import isArray  from 'lodash/isArray'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
 import find from 'lodash/find'
@@ -682,9 +681,10 @@ class MapEdit extends MapView {
                     }))
             ).flat(2)
 
+        this._duplicatedUnits = []
         const notUniqSectionLabels = unitLabels && !isEmpty(unitLabels.filter(unit => {
             if (unit.label === newLabel) {
-                isArray(this._duplicatedUnits) && this._duplicatedUnits.push(unit.id)
+                this._duplicatedUnits.push(unit.id)
                 return unit
             }
         }))
@@ -706,9 +706,10 @@ class MapEdit extends MapView {
                     }))
             ).flat(2)
 
+        this._duplicatedUnits = []
         const notUniqParkingLabels = parkingUnitLabels && !isEmpty(parkingUnitLabels.filter(parking => {
             if (parking.label === newLabel) {
-                isArray(this._duplicatedUnits) && this._duplicatedUnits.push(parking.id)
+                this._duplicatedUnits.push(parking.id)
                 return parking
             }
         }))
