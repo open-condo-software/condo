@@ -11,8 +11,7 @@ export default {
         autoFocus: false,
         defaultChecked: false,
         indeterminate: false,
-        children: 'Label',
-        boldLabel: false,
+        label: 'Label',
     },
     argTypes: {
         onChange: {
@@ -42,4 +41,8 @@ export const Disabled = Template.bind({})
 Disabled.args = {
     checked: true,
     disabled: true,
+}
+export const BoldText = Template.bind({})
+BoldText.args = {
+    labelProps: { strong: true },
 }
