@@ -23,7 +23,12 @@ const SPACED_BUTTON_SPACING = 60
 const SHRINKED_BUTTON_SPACING = 40
 const TEXT_SPACING = 24
 const TAG_SPACING = 8
-const IMAGE_STYLES: CSSProperties = { width: '100%', height: 400, objectFit: 'cover' }
+const IMAGE_SIZE_LG_THRESHOLD = 500
+const IMAGE_SIZE_MD_THRESHOLD = 400
+const BASE_IMAGE_STYLES: CSSProperties = { width: '100%', objectFit: 'cover' }
+const LARGE_IMAGE_STYLES: CSSProperties = { ...BASE_IMAGE_STYLES, height: 400 }
+const MID_IMAGE_STYLES: CSSProperties = { ...BASE_IMAGE_STYLES, height: 300 }
+const SMALL_IMAGE_STYLES: CSSProperties = { ...BASE_IMAGE_STYLES, height: 275 }
 const IMAGE_WRAPPER_STYLES: CSSProperties = { borderRadius: 12, overflow: 'hidden', width: '100%' }
 const IMAGE_WRAPPER_CLICKABLE: CSSProperties = { ...IMAGE_WRAPPER_STYLES, cursor: 'pointer' }
 const VERT_ALIGN_STYLES: CSSProperties = { display: 'flex', flexDirection: 'column', justifyContent: 'center' }
@@ -76,6 +81,17 @@ const Arrow: React.FC<React.HtmlHTMLAttributes<HTMLDivElement>> = (props) => {
         </ArrowWrapper>
     )
 }
+
+const getImageSize = (width: number) => {
+    if (width > IMAGE_SIZE_LG_THRESHOLD) {
+        return LARGE_IMAGE_STYLES
+    } else if (width > IMAGE_SIZE_MD_THRESHOLD) {
+        return MID_IMAGE_STYLES
+    } else {
+        return SMALL_IMAGE_STYLES
+    }
+}
+
 const TopCard = React.memo<TopCardProps>(({
     id,
     type,
@@ -93,7 +109,8 @@ const TopCard = React.memo<TopCardProps>(({
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
 
     const router = useRouter()
-    const [{ width }, setRef] = useContainerSize()
+    const [{ width: contentWidth }, setContentRef] = useContainerSize()
+    const [{ width: carouselColWidth }, setCarouselColRef] = useContainerSize()
 
     const buttonProps = useMemo<ButtonProps>(() => {
         const btnProps: ButtonProps = { type: 'primary' }
@@ -125,7 +142,7 @@ const TopCard = React.memo<TopCardProps>(({
     const [currentPreview, setCurrentPreview] = useState(0)
     const [previewVisible, setPreviewVisible] = useState(false)
     const sliderRef = useRef<CarouselRef>(null)
-    const isWide = width > WIDE_DISPLAY_THRESHOLD
+    const isWide = contentWidth > WIDE_DISPLAY_THRESHOLD
 
     // NOTE: Carousel / preview logic
     // Clicking on carousel slide opens preview at the same picture and stops carousel from autoplay
@@ -152,11 +169,13 @@ const TopCard = React.memo<TopCardProps>(({
     }, [imagesAmount])
 
     const sectionSpan = isWide ? HALF_COL_SPAN : FULL_COL_SPAN
-    const buttonSpacing = isWide ? SPACED_BUTTON_SPACING : SHRINKED_BUTTON_SPACING
+    const isSmallSlide = carouselColWidth <= IMAGE_SIZE_MD_THRESHOLD
+    const buttonSpacing = isWide && !isSmallSlide ? SPACED_BUTTON_SPACING : SHRINKED_BUTTON_SPACING
     const rowStyles = isWide ? {} : SPACED_ROW_STYLES
+    const slideImageStyles = getImageSize(carouselColWidth)
 
     return (
-        <Row gutter={ROW_GUTTER} ref={setRef} style={rowStyles}>
+        <Row gutter={ROW_GUTTER} ref={setContentRef} style={rowStyles}>
             <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
                 <Space direction='vertical' size={buttonSpacing}>
                     <Space direction='vertical' size={TEXT_SPACING}>
@@ -181,7 +200,7 @@ const TopCard = React.memo<TopCardProps>(({
                     <Button {...buttonProps}/>
                 </Space>
             </Col>
-            <Col span={sectionSpan} style={VERT_ALIGN_STYLES}>
+            <Col span={sectionSpan} style={VERT_ALIGN_STYLES} ref={setCarouselColRef}>
                 {Boolean(images.length) && (
                     <>
                         <Carousel
@@ -193,10 +212,11 @@ const TopCard = React.memo<TopCardProps>(({
                             beforeChange={handleSlideChange}
                             ref={sliderRef}
                             effect='fade'
+                            dots
                         >
                             {images.map((src, idx) => (
                                 <Image
-                                    style={IMAGE_STYLES}
+                                    style={slideImageStyles}
                                     wrapperStyle={isWide ? IMAGE_WRAPPER_CLICKABLE : IMAGE_WRAPPER_STYLES}
                                     key={idx}
                                     src={src}
