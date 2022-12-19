@@ -1,18 +1,18 @@
 import React from 'react'
 import { Checkbox as DefaultCheckbox, CheckboxProps as DefaultCheckboxProps } from 'antd'
-import { Typography } from '../Typography'
+import { Typography, TypographyTextProps } from '../Typography'
 
 const CHECKBOX_CLASS_PREFIX = 'condo-checkbox'
 
 type CondoCheckboxProps = {
-    children?: string
-    boldLabel?: boolean
+    label?: string
+    labelProps?: TypographyTextProps
 }
 
 export type CheckboxProps = Pick<DefaultCheckboxProps, 'autoFocus' | 'defaultChecked' | 'disabled' | 'onChange' | 'indeterminate' | 'checked'> & CondoCheckboxProps
 
 const Checkbox: React.FC<CheckboxProps> = (props) => {
-    const { children, boldLabel, disabled, ...rest } = props
+    const { label, labelProps, disabled, ...rest } = props
     return (
         <DefaultCheckbox
             {...rest}
@@ -21,10 +21,10 @@ const Checkbox: React.FC<CheckboxProps> = (props) => {
         >
             <Typography.Text
                 size='medium'
-                strong={boldLabel}
                 disabled={disabled}
+                {...labelProps}
             >
-                {children}
+                {label}
             </Typography.Text>
         </DefaultCheckbox>
     )
