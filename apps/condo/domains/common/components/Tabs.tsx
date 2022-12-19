@@ -5,6 +5,12 @@ import React from 'react'
 import { ITrackingComponent, TrackingEventType, useTracking } from './TrackingContext'
 import { StarIcon } from './icons/Star'
 
+const IconWrapper = styled.span`
+  display: flex;
+  justify-items: center;
+  align-items: center;
+`
+
 export const TopRowTabs = styled(Tabs)`
   & > .ant-tabs-content-holder {
     border: none;
@@ -84,9 +90,9 @@ export const Tab: React.FC<TabProps> = ({
     return (
         <TabWrapper onClick={onClickCallback}>
             {showIcon && (
-                <span>
+                <IconWrapper>
                     {icon}
-                </span>
+                </IconWrapper>
             )}
             <span>
                 {title}
