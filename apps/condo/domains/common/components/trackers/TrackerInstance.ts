@@ -1,6 +1,7 @@
 import getConfig from 'next/config'
 import { get, compact, isEmpty } from 'lodash'
 import { validate as uuidValidate } from 'uuid'
+import { normalizePhone } from '@condo/domains/common/utils/phone'
 
 export type ITrackerLogEventType = {
     eventName: string
@@ -109,7 +110,7 @@ abstract class TrackerInstance {
             } else if (route.length > 1) {
                 const currentDomainConfig = get(this.allowedDomains, route[0], []) as Array<string>
                 const lastPart = route[route.length - 1].split('?')[0]
-                const pageConfigName = uuidValidate(lastPart) ? 'id' : lastPart
+                const pageConfigName = (uuidValidate(lastPart) || normalizePhone(lastPart)) ? 'id' : lastPart
 
                 hasDomainLevelPermission = currentDomainConfig.indexOf(pageConfigName) !== -1
             }

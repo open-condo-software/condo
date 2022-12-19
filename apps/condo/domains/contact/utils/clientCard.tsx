@@ -120,6 +120,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
 }
 
 const SELECT_OPTION_ROW_GUTTER: [Gutter, Gutter] = [120, 0]
+const OPTION_STYLES = { padding: '5px 12px 5px 24px' }
 
 const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, number }) => {
     const intl = useIntl()
@@ -139,7 +140,7 @@ const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, 
         [phone, property, router, type, unitName, unitType])
 
     return (
-        <Row justify='space-between' style={{ paddingRight: '24px' }} onClick={handleClick}>
+        <Row justify='space-between' style={OPTION_STYLES} onClick={handleClick}>
             <Col span={isSmall ? 24 : 21}>
                 <Row gutter={SELECT_OPTION_ROW_GUTTER}>
                     <Col>
