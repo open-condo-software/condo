@@ -6,11 +6,11 @@ export default {
     title: 'Components/Checkbox',
     component: Component,
     args: {
+        indeterminate: false,
         checked: false,
+        defaultChecked: false,
         disabled: false,
         autoFocus: false,
-        defaultChecked: false,
-        indeterminate: false,
         label: 'Label',
     },
     argTypes: {
@@ -23,6 +23,21 @@ export default {
             control: {
                 type: null,
             },
+        },
+        checked: { 
+            control: 'boolean',
+            if: { arg: 'indeterminate', truthy: false },
+        },
+        indeterminate: { 
+            control: 'boolean', 
+            if: { arg: 'checked', truthy: false },
+        },
+        labelProps: {
+            if: { arg: 'label' },
+        },
+        defaultChecked: {
+            control: 'boolean',
+            if: { arg: 'indeterminate', truthy: false },
         },
     },
 } as ComponentMeta<typeof Component>
