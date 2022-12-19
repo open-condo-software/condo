@@ -8,6 +8,7 @@ import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapCo
 export interface IPropertyMapModalForm {
     builder: MapEdit
     refresh(): void
+    setDuplicatedUnitIds?: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 24]

@@ -23,7 +23,7 @@ import { MapEditMode } from '@condo/domains/property/components/panels/Builder/M
 
 const { Option } = Select
 
-const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === MapEditMode.EditUnit ? 'Save' : 'Add' })
@@ -97,13 +97,13 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         let isUnitLabelUnique = true
         const selectedUnit = builder.getSelectedUnit()
         if (mode === MapEditMode.AddUnit) {
-
             isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
         } else if (mode === MapEditMode.EditUnit) {
             if (!selectedUnit) {
                 return false
             }
             isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
+            setDuplicatedUnitIds(builder.duplicatedUnits)
         }
         const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
         !isUnitLabelUnique && setIsValidationErrorVisible(true)
@@ -114,7 +114,6 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
         if (isUnitUnique) {
             const mapUnit = builder.getSelectedUnit()
             if (mapUnit) {
-                console.log(mapUnit)
                 builder.updateUnit({ ...mapUnit, label, floor, section, unitType }, renameNextUnits.current)
             } else {
                 builder.removePreviewUnit()

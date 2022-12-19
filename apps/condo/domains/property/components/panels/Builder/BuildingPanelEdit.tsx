@@ -218,6 +218,8 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const sections = mapEdit.sections
     const address = get(property, 'address')
 
+    const [duplicatedUnitIds, setDuplicatedUnitIds] = useState<string[]>([])
+
     useHotkeyToSaveProperty({ map, mapEdit, property, canManageProperties })
 
     const saveCallback = useCallback(() => {
@@ -273,16 +275,16 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, [mapEdit, refresh])
 
     const menuContent = useMemo(() => ({
-        addSection: <AddSectionForm builder={mapEdit} refresh={refresh}/>,
-        addUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
-        editSection: <EditSectionForm builder={mapEdit} refresh={refresh}/>,
-        editUnit: <UnitForm builder={mapEdit} refresh={refresh}/>,
+        addSection: <AddSectionForm builder={mapEdit} refresh={refresh} />,
+        addUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editSection: <EditSectionForm builder={mapEdit} refresh={refresh} />,
+        editUnit: <UnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
         addParking: <AddParkingForm builder={mapEdit} refresh={refresh} />,
-        addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
-        editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} />,
+        addParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds} />,
+        editParkingUnit: <ParkingUnitForm builder={mapEdit} refresh={refresh} setDuplicatedUnitIds={setDuplicatedUnitIds}/>,
         editParking: <EditParkingForm builder={mapEdit} refresh={refresh} />,
         addSectionFloor: <AddSectionFloor builder={mapEdit} refresh={refresh} />,
-    }[mode] || null), [mode, mapEdit, refresh])
+    }[mode] || null), [mode, mapEdit, refresh, duplicatedUnitIds])
 
     const { isSmall } = useLayoutContext()
 
@@ -374,6 +376,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
                     builder={mapEdit}
                     refresh={refresh}
                     isFullscreen
+                    duplicatedUnitIds={duplicatedUnitIds}
                 >
                     <Space size={20} align='center'>
                         <Button
@@ -412,6 +415,7 @@ interface IChessBoardProps {
     refresh(): void
     toggleFullscreen?(): void
     isFullscreen?: boolean
+    duplicatedUnitIds?: string[]
 }
 
 const CHESS_ROW_STYLE: React.CSSProperties = {
@@ -439,7 +443,7 @@ const SCROLL_CONTAINER_EDIT_PADDING = '315px'
 const MENU_COVER_MAP_WIDTH = 800
 
 const ChessBoard: React.FC<IChessBoardProps> = (props) => {
-    const { builder, refresh, toggleFullscreen, isFullscreen, children } = props
+    const { builder, refresh, toggleFullscreen, isFullscreen, duplicatedUnitIds, children } = props
     const container = useRef<HTMLElement | null>(null)
 
     useEffect(() => {
@@ -534,11 +538,13 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                 section={section}
                                                 builder={builder}
                                                 refresh={refresh}
+                                                duplicatedUnitIds={duplicatedUnitIds}
                                             >
                                                 <PropertyMapFloorContainer
                                                     builder={builder}
                                                     section={section}
                                                     refresh={refresh}
+                                                    duplicatedUnitIds={duplicatedUnitIds}
                                                 />
                                             </PropertyMapSection>
 
@@ -550,12 +556,14 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                 builder={builder}
                                                 refresh={refresh}
                                                 isParkingSection
+                                                duplicatedUnitIds={duplicatedUnitIds}
                                             >
                                                 <PropertyMapFloorContainer
                                                     builder={builder}
                                                     section={parkingSection}
                                                     refresh={refresh}
                                                     isParkingSection
+                                                    duplicatedUnitIds={duplicatedUnitIds}
                                                 />
                                             </PropertyMapSection>
                                         ))
@@ -582,12 +590,13 @@ interface IPropertyMapSectionProps {
     builder: MapEdit
     refresh: () => void
     isParkingSection?: boolean
+    duplicatedUnitIds?: string[]
 }
 const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8px', display: 'block' }
 const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { section, children, builder, refresh, isParkingSection = false } = props
+    const { section, children, builder, refresh, isParkingSection = false, duplicatedUnitIds } = props
     const intl = useIntl()
     const SectionTitle = isParkingSection
         ? `${intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })} ${section.name}`
@@ -627,7 +636,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
 }
 
 const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { isParkingSection, refresh, builder, section } = props
+    const { isParkingSection, refresh, builder, section, duplicatedUnitIds } = props
     const sectionFloors = isParkingSection ? builder.possibleChosenParkingFloors : builder.possibleChosenFloors
     return (
         <>
@@ -645,6 +654,7 @@ const PropertyMapFloorContainer: React.FC<IPropertyMapSectionProps> = (props) =>
                                                 unit={unit}
                                                 builder={builder}
                                                 refresh={refresh}
+                                                duplicatedUnitIds={duplicatedUnitIds}
                                             />
                                         )
                                     })
@@ -666,13 +676,10 @@ interface IPropertyMapUnitProps {
     unit: BuildingUnit
     builder: MapEdit
     refresh: () => void
+    duplicatedUnitIds?: string[]
 }
 
-const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit }) => {
-    console.log('duplicatedUnitIds', builder.duplicatedUnits)
-    const duplicatedUnitIds = useMemo(() => {
-        return builder.duplicatedUnits
-    }, [builder, refresh])
+const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, unit, duplicatedUnitIds }) => {
     const selectUnit = useCallback(() => {
         if (unit.unitType !== BuildingUnitSubType.Parking) {
             builder.removePreviewUnit()
@@ -688,11 +695,13 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
         ? builder.isUnitSelected(unit.id)
         : builder.isParkingUnitSelected(unit.id)
 
+    const isDuplicated = duplicatedUnitIds.includes(unit.id)
+
     return (
         <UnitButton
             onClick={selectUnit}
             disabled={unit.preview}
-            duplicatedUnitIds={duplicatedUnitIds}
+            isDuplicated={isDuplicated}
             preview={unit.preview}
             selected={isUnitSelected}
             unitType={unit.unitType}
