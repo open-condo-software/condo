@@ -157,7 +157,7 @@
 
     color: @condo-global-color-black;
     border: @condo-button-border-width solid @condo-global-color-gray-7;
-    .condo-btn-icon-color(@condo-global-color-black);
+    .condo-btn-content-color(@condo-global-color-black);
 
     & > .condo-btn-text {
       background: transparent;
@@ -169,41 +169,29 @@
       border: @condo-button-border-width solid @condo-global-color-gray-7;
     }
 
-    &:not(.condo-btn-dangerous) {
-      .condo-btn-gradient-text-layer(@condo-global-color-black, @condo-global-color-brand-gradient-5);
-    }
-
-    &:hover > .condo-btn-text::before {
-      opacity: 1;
-    }
-
-    &:active > .condo-btn-text::before {
-      opacity: 0.8;
-    }
-
     &:hover {
       background: transparent;
-      .condo-btn-icon-color(@condo-global-color-green-5);
+      .condo-btn-content-color(@condo-global-color-green-5);
     }
 
     &:active {
       background: transparent;
-      .condo-btn-icon-color(@condo-global-color-green-7);
+      .condo-btn-content-color(@condo-global-color-green-7);
     }
 
     &.condo-btn-dangerous {
-      .condo-btn-icon-color(@condo-global-color-red-5);
+      .condo-btn-content-color(@condo-global-color-red-5);
       .condo-btn-static-text-color(@condo-global-color-red-5);
 
       border: @condo-button-border-width solid @condo-global-color-red-5;
 
       &:hover {
-        .condo-btn-icon-color(@condo-global-color-red-7);
+        .condo-btn-content-color(@condo-global-color-red-7);
         .condo-btn-static-text-color(@condo-global-color-red-7);
       }
 
       &:active {
-        .condo-btn-icon-color(@condo-global-color-red-5);
+        .condo-btn-content-color(@condo-global-color-red-5);
         .condo-btn-static-text-color(@condo-global-color-red-5);
       }
 
@@ -224,7 +212,7 @@
         &:hover,
         &:active,
         &:focus {
-          .condo-btn-icon-color(@condo-global-color-red-5);
+          .condo-btn-content-color(@condo-global-color-red-5);
           .condo-btn-static-text-color(@condo-global-color-red-5);
         }
 
@@ -271,12 +259,8 @@
       border: @condo-button-border-width solid @condo-global-color-gray-7;
       opacity: @condo-global-opacity-disabled;
 
-      .condo-btn-icon-color(@condo-global-color-black);
+      .condo-btn-content-color(@condo-global-color-black);
       .condo-btn-static-text-color(@condo-global-color-black);
-
-      & > .condo-btn-text::before {
-        opacity: 0;
-      }
 
       &::before {
         opacity: 0;
@@ -285,7 +269,7 @@
 
     &.condo-btn-stateless {
       &:not(.condo-btn-dangerous) {
-        .condo-btn-icon-color(@condo-global-color-black);
+        .condo-btn-content-color(@condo-global-color-black);
       }
 
       &:not(.condo-btn-dangerous):hover {
@@ -294,11 +278,6 @@
 
       &:hover::before,
       &:active::before {
-        opacity: 0;
-      }
-
-      &:hover > .condo-btn-text::before,
-      &:active > .condo-btn-text::before {
         opacity: 0;
       }
     }
@@ -315,12 +294,8 @@
       border: @condo-button-border-width solid @condo-global-color-gray-7;
       opacity: @condo-global-opacity-disabled;
 
-      .condo-btn-icon-color(@condo-global-color-black);
+      .condo-btn-content-color(@condo-global-color-black);
       .condo-btn-static-text-color(@condo-global-color-black);
-
-      & > .condo-btn-text::before {
-        opacity: 0;
-      }
 
       &::before {
         opacity: 0;
