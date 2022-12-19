@@ -37,8 +37,8 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
             title={ModalTitle}
             open={open}
             onCancel={closeModal}
-            destroyOnClose={true}
             footer={modalFooter}
+            destroyOnClose
         >
             <Typography.Text type='secondary'>
                 {ModalMessage}

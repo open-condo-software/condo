@@ -33,16 +33,11 @@ const MiniAppIndexPage: PageType = () => {
         return <B2BAppPage id={id}/>
     }, [id, type])
 
-
     if (!canManageIntegrations) {
         return <LoadingOrErrorPage title={PageTitle} error={NoPermissionsMessage}/>
     }
 
-    return (
-        <>
-            {pageContent}
-        </>
-    )
+    return pageContent
 }
 
 MiniAppIndexPage.requiredAccess = OrganizationRequired

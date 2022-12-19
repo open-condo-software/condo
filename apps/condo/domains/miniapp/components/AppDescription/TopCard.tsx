@@ -14,8 +14,8 @@ import styled from '@emotion/styled'
 
 import { AppLabelTag } from '../AppLabelTag'
 
-const CAROUSEL_CHANGE_DELAY = 6000 // 6 sec
-const CAROUSEL_CHANGE_SPEED = 800 // 0.8 sec
+const CAROUSEL_CHANGE_DELAY_IN_MS = 6000 // 6 sec
+const CAROUSEL_CHANGE_SPEED_IN_MS = 800 // 0.8 sec
 const ROW_GUTTER: RowProps['gutter'] = [40, 40]
 const HALF_COL_SPAN: ColProps['span'] = 12
 const FULL_COL_SPAN: ColProps['span'] = 24
@@ -91,6 +91,7 @@ const TopCard = React.memo<TopCardProps>(({
 }) => {
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
+
     const router = useRouter()
     const [{ width }, setRef] = useContainerSize()
 
@@ -152,7 +153,7 @@ const TopCard = React.memo<TopCardProps>(({
 
     const sectionSpan = isWide ? HALF_COL_SPAN : FULL_COL_SPAN
     const buttonSpacing = isWide ? SPACED_BUTTON_SPACING : SHRINKED_BUTTON_SPACING
-    const rowStyles = isWide ? undefined : SPACED_ROW_STYLES
+    const rowStyles = isWide ? {} : SPACED_ROW_STYLES
 
     return (
         <Row gutter={ROW_GUTTER} ref={setRef} style={rowStyles}>
@@ -186,8 +187,8 @@ const TopCard = React.memo<TopCardProps>(({
                         <Carousel
                             slidesToShow={1}
                             autoplay={!previewVisible}
-                            autoplaySpeed={CAROUSEL_CHANGE_DELAY}
-                            speed={CAROUSEL_CHANGE_SPEED}
+                            autoplaySpeed={CAROUSEL_CHANGE_DELAY_IN_MS}
+                            speed={CAROUSEL_CHANGE_SPEED_IN_MS}
                             infinite
                             beforeChange={handleSlideChange}
                             ref={sliderRef}

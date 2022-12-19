@@ -19,6 +19,7 @@ type AcquiringAppPageProps = {
 export const AcquiringAppPage: React.FC<AcquiringAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
     const [modalOpen, setModalOpen] = useState(false)
@@ -79,7 +80,7 @@ export const AcquiringAppPage: React.FC<AcquiringAppPageProps> = ({ id }) => {
                         connectAction={createContextAction}
                     />
                     <ConnectModal
-                        miniappHasFrame={!!app.appUrl}
+                        miniappHasFrame={Boolean(app.appUrl)}
                         contextStatus={get(context, 'status', null)}
                         open={modalOpen}
                         closeModal={handleCloseModal}

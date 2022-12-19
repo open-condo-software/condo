@@ -48,7 +48,9 @@ const HIDE_SEARCH_CSS = css`
     .ant-tabs-tab:nth-of-type(2) {
       margin-left: 0 !important;
     }
-    .ant-tabs-nav-operations { display: none !important; }
+    .ant-tabs-nav-operations { 
+      display: none !important; 
+    }
   }
 `
 
@@ -116,6 +118,7 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
 export const CardGrid: React.FC<CardGridProps> = ({ tabs, search, resetSearch }) => {
     const intl = useIntl()
     const NoAppsFoundMessage = intl.formatMessage({ id: 'miniapps.catalog.noServicesFound' })
+
     const router = useRouter()
     const { query: { tab } } = router
 
@@ -146,7 +149,7 @@ export const CardGrid: React.FC<CardGridProps> = ({ tabs, search, resetSearch })
                 tabBarGutter={TAB_GUTTER}
                 defaultActiveKey={tabFromQuery}
                 activeKey={selectedTab}
-                tabBarStyle={sideTabs ? SIDE_TAB_SIDE_BAR_STYLES : undefined}
+                tabBarStyle={sideTabs ? SIDE_TAB_SIDE_BAR_STYLES : {}}
                 onChange={handleTabChange}
                 className='tabs-hide-first'
             >

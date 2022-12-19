@@ -7,6 +7,17 @@ import { Card, Typography } from '@open-condo/ui'
 const SECTION_VERT_SPACING = 20
 const SECTION_HOR_SPACING = 100
 const LABEL_SPACING = 4
+const CARD_SPACE_VERT_LAYOUT_PROPS: SpaceProps = {
+    direction: 'vertical',
+    size: SECTION_VERT_SPACING,
+    wrap: false,
+}
+const CARD_SPACE_HOR_LAYOUT_PROPS: SpaceProps = {
+    direction: 'horizontal',
+    size: [SECTION_HOR_SPACING, SECTION_VERT_SPACING],
+    wrap: true,
+    align: 'start',
+}
 
 type SectionProps = {
     label: string
@@ -34,25 +45,15 @@ export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer, publish
     const DeveloperLabel = intl.formatMessage({ id: 'miniapps.developerCard.developer' })
     const PublishedLabel = intl.formatMessage({ id: 'miniapps.developerCard.publishedAt' })
     const PartnerLabel = intl.formatMessage({ id: 'miniapps.developerCard.partnerSite' })
+    const PublishDate = intl.formatDate(publishedAt)
 
-    const publishDate = intl.formatDate(publishedAt)
-
-    const spaceProps: SpaceProps = display === 'col' ? {
-        direction: 'vertical',
-        size: SECTION_VERT_SPACING,
-        wrap: false,
-    } : {
-        direction: 'horizontal',
-        size: [SECTION_HOR_SPACING, SECTION_VERT_SPACING],
-        wrap: true,
-        align: 'start',
-    }
+    const spaceProps: SpaceProps = display === 'col' ? CARD_SPACE_VERT_LAYOUT_PROPS : CARD_SPACE_HOR_LAYOUT_PROPS
 
     return (
         <Card>
             <Space {...spaceProps}>
                 <Section label={DeveloperLabel} value={developer}/>
-                <Section label={PublishedLabel} value={publishDate}/>
+                <Section label={PublishedLabel} value={PublishDate}/>
                 {Boolean(partnerUrl) && (
                     <Typography.Link href={partnerUrl} target='_blank'>{PartnerLabel}</Typography.Link>
                 )}
