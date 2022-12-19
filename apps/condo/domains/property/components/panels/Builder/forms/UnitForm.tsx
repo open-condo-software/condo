@@ -248,7 +248,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                             <Button
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section && label.trim())}
+                                disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                                 data-cy='property-map__unit-form__submit-button'
                             >{SaveLabel}</Button>
                         </Col>
@@ -260,6 +260,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                                         onClick={deleteUnit}
                                         type='sberDangerGhost'
                                         icon={<DeleteFilled />}
+                                        disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                                         data-cy='property-map__unit-form__delete-button'
                                     >{DeleteLabel}</Button>
                                 </Col>
