@@ -22,7 +22,7 @@ import { MapEditMode } from '@condo/domains/property/components/panels/Builder/M
 
 const { Option } = Select
 
-const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === MapEditMode.EditParkingUnit ? 'Save' : 'Add' })
@@ -105,6 +105,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                 return false
             }
             isUnitLabelUnique = builder.validateInputParkingUnitLabel(selectedUnit, label)
+            setDuplicatedUnitIds(builder.duplicatedUnits)
         }
         const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
         !isUnitLabelUnique && setIsValidationErrorVisible(true)
