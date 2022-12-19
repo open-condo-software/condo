@@ -77,6 +77,7 @@ const getCardsAmount = (width: number) => {
 const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
     const intl = useIntl()
     const NoAppsMessage = intl.formatMessage({ id: 'miniapps.catalog.noServicesInCategory' })
+
     const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(width)
 
