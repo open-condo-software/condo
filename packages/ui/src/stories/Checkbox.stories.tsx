@@ -6,10 +6,13 @@ export default {
     title: 'Components/Checkbox',
     component: Component,
     args: {
-        children: 'Label',
+        checked: false,
         disabled: false,
         autoFocus: false,
         defaultChecked: false,
+        indeterminate: false,
+        children: 'Label',
+        boldLabel: false,
     },
     argTypes: {
         onChange: {
@@ -27,4 +30,16 @@ export default {
 
 const Template: ComponentStory<typeof Component> = (props) => <Component {...props}/>
 
-export const Checkbox = Template.bind({})
+export const Unchecked = Template.bind({})
+Unchecked.args = {
+    defaultChecked: false,
+}
+export const Checked = Template.bind({})
+Checked.args = {
+    checked: true,
+}
+export const Disabled = Template.bind({})
+Disabled.args = {
+    checked: true,
+    disabled: true,
+}

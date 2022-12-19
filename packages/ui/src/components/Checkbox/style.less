@@ -5,7 +5,7 @@
 
 @checkbox-border-width: @condo-global-border-width-default;
 @checkbox-border-radius: @condo-global-border-radius-small;
-@checkbox-size: (24px - (@checkbox-border-width * 2));
+@checkbox-size: (@condo-global-spacing-24 - (@checkbox-border-width * 2));
 @checkbox-inner-border-radius: @checkbox-border-radius - @checkbox-border-width;
 
 @condo-checkbox-checkmark-top: (@checkbox-size / 2);
@@ -13,9 +13,10 @@
 @condo-checkbox-checkmark-width: (@checkbox-size / 4);
 @condo-checkbox-checkmark-height: (@checkbox-size / 2);
 
+@condo-checkbox-hidden-area: @condo-global-spacing-8;
+
 .condo-checkbox-wrapper {
   align-items: center;
-  .condo-typography-text-medium();
 
   .condo-checkbox {
     top: 0;
@@ -41,6 +42,25 @@
       }
     }
 
+    &-indeterminate {
+      & > .condo-checkbox-inner {
+        &::after {
+          width: @condo-global-spacing-12;
+          height: @condo-global-spacing-4;
+          background: @condo-global-color-brand-gradient-5 border-box;
+          border-radius: @condo-global-border-width-default;
+        }
+      }
+    }
+
+    &-indeterminate.condo-checkbox-disabled {
+      & > .condo-checkbox-inner {
+        &::after {
+          background: @condo-global-color-gray-5;
+        }
+      }
+    }
+
     &-checked {
       &::after {
         border: none;
@@ -51,7 +71,7 @@
           & + .condo-checkbox-inner {
             background: @condo-global-color-brand-gradient-5 border-box;
             border-color: transparent;
-  
+
             &::before {
               .condo-checkbox-inner-layer(@condo-global-color-brand-gradient-1, @checkbox-inner-border-radius);
             }
@@ -60,7 +80,7 @@
       }
 
       & > .condo-checkbox-inner {
-        background: @condo-global-color-brand-gradient-1 border-box;
+        background: @condo-global-color-gray-5 border-box;
         border-color: transparent;
 
         &::before {
@@ -97,6 +117,18 @@
         border-color: @condo-global-color-gray-3 !important;
       }
     }
+
+    &::after {
+      position: absolute;
+      top: (-1 * (@condo-checkbox-hidden-area / 2));
+      left: (-1 * (@condo-checkbox-hidden-area / 2));
+      width: @checkbox-size + @checkbox-border-width * 2 + @condo-checkbox-hidden-area;
+      height: @checkbox-size + @checkbox-border-width * 2 + @condo-checkbox-hidden-area;
+      background-color: transparent;
+      border-radius: @checkbox-border-radius;
+      visibility: visible;
+      content: '';
+    }
   }
 
   &:hover {
@@ -114,6 +146,13 @@
         &::before {
           border-radius: @checkbox-inner-border-radius;
         }
+      }
+    }
+
+    & > .condo-checkbox-disabled {
+      & > .condo-checkbox-inner {
+        background: @condo-global-color-gray-1 border-box;
+        border-color: transparent;
       }
     }
   }
