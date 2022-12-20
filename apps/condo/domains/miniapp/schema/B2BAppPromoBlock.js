@@ -13,7 +13,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const PROMO_BLOCK_FOLDER_NAME = 'B2BAppPromoBlocks'
 const Adapter = new FileAdapter(PROMO_BLOCK_FOLDER_NAME)
-const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
+const fileMetaAfterChange = getFileMetaAfterChange(Adapter, 'backgroundImage')
 
 
 
