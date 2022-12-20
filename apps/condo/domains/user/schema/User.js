@@ -168,6 +168,11 @@ const User = new GQLListSchema('User', {
             type: Select,
             options: LOCALES,
         },
+        customAccess: {
+            schemaDoc: 'Override for business access rights for list or field of provided schema. Example: {"lists":{"User":{"access":{"read":true,"create":false,"update":false,"delete":false},"fields":{"email":{"create":false,"read":true,"update":false,"delete":false}}}}}',
+            type: Json,
+            access: access.canAccessCustomAccessField,
+        },
     },
     kmigratorOptions: {
         constraints: [

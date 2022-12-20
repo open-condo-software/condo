@@ -227,6 +227,7 @@ describe('OrganizationEmployeeRole', () => {
         })
 
         const anonymous = await makeClient()
+
         let thrownError
         try {
             await OrganizationEmployeeRole.delete(anonymous, role.id)

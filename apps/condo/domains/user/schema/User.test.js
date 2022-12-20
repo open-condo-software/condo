@@ -463,3 +463,59 @@ describe('Cache tests', () => {
         }
     })
 })
+
+describe('Custom access rights', () => {
+    it('should grant access to specific field if override rule was provided', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const [user, userAttrs] = await createTestUser(admin)
+
+        const customAccess = { lists: { User: { fields: { email: { read: true, create: false, update: false, delete: false } } } } }
+
+        const [specialUser, specialUserAttrs] = await createTestUser(admin, { customAccess })
+        const client = await makeLoggedInClient({ password: specialUserAttrs.password, email: specialUserAttrs.email })
+        client.user = specialUser
+        const regularClient = await makeLoggedInClient()
+
+        expect(client.user).toHaveProperty('customAccess', customAccess)
+
+        const { data } = await UserAdmin.getAll(client, {
+            id: user.id,
+        }, { raw: true })
+
+
+        expect(data.objs[0]).toHaveProperty('email', userAttrs.email)
+        expect(data.objs[0]).toHaveProperty('id', user.id)
+
+        const { data: regularData } = await UserAdmin.getAll(regularClient, {
+            id: user.id,
+        }, { raw: true })
+
+        expect(regularData.objs[0]).toHaveProperty('email', null)
+        expect(regularData.objs[0]).toHaveProperty('id', user.id)
+    })
+
+    it('should grant access to a list if override rule was provided', async () => {
+        const admin = await makeLoggedInAdminClient()
+
+        const customAccess = { lists: { User: {
+            access: { read: true, create: true, update: false, delete: false },
+            fields: {
+                password: { create: true, read: false, update: false, delete: false },
+                email: { create: true, read: true, update: false, delete: false },
+                phone: { create: true, read: true, update: false, delete: false },
+            },
+        } } }
+        const [user, userAttrs] = await createTestUser(admin, { customAccess })
+
+        const client = await makeLoggedInClient({ password: userAttrs.password, email: userAttrs.email })
+        client.user = user
+
+        expect(user).toHaveProperty('customAccess', customAccess)
+
+        const [createdUser] = await createTestUser(client)
+
+        expect(createdUser).toBeDefined()
+        expect(createdUser).toHaveProperty('id')
+    })
+})

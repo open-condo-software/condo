@@ -67347,6 +67347,8 @@ export type User = {
   meta?: Maybe<Scalars['JSON']>;
   /**  The user's locale  */
   locale?: Maybe<UserLocaleType>;
+  /**  Override for business access rights for list or field of provided schema. Example: {"lists":{"User":{"access":{"read":true,"create":false,"update":false,"delete":false},"fields":{"email":{"create":false,"read":true,"update":false,"delete":false}}}}}  */
+  customAccess?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -67382,6 +67384,7 @@ export type UserCreateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<UserLocaleType>;
+  customAccess?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -67803,6 +67806,7 @@ export type UserHistoryRecord = {
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  customAccess?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -67832,6 +67836,7 @@ export type UserHistoryRecordCreateInput = {
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  customAccess?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -67866,6 +67871,7 @@ export type UserHistoryRecordUpdateInput = {
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<Scalars['String']>;
+  customAccess?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -68011,6 +68017,10 @@ export type UserHistoryRecordWhereInput = {
   locale_not_ends_with_i?: Maybe<Scalars['String']>;
   locale_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   locale_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  customAccess?: Maybe<Scalars['JSON']>;
+  customAccess_not?: Maybe<Scalars['JSON']>;
+  customAccess_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  customAccess_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -68486,6 +68496,7 @@ export type UserUpdateInput = {
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
   locale?: Maybe<UserLocaleType>;
+  customAccess?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -68579,6 +68590,10 @@ export type UserWhereInput = {
   locale_not?: Maybe<UserLocaleType>;
   locale_in?: Maybe<Array<Maybe<UserLocaleType>>>;
   locale_not_in?: Maybe<Array<Maybe<UserLocaleType>>>;
+  customAccess?: Maybe<Scalars['JSON']>;
+  customAccess_not?: Maybe<Scalars['JSON']>;
+  customAccess_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  customAccess_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

@@ -76,6 +76,7 @@ const canAccessToIsPhoneVerifiedField = readByAnyUpdateByAdminField
 const canAccessToImportField = readByAnyUpdateByAdminField
 const canAccessToEmployeesField = readBySupportUpdateByAdminField
 const canAccessToRelatedOrganizationsField = readBySupportUpdateByAdminField
+const canAccessCustomAccessField = readByAnyUpdateByAdminField
 
 const canAccessToStaffUserField = {
     read: access.canReadOnlyIfUserIsActiveOrganizationEmployee,
@@ -100,4 +101,5 @@ module.exports = {
     canManageToIsAdminField,
     canAccessToRelatedOrganizationsField,
     canAccessToEmployeesField,
+    canAccessCustomAccessField,
 }
