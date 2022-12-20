@@ -98,6 +98,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
         const selectedUnit = builder.getSelectedUnit()
         if (mode === MapEditMode.AddUnit) {
             isUnitLabelUnique = builder.validateInputUnitLabel(selectedUnit, label)
+            setDuplicatedUnitIds(builder.duplicatedUnits)
         } else if (mode === MapEditMode.EditUnit) {
             if (!selectedUnit) {
                 return false

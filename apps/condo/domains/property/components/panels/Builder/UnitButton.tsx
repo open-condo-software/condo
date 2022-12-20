@@ -125,7 +125,7 @@ const noninteractiveCss = css`
     }
 `
 const duplicatedUnit = css`
-  background-color: ${colors.sberDanger};
+  background-color: ${colors.brightRed};
 `
 
 const unitTypeCss = (unitType: BuildingUnitSubType) => css`
