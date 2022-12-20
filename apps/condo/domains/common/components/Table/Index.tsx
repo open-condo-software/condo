@@ -3,18 +3,21 @@ import { ColumnsType } from 'antd/es/table/interface'
 import { Table as DefaultTable, TableProps } from 'antd'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
+import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
+import { TableProps as RcTableProps } from 'rc-table/lib/Table'
+import { TablePaginationConfig } from 'antd/lib/table/interface'
+import { GetRowKey } from 'rc-table/lib/interface'
+
 import {
     getPageIndexFromOffset,
     parseQuery,
     FULL_TO_SHORT_ORDERS_MAP,
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
-import isEqual from 'lodash/isEqual'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
-import { TableProps as RcTableProps } from 'rc-table/lib/Table'
-import { TablePaginationConfig } from 'antd/lib/table/interface'
-import { GetRowKey } from 'rc-table/lib/interface'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
+
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { useLayoutContext } from '../LayoutContext'
 
 export type TableRecord = any
@@ -126,9 +129,8 @@ export const Table: React.FC<ITableProps> = ({
             return applyQuery(queryParams)
         }
         else {
-            // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
-            // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
-            return updateQuery(router, newFilters, newSorters, newOffset)
+            const newParameters = getFiltersQueryData(newFilters, newSorters, newOffset)
+            return updateQuery(router, { newParameters }, { resetOldParameters: false })
         }
     }, 400)
 
