@@ -47,7 +47,9 @@ class SbbolSecretStorage {
         userId,
         options,
     ) {
-        if (!value || !userId) return logger.error('value and userId is required for setAccessToken')
+        if (!value) throw new Error('value is required for setAccessToken')
+        if (!userId) throw new Error('userId is required for setAccessToken')
+
         await this.#setValue(`user:${userId}:accessToken`, value, options)
         await this.#setValue(`user:${userId}:accessToken:updatedAt`, dayjs().toISOString())
     }
@@ -64,7 +66,9 @@ class SbbolSecretStorage {
         value,
         userId,
     ) {
-        if (!value || !userId) return logger.error('value and userId is required for setRefreshToken')
+        if (!value) throw new Error('value is required for setRefreshToken')
+        if (!userId) throw new Error('userId is required for setRefreshToken')
+
         const options = { expiresAt: dayjs().add(REFRESH_TOKEN_TTL_DAYS, 'days').unix() }
         await this.#setValue(`user:${userId}:refreshToken`, value, options)
         await this.#setValue(`user:${userId}:refreshToken:updatedAt`, dayjs().toISOString())
