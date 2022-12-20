@@ -6,13 +6,14 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import {
     CONTEXT_IN_PROGRESS_STATUS,
     CONTEXT_ERROR_STATUS,
+    ACCRUALS_AND_PAYMENTS_CATEGORY,
 } from '@condo/domains/miniapp/constants'
 import { ApolloError } from '@apollo/client'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { MainContent } from './MainContent'
 import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 
-const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'
+const BILLING_SETTINGS_ROUTE = `/miniapps?tab=${ACCRUALS_AND_PAYMENTS_CATEGORY}`
 
 interface IBillingPageContentProps {
     access: boolean,
