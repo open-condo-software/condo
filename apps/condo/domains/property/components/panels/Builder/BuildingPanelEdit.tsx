@@ -3,6 +3,12 @@ import { CloseOutlined } from '@ant-design/icons'
 import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property as PropertyType } from '@app/condo/schema'
 import { Button } from '@condo/domains/common/components/Button'
 import { colors, fontSizes, shadows } from '@condo/domains/common/constants/style'
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { AddSectionFloor } from '@condo/domains/property/components/panels/Builder/forms/FloorForm'
+import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
+import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
+import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
+import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
 import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { MIN_SECTIONS_TO_SHOW_FILTER } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -36,18 +42,13 @@ import {
     BuildingViewModeSelect,
     EmptyBuildingBlock,
     EmptyFloor,
-    MapSectionContainer, PropertyMapFloor,
+    MapSectionContainer,
+    PropertyMapFloor,
     UnitTypeLegendItem,
 } from './BuildingPanelCommon'
-import { UnitForm } from '@condo/domains/property/components/panels/Builder/forms/UnitForm'
-import { AddSectionForm, EditSectionForm } from '@condo/domains/property/components/panels/Builder/forms/SectionForm'
-import { AddSectionFloor } from '@condo/domains/property/components/panels/Builder/forms/FloorForm'
-import { AddParkingForm, EditParkingForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingForm'
-import { ParkingUnitForm } from '@condo/domains/property/components/panels/Builder/forms/ParkingUnitForm'
 
 import { FullscreenHeader, FullscreenWrapper } from './Fullscreen'
-import { MapEdit, MapViewMode, MapEditMode } from './MapConstructor'
-import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { MapEdit, MapEditMode, MapViewMode } from './MapConstructor'
 
 const DEBOUNCE_TIMEOUT = 800
 const INSTANT_ACTIONS = ['addBasement', 'addAttic']
@@ -697,7 +698,7 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
 
     const isDuplicated = duplicatedUnitIds.includes(unit.id)
 
-    return (
+    return useMemo(() => (
         <UnitButton
             onClick={selectUnit}
             disabled={unit.preview}
@@ -706,6 +707,6 @@ const PropertyMapUnit: React.FC<IPropertyMapUnitProps> = ({ builder, refresh, un
             selected={isUnitSelected}
             unitType={unit.unitType}
             data-cy='property-map__unit-button'
-        >{unit.label}</UnitButton>
-    )
+        >{unit.label}</UnitButton>),
+    [unit, isUnitSelected, isDuplicated])
 }
