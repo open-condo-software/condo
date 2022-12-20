@@ -1,9 +1,9 @@
 /** @jsx jsx */
+import React, { CSSProperties, Key, useCallback, useMemo, useState } from 'react'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import get from 'lodash/get'
 import debounce from 'lodash/debounce'
 import isString from 'lodash/isString'
-import React, { CSSProperties, Key, useCallback, useMemo, useState } from 'react'
 import { Col, Row, Typography } from 'antd'
 import Input from '@condo/domains/common/components/antd/Input'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -14,12 +14,12 @@ import Head from 'next/head'
 import { NextRouter, useRouter } from 'next/router'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import styled from '@emotion/styled'
-import qs from 'qs'
-
 import { jsx } from '@emotion/react'
+
 import { SortTicketsBy, Ticket as ITicket } from '@app/condo/schema'
 import { useIntl } from '@open-condo/next/intl'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useAuth } from '@open-condo/next/auth'
 
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { Ticket, TicketFilterTemplate } from '@condo/domains/ticket/utils/clientSchema'
@@ -43,7 +43,6 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 import { EXCEL } from '@condo/domains/common/constants/export'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { useFiltersTooltipData } from '@condo/domains/ticket/hooks/useFiltersTooltipData'
-import { useAuth } from '@open-condo/next/auth'
 import { useTicketExportToExcelTask } from '@condo/domains/ticket/hooks/useTicketExportToExcelTask'
 import { TableComponents } from 'rc-table/lib/interface'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -60,6 +59,7 @@ import ActionBar from '@condo/domains/common/components/ActionBar'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 
 interface ITicketIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -87,13 +87,6 @@ const StyledTable = styled(Table)`
     width: 40px;
   }
 `
-
-const updateQuery = async (router: NextRouter, selectedTicketIds: Key[]) => {
-    const route = router.route
-    const payload = { ...router.query, selectedTicketIds: JSON.stringify(selectedTicketIds) }
-    const query = qs.stringify(payload, { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true })
-    await router.push(route + query)
-}
 
 const getInitialSelectedTicketKeys = (router: NextRouter) => {
     if ('selectedTicketIds' in router.query && isString(router.query.selectedTicketIds)) {
@@ -134,7 +127,7 @@ const TicketTable = ({
     const [selectedTicketKeys, setSelectedTicketKeys] = useState<Key[]>(() => getInitialSelectedTicketKeys(router))
 
     const changeQuery = useMemo(() => debounce(async (router: NextRouter, selectedTicketKeys: React.Key[]) => {
-        await updateQuery(router, selectedTicketKeys)
+        await updateQuery(router, { newParameters: { selectedTicketIds: selectedTicketKeys } }, { routerAction: 'replace', resetOldParameters: false })
     }, DEBOUNCE_TIMEOUT), [])
 
     const updateSelectedTicketKeys = useCallback((selectedTicketKeys: Key[]) => {

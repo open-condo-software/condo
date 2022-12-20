@@ -7,17 +7,17 @@ import { FormItemProps } from 'antd/es'
 import { DatePickerProps, FormInstance, InputProps, SelectProps } from 'antd'
 import { CheckboxGroupProps } from 'antd/es/checkbox'
 import { RangePickerSharedProps } from 'rc-picker/lib/RangePicker'
-import qs from 'qs'
 
 import { FiltersFromQueryType, OptionType, QueryMeta } from './tables.utils'
 import { ISearchInputProps } from '../components/GraphQlSearchInput'
 import {
     getDateFilterDropdown,
-    getDateRangeFilterDropdown, getGQLSelectFilterDropdown,
-    getOptionFilterDropdown, getSelectFilterDropdown,
+    getDateRangeFilterDropdown,
+    getGQLSelectFilterDropdown,
+    getOptionFilterDropdown,
+    getSelectFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
-import { NextRouter } from 'next/router'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
 
 export enum FilterComponentSize {
@@ -186,26 +186,9 @@ export function convertToOptions <T> (objects: T[], labelField: string, valueFie
     })
 }
 
-export async function updateQuery (router: NextRouter, newFilters?: FiltersFromQueryType, sort?: string[], offset?: number, newRoute?: string): Promise<boolean> {
-    if (!offset && 'offset' in router.query) {
-        router.query['offset'] = '0'
-    }
-
+export function getFiltersQueryData (newFilters?: FiltersFromQueryType, sort?: string[], offset?: number) {
     const possibleFilters = pickBy(newFilters, (value) => !isEmpty(value))
-    const possibleQueryData = newRoute ? { sort, offset } : { ...router.query, sort, offset }
-    if (isEmpty(possibleFilters)) {
-        delete possibleQueryData['filters']
-    } else {
-        possibleQueryData['filters'] = JSON.stringify(possibleFilters)
-    }
-
-    const route = newRoute || router.route
-    const query = qs.stringify(
-        possibleQueryData,
-        { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
-    )
-
-    return await router.push(route + query)
+    return { sort, offset, filters: possibleFilters }
 }
 
 export function getFiltersModalPopupContainer (): HTMLElement {

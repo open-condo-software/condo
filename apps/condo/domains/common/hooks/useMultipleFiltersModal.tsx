@@ -1,5 +1,5 @@
-import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import React, { createContext, CSSProperties, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { SizeType } from 'antd/lib/config-provider/SizeContext'
 import Form from 'antd/lib/form'
 import { Col, FormInstance, ModalProps, Row, Tabs, Typography } from 'antd'
 import { FormItemProps } from 'antd/es'
@@ -14,19 +14,21 @@ import isFunction from 'lodash/isFunction'
 import isNil from 'lodash/isNil'
 import omitBy from 'lodash/omitBy'
 import pickBy from 'lodash/pickBy'
+import { useRouter } from 'next/router'
 
 import { Ticket } from '@app/condo/schema'
-import { useRouter } from 'next/router'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { Modal as DefaultModal } from '@condo/domains/common/components/Modal'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { useOrganization } from '@open-condo/next/organization'
 import { OptionType, parseQuery, QueryArgType } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
 import { TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 
 import { useLayoutContext } from '../components/LayoutContext'
 import DatePicker from '../components/Pickers/DatePicker'
@@ -43,8 +45,8 @@ import {
     FilterComponentType,
     FiltersMeta,
     getFiltersModalPopupContainer,
+    getFiltersQueryData,
     getQueryToValueProcessorByType,
-    updateQuery,
 } from '../utils/filters.utils'
 
 interface IFilterComponentProps<T> {
@@ -339,7 +341,8 @@ const ResetFiltersModalButton: React.FC<ResetFiltersModalButtonProps> = ({
     const { setSelectedFiltersTemplate } = useMultipleFilterContext()
 
     const handleReset = useCallback(async () => {
-        await updateQuery(router, {})
+        const newParameters = getFiltersQueryData({})
+        await updateQuery(router, { newParameters })
         setSelectedFiltersTemplate(null)
 
         if (isFunction(handleResetFromProps)) {
@@ -532,7 +535,8 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
             onSubmit(filtersValue)
         }
 
-        await updateQuery(router, filtersValue)
+        const newParameters = getFiltersQueryData(filtersValue)
+        await updateQuery(router, { newParameters })
         setIsMultipleFiltersModalVisible(false)
     }, [searchFilter, onSubmit, router, setIsMultipleFiltersModalVisible])
 

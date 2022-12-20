@@ -1,9 +1,10 @@
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import dayjs from 'dayjs'
 import { get, debounce, isArray } from 'lodash'
 import { useRouter } from 'next/router'
 import { useCallback } from 'react'
+
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 
 type DayJSRangeType = [dayjs.Dayjs, dayjs.Dayjs]
 
@@ -21,10 +22,11 @@ export const useDateRangeSearch = <F> (
     const searchChange = useCallback(
         debounce(
             async (searchString) => {
-                await updateQuery(router, {
+                const newParameters = getFiltersQueryData({
                     ...filtersFromQuery,
                     [filterKey]: searchString,
                 })
+                await updateQuery(router, { newParameters })
             },
             400,
         ),

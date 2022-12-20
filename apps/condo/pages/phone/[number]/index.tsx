@@ -1,9 +1,5 @@
-import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
-import { renderPhone } from '@condo/domains/common/utils/Renders'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from '@emotion/styled'
-import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { Col, Row, Typography } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
 import { Gutter } from 'antd/es/grid/row'
@@ -12,8 +8,14 @@ import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+
+import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
+import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import { renderPhone } from '@condo/domains/common/utils/Renders'
 
 import {
     BuildingUnitSubType,
@@ -32,7 +34,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { colors, fontSizes, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
@@ -44,6 +46,7 @@ import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketP
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useClientCardTicketTableColumns } from '@condo/domains/ticket/hooks/useClientCardTicketTableColumns'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 
 
 //#region Constants, types and styles
@@ -321,7 +324,8 @@ const ClientCardTabContent = ({
 
     const handleShowAllPropertyTicketsMessage = useCallback(async () => {
         logEvent({ eventName: 'ClientCardShowAllPropertyTicketsClick' })
-        await updateQuery(router, { property: [get(property, 'id', null)] }, null, null, '/ticket')
+        const newParameters = getFiltersQueryData({ property: [get(property, 'id', null)] })
+        await updateQuery(router, { newParameters, newRoute: '/ticket' })
     }, [logEvent, property, router])
 
     const handleRowAction = useCallback((record) => {
