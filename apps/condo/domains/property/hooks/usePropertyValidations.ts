@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import isEmpty from 'lodash/isEmpty'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 
-export const usePropertyValidations = ({ organizationId, addressValidatorError }) => {
+export const usePropertyValidations = ({ organizationId, addressValidatorError, address }) => {
     const intl = useIntl()
     const SamePropertyErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SamePropertyErrorMsg' })
     const WrongYearErrorMsg = intl.formatMessage({ id: 'pages.condo.property.form.YearValidationError' })
@@ -19,6 +19,7 @@ export const usePropertyValidations = ({ organizationId, addressValidatorError }
     const addressValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {
             if (isEmpty(value)) return Promise.resolve()
+            if (!isEmpty(address) && address === value) return Promise.resolve()
             if (addressValidatorError) return Promise.reject(addressValidatorError)
 
             const { data: { objs } } = await refetch({
@@ -33,7 +34,7 @@ export const usePropertyValidations = ({ organizationId, addressValidatorError }
             }
             return Promise.resolve()
         },
-    }), [addressValidatorError, SamePropertyErrorMsg, refetch, organizationId])
+    }), [addressValidatorError, SamePropertyErrorMsg, refetch, organizationId, address])
 
     const yearOfConstructionValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
