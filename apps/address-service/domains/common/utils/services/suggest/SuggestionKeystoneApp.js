@@ -1,8 +1,13 @@
 const express = require('express')
-
 const get = require('lodash/get')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
+
+/**
+ * @typedef {Object} NormalizedSuggestion
+ * @property {string} value
+ * @property {string} rawValue
+ */
 
 const ALLOWED_METHODS = ['GET', 'POST']
 
