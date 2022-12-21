@@ -103,7 +103,7 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
             id_token: idToken,
         } = tokenResponse.data
 
-        if (isNil(accessToken) || isNil(idToken)) {
+        if (tokenResponse.status !== 200 || isNil(accessToken) || isNil(idToken)) {
             throw new Error(JSON.stringify(tokenResponse.data))
         }
 
@@ -139,7 +139,7 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
             given_name: givenName,
         } = response.data
 
-        if (isNil(sub)) {
+        if (response.status !== 200 || isNil(sub)) {
             throw new Error(JSON.stringify(response.data))
         }
 
