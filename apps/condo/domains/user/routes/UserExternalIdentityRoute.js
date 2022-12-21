@@ -53,7 +53,7 @@ class UserExternalIdentityRoute {
             // 1. register user case
             // 2. exists user login case
             const basePath = this.getLoginPageRedirectBasePath(req.get('user-agent'))
-            const redirectLink = `${basePath}?registered=${registered}&params=${JSON.stringify(tokenSet)}`
+            const redirectLink = `${basePath}?registered=${registered}&params=${JSON.stringify(tokenSet)}&identityType=${identityType}`
             return res.redirect(redirectLink)
         } catch (e) {
             return res.redirect('/500-error.html')
