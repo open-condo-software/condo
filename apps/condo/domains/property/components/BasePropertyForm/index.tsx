@@ -58,7 +58,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
     const { isSmall } = useLayoutContext()
     const { addressApi } = useAddressApi()
-    const { action, initialValues, organization } = props
+    const { action, initialValues, organization, address } = props
 
     const organizationId = get(organization, 'id')
     const [addressValidatorError, setAddressValidatorError] = useState<string | null>(null)
@@ -94,7 +94,9 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     }, [initialValues])
 
     const { requiredValidator, numberValidator, maxLengthValidator } = useValidations()
-    const { addressValidator, yearOfConstructionValidator } = usePropertyValidations({ organizationId, addressValidatorError })
+    const { addressValidator, yearOfConstructionValidator } = usePropertyValidations({
+        organizationId, addressValidatorError, address,
+    })
 
     const validations = {
         address: [requiredValidator, addressValidator],
