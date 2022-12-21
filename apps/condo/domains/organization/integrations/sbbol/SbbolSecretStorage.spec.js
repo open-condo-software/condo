@@ -40,4 +40,25 @@ describe('SbbolSecretStorage', () => {
         await storage.setAccessToken(value, userId)
         expect(await storage.isAccessTokenExpired(userId)).toBeFalsy()
     })
+
+    it('Used for inspection of stored values in case when there is no direct access to Redis', async () => {
+        const storage = new SbbolSecretStorage('auth', '12345')
+        const userId = faker.datatype.uuid()
+        const value = faker.datatype.uuid()
+
+        await storage.setClientSecret(value)
+        await storage.setRefreshToken(value, userId)
+        await storage.setAccessToken(value, userId)
+
+        const clientSecret = await storage.getClientSecret()
+        const accessToken = await storage.getAccessToken(userId)
+        const refreshToken = await storage.getRefreshToken(userId)
+
+        const rowKeys = await storage.getRawKeyValues(userId)
+        const valuesOfRowKeys = Object.values(rowKeys)
+
+        expect(valuesOfRowKeys.includes(clientSecret)).toBeTruthy()
+        expect(valuesOfRowKeys.includes(accessToken)).toBeTruthy()
+        expect(valuesOfRowKeys.includes(refreshToken)).toBeTruthy()
+    })
 })

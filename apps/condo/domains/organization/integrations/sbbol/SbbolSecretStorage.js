@@ -86,7 +86,7 @@ class SbbolSecretStorage {
      * Used for inspection of stored values in case when there is no direct access to Redis
      */
     async getRawKeyValues (userId) {
-        if (!userId) return logger.error('value is required for getRawKeyValues')
+        if (!userId) throw new Error('userId is required for getRawKeyValues')
 
         const clientSecretScopedKey = this.#scopedKey('clientSecret')
         const accessTokenScopedKey = this.#scopedKey(`user:${userId}:accessToken`)
