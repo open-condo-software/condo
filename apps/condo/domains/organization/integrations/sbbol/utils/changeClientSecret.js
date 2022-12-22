@@ -15,9 +15,15 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
     const sbbolSecretStorage = getSbbolSecretStorage()
     const { keystone: userContext } = await getSchemaCtx('User')
 
-    // SBBOL API allows to use any `accessToken` to change `clientSecret` because it is not bound to specific user
-    const user = await User.getOne(userContext, { importRemoteSystem: SBBOL_IMPORT_NAME, deletedAt: null })
-    const accessToken = userId ? await getOrganizationAccessToken(userId) : await getOrganizationAccessToken(user.id)
+    const organization = await Organization.getOne(userContext, { importId: SBBOL_FINTECH_CONFIG.service_organization_hashOrgId } )
+    if (!organization) {
+        throw new Error('Could not fetch SBBOL service organization by importId with corresponds to SBBOL_FINTECH_CONFIG.service_organization_hashOrgId')
+    }
+    const user = await User.getOne(userContext, { organization: { id: organization.id }, deletedAt: null })
+    if (!user) {
+        throw new Error('Could not fetch User from SBBOL service organization')
+    }
+    const accessToken = await getOrganizationAccessToken(user.id)
 
     const requestApi = new SbbolRequestApi({
         accessToken,
