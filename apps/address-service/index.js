@@ -17,6 +17,7 @@ const {
     SearchByProvider,
     SearchByAddressKey,
     SearchByInjectionId,
+    SearchByGooglePlaceId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
 const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const nextCookie = require('next-cookies')
@@ -81,7 +82,13 @@ module.exports = {
             hooks: require.resolve('@app/address-service/admin-ui'),
         }),
         new SuggestionKeystoneApp(),
-        new SearchKeystoneApp([new SearchByAddressKey(), new SearchByInjectionId(), new SearchBySource(), new SearchByProvider()]),
+        new SearchKeystoneApp([
+            new SearchByAddressKey(),
+            new SearchByInjectionId(),
+            new SearchBySource(),
+            new SearchByGooglePlaceId(),
+            new SearchByProvider(),
+        ]),
     ].filter(identity),
     configureExpress: (app) => {
         app.set('trust proxy', 1) // trust first proxy
