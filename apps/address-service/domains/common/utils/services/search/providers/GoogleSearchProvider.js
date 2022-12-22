@@ -18,6 +18,9 @@ const { DADATA_PROVIDER } = require('../../../../constants/providers')
  * @property {string} [adr_address]
  * @property {string} [formatted_address]
  * @property {string} [name]
+ * @property {string} [place_id]
+ * @property {string[]} [types]
+ * @property {string} [vicinity]
  */
 
 const CONFIG_KEY = 'GOOGLE_API_KEY'
@@ -46,10 +49,26 @@ class GoogleSearchProvider extends AbstractSearchProvider {
      * https://developers.google.com/maps/documentation/places/web-service/search
      * ->
      * https://developers.google.com/maps/documentation/places/web-service/search-text
-     * @returns {Promise<Object[]>}
+     * @returns {Promise<GooglePlace[]>}
      */
     async get ({ query, context = null }) {
+        const answer = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=${query}&key=${this.apiKey}`)
 
+        if (answer.status === 200) {
+            /**
+             * @type {{html_attributions: string[], results: GooglePlace[], status: string, [error_message]: string, [info_messages]: string[], [next_page_token]: string}}
+             */
+            const result = await answer.json()
+
+            /**
+             * @see https://developers.google.com/maps/documentation/places/web-service/search-text#PlacesSearchStatus
+             */
+            if (result.status === 'OK') {
+                return result.results
+            }
+        }
+
+        return []
     }
 
     /**
@@ -62,9 +81,11 @@ class GoogleSearchProvider extends AbstractSearchProvider {
         // Which fields to return see https://developers.google.com/maps/documentation/places/web-service/details#fields
         const fields = [
             'address_component',
-            'adr_address',
             'formatted_address',
             'name',
+            'place_id',
+            'type',
+            'vicinity',
         ].join(',')
 
         const placeDetailsResult = await fetch(`https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${this.apiKey}`)
@@ -91,113 +112,124 @@ class GoogleSearchProvider extends AbstractSearchProvider {
      * @returns {NormalizedBuilding[]}
      */
     normalize (data) {
-        //
-        // TODO(AleX83Xpert) N O R M A L I Z A T I O N  ! ! !
-        return data.map((item) => (
-            {
-                value: get(item, 'value'),
-                unrestricted_value: get(item, 'unrestricted_value'),
+        return data.map((item) => {
+            // https://developers.google.com/maps/documentation/places/web-service/supported_types#table2
+            const components = get(item, 'address_components', []).reduce((result, addressComponent) => {
+                const { short_name = null, long_name = null, types = [] } = addressComponent
+                const newResultItems = {}
+                types.filter((type) => type !== 'political').forEach((type) => {
+                    if (!result[type] && !newResultItems[type]) {
+                        newResultItems[type] = { short_name, long_name }
+                    }
+                })
+
+                return { ...result, ...newResultItems }
+            }, {})
+
+            return {
+                value: get(item, 'formatted_address'),
+                unrestricted_value: get(item, 'formatted_address'),
                 rawValue: get(item, 'value'),
                 data: {
-                    postal_code: get(item, ['data', 'postal_code']),
-                    country: get(item, ['data', 'country']),
-                    country_iso_code: get(item, ['data', 'country_iso_code']),
-                    federal_district: get(item, ['data', 'federal_district']),
-                    region_fias_id: get(item, ['data', 'region_fias_id']),
-                    region_kladr_id: get(item, ['data', 'region_kladr_id']),
-                    region_iso_code: get(item, ['data', 'region_iso_code']),
-                    region_with_type: get(item, ['data', 'region_with_type']),
-                    region_type: get(item, ['data', 'region_type']),
-                    region_type_full: get(item, ['data', 'region_type_full']),
-                    region: get(item, ['data', 'region']),
-                    area_fias_id: get(item, ['data', 'area_fias_id']),
-                    area_kladr_id: get(item, ['data', 'area_kladr_id']),
-                    area_with_type: get(item, ['data', 'area_with_type']),
-                    area_type: get(item, ['data', 'area_type']),
-                    area_type_full: get(item, ['data', 'area_type_full']),
-                    area: get(item, ['data', 'area']),
-                    city_fias_id: get(item, ['data', 'city_fias_id']),
-                    city_kladr_id: get(item, ['data', 'city_kladr_id']),
-                    city_with_type: get(item, ['data', 'city_with_type']),
-                    city_type: get(item, ['data', 'city_type']),
-                    city_type_full: get(item, ['data', 'city_type_full']),
-                    city: get(item, ['data', 'city']),
-                    city_area: get(item, ['data', 'city_area']),
-                    city_district_fias_id: get(item, ['data', 'city_district_fias_id']),
-                    city_district_kladr_id: get(item, ['data', 'city_district_kladr_id']),
-                    city_district_with_type: get(item, ['data', 'city_district_with_type']),
-                    city_district_type: get(item, ['data', 'city_district_type']),
-                    city_district_type_full: get(item, ['data', 'city_district_type_full']),
-                    city_district: get(item, ['data', 'city_district']),
-                    settlement_fias_id: get(item, ['data', 'settlement_fias_id']),
-                    settlement_kladr_id: get(item, ['data', 'settlement_kladr_id']),
-                    settlement_with_type: get(item, ['data', 'settlement_with_type']),
-                    settlement_type: get(item, ['data', 'settlement_type']),
-                    settlement_type_full: get(item, ['data', 'settlement_type_full']),
-                    settlement: get(item, ['data', 'settlement']),
-                    street_fias_id: get(item, ['data', 'street_fias_id']),
-                    street_kladr_id: get(item, ['data', 'street_kladr_id']),
-                    street_with_type: get(item, ['data', 'street_with_type']),
-                    street_type: get(item, ['data', 'street_type']),
-                    street_type_full: get(item, ['data', 'street_type_full']),
-                    street: get(item, ['data', 'street']),
-                    stead_fias_id: get(item, ['data', 'stead_fias_id']),
-                    stead_cadnum: get(item, ['data', 'stead_cadnum']),
-                    stead_type: get(item, ['data', 'stead_type']),
-                    stead_type_full: get(item, ['data', 'stead_type_full']),
-                    stead: get(item, ['data', 'stead']),
-                    house_fias_id: get(item, ['data', 'house_fias_id']),
-                    house_kladr_id: get(item, ['data', 'house_kladr_id']),
-                    house_cadnum: get(item, ['data', 'house_cadnum']),
-                    house_type: get(item, ['data', 'house_type']),
-                    house_type_full: get(item, ['data', 'house_type_full']),
-                    house: get(item, ['data', 'house']),
-                    block_type: get(item, ['data', 'block_type']),
-                    block_type_full: get(item, ['data', 'block_type_full']),
-                    block: get(item, ['data', 'block']),
-                    entrance: get(item, ['data', 'entrance']),
-                    floor: get(item, ['data', 'floor']),
-                    flat_fias_id: get(item, ['data', 'flat_fias_id']),
-                    flat_cadnum: get(item, ['data', 'flat_cadnum']),
-                    flat_type: get(item, ['data', 'flat_type']),
-                    flat_type_full: get(item, ['data', 'flat_type_full']),
-                    flat: get(item, ['data', 'flat']),
-                    flat_area: get(item, ['data', 'flat_area']),
-                    square_meter_price: get(item, ['data', 'square_meter_price']),
-                    flat_price: get(item, ['data', 'flat_price']),
-                    postal_box: get(item, ['data', 'postal_box']),
-                    fias_id: get(item, ['data', 'fias_id']),
-                    fias_code: get(item, ['data', 'fias_code']),
-                    fias_level: get(item, ['data', 'fias_level']),
-                    fias_actuality_state: get(item, ['data', 'fias_actuality_state']),
-                    kladr_id: get(item, ['data', 'kladr_id']),
-                    geoname_id: get(item, ['data', 'geoname_id']),
-                    capital_marker: get(item, ['data', 'capital_marker']),
-                    okato: get(item, ['data', 'okato']),
-                    oktmo: get(item, ['data', 'oktmo']),
-                    tax_office: get(item, ['data', 'tax_office']),
-                    tax_office_legal: get(item, ['data', 'tax_office_legal']),
-                    timezone: get(item, ['data', 'timezone']),
+                    postal_code: get(components, ['postal_code', 'long_name']),
+                    country: get(components, ['country', 'long_name']),
+                    country_iso_code: undefined,
+                    federal_district: undefined,
+                    region_fias_id: undefined,
+                    region_kladr_id: undefined,
+                    region_iso_code: undefined,
+                    region_with_type: get(components, ['administrative_area_level_1', 'long_name']),
+                    region_type: undefined,
+                    region_type_full: undefined,
+                    region: get(components, ['administrative_area_level_1', 'long_name']),
+                    area_fias_id: undefined,
+                    area_kladr_id: undefined,
+                    area_with_type: get(components, ['administrative_area_level_2', 'long_name']),
+                    area_type: undefined,
+                    area_type_full: undefined,
+                    area: get(components, ['administrative_area_level_2', 'long_name']),
+                    city_fias_id: undefined,
+                    city_kladr_id: undefined,
+                    city_with_type: get(components, ['locality', 'long_name']),
+                    city_type: undefined,
+                    city_type_full: undefined,
+                    city: get(components, ['locality', 'long_name']),
+                    city_area: undefined,
+                    city_district_fias_id: undefined,
+                    city_district_kladr_id: undefined,
+                    city_district_with_type: get(components, ['administrative_area_level_3', 'long_name']),
+                    city_district_type: undefined,
+                    city_district_type_full: undefined,
+                    city_district: get(components, ['administrative_area_level_3', 'long_name']),
+                    settlement_fias_id: undefined,
+                    settlement_kladr_id: undefined,
+                    settlement_with_type: undefined,
+                    settlement_type: undefined,
+                    settlement_type_full: undefined,
+                    settlement: undefined,
+                    street_fias_id: undefined,
+                    street_kladr_id: undefined,
+                    street_with_type: get(components, ['route', 'long_name']),
+                    street_type: undefined,
+                    street_type_full: undefined,
+                    street: get(components, ['route', 'long_name']),
+                    stead_fias_id: undefined,
+                    stead_cadnum: undefined,
+                    stead_type: undefined,
+                    stead_type_full: undefined,
+                    stead: undefined,
+                    house_fias_id: undefined,
+                    house_kladr_id: undefined,
+                    house_cadnum: undefined,
+                    house_type: undefined,
+                    house_type_full: undefined,
+                    house: get(components, ['street_number', 'long_name']),
+                    block_type: undefined,
+                    block_type_full: undefined,
+                    block: undefined,
+                    entrance: undefined,
+                    floor: undefined,
+                    flat_fias_id: undefined,
+                    flat_cadnum: undefined,
+                    flat_type: undefined,
+                    flat_type_full: undefined,
+                    flat: undefined,
+                    flat_area: undefined,
+                    square_meter_price: undefined,
+                    flat_price: undefined,
+                    postal_box: undefined,
+                    fias_id: undefined,
+                    fias_code: undefined,
+                    fias_level: undefined,
+                    fias_actuality_state: undefined,
+                    kladr_id: undefined,
+                    geoname_id: undefined,
+                    capital_marker: undefined,
+                    okato: undefined,
+                    oktmo: undefined,
+                    tax_office: undefined,
+                    tax_office_legal: undefined,
+                    timezone: undefined,
                     geo_lat: get(item, ['data', 'geo_lat']),
                     geo_lon: get(item, ['data', 'geo_lon']),
-                    beltway_hit: get(item, ['data', 'beltway_hit']),
-                    beltway_distance: get(item, ['data', 'beltway_distance']),
-                    metro: get(item, ['data', 'metro']),
-                    divisions: get(item, ['data', 'divisions']),
-                    qc_geo: get(item, ['data', 'qc_geo']),
-                    qc_complete: get(item, ['data', 'qc_complete']),
-                    qc_house: get(item, ['data', 'qc_house']),
-                    history_values: get(item, ['data', 'history_values']),
-                    unparsed_parts: get(item, ['data', 'unparsed_parts']),
-                    source: get(item, ['data', 'source']),
-                    qc: get(item, ['data', 'qc']),
+                    beltway_hit: undefined,
+                    beltway_distance: undefined,
+                    metro: undefined,
+                    divisions: undefined,
+                    qc_geo: undefined,
+                    qc_complete: undefined,
+                    qc_house: undefined,
+                    history_values: undefined,
+                    unparsed_parts: undefined,
+                    source: undefined,
+                    qc: undefined,
                 },
                 provider: {
                     name: DADATA_PROVIDER,
                     rawData: item,
                 },
             }
-        ))
+        })
     }
 }
 

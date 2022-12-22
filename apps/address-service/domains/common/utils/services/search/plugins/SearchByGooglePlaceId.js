@@ -1,13 +1,12 @@
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
-const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const get = require('lodash/get')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const { GoogleSearchProvider } = require('../providers')
 
 const SEPARATOR = ':'
 
-class SearchByProvider extends AbstractSearchPlugin {
+class SearchByGooglePlaceId extends AbstractSearchPlugin {
 
     /**
      * @param {String} s
@@ -60,4 +59,4 @@ class SearchByProvider extends AbstractSearchPlugin {
     }
 }
 
-module.exports = { SearchByProvider }
+module.exports = { SearchByGooglePlaceId }
