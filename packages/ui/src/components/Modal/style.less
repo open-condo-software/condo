@@ -17,13 +17,14 @@
 
 .condo-modal-root {
   .condo-modal-mask {
-    background-color: @condo-global-color-gray-7;
-    opacity: 0.5;
+    // NOTE: To correctly animate the mask, need to use the color in RGBa format
+    background-color: fade(@condo-global-color-gray-7, 50%);
   }
 
   .condo-modal {
     max-width: calc(100vw - @condo-modal-margin-horizontal * 2);
     margin: @condo-modal-margin-vertical 0;
+    animation-duration: 0s;
 
     .condo-modal-header {
       flex-shrink: 0;
@@ -77,6 +78,7 @@
 
       .condo-modal-wrapper {
         width: fit-content;
+        overflow: hidden;
       }
     }
 
