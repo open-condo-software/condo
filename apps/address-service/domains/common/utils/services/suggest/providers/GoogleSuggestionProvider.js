@@ -61,6 +61,8 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
 
             /**
              * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#PlacesAutocompleteStatus
+             * Autocomplete results are too poor to extract any data into the internal format.
+             * Maybe we need to call GoogleSearchProvider.getByPlaceId() to get full info
              */
             if (result.status === 'OK') {
                 return result.predictions
