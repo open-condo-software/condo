@@ -32,6 +32,17 @@ class AbstractSearchPlugin {
     }
 
     /**
+     * @param {string} pluginName
+     * @returns {{dv: number, sender: {dv: number, fingerprint: string}}}
+     */
+    getDvAndSender (pluginName) {
+        return {
+            dv: 1,
+            sender: { dv: 1, fingerprint: `plugin:${pluginName}` },
+        }
+    }
+
+    /**
      * @param {String} s
      * @returns {Promise<?Object>} The `Address` model instance
      */
