@@ -60,7 +60,7 @@ const Template: ComponentStory<typeof Component> = (props) => {
             <Typography.Paragraph>
                 Some content in the background
             </Typography.Paragraph>
-            {/* NOTE won't close without this hack */}
+            {/* NOTE: won't close without this hack */}
             {open && (
                 <Component
                     {...rest}

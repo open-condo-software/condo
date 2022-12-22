@@ -42,7 +42,7 @@ const Modal: React.FC<ModalProps> = (props) => {
     )
 
     useEffect(() => {
-        // NOTE This logic allows you to find out if the content scrolls inside the Modal
+        // NOTE: This logic allows you to find out if the content scrolls inside the Modal
         if (!contentChildrenRef.current) return
 
         const targetElement = contentChildrenRef.current.parentElement
@@ -69,7 +69,8 @@ const Modal: React.FC<ModalProps> = (props) => {
             footer={footer || null}
             title={<Typography.Title level={3} ellipsis={{ rows: 2 }} children={title}/>}
             width={CONDO_MODAL_WIDTH[width]}
-            // NOTE this hack need for forwarding ref
+            focusTriggerAfterClose={false}
+            // NOTE: this hack need for forwarding ref
             children={<div ref={contentChildrenRef} children={children} className={`${MODAL_CLASS_PREFIX}-wrapper`}/>}
         />
     )
