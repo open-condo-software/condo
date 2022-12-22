@@ -144,6 +144,34 @@ Right aligned columns
 | data   | path to data files to supply the data that will be passed into templates. |
 | engine | engine to be used for processing templates. Handlebars is the default. |
 | ext    | extension to be used for dest files. |
+
+## Alerts
+
+#### Success alert
+
+:::success{title=Title}
+Some text in alert
+:::
+
+#### Info alert
+
+:::info{title=Title}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec imperdiet nunc dui, sed tempor mauris varius a. Curabitur iaculis vel ipsum id hendrerit. Quisque ex enim, sagittis non magna vel, varius vehicula dolor. 
+Praesent vitae ultricies massa, quis viverra lectus. Integer fermentum porta turpis vitae varius.
+:::
+#### Warning alert
+
+:::warning{title=Title}
+You can add several paragraphs of text inside the alert
+
+You can add several paragraphs of text inside the alert
+:::
+
+#### Error alert
+
+:::error
+You may also choose not to write the title
+:::
 `
 
 export default {

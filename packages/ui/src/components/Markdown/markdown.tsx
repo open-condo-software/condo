@@ -1,13 +1,18 @@
 import omit from 'lodash/omit'
 import React from 'react'
 import ReactMarkdown from 'react-markdown'
+import directive from 'remark-directive'
 import remarkGfm from 'remark-gfm'
 
 import { CodeWrapper } from './codeWrapper'
+import customDirectives from './customDirectives'
 
+import { Alert } from '../Alert'
 import { Typography } from '../Typography'
 
 const REMARK_PLUGINS = [
+    directive,
+    customDirectives,
     remarkGfm,
 ]
 
@@ -33,6 +38,9 @@ export const Markdown: React.FC<MarkdownProps> = ({ children }) => {
                 a: (props) => <Typography.Link {...omit(props, 'ref')} target='_blank'/>,
                 li: ({ children, ...restProps }) => <li {...restProps}><Typography.Text type='secondary'>{children}</Typography.Text></li>,
                 pre: (props) => <CodeWrapper {...props}/>,
+                section: ({ children, title, ...restProps }) => {
+                    return <Alert description={children} type='success' showIcon={true} message={title} {...restProps}/>
+                },
             }}
         >
             {children}
