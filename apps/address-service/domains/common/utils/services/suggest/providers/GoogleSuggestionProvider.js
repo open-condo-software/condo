@@ -3,6 +3,7 @@ const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/p
 const conf = require('@open-condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
+const { v4: uuid } = require('uuid')
 
 /**
  * @typedef {Object} GooglePredictionObjectStructuredFormatting
@@ -44,13 +45,14 @@ class GoogleSuggestionProvider extends AbstractSuggestionProvider {
     /**
      * @returns {Promise<GooglePredictionObject[]>}
      */
-    async get ({ query, context = null, count = 20 }) {
-        const autocompleteResults = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&language=ru&key=${this.apiKey}`)
+    async get ({ query, context = null, count = 20, helpers = {} }) {
+        const sessionToken = uuid()
+
+        const autocompleteResults = await fetch(`https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${query}&language=ru&sessiontoken=${sessionToken}&key=${this.apiKey}`)
 
         /**
          * @see https://developers.google.com/maps/documentation/places/web-service/autocomplete#place_autocomplete_responses
          */
-
         const status = autocompleteResults.status
 
         if (status === 200) {
