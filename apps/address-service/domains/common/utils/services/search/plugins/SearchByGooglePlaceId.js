@@ -28,10 +28,7 @@ class SearchByProvider extends AbstractSearchPlugin {
         const [, placeId] = s.split(SEPARATOR, 2)
         const googleProvider = new GoogleSearchProvider()
         const godContext = this.keystoneContext.sudo()
-        const dvSender = {
-            dv: 1,
-            sender: { dv: 1, fingerprint: `address-service-search-${this.constructor.name}` },
-        }
+        const dvSender = this.getDvAndSender(this.constructor.name)
 
         const denormalizedResult = await googleProvider.getByPlaceId(placeId)
         const [searchResult] = googleProvider.normalize([denormalizedResult])

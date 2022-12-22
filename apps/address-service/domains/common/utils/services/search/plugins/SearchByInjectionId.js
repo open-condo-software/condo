@@ -30,10 +30,7 @@ class SearchByInjectionId extends AbstractSearchPlugin {
         const [, id] = s.split(SEPARATOR, 2)
         const injectionsSeeker = new InjectionsSeeker(s)
         const godContext = this.keystoneContext.sudo()
-        const dvSender = {
-            dv: 1,
-            sender: { dv: 1, fingerprint: `address-service-search-${this.constructor.name}` },
-        }
+        const dvSender = this.getDvAndSender(this.constructor.name)
 
         const injection = await AddressInjection.getOne(this.keystoneContext.sudo(), { id, deletedAt: null })
         if (!injection) {
