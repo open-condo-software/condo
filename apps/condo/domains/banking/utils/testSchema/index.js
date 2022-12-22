@@ -21,6 +21,9 @@ const BankAccount = generateGQLTestUtils(BankAccountGQL)
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
 const { RUSSIA_COUNTRY } = require('../../../common/constants/countries')
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
+
+const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
+const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -161,6 +164,37 @@ async function updateTestBankContractorAccount (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankIntegration (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBankIntegration logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankIntegration.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankIntegration (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBankIntegration logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankIntegration.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -168,5 +202,6 @@ module.exports = {
     BankCostItem, createTestBankCostItem, updateTestBankCostItem,
     BankAccount, createTestBankAccount, updateTestBankAccount,
     BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
+    BankIntegration, createTestBankIntegration, updateTestBankIntegration,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
