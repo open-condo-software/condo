@@ -7,6 +7,7 @@ const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
