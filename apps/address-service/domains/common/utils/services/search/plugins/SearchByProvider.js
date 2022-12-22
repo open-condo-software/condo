@@ -13,10 +13,7 @@ class SearchByProvider extends AbstractSearchPlugin {
     async search (s) {
         const searchProvider = getSearchProvider(this.geo)
         const godContext = this.keystoneContext.sudo()
-        const dvSender = {
-            dv: 1,
-            sender: { dv: 1, fingerprint: `address-service-search-${this.constructor.name}` },
-        }
+        const dvSender = this.getDvAndSender(this.constructor.name)
 
         const denormalizedRows = await searchProvider.get({ query: s, context: this.searchContext })
         const searchResults = searchProvider.normalize(denormalizedRows)
