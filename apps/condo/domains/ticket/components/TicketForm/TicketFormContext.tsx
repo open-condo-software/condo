@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react'
 
 import { TicketOrganizationSetting } from '@app/condo/schema'
+
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
+
 
 type TicketFormContextType = {
     ticketSetting: TicketOrganizationSetting,
@@ -16,7 +18,7 @@ export const TicketFormContext = React.createContext<TicketFormContextType>(null
 export const useTicketFormContext = (): TicketFormContextType => React.useContext(TicketFormContext)
 
 export const TicketFormContextProvider = ({ children, organizationId, isExistedTicket }) => {
-    const [isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue] = useState<boolean>(true)
+    const [isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue] = useState<boolean>(false)
     const [ticketSetting, setTicketSetting] = useState<TicketOrganizationSetting | null>(null)
 
     const { obj: newTicketSetting, loading: ticketSettingLoading } = TicketSetting.useObject({

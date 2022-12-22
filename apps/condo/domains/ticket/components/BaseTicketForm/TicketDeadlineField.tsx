@@ -1,10 +1,11 @@
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 import dayjs from 'dayjs'
-import { useIntl } from '@open-condo/next/intl'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -12,6 +13,7 @@ import { useTicketFormContext } from '@condo/domains/ticket/components/TicketFor
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 import { TicketFormItem } from './index'
+
 
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 const AUTO_DETECTED_DEADLINE_COL_STYLE = { height: '48px' }
@@ -40,6 +42,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     )
 
     const createdAt = get(initialValues, 'createdAt', null)
+    const ticketSettingId = get(ticketSetting, 'id', null)
 
     const autoDeadlineValue = useMemo(() => {
         const startDate = createdAt ? dayjs(createdAt) : dayjs()
@@ -47,11 +50,12 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     }, [autoAddDays, createdAt])
 
     const initialDeadline = get(initialValues, 'deadline', null)
+    const initialDeadlineInString = initialDeadline && dayjs(initialDeadline).toISOString()
     const isShowDeadline = isExistedTicket && !isTouchedTicketType
-        ? !(isNull(autoDeadlineValue) && isNull(initialDeadline))
+        ? !(isNull(autoDeadlineValue) && isNull(initialDeadlineInString))
         : !isNull(autoDeadlineValue)
     const isShowAutoDeadlineLabel = !isNull(autoDeadlineValue) && isAutoDetectedDeadlineValue
-    const isShowHiddenLabel = initialDeadline ? isTouchedTicketType && isNull(autoDeadlineValue) : isNull(autoDeadlineValue)
+    const isShowHiddenLabel = initialDeadlineInString ? isTouchedTicketType && isNull(autoDeadlineValue) : isNull(autoDeadlineValue)
 
     const handleTicketDeadlineChange = useCallback(() => {
         setIsAutoDetectedDeadlineValue(false)
@@ -80,21 +84,12 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     }, [AutoCompletionMessage, AutoCompletionTodayMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, isSmall])
 
     useEffect(() => {
-        if (isExistedTicket) {
-            form.setFields([{ name: 'deadline', value: isNull(initialDeadline) ? initialDeadline : dayjs(initialDeadline) }])
-            setIsAutoDetectedDeadlineValue(false)
-        } else {
+        if (!isExistedTicket) {
             form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
+            setIsAutoDetectedDeadlineValue(true)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isExistedTicket, initialDeadline])
-
-    useEffect(() => {
-        if (!isExistedTicket || isTouchedTicketType) {
-            form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isExistedTicket, isTouchedTicketType, ticketSetting])
+    }, [isExistedTicket, ticketSettingId])
 
     return (
         <>
