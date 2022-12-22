@@ -1,5 +1,6 @@
 const {
     DadataSearchProvider,
+    GoogleSearchProvider,
 } = require('@address-service/domains/common/utils/services/search/providers')
 const { DADATA_PROVIDER, GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const {
@@ -22,6 +23,8 @@ function getSearchProvider (geo) {
             searchProvider = new DadataSearchProvider()
             break
         case GOOGLE_PROVIDER:
+            searchProvider = new GoogleSearchProvider()
+            break
         default:
             //TODO(AleX83Xpert) always return dadata provider till the google's one will be ready
             searchProvider = new DadataSearchProvider()
