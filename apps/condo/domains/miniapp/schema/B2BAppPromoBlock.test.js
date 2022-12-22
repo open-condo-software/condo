@@ -111,6 +111,7 @@ describe('B2BAppPromoBlock', () => {
                 expect(blocks[0]).toHaveProperty(['backgroundImage', 'publicUrl'])
                 expect(blocks[0]).toHaveProperty('targetUrl')
                 expect(blocks[0]).toHaveProperty('priority')
+                expect(blocks[0]).toHaveProperty('external')
             })
             test('Anonymous cannot read', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
