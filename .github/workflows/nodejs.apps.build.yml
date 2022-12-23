@@ -47,6 +47,7 @@ jobs:
       - name: test app/condo
         run: |
           yarn workspace @app/condo build
+          test "./apps/condo/dist" && echo "keystone build successful" || exit 1
 
       - name: test app/callcenter
         run: |
@@ -55,19 +56,23 @@ jobs:
       - name: test app/condorb
         run: |
           yarn workspace @app/condorb build
+          test "./apps/condorb/dist" && echo "keystone build successful" || exit 1
 
       - name: test app/eps
         run: |
           yarn workspace @app/eps build
+          test "./apps/eps/dist" && echo "keystone build successful" || exit 1
 
       - name: test app/miniapp
         run: |
           yarn workspace @app/miniapp build
 
-      - name: test app/property_importer
+      - name: test app/property-importer
         run: |
           yarn workspace @app/property-importer build
+          test ".apps/property-importer/dist" && echo "keystone build successful" || exit 1
 
       - name: test app/registry
         run: |
           yarn workspace @app/registry build
+          test ".apps/registry/dist" && echo "keystone build successful" || exit 1
