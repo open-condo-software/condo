@@ -4,22 +4,17 @@
 
 .condo-markdown {
   // Headers margins
-  h1:first-child,
-  h2:first-child,
-  h3:first-child,
-  h4:first-child,
-  h5:first-child,
-  h6:first-child {
-    margin: 0 0 0.6em;
-  }
-
-  h1:not(:first-child),
-  h2:not(:first-child),
-  h3:not(:first-child),
-  h4:not(:first-child),
-  h5:not(:first-child),
-  h6:not(:first-child) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     margin: 1.8em 0 0.6em;
+
+    &:first-child {
+      margin: 0 0 0.6em;
+    }
   }
 
   // Images fit
