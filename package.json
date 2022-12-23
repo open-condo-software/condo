@@ -178,7 +178,13 @@
         {
           "int32Hint": false
         }
-      ]
+      ],
+      "no-restricted-imports": ["warn", {
+        "paths": [{
+          "name": "jspdf",
+          "message": "Please use pdfmake to generate pdf files."
+        }]
+      }]
     }
   },
   "dependencies": {
