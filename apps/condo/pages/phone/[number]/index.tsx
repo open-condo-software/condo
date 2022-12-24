@@ -195,7 +195,7 @@ const AddAddressCard = ({ onClick }) => {
 const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType, isEmployee }) => {
     const intl = useIntl()
     const ContactMessage = intl.formatMessage({ id: 'Contact' })
-    const NotResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
+    const NotResidentMessage = intl.formatMessage({ id: 'ticket.filters.isResidentContact.false' })
     const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })

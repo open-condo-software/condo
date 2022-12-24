@@ -81,9 +81,9 @@ const CheckListComments: React.FC<CheckListCommentsPropsType> = (props) => {
     const { ticketId, setCheckedCommentIds, checkedCommentIds, setHaveAllComments } = props
 
     const intl = useIntl()
-    const HaveAllCommentsLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveAllComments.label' })
-    const ShowAllCommentsLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.ShowAllComments.label' })
-    const HideAllCommentsLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HideAllComments.label' })
+    const HaveAllCommentsLabel = intl.formatMessage({ id: 'ticket.exportBlank.HaveAllComments.label' })
+    const ShowAllCommentsLabel = intl.formatMessage({ id: 'ticket.exportBlank.ShowAllComments.label' })
+    const HideAllCommentsLabel = intl.formatMessage({ id: 'ticket.exportBlank.HideAllComments.label' })
 
     const [showAllComments, setShowAllComments] = useState<boolean>(false)
     const [comments, setComments] = useState<TicketCommentWithChecked[]>([])
@@ -212,14 +212,14 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     const { ticketId, where, sortBy, locale, timeZone, user, eventNamePrefix } = props
 
     const intl = useIntl()
-    const SaveInPdfTitle = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.title' })
-    const SaveInPdfLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.SaveToPDF.label' })
-    const SaveToPDFTooltipMessage = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.SaveToPDF.tooltip' })
-    const HaveListCompletedWorksLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveListCompletedWorks.label' })
-    const HaveConsumedMaterialsLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveConsumedMaterials.label' })
-    const HaveTotalCostWorkLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveTotalCostWork.label' })
-    const HaveAllCommentsLabel = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveAllCommentsFromTickets.label' })
-    const HaveAllCommentsTooltipMessage = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveAllComments.tooltip' })
+    const SaveInPdfTitle = intl.formatMessage({ id: 'ticket.exportBlank.title' })
+    const SaveInPdfLabel = intl.formatMessage({ id: 'ticket.exportBlank.SaveToPDF.label' })
+    const SaveToPDFTooltipMessage = intl.formatMessage({ id: 'ticket.exportBlank.SaveToPDF.tooltip' })
+    const HaveListCompletedWorksLabel = intl.formatMessage({ id: 'ticket.exportBlank.HaveListCompletedWorks.label' })
+    const HaveConsumedMaterialsLabel = intl.formatMessage({ id: 'ticket.exportBlank.HaveConsumedMaterials.label' })
+    const HaveTotalCostWorkLabel = intl.formatMessage({ id: 'ticket.exportBlank.HaveTotalCostWork.label' })
+    const HaveAllCommentsLabel = intl.formatMessage({ id: 'ticket.exportBlank.HaveAllCommentsFromTickets.label' })
+    const HaveAllCommentsTooltipMessage = intl.formatMessage({ id: 'ticket.exportBlank.HaveAllComments.tooltip' })
 
     const [visibleModal, setVisibleModal] = useState<boolean>(false)
     const [haveListCompletedWorks, setHaveListCompletedWorks] = useState<boolean>(false)

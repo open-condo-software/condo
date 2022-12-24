@@ -28,7 +28,7 @@ export function useClientCardTicketTableColumns (tickets) {
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const LastCommentMessage = intl.formatMessage({ id: 'pages.condo.phone.table.lastComment' })
+    const LastCommentMessage = intl.formatMessage({ id: 'phone.table.lastComment' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)

@@ -163,8 +163,8 @@ const TicketTable = ({
     TicketImportButton,
 }) => {
     const intl = useIntl()
-    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
-    const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
+    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'ticket.index.CancelSelectedTicket' })
+    const CountSelectedTicketLabel = intl.formatMessage({ id: 'ticket.index.CountSelectedTicket' })
 
     const { getTrackingWrappedCallback } = useTracking()
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
