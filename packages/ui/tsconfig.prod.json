@@ -5,9 +5,10 @@
     "emitDeclarationOnly": true,
     "module": "ESNext",
     "rootDir": "src",
-    "target": "ES6",
+    "target": "ES6"
   },
   "exclude": [
+    "node_modules",
     "src/stories/**/*",
     ".storybook/**/*"
   ]
