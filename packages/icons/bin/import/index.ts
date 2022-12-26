@@ -2,8 +2,10 @@ import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs-extra'
 import chalk from 'chalk'
+import { execSync } from 'child_process'
 import { transform } from '@svgr/core'
 import config from './svgr.config'
+import { fillTemplate } from './template'
 
 import { getSVGData, downloadSVGs } from './getSVGData'
 
@@ -21,6 +23,9 @@ if (!FIGMA_API_TOKEN || !FIGMA_FILE_ID || !FIGMA_PAGE_NAME) {
 }
 
 const ICONS_PATH = path.join(__dirname, '../..', 'src/components')
+const ENTRY_PATH = path.join(__dirname, '../..', 'src/index.ts')
+const CODEGEN_COMMENT = '/** This file is auto-generated. Do not edit it directly **/'
+const TYPE_EXPORT = 'export type { IconProps } from \'./wrappers\''
 
 console.log(chalk.magentaBright('-> Fetching metadata from Figma...'))
 getSVGData({
@@ -29,20 +34,37 @@ getSVGData({
     pageName: FIGMA_PAGE_NAME,
     componentPrefix: FIGMA_COMPONENT_PREFIX,
 }).then((data) => {
-    console.log(chalk.blueBright('-> Downloading SVGs from cloud service'))
+    console.log(chalk.blueBright('-> Downloading SVGs from cloud service...'))
     return downloadSVGs(data)
 }).then(async (data) => {
-    console.log(chalk.cyanBright('-> Generating React components'))
+    console.log(chalk.cyanBright('-> Generating React components...'))
     data.forEach(svg => {
         const svgCode = svg.data
         const componentName = svg.name
         const fileName = `${componentName}.tsx`
         const jsCode = transform.sync(svgCode, config, { componentName })
+        // NOTE: for some reason returned markup starts with ;
+        const jsCodeFiltered = jsCode.replace(';', '')
+        const componentCode = fillTemplate({ componentName, jsx: jsCodeFiltered })
         fs.ensureDirSync(ICONS_PATH)
         fs.outputFileSync(
             path.join(ICONS_PATH, fileName),
-            jsCode
+            componentCode
         )
     })
+
+    console.log(chalk.redBright('-> Generating entry file...'))
+    const names = [...new Set(data.map(svg => svg.name))]
+    names.sort()
+    const exports = names.map(name => `export { ${name} } from './components/${name}'`).join('\n')
+    const indexContent = [CODEGEN_COMMENT, TYPE_EXPORT, exports].join('\n')
+    fs.outputFileSync(
+        ENTRY_PATH,
+        indexContent,
+    )
+
+    console.log(chalk.yellowBright('-> Fixing indentations with eslint...'))
+    execSync('eslint packages/icons/src --fix', { cwd: path.join(__dirname, '../../../..') })
+    console.log(chalk.greenBright('ALL DONE! ✅'))
 })
 

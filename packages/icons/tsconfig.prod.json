@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "module": "ESNext",
+    "rootDir": "src"
+  },
+  "exclude": [
+    "node_modules",
+    "bin"
+  ]
+}

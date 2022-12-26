@@ -6,7 +6,6 @@ const config: Config = {
     svgProps: {
         width: 'inherit',
         height: 'inherit',
-
     },
     replaceAttrValues: {
         '#222': 'currentColor',
@@ -25,6 +24,7 @@ const config: Config = {
         jsxSingleQuote: true,
         trailingComma: 'none',
     },
+    // NOTE: plugin-jsx is omitting types from template, so returning just processed svg tag here
     template: ({ jsx }, { tpl }) => tpl`${jsx}`,
 }
 
