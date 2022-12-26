@@ -33,7 +33,7 @@ jobs:
         run: yarn --immutable
 
       - name: Publish packages
-        run: yarn multi-semantic-release
+        run: node bin/publish-packages.js
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
