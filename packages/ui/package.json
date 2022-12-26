@@ -5,7 +5,8 @@
     "condo",
     "open-condo-software",
     "UI",
-    "React"
+    "React",
+    "components"
   ],
   "version": "0.0.0-development",
   "repository": {
