@@ -35,10 +35,15 @@ describe('RegisterUserExternalIdentityService', () => {
     })
 
     describe('Check access rules', () => {
-        test('Resident case - can register', async () => {
+        test('Resident case - can not register', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerUserExternalIdentityByTestClient(resident, getRequest(resident))
+            })
+        })
+        test('Admin case - can register', async () => {
             const resident = await makeClientWithResidentUser()
             const request = getRequest(resident)
-            const [result] = await registerUserExternalIdentityByTestClient(resident, request)
+            const [result] = await registerUserExternalIdentityByTestClient(admin, request)
             expect(result).toMatchObject({ status: 'ok' })
 
             // check data
@@ -48,15 +53,18 @@ describe('RegisterUserExternalIdentityService', () => {
             expect(identity.identityType).toBe(request.identityType)
             expect(identity.meta).toMatchObject(request.meta)
         })
-        test('Admin case - can not register', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerUserExternalIdentityByTestClient(admin, getRequest(admin))
-            })
-        })
         test('Support case - can not register', async () => {
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerUserExternalIdentityByTestClient(support, getRequest(support))
-            })
+            const resident = await makeClientWithResidentUser()
+            const request = getRequest(resident)
+            const [result] = await registerUserExternalIdentityByTestClient(support, request)
+            expect(result).toMatchObject({ status: 'ok' })
+
+            // check data
+            const [identity] = await UserExternalIdentity.getAll(resident, { user: { id: resident.user.id } })
+            expect(identity.user.id).toBe(resident.user.id)
+            expect(identity.identityId).toBe(request.identityId)
+            expect(identity.identityType).toBe(request.identityType)
+            expect(identity.meta).toMatchObject(request.meta)
         })
         test('Staff case - can not register', async () => {
             await expectToThrowAccessDeniedErrorToResult(async () => {
@@ -78,7 +86,7 @@ describe('RegisterUserExternalIdentityService', () => {
     describe('Check validations', () => {
         test('Should check dv (=== 1)', async () => {
             await catchErrorFrom(async () => {
-                await registerUserExternalIdentityByTestClient(resident, { ...getRequest(resident), dv: 2 })
+                await registerUserExternalIdentityByTestClient(admin, { ...getRequest(resident), dv: 2 })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
                     message: 'Unsupported value for dv',
@@ -95,7 +103,7 @@ describe('RegisterUserExternalIdentityService', () => {
         })
         test('Should check identityId is not empty', async () => {
             await catchErrorFrom(async () => {
-                await registerUserExternalIdentityByTestClient(resident, { ...getRequest(resident), identityId: '' })
+                await registerUserExternalIdentityByTestClient(admin, { ...getRequest(resident), identityId: '' })
             }, ({ errors }) => {
                 expect(errors).toMatchObject([{
                     message: 'Can not create UserExternalIdentity for empty identityId',
