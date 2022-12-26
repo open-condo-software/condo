@@ -23,6 +23,11 @@
     "import:figma": "find src/components -mindepth 1 -delete && ts-node bin/import/index.ts",
     "build": "webpack --config webpack.config.js && tsc --project tsconfig.prod.json"
   },
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
