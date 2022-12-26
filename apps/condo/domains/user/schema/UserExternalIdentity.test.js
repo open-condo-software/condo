@@ -81,8 +81,8 @@ describe('UserExternalIdentity', () => {
             identityRequest = getRegisterRequest(resident)
 
             // register users external identity
-            await registerUserExternalIdentityByTestClient(resident, identityRequest)
-            await registerUserExternalIdentityByTestClient(secondResident, getRegisterRequest(secondResident))
+            await registerUserExternalIdentityByTestClient(admin, identityRequest)
+            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(secondResident))
         })
 
         test('Allowed: RESIDENT own identity', async () => {
@@ -125,7 +125,7 @@ describe('UserExternalIdentity', () => {
             }
 
             // register users external identity
-            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
 
             identity = await UserExternalIdentity.getOne(resident, {})
         })
@@ -168,7 +168,7 @@ describe('UserExternalIdentity', () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
             const identityRequest = getRegisterRequest(resident)
-            await registerUserExternalIdentityByTestClient(resident, identityRequest)
+            await registerUserExternalIdentityByTestClient(admin, identityRequest)
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
@@ -178,7 +178,7 @@ describe('UserExternalIdentity', () => {
         test('Denied: STAFF', async () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
-            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
@@ -190,7 +190,7 @@ describe('UserExternalIdentity', () => {
         test('Denied: SERVICE', async () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
-            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
@@ -202,7 +202,7 @@ describe('UserExternalIdentity', () => {
         test('Allowed: admin', async () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
-            await registerUserExternalIdentityByTestClient(resident, getRegisterRequest(resident))
+            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
