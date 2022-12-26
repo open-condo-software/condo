@@ -1,6 +1,7 @@
 ## Table of contents
 [Installation](#installation)\
 [Usage](#usage)\
+[Including styles](#including-styles)\
 [Access theme colors](#access-theme-colors)
 
 ## Installation
@@ -18,6 +19,12 @@ You can import needed component with its props directly from package entry point
 ```typescript
 import { Button } from '@open-condo/ui'
 import type { ButtonProps } from '@open-condo/ui'
+```
+
+## Including styles
+To apply the styles, import the css file from library `dist` into your project root component:
+```typescript jsx
+import '@open-condo/ui/dist/styles.min.css'
 ```
 
 ## Access theme colors
