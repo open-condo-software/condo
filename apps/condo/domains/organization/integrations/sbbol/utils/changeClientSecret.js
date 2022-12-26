@@ -2,12 +2,11 @@ const querystring = require('querystring')
 const dayjs = require('dayjs')
 const conf = require('@open-condo/config')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
-const { SBBOL_IMPORT_NAME } = require('@condo/domains/organization/integrations/sbbol/constants')
 const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { User } = require('@condo/domains/user/utils/serverSchema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const get = require('lodash/get')
 
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
@@ -20,7 +19,17 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
     if (!organization) {
         throw new Error('Could not fetch SBBOL service organization by importId with corresponds to SBBOL_FINTECH_CONFIG.service_organization_hashOrgId')
     }
-    const user = await User.getOne(userContext, { organization: { id: organization.id }, deletedAt: null })
+
+    const employee = await OrganizationEmployee.getAll(userContext,
+        {
+            organization: { id: organization.id },
+            deletedAt: null,
+            isRejected: false,
+            isBlocked: false,
+        },
+        { sortBy: ['createdAt_ASC'], first: 1 })
+    const user = get(employee[0], 'user')
+
     if (!user) {
         throw new Error('Could not fetch User from SBBOL service organization')
     }
