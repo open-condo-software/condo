@@ -136,7 +136,7 @@ export const getFilter: (
                 args = search
                     .filter(Boolean)
                     .map(el => el.trim()
-                        .replace(/[^а-яa-z0-9\s]/ig, '')
+                        .replace(/[^а-яa-z0-9\s-]/ig, ' ')
                         .split(' ')
                         .filter(Boolean)
                         .map(item => ({ [`${wrappedDataIndex.length > 1 ? wrappedDataIndex[wrappedDataIndex.length - 1] : wrappedDataIndex[0]}_contains_i`]: item }))

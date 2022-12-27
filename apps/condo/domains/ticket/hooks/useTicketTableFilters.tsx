@@ -51,14 +51,12 @@ const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
 const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
-const filterDetails = getStringOverlapFilter('details')
+const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
-const filterAddress = getStringOverlapFilter(['propertyAddress'])
-const filterClientName = getStringOverlapFilter(['clientName'])
+const filterAddress = getStringContainsFilter(['propertyAddress'])
+const filterClientName = getStringContainsFilter(['clientName'])
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
-const filterExecutorName = getStringOverlapFilter(['executor', 'name'])
-const filterAssigneeName = getStringOverlapFilter(['assignee', 'name'])
 const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
@@ -70,11 +68,11 @@ const filterUnitType = getFilter('unitType', 'array', 'string', 'in')
 const filterPlaceClassifier = getFilter(['classifier', 'place', 'id'], 'array', 'string', 'in')
 const filterCategoryClassifier = getFilter(['classifier', 'category', 'id'], 'array', 'string', 'in')
 const filterProblemClassifier = getFilter(['classifier', 'problem', 'id'], 'array', 'string', 'in')
-const filterCategoryClassifierSearch = getStringOverlapFilter(['classifier', 'category', 'name'])
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
 const filterPropertyScope = getPropertyScopeFilter()
+const filterSearch = getStringOverlapFilter(['search'])
 
 export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  {
     const intl = useIntl()
@@ -161,16 +159,8 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
             {
                 keyword: 'search',
                 filters: [
-                    filterNumber,
-                    filterClientName,
-                    filterAddress,
-                    filterDetails,
-                    filterExecutorName,
-                    filterAssigneeName,
-                    filterCreatedAtRange,
-                    filterCategoryClassifierSearch,
+                    filterSearch,
                 ],
-                combineType: 'OR',
             },
             {
                 keyword: 'address',
