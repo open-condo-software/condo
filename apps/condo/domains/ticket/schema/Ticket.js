@@ -70,8 +70,6 @@ const SEARCH_PREPROCESSORS = {
     'createdAt': (value) => dayjs(value).toISOString(),
 }
 
-// TODO (DOMA-4545) refactor sorting
-
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
         'It has fields `clientName`, `clientPhone`, `clientEmail`, which stores contact information at the moment of creating or updating. ' +
@@ -566,15 +564,6 @@ const Ticket = new GQLListSchema('Ticket', {
         update: access.canManageTickets,
         delete: false,
         auth: true,
-    },
-    kmigratorOptions: {
-        indexes: [
-            {
-                type: 'Index', // or BTreeIndex
-                fields: ['order', 'createdAt'],
-                name: 'Ticket_order_createdAt_idx',
-            },
-        ],
     },
 })
 
