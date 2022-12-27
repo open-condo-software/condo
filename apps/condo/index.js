@@ -36,6 +36,8 @@ const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddlew
 
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { searchFieldPreprocessor } = require('@open-condo/keystone/preprocessors/searchField')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 dayjs.extend(duration)
 
@@ -116,7 +118,29 @@ registerSchemas(keystone, [
     require('@condo/domains/analytics/schema'),
     require('@condo/domains/scope/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
-], [schemaDocPreprocessor, escapeSearchPreprocessor])
+], [
+    schemaDocPreprocessor, escapeSearchPreprocessor,
+    searchFieldPreprocessor([{
+        schemaName: 'Ticket',
+        simpleFields: {
+            pathsToFields: [
+                'number',
+                'clientName',
+                'propertyAddress',
+                'details',
+                'createdAt',
+            ],
+            preprocessorsForFields: {
+                'createdAt': (value) => dayjs(value).toISOString(),
+            },
+        },
+        relatedFields: [{
+            schemaName: 'User',
+            pathsToFields: ['assignee.name', 'executor.name'],
+            schemaGql: Ticket,
+        }],
+    }]),
+])
 
 if (!IS_BUILD_PHASE) {
     // NOTE(pahaz): we put it here because it inits the redis connection and we don't want it at build time

@@ -16478,7 +16478,7 @@ type Ticket {
   """
   sender: SenderField
 
-  """ Service field for searching by different fields """
+  """ Field for searching by different fields """
   search: String
 
   """ Service field for versioning the search field by different fields """

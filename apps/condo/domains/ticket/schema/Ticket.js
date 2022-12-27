@@ -54,21 +54,6 @@ const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handler
 const { OMIT_TICKET_CHANGE_TRACKABLE_FIELDS, REVIEW_VALUES, DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { searchBy } = require('@open-condo/keystone/plugins/searchBy')
-
-const SEARCH_FIELD_PATHS = [
-    'number',
-    'clientName',
-    'propertyAddress',
-    'details',
-    'executor.name',
-    'assignee.name',
-    'createdAt',
-    'classifier.category.name',
-]
-const SEARCH_PREPROCESSORS = {
-    'createdAt': (value) => dayjs(value).toISOString(),
-}
 
 const Ticket = new GQLListSchema('Ticket', {
     schemaDoc: 'Users request or contact with the user. ' +
@@ -400,10 +385,7 @@ const Ticket = new GQLListSchema('Ticket', {
             },
         },
     },
-    plugins: [
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
-        searchBy({ pathsToFields: SEARCH_FIELD_PATHS, preprocessorsForFields: SEARCH_PREPROCESSORS }),
-    ],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     hooks: {
         resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts

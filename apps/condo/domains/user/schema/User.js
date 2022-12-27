@@ -5,12 +5,11 @@
 const { Text, Checkbox, Password, File, Select, Virtual } = require('@keystonejs/fields')
 const { Json } = require('@open-condo/keystone/fields')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, searchUpdateByTrigger } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const access = require('@condo/domains/user/access/User')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
-const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
@@ -207,16 +206,7 @@ const User = new GQLListSchema('User', {
             }
         },
     },
-    plugins: [
-        uuided(),
-        versioned(),
-        tracked(),
-        softDeleted(),
-        dvAndSender(),
-        historical(),
-        webHooked(),
-        searchUpdateByTrigger([{ targetSchema: 'Ticket', triggerPathsToFields: ['assignee.name', 'executor.name'], schemaGql: Ticket }]),
-    ],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadUsers,
         create: access.canManageUsers,
