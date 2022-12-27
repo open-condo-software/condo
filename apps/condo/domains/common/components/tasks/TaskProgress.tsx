@@ -66,6 +66,7 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
 
 const TaskIconsHoverSwitcher = styled.div`
     cursor: pointer;
+    align-self: flex-start;
   
     > * {
       position: relative;
