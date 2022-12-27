@@ -1,6 +1,7 @@
 const { isEmpty, isString, isFunction, get, isNumber, isNil, isObject, isArray } = require('lodash')
 const { getSchemaCtx, getByCondition, find } = require('../schema')
 const { composeResolveInputHook, composeNonResolveInputHook } = require('../plugins/utils')
+const { canOnlyServerSideWithoutUserRequest } = require('../access')
 
 
 // TODO (DOMA-4545)
@@ -9,6 +10,9 @@ const { composeResolveInputHook, composeNonResolveInputHook } = require('../plug
 //  [✔] Add search field update when related entities update
 //  [✔] Add search field update when related entities was deleted
 //  [✔] Move logic to global preprocessor
+//  [✔] Update access to search fields
+//  [ ] Add preprocessor validation checks
+//  [ ] Move search options from index.js
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
 
@@ -18,14 +22,14 @@ const SEARCH_FIELD_DEFAULT_VALUE = '""'
 const FIELD_NAME_REGEX = /^[a-z]+$/i
 
 const SEARCH_OPTIONS = {
-    schemaDoc: 'Service field for searching by different fields',
+    schemaDoc: 'Field for searching by different fields',
     type: 'Text',
     kmigratorOptions: { null: false },
     defaultValue: SEARCH_FIELD_DEFAULT_VALUE,
     access: {
         create: false,
         read: true,
-        update: true,
+        update: false,
     },
     knexOptions: { defaultTo: () => SEARCH_FIELD_DEFAULT_VALUE },
 }
@@ -36,8 +40,8 @@ const SEARCH_VERSION_OPTIONS = {
     defaultValue: 1,
     access: {
         create: false,
-        read: true,
-        update: true,
+        read: false,
+        update: canOnlyServerSideWithoutUserRequest,
     },
     knexOptions: { defaultTo: () => 1 },
 }
@@ -228,7 +232,7 @@ const getContext = async (schemaName) => {
 /**
  * @param {RelatedData[]} relatedData
  */
-const checkRelatedDate = (relatedData) => {
+const checkRelatedData = (relatedData) => {
     if (!relatedData || !isArray(relatedData)) throw new Error('"relatedData" field must be of type "array" and not empty!')
 
     for (const { targetSchema, schemaGql, triggerPathsToFields, searchFieldName } of relatedData) {
@@ -260,7 +264,7 @@ const updateRelatedItems = async ({ targetSchema, triggerPathsToFieldsDetails, e
             try {
                 await schemaGql.update(context, id, payload)
             } catch (e) {
-                console.log('ERROR!', e)
+                console.error('ERROR updating search field after updating related field!', e)
             }
         }
     }
@@ -288,7 +292,7 @@ const updateRelatedItems = async ({ targetSchema, triggerPathsToFieldsDetails, e
 const addSearchUpdateTrigger = (relatedData = []) => (schema) => {
     const { hooks = {}, ...rest } = schema
 
-    checkRelatedDate(relatedData)
+    checkRelatedData(relatedData)
 
     /**
      * @type {(RelatedData & {triggerPathsToFieldsDetails: TriggerPathsToFieldsDetail[]})[]}
