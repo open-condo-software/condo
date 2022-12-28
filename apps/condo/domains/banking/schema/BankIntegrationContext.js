@@ -28,6 +28,7 @@ const BankIntegrationContext = new GQLListSchema('BankIntegrationContext', {
             schemaDoc: 'Controls availability of sync operation for this integration. Can be disabled by support in some cases, when client dont wants to have automatic synchronization via API, for example',
             type: Checkbox,
             isRequired: true,
+            defaultValue: true,
         },
 
     },
