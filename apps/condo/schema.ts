@@ -16458,6 +16458,19 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
+export type CreateBankAccountRequestInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  organizationId: Scalars['ID'];
+  propertyId: Scalars['ID'];
+};
+
+export type CreateBankAccountRequestOutput = {
+  __typename?: 'CreateBankAccountRequestOutput';
+  status: Scalars['String'];
+  id: Scalars['ID'];
+};
+
 export type CreateOnBoardingInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -25485,6 +25498,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
+  createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
    * Sends message of specified type to specified contact
@@ -25536,6 +25550,26 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"details": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"BANK_ACCOUNT_CREATION_REQUEST": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"bankAccountClient": {
+   * 			"defaultValue": {},
+   * 			"required": true
+   * 		},
+   * 		"tin": {
+   * 			"required": true
+   * 		},
+   * 		"name": {
+   * 			"required": true
+   * 		},
+   * 		"propertyAddress": {
    * 			"defaultValue": "",
    * 			"required": true
    * 		}
@@ -31769,6 +31803,11 @@ export type MutationRegisterBillingReceiptsArgs = {
 };
 
 
+export type MutationCreateBankAccountRequestArgs = {
+  data: CreateBankAccountRequestInput;
+};
+
+
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
 };
@@ -33718,6 +33757,7 @@ export type OrganizationEmployeeRole = {
    */
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -33759,6 +33799,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -33806,6 +33847,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -33847,6 +33889,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -33893,6 +33936,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -34011,6 +34055,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   ticketVisibilityType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -34127,6 +34173,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTicketPropertyHints?: Maybe<Scalars['Boolean']>;
   ticketVisibilityType?: Maybe<Scalars['String']>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
@@ -34222,6 +34269,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   ticketVisibilityType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canManagePropertyScopes?: Maybe<Scalars['Boolean']>;
   canManagePropertyScopes_not?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts?: Maybe<Scalars['Boolean']>;
+  canManageBankAccounts_not?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts?: Maybe<Scalars['Boolean']>;
   canManageBankIntegrationContexts_not?: Maybe<Scalars['Boolean']>;
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
@@ -36868,6 +36917,8 @@ export type Property = {
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   /**  Counter for closed tickets  */
   ticketsClosed?: Maybe<Scalars['String']>;
+  /**  Counter for deferred tickets  */
+  ticketsDeferred?: Maybe<Scalars['String']>;
   /**  Counter for not closed tickets  */
   ticketsInWork?: Maybe<Scalars['String']>;
   /**  Whether or not this organization can manage this property. Usually set by support. Defaults to False. Field is dropped to false if address is updated  */
@@ -36943,6 +36994,7 @@ export type PropertyHistoryRecord = {
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -36974,6 +37026,7 @@ export type PropertyHistoryRecordCreateInput = {
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -37010,6 +37063,7 @@ export type PropertyHistoryRecordUpdateInput = {
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -37099,6 +37153,10 @@ export type PropertyHistoryRecordWhereInput = {
   ticketsClosed_not?: Maybe<Scalars['JSON']>;
   ticketsClosed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsClosed_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
+  ticketsDeferred_not?: Maybe<Scalars['JSON']>;
+  ticketsDeferred_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticketsDeferred_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   ticketsInWork_not?: Maybe<Scalars['JSON']>;
   ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -45773,6 +45831,8 @@ export enum SendMessageType {
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
   StaffUpgradeApp = 'STAFF_UPGRADE_APP',
+  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
+  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE',
   CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
   CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
   CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
@@ -49759,6 +49819,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   TicketVisibilityTypeDesc = 'ticketVisibilityType_DESC',
   CanManagePropertyScopesAsc = 'canManagePropertyScopes_ASC',
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
+  CanManageBankAccountsAsc = 'canManageBankAccounts_ASC',
+  CanManageBankAccountsDesc = 'canManageBankAccounts_DESC',
   CanManageBankIntegrationContextsAsc = 'canManageBankIntegrationContexts_ASC',
   CanManageBankIntegrationContextsDesc = 'canManageBankIntegrationContexts_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',
@@ -49828,6 +49890,8 @@ export enum SortOrganizationEmployeeRolesBy {
   TicketVisibilityTypeDesc = 'ticketVisibilityType_DESC',
   CanManagePropertyScopesAsc = 'canManagePropertyScopes_ASC',
   CanManagePropertyScopesDesc = 'canManagePropertyScopes_DESC',
+  CanManageBankAccountsAsc = 'canManageBankAccounts_ASC',
+  CanManageBankAccountsDesc = 'canManageBankAccounts_DESC',
   CanManageBankIntegrationContextsAsc = 'canManageBankIntegrationContexts_ASC',
   CanManageBankIntegrationContextsDesc = 'canManageBankIntegrationContexts_DESC',
   CanManageBankContractorAccountsAsc = 'canManageBankContractorAccounts_ASC',

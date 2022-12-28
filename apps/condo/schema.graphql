@@ -3972,6 +3972,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4091,6 +4092,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   ticketVisibilityType_not_in: [String]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
+  canManageBankAccounts: Boolean
+  canManageBankAccounts_not: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankIntegrationContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
@@ -4212,6 +4215,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   ticketVisibilityType_DESC
   canManagePropertyScopes_ASC
   canManagePropertyScopes_DESC
+  canManageBankAccounts_ASC
+  canManageBankAccounts_DESC
   canManageBankIntegrationContexts_ASC
   canManageBankIntegrationContexts_DESC
   canManageBankContractorAccounts_ASC
@@ -4259,6 +4264,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4304,6 +4310,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4378,6 +4385,7 @@ type OrganizationEmployeeRole {
   """
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4485,6 +4493,8 @@ input OrganizationEmployeeRoleWhereInput {
   ticketVisibilityType_not_in: [String]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
+  canManageBankAccounts: Boolean
+  canManageBankAccounts_not: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankIntegrationContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
@@ -4588,6 +4598,8 @@ enum SortOrganizationEmployeeRolesBy {
   ticketVisibilityType_DESC
   canManagePropertyScopes_ASC
   canManagePropertyScopes_DESC
+  canManageBankAccounts_ASC
+  canManageBankAccounts_DESC
   canManageBankIntegrationContexts_ASC
   canManageBankIntegrationContexts_DESC
   canManageBankContractorAccounts_ASC
@@ -4634,6 +4646,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4675,6 +4688,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -5442,6 +5456,7 @@ type PropertyHistoryRecord {
   unitsCount: Int
   uninhabitedUnitsCount: Int
   ticketsClosed: JSON
+  ticketsDeferred: JSON
   ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
@@ -5532,6 +5547,10 @@ input PropertyHistoryRecordWhereInput {
   ticketsClosed_not: JSON
   ticketsClosed_in: [JSON]
   ticketsClosed_not_in: [JSON]
+  ticketsDeferred: JSON
+  ticketsDeferred_not: JSON
+  ticketsDeferred_in: [JSON]
+  ticketsDeferred_not_in: [JSON]
   ticketsInWork: JSON
   ticketsInWork_not: JSON
   ticketsInWork_in: [JSON]
@@ -5725,6 +5744,7 @@ input PropertyHistoryRecordUpdateInput {
   unitsCount: Int
   uninhabitedUnitsCount: Int
   ticketsClosed: JSON
+  ticketsDeferred: JSON
   ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
@@ -5760,6 +5780,7 @@ input PropertyHistoryRecordCreateInput {
   unitsCount: Int
   uninhabitedUnitsCount: Int
   ticketsClosed: JSON
+  ticketsDeferred: JSON
   ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
@@ -6109,6 +6130,9 @@ type Property {
 
   """ Counter for closed tickets """
   ticketsClosed: String
+
+  """ Counter for deferred tickets """
+  ticketsDeferred: String
 
   """ Counter for not closed tickets """
   ticketsInWork: String
@@ -48898,6 +48922,18 @@ input RegisterBillingReceiptsInput {
   receipts: [RegisterBillingReceiptInput!]!
 }
 
+input CreateBankAccountRequestInput {
+  dv: Int!
+  sender: JSON!
+  organizationId: ID!
+  propertyId: ID!
+}
+
+type CreateBankAccountRequestOutput {
+  status: String!
+  id: ID!
+}
+
 input ShareTicketInput {
   sender: SenderFieldInput!
   employees: [ID!]!
@@ -48954,6 +48990,8 @@ enum SendMessageType {
   BILLING_RECEIPT_ADDED_WITH_NO_DEBT
   RESIDENT_UPGRADE_APP
   STAFF_UPGRADE_APP
+  BANK_ACCOUNT_CREATION_REQUEST
+  CUSTOM_CONTENT_MESSAGE
   CUSTOM_CONTENT_MESSAGE_PUSH
   CUSTOM_CONTENT_MESSAGE_EMAIL
   CUSTOM_CONTENT_MESSAGE_SMS
@@ -55657,6 +55695,7 @@ type Mutation {
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
+  createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 
   """
@@ -55709,6 +55748,26 @@ type Mutation {
   			"required": true
   		},
   		"details": {
+  			"defaultValue": "",
+  			"required": true
+  		}
+  	},
+  	"BANK_ACCOUNT_CREATION_REQUEST": {
+  		"dv": {
+  			"defaultValue": "",
+  			"required": true
+  		},
+  		"bankAccountClient": {
+  			"defaultValue": {},
+  			"required": true
+  		},
+  		"tin": {
+  			"required": true
+  		},
+  		"name": {
+  			"required": true
+  		},
+  		"propertyAddress": {
   			"defaultValue": "",
   			"required": true
   		}
