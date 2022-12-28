@@ -13,6 +13,7 @@ const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
 const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
+const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -20,6 +21,7 @@ const BankCostItem = generateGQLTestUtils(BankCostItemGQL)
 const BankAccount = generateGQLTestUtils(BankAccountGQL)
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
+const BankIntegrationContext = generateGQLTestUtils(BankIntegrationContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -187,6 +189,41 @@ async function updateTestBankIntegration (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankIntegrationContext (client, integration, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!integration || !integration.id) throw new Error('no integration.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBankIntegrationContext logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        integration: { connect: { id: integration.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankIntegrationContext.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankIntegrationContext (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBankIntegrationContext logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankIntegrationContext.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -195,5 +232,6 @@ module.exports = {
     BankAccount, createTestBankAccount, updateTestBankAccount,
     BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
     BankIntegration, createTestBankIntegration, updateTestBankIntegration,
+    BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
