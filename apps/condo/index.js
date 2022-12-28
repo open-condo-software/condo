@@ -37,7 +37,7 @@ const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddlew
 const packageJson = require('@app/condo/package.json')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { searchFieldPreprocessor } = require('@open-condo/keystone/preprocessors/searchField')
-const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+const { TICKET_SEARCH_FIELD_PARAMETERS } = require('@condo/domains/ticket/schema/fields/Search')
 
 dayjs.extend(duration)
 
@@ -120,26 +120,7 @@ registerSchemas(keystone, [
     getWebhookModels('@app/condo/schema.graphql'),
 ], [
     schemaDocPreprocessor, escapeSearchPreprocessor,
-    searchFieldPreprocessor([{
-        schemaName: 'Ticket',
-        simpleFields: {
-            pathsToFields: [
-                'number',
-                'clientName',
-                'propertyAddress',
-                'details',
-                'createdAt',
-            ],
-            preprocessorsForFields: {
-                'createdAt': (value) => dayjs(value).toISOString(),
-            },
-        },
-        relatedFields: [{
-            schemaName: 'User',
-            pathsToFields: ['assignee.name', 'executor.name'],
-            schemaGql: Ticket,
-        }],
-    }]),
+    searchFieldPreprocessor([TICKET_SEARCH_FIELD_PARAMETERS]),
 ])
 
 if (!IS_BUILD_PHASE) {

@@ -11,7 +11,7 @@ const { addSearchUpdateTrigger } = require('./utils/searchUpdateTrigger')
 //  [✔] Move logic to global preprocessor
 //  [✔] Update access to search fields
 //  [✔] Add preprocessor validation checks
-//  [ ] Move search options from index.js
+//  [✔] Move search options from index.js
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
 
