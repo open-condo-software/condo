@@ -6,6 +6,8 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+
 const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
 const { RUSSIA_COUNTRY } = require('../../../common/constants/countries')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
@@ -22,6 +24,8 @@ const BankCategory = generateGQLTestUtils(BankCategoryGQL)
 const BankCostItem = generateGQLTestUtils(BankCostItemGQL)
 const BankAccount = generateGQLTestUtils(BankAccountGQL)
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
+
+const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
 const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
 const BankIntegrationContext = generateGQLTestUtils(BankIntegrationContextGQL)
 const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
@@ -267,6 +271,20 @@ async function updateTestBankTransaction (client, id, extraAttrs = {}) {
     const obj = await BankTransaction.update(client, id, attrs)
     return [obj, attrs]
 }
+
+async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(CREATE_BANK_ACCOUNT_REQUEST_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -276,6 +294,7 @@ module.exports = {
     BankContractorAccount, createTestBankContractorAccount, updateTestBankContractorAccount,
     BankIntegration, createTestBankIntegration, updateTestBankIntegration,
     BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext,
+    createBankAccountRequestByTestClient,
     BankTransaction, createTestBankTransaction, updateTestBankTransaction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

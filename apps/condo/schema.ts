@@ -5801,6 +5801,12 @@ export type BankAccount = {
   sender?: Maybe<SenderField>;
 };
 
+export type BankAccountClient = {
+  phone: Scalars['String'];
+  email?: Maybe<Scalars['String']>;
+  name: Scalars['String'];
+};
+
 export enum BankAccountCountryType {
   En = 'en',
   Ru = 'ru'
@@ -16458,6 +16464,22 @@ export type ContactsUpdateInput = {
   data?: Maybe<ContactUpdateInput>;
 };
 
+export type CreateBankAccountRequestInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  bankAccountClient: BankAccountClient;
+  tin: Scalars['String'];
+  name: Scalars['String'];
+  organizationId: Scalars['ID'];
+  propertyAddress: Scalars['String'];
+};
+
+export type CreateBankAccountRequestOutput = {
+  __typename?: 'CreateBankAccountRequestOutput';
+  status: Scalars['String'];
+  id: Scalars['ID'];
+};
+
 export type CreateOnBoardingInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -25485,6 +25507,7 @@ export type Mutation = {
   acceptOrRejectOrganizationInviteById?: Maybe<OrganizationEmployee>;
   acceptOrRejectOrganizationInviteByCode?: Maybe<OrganizationEmployee>;
   registerBillingReceipts?: Maybe<Array<Maybe<BillingReceipt>>>;
+  createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   /**
    * Sends message of specified type to specified contact
@@ -25536,6 +25559,26 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"details": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"BANK_ACCOUNT_CREATION_REQUEST": {
+   * 		"dv": {
+   * 			"defaultValue": "",
+   * 			"required": true
+   * 		},
+   * 		"bankAccountClient": {
+   * 			"defaultValue": {},
+   * 			"required": true
+   * 		},
+   * 		"tin": {
+   * 			"required": true
+   * 		},
+   * 		"name": {
+   * 			"required": true
+   * 		},
+   * 		"propertyAddress": {
    * 			"defaultValue": "",
    * 			"required": true
    * 		}
@@ -31766,6 +31809,11 @@ export type MutationAcceptOrRejectOrganizationInviteByCodeArgs = {
 
 export type MutationRegisterBillingReceiptsArgs = {
   data: RegisterBillingReceiptsInput;
+};
+
+
+export type MutationCreateBankAccountRequestArgs = {
+  data: CreateBankAccountRequestInput;
 };
 
 
@@ -45776,6 +45824,8 @@ export enum SendMessageType {
   CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
   CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
   CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
+  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
+  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE'
 }
 
 export type SenderField = {

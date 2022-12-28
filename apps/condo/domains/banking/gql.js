@@ -29,6 +29,13 @@ const BankIntegrationContext = generateGqlQueries('BankIntegrationContext', BANK
 
 const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } integrationContext { id enabled } organization { id } number date amount currencyCode purpose dateWithdrawed dateReceived meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
+
+const CREATE_BANK_ACCOUNT_REQUEST_MUTATION = gql`
+    mutation createBankAccountRequest ($data: CreateBankAccountRequestInput!) {
+        result: createBankAccountRequest(data: $data) { status id }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -39,5 +46,6 @@ module.exports = {
     BankIntegration,
     BankIntegrationContext,
     BankTransaction,
+    CREATE_BANK_ACCOUNT_REQUEST_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
