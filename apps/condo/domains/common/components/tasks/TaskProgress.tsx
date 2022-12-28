@@ -64,7 +64,7 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     />
 )
 
-const TaskIconsHoverSwitcher = styled.div`
+const TaskIconsWrapper = styled.div`
     cursor: pointer;
     align-self: flex-start;
   
@@ -72,23 +72,25 @@ const TaskIconsHoverSwitcher = styled.div`
       position: relative;
       right: 3px;
     }
-   
-     > *:first-child {
-       display: block;
-     }
-     > *:last-child {
-       display: none;
-     }
-   
-     &:hover {
-       > *:first-child {
-         display: none;
-       }
-       > *:last-child {
-         display: block;
-       }
-     }
 `
+
+const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
+    const [isHovered, setIsHovered] = useState(false)
+
+    return (
+        <TaskIconsWrapper
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={removeTask}
+        >
+            {
+                taskStatus === TASK_COMPLETED_STATUS ? (isHovered ? <CrossIcon/> : <CheckIcon/>) :
+                    taskStatus === TASK_ERROR_STATUS ? <CloseCircleIcon/> :
+                        (isHovered ? <CrossIcon/> : <CircularProgress progress={progress}/>)
+            }
+        </TaskIconsWrapper>
+    )
+}
 
 interface ITaskProgressProps {
     task: TaskRecord
@@ -110,19 +112,11 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
             }
             description={translations.description(task)}
         />
-        {task.status === TASK_COMPLETED_STATUS ? (
-            <TaskIconsHoverSwitcher onClick={removeTask}>
-                <CheckIcon />
-                <CrossIcon />
-            </TaskIconsHoverSwitcher>
-        ) : (task.status === TASK_ERROR_STATUS) ? (
-            <CloseCircleIcon onClick={removeTask} />
-        ) : (
-            <TaskIconsHoverSwitcher onClick={removeTask}>
-                <CircularProgress progress={progress}/>
-                <CrossIcon />
-            </TaskIconsHoverSwitcher>
-        )}
+        <TaskIconsHoverSwitcher
+            progress={progress}
+            taskStatus={task.status}
+            removeTask={removeTask}
+        />
     </List.Item>
 )
 
