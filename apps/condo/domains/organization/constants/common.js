@@ -40,6 +40,7 @@ const DEFAULT_ROLES = {
         'canManagePropertyScopes': true,
         'ticketVisibilityType': ORGANIZATION_TICKET_VISIBILITY,
         'canManageBankContractorAccounts': true,
+        'canManageBankIntegrationContexts': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -62,9 +63,10 @@ const DEFAULT_ROLES = {
         'canReadPayments': true,
         'canReadBillingReceipts': true,
         'canManageTicketPropertyHints': false,
-        'canManageBankContractorAccounts': false,
         'canManagePropertyScopes': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
+        'canManageBankContractorAccounts': false,
+        'canManageBankIntegrationContexts': false,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -89,6 +91,7 @@ const DEFAULT_ROLES = {
         'canManageTicketPropertyHints': false,
         'canManagePropertyScopes': false,
         'canManageBankContractorAccounts': false,
+        'canManageBankIntegrationContexts': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Foreman': {
@@ -115,6 +118,7 @@ const DEFAULT_ROLES = {
         'canManagePropertyScopes': false,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageBankContractorAccounts': false,
+        'canManageBankIntegrationContexts': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -140,6 +144,7 @@ const DEFAULT_ROLES = {
         'canManagePropertyScopes': false,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageBankContractorAccounts': false,
+        'canManageBankIntegrationContexts': false,
     },
     'Contractor': {
         'name': 'employee.role.Contractor.name',
@@ -163,6 +168,8 @@ const DEFAULT_ROLES = {
         'canManageTicketPropertyHints': false,
         'canManagePropertyScopes': false,
         'ticketVisibilityType': ASSIGNED_TICKET_VISIBILITY,
+        'canManageBankContractorAccounts': false,
+        'canManageBankIntegrationContexts': false,
     },
 }
 
