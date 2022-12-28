@@ -539,7 +539,6 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                 section={section}
                                                 builder={builder}
                                                 refresh={refresh}
-                                                duplicatedUnitIds={duplicatedUnitIds}
                                             >
                                                 <PropertyMapFloorContainer
                                                     builder={builder}
@@ -557,7 +556,6 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                                                 builder={builder}
                                                 refresh={refresh}
                                                 isParkingSection
-                                                duplicatedUnitIds={duplicatedUnitIds}
                                             >
                                                 <PropertyMapFloorContainer
                                                     builder={builder}
@@ -597,7 +595,7 @@ const FULL_SIZE_UNIT_STYLE: React.CSSProperties = { width: '100%', marginTop: '8
 const SECTION_UNIT_STYLE: React.CSSProperties = { ...FULL_SIZE_UNIT_STYLE, zIndex: 2 }
 
 const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
-    const { section, children, builder, refresh, isParkingSection = false, duplicatedUnitIds } = props
+    const { section, children, builder, refresh, isParkingSection = false } = props
     const intl = useIntl()
     const SectionTitle = isParkingSection
         ? `${intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })} ${section.name}`

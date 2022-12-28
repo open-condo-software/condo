@@ -155,6 +155,7 @@ class Map {
             ?.map((section) => section.floors
                 ?.map(floor => floor.units
                     ?.map(unit => !unit.preview && unit.label)
+                    .filter(unit => !!unit)
                 )
             )
             .flat(2)
