@@ -11,6 +11,7 @@ export const CircleEllipsis: React.FC<IconProps> = ({ svgProps: props, ...restPr
                     height='inherit'
                     fill='none'
                     xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
                     {...props}
                 >
                     <path
@@ -20,7 +21,6 @@ export const CircleEllipsis: React.FC<IconProps> = ({ svgProps: props, ...restPr
                         fill='currentColor'
                     />
                 </svg>
-
             }
             {...restProps}
         />
