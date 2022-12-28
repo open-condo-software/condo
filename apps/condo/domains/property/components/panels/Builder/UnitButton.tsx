@@ -124,7 +124,7 @@ const noninteractiveCss = css`
         border-color:  #F5F5F5;
     }
 `
-const duplicatedUnit = css`
+const duplicatedUnitStyle = css`
   background-color: ${colors.brightRed};
 `
 
@@ -175,7 +175,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                     ${noninteractive ? noninteractiveCss : ''};                    
                     ${preview ? previewCss(unitType) : ''};
                     ${unitType ? unitTypeCss(unitType) : ''};
-                    ${isDuplicated ? duplicatedUnit : ''};
+                    ${isDuplicated ? duplicatedUnitStyle : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
             </Tooltip>
         )
@@ -187,7 +187,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                 ${noninteractive ? noninteractiveCss : ''};
                 ${preview ? previewCss(unitType) : ''};
                 ${unitType ? unitTypeCss(unitType) : ''};
-                ${isDuplicated ? duplicatedUnit : ''};
+                ${isDuplicated ? duplicatedUnitStyle : ''};
             `} {...restProps}>{children || ' ' }</Button>
         )
     }
