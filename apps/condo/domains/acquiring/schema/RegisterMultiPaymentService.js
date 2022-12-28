@@ -29,6 +29,7 @@ const { MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, RECEIPTS_ARE_DELETED, RECEIPTS_
     ACQUIRING_INTEGRATION_IS_DELETED, RECEIPTS_CANNOT_BE_GROUPED_BY_ACQUIRING_INTEGRATION,
     CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
 } = require('../constants/errors')
+const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 
 const errors = {
     DV_VERSION_MISMATCH: {
@@ -384,7 +385,17 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
                         const feeCalculator = new FeeDistribution(formula, billingCategory.id)
-                        const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(receipt.toPay)
+
+                        const organizationId = get(frozenReceipt, ['data', 'organization', 'id'])
+                        const period = get(frozenReceipt, ['data', 'period'])
+                        const routingNumber = get(frozenReceipt, ['data', 'recipient', 'bic'])
+                        const bankAccount = get(frozenReceipt, ['data', 'recipient', 'bankAccount'])
+
+                        const paidAmount = await getPaymentsSum(context, organizationId, billingAccountNumber, period, routingNumber, bankAccount)
+                        const amount = String(Big(receipt.toPay).minus(Big(paidAmount)))
+
+                        const { type, explicitFee = '0', implicitFee = '0', fromReceiptAmountFee = '0' } = feeCalculator.calculate(amount)
+
                         const paymentCommissionFields = {
                             ...type === 'service' ? {
                                 explicitServiceCharge: String(explicitFee),
@@ -399,7 +410,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         const payment = await Payment.create(context, {
                             dv: 1,
                             sender,
-                            amount: receipt.toPay,
+                            amount: amount,
                             currencyCode,
                             accountNumber: billingAccountNumber,
                             period: receipt.period,
