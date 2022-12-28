@@ -80,8 +80,7 @@ function registerKeystone5Schema (gqlSchemaObject, keystone, globalPreprocessors
         if (keystoneList) {
             // We need to save a shallow copy of createList config argument because
             // we want to use it in a future for kMigrator or some another extensions which need to define extra schema
-            // extensions! It allow to use `this._keystone.lists[this.name].createListConfig`
-            keystoneList.createListConfig = { ...gqlSchemaObject.schema }
+            // extensions! It allow to use `this._keystone.lists[this.name].processedCreateListConfig`
             keystoneList.processedCreateListConfig = { ...gqlSchemaObject.registeredSchema }
         }
     } else if (gqlSchemaObject._type === GQL_CUSTOM_SCHEMA_TYPE) {

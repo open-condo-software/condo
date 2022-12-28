@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 6)
+VERSION = (1, 5, 7)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -377,7 +377,7 @@ function createFakeTable (tableName) {
                     console.warn(`NO keystone.lists['${tableName}']`)
                     console.dir(Object.keys(keystone.lists))
                 } else {
-                    const createListConfig = keystone.lists[tableName].createListConfig
+                    const createListConfig = keystone.lists[tableName].processedCreateListConfig
                     if (createListConfig && createListConfig.kmigratorOptions) {
                         const kmigratorOptions = createListConfig.kmigratorOptions
                         if (kmigratorOptions.constraints) {
