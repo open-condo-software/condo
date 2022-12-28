@@ -22,6 +22,10 @@ type SVG = SVGData & {
     data: string
 }
 
+/**
+ * Converts figma component format like "Icons/24x24/Kebab-case-Name" to React component name like "KebabCaseName"
+ * @param name
+ */
 function extractComponentName (name: string): string {
     const parts = name.split('/')
     const lastPart = parts[parts.length - 1]
