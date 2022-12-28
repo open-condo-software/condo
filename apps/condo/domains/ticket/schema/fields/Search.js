@@ -18,7 +18,7 @@ const TICKET_SEARCH_FIELD_PARAMETERS = {
             'createdAt',
         ],
         preprocessorsForFields: {
-            'createdAt': (value) => dayjs(value).toISOString(),
+            'createdAt': (value) => dayjs(value).format('DD-MM-YYYY'),
         },
     },
     relatedFields: [{
