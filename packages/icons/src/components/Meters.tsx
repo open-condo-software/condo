@@ -11,6 +11,7 @@ export const Meters: React.FC<IconProps> = ({ svgProps: props, ...restProps }) =
                     height='inherit'
                     fill='none'
                     xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
                     {...props}
                 >
                     <g clipPath='url(#a)'>
@@ -27,7 +28,6 @@ export const Meters: React.FC<IconProps> = ({ svgProps: props, ...restProps }) =
                         </clipPath>
                     </defs>
                 </svg>
-
             }
             {...restProps}
         />

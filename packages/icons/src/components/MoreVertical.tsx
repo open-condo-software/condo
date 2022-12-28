@@ -11,6 +11,7 @@ export const MoreVertical: React.FC<IconProps> = ({ svgProps: props, ...restProp
                     height='inherit'
                     fill='none'
                     xmlns='http://www.w3.org/2000/svg'
+                    viewBox='0 0 24 24'
                     {...props}
                 >
                     <path
@@ -20,7 +21,6 @@ export const MoreVertical: React.FC<IconProps> = ({ svgProps: props, ...restProp
                         fill='currentColor'
                     />
                 </svg>
-
             }
             {...restProps}
         />

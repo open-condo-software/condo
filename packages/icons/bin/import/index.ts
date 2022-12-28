@@ -44,7 +44,7 @@ getSVGData({
         const fileName = `${componentName}.tsx`
         const jsCode = transform.sync(svgCode, config, { componentName })
         // NOTE: for some reason returned markup starts with ;
-        const jsCodeFiltered = jsCode.replace(';', '')
+        const jsCodeFiltered = jsCode.replace(/(^;)|(\n$)/gm, '')
         const componentCode = fillTemplate({ componentName, jsx: jsCodeFiltered })
         fs.ensureDirSync(ICONS_PATH)
         fs.outputFileSync(

@@ -9,7 +9,7 @@ type IconSize = 'large' | 'medium' | 'small' | 'auto'
 export type IconProps = {
     size?: IconSize,
     color?: CSSProperties['color']
-    svgProps: Pick<SVGProps<SVGSVGElement>, 'onClick'>
+    svgProps?: Pick<SVGProps<SVGSVGElement>, 'onClick'>
 }
 
 type IconWrapperProps = Omit<IconProps, 'svgProps'> & {

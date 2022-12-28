@@ -6,6 +6,7 @@ const config: Config = {
     svgProps: {
         width: 'inherit',
         height: 'inherit',
+        viewBox: '0 0 24 24',
     },
     replaceAttrValues: {
         '#222': 'currentColor',
