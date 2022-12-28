@@ -240,6 +240,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     }, [mapEdit])
 
     const changeMode = useCallback((mode) => {
+        setDuplicatedUnitIds([])
         mapEdit.editMode = mode
         refresh()
     }, [mapEdit, refresh])
