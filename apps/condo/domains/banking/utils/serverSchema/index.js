@@ -11,6 +11,7 @@ const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
 const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
+const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankAccount = generateServerUtils(BankAccountGQL)
@@ -18,6 +19,7 @@ const BankCategory = generateServerUtils(BankCategoryGQL)
 const BankCostItem = generateServerUtils(BankCostItemGQL)
 const BankContractorAccount = generateServerUtils(BankContractorAccountGQL)
 const BankIntegration = generateServerUtils(BankIntegrationGQL)
+const BankIntegrationContext = generateServerUtils(BankIntegrationContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -26,5 +28,6 @@ module.exports = {
     BankCostItem,
     BankContractorAccount,
     BankIntegration,
+    BankIntegrationContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
