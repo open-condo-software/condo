@@ -79,6 +79,7 @@ describe('{{name}}', () => {
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
                 expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
             })
 
             // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
@@ -92,6 +93,7 @@ describe('{{name}}', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
@@ -105,6 +107,7 @@ describe('{{name}}', () => {
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             })
 
@@ -187,7 +190,7 @@ describe('{{name}}', () => {
                 const [obj, attrs] = await createTest{{name}}(admin)
 
                 const client = await makeClient()
-                await expectToThrowAuthenticationErrorToObjects(async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
                     await {{name}}.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read {{name}}' test
                 })
             })
