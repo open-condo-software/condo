@@ -32,9 +32,8 @@ describe('BankIntegrationContext', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
-                const [obj, attrs] = await createTestBankIntegrationContext(admin, bankIntegration, organization)
+                const [organization] = await createTestOrganization(adminClient)
+                const [obj, attrs] = await createTestBankIntegrationContext(adminClient, bankIntegration, organization)
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
