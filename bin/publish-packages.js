@@ -4,6 +4,7 @@ const multiRelease = require('multi-semantic-release')
 // NOTE: Edit this list to add / remove packages from auto-release cycle
 const RELEASE_LIST = [
     'tsconfig',
+    'icons',
     'ui',
 ]
 
