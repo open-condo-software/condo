@@ -27,14 +27,15 @@
     "not IE 10"
   ],
   "scripts": {
+    "build:deps": "yarn workspace @open-condo/icons build",
     "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",
     "build:lib": "webpack --config webpack.prod.js && tsc --project tsconfig.prod.json",
-    "build": "yarn build:tokens && yarn build:lib",
-    "build:sb": "yarn build:tokens && build-storybook",
-    "dev": "yarn build:tokens && start-storybook -p 6006",
-    "watch": "yarn build:tokens && webpack --config webpack.dev.js",
+    "build": "yarn build:deps && yarn build:tokens && yarn build:lib",
+    "build:sb": "yarn build:deps && yarn build:tokens && build-storybook",
+    "dev": "yarn build:deps && yarn build:tokens && start-storybook -p 6006",
+    "watch": "yarn build:deps && yarn build:tokens && webpack --config webpack.dev.js",
     "prepack": "yarn install --mode update-lockfile && yarn build"
   },
   "files": [
@@ -115,6 +116,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^4.7.0",
+    "@open-condo/icons": "workspace:^",
     "antd": "^4.24.3",
     "classnames": "^2.3.2",
     "react-markdown": "^6",

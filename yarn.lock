@@ -8618,7 +8618,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@open-condo/icons@workspace:packages/icons":
+"@open-condo/icons@workspace:^, @open-condo/icons@workspace:packages/icons":
   version: 0.0.0-use.local
   resolution: "@open-condo/icons@workspace:packages/icons"
   dependencies:
@@ -8763,6 +8763,7 @@ __metadata:
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.18.6
     "@mdx-js/react": ^1.6.22
+    "@open-condo/icons": "workspace:^"
     "@open-condo/tsconfig": "workspace:^"
     "@storybook/addon-actions": ^6.5.10
     "@storybook/addon-docs": ^6.5.10
