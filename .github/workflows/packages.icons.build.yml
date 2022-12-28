@@ -7,7 +7,7 @@ name: Icon-kit
 on:
   pull_request:
     paths:
-      - 'packages/ui/icons/src/**'
+      - 'packages/icons/src/**'
 
 jobs:
   build:
