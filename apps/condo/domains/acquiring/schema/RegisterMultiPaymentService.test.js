@@ -17,7 +17,9 @@ const {
     createTestAcquiringIntegrationContext,
     makePayerWithMultipleConsumers,
     makePayer,
-    updateTestAcquiringIntegration,
+    updateTestAcquiringIntegration, updateTestPayment, updateTestMultiPayment,
+    getRandomHiddenCard,
+    MultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     updateTestServiceConsumer,
@@ -43,6 +45,12 @@ const {
     GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
+const { getById } = require('@open-condo/keystone/schema')
+const { PAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    MULTIPAYMENT_PROCESSING_STATUS
+} = require('../constants/payment')
+const Big = require('big.js')
 
 describe('RegisterMultiPaymentService', () => {
     describe('Execute', () => {
@@ -696,6 +704,64 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                 })
             })
+        })
+    })
+    describe('Real-life cases', () => {
+        test('Partial payments are supported', async () => {
+            /**
+             * 1. Management company created a billing receipt. toPay = x
+             * 2. User paid x for this receipt
+             * 3. Management company recreated this billing receipt. toPay = y
+             * 4. User sees new billing receipt and is prompted to pay only y-x
+             * 5. User creates MultiPayment with toPay = y-x
+             */
+            const { admin, client, serviceConsumer, billingReceipts } = await makePayer(1)
+
+            const [initialBillingReceipt] = billingReceipts
+            const initialToPay = initialBillingReceipt.toPay
+
+            const payload = {
+                serviceConsumer: { id: serviceConsumer.id },
+                receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+            }
+            const [initialMultiPaymentResult] = await registerMultiPaymentByTestClient(client, payload)
+            const [initialMultiPayment] = await MultiPayment.getAll(admin, { id: initialMultiPaymentResult.multiPaymentId })
+
+            // User pays for the first time
+            await updateTestPayment(admin, initialMultiPayment.payments[0].id, {
+                explicitFee: '0.0',
+                status: PAYMENT_PROCESSING_STATUS,
+            })
+            await updateTestMultiPayment(admin, initialMultiPayment.id, {
+                explicitFee: '0.0',
+                explicitServiceCharge: '0.0',
+                status: MULTIPAYMENT_PROCESSING_STATUS,
+            })
+            await updateTestPayment(admin, initialMultiPayment.payments[0].id, {
+                advancedAt: dayjs().toISOString(),
+                status: PAYMENT_WITHDRAWN_STATUS,
+            })
+            await updateTestMultiPayment(admin, initialMultiPayment.id, {
+                withdrawnAt: dayjs().toISOString(),
+                cardNumber: getRandomHiddenCard(),
+                paymentWay: 'CARD',
+                transactionId: faker.datatype.uuid(),
+                status: MULTIPAYMENT_WITHDRAWN_STATUS,
+            })
+
+            const delta = '1500.00000000'
+
+            // Management company updates the receipt
+            const updatedReceipt = updateTestBillingReceipt(admin, initialBillingReceipt.id, {
+                toPay: Big(initialToPay).plus(delta),
+            })
+
+            // Created MultiPayment should equal delta
+            const [multiPaymentResult] = await registerMultiPaymentByTestClient(client, payload)
+            const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+            const multiPaymentSum = multiPayment.amountWithoutExplicitFee
+
+            expect(multiPaymentSum).toEqual(delta)
         })
     })
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
