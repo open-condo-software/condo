@@ -25,9 +25,9 @@ async function checkSbbolBankIntegrationContext (context, organizationId) {
         integration: { id: integration.id },
         organization: { id: organizationId },
     }
-    const foundIntegrationContext = await BankIntegrationContext.getAll(context, where, { first: 1 })
+    const [foundIntegrationContext] = await BankIntegrationContext.getAll(context, where, { first: 1 })
 
-    if (!isEmpty(foundIntegrationContext)) {
+    if (foundIntegrationContext) {
         logger.info('BankIntegrationContext with type SBBOL already exists in organization', { organizationId })
 
         return foundIntegrationContext
