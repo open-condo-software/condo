@@ -1,7 +1,11 @@
 const { isEmpty, isString, isFunction, get, isObject, isArray, isUndefined } = require('lodash')
+
 const { addSearchField, FIELD_NAME_REGEX } = require('./utils/searchField')
 const { addSearchUpdateTrigger } = require('./utils/searchUpdateTrigger')
 
+
+// TODO PROBLEMS (DOMA-4545)
+//  [ ] Do not update the "v" and "updatedAt" fields so that tickets do not start updating on mobile devices after updating the search field
 
 // TODO (DOMA-4545)
 //  [✔] Need add index for search field
@@ -14,9 +18,6 @@ const { addSearchUpdateTrigger } = require('./utils/searchUpdateTrigger')
 //  [✔] Move search options from index.js
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
-
-// TODO PROBLEMS (DOMA-4545)
-//  [ ] Do not update the "v" and "updatedAt" fields so that tickets do not start updating on mobile devices after updating the search field
 
 
 /**

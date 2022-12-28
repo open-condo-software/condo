@@ -1,6 +1,9 @@
 const { isObject, isArray, isString, isEmpty, get } = require('lodash')
+
 const { find, getSchemaCtx } = require('../../schema')
 const { composeNonResolveInputHook } = require('../../plugins/utils')
+
+
 const getRelatedItemsWhere = (triggerPathToFieldInArrays, existingItem) => {
     const parts = []
 
@@ -32,7 +35,7 @@ const getAllRelatedItems = async (targetSchema, triggerPathToFieldInArray, exist
     return await find(targetSchema, where)
 }
 
-const getContext = async (schemaName) => {
+const getContextWithoutAccess = async (schemaName) => {
     const { keystone } = await getSchemaCtx(schemaName)
     return await keystone.createContext({ skipAccessControl: true })
 }
@@ -67,7 +70,7 @@ const updateRelatedItems = async ({ targetSchema, triggerPathsToFieldsDetails, e
         const id = get(item, 'id')
         const searchVersion = get(item, `${searchFieldName}Version`)
         if (id && searchVersion) {
-            const context = await getContext(targetSchema)
+            const context = await getContextWithoutAccess(targetSchema)
             const payload = {
                 dv: 1,
                 sender: { fingerprint: 'change-search-field', dv: 1 },
