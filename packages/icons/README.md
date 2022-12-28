@@ -28,3 +28,7 @@ You can change it by passing some extra props:
 <Car color='red' size='small'/>
 ```
 
+Icons can also inherit their size from parent context. To achieve that, pass `size='auto'` prop to it
+```typescript jsx
+<Car size='auto'/> // width = height = 1em
+```
