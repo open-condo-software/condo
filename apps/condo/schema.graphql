@@ -3972,6 +3972,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4091,6 +4092,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   ticketVisibilityType_not_in: [String]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
+  canManageBankAccounts: Boolean
+  canManageBankAccounts_not: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankIntegrationContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
@@ -4212,6 +4215,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   ticketVisibilityType_DESC
   canManagePropertyScopes_ASC
   canManagePropertyScopes_DESC
+  canManageBankAccounts_ASC
+  canManageBankAccounts_DESC
   canManageBankIntegrationContexts_ASC
   canManageBankIntegrationContexts_DESC
   canManageBankContractorAccounts_ASC
@@ -4259,6 +4264,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4304,6 +4310,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4378,6 +4385,7 @@ type OrganizationEmployeeRole {
   """
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4485,6 +4493,8 @@ input OrganizationEmployeeRoleWhereInput {
   ticketVisibilityType_not_in: [String]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
+  canManageBankAccounts: Boolean
+  canManageBankAccounts_not: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankIntegrationContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
@@ -4588,6 +4598,8 @@ enum SortOrganizationEmployeeRolesBy {
   ticketVisibilityType_DESC
   canManagePropertyScopes_ASC
   canManagePropertyScopes_DESC
+  canManageBankAccounts_ASC
+  canManageBankAccounts_DESC
   canManageBankIntegrationContexts_ASC
   canManageBankIntegrationContexts_DESC
   canManageBankContractorAccounts_ASC
@@ -4634,6 +4646,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4675,6 +4688,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -5442,6 +5456,7 @@ type PropertyHistoryRecord {
   unitsCount: Int
   uninhabitedUnitsCount: Int
   ticketsClosed: JSON
+  ticketsDeferred: JSON
   ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
@@ -5532,6 +5547,10 @@ input PropertyHistoryRecordWhereInput {
   ticketsClosed_not: JSON
   ticketsClosed_in: [JSON]
   ticketsClosed_not_in: [JSON]
+  ticketsDeferred: JSON
+  ticketsDeferred_not: JSON
+  ticketsDeferred_in: [JSON]
+  ticketsDeferred_not_in: [JSON]
   ticketsInWork: JSON
   ticketsInWork_not: JSON
   ticketsInWork_in: [JSON]
@@ -5725,6 +5744,7 @@ input PropertyHistoryRecordUpdateInput {
   unitsCount: Int
   uninhabitedUnitsCount: Int
   ticketsClosed: JSON
+  ticketsDeferred: JSON
   ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
@@ -5760,6 +5780,7 @@ input PropertyHistoryRecordCreateInput {
   unitsCount: Int
   uninhabitedUnitsCount: Int
   ticketsClosed: JSON
+  ticketsDeferred: JSON
   ticketsInWork: JSON
   isApproved: Boolean
   yearOfConstruction: String
@@ -6109,6 +6130,9 @@ type Property {
 
   """ Counter for closed tickets """
   ticketsClosed: String
+
+  """ Counter for deferred tickets """
+  ticketsDeferred: String
 
   """ Counter for not closed tickets """
   ticketsInWork: String
@@ -27332,7 +27356,6 @@ type MessageHistoryRecord {
   user: String
   phone: String
   email: String
-  remoteClient: String
   emailFrom: String
   lang: String
   type: String
@@ -27405,10 +27428,6 @@ input MessageHistoryRecordWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
-  remoteClient: String
-  remoteClient_not: String
-  remoteClient_in: [String]
-  remoteClient_not_in: [String]
   emailFrom: String
   emailFrom_not: String
   emailFrom_contains: String
@@ -27657,7 +27676,6 @@ input MessageHistoryRecordUpdateInput {
   user: String
   phone: String
   email: String
-  remoteClient: String
   emailFrom: String
   lang: String
   type: String
@@ -27692,7 +27710,6 @@ input MessageHistoryRecordCreateInput {
   user: String
   phone: String
   email: String
-  remoteClient: String
   emailFrom: String
   lang: String
   type: String
@@ -27721,13 +27738,6 @@ input MessageHistoryRecordsCreateInput {
   data: MessageHistoryRecordCreateInput
 }
 
-input RemoteClientRelateToOneInput {
-  create: RemoteClientCreateInput
-  connect: RemoteClientWhereUniqueInput
-  disconnect: RemoteClientWhereUniqueInput
-  disconnectAll: Boolean
-}
-
 enum MessageLangType {
   ru
   en
@@ -27738,7 +27748,6 @@ enum MessageStatusType {
   resending
   processing
   error
-  blacklisted
   sent
   delivered
   read
@@ -27768,9 +27777,6 @@ type Message {
 
   """ to Email """
   email: String
-
-  """ to Remote client """
-  remoteClient: RemoteClient
 
   """ from Email """
   emailFrom: String
@@ -27869,8 +27875,6 @@ input MessageWhereInput {
   email_not_ends_with_i: String
   email_in: [String]
   email_not_in: [String]
-  remoteClient: RemoteClientWhereInput
-  remoteClient_is_null: Boolean
   emailFrom: String
   emailFrom_not: String
   emailFrom_contains: String
@@ -28036,8 +28040,6 @@ enum SortMessagesBy {
   phone_DESC
   email_ASC
   email_DESC
-  remoteClient_ASC
-  remoteClient_DESC
   emailFrom_ASC
   emailFrom_DESC
   lang_ASC
@@ -28077,7 +28079,6 @@ input MessageUpdateInput {
   user: UserRelateToOneInput
   phone: String
   email: String
-  remoteClient: RemoteClientRelateToOneInput
   emailFrom: String
   lang: MessageLangType
   type: String
@@ -28109,7 +28110,6 @@ input MessageCreateInput {
   user: UserRelateToOneInput
   phone: String
   email: String
-  remoteClient: RemoteClientRelateToOneInput
   emailFrom: String
   lang: MessageLangType
   type: String
@@ -49562,6 +49562,18 @@ input RegisterBillingReceiptsInput {
   receipts: [RegisterBillingReceiptInput!]!
 }
 
+input CreateBankAccountRequestInput {
+  dv: Int!
+  sender: JSON!
+  organizationId: ID!
+  propertyId: ID!
+}
+
+type CreateBankAccountRequestOutput {
+  status: String!
+  id: ID!
+}
+
 input ShareTicketInput {
   sender: SenderFieldInput!
   employees: [ID!]!
@@ -49585,13 +49597,11 @@ input SendMessageToInput {
   user: UserWhereUniqueInput
   email: String
   phone: String
-  remoteClient: RemoteClientWhereInput
 }
 
 enum SendMessageType {
   INVITE_NEW_EMPLOYEE
-  DIRTY_INVITE_NEW_EMPLOYEE_SMS
-  DIRTY_INVITE_NEW_EMPLOYEE_EMAIL
+  DIRTY_INVITE_NEW_EMPLOYEE
   REGISTER_NEW_USER
   RESET_PASSWORD
   SMS_VERIFY
@@ -49619,9 +49629,8 @@ enum SendMessageType {
   BILLING_RECEIPT_ADDED_WITH_NO_DEBT
   RESIDENT_UPGRADE_APP
   STAFF_UPGRADE_APP
-  CUSTOM_CONTENT_MESSAGE_PUSH
-  CUSTOM_CONTENT_MESSAGE_EMAIL
-  CUSTOM_CONTENT_MESSAGE_SMS
+  BANK_ACCOUNT_CREATION_REQUEST
+  CUSTOM_CONTENT_MESSAGE
 }
 
 input SendMessageInput {
@@ -56388,6 +56397,7 @@ type Mutation {
   acceptOrRejectOrganizationInviteById(id: ID!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   acceptOrRejectOrganizationInviteByCode(inviteCode: String!, data: AcceptOrRejectOrganizationInviteInput!): OrganizationEmployee
   registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]
+  createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
 
   """
@@ -56444,17 +56454,27 @@ type Mutation {
   			"required": true
   		}
   	},
-  	"DIRTY_INVITE_NEW_EMPLOYEE_SMS": {
+  	"BANK_ACCOUNT_CREATION_REQUEST": {
   		"dv": {
   			"defaultValue": "",
   			"required": true
   		},
-  		"organizationName": {
-  			"defaultValue": "ORGANIZATION",
-  			"required": false
+  		"bankAccountClient": {
+  			"defaultValue": {},
+  			"required": true
+  		},
+  		"tin": {
+  			"required": true
+  		},
+  		"name": {
+  			"required": true
+  		},
+  		"propertyAddress": {
+  			"defaultValue": "",
+  			"required": true
   		}
   	},
-  	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
+  	"DIRTY_INVITE_NEW_EMPLOYEE": {
   		"dv": {
   			"defaultValue": "",
   			"required": true
@@ -57074,33 +57094,7 @@ type Mutation {
   			}
   		}
   	},
-  	"CUSTOM_CONTENT_MESSAGE_PUSH": {
-  		"dv": {
-  			"required": true
-  		},
-  		"title": {
-  			"required": false
-  		},
-  		"body": {
-  			"required": true
-  		},
-  		"data": {
-  			"userId": {
-  				"required": false
-  			},
-  			"remoteClient": {
-  				"required": false
-  			},
-  			"url": {
-  				"defaultValue": "",
-  				"required": false
-  			},
-  			"messageBatchId": {
-  				"required": false
-  			}
-  		}
-  	},
-  	"CUSTOM_CONTENT_MESSAGE_EMAIL": {
+  	"CUSTOM_CONTENT_MESSAGE": {
   		"dv": {
   			"required": true
   		},
@@ -57114,26 +57108,11 @@ type Mutation {
   			"required": true
   		},
   		"data": {
-  			"email": {
+  			"userId": {
   				"required": false
   			},
-  			"messageBatchId": {
-  				"required": false
-  			}
-  		}
-  	},
-  	"CUSTOM_CONTENT_MESSAGE_SMS": {
-  		"dv": {
-  			"required": true
-  		},
-  		"title": {
-  			"required": false
-  		},
-  		"body": {
-  			"required": true
-  		},
-  		"data": {
-  			"phone": {
+  			"url": {
+  				"defaultValue": "",
   				"required": false
   			},
   			"messageBatchId": {
@@ -57166,7 +57145,7 @@ type Mutation {
     ],
     "code": "BAD_USER_INPUT",
     "type": "REQUIRED",
-    "message": "You should provide either \"user\", \"email\", \"phone\" or \"remoteClient\" attribute"
+    "message": "You should provide either \"user\" or \"email\" or \"phone\" attribute"
   }`
   
   `{

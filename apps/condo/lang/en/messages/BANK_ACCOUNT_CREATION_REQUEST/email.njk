@@ -1,0 +1,10 @@
+Just on {{ env.serverUrl }} our client left a request for opening a bank account for a property.
+Property address: {{ message.meta.propertyAddress }}
+
+Client: {{ message.meta.name }}
+TIN: {{ message.meta.tin }}
+Who left the request: {{ message.meta.bankAccountClient.name }}
+Phone: {{ message.meta.bankAccountClient.phone }}
+Email: {{ message.meta.bankAccountClient.email }}
+
+Please contact the client, he is looking forward 🤗

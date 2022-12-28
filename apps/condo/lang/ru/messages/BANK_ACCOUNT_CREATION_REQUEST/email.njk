@@ -1,0 +1,10 @@
+Только что на {{ env.serverUrl }} наш клиент оставил заявку на открытие р/сч в Сбере на дом.
+Адрес дома: {{ message.meta.propertyAddress }}
+
+Клиент: {{ message.meta.name }}
+ИНН: {{ message.meta.tin }}
+Кто оставил заявку: {{ message.meta.bankAccountClient.name }}
+Телефон: {{ message.meta.bankAccountClient.phone }}
+Email: {{ message.meta.bankAccountClient.email }}
+
+Свяжитесь с клиентом, он очень ждет 🤗
