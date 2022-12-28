@@ -36,6 +36,7 @@ describe('OrganizationEmployeeRole', () => {
             expect(obj.canBeAssignedAsExecutor).toBeTruthy()
             expect(obj.canReadPayments).toBeFalsy()
             expect(obj.canReadBillingReceipts).toBeFalsy()
+            expect(obj.canManageBankAccounts).toBeFalsy()
             expect(obj.canManageBankContractorAccounts).toBeFalsy()
             expect(obj.canManageBankIntegrationContexts).toBeFalsy()
             expect(obj.canManageBankTransactions).toBeFalsy()

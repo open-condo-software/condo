@@ -42,6 +42,7 @@ const BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_DEBT'
 const BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT'
 const RESIDENT_UPGRADE_APP_TYPE = 'RESIDENT_UPGRADE_APP'
 const STAFF_UPGRADE_APP_TYPE = 'STAFF_UPGRADE_APP'
+const BANK_ACCOUNT_CREATION_REQUEST_TYPE = 'BANK_ACCOUNT_CREATION_REQUEST'
 const CUSTOM_CONTENT_MESSAGE_TYPE = 'CUSTOM_CONTENT_MESSAGE'
 
 const MESSAGE_TYPES = [
@@ -74,6 +75,7 @@ const MESSAGE_TYPES = [
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     RESIDENT_UPGRADE_APP_TYPE,
     STAFF_UPGRADE_APP_TYPE,
+    BANK_ACCOUNT_CREATION_REQUEST_TYPE,
     CUSTOM_CONTENT_MESSAGE_TYPE,
 ]
 
@@ -85,6 +87,7 @@ const MESSAGE_TYPES_TRANSPORTS = {
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
     [MESSAGE_FORWARDED_TO_SUPPORT_TYPE]: [EMAIL_TRANSPORT],
     [SHARE_TICKET_MESSAGE_TYPE]: [EMAIL_TRANSPORT],
+    [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: [EMAIL_TRANSPORT],
 }
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
@@ -106,6 +109,13 @@ const MESSAGE_META = {
         date: { defaultValue: '', required: true },
         id: { defaultValue: '', required: true },
         details: { defaultValue: '', required: true },
+    },
+    [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        bankAccountClient: { defaultValue: {}, required: true },
+        tin: { required: true },
+        name: { required: true },
+        propertyAddress: { defaultValue: '', required: true },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -464,6 +474,7 @@ module.exports = {
     TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE,
     TICKET_COMMENT_ADDED_TYPE,
+    BANK_ACCOUNT_CREATION_REQUEST_TYPE,
     PUSH_TRANSPORT_FIREBASE,
     PUSH_TRANSPORT_APPLE,
     PUSH_TRANSPORT_HUAWEI,
