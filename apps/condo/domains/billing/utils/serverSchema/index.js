@@ -104,6 +104,6 @@ module.exports = {
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,
-    getPaymentsSum
+    getPaymentsSum,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
