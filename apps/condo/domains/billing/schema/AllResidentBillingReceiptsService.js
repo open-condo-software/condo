@@ -6,7 +6,7 @@ const dayjs = require('dayjs')
 const { pick, get } = require('lodash')
 const Big = require('big.js')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const {
@@ -17,29 +17,6 @@ const {
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
-
-
-/**
- * Sums all DONE or WITHDRAWN payments for billingReceipt for <organization> with <accountNumber> and <period>
- * @param context {Object}
- * @param organizationId {string}
- * @param accountNumber {string}
- * @param bic {string}
- * @param bankAccount {string}
- * @param period {string}
- * @return {Promise<*>}
- */
-const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
-    const payments = await  find('Payment', {
-        organization: { id: organizationId },
-        accountNumber: accountNumber,
-        period: period,
-        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-        recipientBic: bic,
-        recipientBankAccount: bankAccount,
-    })
-    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
-}
 
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {

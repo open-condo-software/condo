@@ -4,7 +4,15 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
+const Big = require('big.js')
+
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { find } = require('@open-condo/keystone/schema')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+
+const { Payment } = require('@condo/domains/acquiring/gql')
+const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+
 const { BillingIntegration: BillingIntegrationGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationAccessRight: BillingIntegrationAccessRightGQL } = require('@condo/domains/billing/gql')
 const { BillingIntegrationOrganizationContext: BillingIntegrationOrganizationContextGQL } = require('@condo/domains/billing/gql')
@@ -19,8 +27,6 @@ const { BillingOrganization: BillingOrganizationGQL } = require('@condo/domains/
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingCurrency: BillingCurrencyGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
-const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-const { Payment } = require('@condo/domains/acquiring/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -57,6 +63,28 @@ async function registerBillingReceipts (context, data) {
     })
 }
 
+/**
+ * Sums up all DONE or WITHDRAWN payments for billingReceipt for <organization> with <accountNumber> and <period>
+ * @param context {Object}
+ * @param organizationId {string}
+ * @param accountNumber {string}
+ * @param bic {string}
+ * @param bankAccount {string}
+ * @param period {string}
+ * @return {Promise<*>}
+ */
+const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
+    const payments = await  find('Payment', {
+        organization: { id: organizationId },
+        accountNumber: accountNumber,
+        period: period,
+        status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+        recipientBic: bic,
+        recipientBankAccount: bankAccount,
+    })
+    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -76,5 +104,6 @@ module.exports = {
     BillingRecipient,
     BillingCategory,
     registerBillingReceipts,
+    getPaymentsSum
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
