@@ -69,7 +69,8 @@ describe('UserExternalIdentity', () => {
     })
 
     describe('UserExternalIdentity read', () => {
-        let admin, support, staff, service, resident, identityRequest, secondResident
+        let admin, support, staff, service, resident, secondResident, identityRequest,
+            staffIdentityRequest, serviceIdentityRequest
 
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
@@ -79,10 +80,15 @@ describe('UserExternalIdentity', () => {
             resident = await makeClientWithResidentUser()
             secondResident = await makeClientWithResidentUser()
             identityRequest = getRegisterRequest(resident)
+            staffIdentityRequest = getRegisterRequest(staff)
+            serviceIdentityRequest = getRegisterRequest(service)
 
             // register users external identity
             await registerUserExternalIdentityByTestClient(admin, identityRequest)
             await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(secondResident))
+            await registerUserExternalIdentityByTestClient(admin, staffIdentityRequest)
+            await registerUserExternalIdentityByTestClient(admin, serviceIdentityRequest)
+
         })
 
         test('Allowed: RESIDENT own identity', async () => {
@@ -91,16 +97,16 @@ describe('UserExternalIdentity', () => {
             expect(identities[0]).toMatchObject(identityRequest)
         })
 
-        test('Denied: STAFF', async () => {
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
-                await UserExternalIdentity.getOne(staff, { user: { id: resident.user.id } })
-            })
+        test('Allowed: STAFF own identity', async () => {
+            const identities = await UserExternalIdentity.getAll(staff, {})
+            expect(identities).toHaveLength(1)
+            expect(identities[0]).toMatchObject(staffIdentityRequest)
         })
 
-        test('Denied: SERVICE', async () => {
-            await expectToThrowAccessDeniedErrorToObjects(async () => {
-                await UserExternalIdentity.getOne(service, { user: { id: resident.user.id } })
-            })
+        test('Allowed: SERVICE own identity', async () => {
+            const identities = await UserExternalIdentity.getAll(service, {})
+            expect(identities).toHaveLength(1)
+            expect(identities[0]).toMatchObject(serviceIdentityRequest)
         })
 
         test('Allowed: admin', async () => {
