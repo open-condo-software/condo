@@ -17,7 +17,7 @@ const BankCategory = generateGqlQueries('BankCategory', BANK_CATEGORY_FIELDS)
 const BANK_COST_ITEM_FIELDS = `{ name category { id name } ${COMMON_FIELDS} }`
 const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
 
-const BANK_ACCOUNT_FIELDS = `{ organization { id } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
+const BANK_ACCOUNT_FIELDS = `{ organization { id } integrationContext { id enabled } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id } tin country routingNumber number currencyCode importId territoryCode bankName meta ${COMMON_FIELDS} }`
