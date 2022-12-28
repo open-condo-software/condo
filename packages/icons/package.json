@@ -21,7 +21,8 @@
   "license": "MIT",
   "scripts": {
     "import:figma": "find src/components -mindepth 1 -delete && ts-node bin/import/index.ts",
-    "build": "webpack --config webpack.config.js && tsc --project tsconfig.prod.json"
+    "build": "webpack --config webpack.config.js && tsc --project tsconfig.prod.json",
+    "prepack": "yarn install --mode update-lockfile && yarn build"
   },
   "files": [
     "dist"
