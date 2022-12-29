@@ -11,10 +11,11 @@ class AbstractIdentityIntegration {
 
     /**
      * Get identity integration login form link. Usually it is going to be a link to OAuth code flow auth form
+     * @param checks - contains state and nonce parameters
      * @return {object} An object that describes login form parameters
      * Structure: {link, scope, state, nonce, responseType, redirectUri, clientId}
      */
-    async generateLoginFormParams () {
+    async generateLoginFormParams (checks) {
         throw new Error('Method still not implemented.')
     }
 

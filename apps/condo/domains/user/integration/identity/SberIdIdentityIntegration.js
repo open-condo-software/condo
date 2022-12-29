@@ -3,12 +3,11 @@ const { isNil } = require('lodash')
 const jwtDecode = require('jwt-decode')
 const axios = require('axios').default
 const https = require('https')
-const { generators } = require('openid-client')
 
 const conf = require('@open-condo/config')
 
 const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
-const { USER_EXTERNAL_IDENTITY_CALLBACK_PATH } = require('@condo/domains/user/constants/links')
+const { USER_EXTERNAL_IDENTITY_AUTH_CALLBACK_PATH } = require('@condo/domains/user/constants/links')
 const AbstractIdentityIntegration = require('@condo/domains/user/integration/identity/AbstractIdentityIntegration')
 
 // get sber id configuration params
@@ -25,7 +24,7 @@ const {
     key,
     verifyServerSsl,
 } = SBER_ID_CONFIG
-const callbackPath = USER_EXTERNAL_IDENTITY_CALLBACK_PATH.replace(':type', SBER_ID_IDP_TYPE)
+const callbackPath = USER_EXTERNAL_IDENTITY_AUTH_CALLBACK_PATH.replace(':type', SBER_ID_IDP_TYPE)
 const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
 const axiosTimeout = 10000
 
@@ -45,14 +44,13 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
         return SBER_ID_IDP_TYPE
     }
 
-    async generateLoginFormParams () {
+    async generateLoginFormParams (checks) {
+        const { nonce, state } = checks
         const link = new URL(authorizeUrl)
 
         // generate params
-        const state = generators.state()
         const responseType = 'code'
         const redirectUri = callbackUri
-        const nonce = generators.nonce()
 
         // set params to link
         link.searchParams.set('scope', scope)
@@ -62,15 +60,7 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
         link.searchParams.set('redirect_uri', redirectUri)
         link.searchParams.set('nonce', nonce)
 
-        return {
-            link: link.toString(),
-            scope,
-            state,
-            responseType,
-            clientId,
-            redirectUri,
-            nonce,
-        }
+        return link
     }
 
     async issueExternalIdentityToken ({ code }) {
