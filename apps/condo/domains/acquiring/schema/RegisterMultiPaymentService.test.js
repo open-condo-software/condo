@@ -758,7 +758,7 @@ describe('RegisterMultiPaymentService', () => {
 
             // Created MultiPayment should equal delta
             const [multiPaymentResult] = await registerMultiPaymentByTestClient(client, payload)
-            const multiPayment = await getById('MultiPayment', multiPaymentResult.multiPaymentId)
+            const [multiPayment] = await MultiPayment.getAll(admin, { id: multiPaymentResult.multiPaymentId })
             const multiPaymentSum = multiPayment.amountWithoutExplicitFee
 
             expect(multiPaymentSum).toEqual(delta)
