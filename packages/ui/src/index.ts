@@ -28,6 +28,10 @@ export { Tag } from './components/Tag'
 export type { TagProps } from './components/Tag'
 
 export { Typography } from './components/Typography'
+
+export { List } from './components/List'
+export type { ListProps } from './components/List'
+
 export type {
     TypographyType,
     TypographyTextProps,

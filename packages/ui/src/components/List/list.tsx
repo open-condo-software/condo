@@ -1,0 +1,79 @@
+import React, { useMemo } from 'react'
+import { List as DefaultList, ListProps as DefaultListProps } from 'antd'
+import classNames from 'classnames'
+import { Typography, TypographyTextProps } from '@open-condo/ui/src'
+import { ListItemProps as DefaultListItemProps } from 'antd/es/list'
+
+const LIST_CLASS_PREFIX = 'condo-list'
+const ELLIPSIS_WORD_LENGTH = 80
+
+type ListDataSource = { label: string, value: string | number, valueType?: TypographyTextProps['type'] }
+
+type CondoListProps = {
+    title: string
+}
+
+export type ListProps = Omit<DefaultListProps<ListDataSource>, 'bordered' | 'pagination' | 'footer' | 'renderItem' | 'header'> & CondoListProps
+
+const DefaultListItem = DefaultList.Item
+
+type CondoListItemProps = {
+    item: ListDataSource
+}
+type ListItemProps = Pick<DefaultListItemProps, 'className' | 'prefixCls' | 'colStyle'> & CondoListItemProps
+
+interface IListItem {
+    (props: ListItemProps): React.ReactElement
+}
+
+const ListItem: IListItem = (props) => {
+    const { item: { label, value, valueType }, ...restProps } = props
+
+    const labelEllipsis = useMemo(() => {
+        return label.length > ELLIPSIS_WORD_LENGTH ? { tooltip: { children: label } } : false
+    }, [label])
+    const valueEllipsis = useMemo(() => {
+        return String(value).length > ELLIPSIS_WORD_LENGTH ? { tooltip: { children: value } } : false
+    }, [value])
+
+    return (
+        <DefaultListItem {...restProps} prefixCls={LIST_CLASS_PREFIX}>
+            <>
+                <Typography.Text ellipsis={labelEllipsis} type='secondary'>
+                    {label}
+                </Typography.Text>
+                <div className='condo-list-item-divider'></div>
+                <Typography.Text ellipsis={valueEllipsis} type={valueType}>
+                    {value}
+                </Typography.Text>
+            </>
+        </DefaultListItem>
+    )
+}
+
+const List: React.FC<ListProps> = (props) => {
+    const { children, className, title, ...restProps } = props
+
+    const classes = classNames({}, className)
+
+    return (
+        <DefaultList
+            {...restProps}
+            header={<Typography.Title level={3}>{title}</Typography.Title>}
+            prefixCls={LIST_CLASS_PREFIX}
+            bordered={false}
+            className={classes}
+            renderItem={(item, key) => (
+                <ListItem key={`${LIST_CLASS_PREFIX}-item-${key}`} item={item} />
+            )}
+        >
+            {children}
+        </DefaultList>
+    )
+}
+
+List.displayName = 'List'
+
+export {
+    List,
+}
