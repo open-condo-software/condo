@@ -1,4 +1,5 @@
-const { isEmpty, isString, isFunction, get, isNumber, isNil } = require('lodash')
+const { isEmpty, isString, isFunction, get, isNil } = require('lodash')
+const { v4: uuid } = require('uuid')
 
 const { canOnlyServerSideWithoutUserRequest } = require('../../access')
 const { getSchemaCtx, getByCondition } = require('../../schema')
@@ -6,6 +7,7 @@ const { composeResolveInputHook } = require('../../plugins/utils')
 
 
 const SEARCH_FIELD_DEFAULT_VALUE = '""'
+const SEARCH_FINGERPRINT_FIELD_DEFAULT_VALUE = '"initial-value"'
 const FIELD_NAME_REGEX = /^[a-z]+$/i
 
 const SEARCH_OPTIONS = {
@@ -20,17 +22,17 @@ const SEARCH_OPTIONS = {
     },
     knexOptions: { defaultTo: () => SEARCH_FIELD_DEFAULT_VALUE },
 }
-const SEARCH_VERSION_OPTIONS = {
-    schemaDoc: 'Service field for versioning the search field by different fields',
-    type: 'Integer',
+const SEARCH_FINGERPRINT_OPTIONS = {
+    schemaDoc: 'Service field for a fingerprint. When you change your fingerprint, the search field automatically changes',
+    type: 'Text',
     isRequired: true,
-    defaultValue: 1,
+    defaultValue: SEARCH_FINGERPRINT_FIELD_DEFAULT_VALUE,
     access: {
         create: false,
         read: false,
         update: canOnlyServerSideWithoutUserRequest,
     },
-    knexOptions: { defaultTo: () => 1 },
+    knexOptions: { defaultTo: () => SEARCH_FINGERPRINT_FIELD_DEFAULT_VALUE },
 }
 
 const getSearchIndexOptions = (searchField) => ({
@@ -99,28 +101,28 @@ const getValueByPathToField = async (pathToFieldInArray, item, schemaFields) => 
     return await getValueFromRelatedSchema(fieldRef, fieldValue, pathToFieldInArray.slice(1))
 }
 
-const updateSearchFieldVersion = (props) => {
-    const { operation, pathsToFields, existingItem, resolvedData, searchVersionField } = props
+const updateSearchFieldFingerprint = (props) => {
+    const { operation, pathsToFields, existingItem, resolvedData, searchFingerprintField } = props
 
     if (operation === 'update') {
         const fieldsForSearch = pathsToFields.map(item => getPathToFieldInArray(item)[0])
         const newItem = { ...existingItem, ...resolvedData }
         if (fieldsForSearch.some(field => isUpdatedField({ field, prevValue: existingItem, newValue: newItem }))) {
-            const prevSearchVersion = get(existingItem, searchVersionField)
-            if (prevSearchVersion && isNumber(prevSearchVersion)) {
-                resolvedData[searchVersionField] = prevSearchVersion + 1
+            const prevSearchFingerprint = get(existingItem, searchFingerprintField)
+            if (prevSearchFingerprint && isString(prevSearchFingerprint)) {
+                resolvedData[searchFingerprintField] = uuid()
             }
         }
     }
 }
 
 const updateSearchField = async (props) => {
-    const { resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchVersionField } = props
+    const { resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchFingerprintField } = props
 
-    const prevSearchVersion = get(existingItem, searchVersionField, 1)
-    const nextSearchVersion = get(resolvedData, searchVersionField, 1)
+    const prevSearchFingerprint = get(existingItem, searchFingerprintField)
+    const nextSearchFingerprint = get(resolvedData, searchFingerprintField)
 
-    if ((operation === 'update' && prevSearchVersion < nextSearchVersion) || operation === 'create') {
+    if ((operation === 'update' && prevSearchFingerprint !== nextSearchFingerprint) || operation === 'create') {
         const values = []
 
         for (const pathToField of pathsToFields) {
@@ -152,16 +154,16 @@ const addSearchField = ({ searchField = 'search', pathsToFields = [], preprocess
     checkPathsToFields(pathsToFields)
     checkPreprocessors(preprocessorsForFields)
 
-    const searchVersionField = `${searchField}Version`
+    const searchFingerprintField = `${searchField}Fingerprint`
 
     fields[searchField] = { ...SEARCH_OPTIONS }
-    fields[searchVersionField] = { ...SEARCH_VERSION_OPTIONS }
+    fields[searchFingerprintField] = { ...SEARCH_FINGERPRINT_OPTIONS }
 
     const newResolveInput = async (props) => {
         const { resolvedData, existingItem, operation } = props
         const newItem = { ...existingItem, ...resolvedData }
-        updateSearchFieldVersion({ operation, pathsToFields, existingItem, resolvedData, searchVersionField })
-        await updateSearchField({ resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchVersionField })
+        updateSearchFieldFingerprint({ operation, pathsToFields, existingItem, resolvedData, searchFingerprintField })
+        await updateSearchField({ resolvedData, newItem, pathsToFields, preprocessorsForFields, searchField, fields, existingItem, operation, searchFingerprintField })
         return resolvedData
     }
 

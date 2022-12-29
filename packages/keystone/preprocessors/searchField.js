@@ -16,6 +16,7 @@ const { addSearchUpdateTrigger } = require('./utils/searchUpdateTrigger')
 //  [✔] Update access to search fields
 //  [✔] Add preprocessor validation checks
 //  [✔] Move search options from index.js
+//  [✔] Change searchVersion to searchFingerprint
 //  [ ] Fixed default value for field (?)
 //  [ ] Add check for related fields (?)
 

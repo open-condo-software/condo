@@ -16481,8 +16481,9 @@ type Ticket {
   """ Field for searching by different fields """
   search: String
 
-  """ Service field for versioning the search field by different fields """
-  searchVersion: Int
+  """ Service field for a fingerprint. When you change your fingerprint, the search field automatically changes 
+  """
+  searchFingerprint: String
 }
 
 input TicketWhereInput {
@@ -16874,14 +16875,24 @@ input TicketWhereInput {
   search_not_ends_with_i: String
   search_in: [String]
   search_not_in: [String]
-  searchVersion: Int
-  searchVersion_not: Int
-  searchVersion_lt: Int
-  searchVersion_lte: Int
-  searchVersion_gt: Int
-  searchVersion_gte: Int
-  searchVersion_in: [Int]
-  searchVersion_not_in: [Int]
+  searchFingerprint: String
+  searchFingerprint_not: String
+  searchFingerprint_contains: String
+  searchFingerprint_not_contains: String
+  searchFingerprint_starts_with: String
+  searchFingerprint_not_starts_with: String
+  searchFingerprint_ends_with: String
+  searchFingerprint_not_ends_with: String
+  searchFingerprint_i: String
+  searchFingerprint_not_i: String
+  searchFingerprint_contains_i: String
+  searchFingerprint_not_contains_i: String
+  searchFingerprint_starts_with_i: String
+  searchFingerprint_not_starts_with_i: String
+  searchFingerprint_ends_with_i: String
+  searchFingerprint_not_ends_with_i: String
+  searchFingerprint_in: [String]
+  searchFingerprint_not_in: [String]
 }
 
 input TicketWhereUniqueInput {
@@ -16987,8 +16998,8 @@ enum SortTicketsBy {
   dv_DESC
   search_ASC
   search_DESC
-  searchVersion_ASC
-  searchVersion_DESC
+  searchFingerprint_ASC
+  searchFingerprint_DESC
 }
 
 input TicketUpdateInput {
@@ -17045,7 +17056,7 @@ input TicketUpdateInput {
   dv: Int
   sender: SenderFieldInput
   search: String
-  searchVersion: Int
+  searchFingerprint: String
 }
 
 input TicketsUpdateInput {
@@ -17107,7 +17118,7 @@ input TicketCreateInput {
   dv: Int
   sender: SenderFieldInput
   search: String
-  searchVersion: Int
+  searchFingerprint: String
 }
 
 input TicketsCreateInput {

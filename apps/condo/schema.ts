@@ -50839,8 +50839,8 @@ export enum SortTicketsBy {
   DvDesc = 'dv_DESC',
   SearchAsc = 'search_ASC',
   SearchDesc = 'search_DESC',
-  SearchVersionAsc = 'searchVersion_ASC',
-  SearchVersionDesc = 'searchVersion_DESC'
+  SearchFingerprintAsc = 'searchFingerprint_ASC',
+  SearchFingerprintDesc = 'searchFingerprint_DESC'
 }
 
 export enum SortUserHistoryRecordsBy {
@@ -51241,8 +51241,8 @@ export type Ticket = {
   sender?: Maybe<SenderField>;
   /**  Field for searching by different fields  */
   search?: Maybe<Scalars['String']>;
-  /**  Service field for versioning the search field by different fields  */
-  searchVersion?: Maybe<Scalars['Int']>;
+  /**  Service field for a fingerprint. When you change your fingerprint, the search field automatically changes  */
+  searchFingerprint?: Maybe<Scalars['String']>;
 };
 
 export enum TicketAnalyticsGroupBy {
@@ -54533,7 +54533,7 @@ export type TicketCreateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   search?: Maybe<Scalars['String']>;
-  searchVersion?: Maybe<Scalars['Int']>;
+  searchFingerprint?: Maybe<Scalars['String']>;
 };
 
 export type TicketExportOptions = {
@@ -59196,7 +59196,7 @@ export type TicketUpdateInput = {
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
   search?: Maybe<Scalars['String']>;
-  searchVersion?: Maybe<Scalars['Int']>;
+  searchFingerprint?: Maybe<Scalars['String']>;
 };
 
 export type TicketWhereInput = {
@@ -59588,14 +59588,24 @@ export type TicketWhereInput = {
   search_not_ends_with_i?: Maybe<Scalars['String']>;
   search_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   search_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  searchVersion?: Maybe<Scalars['Int']>;
-  searchVersion_not?: Maybe<Scalars['Int']>;
-  searchVersion_lt?: Maybe<Scalars['Int']>;
-  searchVersion_lte?: Maybe<Scalars['Int']>;
-  searchVersion_gt?: Maybe<Scalars['Int']>;
-  searchVersion_gte?: Maybe<Scalars['Int']>;
-  searchVersion_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  searchVersion_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  searchFingerprint?: Maybe<Scalars['String']>;
+  searchFingerprint_not?: Maybe<Scalars['String']>;
+  searchFingerprint_contains?: Maybe<Scalars['String']>;
+  searchFingerprint_not_contains?: Maybe<Scalars['String']>;
+  searchFingerprint_starts_with?: Maybe<Scalars['String']>;
+  searchFingerprint_not_starts_with?: Maybe<Scalars['String']>;
+  searchFingerprint_ends_with?: Maybe<Scalars['String']>;
+  searchFingerprint_not_ends_with?: Maybe<Scalars['String']>;
+  searchFingerprint_i?: Maybe<Scalars['String']>;
+  searchFingerprint_not_i?: Maybe<Scalars['String']>;
+  searchFingerprint_contains_i?: Maybe<Scalars['String']>;
+  searchFingerprint_not_contains_i?: Maybe<Scalars['String']>;
+  searchFingerprint_starts_with_i?: Maybe<Scalars['String']>;
+  searchFingerprint_not_starts_with_i?: Maybe<Scalars['String']>;
+  searchFingerprint_ends_with_i?: Maybe<Scalars['String']>;
+  searchFingerprint_not_ends_with_i?: Maybe<Scalars['String']>;
+  searchFingerprint_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  searchFingerprint_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type TicketWhereUniqueInput = {

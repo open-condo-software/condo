@@ -1,4 +1,5 @@
 const { isObject, isArray, isString, isEmpty, get } = require('lodash')
+const { v4: uuid } = require('uuid')
 
 const { find, getSchemaCtx } = require('../../schema')
 const { composeNonResolveInputHook } = require('../../plugins/utils')
@@ -68,13 +69,14 @@ const updateRelatedItems = async ({ targetSchema, triggerPathsToFieldsDetails, e
     const relatedItems = await getAllRelatedItems(targetSchema, triggerPathsToFieldsDetails.map(item => item.pathInArray), existingItem)
     for (const item of relatedItems) {
         const id = get(item, 'id')
-        const searchVersion = get(item, `${searchFieldName}Version`)
-        if (id && searchVersion) {
+        const searchFingerprintField = `${searchFieldName}Fingerprint`
+        const searchFingerprint = get(item, searchFingerprintField)
+        if (id && searchFingerprint) {
             const context = await getContextWithoutAccess(targetSchema)
             const payload = {
                 dv: 1,
                 sender: { fingerprint: 'change-search-field', dv: 1 },
-                searchVersion: searchVersion + 1,
+                [searchFingerprintField]: uuid(),
             }
             try {
                 await schemaGql.update(context, id, payload)
