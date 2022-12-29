@@ -48,7 +48,7 @@ const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testS
 const { getById } = require('@open-condo/keystone/schema')
 const { PAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS,
     PAYMENT_PROCESSING_STATUS,
-    MULTIPAYMENT_PROCESSING_STATUS
+    MULTIPAYMENT_PROCESSING_STATUS,
 } = require('../constants/payment')
 const Big = require('big.js')
 
