@@ -6,16 +6,14 @@
 const faker = require('faker')
 const dayjs = require('dayjs')
 
-const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
-
 const { createValidRuBankAccount } = require('@condo/domains/banking/utils/testSchema/bankAccount')
-const { RUSSIA_COUNTRY } = require('../../../common/constants/countries')
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
-const { BankIntegration: BankIntegrationGQL } = require('@condo/domains/banking/gql')
+const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
 const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
@@ -25,7 +23,6 @@ const BankCostItem = generateGQLTestUtils(BankCostItemGQL)
 const BankAccount = generateGQLTestUtils(BankAccountGQL)
 const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 
-const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
 const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
 const BankIntegrationContext = generateGQLTestUtils(BankIntegrationContextGQL)
 const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
