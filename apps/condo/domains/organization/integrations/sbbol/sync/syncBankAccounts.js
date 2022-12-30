@@ -7,22 +7,17 @@ const { BankAccount } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { ISO_CODES_FOR_SBBOL } = require('@condo/domains/common/constants/currencies')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const logger = getLogger('sbbol/syncBankAccounts')
 
 /**
  * Connects new BankAccount records for user according to accounts data from SBBOL.
  *  @param {SbbolClientInfo} data
+ *  @param {String} bankIntegrationContextId
+ *  @param {Object} organization
  */
-const _syncBankAccounts = async (data) => {
-    const { keystone: userContext } = await getSchemaCtx('User')
-    const { keystone: bankAccountContext } = await getSchemaCtx('BankAccount')
-    const [organization] = await Organization.getAll(userContext,
-        { tin: data.inn },
-        { sortBy: 'createdAt_DESC', first: 1 },
-    )
-    if (!organization) return logger.info('Organization not found. Do nothing')
+const _syncBankAccounts = async (data, bankIntegrationContextId, organization) => {
+    const { keystone: context } = await getSchemaCtx('User')
 
     for (const account of data.accounts) {
         const bankAccountDetails = {
@@ -32,14 +27,14 @@ const _syncBankAccounts = async (data) => {
             currencyCode: (ISO_CODES_FOR_SBBOL[account.currencyCode]),
             routingNumber: account.bic,
         }
-        const foundAccount = await BankAccount.getOne(bankAccountContext, {
+        const foundAccount = await BankAccount.getOne(context, {
             ...bankAccountDetails,
             organization: { id_in: organization.id },
         })
 
         if (!foundAccount) {
             await BankAccount.create(
-                bankAccountContext,
+                context,
                 {
                     meta: {
                         sbbol: {
@@ -62,9 +57,16 @@ const _syncBankAccounts = async (data) => {
 /**
  * Fetches ClientAccounts from SBBOL for specified date and creates BankAccount if this bank account has not yet been created
  *
+ *  @param {String} userId
+ *  @param {String} bankIntegrationContextId
+ *  @param {Object} organization
  * @return {Promise<void>}
  */
-const syncBankAccounts = async (userId) => {
+const syncBankAccounts = async (userId, bankIntegrationContextId, organization) => {
+    if (!userId) throw new Error('userId is required')
+    if (!bankIntegrationContextId) throw new Error('bankIntegrationContextId is required')
+    if (!organization) throw new Error('organization is required')
+
     const fintechApi = await initSbbolFintechApi(userId)
 
     if (!fintechApi) return
@@ -77,7 +79,7 @@ const syncBankAccounts = async (userId) => {
     if (isEmpty(accounts)) {
         logger.info('SBBOL did not return any ClientAccount, do nothing')
     } else {
-        await _syncBankAccounts(data)
+        await _syncBankAccounts(data, bankIntegrationContextId, organization)
     }
 }
 
