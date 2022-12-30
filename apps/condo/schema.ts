@@ -8537,6 +8537,8 @@ export type BankTransaction = {
   _label_?: Maybe<Scalars['String']>;
   /**  Related BankAccount of Organization which payed  */
   account?: Maybe<BankAccount>;
+  /**  Data source from which this transaction was created  */
+  integrationContext?: Maybe<BankIntegrationContext>;
   /**  Related account of contractor, which has received the payment via this transaction  */
   contractorAccount?: Maybe<BankContractorAccount>;
   /**  Related costs class  */
@@ -8581,6 +8583,7 @@ export type BankTransaction = {
 
 export type BankTransactionCreateInput = {
   account?: Maybe<BankAccountRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
   contractorAccount?: Maybe<BankContractorAccountRelateToOneInput>;
   costItem?: Maybe<BankCostItemRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -8617,6 +8620,7 @@ export type BankTransactionHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   account?: Maybe<Scalars['String']>;
+  integrationContext?: Maybe<Scalars['String']>;
   contractorAccount?: Maybe<Scalars['String']>;
   costItem?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -8647,6 +8651,7 @@ export type BankTransactionHistoryRecord = {
 
 export type BankTransactionHistoryRecordCreateInput = {
   account?: Maybe<Scalars['String']>;
+  integrationContext?: Maybe<Scalars['String']>;
   contractorAccount?: Maybe<Scalars['String']>;
   costItem?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -8682,6 +8687,7 @@ export enum BankTransactionHistoryRecordHistoryActionType {
 
 export type BankTransactionHistoryRecordUpdateInput = {
   account?: Maybe<Scalars['String']>;
+  integrationContext?: Maybe<Scalars['String']>;
   contractorAccount?: Maybe<Scalars['String']>;
   costItem?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -8716,6 +8722,10 @@ export type BankTransactionHistoryRecordWhereInput = {
   account_not?: Maybe<Scalars['String']>;
   account_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   account_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integrationContext?: Maybe<Scalars['String']>;
+  integrationContext_not?: Maybe<Scalars['String']>;
+  integrationContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integrationContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   contractorAccount?: Maybe<Scalars['String']>;
   contractorAccount_not?: Maybe<Scalars['String']>;
   contractorAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -8947,6 +8957,7 @@ export type BankTransactionHistoryRecordsUpdateInput = {
 
 export type BankTransactionUpdateInput = {
   account?: Maybe<BankAccountRelateToOneInput>;
+  integrationContext?: Maybe<BankIntegrationContextRelateToOneInput>;
   contractorAccount?: Maybe<BankContractorAccountRelateToOneInput>;
   costItem?: Maybe<BankCostItemRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -8976,6 +8987,8 @@ export type BankTransactionWhereInput = {
   OR?: Maybe<Array<Maybe<BankTransactionWhereInput>>>;
   account?: Maybe<BankAccountWhereInput>;
   account_is_null?: Maybe<Scalars['Boolean']>;
+  integrationContext?: Maybe<BankIntegrationContextWhereInput>;
+  integrationContext_is_null?: Maybe<Scalars['Boolean']>;
   contractorAccount?: Maybe<BankContractorAccountWhereInput>;
   contractorAccount_is_null?: Maybe<Scalars['Boolean']>;
   costItem?: Maybe<BankCostItemWhereInput>;
@@ -48336,6 +48349,8 @@ export enum SortBankTransactionHistoryRecordsBy {
 export enum SortBankTransactionsBy {
   AccountAsc = 'account_ASC',
   AccountDesc = 'account_DESC',
+  IntegrationContextAsc = 'integrationContext_ASC',
+  IntegrationContextDesc = 'integrationContext_DESC',
   ContractorAccountAsc = 'contractorAccount_ASC',
   ContractorAccountDesc = 'contractorAccount_DESC',
   CostItemAsc = 'costItem_ASC',
