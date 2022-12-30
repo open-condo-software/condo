@@ -8,7 +8,7 @@ import type { ListItemProps as DefaultListItemProps } from 'antd/lib/list'
 const LIST_CLASS_PREFIX = 'condo-list'
 const ELLIPSIS_WORD_LENGTH = 80
 
-type ListDataSource = { label: string, value: string, valueTypographyType?: TypographyTextProps['type'] }
+type ListDataSource = { label: string, value: string, valueTextType?: TypographyTextProps['type'] }
 
 type CondoListProps = {
     title: string
@@ -28,7 +28,7 @@ interface IListItem {
 }
 
 const ListItem: IListItem = (props) => {
-    const { item: { label, value, valueTypographyType }, ...restProps } = props
+    const { item: { label, value, valueTextType }, ...restProps } = props
 
     const labelEllipsis = useMemo(() => {
         return label.length > ELLIPSIS_WORD_LENGTH ? { tooltip: { children: label } } : false
@@ -44,7 +44,7 @@ const ListItem: IListItem = (props) => {
                     {label}
                 </Typography.Text>
                 <div className='condo-list-item-divider'></div>
-                <Typography.Text ellipsis={valueEllipsis} type={valueTypographyType}>
+                <Typography.Text ellipsis={valueEllipsis} type={valueTextType}>
                     {value}
                 </Typography.Text>
             </>
