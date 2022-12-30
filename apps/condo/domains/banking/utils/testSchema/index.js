@@ -223,10 +223,11 @@ async function updateTestBankIntegrationContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestBankTransaction (client, account, contractorAccount, organization, extraAttrs = {}) {
+async function createTestBankTransaction (client, account, contractorAccount, integrationContext, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!account || !account.id) throw new Error('no account.id')
     if (!contractorAccount || !contractorAccount.id) throw new Error('no contractorAccount.id')
+    if (!integrationContext || !integrationContext.id) throw new Error('no integrationContext.id')
     if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -235,6 +236,7 @@ async function createTestBankTransaction (client, account, contractorAccount, or
         sender,
         account: { connect: { id: account.id } },
         contractorAccount: { connect: { id: contractorAccount.id } },
+        integrationContext: { connect: { id: integrationContext.id } },
         organization: { connect: { id: organization.id } },
         number: faker.random.number().toString(),
         date: dayjs(faker.date.recent()).format('YYYY-MM-DD'),

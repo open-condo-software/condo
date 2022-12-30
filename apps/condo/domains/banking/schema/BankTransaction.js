@@ -25,6 +25,15 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
+        integrationContext: {
+            schemaDoc: 'Data source from which this transaction was created',
+            type: Relationship,
+            ref: 'BankIntegrationContext',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
         contractorAccount: {
             schemaDoc: 'Related account of contractor, which has received the payment via this transaction',
             type: Relationship,
@@ -105,7 +114,7 @@ const BankTransaction = new GQLListSchema('BankTransaction', {
         auth: true,
     },
     hooks: {
-        validateInput: ({ resolvedData, existingItem, context, addValidationError }) => {
+        validateInput: ({ resolvedData, existingItem, addValidationError }) => {
             const data = { ...existingItem, ...resolvedData }
             if (data.dateWithdrawed && data.dateReceived) {
                 addValidationError('Cannot have both "dateWithdrawed" and "dateReceived" filled fields')
