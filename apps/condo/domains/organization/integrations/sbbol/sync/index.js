@@ -14,6 +14,8 @@ const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
 const { syncBankAccounts } = require('./syncBankAccounts')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
+const { checkSbbolBankIntegrationContext } = require('@condo/domains/organization/integrations/sbbol/utils/checkSbbolBankIntegrationContext')
+const get = require('lodash/get')
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone
@@ -102,7 +104,9 @@ const sync = async ({ keystone, userInfo, tokenSet  }) => {
     await sbbolSecretStorage.setOrganization(organization.id)
     await syncTokens(tokenSet, user.id)
     await syncServiceSubscriptions(userInfo.inn)
-    await syncBankAccounts(user.id)
+    const bankIntegrationContextId = get(await checkSbbolBankIntegrationContext(context, organization.id), 'id')
+    await syncBankAccounts(user.id, bankIntegrationContextId, organization)
+
 
     const organizationEmployee = await OrganizationEmployee.getOne(context, {
         user: { id: user.id },
