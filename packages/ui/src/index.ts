@@ -18,6 +18,9 @@ export type { CarouselProps, CarouselRef } from './components/Carousel'
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps } from './components/Checkbox'
 
+export { List } from './components/List'
+export type { ListProps } from './components/List'
+
 export { Markdown } from './components/Markdown'
 export type { MarkdownProps } from './components/Markdown'
 
@@ -28,9 +31,6 @@ export { Tag } from './components/Tag'
 export type { TagProps } from './components/Tag'
 
 export { Typography } from './components/Typography'
-
-export { List } from './components/List'
-export type { ListProps } from './components/List'
 
 export type {
     TypographyType,

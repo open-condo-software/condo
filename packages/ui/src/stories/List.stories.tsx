@@ -7,7 +7,7 @@ export default {
     component: Component,
     args: {
         dataSource: [
-            { label: 'Some label', value: 123, valueType: 'danger' },
+            { label: 'Some label', value: '123', valueType: 'danger' },
             { label: 'Another label', value: 'Lorem ipsum dolor', valueType: 'info' },
             {
                 label: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt',

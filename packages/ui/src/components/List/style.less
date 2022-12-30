@@ -4,15 +4,15 @@
 
 .condo-list {
   .condo-list-header {
+    padding-bottom: @condo-global-spacing-24;
     border-bottom: none;
-    padding-bottom: 24px;
   }
 
   .condo-list-item {
     display: flex;
     flex-wrap: nowrap;
-    width: 100%;
     align-items: end;
+    width: 100%;
     border-bottom: none;
   }
 
@@ -26,7 +26,7 @@
 
   .condo-list-item-divider {
     flex: 1;
-    border-bottom: 1px solid @condo-global-color-gray-3;
-    margin: 0 8px;
+    margin: 0 @condo-global-spacing-8;
+    border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
   }
 }
