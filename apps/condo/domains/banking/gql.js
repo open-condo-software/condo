@@ -4,8 +4,6 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const gql = require('graphql-tag')
-
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -29,7 +27,7 @@ const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_F
 const BANK_INTEGRATION_CONTEXT_FIELDS = `{ integration { id } organization { id } enabled ${COMMON_FIELDS} }`
 const BankIntegrationContext = generateGqlQueries('BankIntegrationContext', BANK_INTEGRATION_CONTEXT_FIELDS)
 
-const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } organization { id } number date amount currencyCode purpose dateWithdrawed dateReceived meta importId importRemoteSystem ${COMMON_FIELDS} }`
+const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } integrationContext { id enabled } organization { id } number date amount currencyCode purpose dateWithdrawed dateReceived meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
 /* AUTOGENERATE MARKER <CONST> */
 
