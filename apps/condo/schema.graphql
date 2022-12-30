@@ -15961,6 +15961,7 @@ type BankTransactionHistoryRecord {
   """
   _label_: String
   account: String
+  integrationContext: String
   contractorAccount: String
   costItem: String
   organization: String
@@ -15996,6 +15997,10 @@ input BankTransactionHistoryRecordWhereInput {
   account_not: String
   account_in: [String]
   account_not_in: [String]
+  integrationContext: String
+  integrationContext_not: String
+  integrationContext_in: [String]
+  integrationContext_not_in: [String]
   contractorAccount: String
   contractorAccount_not: String
   contractorAccount_in: [String]
@@ -16255,6 +16260,7 @@ enum SortBankTransactionHistoryRecordsBy {
 
 input BankTransactionHistoryRecordUpdateInput {
   account: String
+  integrationContext: String
   contractorAccount: String
   costItem: String
   organization: String
@@ -16289,6 +16295,7 @@ input BankTransactionHistoryRecordsUpdateInput {
 
 input BankTransactionHistoryRecordCreateInput {
   account: String
+  integrationContext: String
   contractorAccount: String
   costItem: String
   organization: String
@@ -16348,6 +16355,9 @@ type BankTransaction {
 
   """ Related BankAccount of Organization which payed """
   account: BankAccount
+
+  """ Data source from which this transaction was created """
+  integrationContext: BankIntegrationContext
 
   """ Related account of contractor, which has received the payment via this transaction 
   """
@@ -16420,6 +16430,8 @@ input BankTransactionWhereInput {
   OR: [BankTransactionWhereInput]
   account: BankAccountWhereInput
   account_is_null: Boolean
+  integrationContext: BankIntegrationContextWhereInput
+  integrationContext_is_null: Boolean
   contractorAccount: BankContractorAccountWhereInput
   contractorAccount_is_null: Boolean
   costItem: BankCostItemWhereInput
@@ -16603,6 +16615,8 @@ input BankTransactionWhereUniqueInput {
 enum SortBankTransactionsBy {
   account_ASC
   account_DESC
+  integrationContext_ASC
+  integrationContext_DESC
   contractorAccount_ASC
   contractorAccount_DESC
   costItem_ASC
@@ -16647,6 +16661,7 @@ enum SortBankTransactionsBy {
 
 input BankTransactionUpdateInput {
   account: BankAccountRelateToOneInput
+  integrationContext: BankIntegrationContextRelateToOneInput
   contractorAccount: BankContractorAccountRelateToOneInput
   costItem: BankCostItemRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -16678,6 +16693,7 @@ input BankTransactionsUpdateInput {
 
 input BankTransactionCreateInput {
   account: BankAccountRelateToOneInput
+  integrationContext: BankIntegrationContextRelateToOneInput
   contractorAccount: BankContractorAccountRelateToOneInput
   costItem: BankCostItemRelateToOneInput
   organization: OrganizationRelateToOneInput
