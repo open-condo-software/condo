@@ -33,7 +33,7 @@ const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref)
     if (typeof ellipsis === 'boolean' && ellipsis) {
         ellipsisProp = DEFAULT_ELLIPSIS_CONFIG
     } else if (typeof ellipsis === 'object') {
-        ellipsisProp = merge(DEFAULT_ELLIPSIS_CONFIG, ellipsis)
+        ellipsisProp = merge(ellipsis, DEFAULT_ELLIPSIS_CONFIG)
     }
 
     return (
