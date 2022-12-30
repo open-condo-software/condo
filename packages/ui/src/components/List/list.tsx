@@ -1,13 +1,14 @@
 import React, { useMemo } from 'react'
-import { List as DefaultList, ListProps as DefaultListProps } from 'antd'
-import classNames from 'classnames'
-import { Typography, TypographyTextProps } from '@open-condo/ui/src'
-import { ListItemProps as DefaultListItemProps } from 'antd/es/list'
+import { List as DefaultList } from 'antd'
+import type { ListProps as DefaultListProps } from 'antd'
+import { Typography } from '@open-condo/ui/src'
+import type { TypographyTextProps } from '@open-condo/ui/src'
+import type { ListItemProps as DefaultListItemProps } from 'antd/lib/list'
 
 const LIST_CLASS_PREFIX = 'condo-list'
 const ELLIPSIS_WORD_LENGTH = 80
 
-type ListDataSource = { label: string, value: string | number, valueType?: TypographyTextProps['type'] }
+type ListDataSource = { label: string, value: string, valueType?: TypographyTextProps['type'] }
 
 type CondoListProps = {
     title: string
@@ -33,7 +34,7 @@ const ListItem: IListItem = (props) => {
         return label.length > ELLIPSIS_WORD_LENGTH ? { tooltip: { children: label } } : false
     }, [label])
     const valueEllipsis = useMemo(() => {
-        return String(value).length > ELLIPSIS_WORD_LENGTH ? { tooltip: { children: value } } : false
+        return value.length > ELLIPSIS_WORD_LENGTH ? { tooltip: { children: value } } : false
     }, [value])
 
     return (
@@ -52,9 +53,7 @@ const ListItem: IListItem = (props) => {
 }
 
 const List: React.FC<ListProps> = (props) => {
-    const { children, className, title, ...restProps } = props
-
-    const classes = classNames({}, className)
+    const { children, title, ...restProps } = props
 
     return (
         <DefaultList
@@ -62,7 +61,6 @@ const List: React.FC<ListProps> = (props) => {
             header={<Typography.Title level={3}>{title}</Typography.Title>}
             prefixCls={LIST_CLASS_PREFIX}
             bordered={false}
-            className={classes}
             renderItem={(item, key) => (
                 <ListItem key={`${LIST_CLASS_PREFIX}-item-${key}`} item={item} />
             )}

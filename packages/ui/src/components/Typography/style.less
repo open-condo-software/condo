@@ -191,18 +191,17 @@
 
 .condo-tooltip > .condo-tooltip-content {
   .condo-tooltip-inner {
-    font-family: @condo-global-font-family-default;
-    font-size: @condo-global-font-size-text-s;
-    line-height: @condo-global-typography-text-s-line-height;
-    padding: 12px;
-    background-color: @condo-global-color-white;
+    padding: @condo-global-spacing-12;
     color: @condo-global-color-black;
-    filter: drop-shadow(0px 20px 65px rgba(208, 216, 225, 0.24)) drop-shadow(0px 4px 15px rgba(208, 216, 225, 0.28)) drop-shadow(0px 2px 6px rgba(208, 216, 225, 0.16));
+    font-size: @condo-global-font-size-text-s;
+    font-family: @condo-global-font-family-default;
+    line-height: @condo-global-typography-text-s-line-height;
+    background-color: @condo-global-color-white;
     border-radius: @condo-global-border-radius-large;
+    filter: drop-shadow(0 20px 65px rgb(208 216 225 / 24%)) drop-shadow(0 4px 15px rgb(208 216 225 / 28%)) drop-shadow(0 2px 6px rgb(208 216 225 / 16%));
   }
 
   .condo-tooltip-arrow {
     display: none;
   }
 }
-
