@@ -50,7 +50,13 @@ const { PAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS,
     PAYMENT_PROCESSING_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
 } = require('../constants/payment')
-const Big = require('big.js')
+const {
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingProperty,
+    createTestBillingAccount,
+    createTestBillingReceipt,
+} = require('../../billing/utils/testSchema')
+
 
 describe('RegisterMultiPaymentService', () => {
     describe('Execute', () => {
@@ -707,6 +713,52 @@ describe('RegisterMultiPaymentService', () => {
         })
     })
     describe('Real-life cases', () => {
+        test('Should have common billing account with ServiceConsumer if BillingIntegration is changed', async () => {
+            /**
+             * 1. Management company created a billing receipt. toPay = x
+             * 2. User registered in mobile app
+             * 3. Management company changes billing integrtation to another and creates new billing receipt
+             * 4. User can pay for new receipt
+             */
+
+            const {
+                admin,
+                client,
+                organization,
+                property,
+                acquiringIntegration,
+                billingIntegration,
+                billingContext,
+                billingAccount,
+                serviceConsumer,
+            } = await makePayer(1)
+
+            // We create a new billing context and delete old
+            const [newBillingIntegration] = await createTestBillingIntegration(admin)
+            const [newBillingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration)
+            const [newBillingProperty] = await createTestBillingProperty(admin, newBillingContext, { address: property.address })
+            const [newBillingAccount] = await createTestBillingAccount(admin, newBillingContext, newBillingProperty, {
+                unitName: billingAccount.unitName,
+                unitType: billingAccount.unitType,
+                number: billingAccount.number,
+            })
+            const [newReceipt] = await createTestBillingReceipt(admin, newBillingContext, newBillingProperty, newBillingAccount)
+            await updateTestAcquiringIntegration(admin, acquiringIntegration.id, { supportedBillingIntegrations: { connect: [{ id: newBillingIntegration.id }] } })
+
+            const payload = [
+                {
+                    serviceConsumer: { id: serviceConsumer.id },
+                    receipts: [ { id: newReceipt.id } ],
+                },
+            ]
+
+            // Delete old context -- change is now complete
+            const [oldContext] = await updateTestBillingIntegrationOrganizationContext(admin, billingContext.id, { deletedAt: 'true' })
+
+            const createdMultiPayment = await registerMultiPaymentByTestClient(client, payload)
+            expect(createdMultiPayment).toBeDefined()
+            expect(oldContext.deletedAt).toBeTruthy()
+        })
         test('Partial payments are supported', async () => {
             /**
              * 1. Management company created a billing receipt. toPay = x
