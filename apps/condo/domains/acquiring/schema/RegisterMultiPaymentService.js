@@ -311,30 +311,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 const receiptsByIds = Object.assign({}, ...receipts.map(obj => ({ [obj.id]: obj })))
 
-                for (const group of groupedReceipts) {
-                    for (const receiptInfo of group['receipts']) {
-                        const receipt = receiptsByIds[receiptInfo.id]
-
-                        const billingAccountId = receipt.account
-                        const billingAccount = await getById('BillingAccount', billingAccountId)
-
-                        const consumer = consumersByIds[group.serviceConsumer.id]
-
-                        if (
-                            billingAccount.number !== consumer.accountNumber
-                            || billingAccount.context !== consumer.billingIntegrationContext
-                        ) {
-                            throw new GQLError({
-                                ...errors.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
-                                messageInterpolation: {
-                                    receiptId: receiptInfo.id,
-                                    serviceConsumerId: group.serviceConsumer.id,
-                                },
-                            }, context)
-                        }
-                    }
-                }
-
                 const uniqueBillingContextsIds = new Set(receipts.map(receipt => receipt.context))
                 const billingContexts = await find('BillingIntegrationOrganizationContext', {
                     id_in: Array.from(uniqueBillingContextsIds),
@@ -347,6 +323,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         .map(receipt => ({ receiptId: receipt.id, contextId: receipt.context }))
                     throw new GQLError({ ...errors.BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED, data: { failedReceipts } }, context)
                 }
+
                 const supportedBillingIntegrations = get(acquiringIntegration, 'supportedBillingIntegrations', [])
                     .map(integration => integration.id)
                 const uniqueBillingIntegrationsIds = new Set(billingContexts.map(context => context.integration))
@@ -365,6 +342,36 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                         .filter(receipt => deletedBillingIntegrationsIds.has(billingContextsById[receipt.context].integration))
                         .map(receipt => ({ receiptId: receipt.id, integrationId: billingContextsById[receipt.context].integration }))
                     throw new GQLError({ ...errors.RECEIPT_HAS_DELETED_BILLING_INTEGRATION, data: { failedReceipts } }, context)
+                }
+
+                // "consumer-id" -> [array of billing integration contexts that are linked thorough organization to this consumer]
+                const billingIntegrationContextsByConsumer = {}
+                for (const group of groupedReceipts) {
+                    for (const receiptInfo of group['receipts']) {
+                        const receipt = receiptsByIds[receiptInfo.id]
+
+                        const billingAccountId = receipt.account
+                        const billingAccount = await getById('BillingAccount', billingAccountId)
+
+                        const consumer = consumersByIds[group.serviceConsumer.id]
+                        if (!billingIntegrationContextsByConsumer[consumer.id]) {
+                            const allBillingContextsForConsumer = await find('BillingIntegrationOrganizationContext', { deletedAt: null, organization: { id: consumer.organization } })
+                            billingIntegrationContextsByConsumer[consumer.id] = allBillingContextsForConsumer.map(x => x.id)
+                        }
+
+                        if (
+                            billingAccount.number !== consumer.accountNumber
+                            || (!billingIntegrationContextsByConsumer[consumer.id].includes(billingAccount.context))
+                        ) {
+                            throw new GQLError({
+                                ...errors.RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
+                                messageInterpolation: {
+                                    receiptId: receiptInfo.id,
+                                    serviceConsumerId: group.serviceConsumer.id,
+                                },
+                            }, context)
+                        }
+                    }
                 }
 
                 const currencies = new Set(billingIntegrations.map(integration => integration.currencyCode))
