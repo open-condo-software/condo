@@ -228,58 +228,25 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
 
         logger.info(`ADAPTER_CACHE: Cache is enabled for list: ${listName}`)
 
-        const originalItemsQuery = listAdapter._itemsQuery
-        listAdapter._itemsQuery = async ( args, opts ) => {
+        // Patch public queries from BaseKeystoneList:
 
-            middleware.totalRequests++
+        const originalItemsQuery = listAdapter.itemsQuery
+        const getItemsQueryKey = ([args, opts]) => `${JSON.stringify(args)}_${stringifyComplexObj(opts)}`
+        listAdapter.itemsQuery = patchAdapterQueryFunction(listName, 'itemsQuery', originalItemsQuery, listAdapter, middleware, getItemsQueryKey)
 
-            let key = null
+        const originalFind = listAdapter.find
+        const getFindKey = ([condition]) => `${JSON.stringify(condition)}`
+        listAdapter.find = patchAdapterQueryFunction(listName, 'find', originalFind, listAdapter, middleware, getFindKey)
 
-            const argsJson = JSON.stringify(args)
-            if (argsJson !== '{}') {
-                key = listName + '_' + argsJson + '_' + stringifyComplexObj(opts)
-            }
+        const originalFindById = listAdapter.findById
+        const getFindByIdKey = ([id]) => `${id}`
+        listAdapter.findById = patchAdapterQueryFunction(listName, 'findById', originalFindById, listAdapter, middleware, getFindByIdKey)
 
-            let response = []
-            const cached = key ? cache[listName][key] : false
-            const tableLastUpdate = await middleware.getState(listName)
+        const originalFindOne = listAdapter.findOne
+        const getFindOneKey = ([condition]) => `${JSON.stringify(condition)}`
+        listAdapter.findOne = patchAdapterQueryFunction(listName, 'findOne', originalFindOne, listAdapter, middleware, getFindOneKey)
 
-            if (cached) {
-                const cacheLastUpdate = cached.lastUpdate
-                if (cacheLastUpdate && cacheLastUpdate.getTime() === tableLastUpdate.getTime()) {
-                    middleware.cacheHits++
-                    const cacheEvent = middleware.getCacheEvent({
-                        type: 'HIT',
-                        table: listName,
-                        key,
-                        result: JSON.stringify(cached.response),
-                    })
-                    middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
-                    middleware.logEvent({ event: cacheEvent })
-                    return cloneDeep(cached.response)
-                }
-            }
-
-            response = await originalItemsQuery.apply(listAdapter, [args, opts] )
-
-            let copiedResponse = cloneDeep(response)
-
-            cache[listName][key] = {
-                lastUpdate: tableLastUpdate,
-                response: copiedResponse,
-            }
-
-            const cacheEvent = middleware.getCacheEvent({
-                type: 'MISS',
-                key,
-                table: listName,
-                result: JSON.stringify(copiedResponse),
-            })
-            middleware.writeChangeToHistory({ cache, event: cacheEvent, table: listName } )
-            middleware.logEvent({ event: cacheEvent })
-
-            return response
-        }
+        // Patch mutations:
 
         const originalUpdate = listAdapter.update
         listAdapter.update = patchAdapterFunction(listName, 'UPDATE', originalUpdate, listAdapter, middleware)
@@ -316,6 +283,57 @@ function patchAdapterFunction ( listName, functionName, f, listAdapter, cache ) 
         if (cache.logging) { logger.info(`${functionName}: ${functionResult}`) }
 
         return functionResult
+    }
+}
+
+function patchAdapterQueryFunction (listName, functionName, f, listAdapter, cache, getKey) {
+    return async ( ...args ) => {
+        cache.totalRequests++
+
+        let key = getKey(args)
+        if (key) {
+            key = `${listName}_${functionName}_${key}`
+        }
+
+        let response = []
+        const cached = key ? cache.cache[listName][key] : null
+        const tableLastUpdate = await cache.getState(listName)
+
+        if (cached) {
+            const cacheLastUpdate = cached.lastUpdate
+            if (cacheLastUpdate && cacheLastUpdate.getTime() === tableLastUpdate.getTime()) {
+                cache.cacheHits++
+                const cacheEvent = cache.getCacheEvent({
+                    type: `HIT: ${functionName}`,
+                    table: listName,
+                    key,
+                    result: JSON.stringify(cached.response),
+                })
+                cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName } )
+                cache.logEvent({ event: cacheEvent })
+                return cloneDeep(cached.response)
+            }
+        }
+
+        response = await f.apply(listAdapter, args)
+
+        let copiedResponse = cloneDeep(response)
+
+        cache.cache[listName][key] = {
+            lastUpdate: tableLastUpdate,
+            response: copiedResponse,
+        }
+
+        const cacheEvent = cache.getCacheEvent({
+            type: `MISS: ${functionName}`,
+            key,
+            table: listName,
+            result: JSON.stringify(copiedResponse),
+        })
+        cache.writeChangeToHistory({ cache: cache.cache, event: cacheEvent, table: listName } )
+        cache.logEvent({ event: cacheEvent })
+
+        return response
     }
 }
 
