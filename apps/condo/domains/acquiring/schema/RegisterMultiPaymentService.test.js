@@ -49,13 +49,13 @@ const { updateTestBillingAccount } = require('@condo/domains/billing/utils/testS
 const { PAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS,
     PAYMENT_PROCESSING_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
-} = require('../constants/payment')
+} = require('@condo/domains/acquiring/constants/payment')
 const {
     createTestBillingIntegrationOrganizationContext,
     createTestBillingProperty,
     createTestBillingAccount,
     createTestBillingReceipt,
-} = require('../../billing/utils/testSchema')
+} = require('@condo/domains/billing/utils/testSchema')
 
 
 describe('RegisterMultiPaymentService', () => {
