@@ -12,7 +12,7 @@ const { PARKING_UNIT_TYPE, FLAT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, COMMERCIAL_UNIT_
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const PROPERTY_MAP_SECTION_FIELDS = 'id type index name preview floors { id type index name units { id type unitType name label preview } }'
 const PROPERTY_MAP_JSON_FIELDS = `dv type sections { ${PROPERTY_MAP_SECTION_FIELDS} } parking { ${PROPERTY_MAP_SECTION_FIELDS} }`
-const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed unitsCount uninhabitedUnitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} isApproved }`
+const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed ticketsDeferred unitsCount uninhabitedUnitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} isApproved }`
 const PROPERTY_TABLE_FIELDS = `{ ${COMMON_FIELDS} unitsCount uninhabitedUnitsCount addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} }  ticketsInWork }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 const PropertyTable = generateGqlQueries('Property', PROPERTY_TABLE_FIELDS)
@@ -116,6 +116,14 @@ const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
   }
 `
 
+const GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY = gql`
+    query GetTicketDeferredCountForProperty ($propertyId: ID!) {
+        deferred: _allTicketsMeta(where: { status: { type: deferred }, property: { id: $propertyId } } ) {
+            count
+        }
+    }
+`
+
 const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
     query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
         result: checkPropertyWithAddressExist(data: $data) { isFound }
@@ -136,6 +144,7 @@ module.exports = {
     PROPERTY_MAP_GRAPHQL_TYPES,
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
+    GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY,
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,

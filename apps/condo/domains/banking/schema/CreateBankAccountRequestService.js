@@ -4,8 +4,7 @@
 
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/banking/access/CreateBankAccountRequestService')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { BANK_ACCOUNT_CREATION_REQUEST_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const conf = require('@open-condo/config')
@@ -15,13 +14,11 @@ const conf = require('@open-condo/config')
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const errors = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: {
+    NO_EMAIL_TARGET_WAS_SET: {
         mutation: 'createBankAccountRequest',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@open-condo/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.createBankAccountRequest.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
+        message: 'No BANK_ACCOUNT_REQUEST_EMAIL_TARGET variable was found',
+        type: 'EMPTY_BANK_ACCOUNT_REQUEST_EMAIL_TARGET_VALUE',
+        code: INTERNAL_ERROR,
     },
 }
 
@@ -51,9 +48,12 @@ const CreateBankAccountRequestService = new GQLCustomSchema('CreateBankAccountRe
                 } } = args
                 const emailTo = conf['BANK_ACCOUNT_REQUEST_EMAIL_TARGET']
 
+                if (!emailTo) {
+                    throw new GQLError(errors.NO_EMAIL_TARGET_WAS_SET, context)
+                }
+
                 const { status, id } = await sendMessage(context, {
                     to: {
-                        // TODO: get email from env
                         email: emailTo,
                     },
                     type: BANK_ACCOUNT_CREATION_REQUEST_TYPE,
@@ -66,9 +66,6 @@ const CreateBankAccountRequestService = new GQLCustomSchema('CreateBankAccountRe
                     },
                     sender,
                 })
-
-                // TODO: throw errors in a following way
-                // throw new GQLError(errors.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
 
                 return { id, status }
             },

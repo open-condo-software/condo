@@ -31,7 +31,8 @@ const {
     PROPERTY_MAP_GRAPHQL_TYPES,
     GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
     GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
-} = require('../gql')
+    GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY,
+} = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
@@ -246,6 +247,25 @@ const Property = new GQLListSchema('Property', {
                     return 0
                 }
                 return data.closed.count
+            },
+        },
+
+        ticketsDeferred: {
+            schemaDoc: 'Counter for deferred tickets',
+            type: Virtual,
+            resolver: async (item, _, context) => {
+                const { data, errors } = await context.executeGraphQL({
+                    query: GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY,
+                    variables: {
+                        propertyId: item.id,
+                    },
+                })
+
+                if (errors) {
+                    return 0
+                }
+
+                return data.deferred.count
             },
         },
 

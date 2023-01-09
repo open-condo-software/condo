@@ -31,7 +31,6 @@ describe('CreateBankAccountRequestService', () => {
             const message = await Message.getOne(admin, { id: data.id })
             expect(message).toBeDefined()
             expect(message.status).toEqual(MESSAGE_SENT_STATUS)
-            // expect(message.processingMeta).toEqual(expect.objectContaining(payload))
         })
     })
 
