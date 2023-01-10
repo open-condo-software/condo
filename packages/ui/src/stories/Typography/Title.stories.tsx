@@ -22,8 +22,8 @@ export default {
         children: { type: 'string' },
         type: {
             defaultValue: 'default',
-            options: ['default', 'inverted'],
-            mapping: [undefined, 'inverted'],
+            options: ['default', 'inverted', 'secondary'],
+            mapping: [undefined, 'inverted', 'secondary'],
             control: 'select',
         },
     },
