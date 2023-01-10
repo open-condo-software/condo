@@ -1,9 +1,8 @@
 const { AbstractSearchProvider } = require('./AbstractSearchProvider')
-const { GOOGLE_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { GOOGLE_PROVIDER, DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
 const conf = require('@open-condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
-const { DADATA_PROVIDER } = require('../../../../constants/providers')
 
 /**
  * @typedef {Object} GoogleAddressComponent
