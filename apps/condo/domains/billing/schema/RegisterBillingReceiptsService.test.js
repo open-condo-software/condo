@@ -639,6 +639,56 @@ describe('RegisterBillingReceiptsService', () => {
             expect(data).toHaveLength(50)
         })
 
+        test('Management company changes billing recipennt', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const tin1 = faker.random.alphaNumeric(8)
+            const routingNumber1 = faker.random.alphaNumeric(8)
+            const bankAccount1 = faker.random.alphaNumeric(8)
+
+            const receipt1 = createRegisterBillingReceiptsPayload({
+                tin: tin1,
+                routingNumber: routingNumber1,
+                bankAccount: bankAccount1,
+            })
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    receipt1,
+                ],
+            }
+
+            const [data] = await registerBillingReceiptsByTestClient(admin, payload)
+
+            const routingNumber2 = faker.random.alphaNumeric(8)
+            const bankAccount2 = faker.random.alphaNumeric(8)
+
+            const payload2 = {
+                context: { id: billingContext.id },
+                receipts: [
+                    { ...receipt1, ...{ routingNumber: routingNumber2, bankAccount: bankAccount2, importId: faker.random.alphaNumeric(8) } },
+                ],
+            }
+
+            const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
+
+            console.log(data)
+            console.log(data2)
+
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+            expect(data).toHaveLength(1)
+            expect(data2).toHaveLength(1)
+            expect(billingReceipts).toHaveLength(1)
+            expect(billingReceipts[0].recipient.bankAccount).toEqual(bankAccount2)
+            expect(billingReceipts[0].recipient.routingNumber).toEqual(routingNumber2)
+            expect(billingReceipts[0].receiver.bankAccount).toEqual(bankAccount2)
+            expect(billingReceipts[0].receiver.routingNumber).toEqual(routingNumber2)
+        })
+
         test('Management company signs up for management of new property', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
