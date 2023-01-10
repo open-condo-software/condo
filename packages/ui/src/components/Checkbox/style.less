@@ -26,6 +26,7 @@
     }
 
     &-inner {
+      box-sizing: content-box;
       border-color: @condo-global-color-gray-5;
 
       &::after {
@@ -102,6 +103,7 @@
       }
 
       & > .condo-checkbox-inner {
+        box-sizing: content-box;
         background: @condo-global-color-gray-5 border-box;
         border-color: transparent;
 
@@ -112,6 +114,7 @@
         &::after {
           top: @condo-checkbox-checkmark-top - 1;
           left: @condo-checkbox-checkmark-left;
+          box-sizing: content-box;
           width: @condo-checkbox-checkmark-width;
           height: @condo-checkbox-checkmark-height;
           border-width: 3px;
