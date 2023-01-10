@@ -57,7 +57,7 @@ const esm = {
 }
 
 const umd = {
-    plugins: IS_PRODUCTION ? [...getPluginsPipeLine(), uglify()] : getPluginsPipeLine(),
+    plugins: IS_PRODUCTION ? [...getPluginsPipeLine(), uglify()] : getPluginsPipeLine(true),
     input: ENTRY_MODULE_PATH,
     output: {
         sourcemap: true,
