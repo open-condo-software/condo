@@ -26,6 +26,16 @@ module.exports = function createConfiguration (context, conf) {
                 },
             }
         },
+        /**
+         * @see https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#issuerefreshtoken
+         * @param ctx
+         * @param client
+         * @param code
+         * @returns {Promise<boolean>}
+         */
+        async issueRefreshToken (ctx, client, code) {
+            return client.grantTypeAllowed('refresh_token')
+        },
         async loadExistingGrant (ctx) {
             // This is modified version of default function
             // https://github.com/panva/node-oidc-provider/blob/HEAD/docs/README.md#loadexistinggrant
