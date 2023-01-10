@@ -16,7 +16,7 @@ async function main (args) {
         client_secret: clientSecret,
         redirect_uris: [redirectUri], // using uri as redirect_uri to show the ID Token contents
         response_types: ['code id_token', 'code', 'id_token'],
-        grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+        grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
         token_endpoint_auth_method: 'client_secret_basic',
     }, keystone)
 
