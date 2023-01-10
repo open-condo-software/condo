@@ -98,7 +98,7 @@ module.exports = function createConfiguration (context, conf) {
         },
         ttl: {
             //todo(AleX83Xpert): back to one hour after DOMA-3165 finished
-            AccessToken: 1 * 60 * 60 * 24 * 365, // 1 year in seconds
+            AccessToken: 1 * 60 * 60, // 1 hour in seconds
             AuthorizationCode: 10 * 60, // 10 minutes in seconds
             IdToken: 1 * 60 * 60, // 1 hour in seconds
             DeviceCode: 10 * 60, // 10 minutes in seconds
