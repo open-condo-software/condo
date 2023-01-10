@@ -4,7 +4,7 @@ export type AnyRequestMethodName = keyof RequestMethodsParamsMap
 export type AnyResponseMethodName = keyof ResultResponseDataMap
 
 export type RequestParams<Method extends AnyRequestMethodName> = RequestMethodsParamsMap[Method]
-export type RequestIdType = string
+export type RequestIdType = string | number
 export type RequestId = { requestId?: RequestIdType }
 
 export type BaseResponseEvent<ResponseType extends string, Data> = {
@@ -22,8 +22,8 @@ export type ClientErrorResponseData = {
 }
 export type ErrorResponseData = ClientErrorResponseData
 
-export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ResultResponseEventName<Method>, ResultResponseData<Method>>
-export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData>
+export type CondoBridgeResultResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ResultResponseEventName<Method>, ResultResponseData<Method> & RequestId>
+export type CondoBridgeErrorResponseEvent<Method extends AnyResponseMethodName> = BaseResponseEvent<ErrorResponseEventName<Method>, ErrorResponseData & RequestId>
 export type CondoBridgeResponseEvent<Method extends AnyResponseMethodName> = CondoBridgeResultResponseEvent<Method> | CondoBridgeErrorResponseEvent<Method>
 export type CondoBridgeSubscriptionListener = (event: CondoBridgeResponseEvent<AnyResponseMethodName>) => void
 
@@ -31,11 +31,13 @@ export type WebBridge = {
     postMessage?: (message: unknown, targetOrigin: string) => void
 }
 
+export type PromisifiedSendType = <Method extends AnyRequestMethodName>(
+    method: Method,
+    params?: RequestParams<Method> & RequestId
+) => Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>
+
 export interface CondoBridge {
-    send: <Method extends AnyRequestMethodName>(
-        method: Method,
-        params?: RequestParams<Method> & RequestId
-    ) => void
+    send: PromisifiedSendType
     supports: <Method extends AnyRequestMethodName>(method: Method) => boolean
     subscribe: (listener: CondoBridgeSubscriptionListener) => void
     unsubscribe: (listener: CondoBridgeSubscriptionListener) => void

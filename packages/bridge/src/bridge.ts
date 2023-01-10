@@ -6,6 +6,7 @@ import type {
     RequestId,
     CondoBridgeSubscriptionListener,
 } from './types/bridge'
+import { promisifySend } from './promisify'
 import pkg from '../package.json'
 
 export const IS_CLIENT_SIDE = typeof window !== 'undefined'
@@ -54,8 +55,19 @@ export function createCondoBridge (): CondoBridge {
         }
     }
 
+    function handleResponseEvent (event: MessageEvent) {
+        // const data = event.data
+        //
+        // subscribers.map(listener => listener)
+        // TODO: Need to finish this after some sleep :)
+    }
+
+    if (IS_BROWSER_CLIENT && 'addEventListener' in window) {
+        window.addEventListener('message', handleResponseEvent)
+    }
+
     return {
-        send,
+        send: promisifySend(send, subscribe),
         supports,
         subscribe,
         unsubscribe,
