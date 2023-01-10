@@ -86,8 +86,7 @@ const getAddressDetails = (propertyAddressMeta) => {
     const areaLine = areaPart ? `${regionLine ? ',' : ''} ${areaPart}` : ''
     const cityLine = cityPart ? `${regionLine ? ',' : ''} ${cityPart}` : ''
     const settlementLine = settlementPart ? `, ${settlementPart}` : ''
-    const streetLine = streetPart ? `, ${streetPart}` : ''
-    const renderData = regionLine + areaLine + settlementLine + cityLine + streetLine
+    const renderData = regionLine + areaLine + settlementLine + cityLine
 
     return { streetPart, areaPart, settlementPart, regionPart, cityPart, renderData }
 }
@@ -129,16 +128,14 @@ const getUnitDetails = ({ ticket, locale }) => {
     return { renderData, unitPart, sectionPart, floorPart }
 }
 
-const getFullAddressByTicket = ({ ticket, locale }) => {
-    const { renderData: renderAddress } = getAddressDetails(ticket.propertyAddressMeta)
+const getAddressPartsByTicket = ({ ticket, locale }) => {
+    const { renderData: renderAddress, streetPart } = getAddressDetails(ticket.propertyAddressMeta)
     const { renderData: renderUnit } = getUnitDetails({ ticket, locale })
 
-    let fullAddress = renderAddress
-    if (renderUnit) {
-        fullAddress += renderUnit
+    return {
+        addressPart: renderAddress,
+        streetAndUnitPart: `${streetPart}${renderUnit}`,
     }
-
-    return fullAddress
 }
 
 const convertCommentsToTicketBlank = (comments) => {
@@ -154,7 +151,7 @@ const convertTicketToTicketBlank = ({ ticket, comments, blankOptions, locale }) 
         printDate: dayjs().format('DD.MM.YYYY'),
         createdAt: dayjs(ticket.createdAt).format('DD.MM.YYYY'),
         organization: ticket.organization,
-        address: getFullAddressByTicket({ ticket, locale }),
+        address: getAddressPartsByTicket({ ticket, locale }),
         clientName: ticket.clientName || ticket.createdBy,
         clientPhone: formatPhone(ticket.clientPhone),
         details: ticket.details,
@@ -229,6 +226,12 @@ const getTranslations = ({ locale, ticketBlankData }) => {
     }
 }
 
+const COMMON_PDF_SIZES = {
+    marginLeft: 45,
+    marginRight: 31,
+    printWidth: 344,
+}
+
 const generatePdf = (replaces) => {
     const { i18n, blank } = replaces
 
@@ -256,7 +259,7 @@ const generatePdf = (replaces) => {
     const addLines = (count, startPosition) => {
         if (!count || !isNumber(count)) return null
 
-        return new Array(count).fill(1).map((_, index) => `<rect x="0" y="${startPosition + 14 + 15 * index}" width="400" height="1" fill="#707695"/>`)
+        return new Array(count).fill(1).map((_, index) => `<rect x="0" y="${startPosition + 14 + 15 * index}" width="${COMMON_PDF_SIZES.printWidth}" height="1" fill="#707695"/>`)
     }
 
     const renderBlockWithLines = (title, count) => {
@@ -264,7 +267,7 @@ const generatePdf = (replaces) => {
 
         return {
             marginBottom: 12,
-            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="${10 + count * 15}" viewBox="0 0 400 ${10 + count * 15}">
+            svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${COMMON_PDF_SIZES.printWidth}" height="${10 + count * 15}" viewBox="0 0 ${COMMON_PDF_SIZES.printWidth} ${10 + count * 15}">
                       <style>
                         .subtitile {
                           fill: #707695;
@@ -286,10 +289,10 @@ const generatePdf = (replaces) => {
     const renderSignatures = () => {
         return {
             marginTop: 8,
-            svg: `<svg viewBox="0 0 400 75" xmlns="http://www.w3.org/2000/svg">
+            svg: `<svg viewBox="0 0 ${COMMON_PDF_SIZES.printWidth} 75" xmlns="http://www.w3.org/2000/svg">
                       <style>
                           .big {
-                            width: 400px;
+                            width: ${COMMON_PDF_SIZES.printWidth}px;
                             font-size: 9px;
                           }
                           .small {
@@ -301,35 +304,48 @@ const generatePdf = (replaces) => {
                       <!-- NOTE This text does not wrap, only one line -->
                       <text x="0" y="10" class="big">${i18n.workCompleted}</text>
                     
-                      <rect x="0" y="30" width="144" height="1" fill="#222222"/>
+                      <rect x="0" y="30" width="118" height="1" fill="#222222"/>
                       <text x="0" y="40" class="small">${i18n.executorFullName}</text>
                       
-                      <rect x="161" y="30" width="125" height="1" fill="#222222"/>
-                      <text x="161" y="40" class="small">${i18n.executorSignature}</text>
+                      <rect x="131" y="30" width="118" height="1" fill="#222222"/>
+                      <text x="131" y="40" class="small">${i18n.executorSignature}</text>
                       
-                      <rect x="0" y="60" width="144" height="1" fill="#222222"/>
+                      <rect x="0" y="60" width="118" height="1" fill="#222222"/>
                       <text x="0" y="70" class="small">${i18n.clientFullName}</text>
                       
-                      <rect x="161" y="60" width="125" height="1" fill="#222222"/>
-                      <text x="161" y="70" class="small">${i18n.clientSignature}</text>
+                      <rect x="131" y="60" width="118" height="1" fill="#222222"/>
+                      <text x="131" y="70" class="small">${i18n.clientSignature}</text>
                       
-                      <rect x="303" y="60" width="87" height="1" fill="#222222"/>
-                      <text x="303" y="70" class="small">${i18n.completionDate}</text>
+                      <rect x="262" y="60" width="82" height="1" fill="#222222"/>
+                      <text x="262" y="70" class="small">${i18n.completionDate}</text>
                   </svg>`,
+        }
+    }
+
+    const renderDividingLine = (currentPage) => {
+        if (currentPage % 2 === 0) {
+            return null
+        }
+
+        return {
+            absolutePosition: { x: 419, y: 0 },
+            svg: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="594" viewBox="0 0 1 594" fill="none">\n' +
+                '<path d="M0 -1H1V594H0V-1Z" fill="#E1E5ED"/>\n' +
+                '</svg>',
         }
     }
 
     return printer.createPdfKitDocument({
         pageSize: 'a5',
-        pageMargins: [10, 43, 10, 43],
+        pageMargins: [COMMON_PDF_SIZES.marginLeft, 51, COMMON_PDF_SIZES.marginRight, 51],
         pageOrientation: 'portrait',
         defaultStyle: {
             font: 'OpenSans',
         },
-        header: [
+        header: (currentPage) => [
             {
                 fontSize: 7,
-                margin: [10, 10, 10, 6.8],
+                margin: [COMMON_PDF_SIZES.marginLeft, 18, COMMON_PDF_SIZES.marginRight, 6.8],
                 alignment: 'justify',
                 columns: [
                     {
@@ -355,31 +371,26 @@ const generatePdf = (replaces) => {
                 ],
             },
             {
-                margin: [10, 0, 10, 0],
-                svg: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="1" viewBox="0 0 400 1" fill="none">\n' +
-                    '<rect width="400" height="1" fill="#E1E5ED"/>\n' +
-                    '</svg>',
+                margin: [COMMON_PDF_SIZES.marginLeft, 0, COMMON_PDF_SIZES.marginRight, 0],
+                svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${COMMON_PDF_SIZES.printWidth}" height="1" viewBox="0 0 ${COMMON_PDF_SIZES.printWidth} 1" fill="none">
+                          <rect width="${COMMON_PDF_SIZES.printWidth}" height="1" fill="#E1E5ED"/>
+                      </svg>`,
             },
-            {
-                absolutePosition: { x: 419, y: 0 },
-                svg: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="594" viewBox="0 0 1 594" fill="none">\n' +
-                    '<path d="M0 -1H1V594H0V-1Z" fill="#E1E5ED"/>\n' +
-                    '</svg>',
-            },
+            renderDividingLine(currentPage),
         ],
         footer: (currentPage) => {
             return [
                 {
-                    margin: [10, 10, 10, 0],
-                    svg: '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="1" viewBox="0 0 400 1" fill="none">\n' +
-                        '<rect width="400" height="1" fill="#E1E5ED"/>\n' +
-                        '</svg>',
+                    margin: [COMMON_PDF_SIZES.marginLeft, 13, COMMON_PDF_SIZES.marginRight, 0],
+                    svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${COMMON_PDF_SIZES.printWidth}" height="1" viewBox="0 0 ${COMMON_PDF_SIZES.printWidth} 1" fill="none">
+                              <rect width="${COMMON_PDF_SIZES.printWidth}" height="1" fill="#E1E5ED"/>
+                          </svg>`,
                 },
                 {
                     color: '#222222',
                     font: 'BoldOpenSans',
                     fontSize: 7,
-                    margin: [10, 10, 10, 10],
+                    margin: [COMMON_PDF_SIZES.marginLeft, 7, COMMON_PDF_SIZES.marginRight, 18],
                     alignment: 'justify',
                     columns: [
                         {
@@ -424,9 +435,15 @@ const generatePdf = (replaces) => {
                         text: i18n.address,
                     },
                     {
-                        text: blank.address,
-                        font: 'BoldOpenSans',
-                        fontSize: 9,
+                        style: 'accentedText',
+                        stack: [
+                            {
+                                text: blank.address.addressPart,
+                            },
+                            {
+                                text: blank.address.streetAndUnitPart,
+                            },
+                        ],
                     },
                 ],
             },
@@ -440,20 +457,14 @@ const generatePdf = (replaces) => {
                         text: i18n.clientName,
                     },
                     {
-                        columnGap: 20,
-                        columns: [
+                        style: 'accentedText',
+                        stack: [
                             {
                                 text: blank.clientName,
-                                font: 'BoldOpenSans',
-                                fontSize: 9,
-                                width: '*',
                             },
                             {
+                                marginTop: 5,
                                 text: blank.clientPhone,
-                                font: 'BoldOpenSans',
-                                fontSize: 9,
-                                alignment: 'right',
-                                width: 120,
                             },
                         ],
                     },
@@ -470,7 +481,7 @@ const generatePdf = (replaces) => {
                     },
                     {
                         text: blank.details,
-                        fontSize: 8,
+                        style: 'accentedText',
                     },
                 ],
             },
@@ -498,6 +509,10 @@ const generatePdf = (replaces) => {
                 color: '#707695',
                 fontSize: 7,
                 marginBottom: 4,
+            },
+            accentedText: {
+                font: 'BoldOpenSans',
+                fontSize: 9,
             },
         },
     }, {})
