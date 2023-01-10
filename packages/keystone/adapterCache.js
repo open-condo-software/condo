@@ -294,7 +294,7 @@ async function patchKeystoneAdapterWithCacheMiddleware (keystone, middleware) {
  * @param {AdapterCacheMiddleware} cache
  * @returns {function(...[*]): Promise<*>}
  */
-function patchAdapterFunction ( listName, functionName, f, listAdapter, cache1, connectedTables) {
+function patchAdapterFunction ( listName, functionName, f, listAdapter, cache, connectedTables) {
     return async ( ...args ) => {
 
         const functionResult = await f.apply(listAdapter, args)
