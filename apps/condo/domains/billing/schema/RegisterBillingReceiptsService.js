@@ -229,7 +229,16 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
             const newToPayDetails = item.toPayDetails ? item.toPayDetails : null
             const toPayDetailsIsEqual = isEqual(existingToPayDetails, newToPayDetails)
 
-            const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual
+            const existingRecipient = existingReceiptByKey.recipient
+            const newRecipient = {
+                tin: item.tin,
+                bic: item.bic,
+                iec: item.iec,
+                bankAccount: item.bankAccount,
+            }
+            const recipientIsEqual = isEqual(existingRecipient, newRecipient)
+
+            const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual || !recipientIsEqual
 
             if (shouldUpdateReceipt) {
                 item.id = existingReceiptByKey.id
@@ -251,7 +260,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     for (const item of receiptsToUpdate) {
         const itemId = item.id
         const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
-        const updatableItem = omit(billingReceiptGQLInput, ['context', 'id'])
+        const updatableItem = omit(billingReceiptGQLInput, ['context', 'id', 'receiver'])
         const updatedReceipt = await BillingReceipt.update(context, itemId, updatableItem)
         updatedReceipts.push(updatedReceipt)
     }
