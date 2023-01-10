@@ -167,7 +167,7 @@ export const PropertyPageContent = ({ property, link }) => {
     const [bankAccountModalVisible, setBankAccountModalVisible] = useState(false)
 
     const createBankAccountRequestCallback = async () => {
-        const alreadySent = cookie.get('createBankAccountRequestSent1')
+        const alreadySent = cookie.get('createBankAccountRequestSent')
         if (alreadySent) {
             notification.error({ message: AlreadySentTitle })
         } else {
