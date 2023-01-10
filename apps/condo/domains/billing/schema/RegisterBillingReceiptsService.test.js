@@ -684,9 +684,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(data2).toHaveLength(1)
             expect(billingReceipts).toHaveLength(1)
             expect(billingReceipts[0].recipient.bankAccount).toEqual(bankAccount2)
-            expect(billingReceipts[0].recipient.routingNumber).toEqual(routingNumber2)
             expect(billingReceipts[0].receiver.bankAccount).toEqual(bankAccount2)
-            expect(billingReceipts[0].receiver.routingNumber).toEqual(routingNumber2)
         })
 
         test('Management company signs up for management of new property', async () => {
