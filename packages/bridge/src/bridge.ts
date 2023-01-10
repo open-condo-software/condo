@@ -1,4 +1,11 @@
-import type { WebBridge, AnyRequestMethodName, RequestParams, RequestIdParam, CondoBridge } from './types/bridge'
+import type {
+    WebBridge,
+    CondoBridge,
+    AnyRequestMethodName,
+    RequestParams,
+    RequestId,
+    CondoBridgeSubscriptionListener,
+} from './types/bridge'
 import pkg from '../package.json'
 
 export const IS_CLIENT_SIDE = typeof window !== 'undefined'
@@ -9,7 +16,7 @@ const WEB_SPECIFIC_METHODS = [
     'CondoWebAppResizeWindow',
 ]
 
-export const AVAILABLE_METHODS = [
+const ALL_METHODS = [
     ...(IS_BROWSER_CLIENT ? WEB_SPECIFIC_METHODS : []),
 ]
 
@@ -18,7 +25,9 @@ const webBridge: WebBridge | undefined = IS_BROWSER_CLIENT
     : undefined
 
 export function createCondoBridge (): CondoBridge {
-    function send<K extends AnyRequestMethodName> (method: K, params?: RequestParams<K> & RequestIdParam) {
+    const subscribers: Array<CondoBridgeSubscriptionListener> = []
+
+    function send<K extends AnyRequestMethodName> (method: K, params?: RequestParams<K> & RequestId) {
         if (webBridge && typeof webBridge.postMessage === 'function') {
             webBridge.postMessage({
                 handler: method,
@@ -29,7 +38,26 @@ export function createCondoBridge (): CondoBridge {
         }
     }
 
+    function supports<K extends AnyRequestMethodName> (method: K) {
+        return ALL_METHODS.includes(method)
+    }
+
+    function subscribe (listener: CondoBridgeSubscriptionListener) {
+        subscribers.push(listener)
+    }
+
+    function unsubscribe (listener: CondoBridgeSubscriptionListener) {
+        const idx = subscribers.indexOf(listener)
+
+        if (idx >= 0) {
+            subscribers.splice(idx, 1)
+        }
+    }
+
     return {
         send,
+        supports,
+        subscribe,
+        unsubscribe,
     }
 }
