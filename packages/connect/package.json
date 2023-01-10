@@ -1,18 +1,17 @@
 {
-  "name": "@open-condo/tsconfig",
-  "description": "A set of frequently used tsconfig.json for various typescript applications",
+  "name": "@open-condo/connect",
+  "description": "A library that allows your mini-app to connect and communicate with the user's main client",
   "keywords": [
     "condo",
     "open-condo-software",
-    "tsconfig",
-    "react",
-    "next"
+    "client",
+    "connect"
   ],
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/open-condo-software/condo.git",
-    "directory": "packages/tsconfig"
+    "directory": "packages/connect"
   },
   "author": {
     "name": "Matthew Savelev",
@@ -21,9 +20,7 @@
   },
   "license": "MIT",
   "files": [
-    "base.json",
-    "react-lib.json",
-    "next-app.json"
+    "dist"
   ],
   "publishConfig": {
     "access": "public"

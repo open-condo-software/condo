@@ -11,7 +11,8 @@
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/open-condo-software/condo.git"
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/ui"
   },
   "author": {
     "name": "Matthew Savelev",
