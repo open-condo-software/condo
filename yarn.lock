@@ -8603,6 +8603,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@open-condo/connect@workspace:packages/connect":
+  version: 0.0.0-use.local
+  resolution: "@open-condo/connect@workspace:packages/connect"
+  languageName: unknown
+  linkType: soft
+
 "@open-condo/featureflags@workspace:^, @open-condo/featureflags@workspace:packages/featureflags":
   version: 0.0.0-use.local
   resolution: "@open-condo/featureflags@workspace:packages/featureflags"
