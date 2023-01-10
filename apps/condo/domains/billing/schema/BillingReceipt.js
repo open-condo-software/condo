@@ -144,7 +144,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 return
             }
             // receiver is in existing item and not being updated
-            if (existingItem && 'receiver' in existingItem && !('receiver' in resolvedData)) {
+            if (existingItem && 'receiver' in existingItem && !('receiver' in resolvedData) && !('recipient' in resolvedData)) {
                 return
             }
 
