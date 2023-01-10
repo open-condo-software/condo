@@ -1,4 +1,5 @@
-import typescript from 'rollup-plugin-typescript2'
+// import typescript from 'rollup-plugin-typescript2'
+import typescript from '@rollup/plugin-typescript'
 import babel from 'rollup-plugin-babel'
 import json from 'rollup-plugin-json'
 import nodeResolve from 'rollup-plugin-node-resolve'
@@ -16,19 +17,14 @@ const OUT_BROWSER_PATH = './dist/browser.min.js'
 const getPluginsPipeLine = (tsDeclarations = false) => [
     typescript(
         tsDeclarations ? {
-            useTsconfigDeclarationDir: true,
-            tsconfigOverride: {
-                compilerOptions: {
-                    declaration: true,
-                    declarationDir: 'dist/types',
-                },
+            compilerOptions: {
+                declaration: true,
+                declarationDir: 'types',
             },
         } : {
-            tsconfigOverride: {
-                compilerOptions: {
-                    declaration: false,
-                    declarationMap: false,
-                },
+            compilerOptions: {
+                declaration: false,
+                declarationMap: false,
             },
         }
     ),
@@ -82,4 +78,4 @@ const browser = {
     },
 }
 
-export default IS_PRODUCTION ? [cjs, esm, umd] : [umd]
+export default IS_PRODUCTION ? [cjs, esm, umd, browser] : [umd]
