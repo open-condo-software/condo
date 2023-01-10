@@ -226,9 +226,9 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
     const HaveAllCommentsTooltipMessage = intl.formatMessage({ id: 'pages.condo.ticket.exportBlank.HaveAllComments.tooltip' })
 
     const [visibleModal, setVisibleModal] = useState<boolean>(false)
-    const [haveListCompletedWorks, setHaveListCompletedWorks] = useState<boolean>(true)
-    const [haveConsumedMaterials, setHaveConsumedMaterials] = useState<boolean>(true)
-    const [haveTotalCostWork, setHaveTotalCostWork] = useState<boolean>(true)
+    const [haveListCompletedWorks, setHaveListCompletedWorks] = useState<boolean>(false)
+    const [haveConsumedMaterials, setHaveConsumedMaterials] = useState<boolean>(false)
+    const [haveTotalCostWork, setHaveTotalCostWork] = useState<boolean>(false)
     const [haveAllComments, setHaveAllComments] = useState<boolean>(false)
     const [checkedCommentIds, setCheckedCommentIds] = useState<string[]>([])
 
@@ -258,9 +258,9 @@ export const useTicketExportToPdfTask: UseTicketExportToPdfTaskType = (props)  =
 
     const resetModal = useCallback(() => {
         setVisibleModal(false)
-        setHaveListCompletedWorks(true)
-        setHaveConsumedMaterials(true)
-        setHaveTotalCostWork(true)
+        setHaveListCompletedWorks(false)
+        setHaveConsumedMaterials(false)
+        setHaveTotalCostWork(false)
         setHaveAllComments(false)
         setCheckedCommentIds([])
     }, [])
