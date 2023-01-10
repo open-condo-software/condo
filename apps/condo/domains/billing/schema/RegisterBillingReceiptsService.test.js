@@ -620,151 +620,144 @@ describe('RegisterBillingReceiptsService', () => {
     })
 
     describe('Real life cases', () => {
+        test('Management company loads 50 receipts for first time', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-        describe('Positive cases', () => {
-            test('Management company loads 50 receipts for first time', async () => {
-                const [organization] = await createTestOrganization(admin)
-                const [integration] = await createTestBillingIntegration(admin)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+            for (let i = 0; i < 50; ++i) { payload.receipts.push(createRegisterBillingReceiptsPayload()) }
 
-                const payload = {
-                    context: { id: billingContext.id },
-                    receipts: [],
-                }
-                for (let i = 0; i < 50; ++i) { payload.receipts.push(createRegisterBillingReceiptsPayload()) }
+            const [data] = await registerBillingReceiptsByTestClient(admin, payload)
 
-                const [data] = await registerBillingReceiptsByTestClient(admin, payload)
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
-                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-                expect(billingReceipts).toHaveLength(50)
-                expect(data).toHaveLength(50)
-            })
-
-            test('Management company signs up for management of new property', async () => {
-                const [organization] = await createTestOrganization(admin)
-                const [integration] = await createTestBillingIntegration(admin)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-
-                const EXISTING_ADDRESS = 'Washington st, 4'
-                const NEW_ADDRESS = 'Washington st, 5'
-
-                const payload1 = {
-                    context: { id: billingContext.id },
-                    receipts: [],
-                }
-                for (let i = 0; i < 20; ++i) { payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
-
-                const [data1] = await registerBillingReceiptsByTestClient(admin, payload1)
-
-                const payload2 = {
-                    context: { id: billingContext.id },
-                    receipts: [],
-                }
-                for (let i = 0; i < 20; ++i) { payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
-
-                const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
-
-                const payload3 = {
-                    context: { id: billingContext.id },
-                    receipts: [],
-                }
-                for (let i = 0; i < 5; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
-                for (let i = 5; i < 10; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
-
-                const [data3] = await registerBillingReceiptsByTestClient(admin, payload3)
-
-                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
-                expect(data1).toHaveLength(20)
-                expect(data2).toHaveLength(20)
-                expect(data3).toHaveLength(10)
-                expect(billingReceipts).toHaveLength(50)
-                expect(billingProperties).toHaveLength(2)
-            })
+            expect(billingReceipts).toHaveLength(50)
+            expect(data).toHaveLength(50)
         })
 
-        describe('Corner cases', () => {
-            test('Simple case is handled correctly', async () => {
-                const EXISTING_TEST_ADDRESS = 'TEST'
-                const EXISTING_TEST_UNIT_NAME = '0'
-                const EXISTING_TEST_ACCOUNT_NUMBER = '0'
+        test('Management company signs up for management of new property', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-                const [organization] = await createTestOrganization(admin)
-                const [integration] = await createTestBillingIntegration(admin)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            const EXISTING_ADDRESS = 'Washington st, 4'
+            const NEW_ADDRESS = 'Washington st, 5'
 
-                const [billingProperty] = await createTestBillingProperty(admin, billingContext, {
-                    address: EXISTING_TEST_ADDRESS,
-                })
+            const payload1 = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+            for (let i = 0; i < 20; ++i) { payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
 
-                await createTestBillingAccount(admin, billingContext, billingProperty, {
-                    unitName: EXISTING_TEST_UNIT_NAME,
-                    unitType: FLAT_UNIT_TYPE,
-                    number: EXISTING_TEST_ACCOUNT_NUMBER,
-                })
+            const [data1] = await registerBillingReceiptsByTestClient(admin, payload1)
 
-                const payload = {
-                    context: { id: billingContext.id },
-                    receipts: [
-                        createRegisterBillingReceiptsPayload({
-                            address: EXISTING_TEST_ADDRESS,
+            const payload2 = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+            for (let i = 0; i < 20; ++i) { payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
 
-                            unitType: FLAT_UNIT_TYPE,
-                            accountNumber: EXISTING_TEST_ACCOUNT_NUMBER,
-                            unitName: EXISTING_TEST_UNIT_NAME,
-                        }),
-                        createRegisterBillingReceiptsPayload({
-                            address: EXISTING_TEST_ADDRESS,
-                        }),
-                        createRegisterBillingReceiptsPayload(),
-                    ],
-                }
+            const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
 
-                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
-                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
-                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
-                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+            const payload3 = {
+                context: { id: billingContext.id },
+                receipts: [],
+            }
+            for (let i = 0; i < 5; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
+            for (let i = 5; i < 10; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
 
-                expect(billingProperties).toHaveLength(2)
-                expect(billingAccounts).toHaveLength(3)
-                expect(billingReceipts).toHaveLength(3)
-                expect(data).toHaveLength(3)
-            })
+            const [data3] = await registerBillingReceiptsByTestClient(admin, payload3)
+
+            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+            expect(data1).toHaveLength(20)
+            expect(data2).toHaveLength(20)
+            expect(data3).toHaveLength(10)
+            expect(billingReceipts).toHaveLength(50)
+            expect(billingProperties).toHaveLength(2)
         })
 
-        describe('Hacky cases', () => {
-            test('Hacker can not load receipts into other billing context related to other org', async () => {
-                const [organization] = await createTestOrganization(admin)
-                const [integration] = await createTestBillingIntegration(admin)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-                const { managerUserClient } = await makeOrganizationIntegrationManager(billingContext)
+        test('Simple case is handled correctly', async () => {
+            const EXISTING_TEST_ADDRESS = 'TEST'
+            const EXISTING_TEST_UNIT_NAME = '0'
+            const EXISTING_TEST_ACCOUNT_NUMBER = '0'
 
-                const [organization2] = await createTestOrganization(admin)
-                const [integration2] = await createTestBillingIntegration(admin)
-                const [billingContext2] = await createTestBillingIntegrationOrganizationContext(admin, organization2, integration2)
-                const { managerUserClient: hackerClient } = await makeOrganizationIntegrationManager(billingContext2)
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-                const payload = {
-                    context: { id: billingContext.id },
-                    receipts: [
-                        createRegisterBillingReceiptsPayload(),
-                    ],
-                }
-
-                await expectToThrowAccessDeniedErrorToResult(async () => {
-                    await registerBillingReceiptsByTestClient(hackerClient, payload)
-                })
-
-                const billingProperties = await BillingProperty.getAll(managerUserClient, { context: { id: billingContext.id } })
-                const billingAccounts = await BillingAccount.getAll(managerUserClient, { context: { id: billingContext.id } })
-                const billingReceipts = await BillingReceipt.getAll(managerUserClient, { context: { id: billingContext.id } })
-
-                expect(billingProperties).toHaveLength(0)
-                expect(billingAccounts).toHaveLength(0)
-                expect(billingReceipts).toHaveLength(0)
+            const [billingProperty] = await createTestBillingProperty(admin, billingContext, {
+                address: EXISTING_TEST_ADDRESS,
             })
+
+            await createTestBillingAccount(admin, billingContext, billingProperty, {
+                unitName: EXISTING_TEST_UNIT_NAME,
+                unitType: FLAT_UNIT_TYPE,
+                number: EXISTING_TEST_ACCOUNT_NUMBER,
+            })
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: EXISTING_TEST_ADDRESS,
+
+                        unitType: FLAT_UNIT_TYPE,
+                        accountNumber: EXISTING_TEST_ACCOUNT_NUMBER,
+                        unitName: EXISTING_TEST_UNIT_NAME,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: EXISTING_TEST_ADDRESS,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+
+            const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+            const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+            const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+            expect(billingProperties).toHaveLength(2)
+            expect(billingAccounts).toHaveLength(3)
+            expect(billingReceipts).toHaveLength(3)
+            expect(data).toHaveLength(3)
+        })
+
+        test('Hacker can not load receipts into other billing context related to other org', async () => {
+            const [organization] = await createTestOrganization(admin)
+            const [integration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            const { managerUserClient } = await makeOrganizationIntegrationManager(billingContext)
+
+            const [organization2] = await createTestOrganization(admin)
+            const [integration2] = await createTestBillingIntegration(admin)
+            const [billingContext2] = await createTestBillingIntegrationOrganizationContext(admin, organization2, integration2)
+            const { managerUserClient: hackerClient } = await makeOrganizationIntegrationManager(billingContext2)
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await registerBillingReceiptsByTestClient(hackerClient, payload)
+            })
+
+            const billingProperties = await BillingProperty.getAll(managerUserClient, { context: { id: billingContext.id } })
+            const billingAccounts = await BillingAccount.getAll(managerUserClient, { context: { id: billingContext.id } })
+            const billingReceipts = await BillingReceipt.getAll(managerUserClient, { context: { id: billingContext.id } })
+
+            expect(billingProperties).toHaveLength(0)
+            expect(billingAccounts).toHaveLength(0)
+            expect(billingReceipts).toHaveLength(0)
         })
     })
 
