@@ -1228,7 +1228,6 @@
   "contact.Contact.ContactsEditor.Name": "Name",
   "contact.Contact.ContactsEditor.Name.placeholder": "Full name",
   "contact.Contact.ContactsEditor.AnotherContact": "Another contact",
-  "contact.Contact.ContactsEditor.CannotCreateContact": "Contacts requisites will be saved into the ticket, but a Contact record will not be created, because current use does not have rights to do so",
   "Comments.title": "Comments",
   "Comments.tab.organization": "Internal",
   "Comments.tab.organization.prompt.title": "There are no internal comments yet",

@@ -14,7 +14,6 @@ import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { ErrorsWrapper } from '@condo/domains/common/components/ErrorsWrapper'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -104,7 +103,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
     const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
     const AnotherContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AnotherContact' })
-    const CannotCreateContactMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.CannotCreateContact' })
     const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
     const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
 
@@ -366,13 +364,6 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                     activeTab={activeTab}
                                                     contactsLoading={contactsLoading}
                                                 />
-                                                {(!get(role, 'canManageContacts')) && (
-                                                    <Col span={24}>
-                                                        <ErrorsWrapper>
-                                                            {CannotCreateContactMessage}
-                                                        </ErrorsWrapper>
-                                                    </Col>
-                                                )}
                                             </>
                                         ) : (
                                             <Col span={24}>
