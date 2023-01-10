@@ -1,7 +1,7 @@
 /** @jsx jsx */
 import React, { useState, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
-import { Row, Col, Typography, Space, RowProps, Image, notification } from 'antd'
+import { Row, Col, Space, RowProps, Image, notification } from 'antd'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -13,6 +13,7 @@ import Link from 'next/link'
 import cookie from 'js-cookie'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { DeleteFilled } from '@ant-design/icons'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -31,7 +32,7 @@ import {
 import { useOrganization } from '@open-condo/next/organization'
 import { useAuth } from '@open-condo/next/auth'
 import { useMutation } from '@open-condo/next/apollo'
-import { List, Card, Modal } from '@open-condo/ui'
+import { List, Card, Modal, Typography } from '@open-condo/ui'
 import type { ListProps } from '@open-condo/ui'
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 
@@ -48,57 +49,38 @@ const PROPERTY_INFO_PANEL_STYLE: React.CSSProperties = {
     width: '220px',
     height: '96px',
 }
-const PROPERTY_INFO_PANEL_MESSAGE_STYLE: React.CSSProperties = {
-    fontSize: '24px',
-    lineHeight: '32px',
-    fontWeight: 'bold',
-}
-const PROPERTY_INFO_PANEL_MESSAGE_TEXT_STYLE: React.CSSProperties = {
-    ...PROPERTY_INFO_PANEL_MESSAGE_STYLE,
-    fontSize: '20px',
-}
 
 const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type, large = false }) => (
     <FocusContainer style={PROPERTY_INFO_PANEL_STYLE}>
         <Space direction='vertical' size={8}>
             <Typography.Text
                 {...{ type }}
-                style={large ? PROPERTY_INFO_PANEL_MESSAGE_STYLE : PROPERTY_INFO_PANEL_MESSAGE_TEXT_STYLE}
+
+                size={large ? 'large' : 'medium'}
             >
                 {message}
             </Typography.Text>
-            <Typography.Text type='secondary'>{title}</Typography.Text>
+            <Typography.Text size='medium' type='secondary'>{title}</Typography.Text>
         </Space>
     </FocusContainer>
 )
 
-const PropertyListWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  row-gap: 40px;
-`
+const PROPERTY_CARD_WIDTH_THRESHOLD = 400
 
-const PropertyReportCardBottomWrapper = styled.div`
+const PropertyReportCardBottomWrapper = styled.div<{ width: number }>`
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'align-items: end;' : 'align-items: start;'}
+  ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'flex-direction: row;' : 'flex-direction: column-reverse;'}
+  
   margin-top: 36px;
   
   & > div {
-    max-width: 50%;
+    ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'max-width: 50%;' : 'max-width: unset;'}
   }
   
-  @media screen and (max-width: 550px) {
-    flex-direction: column-reverse;
-    align-items: start;
-    
-    & > div {
-      max-width: unset;
-    }
-    
-    & > div:first-child {
-      margin-top: 24px;
-    }
+  & > div:first-child {
+    ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'margin-top: initial' : 'margin-top: 24px;'}
   }
 `
 
@@ -106,8 +88,8 @@ const PropertyCardContent = styled.div`
   padding: 16px;
   
   & img {
-    width: 156px;
-    height: 204px;
+    max-width: 156px;
+    max-height: 204px;
   }
 `
 
@@ -123,6 +105,7 @@ const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px' }
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '40px' }
 const PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE: React.CSSProperties = { marginBottom: 0 }
+const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
     type: 'sberDangerGhost',
     icon: <DeleteFilled />,
@@ -160,6 +143,7 @@ export const PropertyPageContent = ({ property, link }) => {
     const { push } = useRouter()
     const { useFlag } = useFeatureFlags()
     const { user } = useAuth()
+    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
     const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
     const [createBankAccountRequest, { loading: createBankAccountRequestLoading }] = useMutation(CREATE_BANK_ACCOUNT_REQUEST_MUTATION)
@@ -252,12 +236,14 @@ export const PropertyPageContent = ({ property, link }) => {
         <>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} align='top'>
                 <Col span={24}>
-                    <Typography.Title level={1} style={{ margin: 0 }}>{property.address}</Typography.Title>
-                    {
-                        property.name ?
-                            <Typography.Title level={4} type='secondary'>«{property.name}»</Typography.Title> :
-                            null
-                    }
+                    <Space direction='vertical' size={20}>
+                        <Typography.Title level={1}>{property.address}</Typography.Title>
+                        {
+                            property.name ?
+                                <Typography.Title level={3} type='secondary'>«{property.name}»</Typography.Title> :
+                                null
+                        }
+                    </Space>
                 </Col>
             </Row>
             {propertyBankAccountPage ? (
@@ -266,10 +252,10 @@ export const PropertyPageContent = ({ property, link }) => {
                     style={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE}
                 >
                     <Col xl={12} md={24} sm={24} xs={24}>
-                        <PropertyListWrapper>
+                        <Space direction='vertical' size={40} style={PROPERTY_PAGE_SPACE_STYLE}>
                             <List title={PropertyInformationTitle} dataSource={propertyInfoDataSource} />
                             <List title={TicketsTitle} dataSource={propertyTicketDataSource} />
-                        </PropertyListWrapper>
+                        </Space>
                     </Col>
                     <Col xl={12} md={24} sm={24} xs={24}>
                         <Card>
@@ -278,7 +264,7 @@ export const PropertyPageContent = ({ property, link }) => {
                                     <Typography.Title level={4}>{PropertyReportTitle}</Typography.Title>
                                     <Typography.Text>{PropertyReportDescription}</Typography.Text>
                                 </Space>
-                                <PropertyReportCardBottomWrapper>
+                                <PropertyReportCardBottomWrapper ref={setRef} width={width}>
                                     <Space direction='vertical' size={12}>
                                         <Button type='sberDefaultGradient'>
                                             {SetupReportTitle}
