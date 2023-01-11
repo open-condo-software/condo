@@ -56,10 +56,12 @@ export function createCondoBridge (): CondoBridge {
     }
 
     function handleResponseEvent (event: MessageEvent) {
-        // const data = event.data
-        //
-        // subscribers.map(listener => listener)
-        // TODO: Need to finish this after some sleep :)
+        const response = event.data
+        if (typeof response !== 'object') {
+            return
+        }
+
+        subscribers.forEach(listener => listener(response))
     }
 
     if (IS_BROWSER_CLIENT && 'addEventListener' in window) {
