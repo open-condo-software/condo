@@ -1,4 +1,7 @@
-# `@open-condo/icons`
+[npm-badge-link]: https://img.shields.io/npm/v/@open-condo/icons?style=flat-square
+[npm-pkg-link]: https://www.npmjs.com/package/@open-condo/icons
+
+# `@open-condo/icons` [![NPM][npm-badge-link]][npm-pkg-link]
 > A set of SVG icons presented as React components
 
  

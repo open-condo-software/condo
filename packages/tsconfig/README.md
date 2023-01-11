@@ -1,4 +1,7 @@
-# `@open-condo/tsconfig`
+[npm-badge-link]: https://img.shields.io/npm/v/@open-condo/tsconfig?style=flat-square
+[npm-pkg-link]: https://www.npmjs.com/package/@open-condo/tsconfig
+
+# `@open-condo/tsconfig` [![NPM][npm-badge-link]][npm-pkg-link]
 
 > A set of frequently used tsconfig.json for various typescript applications within the condo ecosystem.
 
