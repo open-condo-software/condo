@@ -24,12 +24,14 @@ const log = (args) => {
 }
 
 const readImportedUsersPage = async ({ context, offset, pageSize }) => {
+    const { knex } = context.adapter
     // retrieve users page where user.importId is filled up
-    return await User.getAll(context, { importId_not: null, importRemoteSystem_not: null }, {
-        sortBy: 'id_ASC',
-        first: pageSize,
-        skip: offset,
-    })
+    return await knex('User')
+        .whereNotNull('importId')
+        .whereNotNull('importRemoteSystem')
+        .offset(offset)
+        .limit(pageSize)
+        .orderBy('id', 'asc')
 }
 
 const migrateUserImportIdDataToUserExternalIdentity = async (batchSize = 100) => {
