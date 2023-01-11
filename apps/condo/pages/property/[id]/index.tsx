@@ -1,27 +1,17 @@
-/** @jsx jsx */
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
-import { Row, Col, Space, RowProps, Image, notification } from 'antd'
+import { Row, Col, Space, RowProps } from 'antd'
 import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import { jsx } from '@emotion/react'
-import styled from '@emotion/styled'
 import Head from 'next/head'
 import Link from 'next/link'
-import cookie from 'js-cookie'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { DeleteFilled } from '@ant-design/icons'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { PROPERTY_BANK_ACCOUNT } from '@condo/domains/common/constants/featureflags'
-import { CREATE_BANK_ACCOUNT_REQUEST_MUTATION } from '@condo/domains/banking/gql'
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { Button } from '@condo/domains/common/components/Button'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
 import ActionBar from '@condo/domains/common/components/ActionBar'
@@ -30,76 +20,11 @@ import {
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { useOrganization } from '@open-condo/next/organization'
-import { useMutation } from '@open-condo/next/apollo'
-import { List, Card, Modal, Typography } from '@open-condo/ui'
+import { List, Typography, Button } from '@open-condo/ui'
 import type { ListProps } from '@open-condo/ui'
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
-
-interface IPropertyInfoPanelProps {
-    title: string
-    message: string
-    type?:  'success' | 'warning'
-    large?: boolean
-}
-
-const PROPERTY_INFO_PANEL_STYLE: React.CSSProperties = {
-    margin: 'initial',
-    padding: '16px 20px 20px 20px',
-    width: '220px',
-    height: '96px',
-}
-
-const PropertyInfoPanel: React.FC<IPropertyInfoPanelProps> = ({ title, message, type, large = false }) => (
-    <FocusContainer style={PROPERTY_INFO_PANEL_STYLE}>
-        <Space direction='vertical' size={8}>
-            <Typography.Text
-                {...{ type }}
-
-                size={large ? 'large' : 'medium'}
-            >
-                {message}
-            </Typography.Text>
-            <Typography.Text size='medium' type='secondary'>{title}</Typography.Text>
-        </Space>
-    </FocusContainer>
-)
-
-const PROPERTY_CARD_WIDTH_THRESHOLD = 400
-
-const PropertyReportCardBottomWrapper = styled.div<{ width: number }>`
-  display: flex;
-  justify-content: space-between;
-  ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'align-items: end;' : 'align-items: start;'}
-  ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'flex-direction: row;' : 'flex-direction: column-reverse;'}
-  
-  margin-top: 36px;
-  
-  & > div {
-    ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'max-width: 50%;' : 'max-width: unset;'}
-  }
-  
-  & > div:first-child {
-    ${({ width }) => width >= PROPERTY_CARD_WIDTH_THRESHOLD ? 'margin-top: initial' : 'margin-top: 24px;'}
-  }
-`
-
-const PropertyCardContent = styled.div`
-  padding: 16px;
-  
-  & img {
-    max-width: 156px;
-    max-height: 204px;
-  }
-`
-
-const ImageWrapper = styled.div`
-  display: flex;
-  justify-content: end;
-  align-content: center;
-`
+import { PropertyReportCard } from '@condo/domains/property/components/PropertyReportCard'
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
-const PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER: RowProps['gutter'] = [24, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px' }
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '40px' }
@@ -126,55 +51,14 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const EditPropertyMapTitle = intl.formatMessage({ id: 'pages.condo.property.id.EditPropertyMapTitle' })
     const UnknownValueTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnknownMessage' })
     const TicketsTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const PropertyInformationTitle = intl.formatMessage({ id: 'pages.condo.property.id.PropertyInformationTitle' })
-    const PropertyReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.PropertyReportTitle' })
-    const PropertyReportDescription = intl.formatMessage({ id: 'pages.condo.property.id.PropertyReportDescription' })
-    const BecomeSberClientTitle = intl.formatMessage({ id: 'pages.condo.property.id.becomeSberClientTitle' })
-    const SetupReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.setupReportTitle' })
+    const PropertyInformationTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyInformationTitle' })
     const ParkingTitle = intl.formatMessage({ id: 'field.sectionType.parking' })
     const ParkingAvailableTitle = intl.formatMessage({ id: 'global.available' })
     const ParkingNotAvailableTitle = intl.formatMessage({ id: 'global.notAvailable' })
-    const ModalTitle = intl.formatMessage({ id: 'pages.condo.property.id.ModalTitle' })
-    const ModalDescription = intl.formatMessage({ id: 'pages.condo.property.id.ModalDescription' })
-    const AlreadySentTitle = intl.formatMessage({ id: 'pages.condo.property.id.AlreadySentTitle' })
-    const LoadingError = intl.formatMessage({ id: 'errors.LoadingError' })
 
     const { push } = useRouter()
-    const { useFlag } = useFeatureFlags()
-    const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
     const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
-    const [createBankAccountRequest, { loading: createBankAccountRequestLoading }] = useMutation(CREATE_BANK_ACCOUNT_REQUEST_MUTATION)
-
-    const [bankAccountModalVisible, setBankAccountModalVisible] = useState(false)
-
-    const createBankAccountRequestCallback = useCallback(async () => {
-        const alreadySent = cookie.get('createBankAccountRequestSent')
-        if (alreadySent) {
-            notification.error({ message: AlreadySentTitle })
-        } else {
-            const { error } = await createBankAccountRequest({
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        organizationId,
-                        propertyId: property.id,
-                    },
-                },
-            })
-
-            if (error) {
-                notification.error({
-                    message: LoadingError,
-                })
-            } else {
-                cookie.set('createBankAccountRequestSent', true, { expires: 1 })
-                setBankAccountModalVisible(true)
-            }
-        }
-    }, [AlreadySentTitle, LoadingError, organizationId, property, createBankAccountRequest])
-    const closeBankAccountModal = () => setBankAccountModalVisible(false)
 
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')
@@ -220,7 +104,6 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
         },
     ], [TicketsDeferredTitle, TicketsInWorkTitle, TicketsClosedTitle, property])
 
-    const propertyBankAccountPage = useFlag(PROPERTY_BANK_ACCOUNT)
     const canManageProperties = get(role, 'canManageProperties', false)
 
     return (
@@ -237,81 +120,20 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                     </Space>
                 </Col>
             </Row>
-            {propertyBankAccountPage ? (
-                <Row
-                    gutter={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER}
-                    style={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE}
-                >
-                    <Col xl={12} md={24} sm={24} xs={24}>
-                        <Space direction='vertical' size={40} style={PROPERTY_PAGE_SPACE_STYLE}>
-                            <List title={PropertyInformationTitle} dataSource={propertyInfoDataSource} />
-                            <List title={TicketsTitle} dataSource={propertyTicketDataSource} />
-                        </Space>
-                    </Col>
-                    <Col xl={12} md={24} sm={24} xs={24}>
-                        <Card>
-                            <PropertyCardContent>
-                                <Space direction='vertical' size={12}>
-                                    <Typography.Title level={4}>{PropertyReportTitle}</Typography.Title>
-                                    <Typography.Text>{PropertyReportDescription}</Typography.Text>
-                                </Space>
-                                <PropertyReportCardBottomWrapper ref={setRef} width={width}>
-                                    <Space direction='vertical' size={12}>
-                                        <Button type='sberDefaultGradient'>
-                                            {SetupReportTitle}
-                                        </Button>
-                                        <Button
-                                            type='sberDefaultGradient'
-                                            secondary
-                                            onClick={createBankAccountRequestCallback}
-                                            loading={createBankAccountRequestLoading}
-                                        >
-                                            {BecomeSberClientTitle}
-                                        </Button>
-                                    </Space>
-                                    <ImageWrapper>
-                                        <Image src='/property-empty-report.png' preview={false} />
-                                    </ImageWrapper>
-                                </PropertyReportCardBottomWrapper>
-                            </PropertyCardContent>
-                        </Card>
-                    </Col>
-                    <Modal
-                        title={ModalTitle}
-                        open={bankAccountModalVisible}
-                        onCancel={closeBankAccountModal}
-                    >
-                        <Typography.Paragraph type='secondary'>
-                            {ModalDescription}
-                        </Typography.Paragraph>
-                    </Modal>
-                </Row>
-            ) : (
-                <Row
-                    gutter={PROPERTY_PAGE_CONTENT_ROW_CARDS_GUTTER}
-                    style={PROPERTY_PAGE_CONTENT_ROW_STYLE}
-                    justify='start'
-                >
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={TicketsClosedTitle} message={property.ticketsClosed} type='success' large />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={TicketsInWorkTitle} message={property.ticketsInWork}  type='warning' large />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={AreaTitle} message={property.area ? property.area : UnknownValueTitle } />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={YearOfConstructionTitle} message={yearOfConstructionCardLabel} />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={UnitsCountTitle} message={property.unitsCount} large />
-                    </Col>
-                    <Col flex={0}>
-                        <PropertyInfoPanel title={UninhabitedUnitsCountTitle} message={property.uninhabitedUnitsCount} large />
-                    </Col>
-                </Row>
-            )}
+            <Row
+                gutter={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER}
+                style={PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE}
+            >
+                <Col xl={12} md={24} sm={24} xs={24}>
+                    <Space direction='vertical' size={40} style={PROPERTY_PAGE_SPACE_STYLE}>
+                        <List title={PropertyInformationTitle} dataSource={propertyInfoDataSource} />
+                        <List title={TicketsTitle} dataSource={propertyTicketDataSource} />
+                    </Space>
+                </Col>
+                <Col xl={12} md={24} sm={24} xs={24}>
+                    <PropertyReportCard property={property} organizationId={organizationId} />
+                </Col>
+            </Row>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>
                 <Col span={24} css={CustomScrollbarCss}>
                     <PropertyPanels
@@ -329,8 +151,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                             <Link href={`/property/${property.id}/update`}>
                                 <span>
                                     <Button
-                                        type='sberDefaultGradient'
-                                        size='large'
+                                        type='primary'
                                     >
                                         {EditPropertyTitle}
                                     </Button>
@@ -341,9 +162,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                                     <Link href={`/property/${property.id}/map/update`}>
                                         <Button
                                             color='green'
-                                            type='sberDefaultGradient'
-                                            secondary
-                                            size='large'
+                                            type='secondary'
                                             data-cy='property-map__update-button'
                                         >
                                             {EditPropertyMapTitle}
