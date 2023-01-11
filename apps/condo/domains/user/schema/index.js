@@ -18,7 +18,6 @@ const { ResetUserService } = require('./ResetUserService')
 const { SendMessageToSupportService } = require('./SendMessageToSupportService')
 const { OidcClient } = require('./OidcClient')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
-const { RegisterUserExternalIdentityService } = require('./RegisterUserExternalIdentityService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -37,6 +36,5 @@ module.exports = {
     ResetUserService,
     OidcClient,
     UserExternalIdentity,
-    RegisterUserExternalIdentityService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

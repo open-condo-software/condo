@@ -15,23 +15,36 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 const {
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 const faker = require('faker')
 const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const {
     makeClientWithSupportUser,
-    registerUserExternalIdentityByTestClient,
 } = require('@condo/domains/user/utils/testSchema')
 
 const getRegisterRequest = (client) => ({
-    user: { id: client.user.id },
+    user: { connect: { id: client.user.id } },
     identityId: faker.random.alphaNumeric(8),
     identityType: SBER_ID_IDP_TYPE,
     meta: {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     },
 })
+
+const assertIdentity = (identity, request) => {
+    const {
+        user: { connect: { id: userId } },
+        identityId,
+        identityType,
+        meta,
+    } = request
+    expect(identity).toMatchObject({
+        user: { id: userId },
+        identityId,
+        identityType,
+        meta,
+    })
+}
 
 describe('UserExternalIdentity', () => {
     describe('UserExternalIdentity create', () => {
@@ -59,12 +72,13 @@ describe('UserExternalIdentity', () => {
             })
         })
 
-        test('Denied: admin', async () => {
+        test('Allow: admin', async () => {
             const admin = await makeLoggedInAdminClient()
+            const identityRequest = getRegisterRequest(admin)
 
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestUserExternalIdentity(admin)
-            })
+            const [identity] = await createTestUserExternalIdentity(admin, identityRequest)
+
+            assertIdentity(identity, identityRequest)
         })
     })
 
@@ -84,34 +98,34 @@ describe('UserExternalIdentity', () => {
             serviceIdentityRequest = getRegisterRequest(service)
 
             // register users external identity
-            await registerUserExternalIdentityByTestClient(admin, identityRequest)
-            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(secondResident))
-            await registerUserExternalIdentityByTestClient(admin, staffIdentityRequest)
-            await registerUserExternalIdentityByTestClient(admin, serviceIdentityRequest)
+            await createTestUserExternalIdentity(admin, identityRequest)
+            await createTestUserExternalIdentity(admin, getRegisterRequest(secondResident))
+            await createTestUserExternalIdentity(admin, staffIdentityRequest)
+            await createTestUserExternalIdentity(admin, serviceIdentityRequest)
 
         })
 
         test('Allowed: RESIDENT own identity', async () => {
             const identities = await UserExternalIdentity.getAll(resident, {})
             expect(identities).toHaveLength(1)
-            expect(identities[0]).toMatchObject(identityRequest)
+            assertIdentity(identities[0], identityRequest)
         })
 
         test('Allowed: STAFF own identity', async () => {
             const identities = await UserExternalIdentity.getAll(staff, {})
             expect(identities).toHaveLength(1)
-            expect(identities[0]).toMatchObject(staffIdentityRequest)
+            assertIdentity(identities[0], staffIdentityRequest)
         })
 
         test('Allowed: SERVICE own identity', async () => {
             const identities = await UserExternalIdentity.getAll(service, {})
             expect(identities).toHaveLength(1)
-            expect(identities[0]).toMatchObject(serviceIdentityRequest)
+            assertIdentity(identities[0], serviceIdentityRequest)
         })
 
         test('Allowed: admin', async () => {
             const identity = await UserExternalIdentity.getOne(admin, { user: { id: resident.user.id } })
-            expect(identity).toMatchObject(identityRequest)
+            assertIdentity(identity, identityRequest)
         })
     })
 
@@ -131,7 +145,7 @@ describe('UserExternalIdentity', () => {
             }
 
             // register users external identity
-            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
+            await createTestUserExternalIdentity(admin, getRegisterRequest(resident))
 
             identity = await UserExternalIdentity.getOne(resident, {})
         })
@@ -174,7 +188,7 @@ describe('UserExternalIdentity', () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
             const identityRequest = getRegisterRequest(resident)
-            await registerUserExternalIdentityByTestClient(admin, identityRequest)
+            await createTestUserExternalIdentity(admin, identityRequest)
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
@@ -184,7 +198,7 @@ describe('UserExternalIdentity', () => {
         test('Denied: STAFF', async () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
-            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
+            await createTestUserExternalIdentity(admin, getRegisterRequest(resident))
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
@@ -196,7 +210,7 @@ describe('UserExternalIdentity', () => {
         test('Denied: SERVICE', async () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
-            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
+            await createTestUserExternalIdentity(admin, getRegisterRequest(resident))
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
@@ -208,7 +222,7 @@ describe('UserExternalIdentity', () => {
         test('Allowed: admin', async () => {
             // register users external identity
             const resident = await makeClientWithResidentUser()
-            await registerUserExternalIdentityByTestClient(admin, getRegisterRequest(resident))
+            await createTestUserExternalIdentity(admin, getRegisterRequest(resident))
             const identity = await UserExternalIdentity.getOne(resident, {})
 
             // call delete
