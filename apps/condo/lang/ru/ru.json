@@ -1390,6 +1390,7 @@
   "api.organization.reInviteOrganizationEmployee.USER_NOT_FOUND": "Не найден пользователь по указанным контактам",
   "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND": "Не найден сотрудник по указанным контактам",
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Указанный сотрудник уже принял приглашение",
+  "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",
   "excelExport.headers.payments.date": "Дата",
   "excelExport.headers.payments.account": "ЛС",
   "excelExport.headers.payments.address": "Адрес",

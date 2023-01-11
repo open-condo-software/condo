@@ -5801,12 +5801,6 @@ export type BankAccount = {
   sender?: Maybe<SenderField>;
 };
 
-export type BankAccountClient = {
-  phone: Scalars['String'];
-  email?: Maybe<Scalars['String']>;
-  name: Scalars['String'];
-};
-
 export enum BankAccountCountryType {
   En = 'en',
   Ru = 'ru'
@@ -16467,11 +16461,8 @@ export type ContactsUpdateInput = {
 export type CreateBankAccountRequestInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
-  bankAccountClient: BankAccountClient;
-  tin: Scalars['String'];
-  name: Scalars['String'];
   organizationId: Scalars['ID'];
-  propertyAddress: Scalars['String'];
+  propertyId: Scalars['ID'];
 };
 
 export type CreateBankAccountRequestOutput = {
@@ -36916,6 +36907,8 @@ export type Property = {
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   /**  Counter for closed tickets  */
   ticketsClosed?: Maybe<Scalars['String']>;
+  /**  Counter for deferred tickets  */
+  ticketsDeferred?: Maybe<Scalars['String']>;
   /**  Counter for not closed tickets  */
   ticketsInWork?: Maybe<Scalars['String']>;
   /**  Whether or not this organization can manage this property. Usually set by support. Defaults to False. Field is dropped to false if address is updated  */
@@ -36991,6 +36984,7 @@ export type PropertyHistoryRecord = {
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -37022,6 +37016,7 @@ export type PropertyHistoryRecordCreateInput = {
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -37058,6 +37053,7 @@ export type PropertyHistoryRecordUpdateInput = {
   unitsCount?: Maybe<Scalars['Int']>;
   uninhabitedUnitsCount?: Maybe<Scalars['Int']>;
   ticketsClosed?: Maybe<Scalars['JSON']>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   isApproved?: Maybe<Scalars['Boolean']>;
   yearOfConstruction?: Maybe<Scalars['String']>;
@@ -37147,6 +37143,10 @@ export type PropertyHistoryRecordWhereInput = {
   ticketsClosed_not?: Maybe<Scalars['JSON']>;
   ticketsClosed_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsClosed_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticketsDeferred?: Maybe<Scalars['JSON']>;
+  ticketsDeferred_not?: Maybe<Scalars['JSON']>;
+  ticketsDeferred_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  ticketsDeferred_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   ticketsInWork?: Maybe<Scalars['JSON']>;
   ticketsInWork_not?: Maybe<Scalars['JSON']>;
   ticketsInWork_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;

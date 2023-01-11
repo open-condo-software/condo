@@ -279,7 +279,7 @@ async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_BANK_ACCOUNT_REQUEST_MUTATION, { data: attrs })
-    throwIfError(data, errors)
+    throwIfError(data, errors, {query: CREATE_BANK_ACCOUNT_REQUEST_MUTATION, variables: { data: attrs }})
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
