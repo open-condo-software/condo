@@ -30,7 +30,6 @@ import {
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { useOrganization } from '@open-condo/next/organization'
-import { useAuth } from '@open-condo/next/auth'
 import { useMutation } from '@open-condo/next/apollo'
 import { List, Card, Modal, Typography } from '@open-condo/ui'
 import type { ListProps } from '@open-condo/ui'
@@ -111,7 +110,7 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
     icon: <DeleteFilled />,
 }
 
-export const PropertyPageContent = ({ property, link }) => {
+export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
     const UninhabitedUnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UninhabitedUnitsCountTitle' })
@@ -142,7 +141,6 @@ export const PropertyPageContent = ({ property, link }) => {
 
     const { push } = useRouter()
     const { useFlag } = useFeatureFlags()
-    const { user } = useAuth()
     const [{ width }, setRef] = useContainerSize<HTMLDivElement>()
 
     const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
@@ -160,15 +158,8 @@ export const PropertyPageContent = ({ property, link }) => {
                     data: {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
-                        organizationId: link.organization.id,
-                        propertyAddress: property.address,
-                        tin: link.organization.tin,
-                        name: link.organization.name,
-                        bankAccountClient: {
-                            name: user.name,
-                            phone: user.phone,
-                            email: user.email,
-                        },
+                        organizationId,
+                        propertyId: property.id,
                     },
                 },
             })
@@ -230,7 +221,7 @@ export const PropertyPageContent = ({ property, link }) => {
     ], [TicketsDeferredTitle, TicketsInWorkTitle, TicketsClosedTitle, property])
 
     const propertyBankAccountPage = useFlag(PROPERTY_BANK_ACCOUNT)
-    const canManageProperties = get(link, 'role.canManageProperties', false)
+    const canManageProperties = get(role, 'canManageProperties', false)
 
     return (
         <>
@@ -402,7 +393,8 @@ const PropertyIdPage: IPropertyIdPage = () => {
             <PageContent>
                 <PropertyPageContent
                     property={property}
-                    link={link}
+                    role={link.role}
+                    organizationId={link.organization.id}
                 />
             </PageContent>
         </PageWrapper>
