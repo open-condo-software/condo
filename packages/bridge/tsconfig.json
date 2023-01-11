@@ -3,6 +3,10 @@
     "extends": "@open-condo/tsconfig/base.json",
     "compilerOptions": {
         "target": "ES5",
-        "rootDir": ".",
-    }
+        "rootDir": "."
+    },
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
 }
