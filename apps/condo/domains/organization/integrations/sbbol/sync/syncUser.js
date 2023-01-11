@@ -48,11 +48,11 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
     }
 }
 
-const registerIdentity = async ({ context, user, userInfo }) => {
+const registerIdentity = async ({ context, user, identityId }) => {
     await UserExternalIdentity.create(context, {
         ...dvSenderFields,
         user: { connect: { id: user.id } },
-        identityId: userInfo.importId,
+        identityId,
         identityType: SBBOL_IDP_TYPE,
         meta: {},
     })
@@ -63,13 +63,13 @@ const registerIdentity = async ({ context, user, userInfo }) => {
  *
  * @param {KeystoneContext} context
  * @param {UserInfo} userInfo
+ * @param {identityId} identityId
  * @param dvSenderFields
- * @return {Promise<{importId}|*>}
+ * @return {Promise<{user}|*>}
  */
-const syncUser = async ({ context: { context, keystone }, userInfo }) => {
+const syncUser = async ({ context: { context, keystone }, userInfo, identityId }) => {
     const identityWhereStatement = {
-        user: { type: STAFF },
-        identityId: userInfo.importId,
+        identityId,
         identityType: SBBOL_IDP_TYPE,
     }
     const userWhereStatement = {
@@ -78,7 +78,6 @@ const syncUser = async ({ context: { context, keystone }, userInfo }) => {
     }
 
     // let's search users by UserExternalIdentity and phone
-
     const importedUsers = (await UserExternalIdentity.getAll(context, identityWhereStatement))
         .map(identity => identity.user)
     const notImportedUsers = await User.getAll(context, {
@@ -89,7 +88,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo }) => {
     const existingUsersCount = existingUsers.length
 
     if (existingUsersCount > 1) {
-        throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
+        throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] identityId and phone conflict on user import`)
     }
 
     // no users found by external identity and phone number
@@ -104,7 +103,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo }) => {
 
         // register a UserExternalIdentity
         await registerIdentity({
-            context, user, userInfo,
+            context, user, identityId,
         })
 
         // SBBOL works only in Russia, another languages does not need t
@@ -155,7 +154,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo }) => {
 
         // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
         await registerIdentity({
-            context, user, userInfo,
+            context, user, identityId,
         })
 
         return updatedUser

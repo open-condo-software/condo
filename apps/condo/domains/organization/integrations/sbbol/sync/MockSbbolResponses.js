@@ -98,7 +98,6 @@ class MockSbbolResponses {
         const userData = {
             ...dvSenderFields,
             name: userInfo.OrgName,
-            importId: userInfo.userGuid,
             email: userInfo.email,
             phone: userInfo.phone_number,
             isPhoneVerified: true,

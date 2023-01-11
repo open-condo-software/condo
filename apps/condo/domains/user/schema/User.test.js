@@ -360,7 +360,7 @@ describe('User fields', () => {
 
 const COMMON_FIELDS = 'id dv sender v deletedAt newId createdBy updatedBy createdAt updatedAt'
 const HISTORY_FIELDS = 'history_id history_action history_date'
-const USER_HISTORY_FIELDS = `{ ${HISTORY_FIELDS} name avatar meta type isPhoneVerified isEmailVerified importId importRemoteSystem ${COMMON_FIELDS} }`
+const USER_HISTORY_FIELDS = `{ ${HISTORY_FIELDS} name avatar meta type isPhoneVerified isEmailVerified ${COMMON_FIELDS} }`
 const UserHistoryAdminGQL = generateGqlQueries('UserHistoryRecord', USER_HISTORY_FIELDS)
 const UserHistoryAdmin = generateGQLTestUtils(UserHistoryAdminGQL)
 

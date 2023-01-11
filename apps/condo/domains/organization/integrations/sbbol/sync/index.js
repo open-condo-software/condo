@@ -86,7 +86,6 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
     const userData = {
         ...dvSenderFields,
         name: userInfo.name || userInfo.OrgName,
-        importId: userInfo.userGuid,
         email: normalizeEmail(userInfo.email),
         phone: normalizePhone(userInfo.phone_number),
         isPhoneVerified: true,
@@ -94,7 +93,7 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
         password: faker.internet.password(),
     }
 
-    const user = await syncUser({ context, userInfo: userData })
+    const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
     const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage()
     await sbbolSecretStorage.setOrganization(organization.id, user.id)

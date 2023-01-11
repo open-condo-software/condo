@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 
+const { v4: uuid } = require('uuid')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { MockSbbolResponses } = require('./MockSbbolResponses')
@@ -24,37 +25,40 @@ describe('syncUser from SBBOL', () => {
 
     describe('User with given phone does not exists', function () {
         it('should create user', async () => {
+            const identityId = uuid()
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
                 keystone,
                 context: adminContext,
             }
-            const newUser = await syncUser({ context, userInfo: userData })
+            const newUser = await syncUser({ context, userInfo: userData, identityId })
             expect(newUser.name).toBeDefined()
             expect(newUser.id).toBeDefined()
             const [ checkUser ] = await UserApi.getAll(adminContext, { id: newUser.id })
             expect(checkUser).toBeDefined()
             const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
-                identityId: userData.importId,
+                identityId,
                 identityType: SBBOL_IDP_TYPE,
             })
             expect(checkedIdentity).toBeDefined()
         })
         it('should create onboarding', async () => {
+            const identityId = uuid()
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
                 keystone,
                 context: adminContext,
             }
-            const newUser = await syncUser({ context, userInfo: userData })
+            const newUser = await syncUser({ context, userInfo: userData, identityId })
             const [ checkOnboarding ] = await OnBoardingApi.getAll(adminContext, { user: { id: newUser.id } })
             expect(checkOnboarding).toBeDefined()
         })
     })
     describe('User with given phone already existed', () => {
         it('should create user external identity', async () => {
+            const identityId = uuid()
             const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -63,17 +67,18 @@ describe('syncUser from SBBOL', () => {
             }
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             userData.phone = existingUserPhone
-            const user = await syncUser({ context, userInfo: userData })
+            const user = await syncUser({ context, userInfo: userData, identityId })
             expect(user.id).toEqual(existingUser.id)
 
             const [ checkedIdentity ] = await UserExternalIdentityApi.getAll(adminContext, {
-                identityId: userData.importId,
+                identityId,
                 identityType: SBBOL_IDP_TYPE,
             })
-            expect(checkedIdentity.identityId).toEqual(userData.importId)
+            expect(checkedIdentity.identityId).toEqual(identityId)
             expect(checkedIdentity.identityType).toEqual(SBBOL_IDP_TYPE)
         })
         it('should work with resident and phone collision', async () => {
+            const identityId = uuid()
             const residentClient = await makeClientWithResidentUser()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
@@ -89,7 +94,7 @@ describe('syncUser from SBBOL', () => {
             
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             userData.phone = residentUser.phone
-            await syncUser({ context, userInfo: userData })
+            await syncUser({ context, userInfo: userData, identityId })
             const existingUsers = await getItems({
                 keystone,
                 listKey: 'User',
@@ -106,12 +111,12 @@ describe('syncUser from SBBOL', () => {
             expect(staff.id).not.toEqual(residentUser.id)
 
             const identities = await UserExternalIdentityApi.getAll(adminContext, {
-                identityId: userData.importId,
+                identityId,
                 identityType: SBBOL_IDP_TYPE,
             })
             expect(identities).toHaveLength(1)
             const [identity] = identities
-            expect(identity.identityId).toEqual(userData.importId)
+            expect(identity.identityId).toEqual(identityId)
             expect(identity.identityType).toEqual(SBBOL_IDP_TYPE)
             expect(identity.user).toBeDefined()
             expect(identity.user.id).toEqual(staff.id)
@@ -120,6 +125,7 @@ describe('syncUser from SBBOL', () => {
     describe('Another first user with given email already exist', () => {
         describe('another second user with given phone does not exist', () => {
             it('should clean email of first another user and create new user with given email and phone', async () => {
+                const identityId = uuid()
                 const adminContext = await keystone.createContext({ skipAccessControl: true })
                 const context = {
                     keystone,
@@ -128,7 +134,7 @@ describe('syncUser from SBBOL', () => {
                 const { userAttrs: { email: emailOfFirstAnotherUser }, user: { id: idOfFirstAnotherUser } } = await makeClientWithRegisteredOrganization()
                 const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
                 userData.email = emailOfFirstAnotherUser
-                const newUser = await syncUser({ context, userInfo: userData })
+                const newUser = await syncUser({ context, userInfo: userData, identityId })
                 expect(newUser.name).toBeDefined()
                 expect(newUser.id).toBeDefined()
                 expect(newUser.id).not.toEqual(idOfFirstAnotherUser)
@@ -143,6 +149,7 @@ describe('syncUser from SBBOL', () => {
         })
         describe('Another second user with given phone already exist', () => {
             it('should clean email of first another user and update another second user with info from SBBOL', async () => {
+                const identityId = uuid()
                 const adminContext = await keystone.createContext({ skipAccessControl: true })
                 const context = {
                     keystone,
@@ -153,7 +160,7 @@ describe('syncUser from SBBOL', () => {
                 const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
                 userData.email = emailOfFirstAnotherUser
                 userData.phone = phoneOfSecondAnotherUser
-                const syncedUser = await syncUser({ context, userInfo: userData })
+                const syncedUser = await syncUser({ context, userInfo: userData, identityId })
                 expect(syncedUser.name).toBeDefined()
                 expect(syncedUser.id).toBeDefined()
                 expect(syncedUser.id).not.toEqual(idOfFirstAnotherUser)
