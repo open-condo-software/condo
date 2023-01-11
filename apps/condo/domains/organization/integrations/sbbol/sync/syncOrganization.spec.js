@@ -2,6 +2,7 @@
  * @jest-environment node
  */
 
+const { v4: uuid } = require('uuid')
 const faker = require('faker')
 const { getItem, updateItem } = require('@keystonejs/server-side-graphql-client')
 
@@ -86,13 +87,14 @@ describe('syncOrganization from SBBOL', () => {
         })
 
         it('should create new organization and create new user', async () => {
+            const identityId = uuid()
             const { userData, organizationData, dvSenderFields } = MockSbbolResponses.getUserAndOrganizationInfo()
             const adminContext = await keystone.createContext({ skipAccessControl: true })
             const context = {
                 keystone,
                 context: adminContext,
             }
-            const user = await syncUser({ context, userInfo: userData })
+            const user = await syncUser({ context, userInfo: userData, identityId })
             await syncOrganization({
                 context,
                 user,
