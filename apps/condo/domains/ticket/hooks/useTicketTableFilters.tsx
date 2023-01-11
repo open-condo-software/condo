@@ -5,7 +5,7 @@ import {
     TicketStatus as TicketStatusType,
     TicketWhereInput,
 } from '@app/condo/schema'
-import { get } from 'lodash'
+import get from 'lodash/get'
 import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -30,8 +30,6 @@ import {
 import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
 
-
-
 import {
     FilterModalCategoryClassifierSelect,
     FilterModalPlaceClassifierSelect,
@@ -44,9 +42,12 @@ import {
     searchOrganizationProperty,
 } from '../utils/clientSchema/search'
 import {
-    getIsResidentContactFilter, getPropertyScopeFilter,
+    getFilterAddressForSearch,
+    getIsResidentContactFilter,
+    getPropertyScopeFilter,
     getTicketAttributesFilter,
 } from '../utils/tables.utils'
+
 
 const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
@@ -57,6 +58,7 @@ const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
 const filterAddress = getStringContainsFilter(['property', 'address'])
+const filterAddressForSearch = getFilterAddressForSearch()
 const filterClientName = getStringContainsFilter('clientName')
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
@@ -166,7 +168,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [
                     filterNumber,
                     filterClientName,
-                    filterAddress,
+                    filterAddressForSearch,
                     filterDetails,
                     filterExecutorName,
                     filterAssigneeName,
