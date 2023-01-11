@@ -1,7 +1,11 @@
-import { isEmpty } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
+import uniq from 'lodash/uniq'
 
+import { ADDRESS_SEARCH_STOP_WORDS } from '@condo/domains/common/constants'
+import { OMIT_SEARCH_CHARACTERS_REGEXP } from '@condo/domains/common/constants/regexps'
 import { DataIndexType, FilterType } from '@condo/domains/common/utils/tables.utils'
+
 
 type MultipleDataIndexType = DataIndexType[]
 type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
@@ -65,6 +69,45 @@ export const getPropertyScopeFilter = () => {
             }
         } catch (e) {
             console.error(e)
+        }
+    }
+}
+
+/**
+ * Getting a where query for an address in the search field.
+ * All punctuation marks and stop words are removed.
+ * Also remove short word (less 3 symbols)
+ *
+ * @example
+ *  search: 'ул. ленина д 1/1'
+ *  whereQuery: {
+ *      property: {
+ *          AND: [
+ *              { address_contains_i: 'ленина' },
+ *              { address_contains_i: '1/1' },
+ *          ],
+ *      },
+ *  }
+ */
+export const getFilterAddressForSearch = (): FilterType => {
+    return function getWhereQuery (search) {
+        if (!search || !isString(search)) return
+
+        const addresses = uniq(search
+            .replace(OMIT_SEARCH_CHARACTERS_REGEXP, ' ')
+            .split(' ')
+            .filter((item) => {
+                if (!item || ADDRESS_SEARCH_STOP_WORDS.includes(item.toLowerCase())) return false
+                const startWithNumber = !Number.isNaN(Number.parseInt(item))
+                return startWithNumber || item.length >= 3
+            }))
+
+        if (isEmpty(addresses)) return
+
+        return {
+            property: {
+                AND: addresses.map(item => ({ address_contains_i: item })),
+            },
         }
     }
 }
