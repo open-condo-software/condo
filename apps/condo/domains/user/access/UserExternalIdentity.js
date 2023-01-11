@@ -3,7 +3,6 @@
  */
 const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadUserExternalIdentities (args) {
     const { authentication: { item: user } } = args

@@ -127,12 +127,6 @@ const RESET_USER_MUTATION = gql`
     }
 `
 
-const REGISTER_USER_EXTERNAL_IDENTITY_MUTATION = gql`
-    mutation registerUserExternalIdentity ($data: RegisterUserExternalIdentityInput!) {
-        result: registerUserExternalIdentity(data: $data) { status id }
-    }
-`
-
 const REGISTER_NEW_SERVICE_USER_MUTATION = gql`
     mutation registerNewServiceUser ($data: RegisterNewServiceUserInput!) {
         result: registerNewServiceUser(data: $data) { id email password }
@@ -175,7 +169,6 @@ module.exports = {
     SIGNIN_AS_USER_MUTATION,
     REGISTER_NEW_SERVICE_USER_MUTATION,
     RESET_USER_MUTATION,
-    REGISTER_USER_EXTERNAL_IDENTITY_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     OidcClient,
 /* AUTOGENERATE MARKER <EXPORTS> */

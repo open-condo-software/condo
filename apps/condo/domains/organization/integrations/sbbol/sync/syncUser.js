@@ -1,7 +1,6 @@
 const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
 const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
 const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
-const { registerUserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
@@ -50,9 +49,9 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
 }
 
 const registerIdentity = async ({ context, user, userInfo }) => {
-    await registerUserExternalIdentity(context, {
+    await UserExternalIdentity.create(context, {
         ...dvSenderFields,
-        user: { id: user.id },
+        user: { connect: { id: user.id } },
         identityId: userInfo.importId,
         identityType: SBBOL_IDP_TYPE,
         meta: {},
