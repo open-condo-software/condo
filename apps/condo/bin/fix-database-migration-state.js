@@ -97,6 +97,17 @@ ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdTo" CASCADE;
 ALTER TABLE "TicketHistoryRecord" DROP COLUMN if exists "operator" CASCADE;
 
 COMMIT;
+
+--
+-- 20230111120855-0209_remove_user_importid_remove_user_importremotesystem_and_more.js: remove unused User.importId and importRemoteSystem columns
+--
+
+ALTER TABLE "User" DROP COLUMN "importId" CASCADE;
+ALTER TABLE "User" DROP COLUMN "importRemoteSystem" CASCADE;
+ALTER TABLE "UserHistoryRecord" DROP COLUMN "importId" CASCADE;
+ALTER TABLE "UserHistoryRecord" DROP COLUMN "importRemoteSystem" CASCADE;
+COMMIT;
+
     `))
 }
 
