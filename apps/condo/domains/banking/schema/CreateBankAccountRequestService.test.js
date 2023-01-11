@@ -21,7 +21,7 @@ describe('CreateBankAccountRequestService', () => {
         anonymousClient = await makeClient()
     })
 
-    test('user: can send create bank account request if has canManageProperties access', async () => {
+    test('user: can send create bank account request if has canManageBankAccounts access', async () => {
         const [data] = await createBankAccountRequestByTestClient(client, {
             propertyId: client.property.id,
             organizationId: client.organization.id,

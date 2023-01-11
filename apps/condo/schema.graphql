@@ -3972,6 +3972,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4091,6 +4092,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   ticketVisibilityType_not_in: [String]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
+  canManageBankAccounts: Boolean
+  canManageBankAccounts_not: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankIntegrationContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
@@ -4212,6 +4215,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   ticketVisibilityType_DESC
   canManagePropertyScopes_ASC
   canManagePropertyScopes_DESC
+  canManageBankAccounts_ASC
+  canManageBankAccounts_DESC
   canManageBankIntegrationContexts_ASC
   canManageBankIntegrationContexts_DESC
   canManageBankContractorAccounts_ASC
@@ -4259,6 +4264,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4304,6 +4310,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4378,6 +4385,7 @@ type OrganizationEmployeeRole {
   """
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4485,6 +4493,8 @@ input OrganizationEmployeeRoleWhereInput {
   ticketVisibilityType_not_in: [String]
   canManagePropertyScopes: Boolean
   canManagePropertyScopes_not: Boolean
+  canManageBankAccounts: Boolean
+  canManageBankAccounts_not: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankIntegrationContexts_not: Boolean
   canManageBankContractorAccounts: Boolean
@@ -4588,6 +4598,8 @@ enum SortOrganizationEmployeeRolesBy {
   ticketVisibilityType_DESC
   canManagePropertyScopes_ASC
   canManagePropertyScopes_DESC
+  canManageBankAccounts_ASC
+  canManageBankAccounts_DESC
   canManageBankIntegrationContexts_ASC
   canManageBankIntegrationContexts_DESC
   canManageBankContractorAccounts_ASC
@@ -4634,6 +4646,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
@@ -4675,6 +4688,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTicketPropertyHints: Boolean
   ticketVisibilityType: String
   canManagePropertyScopes: Boolean
+  canManageBankAccounts: Boolean
   canManageBankIntegrationContexts: Boolean
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean

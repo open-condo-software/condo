@@ -13,7 +13,7 @@ async function canCreateBankAccountRequest ({ authentication: { item: user }, ar
     const organizationId = get(data, 'organizationId')
     if (!organizationId) return false
 
-    return await checkOrganizationPermission(user.id, organizationId, 'canManageOrganization')
+    return await checkOrganizationPermission(user.id, organizationId, 'canManageBankAccounts')
 }
 
 /*
