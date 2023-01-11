@@ -1,3 +1,9 @@
+[npm-badge-link]: https://img.shields.io/npm/v/@open-condo/ui?style=flat-square
+[npm-pkg-link]: https://www.npmjs.com/package/@open-condo/ui
+
+# `@open-condo/ui` [![NPM][npm-badge-link]][npm-pkg-link]
+> A set of React UI components for developing applications inside the condo ecosystem
+
 ## Table of contents
 [Installation](#installation)\
 [Usage](#usage)\

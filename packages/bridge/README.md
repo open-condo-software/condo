@@ -1,5 +1,8 @@
-# `@open-condo/bridge`
-> A library that allows the client of your mini-application to communicate with the main user's client on different devices, using a common bridge API
+[npm-badge-link]: https://img.shields.io/npm/v/@open-condo/bridge?style=flat-square
+[npm-pkg-link]: https://www.npmjs.com/package/@open-condo/bridge
+
+# `@open-condo/bridge` [![NPM][npm-badge-link]][npm-pkg-link]
+> A library that allows the client of your mini-application to communicate with the main user's condo client on different devices, using a common bridge API
 
 
 ## Table of contents
