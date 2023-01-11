@@ -20,12 +20,10 @@ type PromiseController = {
     reject: (reason: unknown) => unknown
 }
 
-function createCounter () {
-    return {
-        current: 0,
-        next () {
-            return ++this.current
-        },
+function* createCounter (): Generator<number, number> {
+    let counter = 0
+    while (true) {
+        yield counter++
     }
 }
 
@@ -35,7 +33,7 @@ function createRequestResolver () {
 
     return {
         add (controller: PromiseController, customId?: RequestIdType): RequestIdType {
-            const requestId = customId || requestIdCounter.next()
+            const requestId = customId || requestIdCounter.next().value
             controllers[requestId] = controller
 
             return requestId
