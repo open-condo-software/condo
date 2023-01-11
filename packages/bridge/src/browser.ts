@@ -1,5 +1,8 @@
+import type { CondoBridge } from './types/bridge'
 import bridge from './index'
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+declare global {
+    interface Window { condoBridge: CondoBridge }
+}
+
 window.condoBridge = bridge

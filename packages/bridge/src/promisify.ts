@@ -6,7 +6,14 @@ import type {
     CondoBridgeSubscriptionListener,
     AnyResponseMethodName,
     ResultResponseData,
+    ErrorResponseData,
 } from './types/bridge'
+
+const NO_RESPONSE_TIMEOUT_MS = 1000 // 1 sec
+const NO_RESPONSE_ERROR: ErrorResponseData = {
+    errorType: 'client',
+    errorMessage: `Request was failed. Response was not received in ${NO_RESPONSE_TIMEOUT_MS} ms timeout.`,
+}
 
 type PromiseController = {
     resolve: (value: any) => unknown
@@ -24,7 +31,7 @@ function createCounter () {
 
 function createRequestResolver () {
     const requestIdCounter = createCounter()
-    const controllers: Record<RequestIdType, PromiseController | null> = {}
+    const controllers: Record<RequestIdType, PromiseController> = {}
 
     return {
         add (controller: PromiseController, customId?: RequestIdType): RequestIdType {
@@ -73,13 +80,18 @@ export function promisifySend (
         method: Method,
         params: RequestParams<Method> & RequestId = {} as RequestParams<Method> & RequestId
     ): Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void> {
-        return new Promise((resolve, reject) => {
-            const requestId = requestResolver.add({ resolve, reject }, params.requestId)
+        return Promise.race([
+            new Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>((resolve, reject) => {
+                const requestId = requestResolver.add({ resolve, reject }, params.requestId)
 
-            send(method, {
-                ...params,
-                requestId,
-            })
-        })
+                send(method, {
+                    ...params,
+                    requestId,
+                })
+            }),
+            new Promise<Method extends AnyResponseMethodName ? ResultResponseData<Method> : void>((resolve, reject) => {
+                setTimeout(() => reject(NO_RESPONSE_ERROR), NO_RESPONSE_TIMEOUT_MS)
+            }),
+        ])
     }
 }
