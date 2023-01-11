@@ -20,8 +20,8 @@ async function checkSbbolBankIntegrationContext (context, organizationId) {
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
     const where = {
         ...dvSenderFields,
-        integration: { connect: { id: integration.id } },
-        organization: { connect: { id: organizationId } },
+        integration: { id: integration.id },
+        organization: { id: organizationId },
     }
     const foundIntegrationContext = await BankIntegrationContext.getAll(context, where, { first: 1 })
 
@@ -30,7 +30,10 @@ async function checkSbbolBankIntegrationContext (context, organizationId) {
 
         return foundIntegrationContext
     } else {
-        const createdBankIntegrationContext = await BankIntegrationContext.create(context, where)
+        const createdBankIntegrationContext = await BankIntegrationContext.create(context, {
+            ...dvSenderFields,
+            integration: { connect: { id: integration.id } },
+            organization: { connect: { id: organizationId } } })
 
         logger.info(`BankIntegrationContext created with id: ${createdBankIntegrationContext.id}`)
 
