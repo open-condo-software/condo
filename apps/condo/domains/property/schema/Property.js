@@ -27,12 +27,8 @@ const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 
-const {
-    PROPERTY_MAP_GRAPHQL_TYPES,
-    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
-    GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
-    GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY,
-} = require('@condo/domains/property/gql')
+const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
@@ -236,17 +232,10 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Counter for closed tickets',
             type: Virtual,
             resolver: async (item, _, context) => {
-                const { data, errors } = await context.executeGraphQL({
-                    query: GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
-                    variables: {
-                        propertyId: item.id,
-                    },
+                return await Ticket.count(context, {
+                    property: { id: item.id },
+                    status: { type: 'closed' },
                 })
-                if (errors) {
-                    console.error('Error while fetching virtual field ticketsClosed', errors)
-                    return 0
-                }
-                return data.closed.count
             },
         },
 
@@ -254,18 +243,10 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Counter for deferred tickets',
             type: Virtual,
             resolver: async (item, _, context) => {
-                const { data, errors } = await context.executeGraphQL({
-                    query: GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY,
-                    variables: {
-                        propertyId: item.id,
-                    },
+                return await Ticket.count(context, {
+                    property: { id: item.id },
+                    status: { type: 'deferred' },
                 })
-
-                if (errors) {
-                    return 0
-                }
-
-                return data.deferred.count
             },
         },
 
@@ -273,17 +254,10 @@ const Property = new GQLListSchema('Property', {
             schemaDoc: 'Counter for not closed tickets',
             type: Virtual,
             resolver: async (item, _, context) => {
-                const { data, errors } = await context.executeGraphQL({
-                    query: GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
-                    variables: {
-                        propertyId: item.id,
-                    },
+                return await Ticket.count(context, {
+                    property: { id: item.id },
+                    status: { type_not_in: ['closed', 'canceled', 'deferred'] },
                 })
-                if (errors) {
-                    console.error('Error while fetching virtual field ticketsInWork', errors)
-                    return 0
-                }
-                return data.inwork.count
             },
         },
 
