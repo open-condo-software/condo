@@ -29,6 +29,7 @@ interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     tabIndex?: number
     onChange?: (data) => void
     allowClear?: boolean
+    showCountryPrefix?: boolean
 }
 
 type PhoneInputRef = {
@@ -58,10 +59,10 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
-    const { value, placeholder, style, disabled, block, ...otherProps } = props
+    const { value, placeholder, style, disabled, block, showCountryPrefix = true, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
-    const userOrganizationCountry = get(organization, 'country', 'ru')
+    const userOrganizationCountry = showCountryPrefix && get(organization, 'country', 'ru')
     const inputRef = useRef<PhoneInputRef>()
 
     // `AutoComplete` component needs `focus` method of it's direct child component (custom input)

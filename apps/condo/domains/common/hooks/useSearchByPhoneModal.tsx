@@ -206,6 +206,7 @@ const SearchByPhoneSelect = ({
                     compatibilityWithAntAutoComplete
                     placeholder={EnterPhoneMessage}
                     masks={PHONE_INPUT_MASK}
+                    showCountryPrefix={false}
                 />
             </GraphQlSearchInput>
         </div>
