@@ -101,29 +101,6 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     union PropertyMap = BuildingMap | VillageMap
 `
 
-const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        inwork: _allTicketsMeta(where: { status: { type_not_in: [closed, canceled] }, property: { id: $propertyId } }) {
-            count
-        }  
-  }
-`
-const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        closed: _allTicketsMeta(where: { status: { type:  closed }, property: { id: $propertyId } }) {
-            count
-        }  
-  }
-`
-
-const GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketDeferredCountForProperty ($propertyId: ID!) {
-        deferred: _allTicketsMeta(where: { status: { type: deferred }, property: { id: $propertyId } } ) {
-            count
-        }
-    }
-`
-
 const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
     query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
         result: checkPropertyWithAddressExist(data: $data) { isFound }
@@ -142,9 +119,6 @@ module.exports = {
     Property,
     PropertyTable,
     PROPERTY_MAP_GRAPHQL_TYPES,
-    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
-    GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
-    GET_TICKET_DEFERRED_COUNT_BY_PROPERTY_ID_QUERY,
     CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,
