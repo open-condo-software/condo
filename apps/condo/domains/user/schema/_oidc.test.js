@@ -13,6 +13,7 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 const { createAdapterClass } = require('../oidc/adapter')
+const faker = require('faker')
 
 async function getAccessToken (accessToken, context = null) {
     const AdapterClass = createAdapterClass(context)
@@ -52,6 +53,17 @@ async function expectToGetAuthenticatedUser (url, expectedUser, headers = {}) {
             'authenticatedUser': expectedUser,
         },
     })
+}
+
+async function expectToGetUnauthenticatedUser (url, headers) {
+    const result = await fetch(url, {
+        method: 'POST',
+        body: JSON.stringify({ 'operationName': null, 'variables': {}, 'query': '{ authenticatedUser { id name } }' }),
+        headers: { 'Content-Type': 'application/json', ...headers },
+    })
+
+    expect(result.status).toBe(401)
+    expect(result.statusText).toBe('Unauthorized')
 }
 
 test('getCookie test util', async () => {
@@ -114,7 +126,7 @@ describe('OIDC', () => {
                 client_secret: clientSecret,
                 redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
                 response_types: ['code id_token', 'code', 'id_token'],
-                grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+                grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
                 token_endpoint_auth_method: 'client_secret_basic',
             },
         })
@@ -190,6 +202,24 @@ describe('OIDC', () => {
             { id: c.user.id, name: c.user.name },
             { 'Authorization': `Bearer ${tokenSet.access_token}` },
         )
+
+        // 6) check code 401 when token expired
+
+        const someWrongToken = faker.random.alpha({
+            count: 43,
+        })
+        await expectToGetUnauthenticatedUser(
+            `${c.serverUrl}/admin/api`,
+            {
+                authorization: `Bearer ${someWrongToken}`,
+            },
+        )
+
+        // 7) using of refresh token to get new access token
+
+        const newTokenSet = await serverSideOidcClient.refresh(tokenSet)
+        expect(newTokenSet.access_token).not.toBe(tokenSet.access_token)
+        expect(newTokenSet.expires_at).toBeGreaterThanOrEqual(tokenSet.expires_at)
     })
 
     test('oidc auth by mini app', async () => {
@@ -207,7 +237,7 @@ describe('OIDC', () => {
                 client_secret: clientSecret,
                 redirect_uris: [uri], // using uri as redirect_uri to show the ID Token contents
                 response_types: ['code id_token', 'code', 'id_token'],
-                grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+                grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
                 token_endpoint_auth_method: 'client_secret_basic',
             },
         })

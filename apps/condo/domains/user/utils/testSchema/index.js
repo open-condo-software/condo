@@ -383,7 +383,7 @@ async function createTestOidcClient (client, extraAttrs = {}) {
         clientId,
         payload: {
             client_id: clientId,
-            grant_types: ['implicit', 'authorization_code'],
+            grant_types: ['implicit', 'authorization_code', 'refresh_token'],
             client_secret: faker.random.alphaNumeric(12),
             redirect_uris: ['https://jwt.io/'],
             response_types: ['code id_token', 'code', 'id_token'],
