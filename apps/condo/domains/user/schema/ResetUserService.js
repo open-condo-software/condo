@@ -98,8 +98,6 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
                     name: DELETED_USER_NAME,
                     isPhoneVerified: false,
                     isEmailVerified: false,
-                    importId: null,
-                    importRemoteSystem: null,
                     isAdmin: false,
                     isSupport: false,
                 })
