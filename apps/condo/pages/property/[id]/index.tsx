@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Row, Col, Space, RowProps, Image, notification } from 'antd'
 import { useRouter } from 'next/router'
@@ -148,7 +148,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
 
     const [bankAccountModalVisible, setBankAccountModalVisible] = useState(false)
 
-    const createBankAccountRequestCallback = async () => {
+    const createBankAccountRequestCallback = useCallback(async () => {
         const alreadySent = cookie.get('createBankAccountRequestSent')
         if (alreadySent) {
             notification.error({ message: AlreadySentTitle })
@@ -173,7 +173,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                 setBankAccountModalVisible(true)
             }
         }
-    }
+    }, [AlreadySentTitle, LoadingError, organizationId, property, createBankAccountRequest])
     const closeBankAccountModal = () => setBankAccountModalVisible(false)
 
     const yearOfConstructionCardLabel = property.yearOfConstruction
