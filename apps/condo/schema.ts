@@ -52535,10 +52535,6 @@ export enum SortUserHistoryRecordsBy {
   PhoneDesc = 'phone_DESC',
   IsPhoneVerifiedAsc = 'isPhoneVerified_ASC',
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
-  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
-  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
-  ImportIdAsc = 'importId_ASC',
-  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -52624,10 +52620,6 @@ export enum SortUsersBy {
   PhoneDesc = 'phone_DESC',
   IsPhoneVerifiedAsc = 'isPhoneVerified_ASC',
   IsPhoneVerifiedDesc = 'isPhoneVerified_DESC',
-  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
-  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
-  ImportIdAsc = 'importId_ASC',
-  ImportIdDesc = 'importId_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -61285,10 +61277,6 @@ export type User = {
   avatar?: Maybe<File>;
   /**  User metadata. Example: `city`, `country`, ...  */
   meta?: Maybe<Scalars['JSON']>;
-  /**  External provider for users. Deprecated: Use UserExternalIdentity instead  */
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  /**  External system user id. Used for integrations.  Deprecated: Use UserExternalIdentity instead  */
-  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -61323,8 +61311,6 @@ export type UserCreateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61745,8 +61731,6 @@ export type UserHistoryRecord = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -61775,8 +61759,6 @@ export type UserHistoryRecordCreateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61810,8 +61792,6 @@ export type UserHistoryRecordUpdateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['JSON']>;
   meta?: Maybe<Scalars['JSON']>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -61939,42 +61919,6 @@ export type UserHistoryRecordWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importRemoteSystem_not?: Maybe<Scalars['String']>;
-  importRemoteSystem_contains?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
-  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  importId?: Maybe<Scalars['String']>;
-  importId_not?: Maybe<Scalars['String']>;
-  importId_contains?: Maybe<Scalars['String']>;
-  importId_not_contains?: Maybe<Scalars['String']>;
-  importId_starts_with?: Maybe<Scalars['String']>;
-  importId_not_starts_with?: Maybe<Scalars['String']>;
-  importId_ends_with?: Maybe<Scalars['String']>;
-  importId_not_ends_with?: Maybe<Scalars['String']>;
-  importId_i?: Maybe<Scalars['String']>;
-  importId_not_i?: Maybe<Scalars['String']>;
-  importId_contains_i?: Maybe<Scalars['String']>;
-  importId_not_contains_i?: Maybe<Scalars['String']>;
-  importId_starts_with_i?: Maybe<Scalars['String']>;
-  importId_not_starts_with_i?: Maybe<Scalars['String']>;
-  importId_ends_with_i?: Maybe<Scalars['String']>;
-  importId_not_ends_with_i?: Maybe<Scalars['String']>;
-  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -62444,8 +62388,6 @@ export type UserUpdateInput = {
   isPhoneVerified?: Maybe<Scalars['Boolean']>;
   avatar?: Maybe<Scalars['Upload']>;
   meta?: Maybe<Scalars['JSON']>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -62535,42 +62477,6 @@ export type UserWhereInput = {
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  importRemoteSystem?: Maybe<Scalars['String']>;
-  importRemoteSystem_not?: Maybe<Scalars['String']>;
-  importRemoteSystem_contains?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
-  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
-  importRemoteSystem_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
-  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  importId?: Maybe<Scalars['String']>;
-  importId_not?: Maybe<Scalars['String']>;
-  importId_contains?: Maybe<Scalars['String']>;
-  importId_not_contains?: Maybe<Scalars['String']>;
-  importId_starts_with?: Maybe<Scalars['String']>;
-  importId_not_starts_with?: Maybe<Scalars['String']>;
-  importId_ends_with?: Maybe<Scalars['String']>;
-  importId_not_ends_with?: Maybe<Scalars['String']>;
-  importId_i?: Maybe<Scalars['String']>;
-  importId_not_i?: Maybe<Scalars['String']>;
-  importId_contains_i?: Maybe<Scalars['String']>;
-  importId_not_contains_i?: Maybe<Scalars['String']>;
-  importId_starts_with_i?: Maybe<Scalars['String']>;
-  importId_not_starts_with_i?: Maybe<Scalars['String']>;
-  importId_ends_with_i?: Maybe<Scalars['String']>;
-  importId_not_ends_with_i?: Maybe<Scalars['String']>;
-  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

@@ -28,8 +28,6 @@ type UserHistoryRecord {
   isPhoneVerified: Boolean
   avatar: JSON
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   id: ID!
   v: Int
   createdAt: String
@@ -158,42 +156,6 @@ input UserHistoryRecordWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  importRemoteSystem: String
-  importRemoteSystem_not: String
-  importRemoteSystem_contains: String
-  importRemoteSystem_not_contains: String
-  importRemoteSystem_starts_with: String
-  importRemoteSystem_not_starts_with: String
-  importRemoteSystem_ends_with: String
-  importRemoteSystem_not_ends_with: String
-  importRemoteSystem_i: String
-  importRemoteSystem_not_i: String
-  importRemoteSystem_contains_i: String
-  importRemoteSystem_not_contains_i: String
-  importRemoteSystem_starts_with_i: String
-  importRemoteSystem_not_starts_with_i: String
-  importRemoteSystem_ends_with_i: String
-  importRemoteSystem_not_ends_with_i: String
-  importRemoteSystem_in: [String]
-  importRemoteSystem_not_in: [String]
-  importId: String
-  importId_not: String
-  importId_contains: String
-  importId_not_contains: String
-  importId_starts_with: String
-  importId_not_starts_with: String
-  importId_ends_with: String
-  importId_not_ends_with: String
-  importId_i: String
-  importId_not_i: String
-  importId_contains_i: String
-  importId_not_contains_i: String
-  importId_starts_with_i: String
-  importId_not_starts_with_i: String
-  importId_ends_with_i: String
-  importId_not_ends_with_i: String
-  importId_in: [String]
-  importId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -295,10 +257,6 @@ enum SortUserHistoryRecordsBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
-  importRemoteSystem_ASC
-  importRemoteSystem_DESC
-  importId_ASC
-  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -330,8 +288,6 @@ input UserHistoryRecordUpdateInput {
   isPhoneVerified: Boolean
   avatar: JSON
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -364,8 +320,6 @@ input UserHistoryRecordCreateInput {
   isPhoneVerified: Boolean
   avatar: JSON
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -463,14 +417,6 @@ type User {
 
   """ User metadata. Example: `city`, `country`, ... """
   meta: JSON
-
-  """ External provider for users. Deprecated: Use UserExternalIdentity instead 
-  """
-  importRemoteSystem: String
-
-  """ External system user id. Used for integrations.  Deprecated: Use UserExternalIdentity instead 
-  """
-  importId: String
   id: ID!
   v: Int
   createdAt: String
@@ -572,42 +518,6 @@ input UserWhereInput {
   meta_not: JSON
   meta_in: [JSON]
   meta_not_in: [JSON]
-  importRemoteSystem: String
-  importRemoteSystem_not: String
-  importRemoteSystem_contains: String
-  importRemoteSystem_not_contains: String
-  importRemoteSystem_starts_with: String
-  importRemoteSystem_not_starts_with: String
-  importRemoteSystem_ends_with: String
-  importRemoteSystem_not_ends_with: String
-  importRemoteSystem_i: String
-  importRemoteSystem_not_i: String
-  importRemoteSystem_contains_i: String
-  importRemoteSystem_not_contains_i: String
-  importRemoteSystem_starts_with_i: String
-  importRemoteSystem_not_starts_with_i: String
-  importRemoteSystem_ends_with_i: String
-  importRemoteSystem_not_ends_with_i: String
-  importRemoteSystem_in: [String]
-  importRemoteSystem_not_in: [String]
-  importId: String
-  importId_not: String
-  importId_contains: String
-  importId_not_contains: String
-  importId_starts_with: String
-  importId_not_starts_with: String
-  importId_ends_with: String
-  importId_not_ends_with: String
-  importId_i: String
-  importId_not_i: String
-  importId_contains_i: String
-  importId_not_contains_i: String
-  importId_starts_with_i: String
-  importId_not_starts_with_i: String
-  importId_ends_with_i: String
-  importId_not_ends_with_i: String
-  importId_in: [String]
-  importId_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -687,10 +597,6 @@ enum SortUsersBy {
   phone_DESC
   isPhoneVerified_ASC
   isPhoneVerified_DESC
-  importRemoteSystem_ASC
-  importRemoteSystem_DESC
-  importId_ASC
-  importId_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -721,8 +627,6 @@ input UserUpdateInput {
   isPhoneVerified: Boolean
   avatar: Upload
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -751,8 +655,6 @@ input UserCreateInput {
   isPhoneVerified: Boolean
   avatar: Upload
   meta: JSON
-  importRemoteSystem: String
-  importId: String
   v: Int
   createdAt: String
   updatedAt: String
