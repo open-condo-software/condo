@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import { TYPOGRAPHY_CLASS_PREFIX } from './constants'
 
 declare const TITLE_LEVELS: [1, 2, 3, 4, 5, 6]
-declare const TITLE_TYPES: ['inverted', 'secondary']
+declare const TITLE_TYPES: ['inverted', 'secondary', 'danger', 'warning', 'info', 'success']
 export type TypographyTitleProps = Pick<DefaultTitleProps, 'ellipsis' | 'onClick' | 'title' | 'children'> & {
     type?: typeof TITLE_TYPES[number]
     level?: typeof TITLE_LEVELS[number]
