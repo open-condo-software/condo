@@ -19,7 +19,7 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident } from '@app/condo/schema'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useRouter } from 'next/router'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/ticket/hooks/useIncidentTableColumns'
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
