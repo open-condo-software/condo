@@ -17,6 +17,8 @@ const CONFIRM_PHONE_SMS_MAX_RETRIES = 10
 const MAX_SMS_FOR_IP_BY_DAY = 100
 const MAX_SMS_FOR_PHONE_BY_DAY = 20
 
+const SBER_ID_SESSION_KEY = 'sberid'
+
 module.exports = {
     MIN_PASSWORD_LENGTH,
     LOCK_TIMEOUT,
@@ -33,4 +35,5 @@ module.exports = {
     SBER_ID_IDP_TYPE,
     SBBOL_IDP_TYPE,
     IDP_TYPES,
+    SBER_ID_SESSION_KEY,
 }
