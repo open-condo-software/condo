@@ -4,6 +4,9 @@
  */
 
 
+const { Incident } = require('./Incident')
+const { IncidentProperty } = require('./IncidentProperty')
+const { IncidentTicketClassifier } = require('./IncidentTicketClassifier')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
 const { ShareTicketService } = require('./ShareTicketService')
 const { Ticket } = require('./Ticket')
@@ -47,5 +50,8 @@ module.exports = {
     TicketPropertyHintProperty,
     TicketExportTask,
     TicketOrganizationSetting,
+    Incident,
+    IncidentProperty,
+    IncidentTicketClassifier,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

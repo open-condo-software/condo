@@ -34,7 +34,10 @@ const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
+const { EXCEL } = require('@condo/domains/common/constants/export')
+const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
+const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
+const { IncidentTicketClassifier: IncidentTicketClassifierGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -59,6 +62,9 @@ const TicketPropertyHint = generateGQLTestUtils(TicketPropertyHintGQL)
 const TicketPropertyHintProperty = generateGQLTestUtils(TicketPropertyHintPropertyGQL)
 const TicketOrganizationSetting = generateGQLTestUtils(TicketOrganizationSettingGQL)
 const TicketExportTask = generateGQLTestUtils(TicketExportTaskGQL)
+const Incident = generateGQLTestUtils(IncidentGQL)
+const IncidentProperty = generateGQLTestUtils(IncidentPropertyGQL)
+const IncidentTicketClassifier = generateGQLTestUtils(IncidentTicketClassifierGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -645,6 +651,97 @@ async function exportTestTicketsToExcel (client, where={}, data={}) {
     return task
 }
 
+async function createTestIncident (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await Incident.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncident (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await Incident.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentProperty (client, incident, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!incident || !incident.id) throw new Error('no incident.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        incident: { connect: { id: incident.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentProperty.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentProperty (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentProperty.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentTicketClassifier (client, incident, classifier, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!incident || !incident.id) throw new Error('no incident.id')
+    if (!classifier || !classifier.id) throw new Error('no classifier.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        incident: { connect: { id: incident.id } },
+        classifier: { connect: { id: classifier.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentTicketClassifier.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentTicketClassifier (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentTicketClassifier.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -689,5 +786,8 @@ module.exports = {
     TicketOrganizationSetting, createTestTicketOrganizationSetting, updateTestTicketOrganizationSetting,
     TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask,
     exportTestTicketsToExcel,
+    Incident, createTestIncident, updateTestIncident,
+    IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty,
+    IncidentTicketClassifier, createTestIncidentTicketClassifier, updateTestIncidentTicketClassifier,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
