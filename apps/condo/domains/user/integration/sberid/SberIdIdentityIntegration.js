@@ -6,10 +6,6 @@ const https = require('https')
 
 const conf = require('@open-condo/config')
 
-const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
-const { USER_EXTERNAL_IDENTITY_AUTH_CALLBACK_PATH } = require('@condo/domains/user/constants/links')
-const AbstractIdentityIntegration = require('@condo/domains/user/integration/identity/AbstractIdentityIntegration')
-
 // get sber id configuration params
 const SBER_ID_CONFIG = process.env.SBER_ID_CONFIG ? JSON.parse(process.env.SBER_ID_CONFIG) : {}
 const {
@@ -24,7 +20,7 @@ const {
     key,
     verifyServerSsl,
 } = SBER_ID_CONFIG
-const callbackPath = USER_EXTERNAL_IDENTITY_AUTH_CALLBACK_PATH.replace(':type', SBER_ID_IDP_TYPE)
+const callbackPath = '/api/sber_id/auth/callback'
 const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
 const axiosTimeout = 10000
 
@@ -38,12 +34,7 @@ const httpsAgent = new https.Agent({
 // instantiate request id generator
 const nanoid = customAlphabet('1234567890abcdef', 32)
 
-class SberIdIdentityIntegration extends AbstractIdentityIntegration {
-
-    getType () {
-        return SBER_ID_IDP_TYPE
-    }
-
+class SberIdIdentityIntegration {
     async generateLoginFormParams (checks) {
         const { nonce, state } = checks
         const link = new URL(authorizeUrl)
@@ -174,4 +165,6 @@ class SberIdIdentityIntegration extends AbstractIdentityIntegration {
     }
 }
 
-module.exports = SberIdIdentityIntegration
+module.exports = {
+    SberIdIdentityIntegration,
+}
