@@ -111,18 +111,19 @@ class SbbolSecretStorage {
     async #setValue (key, value, options = {}) {
         const { ttl, expiresAt } = options
         const commands = this.keyStorage.multi()
-        commands.set(this.#scopedKey(key), value)
+        const scopedKey = this.#scopedKey(key)
+        commands.set(scopedKey, value)
         if (ttl) {
-            commands.expire(this.#scopedKey(key), ttl)
+            commands.expire(scopedKey, ttl)
         }
         if (expiresAt) {
-            commands.expireat(this.#scopedKey(key), expiresAt)
+            commands.expireat(scopedKey, expiresAt)
         }
         return commands.exec()
             .then(() => {
-                logger.info({ msg: `Set ${key}`, value })
+                logger.info({ msg: `Set ${scopedKey}`, value })
             }).catch(() => {
-                logger.error({ msg: `Error set ${key}`, value })
+                logger.error({ msg: `Error set ${scopedKey}`, value })
             })
     }
 
