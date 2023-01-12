@@ -83,13 +83,13 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const sorterMap = getSorterMap(sorters)
     const search = getFilteredValue(filters, 'search')
 
-    const renderNumber = useCallback(() => getTableCellRenderer(), [])
-    const renderDetails = useCallback(() => getTableCellRenderer(), [])
-    const renderStatus = useCallback(() => getTableCellRenderer(), [])
+    const renderNumber = useMemo(() => getTableCellRenderer(), [])
+    const renderDetails = useMemo(() => getTableCellRenderer(), [])
+    const renderStatus = useMemo(() => getTableCellRenderer(), [])
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const renderWorkStart = useCallback(() => getDateRender(intl), [])
+    const renderWorkStart = useMemo(() => getDateRender(intl), [])
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const renderWorkFinish = useCallback(() => getDateRender(intl), [])
+    const renderWorkFinish = useMemo(() => getDateRender(intl), [])
 
     const renderProperties: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
         if (get(incident, 'hasAllProperties')) {
