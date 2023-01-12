@@ -24,7 +24,10 @@ const suggestionContexts = {
      * The values from the default context will be overridden by values from other ones.
      */
     mobileApp: {
-        [DADATA_PROVIDER]: {},
+        [DADATA_PROVIDER]: {
+            from_bound: { value: 'city' },
+            to_bound: { value: 'house' },
+        },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
