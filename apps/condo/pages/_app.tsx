@@ -28,6 +28,7 @@ import { FocusElement } from '@condo/domains/common/components/Focus/FocusElemen
 import { BarBillingIcon } from '@condo/domains/common/components/icons/BarBillingIcon'
 import { BarChartIconNew } from '@condo/domains/common/components/icons/BarChartIconNew'
 import { BarEmployeeIcon } from '@condo/domains/common/components/icons/BarEmployeeIcon'
+import { BarIncidentIcon } from '@condo/domains/common/components/icons/BarIncidentIcon'
 import { BarMeterIcon } from '@condo/domains/common/components/icons/BarMeterIcon'
 import { BarMiniAppsIcon } from '@condo/domains/common/components/icons/BarMiniAppsIcon'
 import { BarPaymentsIcon } from '@condo/domains/common/components/icons/BarPaymentsIcon'
@@ -99,6 +100,10 @@ const MenuItems: React.FC = () => {
             icon: BarTicketIcon,
             label: 'global.section.controlRoom',
         }, {
+            path: 'incident',
+            icon: BarIncidentIcon,
+            label: 'global.section.incidents',
+        },  {
             path: 'property',
             icon: BarPropertyIcon,
             label: 'global.section.properties',
