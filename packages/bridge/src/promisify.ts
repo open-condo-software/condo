@@ -68,7 +68,7 @@ export function promisifySend (
 
         if ('requestId' in event.data) {
             const { requestId, ...data } = event.data
-            if (requestId) {
+            if (typeof requestId !== 'undefined') {
                 requestResolver.resolve(requestId, data, (data) => !('errorType' in data))
             }
         }
