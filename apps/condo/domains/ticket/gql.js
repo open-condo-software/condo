@@ -180,6 +180,15 @@ const TicketExportTask = generateGqlQueries('TicketExportTask', TICKET_EXPORT_TA
 const TICKET_ORGANIZATION_SETTING_FIELDS = `{ organization { id } defaultDeadlineDuration paidDeadlineDuration emergencyDeadlineDuration warrantyDeadlineDuration ${COMMON_FIELDS} }`
 const TicketOrganizationSetting = generateGqlQueries('TicketOrganizationSetting', TICKET_ORGANIZATION_SETTING_FIELDS)
 
+const INCIDENT_FIELDS = `{ organization { id } number details textForResident workStart workFinish isScheduled isEmergency hasAllProperties status ${COMMON_FIELDS} }`
+const Incident = generateGqlQueries('Incident', INCIDENT_FIELDS)
+
+const INCIDENT_PROPERTY_FIELDS = `{ incident { id } property { id } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } ${COMMON_FIELDS} }`
+const IncidentProperty = generateGqlQueries('IncidentProperty', INCIDENT_PROPERTY_FIELDS)
+
+const INCIDENT_TICKET_CLASSIFIER_FIELDS = `{ incident { id } classifier { id } ${COMMON_FIELDS} }`
+const IncidentTicketClassifier = generateGqlQueries('IncidentTicketClassifier', INCIDENT_TICKET_CLASSIFIER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -206,5 +215,8 @@ module.exports = {
     TicketExportTask,
     TicketOrganizationSetting,
     TICKET_PROPERTY_FIELDS,
+    Incident,
+    IncidentProperty,
+    IncidentTicketClassifier,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

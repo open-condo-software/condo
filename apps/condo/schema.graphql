@@ -27350,6 +27350,1394 @@ input TicketOrganizationSettingsCreateInput {
   data: TicketOrganizationSettingCreateInput
 }
 
+enum IncidentHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type IncidentHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentHistoryRecord List config, or
+   3. As an alias to a 'name' field on the IncidentHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  number: JSON
+  details: String
+  status: String
+  textForResident: String
+  workStart: String
+  workFinish: String
+  isScheduled: Boolean
+  isEmergency: Boolean
+  hasAllProperties: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentHistoryRecordWhereInput {
+  AND: [IncidentHistoryRecordWhereInput]
+  OR: [IncidentHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  number: JSON
+  number_not: JSON
+  number_in: [JSON]
+  number_not_in: [JSON]
+  details: String
+  details_not: String
+  details_contains: String
+  details_not_contains: String
+  details_starts_with: String
+  details_not_starts_with: String
+  details_ends_with: String
+  details_not_ends_with: String
+  details_i: String
+  details_not_i: String
+  details_contains_i: String
+  details_not_contains_i: String
+  details_starts_with_i: String
+  details_not_starts_with_i: String
+  details_ends_with_i: String
+  details_not_ends_with_i: String
+  details_in: [String]
+  details_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  textForResident: String
+  textForResident_not: String
+  textForResident_contains: String
+  textForResident_not_contains: String
+  textForResident_starts_with: String
+  textForResident_not_starts_with: String
+  textForResident_ends_with: String
+  textForResident_not_ends_with: String
+  textForResident_i: String
+  textForResident_not_i: String
+  textForResident_contains_i: String
+  textForResident_not_contains_i: String
+  textForResident_starts_with_i: String
+  textForResident_not_starts_with_i: String
+  textForResident_ends_with_i: String
+  textForResident_not_ends_with_i: String
+  textForResident_in: [String]
+  textForResident_not_in: [String]
+  workStart: String
+  workStart_not: String
+  workStart_lt: String
+  workStart_lte: String
+  workStart_gt: String
+  workStart_gte: String
+  workStart_in: [String]
+  workStart_not_in: [String]
+  workFinish: String
+  workFinish_not: String
+  workFinish_lt: String
+  workFinish_lte: String
+  workFinish_gt: String
+  workFinish_gte: String
+  workFinish_in: [String]
+  workFinish_not_in: [String]
+  isScheduled: Boolean
+  isScheduled_not: Boolean
+  isEmergency: Boolean
+  isEmergency_not: Boolean
+  hasAllProperties: Boolean
+  hasAllProperties_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: IncidentHistoryRecordHistoryActionType
+  history_action_not: IncidentHistoryRecordHistoryActionType
+  history_action_in: [IncidentHistoryRecordHistoryActionType]
+  history_action_not_in: [IncidentHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input IncidentHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentHistoryRecordsBy {
+  details_ASC
+  details_DESC
+  status_ASC
+  status_DESC
+  textForResident_ASC
+  textForResident_DESC
+  workStart_ASC
+  workStart_DESC
+  workFinish_ASC
+  workFinish_DESC
+  isScheduled_ASC
+  isScheduled_DESC
+  isEmergency_ASC
+  isEmergency_DESC
+  hasAllProperties_ASC
+  hasAllProperties_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input IncidentHistoryRecordUpdateInput {
+  organization: String
+  number: JSON
+  details: String
+  status: String
+  textForResident: String
+  workStart: String
+  workFinish: String
+  isScheduled: Boolean
+  isEmergency: Boolean
+  hasAllProperties: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentHistoryRecordsUpdateInput {
+  id: ID!
+  data: IncidentHistoryRecordUpdateInput
+}
+
+input IncidentHistoryRecordCreateInput {
+  organization: String
+  number: JSON
+  details: String
+  status: String
+  textForResident: String
+  workStart: String
+  workFinish: String
+  isScheduled: Boolean
+  isEmergency: Boolean
+  hasAllProperties: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentHistoryRecordsCreateInput {
+  data: IncidentHistoryRecordCreateInput
+}
+
+enum IncidentStatusType {
+  actual
+  not_actual
+}
+
+""" Entries of scheduled and emergency incidents of water, electricity, etc. 
+"""
+type Incident {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the Incident List config, or
+   2. As an alias to the field set on 'labelField' in the Incident List config, or
+   3. As an alias to a 'name' field on the Incident List (if one exists), or
+   4. As an alias to the 'id' field on the Incident List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Autogenerated incident human readable ID """
+  number: Int
+
+  """ Text description of the incident """
+  details: String
+
+  """ Incident status. """
+  status: IncidentStatusType
+
+  """ Text that employees should say to residents """
+  textForResident: String
+
+  """ Date and time of works start """
+  workStart: String
+
+  """ Date and time of works finish """
+  workFinish: String
+
+  """ Scheduled works """
+  isScheduled: Boolean
+
+  """ Emergency work """
+  isEmergency: Boolean
+
+  """ True if incident includes all properties in organization """
+  hasAllProperties: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input IncidentWhereInput {
+  AND: [IncidentWhereInput]
+  OR: [IncidentWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  number: Int
+  number_not: Int
+  number_lt: Int
+  number_lte: Int
+  number_gt: Int
+  number_gte: Int
+  number_in: [Int]
+  number_not_in: [Int]
+  details: String
+  details_not: String
+  details_contains: String
+  details_not_contains: String
+  details_starts_with: String
+  details_not_starts_with: String
+  details_ends_with: String
+  details_not_ends_with: String
+  details_i: String
+  details_not_i: String
+  details_contains_i: String
+  details_not_contains_i: String
+  details_starts_with_i: String
+  details_not_starts_with_i: String
+  details_ends_with_i: String
+  details_not_ends_with_i: String
+  details_in: [String]
+  details_not_in: [String]
+  status: IncidentStatusType
+  status_not: IncidentStatusType
+  status_in: [IncidentStatusType]
+  status_not_in: [IncidentStatusType]
+  textForResident: String
+  textForResident_not: String
+  textForResident_contains: String
+  textForResident_not_contains: String
+  textForResident_starts_with: String
+  textForResident_not_starts_with: String
+  textForResident_ends_with: String
+  textForResident_not_ends_with: String
+  textForResident_i: String
+  textForResident_not_i: String
+  textForResident_contains_i: String
+  textForResident_not_contains_i: String
+  textForResident_starts_with_i: String
+  textForResident_not_starts_with_i: String
+  textForResident_ends_with_i: String
+  textForResident_not_ends_with_i: String
+  textForResident_in: [String]
+  textForResident_not_in: [String]
+  workStart: String
+  workStart_not: String
+  workStart_lt: String
+  workStart_lte: String
+  workStart_gt: String
+  workStart_gte: String
+  workStart_in: [String]
+  workStart_not_in: [String]
+  workFinish: String
+  workFinish_not: String
+  workFinish_lt: String
+  workFinish_lte: String
+  workFinish_gt: String
+  workFinish_gte: String
+  workFinish_in: [String]
+  workFinish_not_in: [String]
+  isScheduled: Boolean
+  isScheduled_not: Boolean
+  isEmergency: Boolean
+  isEmergency_not: Boolean
+  hasAllProperties: Boolean
+  hasAllProperties_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input IncidentWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentsBy {
+  organization_ASC
+  organization_DESC
+  number_ASC
+  number_DESC
+  details_ASC
+  details_DESC
+  status_ASC
+  status_DESC
+  textForResident_ASC
+  textForResident_DESC
+  workStart_ASC
+  workStart_DESC
+  workFinish_ASC
+  workFinish_DESC
+  isScheduled_ASC
+  isScheduled_DESC
+  isEmergency_ASC
+  isEmergency_DESC
+  hasAllProperties_ASC
+  hasAllProperties_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input IncidentUpdateInput {
+  organization: OrganizationRelateToOneInput
+  number: Int
+  details: String
+  status: IncidentStatusType
+  textForResident: String
+  workStart: String
+  workFinish: String
+  isScheduled: Boolean
+  isEmergency: Boolean
+  hasAllProperties: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentsUpdateInput {
+  id: ID!
+  data: IncidentUpdateInput
+}
+
+input IncidentCreateInput {
+  organization: OrganizationRelateToOneInput
+  number: Int
+  details: String
+  status: IncidentStatusType
+  textForResident: String
+  workStart: String
+  workFinish: String
+  isScheduled: Boolean
+  isEmergency: Boolean
+  hasAllProperties: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentsCreateInput {
+  data: IncidentCreateInput
+}
+
+enum IncidentPropertyHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type IncidentPropertyHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentPropertyHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentPropertyHistoryRecord List config, or
+   3. As an alias to a 'name' field on the IncidentPropertyHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentPropertyHistoryRecord List.
+  """
+  _label_: String
+  incident: String
+  property: String
+  propertyAddress: String
+  propertyAddressMeta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentPropertyHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentPropertyHistoryRecordWhereInput {
+  AND: [IncidentPropertyHistoryRecordWhereInput]
+  OR: [IncidentPropertyHistoryRecordWhereInput]
+  incident: String
+  incident_not: String
+  incident_in: [String]
+  incident_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  propertyAddress: String
+  propertyAddress_not: String
+  propertyAddress_contains: String
+  propertyAddress_not_contains: String
+  propertyAddress_starts_with: String
+  propertyAddress_not_starts_with: String
+  propertyAddress_ends_with: String
+  propertyAddress_not_ends_with: String
+  propertyAddress_i: String
+  propertyAddress_not_i: String
+  propertyAddress_contains_i: String
+  propertyAddress_not_contains_i: String
+  propertyAddress_starts_with_i: String
+  propertyAddress_not_starts_with_i: String
+  propertyAddress_ends_with_i: String
+  propertyAddress_not_ends_with_i: String
+  propertyAddress_in: [String]
+  propertyAddress_not_in: [String]
+  propertyAddressMeta: JSON
+  propertyAddressMeta_not: JSON
+  propertyAddressMeta_in: [JSON]
+  propertyAddressMeta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: IncidentPropertyHistoryRecordHistoryActionType
+  history_action_not: IncidentPropertyHistoryRecordHistoryActionType
+  history_action_in: [IncidentPropertyHistoryRecordHistoryActionType]
+  history_action_not_in: [IncidentPropertyHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input IncidentPropertyHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentPropertyHistoryRecordsBy {
+  propertyAddress_ASC
+  propertyAddress_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input IncidentPropertyHistoryRecordUpdateInput {
+  incident: String
+  property: String
+  propertyAddress: String
+  propertyAddressMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentPropertyHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentPropertyHistoryRecordsUpdateInput {
+  id: ID!
+  data: IncidentPropertyHistoryRecordUpdateInput
+}
+
+input IncidentPropertyHistoryRecordCreateInput {
+  incident: String
+  property: String
+  propertyAddress: String
+  propertyAddressMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentPropertyHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentPropertyHistoryRecordsCreateInput {
+  data: IncidentPropertyHistoryRecordCreateInput
+}
+
+input IncidentRelateToOneInput {
+  create: IncidentCreateInput
+  connect: IncidentWhereUniqueInput
+  disconnect: IncidentWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Many-to-many relationship between Incident and Property """
+type IncidentProperty {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentProperty List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentProperty List config, or
+   3. As an alias to a 'name' field on the IncidentProperty List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentProperty List.
+  """
+  _label_: String
+
+  """ Incident which has a property """
+  incident: Incident
+
+  """ A property which is in the incident entry """
+  property: Property
+
+  """ Address of property, which synced with property and displayed, if property is deleted 
+  """
+  propertyAddress: String
+
+  """ Address meta of property, which synced with property and used to form view of address, if property is deleted 
+  """
+  propertyAddressMeta: AddressMetaField
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input IncidentPropertyWhereInput {
+  AND: [IncidentPropertyWhereInput]
+  OR: [IncidentPropertyWhereInput]
+  incident: IncidentWhereInput
+  incident_is_null: Boolean
+  property: PropertyWhereInput
+  property_is_null: Boolean
+  propertyAddress: String
+  propertyAddress_not: String
+  propertyAddress_contains: String
+  propertyAddress_not_contains: String
+  propertyAddress_starts_with: String
+  propertyAddress_not_starts_with: String
+  propertyAddress_ends_with: String
+  propertyAddress_not_ends_with: String
+  propertyAddress_i: String
+  propertyAddress_not_i: String
+  propertyAddress_contains_i: String
+  propertyAddress_not_contains_i: String
+  propertyAddress_starts_with_i: String
+  propertyAddress_not_starts_with_i: String
+  propertyAddress_ends_with_i: String
+  propertyAddress_not_ends_with_i: String
+  propertyAddress_in: [String]
+  propertyAddress_not_in: [String]
+  propertyAddressMeta: JSON
+  propertyAddressMeta_not: JSON
+  propertyAddressMeta_in: [JSON]
+  propertyAddressMeta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input IncidentPropertyWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentPropertiesBy {
+  incident_ASC
+  incident_DESC
+  property_ASC
+  property_DESC
+  propertyAddress_ASC
+  propertyAddress_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input IncidentPropertyUpdateInput {
+  incident: IncidentRelateToOneInput
+  property: PropertyRelateToOneInput
+  propertyAddress: String
+  propertyAddressMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentPropertiesUpdateInput {
+  id: ID!
+  data: IncidentPropertyUpdateInput
+}
+
+input IncidentPropertyCreateInput {
+  incident: IncidentRelateToOneInput
+  property: PropertyRelateToOneInput
+  propertyAddress: String
+  propertyAddressMeta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentPropertiesCreateInput {
+  data: IncidentPropertyCreateInput
+}
+
+enum IncidentTicketClassifierHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type IncidentTicketClassifierHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentTicketClassifierHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentTicketClassifierHistoryRecord List config, or
+   3. As an alias to a 'name' field on the IncidentTicketClassifierHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentTicketClassifierHistoryRecord List.
+  """
+  _label_: String
+  incident: String
+  classifier: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentTicketClassifierHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentTicketClassifierHistoryRecordWhereInput {
+  AND: [IncidentTicketClassifierHistoryRecordWhereInput]
+  OR: [IncidentTicketClassifierHistoryRecordWhereInput]
+  incident: String
+  incident_not: String
+  incident_in: [String]
+  incident_not_in: [String]
+  classifier: String
+  classifier_not: String
+  classifier_in: [String]
+  classifier_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: IncidentTicketClassifierHistoryRecordHistoryActionType
+  history_action_not: IncidentTicketClassifierHistoryRecordHistoryActionType
+  history_action_in: [IncidentTicketClassifierHistoryRecordHistoryActionType]
+  history_action_not_in: [IncidentTicketClassifierHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input IncidentTicketClassifierHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentTicketClassifierHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input IncidentTicketClassifierHistoryRecordUpdateInput {
+  incident: String
+  classifier: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentTicketClassifierHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentTicketClassifierHistoryRecordsUpdateInput {
+  id: ID!
+  data: IncidentTicketClassifierHistoryRecordUpdateInput
+}
+
+input IncidentTicketClassifierHistoryRecordCreateInput {
+  incident: String
+  classifier: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: IncidentTicketClassifierHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input IncidentTicketClassifierHistoryRecordsCreateInput {
+  data: IncidentTicketClassifierHistoryRecordCreateInput
+}
+
+""" Many-to-many relationship between Incident and TicketClassifier """
+type IncidentTicketClassifier {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the IncidentTicketClassifier List config, or
+   2. As an alias to the field set on 'labelField' in the IncidentTicketClassifier List config, or
+   3. As an alias to a 'name' field on the IncidentTicketClassifier List (if one exists), or
+   4. As an alias to the 'id' field on the IncidentTicketClassifier List.
+  """
+  _label_: String
+
+  """ Incident which has a classifier """
+  incident: Incident
+
+  """ A classifier which is in the incident entry """
+  classifier: TicketClassifier
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input IncidentTicketClassifierWhereInput {
+  AND: [IncidentTicketClassifierWhereInput]
+  OR: [IncidentTicketClassifierWhereInput]
+  incident: IncidentWhereInput
+  incident_is_null: Boolean
+  classifier: TicketClassifierWhereInput
+  classifier_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input IncidentTicketClassifierWhereUniqueInput {
+  id: ID!
+}
+
+enum SortIncidentTicketClassifiersBy {
+  incident_ASC
+  incident_DESC
+  classifier_ASC
+  classifier_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input IncidentTicketClassifierUpdateInput {
+  incident: IncidentRelateToOneInput
+  classifier: TicketClassifierRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentTicketClassifiersUpdateInput {
+  id: ID!
+  data: IncidentTicketClassifierUpdateInput
+}
+
+input IncidentTicketClassifierCreateInput {
+  incident: IncidentRelateToOneInput
+  classifier: TicketClassifierRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input IncidentTicketClassifiersCreateInput {
+  data: IncidentTicketClassifierCreateInput
+}
+
 enum MessageHistoryRecordHistoryActionType {
   c
   u
@@ -51935,6 +53323,91 @@ type Query {
   """ Retrieve the meta-data for the TicketOrganizationSetting list. """
   _TicketOrganizationSettingsMeta: _ListMeta
 
+  """ Search for all IncidentHistoryRecord items which match the where clause. 
+  """
+  allIncidentHistoryRecords(where: IncidentHistoryRecordWhereInput, search: String, sortBy: [SortIncidentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [IncidentHistoryRecord]
+
+  """ Search for the IncidentHistoryRecord item with the matching ID. """
+  IncidentHistoryRecord(where: IncidentHistoryRecordWhereUniqueInput!): IncidentHistoryRecord
+
+  """ Perform a meta-query on all IncidentHistoryRecord items which match the where clause. 
+  """
+  _allIncidentHistoryRecordsMeta(where: IncidentHistoryRecordWhereInput, search: String, sortBy: [SortIncidentHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentHistoryRecord list. """
+  _IncidentHistoryRecordsMeta: _ListMeta
+
+  """ Search for all Incident items which match the where clause. """
+  allIncidents(where: IncidentWhereInput, search: String, sortBy: [SortIncidentsBy!], orderBy: String, first: Int, skip: Int): [Incident]
+
+  """ Search for the Incident item with the matching ID. """
+  Incident(where: IncidentWhereUniqueInput!): Incident
+
+  """ Perform a meta-query on all Incident items which match the where clause. 
+  """
+  _allIncidentsMeta(where: IncidentWhereInput, search: String, sortBy: [SortIncidentsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the Incident list. """
+  _IncidentsMeta: _ListMeta
+
+  """ Search for all IncidentPropertyHistoryRecord items which match the where clause. 
+  """
+  allIncidentPropertyHistoryRecords(where: IncidentPropertyHistoryRecordWhereInput, search: String, sortBy: [SortIncidentPropertyHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [IncidentPropertyHistoryRecord]
+
+  """ Search for the IncidentPropertyHistoryRecord item with the matching ID. 
+  """
+  IncidentPropertyHistoryRecord(where: IncidentPropertyHistoryRecordWhereUniqueInput!): IncidentPropertyHistoryRecord
+
+  """ Perform a meta-query on all IncidentPropertyHistoryRecord items which match the where clause. 
+  """
+  _allIncidentPropertyHistoryRecordsMeta(where: IncidentPropertyHistoryRecordWhereInput, search: String, sortBy: [SortIncidentPropertyHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentPropertyHistoryRecord list. """
+  _IncidentPropertyHistoryRecordsMeta: _ListMeta
+
+  """ Search for all IncidentProperty items which match the where clause. """
+  allIncidentProperties(where: IncidentPropertyWhereInput, search: String, sortBy: [SortIncidentPropertiesBy!], orderBy: String, first: Int, skip: Int): [IncidentProperty]
+
+  """ Search for the IncidentProperty item with the matching ID. """
+  IncidentProperty(where: IncidentPropertyWhereUniqueInput!): IncidentProperty
+
+  """ Perform a meta-query on all IncidentProperty items which match the where clause. 
+  """
+  _allIncidentPropertiesMeta(where: IncidentPropertyWhereInput, search: String, sortBy: [SortIncidentPropertiesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentProperty list. """
+  _IncidentPropertiesMeta: _ListMeta
+
+  """ Search for all IncidentTicketClassifierHistoryRecord items which match the where clause. 
+  """
+  allIncidentTicketClassifierHistoryRecords(where: IncidentTicketClassifierHistoryRecordWhereInput, search: String, sortBy: [SortIncidentTicketClassifierHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [IncidentTicketClassifierHistoryRecord]
+
+  """ Search for the IncidentTicketClassifierHistoryRecord item with the matching ID. 
+  """
+  IncidentTicketClassifierHistoryRecord(where: IncidentTicketClassifierHistoryRecordWhereUniqueInput!): IncidentTicketClassifierHistoryRecord
+
+  """ Perform a meta-query on all IncidentTicketClassifierHistoryRecord items which match the where clause. 
+  """
+  _allIncidentTicketClassifierHistoryRecordsMeta(where: IncidentTicketClassifierHistoryRecordWhereInput, search: String, sortBy: [SortIncidentTicketClassifierHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentTicketClassifierHistoryRecord list. 
+  """
+  _IncidentTicketClassifierHistoryRecordsMeta: _ListMeta
+
+  """ Search for all IncidentTicketClassifier items which match the where clause. 
+  """
+  allIncidentTicketClassifiers(where: IncidentTicketClassifierWhereInput, search: String, sortBy: [SortIncidentTicketClassifiersBy!], orderBy: String, first: Int, skip: Int): [IncidentTicketClassifier]
+
+  """ Search for the IncidentTicketClassifier item with the matching ID. """
+  IncidentTicketClassifier(where: IncidentTicketClassifierWhereUniqueInput!): IncidentTicketClassifier
+
+  """ Perform a meta-query on all IncidentTicketClassifier items which match the where clause. 
+  """
+  _allIncidentTicketClassifiersMeta(where: IncidentTicketClassifierWhereInput, search: String, sortBy: [SortIncidentTicketClassifiersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the IncidentTicketClassifier list. """
+  _IncidentTicketClassifiersMeta: _ListMeta
+
   """ Search for all MessageHistoryRecord items which match the where clause. 
   """
   allMessageHistoryRecords(where: MessageHistoryRecordWhereInput, search: String, sortBy: [SortMessageHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MessageHistoryRecord]
@@ -54887,6 +56360,114 @@ type Mutation {
 
   """ Delete multiple TicketOrganizationSetting items by ID. """
   deleteTicketOrganizationSettings(ids: [ID!]): [TicketOrganizationSetting]
+
+  """ Create a single IncidentHistoryRecord item. """
+  createIncidentHistoryRecord(data: IncidentHistoryRecordCreateInput): IncidentHistoryRecord
+
+  """ Create multiple IncidentHistoryRecord items. """
+  createIncidentHistoryRecords(data: [IncidentHistoryRecordsCreateInput]): [IncidentHistoryRecord]
+
+  """ Update a single IncidentHistoryRecord item by ID. """
+  updateIncidentHistoryRecord(id: ID!, data: IncidentHistoryRecordUpdateInput): IncidentHistoryRecord
+
+  """ Update multiple IncidentHistoryRecord items by ID. """
+  updateIncidentHistoryRecords(data: [IncidentHistoryRecordsUpdateInput]): [IncidentHistoryRecord]
+
+  """ Delete a single IncidentHistoryRecord item by ID. """
+  deleteIncidentHistoryRecord(id: ID!): IncidentHistoryRecord
+
+  """ Delete multiple IncidentHistoryRecord items by ID. """
+  deleteIncidentHistoryRecords(ids: [ID!]): [IncidentHistoryRecord]
+
+  """ Create a single Incident item. """
+  createIncident(data: IncidentCreateInput): Incident
+
+  """ Create multiple Incident items. """
+  createIncidents(data: [IncidentsCreateInput]): [Incident]
+
+  """ Update a single Incident item by ID. """
+  updateIncident(id: ID!, data: IncidentUpdateInput): Incident
+
+  """ Update multiple Incident items by ID. """
+  updateIncidents(data: [IncidentsUpdateInput]): [Incident]
+
+  """ Delete a single Incident item by ID. """
+  deleteIncident(id: ID!): Incident
+
+  """ Delete multiple Incident items by ID. """
+  deleteIncidents(ids: [ID!]): [Incident]
+
+  """ Create a single IncidentPropertyHistoryRecord item. """
+  createIncidentPropertyHistoryRecord(data: IncidentPropertyHistoryRecordCreateInput): IncidentPropertyHistoryRecord
+
+  """ Create multiple IncidentPropertyHistoryRecord items. """
+  createIncidentPropertyHistoryRecords(data: [IncidentPropertyHistoryRecordsCreateInput]): [IncidentPropertyHistoryRecord]
+
+  """ Update a single IncidentPropertyHistoryRecord item by ID. """
+  updateIncidentPropertyHistoryRecord(id: ID!, data: IncidentPropertyHistoryRecordUpdateInput): IncidentPropertyHistoryRecord
+
+  """ Update multiple IncidentPropertyHistoryRecord items by ID. """
+  updateIncidentPropertyHistoryRecords(data: [IncidentPropertyHistoryRecordsUpdateInput]): [IncidentPropertyHistoryRecord]
+
+  """ Delete a single IncidentPropertyHistoryRecord item by ID. """
+  deleteIncidentPropertyHistoryRecord(id: ID!): IncidentPropertyHistoryRecord
+
+  """ Delete multiple IncidentPropertyHistoryRecord items by ID. """
+  deleteIncidentPropertyHistoryRecords(ids: [ID!]): [IncidentPropertyHistoryRecord]
+
+  """ Create a single IncidentProperty item. """
+  createIncidentProperty(data: IncidentPropertyCreateInput): IncidentProperty
+
+  """ Create multiple IncidentProperty items. """
+  createIncidentProperties(data: [IncidentPropertiesCreateInput]): [IncidentProperty]
+
+  """ Update a single IncidentProperty item by ID. """
+  updateIncidentProperty(id: ID!, data: IncidentPropertyUpdateInput): IncidentProperty
+
+  """ Update multiple IncidentProperty items by ID. """
+  updateIncidentProperties(data: [IncidentPropertiesUpdateInput]): [IncidentProperty]
+
+  """ Delete a single IncidentProperty item by ID. """
+  deleteIncidentProperty(id: ID!): IncidentProperty
+
+  """ Delete multiple IncidentProperty items by ID. """
+  deleteIncidentProperties(ids: [ID!]): [IncidentProperty]
+
+  """ Create a single IncidentTicketClassifierHistoryRecord item. """
+  createIncidentTicketClassifierHistoryRecord(data: IncidentTicketClassifierHistoryRecordCreateInput): IncidentTicketClassifierHistoryRecord
+
+  """ Create multiple IncidentTicketClassifierHistoryRecord items. """
+  createIncidentTicketClassifierHistoryRecords(data: [IncidentTicketClassifierHistoryRecordsCreateInput]): [IncidentTicketClassifierHistoryRecord]
+
+  """ Update a single IncidentTicketClassifierHistoryRecord item by ID. """
+  updateIncidentTicketClassifierHistoryRecord(id: ID!, data: IncidentTicketClassifierHistoryRecordUpdateInput): IncidentTicketClassifierHistoryRecord
+
+  """ Update multiple IncidentTicketClassifierHistoryRecord items by ID. """
+  updateIncidentTicketClassifierHistoryRecords(data: [IncidentTicketClassifierHistoryRecordsUpdateInput]): [IncidentTicketClassifierHistoryRecord]
+
+  """ Delete a single IncidentTicketClassifierHistoryRecord item by ID. """
+  deleteIncidentTicketClassifierHistoryRecord(id: ID!): IncidentTicketClassifierHistoryRecord
+
+  """ Delete multiple IncidentTicketClassifierHistoryRecord items by ID. """
+  deleteIncidentTicketClassifierHistoryRecords(ids: [ID!]): [IncidentTicketClassifierHistoryRecord]
+
+  """ Create a single IncidentTicketClassifier item. """
+  createIncidentTicketClassifier(data: IncidentTicketClassifierCreateInput): IncidentTicketClassifier
+
+  """ Create multiple IncidentTicketClassifier items. """
+  createIncidentTicketClassifiers(data: [IncidentTicketClassifiersCreateInput]): [IncidentTicketClassifier]
+
+  """ Update a single IncidentTicketClassifier item by ID. """
+  updateIncidentTicketClassifier(id: ID!, data: IncidentTicketClassifierUpdateInput): IncidentTicketClassifier
+
+  """ Update multiple IncidentTicketClassifier items by ID. """
+  updateIncidentTicketClassifiers(data: [IncidentTicketClassifiersUpdateInput]): [IncidentTicketClassifier]
+
+  """ Delete a single IncidentTicketClassifier item by ID. """
+  deleteIncidentTicketClassifier(id: ID!): IncidentTicketClassifier
+
+  """ Delete multiple IncidentTicketClassifier items by ID. """
+  deleteIncidentTicketClassifiers(ids: [ID!]): [IncidentTicketClassifier]
 
   """ Create a single MessageHistoryRecord item. """
   createMessageHistoryRecord(data: MessageHistoryRecordCreateInput): MessageHistoryRecord

@@ -21,4 +21,7 @@ export * as TicketPropertyHint from './TicketPropertyHint'
 export * as TicketPropertyHintProperty from './TicketPropertyHintProperty'
 export * as TicketExportTask from './TicketExportTask'
 export * as TicketOrganizationSetting from './TicketOrganizationSetting'
+export * as Incident from './Incident'
+export * as IncidentProperty from './IncidentProperty'
+export * as IncidentTicketClassifier from './IncidentTicketClassifier'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
