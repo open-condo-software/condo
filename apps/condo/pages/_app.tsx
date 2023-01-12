@@ -61,6 +61,7 @@ import { FeatureFlagsProvider } from '@open-condo/featureflags/FeatureFlagsConte
 import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
+import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
 import '@open-condo/ui/dist/styles.min.css'
 
 
@@ -241,31 +242,33 @@ const MyApp = ({ Component, pageProps }) => {
                     <FeatureFlagsProvider>
                         <GlobalStyle/>
                         <FocusContextProvider>
-                            <TrackingProvider>
-                                <OnBoardingProvider>
-                                    <SubscriptionProvider>
-                                        <TasksProvider>
-                                            <GlobalAppsFeaturesProvider>
-                                                <GlobalAppsContainer/>
-                                                <LayoutContextProvider>
-                                                    <TicketVisibilityContextProvider>
-                                                        <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
-                                                            <RequiredAccess>
-                                                                <Component {...pageProps} />
-                                                                {
-                                                                    isEndTrialSubscriptionReminderPopupVisible && (
-                                                                        <EndTrialSubscriptionReminderPopup/>
-                                                                    )
-                                                                }
-                                                            </RequiredAccess>
-                                                        </LayoutComponent>
-                                                    </TicketVisibilityContextProvider>
-                                                </LayoutContextProvider>
-                                            </GlobalAppsFeaturesProvider>
-                                        </TasksProvider>
-                                    </SubscriptionProvider>
-                                </OnBoardingProvider>
-                            </TrackingProvider>
+                            <PostMessageProvider>
+                                <TrackingProvider>
+                                    <OnBoardingProvider>
+                                        <SubscriptionProvider>
+                                            <TasksProvider>
+                                                <GlobalAppsFeaturesProvider>
+                                                    <GlobalAppsContainer/>
+                                                    <LayoutContextProvider>
+                                                        <TicketVisibilityContextProvider>
+                                                            <LayoutComponent menuData={<MenuItems/>} headerAction={HeaderAction}>
+                                                                <RequiredAccess>
+                                                                    <Component {...pageProps} />
+                                                                    {
+                                                                        isEndTrialSubscriptionReminderPopupVisible && (
+                                                                            <EndTrialSubscriptionReminderPopup/>
+                                                                        )
+                                                                    }
+                                                                </RequiredAccess>
+                                                            </LayoutComponent>
+                                                        </TicketVisibilityContextProvider>
+                                                    </LayoutContextProvider>
+                                                </GlobalAppsFeaturesProvider>
+                                            </TasksProvider>
+                                        </SubscriptionProvider>
+                                    </OnBoardingProvider>
+                                </TrackingProvider>
+                            </PostMessageProvider>
                         </FocusContextProvider>
                         <GoogleAnalytics/>
                         <YandexMetrika/>
