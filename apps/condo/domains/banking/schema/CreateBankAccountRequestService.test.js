@@ -10,6 +10,9 @@ const { createBankAccountRequestByTestClient } = require('@condo/domains/banking
 const { INCORRECT_PROPERTY_ID } = require('@condo/domains/banking/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { MESSAGE_SENT_STATUS } = require('@condo/domains/notification/constants/constants')
+const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 let admin, client, wrongClient, anonymousClient
 
@@ -31,6 +34,23 @@ describe('CreateBankAccountRequestService', () => {
             const message = await Message.getOne(admin, { id: data.id })
             expect(message).toBeDefined()
             expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+        })
+    })
+
+    test('user: can\'t send create bank account request if hasn\'t canManageBankAccounts access', async () => {
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canManageBankAccounts: false,
+        })
+        const organizationEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [property] = await createTestProperty(admin, organization)
+        await createTestOrganizationEmployee(admin, organization, organizationEmployee.user, role)
+
+        await expectToThrowAccessDeniedErrorToResult(async () => {
+            await createBankAccountRequestByTestClient(organizationEmployee, {
+                organizationId: organization.id,
+                propertyId: property.id,
+            })
         })
     })
 
