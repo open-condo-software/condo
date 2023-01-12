@@ -21,6 +21,7 @@ import {
     Meters,
     Services,
     Settings,
+    OnOff,
 } from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { withApollo } from '@open-condo/next/apollo'
@@ -100,6 +101,10 @@ const MenuItems: React.FC = () => {
             icon: LayoutList,
             label: 'global.section.controlRoom',
         }, {
+            path: 'incident',
+            icon: OnOff,
+            label: 'global.section.incidents',
+        },  {
             path: 'property',
             icon: Building,
             label: 'global.section.properties',
