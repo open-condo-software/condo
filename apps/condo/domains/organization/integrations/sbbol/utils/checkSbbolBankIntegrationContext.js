@@ -18,6 +18,8 @@ async function checkSbbolBankIntegrationContext (context, organizationId) {
     if (!organizationId) throw new Error('organizationId is required')
 
     const integration = await BankIntegration.getOne(context, { id: BANK_INTEGRATION_IDS.SBBOL })
+    if (!integration) throw new Error(`BankIntegration where: { id: ${BANK_INTEGRATION_IDS.SBBOL} } was not found`)
+
     const where = {
         ...dvSenderFields,
         integration: { id: integration.id },
@@ -26,7 +28,7 @@ async function checkSbbolBankIntegrationContext (context, organizationId) {
     const foundIntegrationContext = await BankIntegrationContext.getAll(context, where, { first: 1 })
 
     if (!isEmpty(foundIntegrationContext)) {
-        logger.info(`BankIntegrationContext with type SBBOL already exists in organization with id: ${organizationId}`)
+        logger.info('BankIntegrationContext with type SBBOL already exists in organization', { organizationId })
 
         return foundIntegrationContext
     } else {
@@ -35,7 +37,7 @@ async function checkSbbolBankIntegrationContext (context, organizationId) {
             integration: { connect: { id: integration.id } },
             organization: { connect: { id: organizationId } } })
 
-        logger.info(`BankIntegrationContext created with id: ${createdBankIntegrationContext.id}`)
+        logger.info('Created BankIntegrationContext', { id: createdBankIntegrationContext.id })
 
         return createdBankIntegrationContext
     }

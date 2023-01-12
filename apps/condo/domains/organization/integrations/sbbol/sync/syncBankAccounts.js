@@ -12,14 +12,14 @@ const logger = getLogger('sbbol/syncBankAccounts')
 
 /**
  * Connects new BankAccount records for user according to accounts data from SBBOL.
- *  @param {SbbolClientInfo} data
+ *  @param {SbbolAccount} accounts
  *  @param {String} bankIntegrationContextId
  *  @param {Object} organization
  */
-const _syncBankAccounts = async (data, bankIntegrationContextId, organization) => {
+const _syncBankAccounts = async (accounts, bankIntegrationContextId, organization) => {
     const { keystone: context } = await getSchemaCtx('User')
 
-    for (const account of data.accounts) {
+    for (const account of accounts) {
         const bankAccountDetails = {
             tin: organization.tin,
             country: RUSSIA_COUNTRY,
@@ -50,7 +50,7 @@ const _syncBankAccounts = async (data, bankIntegrationContextId, organization) =
                     organization: { connect: { id: organization.id } },
                 }
             )
-            logger.info(`BankAccount instance created with number: ${account.number} in organization: ${organization.id}`)
+            logger.info('Created BankAccount', { bankAccount: { id: account.number, organization } })
         }
     }
 }
@@ -79,7 +79,7 @@ const syncBankAccounts = async (userId, bankIntegrationContextId, organization) 
     if (isEmpty(accounts)) {
         logger.info('SBBOL did not return any ClientAccount, do nothing')
     } else {
-        await _syncBankAccounts(data, bankIntegrationContextId, organization)
+        await _syncBankAccounts(accounts, bankIntegrationContextId, organization)
     }
 }
 
