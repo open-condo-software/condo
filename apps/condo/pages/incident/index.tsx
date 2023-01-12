@@ -3,6 +3,7 @@ import React, { useCallback, useMemo } from 'react'
 import Head from 'next/head'
 
 import { Typography, Checkbox, Button } from '@open-condo/ui'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -36,6 +37,7 @@ type FilterMetasType = Array<FiltersMeta<IncidentWhereInput>>
 type IncidentsPageContentProps = {
     filterMetas: FilterMetasType
     useTableColumns: UseTableColumnsType
+    organizationId: string
 }
 
 type FilterContainerProps = {
@@ -45,6 +47,7 @@ type FilterContainerProps = {
 type TableContainerProps = {
     filterMetas: FilterMetasType
     useTableColumns: UseTableColumnsType
+    organizationId: string
 }
 
 
@@ -122,14 +125,14 @@ const FilterContainer: React.FC<FilterContainerProps> = (props) => {
 const TableContainer: React.FC<TableContainerProps> = (props) => {
     const AddNewIncidentLabel = 'AddNewIncidentLabel'
 
-    const { useTableColumns, filterMetas } = props
+    const { useTableColumns, filterMetas, organizationId } = props
 
     const router = useRouter()
     const { filters, offset, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
     const sortBy = sortersToSortBy(sorters, INCIDENTS_DEFAULT_SORT_BY) as SortIncidentsBy[]
-    const incidentWhere = useMemo(() => ({ ...filtersToWhere(filters), deletedAt: null }),
-        [filters, filtersToWhere])
+    const incidentWhere = useMemo(() => ({ ...filtersToWhere(filters), deletedAt: null, organization: { id: organizationId } }),
+        [filters, filtersToWhere, organizationId])
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
     const {
@@ -187,7 +190,7 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
 }
 
 const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
-    const { filterMetas, useTableColumns } = props
+    const { filterMetas, useTableColumns, organizationId } = props
 
     const PageTitle = 'Журнал отключений'
 
@@ -204,6 +207,7 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
                         <TableContainer
                             useTableColumns={useTableColumns}
                             filterMetas={filterMetas}
+                            organizationId={organizationId}
                         />
                     </Row>
                 </TablePageContent>
@@ -214,8 +218,11 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
 
 const IncidentsPage: IIncidentIndexPage = () => {
     const filterMetas = useIncidentTableFilters()
+    const { organization } = useOrganization()
+    const organizationId = get(organization, 'id')
 
     return <IncidentsPageContent
+        organizationId={organizationId}
         filterMetas={filterMetas}
         useTableColumns={useIncidentTableColumns}
     />
