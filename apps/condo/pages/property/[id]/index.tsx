@@ -131,7 +131,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                     </Space>
                 </Col>
                 <Col xl={12} md={24} sm={24} xs={24}>
-                    <PropertyReportCard property={property} organizationId={organizationId} />
+                    <PropertyReportCard property={property} organizationId={organizationId} role={role} />
                 </Col>
             </Row>
             <Row gutter={PROPERTY_PAGE_CONTENT_ROW_GUTTER} style={PROPERTY_PAGE_CONTENT_ROW_STYLE}>

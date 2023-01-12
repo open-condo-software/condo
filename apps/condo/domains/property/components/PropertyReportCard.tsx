@@ -4,6 +4,7 @@ import { Space, Image, notification } from 'antd'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import cookie from 'js-cookie'
+import get from 'lodash/get'
 import { useIntl } from '@open-condo/next/intl'
 import { Button, Card, Typography, Modal } from '@open-condo/ui'
 import { useMutation } from '@open-condo/next/apollo'
@@ -16,11 +17,13 @@ import type { Property } from '@app/condo/schema'
 
 const PROPERTY_CARD_WIDTH_THRESHOLD = 400
 
-const PropertyReportCardBottomWrapper = styled.div<{ isSmall: boolean }>`
+const PropertyReportCardBottomWrapper = styled.div<{ isSmall: boolean, isButtonsHidden: boolean }>`
   display: flex;
   justify-content: space-between;
+  
   ${({ isSmall }) => isSmall ? 'align-items: end;' : 'align-items: start;'}
   ${({ isSmall }) => isSmall ? 'flex-direction: row;' : 'flex-direction: column-reverse;'}
+  ${({ isButtonsHidden }) => isButtonsHidden ? 'flex-direction: column-reverse;' : ''}  
   
   margin-top: 36px;
   
@@ -37,8 +40,7 @@ const PropertyCardContent = styled.div`
   padding: 16px;
   
   & img {
-    max-width: 156px;
-    max-height: 204px;
+    max-height: 180px;
   }
 `
 
@@ -49,16 +51,16 @@ const ImageWrapper = styled.div`
 `
 
 interface IPropertyReportCard {
-    ({ organizationId, property }: { organizationId: string, property: Property }): React.ReactElement
+    ({ organizationId, property, role }: { organizationId: string, property: Property, role: unknown }): React.ReactElement
 }
 
-const PropertyReportCard: IPropertyReportCard = ({ organizationId, property }) => {
+const PropertyReportCard: IPropertyReportCard = ({ organizationId, property, role }) => {
     const intl = useIntl()
     const PropertyReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportTitle' })
     const PropertyReportDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportDescription' })
     const PropertyReportComingSoonTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonTitle' })
     const PropertyReportComingSoonSubTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonSubTitle' })
-    const PropertyReportComingSoonDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonDescription' })
+    const PropertyReportAccessDeniedTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportAccessDenied' })
     const BecomeSberClientTitle = intl.formatMessage({ id: 'pages.condo.property.id.becomeSberClientTitle' })
     const SetupReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.setupReportTitle' })
     const ModalTitle = intl.formatMessage({ id: 'pages.condo.property.id.ModalTitle' })
@@ -74,7 +76,7 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property }) =
     const [bankAccountModalVisible, setBankAccountModalVisible] = useState(false)
 
     const createBankAccountRequestCallback = useCallback(async () => {
-        const alreadySent = cookie.get('createBankAccountRequestSent')
+        const alreadySent = cookie.get(`createBankAccountRequestSent-${property.id}`)
         if (alreadySent) {
             notification.error({ message: AlreadySentTitle })
         } else {
@@ -94,7 +96,7 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property }) =
                     message: LoadingError,
                 })
             } else {
-                cookie.set('createBankAccountRequestSent', true, { expires: 1 })
+                cookie.set(`createBankAccountRequestSent-${property.id}`, true, { expires: 1 })
                 setBankAccountModalVisible(true)
             }
         }
@@ -104,6 +106,8 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property }) =
 
     const bankAccountCardEnabled = useFlag(PROPERTY_BANK_ACCOUNT)
     const isSmall = width >= PROPERTY_CARD_WIDTH_THRESHOLD
+    const canManageBankAccount = get(role, 'canManageBankAccounts', false)
+    const isButtonsHidden = !canManageBankAccount || !bankAccountCardEnabled
 
     return (
         <>
@@ -113,33 +117,33 @@ const PropertyReportCard: IPropertyReportCard = ({ organizationId, property }) =
                         <Typography.Title level={3}>
                             {bankAccountCardEnabled ? PropertyReportTitle : PropertyReportComingSoonTitle}
                         </Typography.Title>
-                        {bankAccountCardEnabled ? (
+                        <>
                             <Typography.Paragraph>{PropertyReportDescription}</Typography.Paragraph>
-                        ) : (
-                            <>
-                                <Typography.Paragraph>{PropertyReportComingSoonSubTitle}</Typography.Paragraph>
-                                <Typography.Paragraph>{PropertyReportComingSoonDescription}</Typography.Paragraph>
-                            </>
-                        )}
+                            {bankAccountCardEnabled
+                                ? canManageBankAccount ? null : (
+                                    <Typography.Paragraph>{PropertyReportAccessDeniedTitle}</Typography.Paragraph>
+                                )
+                                : (
+                                    <Typography.Paragraph>{PropertyReportComingSoonSubTitle}</Typography.Paragraph>
+                                )}
+                        </>
                     </Space>
-                    <PropertyReportCardBottomWrapper ref={setRef} isSmall={isSmall}>
-                        <Space direction='vertical' size={12}>
-                            {bankAccountCardEnabled ? (
-                                <>
-                                    <Button type='primary'>
-                                        {SetupReportTitle}
-                                    </Button>
-                                    <Button
-                                        type='secondary'
-                                        onClick={createBankAccountRequestCallback}
-                                        loading={createBankAccountRequestLoading}
-                                    >
-                                        {BecomeSberClientTitle}
-                                    </Button>
-                                </>
-                            )
-                                : null
-                            }
+                    <PropertyReportCardBottomWrapper
+                        ref={setRef}
+                        isSmall={isSmall}
+                        isButtonsHidden={isButtonsHidden}
+                    >
+                        <Space direction='vertical' size={12} hidden={isButtonsHidden}>
+                            <Button type='primary'>
+                                {SetupReportTitle}
+                            </Button>
+                            <Button
+                                type='secondary'
+                                onClick={createBankAccountRequestCallback}
+                                loading={createBankAccountRequestLoading}
+                            >
+                                {BecomeSberClientTitle}
+                            </Button>
                         </Space>
                         <ImageWrapper>
                             <Image src='/property-empty-report.png' preview={false} />
