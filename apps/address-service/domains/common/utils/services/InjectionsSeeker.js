@@ -65,8 +65,8 @@ class InjectionsSeeker {
             const block_type = get(injection, ['block', 'typeShort'], '')
             const block = get(injection, ['block', 'name'], '')
 
-            const value = [
-                country,
+            const value = (isUnrestricted = false) => [
+                isUnrestricted ? country : null,
                 region_with_type,
                 area_with_type,
                 city_with_type,
@@ -78,8 +78,8 @@ class InjectionsSeeker {
             ].filter(Boolean).join(', ').trim()
 
             return {
-                value,
-                unrestricted_value: value,
+                value: value(),
+                unrestricted_value: value(true),
                 rawValue: `injectionId:${injection.id}`,
                 data: {
                     postal_code: null,
