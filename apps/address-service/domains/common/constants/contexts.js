@@ -33,7 +33,7 @@ const suggestionContexts = {
     },
     suggestHouse: {
         [DADATA_PROVIDER]: {
-            from_bound: { value: 'house' },
+            from_bound: { value: 'city' },
             to_bound: { value: 'house' },
         },
     },
