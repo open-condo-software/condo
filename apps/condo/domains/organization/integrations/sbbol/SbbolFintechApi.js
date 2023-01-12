@@ -69,6 +69,90 @@ const logger = getLogger('sbbol/SbbolFintechApi')
  */
 
 
+/**
+ * @typedef SbbolAccount
+ * @property {string} bic (string, optional)    БИК банка, где открыт счет
+ * @property {string[]} blockedQueuesInfo (AccountBlockInfo[], optional)    Приостановления операций по счету выше очередности (блокировки по очередности)
+ * @property {string[]} blockedSumQueuesInfo (AccountBlockInfo[], optional)    Приостановления операций по счету выше очередности на сумму
+ * @property {string[]} blockedSums (AccountBlockInfo[], optional)    Заблокированные (арестованные) суммы на счете
+ * @property {boolean} business (boolean, optional)    Признак бизнес-счета
+ * @property {boolean} businessNewType (boolean, optional)    Признак бизнес-счета 'нового' типа
+ * @property {number} cdiAcptDocQnt (integer, optional)    Содержит информацию о расчетных документах, ожидающих акцепта. Количество документов
+ * @property {number} cdiAcptDocSum (number, optional)    Содержит информацию о расчетных документах, ожидающих акцепта. Сумма документов
+ * @property {number} cdiCart2DocQnt (integer, optional)    Содержит информацию о расчетных документах, помещенных в картотеку к счету 90902 (картотека 2). Количество документов
+ * @property {number} cdiCart2DocSum (number, optional)    Содержит информацию о расчетных документах, помещенных в картотеку к счету 90902 (картотека 2). Сумма документов
+ * @property {number} cdiPermDocQnt (integer, optional)    Содержит информацию о расчетных документах, ожидающих разрешения на проведение операции. Количество документов
+ * @property {number} cdiPermDocSum (number, optional)    Содержит информацию о расчетных документах, ожидающих разрешения на проведение операции. Сумма документов
+ * @property {string} closeDate (string, optional)    Дата закрытия счета
+ * @property {string} comment (string, optional)    Примечание
+ * @property {boolean} creditBlocked (boolean, optional)    Признак полной блокировки счета по кредиту
+ * @property {string} creditBlockedBeginDate (string, optional)    Дата начала действия ограничения
+ * @property {string} creditBlockedCause (string, optional)    Основание ареста
+ * @property {string} creditBlockedEndDate (string, optional)    Дата снятия ограничения
+ * @property {string} creditBlockedInitiator (string, optional)    Наименование органа, наложившего арест
+ * @property {string} creditBlockedTaxAuthorityCode (string, optional)    Код налогового органа, наложившего арест
+ * @property {string} currencyCode (string, optional)    Цифровой код валюты счета
+ * @property {boolean} dbo (boolean, optional)    Признак обслуживания в ДБО
+ * @property {boolean} debitBlocked (boolean, optional)    Признак полной блокировки счета по дебету
+ * @property {string} debitBlockedBeginDate (string, optional)    Дата начала действия ограничения
+ * @property {string} debitBlockedCause (string, optional)    Основание ареста
+ * @property {string} debitBlockedEndDate (string, optional)    Дата снятия ограничения
+ * @property {string} debitBlockedInitiator (string, optional)    Наименование органа, наложившего арест
+ * @property {string} debitBlockedTaxAuthorityCode (string, optional)    Код налогового органа, наложившего арест
+ * @property {number} minBalance (number, optional)    Минимальный поддерживаемый (неснижаемый) остаток на счете
+ * @property {string} mode (string, optional)    Режим работы счета = [STANDART, FORBIDDEN_RECEIVING, ONLY_RECEIVING]
+ * @property {string} name (string, optional)    Наименование счета
+ * @property {boolean} notDelay (boolean, optional)    Признак возможности проведения неотложных платежей
+ * @property {string} number (string, optional)    Номер счета (20 сиволов)
+ * @property {string} openDate (string, optional)    Дата открытия счета
+ * @property {number} overdraft (number, optional)    Сумма общего лимита овердрафта в валюте счета
+ * @property {boolean} passive (boolean, optional)    Признак пассивности счета
+ * @property {string} state (string, optional)    Состояние счета = [OPEN, BLOCKED, CLOSED]
+ * @property {string} type (string, optional)    Тип счета = [assuranceRegistration, calculated, transit, specialTransit, budget, loan, deposit]
+ * @property {boolean} urgent (boolean, optional)    Признак возможности проведения срочных платежей
+ */
+
+/**
+ * @typedef SbbolClientInfo
+ * @property {string} shortName (string, optional)	Сокращенное наименование организации
+ * @property {string} fullName (string, optional)	Полное наименование организации
+ * @property {string} ogrn (string, optional)	ОГРН
+ * @property {string} inn (string, optional)	ИНН / КИО
+ * @property {string} orgForm (string, optional)	Организационно-правовая форма организации клиента
+ * @property {Address[]} addresses (Address[], optional)	Адреса (все заведенные для клиента)
+ * @property {SbbolAccount[]} accounts (SbbolAccount[], optional)	Счета организации клиента, доступные партнеру
+ * (если клиент выбрал счет при заключении оферты)
+ * @property {string[]} kpps (string[], optional)	КПП (все заведенные для организации клиента)
+ * @description There are more fields that can only be obtained by expanding the request scope,
+ * so for a complete list of what you can get, you need to go to the SberBusiness documentation
+ */
+
+/**
+ * SBBOL format response parser
+ *
+ * @param {{data: Object, statusCode: Number}} response SBBOL formatted response
+ * @param {Number} statusCode successful response code
+ * @param {String} msg successful response code
+ * @return {{{error: any, statusCode: Number}}|{data: any}}
+ */
+function parseSbbolResponse (response, statusCode, msg) {
+    try {
+        const jsonData = JSON.parse(get(response, 'data'))
+
+        if (response.statusCode === statusCode) {
+            return { data: jsonData }
+        } else {
+            return { error: jsonData, statusCode: response.statusCode }
+        }
+    } catch (error) {
+        return logger.error({ msg, error })
+    }
+}
+
+/**
+ * Offers access to only some set of methods
+ * Requires separate `clientId` and secret (differs from authentication)
+ */
 class SbbolFintechApi extends SbbolRequestApi {
 
     get apiPrefix () {
@@ -86,20 +170,7 @@ class SbbolFintechApi extends SbbolRequestApi {
             path: this.getClientInfoRequestPath,
         })
 
-        try {
-            const jsonData = JSON.parse(data)
-            const error = get(jsonData, 'error')
-
-            if (error) return logger.error({ msg: 'getClientInfo from SBBOL error', error })
-
-            if (statusCode === 200) {
-                return { data: jsonData }
-            } else {
-                return { error: jsonData, statusCode }
-            }
-        } catch (error) {
-            return logger.error({ msg: 'getClientInfo from SBBOL error', error })
-        }
+        return parseSbbolResponse({ data, statusCode }, 200, 'getClientInfo from SBBOL error')
     }
 
     get getClientInfoRequestPath () {
@@ -124,18 +195,7 @@ class SbbolFintechApi extends SbbolRequestApi {
                 page,
             },
         })
-
-        try {
-            const jsonData = JSON.parse(data)
-
-            if (statusCode === 200) {
-                return { data: jsonData }
-            } else {
-                return { error: jsonData, statusCode }
-            }
-        } catch (error) {
-            return logger.error({ msg: 'getStatementTransactions from SBBOL error', error })
-        }
+        return parseSbbolResponse({ data, statusCode }, 200, 'getStatementTransactions from SBBOL error')
     }
 
     get getStatementTransactionsRequestPath () {
