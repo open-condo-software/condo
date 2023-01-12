@@ -2,6 +2,7 @@ const express = require('express')
 const get = require('lodash/get')
 const { getSuggestionsProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
+const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constants/providers')
 
 /**
  * @typedef {Object} NormalizedSuggestion
@@ -93,6 +94,23 @@ class SuggestionKeystoneApp {
                 const denormalizedInjections = await injectionsSeeker.getInjections(await params.keystone.createContext({ skipAccessControl: true }))
 
                 suggestions.unshift(...injectionsSeeker.normalize(denormalizedInjections))
+                suggestions.sort((a, b) => {
+                    // Sort only injections, because we try to keep the provider's sort ordering.
+                    if (
+                        get(a, ['provider', 'name']) === INJECTIONS_PROVIDER
+                        || get(b, ['provider', 'name']) === INJECTIONS_PROVIDER
+                    ) {
+                        if (a.value < b.value) {
+                            return -1
+                        }
+
+                        if (a.value > b.value) {
+                            return 1
+                        }
+                    }
+
+                    return 0
+                })
             }
 
             res.json(suggestions)
