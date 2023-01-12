@@ -126,6 +126,10 @@ class GoogleSearchProvider extends AbstractSearchProvider {
             }, {})
 
             return {
+                /**
+                 * In an emergency try to build the `value` as dadata does
+                 * {@link https://confluence.hflabs.ru/pages/viewpage.action?pageId=1105068073}
+                 */
                 value: get(item, 'formatted_address'),
                 unrestricted_value: get(item, 'formatted_address'),
                 rawValue: get(item, 'value'),
