@@ -14,7 +14,6 @@ const { getIdentityIntegration } = require('@condo/domains/user/integration/iden
 const {
     User,
     UserExternalIdentity,
-    registerUserExternalIdentity,
 } = require('@condo/domains/user/utils/serverSchema')
 const { USER_EXTERNAL_IDENTITY_AUTH_SESSION_KEY } = require('@condo/domains/user/constants/links')
 const { RESIDENT, USER_TYPES } = require('@condo/domains/user/constants/common')
@@ -140,11 +139,12 @@ class UserExternalIdentityRoute {
     }
 
     async linkUser (req, res, context, user, userInfo, identityType) {
-        await registerUserExternalIdentity(context, {
+        await UserExternalIdentity.create(context, {
+            dv: sender.dv,
             sender,
-            user: { id: user.id },
+            user: { connect: { id: user.id } },
             identityId: userInfo.id,
-            identityType,
+            identityType: identityType,
             meta: userInfo,
         })
 
