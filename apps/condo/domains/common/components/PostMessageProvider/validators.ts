@@ -1,9 +1,9 @@
-import type { RequestParamValidator, AllRequestMethods, RequestParams } from './types'
-import Ajv, { JSONSchemaType } from 'ajv'
+import type { RequestParamValidator, AllRequestMethods } from './types'
+import Ajv from 'ajv'
 
 const ajv = new Ajv()
 
-const CondoWebAppResizeWindowParamsSchema: JSONSchemaType<RequestParams<'CondoWebAppResizeWindow'>> = {
+const CondoWebAppResizeWindowParamsSchema = {
     type: 'object',
     properties: {
         height: { type: 'number' },
