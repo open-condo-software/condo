@@ -275,7 +275,8 @@ const Property = new GQLListSchema('Property', {
                 create: access.canManageIsApprovedField,
                 update: access.canManageIsApprovedField,
             },
-            default: false,
+            defaultValue: false,
+            kmigratorOptions: { null: false },
         },
 
         yearOfConstruction: {
