@@ -12,6 +12,8 @@ import type {
 const NO_RESPONSE_TIMEOUT_MS = 1000 // 1 sec
 const NO_RESPONSE_ERROR: ErrorResponseData = {
     errorType: 'client',
+    errorCode: 5,
+    errorReason: 'TIMEOUT_REACHED',
     errorMessage: `Request was failed. Response was not received in ${NO_RESPONSE_TIMEOUT_MS} ms timeout.`,
 }
 

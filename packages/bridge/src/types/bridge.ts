@@ -15,9 +15,10 @@ export type BaseResponseEvent<ResponseType extends string, Data> = {
 export type ResultResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['result']
 export type ResultResponseData<Method extends AnyResponseMethodName> = ResultResponseDataMap[Method]
 export type ErrorResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['error']
-// TODO(DOMA-5086): Add error codes mechanism?
 export type ClientErrorResponseData = {
     errorType: 'client',
+    errorCode: number,
+    errorReason: string
     errorMessage: string
 }
 export type ErrorResponseData = ClientErrorResponseData
