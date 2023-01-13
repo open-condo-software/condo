@@ -405,21 +405,21 @@ describe('RegisterResidentService', () => {
         const adminClient = await makeLoggedInAdminClient()
 
         const [organization] = await registerNewOrganization(adminClient)
-        const [OlderButApprovedProperty] = await createTestProperty(adminClient, organization, {
+        const [OlderProperty] = await createTestProperty(adminClient, organization, {
             map: buildingMapJson,
-            isApproved: true,
         })
 
         const [organization2] = await registerNewOrganization(adminClient)
-        await createTestProperty(adminClient, organization2, {
+        const [newerButApprovedProperty] = await createTestProperty(adminClient, organization2, {
             map: buildingMapJson,
-            address: OlderButApprovedProperty.address,
-            addressMeta: OlderButApprovedProperty.addressMeta,
+            address: OlderProperty.address,
+            addressMeta: OlderProperty.addressMeta,
+            isApproved: true,
         })
 
         const payload = {
-            address: OlderButApprovedProperty.address,
-            addressMeta: OlderButApprovedProperty.addressMeta,
+            address: OlderProperty.address,
+            addressMeta: OlderProperty.addressMeta,
         }
 
         const [obj, attrs] = await registerResidentByTestClient(adminClient, payload)
@@ -430,8 +430,8 @@ describe('RegisterResidentService', () => {
         expect(obj.address).toEqual(attrs.address)
         expect(obj.addressMeta).toStrictEqual(attrs.addressMeta)
         expect(obj.user.id).toEqual(adminClient.user.id)
-        expect(obj.property.id).toEqual(OlderButApprovedProperty.id)
-        expect(obj.organization.id).toEqual(organization.id)
+        expect(obj.property.id).toEqual(newerButApprovedProperty.id)
+        expect(obj.organization.id).toEqual(organization2.id)
         expect(obj.unitType).toEqual(FLAT_UNIT_TYPE)
     })
 
