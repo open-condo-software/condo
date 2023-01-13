@@ -12,7 +12,7 @@ import type {
     RequestIdType,
 } from './types'
 import type { ValidatorsType } from './validators'
-import type{ ErrorReason } from './errors'
+import type { ErrorReason } from './errors'
 import { validators } from './validators'
 import { ERROR_CODES } from './errors'
 
@@ -133,8 +133,10 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     }, [])
 
     const handleMessage = useCallback((event: MessageEvent) => {
-        if (!event.isTrusted || !event.source ||
-            event.source instanceof ServiceWorker || event.source instanceof MessagePort) {
+        if (!event.isTrusted ||
+            !event.source ||
+            event.source instanceof ServiceWorker ||
+            event.source instanceof MessagePort) {
             return
         }
 

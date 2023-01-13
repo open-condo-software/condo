@@ -9,7 +9,7 @@ export const TIMEOUT_REACHED = 'TIMEOUT_REACHED'
 export const ERROR_REASONS = [ACCESS_DENIED, UNKNOWN_ERROR, UNKNOWN_METHOD, INVALID_PARAMETERS, HANDLER_ERROR, TIMEOUT_REACHED] as const
 export type ErrorReason = typeof ERROR_REASONS[number]
 export const ERROR_CODES: { [reason in ErrorReason]: number } = {
-    ACCESS_DENIED:0,
+    ACCESS_DENIED: 0,
     UNKNOWN_ERROR: 1,
     UNKNOWN_METHOD: 2,
     INVALID_PARAMETERS: 3,
