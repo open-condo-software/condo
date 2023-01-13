@@ -54,7 +54,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const StatusLabel = 'Статус'
     const WorkStartLabel = 'Начало работ'
     const WorkFinishLabel = 'Завершение работ'
-    const AllPropertiesMessage = 'Все дома?'
+    const AllPropertiesMessage = 'Все дома'
 
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 

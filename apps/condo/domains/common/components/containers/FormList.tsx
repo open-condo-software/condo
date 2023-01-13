@@ -14,6 +14,7 @@ import {
     Typography,
     Space,
 } from 'antd'
+import { FormProps } from 'antd/lib/form/Form'
 import { ArgsProps } from 'antd/lib/notification'
 import { isUndefined, throttle } from 'lodash'
 import omitBy from 'lodash/omitBy'
@@ -28,6 +29,7 @@ import { Button } from '@condo/domains/common/components/Button'
 import { Modal } from '@condo/domains/common/components/Modal'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
@@ -224,7 +226,7 @@ type OnCompletedMsgFunctionType <T> = (data: T) => ArgsProps
 export type OnCompletedMsgType<T> = string | OnCompletedMsgFunctionType<T>
 
 // TODO(Dimitreee): add children type/interface
-interface IFormWithAction<TRecordFormState, TRecordUIState> {
+interface IFormWithAction<TRecordFormState, TRecordUIState> extends FormProps {
     action?: (formValues) => Promise<TRecordUIState>
     mutation?: Document.Node
     initialValues?: TRecordFormState,
