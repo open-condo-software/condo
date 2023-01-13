@@ -116,7 +116,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     period: receipt.period,
                     toPay: receipt.toPay,
                     toPayDetails: receipt.toPayDetails,
-                    services: receipt.services,
+                    services: receipt.invalidServicesError ? null : receipt.services,
                     printableNumber: receipt.printableNumber,
                     serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber),
                     currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),

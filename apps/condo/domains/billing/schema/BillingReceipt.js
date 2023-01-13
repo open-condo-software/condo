@@ -106,6 +106,12 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
         },
 
+        invalidServicesError:  {
+            schemaDoc: 'Indicates if services are valid and add up to total sum toPay.',
+            type: Text,
+            isRequired: false,
+        },
+
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -116,6 +122,22 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         auth: true,
     },
     hooks: {
+        resolveInput: async ({ resolvedData, existingItem }) => {
+            const newItem = { ...existingItem, ...resolvedData }
+            let servicesTotal = 0
+
+            for (let service of newItem.services){
+                servicesTotal += parseFloat(service.toPay)
+            }
+
+            const isServicesValid = servicesTotal.toFixed(2) === newItem.toPay
+
+            newItem.invalidServicesError = !isServicesValid
+                ? `Services sum (${servicesTotal.toFixed(2)}) does not add up to the toPay (${newItem.toPay}) amount correctly`
+                : null
+
+            return newItem
+        },
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem
