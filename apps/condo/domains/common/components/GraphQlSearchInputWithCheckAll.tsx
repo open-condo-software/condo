@@ -10,9 +10,10 @@ import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import Checkbox from './antd/Checkbox'
 import { GraphQlSearchInput } from './GraphQlSearchInput'
 
-type InputWithCheckAllProps = {
+
+export type InputWithCheckAllProps = {
     onCheckBoxChange?: (value: boolean) => void
-    selectFormItemProps?: FormItemProps
+    selectFormItemProps: FormItemProps & Required<Pick<FormItemProps, 'name'>>
     checkAllFieldName: string,
     checkAllInitialValue: boolean,
     CheckAllMessage: string,
