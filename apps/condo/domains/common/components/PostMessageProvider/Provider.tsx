@@ -1,6 +1,6 @@
 import React, { useEffect, createContext, useState, useContext, useCallback } from 'react'
 import Ajv from 'ajv'
-import type { JSONSchemaType } from 'ajv'
+import type { ValidateFunction } from 'ajv'
 import getConfig from 'next/config'
 import omit from 'lodash/omit'
 import get from 'lodash/get'
@@ -66,7 +66,7 @@ type MessageType = {
 }
 
 const ajv = new Ajv()
-const messageSchema: JSONSchemaType<MessageType> = {
+const messageSchema = {
     type: 'object',
     properties: {
         handler: { type: 'string' },
@@ -77,7 +77,7 @@ const messageSchema: JSONSchemaType<MessageType> = {
     required: ['handler', 'type', 'version', 'params'],
     additionalProperties: false,
 }
-const validateMessage = ajv.compile(messageSchema)
+const validateMessage: ValidateFunction<MessageType> = ajv.compile(messageSchema)
 
 function getClientErrorMessage<Method extends AllRequestMethods> (
     reason: ErrorReason,
