@@ -6,7 +6,6 @@ import omit from 'lodash/omit'
 import get from 'lodash/get'
 import type {
     AllRequestMethods,
-    RequestParams,
     RequestHandler,
     ClientErrorResponse,
     RequestId,
@@ -29,7 +28,6 @@ type OriginHandlers = Partial<{ [Method in AllRequestMethods]: RequestHandler<Me
 type RegisterHandler = <Method extends AllRequestMethods>(
     event: Method,
     origin: '*' | string,
-    paramsSchema: JSONSchemaType<RequestParams<Method>>,
     handler: RequestHandler<Method>
 ) => void
 
@@ -113,7 +111,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerOrigin, OriginHandlers>>({})
     const isOnClient = typeof window !== 'undefined'
 
-    const registerHandler: RegisterHandler = useCallback((event, origin, paramsSchema, handler) => {
+    const registerHandler: RegisterHandler = useCallback((event, origin, handler) => {
         setRegisteredHandlers(prev => {
             return {
                 ...prev,
@@ -184,10 +182,11 @@ export const PostMessageProvider: React.FC = ({ children }) => {
                             ...result,
                             ...(typeof requestId !== 'undefined' ? { requestId } : null),
                         },
-                    })
+                    }, event.origin)
                 } catch (err) {
                     return event.source.postMessage(
-                        getClientErrorMessage('HANDLER_ERROR', err.message, requestId, method)
+                        getClientErrorMessage('HANDLER_ERROR', err.message, requestId, method),
+                        event.origin
                     )
                 }
             } else {
