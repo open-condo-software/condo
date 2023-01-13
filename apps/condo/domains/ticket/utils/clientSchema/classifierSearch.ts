@@ -15,7 +15,7 @@ import { ITicketClassifierWhereInput } from './TicketClassifier'
 
 const MAX_SEARCH_COUNT = 20
 
-type Options = {
+export type Options = {
     id: string
     name: string
 }
