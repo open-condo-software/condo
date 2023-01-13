@@ -42,6 +42,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { services } = require('@condo/domains/billing/utils/testData/servicesData')
 
 describe('BillingReceipt', () => {
     let admin
@@ -789,40 +790,7 @@ describe('BillingReceipt', () => {
             }))
         })
         test('Update services field', async () => {
-            const payload = {
-                services: [
-                    {
-                        id: 'COLD-WATER',
-                        name: 'Cold water',
-                        toPay: '3000.00',
-                        toPayDetails: {
-                            formula: 'charge+penalty',
-                            charge: '6000.00',
-                            penalty: '3000.12',
-                        },
-                    },
-                    {
-                        id: 'HOT-WATER',
-                        name: 'Hot water',
-                        toPay: '3000.00',
-                        toPayDetails: {
-                            formula: 'charge+penalty',
-                            charge: '6000.00',
-                            penalty: '3000.12',
-                        },
-                    },
-                    {
-                        id: 'ELECTRICITY',
-                        name: 'Electricity to power your toxicity!',
-                        toPay: '3000.00',
-                        toPayDetails: {
-                            formula: 'charge+penalty',
-                            charge: '6000.00',
-                            penalty: '3000.12',
-                        },
-                    },
-                ],
-            }
+            const payload = { services }
             const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
 
             expect(updatedReceipt).toEqual(expect.objectContaining({
@@ -914,6 +882,18 @@ describe('BillingReceipt', () => {
 
                 expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
                 expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
+            })
+            test('Should validate that services add up to the total sum (toPay)', async () => {
+                const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                    services, toPay: '9000.00',
+                })
+                const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
+                    services, toPay: '9999.00',
+                })
+
+                expect(receipt).toHaveProperty(['invalidServicesError'], null)
+                expect(receipt2).toHaveProperty(['invalidServicesError'],
+                    'Services sum (9000.00) does not add up to the toPay (9999.00) amount correctly')
             })
         })
     })
