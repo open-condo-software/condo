@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Row, Col, Space, RowProps } from 'antd'
 import { useRouter } from 'next/router'
@@ -14,15 +14,17 @@ import { DeleteFilled } from '@ant-design/icons'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
+import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { useOrganization } from '@open-condo/next/organization'
-import { List, Typography, Button } from '@open-condo/ui'
 import type { ListProps } from '@open-condo/ui'
+import { List, Typography, Button } from '@open-condo/ui'
 import { PropertyReportCard } from '@condo/domains/property/components/PropertyReportCard'
+import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
@@ -34,6 +36,8 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
     type: 'sberDangerGhost',
     icon: <DeleteFilled />,
 }
+
+const TICKET_STATUS_INWORK_TYPE = [TicketStatusType.NewOrReopened, TicketStatusType.Processing, TicketStatusType.Completed]
 
 export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
     const intl = useIntl()
@@ -59,10 +63,39 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
     const { push } = useRouter()
 
     const softDeleteAction = Property.useSoftDelete( () => push('/property/'))
+    const { objs: ticketStatuses, loading: ticketStatusLoading } = TicketStatus.useObjects({})
 
     const yearOfConstructionCardLabel = property.yearOfConstruction
         ? dayjs(property.yearOfConstruction).format('YYYY')
         : UnknownValueTitle
+
+    const ticketInWorkClick = useCallback(() => {
+        if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsInWork)) {
+            const inWorkStatuses = ticketStatuses
+                .filter(status => TICKET_STATUS_INWORK_TYPE.includes(status.type))
+                .map(status => `"${status.id}"`).join(',')
+            if (inWorkStatuses) {
+                window.open(`/ticket?filters={"status":[${inWorkStatuses}],"property":"${property.id}"}`, '_blank')
+            }
+        }
+    }, [property, ticketStatusLoading, ticketStatuses])
+    const ticketDeferredClick = useCallback(() => {
+        if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsDeferred)) {
+            const deferredTicketStatus = ticketStatuses.find(status => status.type === TicketStatusType.Deferred)
+            if (deferredTicketStatus) {
+                window.open(`/ticket?filters={"status":"${deferredTicketStatus.id}","property":"${property.id}"}`, '_blank')
+            }
+        }
+    }, [property, ticketStatusLoading, ticketStatuses])
+    const ticketClosedClick = useCallback(() => {
+        if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsClosed)) {
+            const closedTicketStatus = ticketStatuses.find(status => status.type === TicketStatusType.Closed)
+            if (closedTicketStatus) {
+                window.open(`/ticket?filters={"status":"${closedTicketStatus.id}","property":"${property.id}"}`, '_blank')
+            }
+        }
+    }, [property, ticketStatusLoading, ticketStatuses])
+
     const propertyInfoDataSource = useMemo<ListProps['dataSource']>(() => [
         {
             label: AreaTitle,
@@ -91,18 +124,22 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
             label: TicketsInWorkTitle,
             value: property.ticketsInWork,
             valueTextType: 'warning',
+            valueClick: ticketInWorkClick,
         },
         {
             label: TicketsDeferredTitle,
             value: property.ticketsDeferred,
             valueTextType: 'info',
+            valueClick: ticketDeferredClick,
         },
         {
             label: TicketsClosedTitle,
             value: property.ticketsClosed,
             valueTextType: 'success',
+            valueClick: ticketClosedClick,
         },
-    ], [TicketsDeferredTitle, TicketsInWorkTitle, TicketsClosedTitle, property])
+    ], [TicketsDeferredTitle, TicketsInWorkTitle, TicketsClosedTitle, property,
+        ticketDeferredClick, ticketInWorkClick, ticketClosedClick])
 
     const canManageProperties = get(role, 'canManageProperties', false)
 
