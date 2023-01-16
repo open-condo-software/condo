@@ -36,10 +36,10 @@ type RegisterHandler = <Method extends AllRequestMethods>(
  */
 type IPostMessageContext = {
     allowedOrigins: Readonly<Array<string>>
-    registerOrigin: (origin: string) => void
-    resetOrigin: (origin: string) => void
+    addOrigin: (origin: string) => void
+    removeOrigin: (origin: string) => void
     handlers: Readonly<Record<HandlerOrigin, OriginHandlers>>
-    registerHandler: RegisterHandler
+    addEventHandler: RegisterHandler
     validators: Readonly<ValidatorsType>
 }
 
@@ -48,10 +48,10 @@ type IPostMessageContext = {
  */
 const PostMessageContext = createContext<IPostMessageContext>({
     allowedOrigins: [serverUrl],
-    registerOrigin: () => ({}),
-    resetOrigin: () => ({}),
+    addOrigin: () => ({}),
+    removeOrigin: () => ({}),
     handlers: {},
-    registerHandler: () => ({}),
+    addEventHandler: () => ({}),
     validators,
 })
 /**
@@ -111,7 +111,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerOrigin, OriginHandlers>>({})
     const isOnClient = typeof window !== 'undefined'
 
-    const registerHandler: RegisterHandler = useCallback((event, origin, handler) => {
+    const addEventHandler: RegisterHandler = useCallback((event, origin, handler) => {
         setRegisteredHandlers(prev => {
             return {
                 ...prev,
@@ -123,11 +123,11 @@ export const PostMessageProvider: React.FC = ({ children }) => {
         })
     }, [])
 
-    const registerOrigin = useCallback((origin: string) => {
+    const addOrigin = useCallback((origin: string) => {
         setAllowedOrigins((prev) => prev.includes(origin) ? prev : [...prev, origin])
     }, [])
 
-    const resetOrigin = useCallback((origin: string) => {
+    const removeOrigin = useCallback((origin: string) => {
         setAllowedOrigins((prev) => prev.filter(element => element !== origin))
         setRegisteredHandlers((prev) => omit(prev, origin))
     }, [])
@@ -211,10 +211,10 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     return (
         <PostMessageContext.Provider value={{
             allowedOrigins,
-            registerOrigin,
-            resetOrigin,
+            addOrigin,
+            removeOrigin,
             handlers: registeredHandlers,
-            registerHandler,
+            addEventHandler,
             validators,
         }}>
             {children}
