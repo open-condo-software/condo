@@ -8,7 +8,7 @@ const access = require('@condo/domains/ticket/access/IncidentProperty')
 const { ADDRESS_META_FIELD } = require('../../common/schema/fields')
 const { get } = require('lodash')
 const { GQLError } = require('@open-condo/keystone/errors')
-const { INCIDENT_PROPERTY_ERRORS } = require('../constants/incident')
+const { INCIDENT_PROPERTY_ERRORS } = require('../constants/errors')
 
 
 const IncidentProperty = new GQLListSchema('IncidentProperty', {
