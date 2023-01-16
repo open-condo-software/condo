@@ -38,6 +38,8 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 import { useValidations } from '../../../common/hooks/useValidations'
 import { Rule } from 'rc-field-form/lib/interface'
 import dayjs from 'dayjs'
+import { Loader } from '../../../common/components/Loader'
+import { MIN_DESCRIPTION_LENGTH } from '../../constants/restrictions'
 
 
 type FormWithActionChildrenProps = ComponentProps<ComponentProps<typeof FormWithAction>['children']>
@@ -47,6 +49,7 @@ type ActionBarProps = Pick<FormWithActionChildrenProps, 'handleSave' | 'isLoadin
 type IncidentClientUtilsType = IGenerateHooksResult<IIncident, IIncidentCreateInput, IIncidentUpdateInput, IQueryAllIncidentsArgs>
 
 export type BaseIncidentFormProps = {
+    loading?: boolean
     ActionBar?: React.FC<ActionBarProps>
     initialValues?: Pick<IIncident, 'id'
     | 'workStart'
@@ -203,12 +206,10 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
         ClassifierLoader.init().then(async () => {
             const classifiers = await ClassifierLoader.search('', 'rules', null, 500) as ITicketClassifier[]
             const places = ClassifierLoader.rulesToOptions(classifiers, 'place')
-            const categories = ClassifierLoader.rulesToOptions(classifiers, 'category')
-            const problems = ClassifierLoader.rulesToOptions(classifiers, 'problem')
             const initialClassifiers = classifiers.filter(classifier => initialClassifierIds.includes(classifier.id))
             const initialPlaceId = get(initialClassifiers, [0, 'place', 'id'], null)
-            const initialCategoryIds = initialClassifiers.map(classifier => classifier.category.id)
-            const initialProblemIds = initialClassifiers.map(classifier => classifier.problem.id)
+            const initialCategoryIds = initialClassifiers.map(classifier => get(classifier, 'category.id'))
+            const initialProblemIds = initialClassifiers.map(classifier => get(classifier, 'problem.id', null)).filter(Boolean)
             setClassifiers(classifiers)
             setPlaces(convertToSelectOptions(places))
             setSelectedPlace(initialPlaceId)
@@ -222,7 +223,7 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
             })
             setLoading(false)
         })
-    }, [])
+    }, [ClassifierLoader, form, initialClassifierIds])
 
     // console.log({ places, categories, problems, classifiers })
     // console.log({ selectedProblems, selectedPlace, selectedCategories })
@@ -322,6 +323,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
         ActionBar,
         initialValues = {} as BaseIncidentFormProps['initialValues'],
         organizationId,
+        loading,
     } = props
 
     const CheckAllLabel = 'CheckAllLabel'
@@ -335,6 +337,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const DetailsPlaceholder = 'DetailsPlaceholder'
     const TextForResidentLabel = 'TextForResidentLabel'
     const TextForResidentPlaceholder = 'TextForResidentPlaceholder'
+    const IncidentDetailsErrorMessage = 'Пожалуйста, опишите проблему подробнее'
 
     const router = useRouter()
 
@@ -348,8 +351,9 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const createIncidentTicketClassifier = IncidentTicketClassifier.useCreate({})
     const softDeleteIncidentTicketClassifier = IncidentTicketClassifier.useSoftDelete()
 
-    const initialIncidentProperties = get(initialValues, 'incidentProperties', []) as IIncidentProperty[]
-    const initialIncidentClassifiers = get(initialValues, 'incidentClassifiers', []) as IIncidentTicketClassifier[]
+    const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
+    const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentTicketClassifier[]
+    console.log(initialIncidentProperties, initialIncidentClassifiers)
 
     const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item.property.id), [initialIncidentProperties])
     const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item.classifier.id), [initialIncidentClassifiers])
@@ -381,7 +385,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             ) && (
                 categoryClassifiers.includes(get(classifier, 'category.id'))
             ) && (
-                problemClassifiers.includes(get(classifier, 'problem.id'))
+                (problemClassifiers.length < 1 && !get(classifier, 'problem.id'))
+                || problemClassifiers.includes(get(classifier, 'problem.id'))
             ))
             .map(classifier => classifier.id)
 
@@ -406,23 +411,39 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const propertySelectProps: InputWithCheckAllProps['selectProps'] = useMemo(() => ({
         showArrow: false,
         infinityScroll: true,
-        initialValue: initialIncidentProperties as any, // todo(DOMA-2567) fix types
+        initialValue: initialPropertyIds,
         search: searchOrganizationProperty(organizationId),
         disabled: !organizationId,
         required: true,
-    }), [initialIncidentProperties, organizationId])
+    }), [initialPropertyIds, organizationId])
 
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
         required: true,
         name: 'properties',
         validateFirst: true,
-        css: css('background-color: red;'),
     }), [])
 
-    const initialFormValues = { ...(initialValues), properties: initialIncidentProperties, classifiers: initialIncidentClassifiers }
+    const initialFormValues = useMemo(() => ({
+        ...initialValues,
+        properties: initialPropertyIds,
+        classifiers: initialIncidentClassifiers,
+    }), [initialIncidentClassifiers, initialPropertyIds, initialValues])
+    console.log({ initialFormValues, propertySelectProps })
 
-    const rules = useMemo(() => [requiredValidator], [requiredValidator])
+    const commonRules = useMemo(() => [requiredValidator], [requiredValidator])
+    const detailsRules = useMemo(() => [{
+        whitespace: true,
+        required: true,
+        min: MIN_DESCRIPTION_LENGTH,
+        message: IncidentDetailsErrorMessage,
+    }], [])
+
+    if (loading) {
+        return (
+            <Loader fill size='large'/>
+        )
+    }
 
     return (
         <Row gutter={[0, 40]}>
@@ -439,11 +460,11 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                 <GraphQlSearchInputWithCheckAll
                                     checkAllFieldName='hasAllProperties'
                                     checkAllInitialValue={initialValues.hasAllProperties}
-                                    CheckAllMessage={CheckAllLabel}
-                                    selectProps={propertySelectProps}
                                     selectFormItemProps={propertySelectFormItemProps}
-                                    form={form}
+                                    selectProps={propertySelectProps}
                                     checkBoxOffset={isSmallWindow ? 0 : 6}
+                                    CheckAllMessage={CheckAllLabel}
+                                    form={form}
                                 />
                             </Col>
                             <Col span={24}>
@@ -455,7 +476,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                         lg: 8,
                                         xl: 7,
                                     }}
-                                    rules={rules}
+                                    rules={commonRules}
                                 >
                                     <DatePicker
                                         style={{ width: '100%' }}
@@ -493,7 +514,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                             <Classifiers
                                 form={form}
                                 initialClassifierIds={initialClassifierIds}
-                                rules={rules}
+                                rules={commonRules}
                             />
                             <Col span={24}>
                                 <Row align='middle'>
@@ -527,7 +548,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
                                     label={DetailsLabel}
                                     name='details'
                                     required
-                                    rules={rules}
+                                    rules={detailsRules}
                                 >
                                     <TextArea maxLength={500} placeholder={DetailsPlaceholder}/>
                                 </Form.Item>
