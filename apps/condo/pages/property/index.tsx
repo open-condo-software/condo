@@ -11,7 +11,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { useRouter } from 'next/router'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { GetServerSideProps } from 'next'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import BuildingsTable from '@condo/domains/property/components/BuildingsTable'
 import { useTableColumns as usePropertiesTableColumns } from '@condo/domains/property/hooks/useTableColumns'
@@ -31,20 +30,6 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 
 
 type PropertiesType = 'buildings'
-const propertiesTypes: PropertiesType[] = ['buildings']
-
-export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-    if (propertiesTypes.includes(query.tab as PropertiesType)) {
-        return {
-            props: {
-                tab: query.tab,
-            },
-        }
-    }
-    return {
-        props: {},
-    }
-}
 
 type PropertiesContentProps = {
     role: OrganizationEmployeeRole
