@@ -41,6 +41,7 @@ const PropertyCardContent = styled.div`
   
   & img {
     max-height: 180px;
+    max-width: 140px;
   }
 `
 
