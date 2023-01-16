@@ -17,7 +17,7 @@ const {
     createTestOrganizationEmployee,
 } = require('../../organization/utils/testSchema')
 const { createTestProperty } = require('../../property/utils/testSchema')
-const { INCIDENT_PROPERTY_ERRORS } = require('../constants/incident')
+const { INCIDENT_PROPERTY_ERRORS } = require('../constants/errors')
 
 
 const DELETED_PAYLOAD = { deletedAt: 'true' }

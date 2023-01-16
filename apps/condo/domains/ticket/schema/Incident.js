@@ -9,7 +9,8 @@ const { ORGANIZATION_OWNED_FIELD } = require('../../organization/schema/fields')
 const { normalizeText } = require('../../common/utils/text')
 const dayjs = require('dayjs')
 const { GQLError } = require('@open-condo/keystone/errors')
-const { INCIDENT_ERRORS, INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL } = require('../constants/incident')
+const { INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL } = require('../constants/incident')
+const { INCIDENT_ERRORS } = require('../constants/errors')
 
 
 const Incident = new GQLListSchema('Incident', {
