@@ -1076,6 +1076,8 @@
   "notification.messages.CUSTOM_CONTENT_MESSAGE_EMAIL.push.title": "{title}",
   "notification.messages.CUSTOM_CONTENT_MESSAGE_SMS.email.subject": "{subject}",
   "notification.messages.CUSTOM_CONTENT_MESSAGE_SMS.push.title": "{title}",
+  "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "Новая заявка на открытие счета в Сбере",
+  "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.subject": "Открытие расчетного счета на дом",
   "TicketDeadline": "Срок выполнения заявки",
   "TicketDeferredDeadline": "Срок отложенности заявки",
   "ticket.EmptyList.header": "Список заявок пока пуст",
