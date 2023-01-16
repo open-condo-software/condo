@@ -32,6 +32,7 @@ const {
     createTestBillingReceipts,
     updateTestBillingReceipt,
     updateTestBillingReceipts,
+    generateServicesData,
 } = require('@condo/domains/billing/utils/testSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
@@ -43,6 +44,16 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { services } = require('@condo/domains/billing/utils/testData/servicesData')
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowInternalError,
+    expectToThrowValidationFailureError,
+    expectToThrowGraphQLRequestError,
+} = require('@open-condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
+const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 
 describe('BillingReceipt', () => {
     let admin
@@ -790,7 +801,7 @@ describe('BillingReceipt', () => {
             }))
         })
         test('Update services field', async () => {
-            const payload = { services }
+            const payload = { services: generateServicesData() }
             const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
 
             expect(updatedReceipt).toEqual(expect.objectContaining({
@@ -885,15 +896,15 @@ describe('BillingReceipt', () => {
             })
             test('Should validate that services add up to the total sum (toPay)', async () => {
                 const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    services, toPay: '9000.00',
+                    services: generateServicesData(1, '9000'), toPay: '9000.00',
                 })
                 const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
-                    services, toPay: '9999.00',
+                    services: generateServicesData(1, '9000'), toPay: '9999.00',
                 })
 
                 expect(receipt).toHaveProperty(['invalidServicesError'], null)
                 expect(receipt2).toHaveProperty(['invalidServicesError'],
-                    'Services sum (9000.00) does not add up to the toPay (9999.00) amount correctly')
+                    'Services sum (9000) does not add up to the toPay (9999.00000000) amount correctly')
             })
         })
     })
