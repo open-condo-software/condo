@@ -17,7 +17,7 @@ const {
     createTestOrganizationEmployee,
 } = require('../../organization/utils/testSchema')
 const dayjs = require('dayjs')
-const { INCIDENT_ERRORS } = require('../constants/incident')
+const { INCIDENT_ERRORS } = require('../constants/errors')
 
 
 const INCIDENT_PAYLOAD = {
