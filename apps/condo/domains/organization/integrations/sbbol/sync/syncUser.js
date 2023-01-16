@@ -82,7 +82,7 @@ const syncUser = async ({ context: { context, keystone }, userInfo, identityId }
         .map(identity => identity.user)
     const notImportedUsers = await User.getAll(context, {
         ...userWhereStatement,
-        id_not_in: importedUsers.map(identity => identity.user.id),
+        id_not_in: importedUsers.map(identity => identity.id),
     })
     const existingUsers = [...notImportedUsers, ...importedUsers]
     const existingUsersCount = existingUsers.length
