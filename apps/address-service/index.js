@@ -18,6 +18,7 @@ const {
     SearchByAddressKey,
     SearchByInjectionId,
     SearchByGooglePlaceId,
+    SearchByFiasId,
 } = require('@address-service/domains/common/utils/services/search/plugins')
 const { GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const nextCookie = require('next-cookies')
@@ -86,6 +87,7 @@ module.exports = {
             new SearchByAddressKey(),
             new SearchByInjectionId(),
             new SearchBySource(),
+            new SearchByFiasId(),
             new SearchByGooglePlaceId(),
             new SearchByProvider(),
         ]),
