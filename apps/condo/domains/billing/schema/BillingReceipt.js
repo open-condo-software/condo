@@ -3,7 +3,8 @@
  */
 
 
-const { Text, Relationship } = require('@keystonejs/fields')
+const { Big } = require('big.js')
+const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { get } = require('lodash')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -108,8 +109,20 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         invalidServicesError:  {
             schemaDoc: 'Indicates if services are valid and add up to total sum toPay.',
-            type: Text,
-            isRequired: false,
+            type: Virtual,
+            resolver: async (item) => {
+                let servicesTotal = 0
+
+                for (let service of get(item, 'services')){
+                    servicesTotal = Big(get(service, 'toPay')).plus(Big(servicesTotal))
+                }
+
+                const isServicesValid = Big(servicesTotal).cmp(Big(get(item, 'toPay'))) === 0
+
+                if (!isServicesValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${get(item, 'toPay')}) amount correctly`
+
+                return null
+            },
         },
 
     },
@@ -122,22 +135,6 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
         auth: true,
     },
     hooks: {
-        resolveInput: async ({ resolvedData, existingItem }) => {
-            const newItem = { ...existingItem, ...resolvedData }
-            let servicesTotal = 0
-
-            for (let service of newItem.services){
-                servicesTotal += parseFloat(service.toPay)
-            }
-
-            const isServicesValid = servicesTotal.toFixed(2) === newItem.toPay
-
-            newItem.invalidServicesError = !isServicesValid
-                ? `Services sum (${servicesTotal.toFixed(2)}) does not add up to the toPay (${newItem.toPay}) amount correctly`
-                : null
-
-            return newItem
-        },
         validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const { context: contextId, property: propertyId, account: accountId } = newItem

@@ -468,18 +468,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
         recipient: createTestRecipient(),
-        services: [
-            {
-                id: faker.datatype.number().toString(),
-                name: faker.random.alphaNumeric(),
-                toPay: faker.datatype.number().toString(),
-                toPayDetails: {
-                    formula: "charge + penalty",
-                    charge: faker.datatype.number().toString(),
-                    penalty: faker.datatype.number().toString(),
-                }
-            },
-        ],
+        services: generateServicesData(1),
         toPayDetails: {
             formula: "charge + penalty",
             charge: faker.datatype.number().toString(),
@@ -515,18 +504,7 @@ async function createTestBillingReceipts (client, contexts, properties, accounts
                 importId: faker.random.alphaNumeric(8),
                 toPay: (faker.datatype.number() + 50).toString(),
                 recipient: createTestRecipient(),
-                services: [
-                    {
-                        id: faker.datatype.number().toString(),
-                        name: faker.random.alphaNumeric(),
-                        toPay: faker.datatype.number().toString(),
-                        toPayDetails: {
-                            formula: "charge + penalty",
-                            charge: faker.datatype.number().toString(),
-                            penalty: faker.datatype.number().toString(),
-                        }
-                    },
-                ],
+                services: generateServicesData(1),
                 toPayDetails: {
                     formula: "charge + penalty",
                     charge: faker.datatype.number().toString(),
@@ -873,6 +851,24 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
     }
 }
 
+function generateServicesData(count=3, toPay=''){
+    const services = []
+
+    for (let i = 0; i < count; i++){
+        services.push({
+            id: faker.datatype.number().toString(),
+            name: faker.random.alphaNumeric(),
+            toPay: toPay !== '' ? toPay : faker.datatype.number().toString(),
+            toPayDetails: {
+                formula: "charge + penalty",
+                charge: faker.datatype.number().toString(),
+                penalty: faker.datatype.number().toString(),
+            }
+        },)
+    }
+    return services
+}
+
 
 module.exports = {
     BillingIntegration, createTestBillingIntegration, updateTestBillingIntegration,
@@ -899,6 +895,7 @@ module.exports = {
     makeServiceUserForIntegration,
     registerBillingReceiptsByTestClient,
     createRegisterBillingReceiptsPayload,
+    generateServicesData
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
