@@ -6,6 +6,7 @@ const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/p
 const { getRedisClient } = require('@open-condo/keystone/redis')
 
 const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
+const ADDRESS_TIN_CACHE_TTL = 84600 // in seconds
 
 /**
  * @typedef {Object} DadataObjectData
@@ -214,6 +215,48 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
 
             if (data) {
                 await redis.set(tin, JSON.stringify(data), 'EX', ORGANIZATION_TIN_CACHE_TTL)
+            }
+
+            return data
+        }
+
+        return null
+    }
+
+    /**
+     * @param {string} fiasId
+     * @returns {Promise<DadataObject|null>}
+     */
+    async getAddressByFiasId (fiasId) {
+        return await this.callToDadataCached({
+            cacheClient: getRedisClient('address', 'fiasId'),
+            searchKey: fiasId,
+            apiUrl: 'findById/address',
+            ttl: ADDRESS_TIN_CACHE_TTL,
+        })
+    }
+
+    /**
+     * @param {import('ioredis')} cacheClient
+     * @param {string} searchKey
+     * @param {string} apiUrl
+     * @param {number} ttl
+     * @returns {Promise<*|null>}
+     */
+    async callToDadataCached ({ cacheClient, searchKey, apiUrl, ttl = 3600 }) {
+        const cached = await cacheClient.get(searchKey)
+
+        if (cached) {
+            return JSON.parse(cached)
+        }
+
+        const result = await this.callToDadata(`${this.url}/${apiUrl}`, { query: searchKey })
+
+        if (result) {
+            const data = get(result, ['suggestions', 0], null)
+
+            if (data) {
+                await cacheClient.set(searchKey, JSON.stringify(data), 'EX', ttl)
             }
 
             return data
