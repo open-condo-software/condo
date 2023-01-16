@@ -1,13 +1,15 @@
 import { grey } from '@ant-design/colors'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
+import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
+import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
+import { validHouseTypes } from '@condo/domains/property/constants/property'
 import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { notification, Select, SelectProps } from 'antd'
 import get from 'lodash/get'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
-import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
-import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
+import { TSelectedAddressSuggestion } from './types'
 
 /*
     Fixes visual overlapping of close-button with text
@@ -30,11 +32,6 @@ interface AddressSearchInputProps extends SelectProps<string> {
     addressValidatorError?: string
 }
 
-type TSelectItem = {
-    text: string,
-    value: string,
-}
-
 export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = (props) => {
     const { setAddressValidatorError, addressValidatorError } = props
     const intl = useIntl()
@@ -55,13 +52,14 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     const { addressApi } = useAddressApi()
 
     const searchAddress = useCallback(
-        async (query: string): Promise<TSelectItem[]> => {
+        async (query: string): Promise<TSelectedAddressSuggestion[]> => {
             try {
                 const { suggestions } = await addressApi.getSuggestions(query)
                 return suggestions.map(suggestion => {
                     return {
                         text: suggestion.value,
                         value: suggestion.rawValue,
+                        isHouse: validHouseTypes.includes(suggestion.data.house_type_full),
                     }
                 })
             } catch (e) {
@@ -73,11 +71,11 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     )
 
     const renderOption = useCallback(
-        (dataItem: TSelectItem, searchValue) => {
+        (dataItem: TSelectedAddressSuggestion, searchValue) => {
             return (
                 <Select.Option
                     style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
-                    key={dataItem.value}
+                    key={JSON.stringify(dataItem)}
                     value={dataItem.text}
                     title={dataItem.text}
                 >

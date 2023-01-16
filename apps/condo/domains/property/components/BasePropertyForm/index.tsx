@@ -1,10 +1,3 @@
-import React, { useCallback, useState } from 'react'
-import { Col, Form, FormInstance, notification, Row, RowProps, Typography } from 'antd'
-import dayjs from 'dayjs'
-import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
-import { useIntl } from '@open-condo/next/intl'
-import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import Input from '@condo/domains/common/components/antd/Input'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -12,8 +5,16 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { AddressSuggestionsSearchInput } from '@condo/domains/property/components/AddressSuggestionsSearchInput'
-import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { TSelectedAddressSuggestion } from '@condo/domains/property/components/types'
 import { usePropertyValidations } from '@condo/domains/property/hooks/usePropertyValidations'
+import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
+import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
+import { useIntl } from '@open-condo/next/intl'
+import { Col, Form, FormInstance, notification, Row, RowProps, Typography } from 'antd'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import React, { useCallback, useState } from 'react'
 
 interface IOrganization {
     id: string
@@ -55,6 +56,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
+    const AddressValidationErrorMsg = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
 
     const { isSmall } = useLayoutContext()
     const { addressApi } = useAddressApi()
@@ -73,7 +75,8 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
 
         if (isAddressFieldTouched) {
             try {
-                const address = addressApi.getRawAddress(formData.address)
+                const cachedAddress = addressApi.getRawAddress(formData.address)
+                const { value: address } = JSON.parse(cachedAddress)
                 return { ...formData, address, yearOfConstruction, area }
             } catch (e) {
                 notification.error({
@@ -137,6 +140,10 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             placeholder={AddressTitle}
                                             addressValidatorError={addressValidatorError}
                                             setAddressValidatorError={setAddressValidatorError}
+                                            onSelect={(_, option) => {
+                                                const address = JSON.parse(option.key as string) as TSelectedAddressSuggestion
+                                                setAddressValidatorError(address.isHouse ? null : AddressValidationErrorMsg)
+                                            }}
                                         />
                                     </Form.Item>
                                     <Form.Item
