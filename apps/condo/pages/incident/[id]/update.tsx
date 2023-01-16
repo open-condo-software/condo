@@ -5,8 +5,9 @@ import Head from 'next/head'
 import { Typography } from '@open-condo/ui'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
+import { IncidentForm } from '@condo/domains/ticket/components/IncidentForm'
+import { useRouter } from 'next/router'
 
 
 interface IUpdateIncidentPage extends React.FC {
@@ -17,6 +18,10 @@ interface IUpdateIncidentPage extends React.FC {
 const UpdateIncidentPageContent: React.FC = () => {
     const PageTitle = 'Редактировать запись'
 
+    const router = useRouter()
+
+    const { query: { id } } = router as { query: { [key: string]: string } }
+
     return (
         <>
             <Head>
@@ -24,9 +29,9 @@ const UpdateIncidentPageContent: React.FC = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
-                <TablePageContent>
-                    Test
-                </TablePageContent>
+                <PageContent>
+                    <IncidentForm id={id} />
+                </PageContent>
             </PageWrapper>
         </>
     )

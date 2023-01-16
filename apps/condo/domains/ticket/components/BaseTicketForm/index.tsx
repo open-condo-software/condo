@@ -445,6 +445,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
 
     const action = async (variables, ...args) => {
         const { details, ...otherVariables } = variables
+        console.log(variables)
 
         const result = await _action({
             ...otherVariables,
