@@ -21,11 +21,11 @@ export type TypographyTextProps = Omit<DefaultTextProps,
 }
 
 const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref) => {
-    const { type, size = 'lg', ellipsis, ...rest } = props
+    const { type, size = 'lg', ellipsis, onClick, ...rest } = props
     const className = classNames({
         [`${TYPOGRAPHY_CLASS_PREFIX}-${type}`]: type,
         [`${TYPOGRAPHY_CLASS_PREFIX}-${size}`]: size,
-    })
+    }, typeof onClick === 'function' ? `${TYPOGRAPHY_CLASS_PREFIX}-clickable` : '')
     // NOTE: Used wrapper destructuring to explicitly pass component props, which is marked as internal in antd
     const componentProps = { component: 'span' }
     // NOTE: We should pass default config anyway if any prop type was provided because prefixCls should exist at result prop
@@ -43,6 +43,7 @@ const Text = React.forwardRef<HTMLSpanElement, TypographyTextProps>((props, ref)
             ref={ref}
             ellipsis={ellipsisProp}
             className={className}
+            onClick={onClick}
             {...componentProps}
         />
     )

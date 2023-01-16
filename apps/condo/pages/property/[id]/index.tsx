@@ -124,19 +124,19 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
             label: TicketsInWorkTitle,
             value: property.ticketsInWork,
             valueTextType: 'warning',
-            valueClick: ticketInWorkClick,
+            valueClick: Number(property.ticketsInWork) ? ticketInWorkClick : undefined,
         },
         {
             label: TicketsDeferredTitle,
             value: property.ticketsDeferred,
             valueTextType: 'info',
-            valueClick: ticketDeferredClick,
+            valueClick: Number(property.ticketsDeferred) ? ticketDeferredClick : undefined,
         },
         {
             label: TicketsClosedTitle,
             value: property.ticketsClosed,
             valueTextType: 'success',
-            valueClick: ticketClosedClick,
+            valueClick: Number(property.ticketsClosed) ? ticketClosedClick : undefined,
         },
     ], [TicketsDeferredTitle, TicketsInWorkTitle, TicketsClosedTitle, property,
         ticketDeferredClick, ticketInWorkClick, ticketClosedClick])
