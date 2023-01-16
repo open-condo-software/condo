@@ -30,7 +30,7 @@ class DadataSearchProvider extends AbstractSearchProvider {
     normalize (data) {
         // According to the DRY principle we use here normalizer from suggestions
         const suggestionProvider = new DadataSuggestionProvider()
-        return  suggestionProvider.normalize(data)
+        return suggestionProvider.normalize(data)
     }
 }
 
