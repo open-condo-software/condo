@@ -32,9 +32,11 @@ export const CreateIncidentForm: React.FC = () => {
     const createIncident = Incident.useCreate({ organization: { connect: { id: organizationId } } })
     const action: BaseIncidentFormProps['action'] = useCallback(async (values) => await createIncident(values), [createIncident])
 
-    return <BaseIncidentForm
-        action={action}
-        organizationId={organizationId}
-        ActionBar={CreateIncidentActionBar}
-    />
+    return (
+        <BaseIncidentForm
+            action={action}
+            organizationId={organizationId}
+            ActionBar={CreateIncidentActionBar}
+        />
+    )
 }

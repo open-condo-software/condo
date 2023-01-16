@@ -103,6 +103,8 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
 
     const initialFormValues = { ...initialValues, employees: initialEmployees, properties: initialProperties }
 
+    console.log({initialFormValues})
+
     const [showHintAlert, setShowHintAlert] = useState<boolean>()
     useDeepCompareEffect(() => {
         if (!loading && initialValues) {
