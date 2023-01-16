@@ -5,8 +5,7 @@ import Head from 'next/head'
 import { Typography } from '@open-condo/ui'
 
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { IncidentForm } from '@condo/domains/ticket/components/IncidentForm'
 
 
@@ -25,9 +24,9 @@ const CreateIncidentPageContent: React.FC = () => {
             </Head>
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
-                <TablePageContent>
+                <PageContent>
                     <IncidentForm />
-                </TablePageContent>
+                </PageContent>
             </PageWrapper>
         </>
     )

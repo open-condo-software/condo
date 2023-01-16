@@ -31,9 +31,7 @@ import { ClassifiersQueryLocal, Options } from '../../utils/clientSchema/classif
 import { useApolloClient } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { DefaultOptionType } from 'rc-select/lib/Select'
-import isString from 'lodash/isString'
-import { difference, isArray } from 'lodash'
-import isNil from 'lodash/isNil'
+import { difference } from 'lodash'
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
@@ -136,8 +134,6 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
 
     const [classifiers, setClassifiers] = useState<ITicketClassifier[]>([])
     const [places, setPlaces] = useState<OptionType[]>([])
-    const [categories, setCategories] = useState<OptionType[]>([])
-    const [problems, setProblems] = useState<OptionType[]>([])
     const [selectedPlace, setSelectedPlace] = useState<string>(null)
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [selectedProblems, setSelectedProblems] = useState<string[]>([])
@@ -215,8 +211,6 @@ const Classifiers: React.FC<ClassifiersProps> = (props) => {
             const initialProblemIds = initialClassifiers.map(classifier => classifier.problem.id)
             setClassifiers(classifiers)
             setPlaces(convertToSelectOptions(places))
-            setCategories(convertToSelectOptions(categories))
-            setProblems(withoutEmpty(convertToSelectOptions(problems)))
             setSelectedPlace(initialPlaceId)
             setSelectedCategories(initialCategoryIds)
             setSelectedProblems(initialProblemIds)
@@ -341,9 +335,6 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const DetailsPlaceholder = 'DetailsPlaceholder'
     const TextForResidentLabel = 'TextForResidentLabel'
     const TextForResidentPlaceholder = 'TextForResidentPlaceholder'
-    const PlaceClassifierLabel = 'PlaceClassifierLabel'
-    const CategoryClassifierLabel = 'CategoryClassifierLabel'
-    const ProblemClassifierLabel = 'ProblemClassifierLabel'
 
     const router = useRouter()
 
@@ -435,14 +426,14 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
 
     return (
         <Row gutter={[0, 40]}>
-            <Col span={24} xl={18}>
+            <Col span={24} lg={24} xl={22}>
                 <FormWithAction
                     initialValues={initialFormValues}
                     action={handleFormSubmit}
                     colon={false}
                     scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
                     {...FORM_LAYOUT_PROPS}
-                    children={({ handleSave, handleSubmit, isLoading, form }) => (
+                    children={({ handleSave, isLoading, form }) => (
                         <Row gutter={[0, 40]}>
                             <Col span={24}>
                                 <GraphQlSearchInputWithCheckAll
