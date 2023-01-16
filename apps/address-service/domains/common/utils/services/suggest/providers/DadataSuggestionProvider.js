@@ -200,27 +200,12 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {Promise<*|null>}
      */
     async getOrganization (tin) {
-        const redis = getRedisClient('organization', 'tin')
-
-        const cached = await redis.get(tin)
-
-        if (cached) {
-            return JSON.parse(cached)
-        }
-
-        const result = await this.callToDadata(`${this.url}/findById/party`, { query: tin })
-
-        if (result) {
-            const data = get(result, ['suggestions', 0], null)
-
-            if (data) {
-                await redis.set(tin, JSON.stringify(data), 'EX', ORGANIZATION_TIN_CACHE_TTL)
-            }
-
-            return data
-        }
-
-        return null
+        return await this.callToDadataCached({
+            cacheClient: getRedisClient('organization', 'tin'),
+            searchKey: tin,
+            apiUrl: 'findById/party',
+            ttl: ORGANIZATION_TIN_CACHE_TTL,
+        })
     }
 
     /**
