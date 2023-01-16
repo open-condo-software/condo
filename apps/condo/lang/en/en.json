@@ -1077,6 +1077,8 @@
   "notification.messages.CUSTOM_CONTENT_MESSAGE_EMAIL.push.title": "{title}",
   "notification.messages.CUSTOM_CONTENT_MESSAGE_SMS.email.subject": "{subject}",
   "notification.messages.CUSTOM_CONTENT_MESSAGE_SMS.push.title": "{title}",
+  "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.title": "New request for Sber account creation",
+  "notification.messages.BANK_ACCOUNT_CREATION_REQUEST.email.subject": "Bank account creation",
   "TicketDeadline": "Ticket deadline",
   "TicketDeferredDeadline": "Ticket deferred deadline",
   "ticket.EmptyList.header": "The list of applications is still empty",
