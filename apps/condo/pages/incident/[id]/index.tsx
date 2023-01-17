@@ -265,11 +265,14 @@ const IncidentDetailsField: React.FC<IncidentFieldProps> = ({ incident }) => {
 
 const IncidentTextForResidentField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const TextForResidentLabel = 'TextForResidentLabel'
+    const HaveNotMessage = 'HaveNotMessage'
 
     return (
         <Row>
             <PageFieldRow title={TextForResidentLabel} ellipsis labelSpan={5}>
-                <Typography.Text>{incident.textForResident}</Typography.Text>
+                <Typography.Text type={!incident.textForResident ? 'secondary' : null}>
+                    {incident.textForResident || HaveNotMessage}
+                </Typography.Text>
             </PageFieldRow>
         </Row>
     )
