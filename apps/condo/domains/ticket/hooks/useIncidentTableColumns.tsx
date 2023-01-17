@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -46,6 +46,7 @@ const COLUMNS_WIDTH = {
     workFinish: '10%',
 }
 
+
 // todo(DOMA-2567) add translations
 export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const { incidents, filterMetas } = props
@@ -64,25 +65,58 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
-    const {
-        loading: incidentPropertiesLoading,
-        objs: incidentProperties,
-    } = IncidentProperty.useAllObjects({
-        where: {
-            incident: { id_in: incidentIds, deletedAt: null },
-            deletedAt: null,
-        },
-    })
+    const [incidentProperties, setIncidentProperties] = useState([])
+    const [incidentClassifiers, setIncidentClassifiers] = useState([])
+    const [loading, setLoading] = useState<boolean>(true)
 
     const {
-        loading: incidentClassifiersLoading,
-        objs: incidentClassifiers,
-    } = IncidentTicketClassifier.useAllObjects({
-        where: {
-            incident: { id_in: incidentIds, deletedAt: null },
-            deletedAt: null,
-        },
-    })
+        refetch: refetchIncidentProperty,
+    } = IncidentProperty.useAllObjects({}, { skip: true })
+
+    const {
+        refetch: refetchIncidentTicketClassifier,
+    } = IncidentTicketClassifier.useAllObjects({}, { skip: true })
+
+    const getIncidentProperties = useCallback(async (incidentIds: string[]) => {
+        if (incidentIds.length < 1) {
+            return { incidentProperties: [] }
+        }
+
+        const response = await refetchIncidentProperty({
+            where: {
+                incident: { id_in: incidentIds, deletedAt: null },
+                deletedAt: null,
+            },
+        })
+        return { incidentProperties: response.data.objs }
+    }, [])
+
+    const getIncidentTicketClassifiers = useCallback(async (incidentIds: string[]) => {
+        if (incidentIds.length < 1) {
+            return { incidentClassifiers: [] }
+        }
+
+        const response = await refetchIncidentTicketClassifier({
+            where: {
+                incident: { id_in: incidentIds, deletedAt: null },
+                deletedAt: null,
+            },
+        })
+        return { incidentClassifiers: response.data.objs }
+    }, [])
+
+    const getPropertiesAndClassifiers = useCallback(async (incidentIds: string[]) => {
+        setLoading(true)
+        const { incidentProperties } = await getIncidentProperties(incidentIds)
+        const { incidentClassifiers } = await getIncidentTicketClassifiers(incidentIds)
+        setIncidentProperties(incidentProperties)
+        setIncidentClassifiers(incidentClassifiers)
+        setLoading(false)
+    }, [getIncidentProperties, getIncidentTicketClassifiers])
+
+    useEffect(() => {
+        getPropertiesAndClassifiers(incidentIds)
+    }, [getPropertiesAndClassifiers, incidentIds])
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -90,7 +124,9 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const search = getFilteredValue(filters, 'search')
 
     const renderNumber = useMemo(() => getTableCellRenderer(), [])
+
     const renderDetails = useMemo(() => getTableCellRenderer(), [])
+
     const renderStatus = useCallback((status, incident) => {
         const isActual = status === IncidentStatusType.Actual
         return (
@@ -102,6 +138,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
             </Tag>
         )
     }, [])
+
     const renderWorkStart = useMemo(() => getDateRender(intl), [intl])
     const renderWorkFinish = useCallback((stringDate: string, incident) => {
         const renderDate = getDateRender(intl)(stringDate)
@@ -150,8 +187,6 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
         return getManyClassifiersGroupByPlaceRender()(classifiers)
     }, [incidentClassifiers])
-
-    const loading = incidentPropertiesLoading || incidentClassifiersLoading
 
     return useMemo(() => ({
         loading,
