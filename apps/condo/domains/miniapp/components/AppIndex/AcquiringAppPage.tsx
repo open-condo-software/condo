@@ -8,7 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
-import IFrame from '@condo/domains/common/components/IFrame'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { AcquiringIntegrationContext } from '@condo/domains/acquiring/utils/clientSchema'
 import { ACQUIRING_APP_TYPE } from '@condo/domains/miniapp/constants'
 
@@ -60,7 +60,13 @@ export const AcquiringAppPage: React.FC<AcquiringAppPageProps> = ({ id }) => {
                 <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
                 <PageContent>
                     {appUrl && (
-                        <IFrame pageUrl={appUrl}/>
+                        <IFrame
+                            src={appUrl}
+                            reloadScope='organization'
+                            withLoader
+                            withPrefetch
+                            withResize
+                        />
                     )}
                 </PageContent>
             </PageWrapper>

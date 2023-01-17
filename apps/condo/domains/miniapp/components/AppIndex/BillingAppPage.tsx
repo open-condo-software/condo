@@ -6,9 +6,9 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Typography } from '@open-condo/ui'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
-import IFrame from '@condo/domains/common/components/IFrame'
 import { BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { BILLING_APP_TYPE } from '@condo/domains/miniapp/constants'
+import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
 
 type BillingAppPageProps = {
@@ -55,7 +55,13 @@ export const BillingAppPage: React.FC<BillingAppPageProps> = ({ id }) => {
                 <PageHeader title={<Typography.Title level={1}>{appName || FallbackPageTitle}</Typography.Title>} spaced/>
                 <PageContent>
                     {appUrl && (
-                        <IFrame pageUrl={appUrl}/>
+                        <IFrame
+                            src={appUrl}
+                            reloadScope='organization'
+                            withLoader
+                            withPrefetch
+                            withResize
+                        />
                     )}
                 </PageContent>
             </PageWrapper>
