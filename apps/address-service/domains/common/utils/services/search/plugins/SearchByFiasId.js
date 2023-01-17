@@ -45,24 +45,21 @@ class SearchByFiasId extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult)
 
-        return await createOrUpdateAddressWithSource(
-            godContext,
-            {
-                address: searchResult.value,
-                key: addressKey,
-                meta: {
-                    provider: {
-                        name: suggestionProvider.getProviderName(),
-                        rawData: denormalizedResult,
-                    },
-                    value: searchResult.value,
-                    unrestricted_value: searchResult.unrestricted_value,
-                    data: get(searchResult, 'data', {}),
+        const addressData = {
+            address: searchResult.value,
+            key: addressKey,
+            meta: {
+                provider: {
+                    name: suggestionProvider.getProviderName(),
+                    rawData: denormalizedResult,
                 },
+                value: searchResult.value,
+                unrestricted_value: searchResult.unrestricted_value,
+                data: get(searchResult, 'data', {}),
             },
-            s,
-            dvSender,
-        )
+        }
+
+        return await createOrUpdateAddressWithSource(godContext, addressData, s, dvSender)
     }
 }
 
