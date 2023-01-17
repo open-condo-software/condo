@@ -6,6 +6,7 @@ const { INJECTIONS_PROVIDER } = require('@address-service/domains/common/constan
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { InjectionsSeeker } = require('@address-service/domains/common/utils/services/InjectionsSeeker')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
@@ -43,21 +44,25 @@ class SearchByInjectionId extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult[0])
 
+        const addressData = {
+            address: searchResult[0].value,
+            key: addressKey,
+            meta: {
+                provider: {
+                    name: INJECTIONS_PROVIDER,
+                    rawData: injection,
+                },
+                value: searchResult[0].value,
+                unrestricted_value: searchResult[0].unrestricted_value,
+                data: get(searchResult, [0, 'data'], {}),
+            },
+        }
+
         return await createOrUpdateAddressWithSource(
             godContext,
-            {
-                address: searchResult[0].value,
-                key: addressKey,
-                meta: {
-                    provider: {
-                        name: INJECTIONS_PROVIDER,
-                        rawData: injection,
-                    },
-                    value: searchResult[0].value,
-                    unrestricted_value: searchResult[0].unrestricted_value,
-                    data: get(searchResult, [0, 'data'], {}),
-                },
-            },
+            Address,
+            AddressSource,
+            addressData,
             s,
             dvSender,
         )
