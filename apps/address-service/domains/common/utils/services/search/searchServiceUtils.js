@@ -1,42 +1,42 @@
-const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
-
 /**
  * @param context Keystone context
+ * @param addressGql
+ * @param addressSourceGql
  * @param {{ address: string, key: string, meta: NormalizedBuilding }} addressData
  * @param {string} addressSource
  * @param {{ dv: number, sender: { dv: number, fingerprint: string } }} dvSender
  */
-async function createOrUpdateAddressWithSource (context, addressData, addressSource, dvSender) {
+async function createOrUpdateAddressWithSource (context, addressGql, addressSourceGql, addressData, addressSource, dvSender) {
     const { key } = addressData
 
     //
     // Address
     //
-    let addressItem = await Address.getOne(context, { key })
+    let addressItem = await addressGql.getOne(context, { key })
 
     if (addressItem) {
-        addressItem = await Address.update(context, addressItem.id, {
+        addressItem = await addressGql.update(context, addressItem.id, {
             ...dvSender,
             deletedAt: null, // Restore deleted address on demand
         })
     } else {
-        addressItem = await Address.create(context, { ...dvSender, ...addressData })
+        addressItem = await addressGql.create(context, { ...dvSender, ...addressData })
     }
 
     //
     // Address source
     //
-    const addressSourceItem = await AddressSource.getOne(context, { source: addressSource })
+    const addressSourceItem = await addressSourceGql.getOne(context, { source: addressSource })
 
     if (addressSourceItem) {
-        await AddressSource.update(context, addressSourceItem.id, {
+        await addressSourceGql.update(context, addressSourceItem.id, {
             ...dvSender,
             source: addressSource,
             address: { connect: { id: addressItem.id } },
             deletedAt: null, // Restore deleted address source on demand
         })
     } else {
-        await AddressSource.create(
+        await addressSourceGql.create(
             context,
             {
                 ...dvSender,
