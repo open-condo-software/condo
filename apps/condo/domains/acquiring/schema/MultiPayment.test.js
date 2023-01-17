@@ -380,7 +380,7 @@ describe('MultiPayment', () => {
                 })
                 await expectToThrowValidationFailureError(async () => {
                     await updateTestMultiPayment(admin, multiPayment.id, {
-                        status: MULTIPAYMENT_ERROR_STATUS,
+                        status: MULTIPAYMENT_DONE_STATUS,
                     })
                 }, MULTIPAYMENT_NOT_ALLOWED_TRANSITION)
             })
