@@ -20,6 +20,7 @@ import {
     getTextFilterDropdown,
 } from '../components/Table/Filters'
 import { FILTERS_POPUP_CONTAINER_ID } from '../constants/filters'
+import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 
 export enum FilterComponentSize {
     Small = 8,
@@ -82,7 +83,7 @@ type DateFilterType = {
 
 type DateRangeFilterType = {
     type: ComponentType.DateRange
-    props?: RangePickerSharedProps<Dayjs>
+    props?: RangePickerProps<Dayjs>
 }
 
 type CustomFilterType = {

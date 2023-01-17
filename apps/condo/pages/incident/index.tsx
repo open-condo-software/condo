@@ -25,6 +25,7 @@ import { useIncidentTableColumns, UseTableColumnsType } from '@condo/domains/tic
 import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncidentTableFilters'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 
 
 interface IIncidentIndexPage extends React.FC {
@@ -55,8 +56,8 @@ const ROW_GUTTER: RowProps['gutter'] = [0, 40]
 const FILTER_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [16, 16]
 
-const IS_ACTUAL_ATTRIBUTE_NAME = 'isActual'
-const IS_NOT_ACTUAL_ATTRIBUTE_NAME = 'isNotActual'
+const IS_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_ACTUAL
+const IS_NOT_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_NOT_ACTUAL
 const ATTRIBUTE_NAMES_TO_FILTERS = [IS_ACTUAL_ATTRIBUTE_NAME, IS_NOT_ACTUAL_ATTRIBUTE_NAME]
 
 const INCIDENTS_DEFAULT_SORT_BY = ['createdAt_DESC']
