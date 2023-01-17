@@ -6,12 +6,13 @@ import uniq from 'lodash/uniq'
 import { ADDRESS_SEARCH_STOP_WORDS } from '@condo/domains/common/constants'
 import { OMIT_SEARCH_CHARACTERS_REGEXP } from '@condo/domains/common/constants/regexps'
 import { DataIndexType, FilterType } from '@condo/domains/common/utils/tables.utils'
+import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 
 
 type MultipleDataIndexType = DataIndexType[]
-type TicketAttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
+type AttributesFilterGetterType = (dataIndices: MultipleDataIndexType) => FilterType
 
-export const getTicketAttributesFilter: TicketAttributesFilterGetterType = (dataIndices) => {
+export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndices) => {
     return function getWhereQuery (search) {
         if (!search || search.length === 0 || dataIndices.length === 1) return
 
@@ -131,6 +132,33 @@ export const getFilterAddressForSearch = (): FilterType => {
             property: {
                 AND: addresses.map(item => ({ address_contains_i: item })),
             },
+        }
+    }
+}
+
+
+export const getIncidentAttributesFilter: AttributesFilterGetterType = (dataIndices) => {
+    return function getWhereQuery (search) {
+        if (!search || search.length === 0 || dataIndices.length === 1) return
+
+        const args = !Array.isArray(search) ? [search] : search
+
+        return {
+            OR: dataIndices.map(wrappedDataIndex => {
+                if (!args.find(arg => arg === wrappedDataIndex) || !isString(wrappedDataIndex)) return
+
+                if (wrappedDataIndex === INCIDENT_STATUS_ACTUAL) {
+                    return { 'status': INCIDENT_STATUS_ACTUAL }
+                }
+
+                if (wrappedDataIndex === INCIDENT_STATUS_NOT_ACTUAL) {
+                    return { 'status': INCIDENT_STATUS_NOT_ACTUAL }
+                }
+
+                return {
+                    [wrappedDataIndex]: true,
+                }
+            }).filter(Boolean),
         }
     }
 }
