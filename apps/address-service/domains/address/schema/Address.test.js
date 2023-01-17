@@ -10,13 +10,13 @@ const {
     UUID_RE,
     DATETIME_RE,
     catchErrorFrom,
-} = require('@open-condo/keystone/test.utils')
-const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { Address, createTestAddress, updateTestAddress } = require('@address-service/domains/address/utils/testSchema')
+const { Address, AddressSource, createTestAddress, updateTestAddress } = require('@address-service/domains/address/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -176,6 +176,61 @@ describe('Address', () => {
                     await Address.getAll(anonymousClient, {}, { sortBy: ['updatedAt_DESC'] })
                 })
             })
+        })
+    })
+
+    describe('Use cases', async () => {
+        test('The house keeps the firstly created address', async () => {
+            const source1 = faker.random.alphaNumeric(42)
+            const source2 = faker.random.alphaNumeric(42)
+            const address1 = faker.random.alphaNumeric(42)
+            const address2 = faker.random.alphaNumeric(42)
+
+            const fakeSearchResult = {
+                value: '',
+                unrestricted_value: '',
+                data: {
+                    country: faker.random.alphaNumeric(12),
+                    region: faker.random.alphaNumeric(12),
+                    area: faker.random.alphaNumeric(12),
+                    city: faker.random.alphaNumeric(12),
+                    city_district: faker.random.alphaNumeric(12),
+                    settlement: faker.random.alphaNumeric(12),
+                    street: faker.random.alphaNumeric(12),
+                    house: faker.random.alphaNumeric(2),
+                    block: faker.random.alphaNumeric(3),
+                },
+                provider: {
+                    name: 'test',
+                    rawData: {},
+                },
+            }
+
+            const key = faker.random.alphaNumeric(48)
+
+            const addressData1 = {
+                address: address1,
+                meta: fakeSearchResult,
+                key,
+            }
+
+            const addressData2 = {
+                address: address2,
+                meta: fakeSearchResult,
+                key,
+            }
+
+            const addressModel = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData1, source1, {
+                dv: 1,
+                sender,
+            })
+            await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData2, source2, {
+                dv: 1,
+                sender,
+            })
+
+            expect(addressModel.address).toEqual(address1)
+            expect(addressModel.address).not.toEqual(address2)
         })
     })
 })
