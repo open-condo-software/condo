@@ -7,7 +7,7 @@ const { Address, AddressSource } = require('@address-service/domains/address/uti
  * @param {{ dv: number, sender: { dv: number, fingerprint: string } }} dvSender
  */
 async function createOrUpdateAddressWithSource (context, addressData, addressSource, dvSender) {
-    const { key, ...addressDataWithoutKey } = addressData
+    const { key } = addressData
 
     //
     // Address
@@ -17,7 +17,6 @@ async function createOrUpdateAddressWithSource (context, addressData, addressSou
     if (addressItem) {
         addressItem = await Address.update(context, addressItem.id, {
             ...dvSender,
-            ...addressDataWithoutKey,
             deletedAt: null, // Restore deleted address on demand
         })
     } else {
