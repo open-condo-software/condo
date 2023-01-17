@@ -22,6 +22,7 @@ import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
 
 
 interface IIncidentIdPage extends React.FC {
@@ -320,16 +321,11 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
 
     const router = useRouter()
 
-    const update = Incident.useUpdate({})
-
-    const handleUpdateStatus = useCallback(async () => {
-        await update({
-            status: incident.status === IncidentStatusType.Actual
-                ? IncidentStatusType.NotActual
-                : IncidentStatusType.Actual,
-        }, incident)
+    const beforeUpdate = useCallback(async () => {
         await refetchIncident()
-    }, [incident, refetchIncident, update])
+    }, [refetchIncident])
+
+    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, beforeUpdate  })
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -375,7 +371,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                                 disabled={incidentLoading}
                                 type='primary'
                                 children={incident.status === IncidentStatusType.Actual ? MakeActualLabel : MakeNotActualLabel}
-                                onClick={handleUpdateStatus}
+                                onClick={handleOpen}
                             />
                             <Button
                                 disabled={incidentLoading}
@@ -385,6 +381,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                             />
                         </ActionBar>
                     </Row>
+                    {IncidentUpdateStatusModal}
                 </PageContent>
             </PageWrapper>
         </>
