@@ -3,6 +3,7 @@ const get = require('lodash/get')
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
 
@@ -29,21 +30,25 @@ class SearchByProvider extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult)
 
+        const addressData = {
+            address: searchResult.value,
+            key: addressKey,
+            meta: {
+                provider: {
+                    name: searchProvider.getProviderName(),
+                    rawData: denormalizedRows[0],
+                },
+                value: searchResult.value,
+                unrestricted_value: searchResult.unrestricted_value,
+                data: get(searchResult, 'data', {}),
+            },
+        }
+
         return await createOrUpdateAddressWithSource(
             godContext,
-            {
-                address: searchResult.value,
-                key: addressKey,
-                meta: {
-                    provider: {
-                        name: searchProvider.getProviderName(),
-                        rawData: denormalizedRows[0],
-                    },
-                    value: searchResult.value,
-                    unrestricted_value: searchResult.unrestricted_value,
-                    data: get(searchResult, 'data', {}),
-                },
-            },
+            Address,
+            AddressSource,
+            addressData,
             s,
             dvSender,
         )
