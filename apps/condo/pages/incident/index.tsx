@@ -1,5 +1,5 @@
 // todo(DOMA-2567) add translates
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Head from 'next/head'
 
 import { Typography, Checkbox, Button } from '@open-condo/ui'
@@ -15,6 +15,7 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox'
 import get from 'lodash/get'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IncidentWhereInput, SortIncidentsBy, Incident as IIncident } from '@app/condo/schema'
@@ -26,6 +27,7 @@ import { useIncidentTableFilters } from '@condo/domains/ticket/hooks/useIncident
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
+import uniq from 'lodash/uniq'
 
 
 interface IIncidentIndexPage extends React.FC {
@@ -60,7 +62,7 @@ const IS_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_ACTUAL
 const IS_NOT_ACTUAL_ATTRIBUTE_NAME = INCIDENT_STATUS_NOT_ACTUAL
 const ATTRIBUTE_NAMES_TO_FILTERS = [IS_ACTUAL_ATTRIBUTE_NAME, IS_NOT_ACTUAL_ATTRIBUTE_NAME]
 
-const INCIDENTS_DEFAULT_SORT_BY = ['createdAt_DESC']
+const INCIDENTS_DEFAULT_SORT_BY = ['status_ASC', 'workFinish_ASC', 'createdAt_DESC']
 const SORTABLE_PROPERTIES = ['number', 'status', 'details', 'createdAt', 'workStart', 'workFinish']
 
 const FilterContainer: React.FC<FilterContainerProps> = (props) => {
@@ -123,29 +125,113 @@ const FilterContainer: React.FC<FilterContainerProps> = (props) => {
     )
 }
 
+const useIncidentsSearch = ({ organizationId, filterMetas }) => {
+    const router = useRouter()
+    const { filters, offset, sorters } = useMemo(() => parseQuery(router.query), [router.query])
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
+    const sortBy = sortersToSortBy(sorters, INCIDENTS_DEFAULT_SORT_BY) as SortIncidentsBy[]
+
+    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+
+    const { search } = filters as { search?: string }
+
+    const [incidentsLoading, setIncidentsLoading] = useState(true)
+    const [incidents, setIncidents] = useState<IIncident[]>([])
+    const [count, setCount] = useState<number>(0)
+
+    const properties = Property.useAllObjects({}, { skip: true })
+    const incidentProperties = IncidentProperty.useAllObjects({}, { skip: true, fetchPolicy: 'network-only' })
+    const incident = Incident.useObjects({}, { fetchPolicy: 'network-only', skip: true })
+
+    const incidentWhere = useMemo(() => ({
+        ...filtersToWhere(filters),
+        deletedAt: null,
+        organization: { id: organizationId },
+    }),
+    [filters, filtersToWhere, organizationId])
+
+    const getWhereByAddress = useCallback(async (search?: string) => {
+        if (!search) {
+            return { where: {} }
+        }
+
+        const { data: { objs: foundedProperties, meta: { count: countProperties } } } = await properties.refetch({
+            where: {
+                organization: { id: organizationId },
+                address_contains_i: search,
+                deletedAt: null,
+            },
+        })
+
+        if (!countProperties) {
+            return { where: null }
+        }
+
+        const { data: { objs: foundedIncidentProperties } } = await incidentProperties.refetch({
+            where: {
+                property: { id_in: foundedProperties.map(item => item.id) },
+                deletedAt: null,
+            },
+        })
+
+        const where: IncidentWhereInput[] = [
+            { id_in: uniq(foundedIncidentProperties.map(item => item.incident.id)) },
+        ]
+        if (countProperties > 0) {
+            where.push({ hasAllProperties: true })
+        }
+
+        return { where: { OR: where } }
+
+    }, [organizationId])
+
+    const getIncidents = useCallback(async (incidentWhere, sortBy, currentPageIndex) => {
+        const { data: { objs: incidents, meta: { count } } } = await incident.refetch({
+            sortBy,
+            where: incidentWhere,
+            first: DEFAULT_PAGE_SIZE,
+            skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
+        })
+        return { count, incidents }
+    }, [])
+
+    const searchIncidents = useCallback(async (currentPageIndex, incidentWhere, search, sortBy) => {
+        setIncidentsLoading(true)
+        const { where: whereByAddress } = await getWhereByAddress(search)
+        let count = 0
+        let incidents = []
+        if (whereByAddress) {
+            const response = await getIncidents({
+                ...incidentWhere,
+                ...whereByAddress,
+            }, sortBy, currentPageIndex)
+            count = response.count
+            incidents = response.incidents
+        }
+        setCount(count)
+        setIncidents(incidents)
+        setIncidentsLoading(false)
+    }, [getIncidents, getWhereByAddress])
+
+    useEffect(() => {
+        searchIncidents(currentPageIndex, incidentWhere, search, sortBy)
+    }, [currentPageIndex, incidentWhere, search, sortBy, searchIncidents])
+
+    return useMemo(() => ({
+        incidentsLoading,
+        incidents,
+        count,
+    }), [count, incidents, incidentsLoading])
+}
+
 const TableContainer: React.FC<TableContainerProps> = (props) => {
     const AddNewIncidentLabel = 'AddNewIncidentLabel'
 
     const { useTableColumns, filterMetas, organizationId } = props
 
     const router = useRouter()
-    const { filters, offset, sorters } = parseQuery(router.query)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
-    const sortBy = sortersToSortBy(sorters, INCIDENTS_DEFAULT_SORT_BY) as SortIncidentsBy[]
-    const incidentWhere = useMemo(() => ({ ...filtersToWhere(filters), deletedAt: null, organization: { id: organizationId } }),
-        [filters, filtersToWhere, organizationId])
-    const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
 
-    const {
-        loading: incidentsLoading,
-        count,
-        objs: incidents,
-    } = Incident.useObjects({
-        sortBy,
-        where: incidentWhere,
-        first: DEFAULT_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
-    })
+    const { incidentsLoading, incidents, count } = useIncidentsSearch({ organizationId, filterMetas })
 
     const { loading: columnsLoading, columns } = useTableColumns({ filterMetas, incidents })
 
@@ -166,31 +252,31 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
     const IncidentsTable = useMemo(() => (
         <Col span={24}>
             <Table
-                totalRows={count}
-                dataSource={incidents}
+                totalRows={loading ? 0 : count}
+                dataSource={loading ? [] : incidents}
                 columns={columns}
                 loading={loading}
                 sticky
                 onRow={handleRowAction}
             />
         </Col>
-    ), [columns, count, handleRowAction, loading, incidents])
+    ), [count, incidents, columns, loading, handleRowAction])
 
     return (
         <>
             {IncidentsTable}
-            <ActionBar>
+            {!loading && <ActionBar>
                 <Button
                     type='primary'
                     children={AddNewIncidentLabel}
                     onClick={handleAddNewIncident}
                 />
-                <Button
+                {Boolean(count) && <Button
                     type='secondary'
                     children='Export'
                     onClick={handleAddNewIncident}
-                />
-            </ActionBar>
+                />}
+            </ActionBar>}
         </>
     )
 }
@@ -223,9 +309,11 @@ const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props) => {
 }
 
 const IncidentsPage: IIncidentIndexPage = () => {
-    const filterMetas = useIncidentTableFilters()
+
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
+
+    const filterMetas = useIncidentTableFilters()
 
     return <IncidentsPageContent
         organizationId={organizationId}
