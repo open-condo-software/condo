@@ -184,6 +184,11 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                     children={AddNewIncidentLabel}
                     onClick={handleAddNewIncident}
                 />
+                <Button
+                    type='secondary'
+                    children='Export'
+                    onClick={handleAddNewIncident}
+                />
             </ActionBar>
         </>
     )
