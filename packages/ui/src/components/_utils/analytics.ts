@@ -17,6 +17,8 @@ type CommonAnalyticsProps<K> = {
 
 type AnalyticsClickData<K extends keyof ComponentSpecificClickEventProps> = CommonAnalyticsProps<K> & ComponentSpecificClickEventProps[K]
 
+export type AnalyticsParams = AnalyticsClickData<keyof ComponentSpecificClickEventProps>
+
 const ANALYTICS_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 
 export function extractChildrenContent (children: React.ReactNode): string | null {

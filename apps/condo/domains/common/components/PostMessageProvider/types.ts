@@ -1,16 +1,25 @@
 import type { ValidateFunction } from 'ajv'
 import type { ErrorCode, ErrorReason } from './errors'
+import type { 
+    RequestParams as BridgeRequestParams,
+    ResultResponseData as BridgeResponseData,
+} from '@open-condo/bridge'
+import type { AnalyticsParams } from '@open-condo/ui/src/components/_utils/analytics'
 
 export const COMMON_ERROR_PREFIX = 'CondoWebAppCommonError' as const
 
-// TODO(DOMA-5124): Inherit types from corresponding packages (bridge / ui) to reduce code duplication
-//  after migrating to some monorepo dep-graph build tool, since currently rebuilding everything takes time
 export type RequestParamsMap = {
-    CondoWebAppResizeWindow: { height: number }
+    // Analytics
+    CondoWebSendAnalyticsEvent: AnalyticsParams
+    // Bridge
+    CondoWebAppResizeWindow: BridgeRequestParams<'CondoWebAppResizeWindow'>
 }
 
 export type HandlerResultsMap = {
-    CondoWebAppResizeWindow: { height: number }
+    // Analytics
+    CondoWebSendAnalyticsEvent: { sent: boolean }
+    // Bridge
+    CondoWebAppResizeWindow: BridgeResponseData<'CondoWebAppResizeWindow'>
 }
 
 export type AllRequestMethods = keyof RequestParamsMap
@@ -24,7 +33,8 @@ type ResponseEventNames<T extends AllRequestMethods, R extends string, E extends
     result: R,
     error: E
 }>
-export type ResponseEventNamesMap = ResponseEventNames<'CondoWebAppResizeWindow', 'CondoWebAppResizeWindowResult', 'CondoWebAppResizeWindowError'>
+export type ResponseEventNamesMap = ResponseEventNames<'CondoWebAppResizeWindow', 'CondoWebAppResizeWindowResult', 'CondoWebAppResizeWindowError'> &
+ResponseEventNames<'CondoWebSendAnalyticsEvent', 'CondoWebSendAnalyticsEventResult', 'CondoWebSendAnalyticsEventError'>
 
 export type ClientErrorResponse<Method extends AllRequestMethods, Reason extends ErrorReason> = {
     type: ResponseEventNamesMap[Method]['error'] | typeof COMMON_ERROR_PREFIX
