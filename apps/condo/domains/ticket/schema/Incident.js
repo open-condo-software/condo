@@ -67,11 +67,13 @@ const Incident = new GQLListSchema('Incident', {
             schemaDoc: 'Date and time of works finish',
             type: 'DateTimeUtc',
             hooks: {
-                validateInput: async ({ resolvedData, fieldPath, context }) => {
-                    if (!resolvedData.workFinish) return
+                validateInput: async (props) => {
+                    const { resolvedData, existingItem, fieldPath, context } = props
+                    const newItem = { ...existingItem, ...resolvedData }
+                    if (!newItem[fieldPath]) return
 
-                    const workFinish = dayjs(resolvedData[fieldPath])
-                    const workStart = dayjs(resolvedData.workStart)
+                    const workFinish = dayjs(newItem[fieldPath])
+                    const workStart = dayjs(newItem.workStart)
                     const isValidFinishDate = workFinish.diff(workStart) > 0
 
                     if (workFinish && workStart && !isValidFinishDate) {
