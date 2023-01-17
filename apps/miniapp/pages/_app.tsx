@@ -1,5 +1,5 @@
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
-import { IFrameWrapper } from '@condo/domains/common/components/IFrame'
+import { AppFrameWrapper } from '@condo/domains/miniapp/components/AppFrameWrapper'
 import '@condo/domains/common/components/wdyr'
 import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
 import { withApollo } from '@open-condo/next/apollo'
@@ -29,7 +29,7 @@ const MyApp = ({ Component, pageProps }) => {
 
     const LayoutComponent = Component.container || BaseLayout
     return (
-        <IFrameWrapper withUser withOrganization>
+        <AppFrameWrapper>
             <ConfigProvider locale={ANT_LOCALES[intl.locale || 'en']} componentSize='large'>
                 <CacheProvider value={cache}>
                     <Head>
@@ -47,7 +47,7 @@ const MyApp = ({ Component, pageProps }) => {
                     </LayoutContextProvider>
                 </CacheProvider>
             </ConfigProvider>
-        </IFrameWrapper>
+        </AppFrameWrapper>
     )
 }
 
