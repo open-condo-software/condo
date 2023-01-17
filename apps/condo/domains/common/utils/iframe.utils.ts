@@ -6,7 +6,6 @@ const ajv = new Ajv()
 
 // CONST DECLARATION BLOCK (for checking by external observer)
 export const TASK_MESSAGE_TYPE = 'task'
-export const NOTIFICATION_MESSAGE_TYPE = 'notification'
 export const RESIZE_MESSAGE_TYPE = 'resize'
 export const COMMAND_MESSAGE_TYPE = 'command'
 
@@ -32,12 +31,6 @@ type TaskGetMessageType = {
     taskOperation: 'get',
 }
 
-export type NotificationMessageType = {
-    type: 'notification',
-    notificationType: NotificationType,
-    message: string,
-}
-
 type ResizeMessageType = {
     type: 'resize',
     height: number,
@@ -53,7 +46,6 @@ type CommandMessageType = {
 type SystemMessageType =
     | TaskMessageType
     | TaskGetMessageType
-    | NotificationMessageType
     | ResizeMessageType
     | CommandMessageType
 
@@ -74,14 +66,12 @@ type parseMessageType = (data: any) => ParsedMessageReturnType
 // CONFIGURATION BLOCK
 const AvailableMessageTypes = [
     TASK_MESSAGE_TYPE,
-    NOTIFICATION_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
     COMMAND_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
     [TASK_MESSAGE_TYPE]: ['taskOperation'],
-    [NOTIFICATION_MESSAGE_TYPE]: ['notificationType', 'message'],
     [RESIZE_MESSAGE_TYPE]: ['height'],
     [COMMAND_MESSAGE_TYPE]: ['id', 'command', 'data'],
 }
@@ -205,15 +195,6 @@ export const parseMessage: parseMessageType = (data) => {
 
                 return null
             }
-            case NOTIFICATION_MESSAGE_TYPE:
-                return {
-                    type: 'system',
-                    message: {
-                        type: NOTIFICATION_MESSAGE_TYPE,
-                        notificationType: data.notificationType,
-                        message: data.message,
-                    },
-                }
             case RESIZE_MESSAGE_TYPE:
                 return {
                     type: 'system',
@@ -265,13 +246,5 @@ export const sendGetProcessingTasks = (receiver: Window, receiverOrigin: string)
     sendMessage({
         type: TASK_MESSAGE_TYPE,
         taskOperation: 'get',
-    }, receiver, receiverOrigin)
-}
-
-export const sendNotification = (message: string, messageType: NotificationType, receiver: Window, receiverOrigin: string): void => {
-    sendMessage({
-        type: NOTIFICATION_MESSAGE_TYPE,
-        notificationType: messageType,
-        message,
     }, receiver, receiverOrigin)
 }
