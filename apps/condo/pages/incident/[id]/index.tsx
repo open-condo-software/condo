@@ -102,53 +102,81 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     )
 }
 
-const getWorkFinishMessageType: (incident: IIncident, currentDate: Dayjs) => 'warning' | 'danger' | null = (incident, currentDate) => {
-    if (incident.status !== IncidentStatusType.Actual) return null
-    const timeLeft = incident.workFinish ? dayjs.duration(dayjs(incident.workFinish).diff(currentDate)) : null
-    if (incident.workFinish && dayjs(incident.workFinish).diff(currentDate) < 0) return 'danger'
+/**
+ *
+ * @param deadline Date in ISO format
+ * @param isDefault
+ * @param startWithDate Date in ISO format
+ */
+export const getTimeLeftMessageType: (props: {
+    deadline?: string,
+    isDefault?: boolean
+    startWithDate?: string,
+}) => 'warning' | 'danger' | null = ({ deadline, isDefault, startWithDate }) => {
+    if (isDefault) return null
+    const startWith = startWithDate ? dayjs(startWithDate) : dayjs()
+    const timeLeft = deadline && dayjs.duration(dayjs(deadline).diff(startWith))
+    if (timeLeft && timeLeft.asMilliseconds() < 0) return 'danger'
     if (timeLeft && timeLeft.asHours() < 24) return 'warning'
     return null
 }
 
-const WORK_DATE_UPDATING_INTERVAL_IN_SECONDS = 1000 * 10 // every 10 seconds
+/**
+ *
+ * @param show
+ * @param type 'warning' or 'danger'
+ * @param deadline Date in ISO format
+ * @param startWithDate Date in ISO format
+ */
+export const getTimeLeftMessage: (props: {
+    show: boolean,
+    deadline?: string,
+    startWithDate?: string
+}) => string = ({ show, deadline, startWithDate }) => {
+    const TimeLeftMessage = 'time left'
+    const OverdueMessage = 'overdue'
+
+    if (!show || !deadline) return null
+
+    const startWith = startWithDate ? dayjs(startWithDate) : dayjs()
+    const timeLeft = deadline && dayjs.duration(dayjs(deadline).diff(startWith))
+    if (timeLeft && timeLeft.asMilliseconds() < 0) {
+        return OverdueMessage
+    }
+    if (timeLeft && timeLeft.asHours() < 24) {
+        return `${TimeLeftMessage} ${timeLeft.format('HH:mm')}`
+    }
+    return null
+}
+
+const WORK_DATE_UPDATING_INTERVAL_IN_SECONDS = 1000 * 5 // every 10 seconds
 
 const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const WorkDateLabel = 'workDateLabel'
     const DateFromMessage = 'from'
     const DateToMessage = 'to'
-    const TimeLeftMessage = 'time left'
-    const OverdueMessage = 'overdue'
 
-    const [currentDate, setCurrentDate] = useState<Dayjs>(dayjs())
+    const [currentDate, setCurrentDate] = useState<string>(dayjs().toISOString())
 
+    const isActual = incident.status === IncidentStatusType.Actual
     const workStart = useMemo(() => dayjs(incident.workStart).format('D.MM.YYYY HH:mm'), [incident.workStart])
     const workFinish = useMemo(() => incident.workFinish ? dayjs(incident.workFinish).format('D.MM.YYYY HH:mm') : null, [incident.workFinish])
-    const timeLeft = useMemo(() => incident.workFinish ? dayjs.duration(dayjs(incident.workFinish).diff(currentDate)).format('HH:mm') : null, [currentDate, incident.workFinish])
-    const workFinishMessageType = useMemo(() => getWorkFinishMessageType(incident, currentDate), [currentDate, incident])
-    const isActual = incident.status === IncidentStatusType.Actual
 
-    const renderTimeLeftMessage = useMemo(() => {
-        if (!isActual) return null
-        if (workFinishMessageType === 'warning') {
-            return (
-                <Typography.Text strong type={workFinishMessageType}>
-                    &nbsp;({TimeLeftMessage} {timeLeft})
-                </Typography.Text>
-            )
-        }
-        if (workFinishMessageType === 'danger') {
-            return (
-                <Typography.Text strong type={workFinishMessageType}>
-                    &nbsp;({OverdueMessage})
-                </Typography.Text>
-            )
-        }
-        return null
-    }, [isActual, timeLeft, workFinishMessageType])
+    const timeLeftMessageType = useMemo(() => getTimeLeftMessageType({
+        deadline: incident.workFinish,
+        startWithDate: currentDate,
+        isDefault: !isActual,
+    }), [currentDate, incident.workFinish, isActual])
+
+    const renderTimeLeftMessage = useMemo(() => getTimeLeftMessage({
+        show: isActual,
+        deadline: incident.workFinish,
+        startWithDate: currentDate,
+    }), [currentDate, incident.workFinish, isActual])
 
     useEffect(() => {
-        const interval = setTimeout(() => {
-            setCurrentDate(dayjs())
+        const interval = setInterval(() => {
+            setCurrentDate(dayjs().toISOString())
         }, WORK_DATE_UPDATING_INTERVAL_IN_SECONDS)
         return () => {
             clearInterval(interval)
@@ -167,10 +195,16 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
                         workFinish ? (
                             <>
                                 {DateToMessage}&nbsp;
-                                <Typography.Text strong type={workFinishMessageType}>
+                                <Typography.Text strong type={timeLeftMessageType}>
                                     {workFinish}
                                 </Typography.Text>
-                                {renderTimeLeftMessage}
+                                {
+                                    renderTimeLeftMessage && (
+                                        <Typography.Text strong type={timeLeftMessageType}>
+                                            &nbsp;({renderTimeLeftMessage})
+                                        </Typography.Text>
+                                    )
+                                }
                             </>
                         ) : null
                     }
