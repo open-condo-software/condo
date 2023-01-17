@@ -102,6 +102,11 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
         organizationId, addressValidatorError, address,
     })
 
+    const onSuggestionSelected = useCallback((_, option) => {
+        const address = JSON.parse(option.key as string) as TSelectedAddressSuggestion
+        setAddressValidatorError(address.isHouse ? null : AddressValidationErrorMsg)
+    }, [AddressValidationErrorMsg])
+
     const validations = {
         address: [requiredValidator, addressValidator],
         area: [numberValidator, maxLengthValidator(12)],
@@ -141,10 +146,7 @@ const BasePropertyForm: React.FC<IPropertyFormProps> = (props) => {
                                             placeholder={AddressTitle}
                                             addressValidatorError={addressValidatorError}
                                             setAddressValidatorError={setAddressValidatorError}
-                                            onSelect={(_, option) => {
-                                                const address = JSON.parse(option.key as string) as TSelectedAddressSuggestion
-                                                setAddressValidatorError(address.isHouse ? null : AddressValidationErrorMsg)
-                                            }}
+                                            onSelect={onSuggestionSelected}
                                         />
                                     </Form.Item>
                                     <Form.Item
