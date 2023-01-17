@@ -166,7 +166,7 @@ export const PostMessageProvider: React.FC = ({ children }) => {
 
             const localHandler = get(registeredHandlers, [origin, method])
             const globalHandler = get(registeredHandlers, ['*', method])
-            const handler = localHandler || globalHandler
+            const handler = localHandler || globalHandler as RequestHandler<typeof method>
             if (!handler) {
                 return event.source.postMessage(
                     getClientErrorMessage('UNKNOWN_ERROR', 'There\'s no handler for this type of event. This is most likely a bug. We would be glad if you let us know about it', requestId),

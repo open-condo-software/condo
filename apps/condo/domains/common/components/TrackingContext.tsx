@@ -11,6 +11,8 @@ import upperFirst from 'lodash/upperFirst'
 import { TRACKING_USER_FIELDS } from '@condo/domains/user/constants'
 import TrackerInstance, { ITrackerLogEventType } from './trackers/TrackerInstance'
 import AmplitudeInstance from './trackers/AmplitudeInstance'
+import { usePostMessageContext } from './PostMessageProvider'
+import type { RequestHandler } from './PostMessageProvider/types'
 
 const TRACKING_INITIAL_VALUE = {
     // Here you should create app related tracker instances
@@ -46,8 +48,6 @@ const TrackingContext = createContext<ITrackingContext>(TRACKING_INITIAL_VALUE)
 const useTrackingContext = (): ITrackingContext => useContext<ITrackingContext>(TrackingContext)
 
 const DETAIL_PAGE_NAMES = ['create', 'update', 'hint', 'detail', 'forgot', 'signin', 'register', 'change-password']
-
-const POST_MESSAGE_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 
 export enum TrackingEventType {
     Visit = 'Visit',
@@ -172,6 +172,7 @@ const TrackingProvider: React.FC = ({ children }) => {
     const { user } = useAuth()
     const { link } = useOrganization()
     const router = useRouter()
+    const { addEventHandler } = usePostMessageContext()
 
     const trackingProviderValueRef = useRef<ITrackingContext>({
         trackerInstances: TRACKING_INITIAL_VALUE.trackerInstances,
@@ -187,44 +188,34 @@ const TrackingProvider: React.FC = ({ children }) => {
         trackingProviderValueRef.current.eventProperties.page.path = url
     }
 
-    const handleExternalAnalyticsEvent = useCallback((event: MessageEvent) => {
-        if (!event.isTrusted) {
-            return
-        }
-        const data = event.data
-        const handler = get(data, 'handler')
-        if (handler != POST_MESSAGE_HANDLER_NAME) {
-            return
-        }
-
-        const eventName = getEventNameFromRoute(router.route, upperFirst(get(data, ['params', 'event'], '')) as TrackingEventType)
+    const handleExternalAnalyticsEvent = useCallback<RequestHandler<'CondoWebSendAnalyticsEvent'>>((params) => {
+        const eventName = getEventNameFromRoute(router.route, upperFirst(params.event) as TrackingEventType)
         const eventProperties = {
             ...trackingProviderValueRef.current.eventProperties,
-            components: get(data, 'params', {}),
+            components: params,
         }
-
         Object.values(trackingProviderValueRef.current.trackerInstances).forEach((trackerInstance) => trackerInstance.logEvent({
             eventName,
             eventProperties,
             userProperties: trackingProviderValueRef.current.userProperties,
         }))
 
-    }, [router])
+        return { sent: true }
+    }, [router.route])
 
     useEffect(() => {
         // Init all instances of trackers only on client side rendering
         if (!isUndefined(window)) {
-            window.addEventListener('message', handleExternalAnalyticsEvent)
+            addEventHandler('CondoWebSendAnalyticsEvent', '*', handleExternalAnalyticsEvent)
             // Page path changed -> change value at context object
             router.events.on('routeChangeComplete', routeChangeComplete)
             Object.values(trackingProviderValueRef.current.trackerInstances).forEach(trackerInstance => trackerInstance.init())
         }
 
         return () => {
-            window.removeEventListener('message', handleExternalAnalyticsEvent)
             router.events.off('routeChangeComplete', routeChangeComplete)
         }
-    }, [handleExternalAnalyticsEvent, router])
+    }, [router, addEventHandler, handleExternalAnalyticsEvent])
 
     // Collect user & organization related data to slice custom groups based on given attributes
     useEffect(() => {
