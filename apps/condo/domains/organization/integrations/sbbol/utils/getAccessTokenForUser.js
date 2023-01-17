@@ -14,12 +14,14 @@ async function initializeSbbolAuthApi () {
 }
 
 /**
- * Tries to obtain non-expired access token from `SbbolSecretStorage`,
- * otherwise asks OAuth2 SBBOL API to refresh it.
+ * Tries to obtain non-expired access token from `SbbolSecretStorage`, that corresponds to User.
+ * In case when access token is expired, requests SBBOL OAuth2 API to refresh it.
+ * User can correspond to a customer of "condo" or to an employee of our organization as a partner of SBBOL
  *
+ * NOTE: To request data, related to our organization as a partner of SBBOL, we need to pass id of first user (admin) of our Organization, that can be found by `importId` equals to `SBBOL_FINTECH_CONFIG.service_organization_hashOrgId`.
  * @return {Promise<string|*>}
  */
-async function getOrganizationAccessToken (userId) {
+async function getAccessTokenForUser (userId) {
     const sbbolSecretStorage = getSbbolSecretStorage()
     if (await sbbolSecretStorage.isRefreshTokenExpired(userId)) {
         const instructionsMessage = 'Please, login through SBBOL for this organization, so its accessToken and refreshToken will be obtained and saved in TokenSet table for further renewals'
@@ -41,5 +43,5 @@ async function getOrganizationAccessToken (userId) {
 
 module.exports = {
     initializeSbbolAuthApi,
-    getOrganizationAccessToken,
+    getAccessTokenForUser,
 }

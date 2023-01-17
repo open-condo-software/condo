@@ -1860,23 +1860,6 @@ export type AddressMetaFieldInput = {
   data: AddressMetaDataFieldInput;
 };
 
-export type AdvanceAcceptanceBundle = {
-  __typename?: 'AdvanceAcceptanceBundle';
-  code?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  currentState?: Maybe<CurrentStateType>;
-};
-
-export type AdvanceAcceptanceBundleInput = {
-  code?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  currentState?: Maybe<CurrentStateType>;
-};
-
 export type AllMiniAppsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -16482,12 +16465,6 @@ export type CreateOnBoardingInput = {
   userId: Scalars['ID'];
 };
 
-export enum CurrentStateType {
-  Active = 'ACTIVE',
-  NotPaid = 'NOT_PAID',
-  Deactivated = 'DEACTIVATED'
-}
-
 export enum DevicePlatformType {
   Android = 'android',
   Ios = 'ios',
@@ -24361,30 +24338,6 @@ export type Mutation = {
   deleteServiceSubscription?: Maybe<ServiceSubscription>;
   /**  Delete multiple ServiceSubscription items by ID.  */
   deleteServiceSubscriptions?: Maybe<Array<Maybe<ServiceSubscription>>>;
-  /**  Create a single ServiceSubscriptionPaymentHistoryRecord item.  */
-  createServiceSubscriptionPaymentHistoryRecord?: Maybe<ServiceSubscriptionPaymentHistoryRecord>;
-  /**  Create multiple ServiceSubscriptionPaymentHistoryRecord items.  */
-  createServiceSubscriptionPaymentHistoryRecords?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecord>>>;
-  /**  Update a single ServiceSubscriptionPaymentHistoryRecord item by ID.  */
-  updateServiceSubscriptionPaymentHistoryRecord?: Maybe<ServiceSubscriptionPaymentHistoryRecord>;
-  /**  Update multiple ServiceSubscriptionPaymentHistoryRecord items by ID.  */
-  updateServiceSubscriptionPaymentHistoryRecords?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecord>>>;
-  /**  Delete a single ServiceSubscriptionPaymentHistoryRecord item by ID.  */
-  deleteServiceSubscriptionPaymentHistoryRecord?: Maybe<ServiceSubscriptionPaymentHistoryRecord>;
-  /**  Delete multiple ServiceSubscriptionPaymentHistoryRecord items by ID.  */
-  deleteServiceSubscriptionPaymentHistoryRecords?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecord>>>;
-  /**  Create a single ServiceSubscriptionPayment item.  */
-  createServiceSubscriptionPayment?: Maybe<ServiceSubscriptionPayment>;
-  /**  Create multiple ServiceSubscriptionPayment items.  */
-  createServiceSubscriptionPayments?: Maybe<Array<Maybe<ServiceSubscriptionPayment>>>;
-  /**  Update a single ServiceSubscriptionPayment item by ID.  */
-  updateServiceSubscriptionPayment?: Maybe<ServiceSubscriptionPayment>;
-  /**  Update multiple ServiceSubscriptionPayment items by ID.  */
-  updateServiceSubscriptionPayments?: Maybe<Array<Maybe<ServiceSubscriptionPayment>>>;
-  /**  Delete a single ServiceSubscriptionPayment item by ID.  */
-  deleteServiceSubscriptionPayment?: Maybe<ServiceSubscriptionPayment>;
-  /**  Delete multiple ServiceSubscriptionPayment items by ID.  */
-  deleteServiceSubscriptionPayments?: Maybe<Array<Maybe<ServiceSubscriptionPayment>>>;
   /**  Create a single AcquiringIntegrationHistoryRecord item.  */
   createAcquiringIntegrationHistoryRecord?: Maybe<AcquiringIntegrationHistoryRecord>;
   /**  Create multiple AcquiringIntegrationHistoryRecord items.  */
@@ -30413,68 +30366,6 @@ export type MutationDeleteServiceSubscriptionArgs = {
 
 
 export type MutationDeleteServiceSubscriptionsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateServiceSubscriptionPaymentHistoryRecordArgs = {
-  data?: Maybe<ServiceSubscriptionPaymentHistoryRecordCreateInput>;
-};
-
-
-export type MutationCreateServiceSubscriptionPaymentHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecordsCreateInput>>>;
-};
-
-
-export type MutationUpdateServiceSubscriptionPaymentHistoryRecordArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ServiceSubscriptionPaymentHistoryRecordUpdateInput>;
-};
-
-
-export type MutationUpdateServiceSubscriptionPaymentHistoryRecordsArgs = {
-  data?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecordsUpdateInput>>>;
-};
-
-
-export type MutationDeleteServiceSubscriptionPaymentHistoryRecordArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteServiceSubscriptionPaymentHistoryRecordsArgs = {
-  ids?: Maybe<Array<Scalars['ID']>>;
-};
-
-
-export type MutationCreateServiceSubscriptionPaymentArgs = {
-  data?: Maybe<ServiceSubscriptionPaymentCreateInput>;
-};
-
-
-export type MutationCreateServiceSubscriptionPaymentsArgs = {
-  data?: Maybe<Array<Maybe<ServiceSubscriptionPaymentsCreateInput>>>;
-};
-
-
-export type MutationUpdateServiceSubscriptionPaymentArgs = {
-  id: Scalars['ID'];
-  data?: Maybe<ServiceSubscriptionPaymentUpdateInput>;
-};
-
-
-export type MutationUpdateServiceSubscriptionPaymentsArgs = {
-  data?: Maybe<Array<Maybe<ServiceSubscriptionPaymentsUpdateInput>>>;
-};
-
-
-export type MutationDeleteServiceSubscriptionPaymentArgs = {
-  id: Scalars['ID'];
-};
-
-
-export type MutationDeleteServiceSubscriptionPaymentsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -39593,22 +39484,6 @@ export type Query = {
   _allServiceSubscriptionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ServiceSubscription list.  */
   _ServiceSubscriptionsMeta?: Maybe<_ListMeta>;
-  /**  Search for all ServiceSubscriptionPaymentHistoryRecord items which match the where clause.  */
-  allServiceSubscriptionPaymentHistoryRecords?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecord>>>;
-  /**  Search for the ServiceSubscriptionPaymentHistoryRecord item with the matching ID.  */
-  ServiceSubscriptionPaymentHistoryRecord?: Maybe<ServiceSubscriptionPaymentHistoryRecord>;
-  /**  Perform a meta-query on all ServiceSubscriptionPaymentHistoryRecord items which match the where clause.  */
-  _allServiceSubscriptionPaymentHistoryRecordsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ServiceSubscriptionPaymentHistoryRecord list.  */
-  _ServiceSubscriptionPaymentHistoryRecordsMeta?: Maybe<_ListMeta>;
-  /**  Search for all ServiceSubscriptionPayment items which match the where clause.  */
-  allServiceSubscriptionPayments?: Maybe<Array<Maybe<ServiceSubscriptionPayment>>>;
-  /**  Search for the ServiceSubscriptionPayment item with the matching ID.  */
-  ServiceSubscriptionPayment?: Maybe<ServiceSubscriptionPayment>;
-  /**  Perform a meta-query on all ServiceSubscriptionPayment items which match the where clause.  */
-  _allServiceSubscriptionPaymentsMeta?: Maybe<_QueryMeta>;
-  /**  Retrieve the meta-data for the ServiceSubscriptionPayment list.  */
-  _ServiceSubscriptionPaymentsMeta?: Maybe<_ListMeta>;
   /**  Search for all AcquiringIntegrationHistoryRecord items which match the where clause.  */
   allAcquiringIntegrationHistoryRecords?: Maybe<Array<Maybe<AcquiringIntegrationHistoryRecord>>>;
   /**  Search for the AcquiringIntegrationHistoryRecord item with the matching ID.  */
@@ -43255,56 +43130,6 @@ export type Query_AllServiceSubscriptionsMetaArgs = {
 };
 
 
-export type QueryAllServiceSubscriptionPaymentHistoryRecordsArgs = {
-  where?: Maybe<ServiceSubscriptionPaymentHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortServiceSubscriptionPaymentHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryServiceSubscriptionPaymentHistoryRecordArgs = {
-  where: ServiceSubscriptionPaymentHistoryRecordWhereUniqueInput;
-};
-
-
-export type Query_AllServiceSubscriptionPaymentHistoryRecordsMetaArgs = {
-  where?: Maybe<ServiceSubscriptionPaymentHistoryRecordWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortServiceSubscriptionPaymentHistoryRecordsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryAllServiceSubscriptionPaymentsArgs = {
-  where?: Maybe<ServiceSubscriptionPaymentWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortServiceSubscriptionPaymentsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
-export type QueryServiceSubscriptionPaymentArgs = {
-  where: ServiceSubscriptionPaymentWhereUniqueInput;
-};
-
-
-export type Query_AllServiceSubscriptionPaymentsMetaArgs = {
-  where?: Maybe<ServiceSubscriptionPaymentWhereInput>;
-  search?: Maybe<Scalars['String']>;
-  sortBy?: Maybe<Array<SortServiceSubscriptionPaymentsBy>>;
-  orderBy?: Maybe<Scalars['String']>;
-  first?: Maybe<Scalars['Int']>;
-  skip?: Maybe<Scalars['Int']>;
-};
-
-
 export type QueryAllAcquiringIntegrationHistoryRecordsArgs = {
   where?: Maybe<AcquiringIntegrationHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -45864,37 +45689,6 @@ export type ResidentsUpdateInput = {
   data?: Maybe<ResidentUpdateInput>;
 };
 
-export type SbbolOfferAccept = {
-  __typename?: 'SbbolOfferAccept';
-  dv?: Maybe<Scalars['Int']>;
-  active?: Maybe<Scalars['Boolean']>;
-  payerAccount?: Maybe<Scalars['String']>;
-  payerBankBic?: Maybe<Scalars['String']>;
-  payerBankCorrAccount?: Maybe<Scalars['String']>;
-  payerInn?: Maybe<Scalars['String']>;
-  payerName?: Maybe<Scalars['String']>;
-  payerOrgIdHash?: Maybe<Scalars['String']>;
-  purpose?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundle>>>;
-};
-
-export type SbbolOfferAcceptInput = {
-  dv: Scalars['Int'];
-  active?: Maybe<Scalars['Boolean']>;
-  payerAccount?: Maybe<Scalars['String']>;
-  payerBankBic?: Maybe<Scalars['String']>;
-  payerBankCorrAccount?: Maybe<Scalars['String']>;
-  payerInn?: Maybe<Scalars['String']>;
-  payerName?: Maybe<Scalars['String']>;
-  payerOrgIdHash?: Maybe<Scalars['String']>;
-  purpose?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundleInput>>>;
-};
-
 export type SendMessageInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -46483,8 +46277,6 @@ export type ServiceSubscription = {
   totalPrice?: Maybe<Scalars['String']>;
   /**  Currency of values for all price fields  */
   currency?: Maybe<Scalars['String']>;
-  /**  It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method  */
-  sbbolOfferAccept?: Maybe<SbbolOfferAccept>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -46511,7 +46303,6 @@ export type ServiceSubscriptionCreateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46543,7 +46334,6 @@ export type ServiceSubscriptionHistoryRecord = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -46569,7 +46359,6 @@ export type ServiceSubscriptionHistoryRecordCreateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46600,7 +46389,6 @@ export type ServiceSubscriptionHistoryRecordUpdateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46700,10 +46488,6 @@ export type ServiceSubscriptionHistoryRecordWhereInput = {
   currency_not_ends_with_i?: Maybe<Scalars['String']>;
   currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
-  sbbolOfferAccept_not?: Maybe<Scalars['JSON']>;
-  sbbolOfferAccept_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sbbolOfferAccept_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -46795,521 +46579,6 @@ export type ServiceSubscriptionHistoryRecordsUpdateInput = {
   data?: Maybe<ServiceSubscriptionHistoryRecordUpdateInput>;
 };
 
-/**  Payment request for service subscription  */
-export type ServiceSubscriptionPayment = {
-  __typename?: 'ServiceSubscriptionPayment';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the ServiceSubscriptionPayment List config, or
-   *  2. As an alias to the field set on 'labelField' in the ServiceSubscriptionPayment List config, or
-   *  3. As an alias to a 'name' field on the ServiceSubscriptionPayment List (if one exists), or
-   *  4. As an alias to the 'id' field on the ServiceSubscriptionPayment List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  /**  Origin of subscription, either through our system or through external system or marketplace  */
-  type?: Maybe<ServiceSubscriptionPaymentTypeType>;
-  /**  Reduced set of statuses from a set of statuses in external system, that contains much more of them. Based on this status a system will filter payment request for subsequent fetching of statuses from remote system. Statuses meanings is following: "created" means, that the payment was just created in our system and its status in remote system in unknown yet; "stopped" means, that the payment is stuck somewhere during processing, for example, because of lack of information, but everything else was correct; "cancelled" means, that a client has refused to pay.  */
-  status?: Maybe<ServiceSubscriptionPaymentStatusType>;
-  /**  Unique identifier in remote system, if this payment request belong to payment requests for subscription from remote system (non-default). It is not required, because the payment can be created and processed in our system only  */
-  externalId?: Maybe<Scalars['String']>;
-  /**  Amount in specified currency  */
-  amount?: Maybe<Scalars['String']>;
-  /**  Currency of amount  */
-  currency?: Maybe<ServiceSubscriptionPaymentCurrencyType>;
-  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
-  organization?: Maybe<Organization>;
-  /**  Subscription, to pay for  */
-  subscription?: Maybe<ServiceSubscription>;
-  /**  Response from remote system on create record operation  */
-  meta?: Maybe<Scalars['JSON']>;
-  /**  Response from remote system on status check  */
-  statusMeta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  createdBy?: Maybe<User>;
-  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-  updatedBy?: Maybe<User>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  /**  Data structure Version  */
-  dv?: Maybe<Scalars['Int']>;
-  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-  sender?: Maybe<SenderField>;
-};
-
-export type ServiceSubscriptionPaymentCreateInput = {
-  type?: Maybe<ServiceSubscriptionPaymentTypeType>;
-  status?: Maybe<ServiceSubscriptionPaymentStatusType>;
-  externalId?: Maybe<Scalars['String']>;
-  amount?: Maybe<Scalars['String']>;
-  currency?: Maybe<ServiceSubscriptionPaymentCurrencyType>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  subscription?: Maybe<ServiceSubscriptionRelateToOneInput>;
-  meta?: Maybe<Scalars['JSON']>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export enum ServiceSubscriptionPaymentCurrencyType {
-  Rub = 'RUB'
-}
-
-/**  A keystone list  */
-export type ServiceSubscriptionPaymentHistoryRecord = {
-  __typename?: 'ServiceSubscriptionPaymentHistoryRecord';
-  /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the ServiceSubscriptionPaymentHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the ServiceSubscriptionPaymentHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the ServiceSubscriptionPaymentHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the ServiceSubscriptionPaymentHistoryRecord List.
-   */
-  _label_?: Maybe<Scalars['String']>;
-  type?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['String']>;
-  externalId?: Maybe<Scalars['String']>;
-  amount?: Maybe<Scalars['String']>;
-  currency?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  subscription?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  id: Scalars['ID'];
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type ServiceSubscriptionPaymentHistoryRecordCreateInput = {
-  type?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['String']>;
-  externalId?: Maybe<Scalars['String']>;
-  amount?: Maybe<Scalars['String']>;
-  currency?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  subscription?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export enum ServiceSubscriptionPaymentHistoryRecordHistoryActionType {
-  C = 'c',
-  U = 'u',
-  D = 'd'
-}
-
-export type ServiceSubscriptionPaymentHistoryRecordUpdateInput = {
-  type?: Maybe<Scalars['String']>;
-  status?: Maybe<Scalars['String']>;
-  externalId?: Maybe<Scalars['String']>;
-  amount?: Maybe<Scalars['String']>;
-  currency?: Maybe<Scalars['String']>;
-  organization?: Maybe<Scalars['String']>;
-  subscription?: Maybe<Scalars['String']>;
-  meta?: Maybe<Scalars['JSON']>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<Scalars['String']>;
-  updatedBy?: Maybe<Scalars['String']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['JSON']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<Scalars['JSON']>;
-  history_date?: Maybe<Scalars['String']>;
-  history_action?: Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>;
-  history_id?: Maybe<Scalars['String']>;
-};
-
-export type ServiceSubscriptionPaymentHistoryRecordWhereInput = {
-  AND?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecordWhereInput>>>;
-  OR?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecordWhereInput>>>;
-  type?: Maybe<Scalars['String']>;
-  type_not?: Maybe<Scalars['String']>;
-  type_contains?: Maybe<Scalars['String']>;
-  type_not_contains?: Maybe<Scalars['String']>;
-  type_starts_with?: Maybe<Scalars['String']>;
-  type_not_starts_with?: Maybe<Scalars['String']>;
-  type_ends_with?: Maybe<Scalars['String']>;
-  type_not_ends_with?: Maybe<Scalars['String']>;
-  type_i?: Maybe<Scalars['String']>;
-  type_not_i?: Maybe<Scalars['String']>;
-  type_contains_i?: Maybe<Scalars['String']>;
-  type_not_contains_i?: Maybe<Scalars['String']>;
-  type_starts_with_i?: Maybe<Scalars['String']>;
-  type_not_starts_with_i?: Maybe<Scalars['String']>;
-  type_ends_with_i?: Maybe<Scalars['String']>;
-  type_not_ends_with_i?: Maybe<Scalars['String']>;
-  type_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  type_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  status?: Maybe<Scalars['String']>;
-  status_not?: Maybe<Scalars['String']>;
-  status_contains?: Maybe<Scalars['String']>;
-  status_not_contains?: Maybe<Scalars['String']>;
-  status_starts_with?: Maybe<Scalars['String']>;
-  status_not_starts_with?: Maybe<Scalars['String']>;
-  status_ends_with?: Maybe<Scalars['String']>;
-  status_not_ends_with?: Maybe<Scalars['String']>;
-  status_i?: Maybe<Scalars['String']>;
-  status_not_i?: Maybe<Scalars['String']>;
-  status_contains_i?: Maybe<Scalars['String']>;
-  status_not_contains_i?: Maybe<Scalars['String']>;
-  status_starts_with_i?: Maybe<Scalars['String']>;
-  status_not_starts_with_i?: Maybe<Scalars['String']>;
-  status_ends_with_i?: Maybe<Scalars['String']>;
-  status_not_ends_with_i?: Maybe<Scalars['String']>;
-  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  externalId?: Maybe<Scalars['String']>;
-  externalId_not?: Maybe<Scalars['String']>;
-  externalId_contains?: Maybe<Scalars['String']>;
-  externalId_not_contains?: Maybe<Scalars['String']>;
-  externalId_starts_with?: Maybe<Scalars['String']>;
-  externalId_not_starts_with?: Maybe<Scalars['String']>;
-  externalId_ends_with?: Maybe<Scalars['String']>;
-  externalId_not_ends_with?: Maybe<Scalars['String']>;
-  externalId_i?: Maybe<Scalars['String']>;
-  externalId_not_i?: Maybe<Scalars['String']>;
-  externalId_contains_i?: Maybe<Scalars['String']>;
-  externalId_not_contains_i?: Maybe<Scalars['String']>;
-  externalId_starts_with_i?: Maybe<Scalars['String']>;
-  externalId_not_starts_with_i?: Maybe<Scalars['String']>;
-  externalId_ends_with_i?: Maybe<Scalars['String']>;
-  externalId_not_ends_with_i?: Maybe<Scalars['String']>;
-  externalId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  externalId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  amount?: Maybe<Scalars['String']>;
-  amount_not?: Maybe<Scalars['String']>;
-  amount_lt?: Maybe<Scalars['String']>;
-  amount_lte?: Maybe<Scalars['String']>;
-  amount_gt?: Maybe<Scalars['String']>;
-  amount_gte?: Maybe<Scalars['String']>;
-  amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  currency?: Maybe<Scalars['String']>;
-  currency_not?: Maybe<Scalars['String']>;
-  currency_contains?: Maybe<Scalars['String']>;
-  currency_not_contains?: Maybe<Scalars['String']>;
-  currency_starts_with?: Maybe<Scalars['String']>;
-  currency_not_starts_with?: Maybe<Scalars['String']>;
-  currency_ends_with?: Maybe<Scalars['String']>;
-  currency_not_ends_with?: Maybe<Scalars['String']>;
-  currency_i?: Maybe<Scalars['String']>;
-  currency_not_i?: Maybe<Scalars['String']>;
-  currency_contains_i?: Maybe<Scalars['String']>;
-  currency_not_contains_i?: Maybe<Scalars['String']>;
-  currency_starts_with_i?: Maybe<Scalars['String']>;
-  currency_not_starts_with_i?: Maybe<Scalars['String']>;
-  currency_ends_with_i?: Maybe<Scalars['String']>;
-  currency_not_ends_with_i?: Maybe<Scalars['String']>;
-  currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  subscription?: Maybe<Scalars['String']>;
-  subscription_not?: Maybe<Scalars['String']>;
-  subscription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  subscription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  statusMeta_not?: Maybe<Scalars['JSON']>;
-  statusMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<Scalars['String']>;
-  createdBy_not?: Maybe<Scalars['String']>;
-  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy?: Maybe<Scalars['String']>;
-  updatedBy_not?: Maybe<Scalars['String']>;
-  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['JSON']>;
-  newId_not?: Maybe<Scalars['JSON']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<Scalars['JSON']>;
-  sender_not?: Maybe<Scalars['JSON']>;
-  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  history_date?: Maybe<Scalars['String']>;
-  history_date_not?: Maybe<Scalars['String']>;
-  history_date_lt?: Maybe<Scalars['String']>;
-  history_date_lte?: Maybe<Scalars['String']>;
-  history_date_gt?: Maybe<Scalars['String']>;
-  history_date_gte?: Maybe<Scalars['String']>;
-  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_action?: Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>;
-  history_action_not?: Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>;
-  history_action_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>>>;
-  history_action_not_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentHistoryRecordHistoryActionType>>>;
-  history_id?: Maybe<Scalars['String']>;
-  history_id_not?: Maybe<Scalars['String']>;
-  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-};
-
-export type ServiceSubscriptionPaymentHistoryRecordWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type ServiceSubscriptionPaymentHistoryRecordsCreateInput = {
-  data?: Maybe<ServiceSubscriptionPaymentHistoryRecordCreateInput>;
-};
-
-export type ServiceSubscriptionPaymentHistoryRecordsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<ServiceSubscriptionPaymentHistoryRecordUpdateInput>;
-};
-
-export enum ServiceSubscriptionPaymentStatusType {
-  Created = 'created',
-  Processing = 'processing',
-  Done = 'done',
-  Error = 'error',
-  Stopped = 'stopped',
-  Cancelled = 'cancelled'
-}
-
-export enum ServiceSubscriptionPaymentTypeType {
-  Default = 'default',
-  Sbbol = 'sbbol'
-}
-
-export type ServiceSubscriptionPaymentUpdateInput = {
-  type?: Maybe<ServiceSubscriptionPaymentTypeType>;
-  status?: Maybe<ServiceSubscriptionPaymentStatusType>;
-  externalId?: Maybe<Scalars['String']>;
-  amount?: Maybe<Scalars['String']>;
-  currency?: Maybe<ServiceSubscriptionPaymentCurrencyType>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
-  subscription?: Maybe<ServiceSubscriptionRelateToOneInput>;
-  meta?: Maybe<Scalars['JSON']>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  v?: Maybe<Scalars['Int']>;
-  createdAt?: Maybe<Scalars['String']>;
-  updatedAt?: Maybe<Scalars['String']>;
-  createdBy?: Maybe<UserRelateToOneInput>;
-  updatedBy?: Maybe<UserRelateToOneInput>;
-  deletedAt?: Maybe<Scalars['String']>;
-  newId?: Maybe<Scalars['String']>;
-  dv?: Maybe<Scalars['Int']>;
-  sender?: Maybe<SenderFieldInput>;
-};
-
-export type ServiceSubscriptionPaymentWhereInput = {
-  AND?: Maybe<Array<Maybe<ServiceSubscriptionPaymentWhereInput>>>;
-  OR?: Maybe<Array<Maybe<ServiceSubscriptionPaymentWhereInput>>>;
-  type?: Maybe<ServiceSubscriptionPaymentTypeType>;
-  type_not?: Maybe<ServiceSubscriptionPaymentTypeType>;
-  type_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentTypeType>>>;
-  type_not_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentTypeType>>>;
-  status?: Maybe<ServiceSubscriptionPaymentStatusType>;
-  status_not?: Maybe<ServiceSubscriptionPaymentStatusType>;
-  status_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentStatusType>>>;
-  status_not_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentStatusType>>>;
-  externalId?: Maybe<Scalars['String']>;
-  externalId_not?: Maybe<Scalars['String']>;
-  externalId_contains?: Maybe<Scalars['String']>;
-  externalId_not_contains?: Maybe<Scalars['String']>;
-  externalId_starts_with?: Maybe<Scalars['String']>;
-  externalId_not_starts_with?: Maybe<Scalars['String']>;
-  externalId_ends_with?: Maybe<Scalars['String']>;
-  externalId_not_ends_with?: Maybe<Scalars['String']>;
-  externalId_i?: Maybe<Scalars['String']>;
-  externalId_not_i?: Maybe<Scalars['String']>;
-  externalId_contains_i?: Maybe<Scalars['String']>;
-  externalId_not_contains_i?: Maybe<Scalars['String']>;
-  externalId_starts_with_i?: Maybe<Scalars['String']>;
-  externalId_not_starts_with_i?: Maybe<Scalars['String']>;
-  externalId_ends_with_i?: Maybe<Scalars['String']>;
-  externalId_not_ends_with_i?: Maybe<Scalars['String']>;
-  externalId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  externalId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  amount?: Maybe<Scalars['String']>;
-  amount_not?: Maybe<Scalars['String']>;
-  amount_lt?: Maybe<Scalars['String']>;
-  amount_lte?: Maybe<Scalars['String']>;
-  amount_gt?: Maybe<Scalars['String']>;
-  amount_gte?: Maybe<Scalars['String']>;
-  amount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  amount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  currency?: Maybe<ServiceSubscriptionPaymentCurrencyType>;
-  currency_not?: Maybe<ServiceSubscriptionPaymentCurrencyType>;
-  currency_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentCurrencyType>>>;
-  currency_not_in?: Maybe<Array<Maybe<ServiceSubscriptionPaymentCurrencyType>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
-  subscription?: Maybe<ServiceSubscriptionWhereInput>;
-  subscription_is_null?: Maybe<Scalars['Boolean']>;
-  meta?: Maybe<Scalars['JSON']>;
-  meta_not?: Maybe<Scalars['JSON']>;
-  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusMeta?: Maybe<Scalars['JSON']>;
-  statusMeta_not?: Maybe<Scalars['JSON']>;
-  statusMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  statusMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  v?: Maybe<Scalars['Int']>;
-  v_not?: Maybe<Scalars['Int']>;
-  v_lt?: Maybe<Scalars['Int']>;
-  v_lte?: Maybe<Scalars['Int']>;
-  v_gt?: Maybe<Scalars['Int']>;
-  v_gte?: Maybe<Scalars['Int']>;
-  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  createdAt?: Maybe<Scalars['String']>;
-  createdAt_not?: Maybe<Scalars['String']>;
-  createdAt_lt?: Maybe<Scalars['String']>;
-  createdAt_lte?: Maybe<Scalars['String']>;
-  createdAt_gt?: Maybe<Scalars['String']>;
-  createdAt_gte?: Maybe<Scalars['String']>;
-  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt?: Maybe<Scalars['String']>;
-  updatedAt_not?: Maybe<Scalars['String']>;
-  updatedAt_lt?: Maybe<Scalars['String']>;
-  updatedAt_lte?: Maybe<Scalars['String']>;
-  updatedAt_gt?: Maybe<Scalars['String']>;
-  updatedAt_gte?: Maybe<Scalars['String']>;
-  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  createdBy?: Maybe<UserWhereInput>;
-  createdBy_is_null?: Maybe<Scalars['Boolean']>;
-  updatedBy?: Maybe<UserWhereInput>;
-  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
-  deletedAt?: Maybe<Scalars['String']>;
-  deletedAt_not?: Maybe<Scalars['String']>;
-  deletedAt_lt?: Maybe<Scalars['String']>;
-  deletedAt_lte?: Maybe<Scalars['String']>;
-  deletedAt_gt?: Maybe<Scalars['String']>;
-  deletedAt_gte?: Maybe<Scalars['String']>;
-  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId?: Maybe<Scalars['String']>;
-  newId_not?: Maybe<Scalars['String']>;
-  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  dv?: Maybe<Scalars['Int']>;
-  dv_not?: Maybe<Scalars['Int']>;
-  dv_lt?: Maybe<Scalars['Int']>;
-  dv_lte?: Maybe<Scalars['Int']>;
-  dv_gt?: Maybe<Scalars['Int']>;
-  dv_gte?: Maybe<Scalars['Int']>;
-  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  sender?: Maybe<SenderFieldInput>;
-  sender_not?: Maybe<SenderFieldInput>;
-  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-};
-
-export type ServiceSubscriptionPaymentWhereUniqueInput = {
-  id: Scalars['ID'];
-};
-
-export type ServiceSubscriptionPaymentsCreateInput = {
-  data?: Maybe<ServiceSubscriptionPaymentCreateInput>;
-};
-
-export type ServiceSubscriptionPaymentsUpdateInput = {
-  id: Scalars['ID'];
-  data?: Maybe<ServiceSubscriptionPaymentUpdateInput>;
-};
-
-export type ServiceSubscriptionRelateToOneInput = {
-  create?: Maybe<ServiceSubscriptionCreateInput>;
-  connect?: Maybe<ServiceSubscriptionWhereUniqueInput>;
-  disconnect?: Maybe<ServiceSubscriptionWhereUniqueInput>;
-  disconnectAll?: Maybe<Scalars['Boolean']>;
-};
-
 export enum ServiceSubscriptionTypeType {
   Default = 'default',
   Sbbol = 'sbbol'
@@ -47325,7 +46594,6 @@ export type ServiceSubscriptionUpdateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47406,10 +46674,6 @@ export type ServiceSubscriptionWhereInput = {
   currency_not_ends_with_i?: Maybe<Scalars['String']>;
   currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
-  sbbolOfferAccept_not?: Maybe<SbbolOfferAcceptInput>;
-  sbbolOfferAccept_in?: Maybe<Array<Maybe<SbbolOfferAcceptInput>>>;
-  sbbolOfferAccept_not_in?: Maybe<Array<Maybe<SbbolOfferAcceptInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -51365,68 +50629,6 @@ export enum SortServiceSubscriptionHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortServiceSubscriptionPaymentHistoryRecordsBy {
-  TypeAsc = 'type_ASC',
-  TypeDesc = 'type_DESC',
-  StatusAsc = 'status_ASC',
-  StatusDesc = 'status_DESC',
-  ExternalIdAsc = 'externalId_ASC',
-  ExternalIdDesc = 'externalId_DESC',
-  AmountAsc = 'amount_ASC',
-  AmountDesc = 'amount_DESC',
-  CurrencyAsc = 'currency_ASC',
-  CurrencyDesc = 'currency_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  HistoryDateAsc = 'history_date_ASC',
-  HistoryDateDesc = 'history_date_DESC',
-  HistoryActionAsc = 'history_action_ASC',
-  HistoryActionDesc = 'history_action_DESC'
-}
-
-export enum SortServiceSubscriptionPaymentsBy {
-  TypeAsc = 'type_ASC',
-  TypeDesc = 'type_DESC',
-  StatusAsc = 'status_ASC',
-  StatusDesc = 'status_DESC',
-  ExternalIdAsc = 'externalId_ASC',
-  ExternalIdDesc = 'externalId_DESC',
-  AmountAsc = 'amount_ASC',
-  AmountDesc = 'amount_DESC',
-  CurrencyAsc = 'currency_ASC',
-  CurrencyDesc = 'currency_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
-  SubscriptionAsc = 'subscription_ASC',
-  SubscriptionDesc = 'subscription_DESC',
-  IdAsc = 'id_ASC',
-  IdDesc = 'id_DESC',
-  VAsc = 'v_ASC',
-  VDesc = 'v_DESC',
-  CreatedAtAsc = 'createdAt_ASC',
-  CreatedAtDesc = 'createdAt_DESC',
-  UpdatedAtAsc = 'updatedAt_ASC',
-  UpdatedAtDesc = 'updatedAt_DESC',
-  CreatedByAsc = 'createdBy_ASC',
-  CreatedByDesc = 'createdBy_DESC',
-  UpdatedByAsc = 'updatedBy_ASC',
-  UpdatedByDesc = 'updatedBy_DESC',
-  DeletedAtAsc = 'deletedAt_ASC',
-  DeletedAtDesc = 'deletedAt_DESC',
-  DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
 }
 
 export enum SortServiceSubscriptionsBy {

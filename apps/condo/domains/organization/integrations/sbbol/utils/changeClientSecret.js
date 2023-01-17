@@ -2,7 +2,7 @@ const querystring = require('querystring')
 const dayjs = require('dayjs')
 const conf = require('@open-condo/config')
 const { SbbolRequestApi } = require('../SbbolRequestApi')
-const { getOrganizationAccessToken } = require('./getOrganizationAccessToken')
+const { getAccessTokenForUser } = require('./getAccessTokenForUser')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
@@ -11,7 +11,7 @@ const get = require('lodash/get')
 const SBBOL_FINTECH_CONFIG = conf.SBBOL_FINTECH_CONFIG ? JSON.parse(conf.SBBOL_FINTECH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}
 
-async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret, userId }) {
+async function changeClientSecret ({ clientId, currentClientSecret, newClientSecret }) {
     const sbbolSecretStorage = getSbbolSecretStorage()
     const { keystone: userContext } = await getSchemaCtx('User')
 
@@ -33,7 +33,7 @@ async function changeClientSecret ({ clientId, currentClientSecret, newClientSec
     if (!user) {
         throw new Error('Could not fetch User from SBBOL service organization')
     }
-    const accessToken = await getOrganizationAccessToken(user.id)
+    const accessToken = await getAccessTokenForUser(user.id)
 
     const requestApi = new SbbolRequestApi({
         accessToken,
