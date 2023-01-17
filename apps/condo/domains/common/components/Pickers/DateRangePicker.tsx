@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { DownOutlined, MinusOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
+import { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
@@ -24,14 +25,14 @@ const RANGE_PICKER_CSS = css`
   }
 `
 
-const DateRangePicker: React.FC<RangePickerSharedProps<Dayjs>> = (props) => {
+const DateRangePicker: React.FC<RangePickerProps<Dayjs>> = (props) => {
     const { onChange, ...restProps } = props
 
     const { logEvent, getEventName } = useTracking()
 
     const eventName = getEventName(TrackingEventType.Daterange)
 
-    const onChangeCallback: RangePickerSharedProps<Dayjs>['onChange'] = (values, formatString) => {
+    const onChangeCallback: RangePickerProps<Dayjs>['onChange'] = (values, formatString) => {
         if (eventName && formatString.length) {
             const eventProperties = { component: { value: formatString } }
 
