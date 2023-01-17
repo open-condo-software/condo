@@ -10,7 +10,7 @@ import { usePropertyValidations } from '@condo/domains/property/hooks/usePropert
 import { IPropertyFormState } from '@condo/domains/property/utils/clientSchema/Property'
 import { omitRecursively } from '@open-condo/keystone/fields/Json/utils/cleaner'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from '@open-condo/ui/dist'
+import { Typography } from '@open-condo/ui'
 import { Col, Form, FormInstance, notification, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
