@@ -1,4 +1,3 @@
-import { grey } from '@ant-design/colors'
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
@@ -74,7 +73,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
         (dataItem: TSelectedAddressSuggestion, searchValue) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
+                    style={{ direction: 'rtl', textAlign: 'left' }}
                     key={JSON.stringify(dataItem)}
                     value={dataItem.text}
                     title={dataItem.text}
