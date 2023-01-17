@@ -15,6 +15,7 @@ import type { ValidatorsType } from './validators'
 import type { ErrorReason } from './errors'
 import { validators } from './validators'
 import { ERROR_CODES } from './errors'
+import { handleNotification } from './globalHandlers'
 
 
 const {
@@ -97,6 +98,12 @@ function getClientErrorMessage<Method extends AllRequestMethods> (
     }
 }
 
+const initialHandlers: Record<HandlerOrigin, OriginHandlers> = {
+    '*': {
+        CondoWebAppShowNotification: handleNotification,
+    },
+}
+
 /**
  * Single place to handle all incoming postMessages from condo and its miniapps.
  * You can register global handler for all origins by specifying "*" as origin (Example: notification)
@@ -108,7 +115,7 @@ function getClientErrorMessage<Method extends AllRequestMethods> (
  */
 export const PostMessageProvider: React.FC = ({ children }) => {
     const [allowedOrigins, setAllowedOrigins] = useState<Array<string>>([serverUrl])
-    const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerOrigin, OriginHandlers>>({})
+    const [registeredHandlers, setRegisteredHandlers] = useState<Record<HandlerOrigin, OriginHandlers>>(initialHandlers)
     const isOnClient = typeof window !== 'undefined'
 
     const addEventHandler: RegisterHandler = useCallback((event, origin, handler) => {

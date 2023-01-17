@@ -23,9 +23,21 @@ const CondoWebSendAnalyticsEventParamsSchema = {
     additionalProperties: true,
 }
 
+const CondoWebAppShowNotificationParamsSchema = {
+    type: 'object',
+    properties: {
+        type: { type: 'string', enum: ['success', 'error', 'warning', 'info'] },
+        message: { type: 'string' },
+        description: { type: 'string' },
+    },
+    required: ['type', 'message'],
+    additionalProperties: false,
+}
+
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
+    CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
 }
