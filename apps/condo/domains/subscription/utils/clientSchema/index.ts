@@ -4,5 +4,4 @@
  */
 
 export * as ServiceSubscription from './ServiceSubscription'
-export * as ServiceSubscriptionPayment from './ServiceSubscriptionPayment'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
