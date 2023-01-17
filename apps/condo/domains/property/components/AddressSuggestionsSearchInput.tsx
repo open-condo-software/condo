@@ -10,6 +10,7 @@ import { notification, Select, SelectProps } from 'antd'
 import get from 'lodash/get'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 
+const SELECT_OPTION_STYLES = { direction: 'rtl', textAlign: 'left' }
 /*
     Fixes visual overlapping of close-button with text
     It cannot be extracted into global styles, because selects
@@ -73,7 +74,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
         (dataItem: TSelectedAddressSuggestion, searchValue) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left' }}
+                    style={SELECT_OPTION_STYLES}
                     key={JSON.stringify(dataItem)}
                     value={dataItem.text}
                     title={dataItem.text}
