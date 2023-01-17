@@ -3,6 +3,7 @@ import type { ErrorCode, ErrorReason } from './errors'
 import type { 
     RequestParams as BridgeRequestParams,
     ResultResponseData as BridgeResponseData,
+    ResponseEventNamesMap as BridgeEventNamesMap,
 } from '@open-condo/bridge'
 import type { AnalyticsParams } from '@open-condo/ui/src/components/_utils/analytics'
 
@@ -13,6 +14,7 @@ export type RequestParamsMap = {
     CondoWebSendAnalyticsEvent: AnalyticsParams
     // Bridge
     CondoWebAppResizeWindow: BridgeRequestParams<'CondoWebAppResizeWindow'>
+    CondoWebAppShowNotification: BridgeRequestParams<'CondoWebAppShowNotification'>
 }
 
 export type HandlerResultsMap = {
@@ -20,6 +22,7 @@ export type HandlerResultsMap = {
     CondoWebSendAnalyticsEvent: { sent: boolean }
     // Bridge
     CondoWebAppResizeWindow: BridgeResponseData<'CondoWebAppResizeWindow'>
+    CondoWebAppShowNotification: BridgeResponseData<'CondoWebAppShowNotification'>
 }
 
 export type AllRequestMethods = keyof RequestParamsMap
@@ -33,7 +36,7 @@ type ResponseEventNames<T extends AllRequestMethods, R extends string, E extends
     result: R,
     error: E
 }>
-export type ResponseEventNamesMap = ResponseEventNames<'CondoWebAppResizeWindow', 'CondoWebAppResizeWindowResult', 'CondoWebAppResizeWindowError'> &
+export type ResponseEventNamesMap = BridgeEventNamesMap &
 ResponseEventNames<'CondoWebSendAnalyticsEvent', 'CondoWebSendAnalyticsEventResult', 'CondoWebSendAnalyticsEventError'>
 
 export type ClientErrorResponse<Method extends AllRequestMethods, Reason extends ErrorReason> = {
