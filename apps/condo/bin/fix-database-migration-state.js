@@ -96,6 +96,9 @@ ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdFrom" CASCADE;
 ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdTo" CASCADE;
 ALTER TABLE "TicketHistoryRecord" DROP COLUMN if exists "operator" CASCADE;
 
+ALTER TABLE "ServiceSubscription" DROP COLUMN "sbbolOfferAccept" CASCADE;
+ALTER TABLE "ServiceSubscriptionHistoryRecord" DROP COLUMN "sbbolOfferAccept" CASCADE;
+
 COMMIT;
     `))
 }

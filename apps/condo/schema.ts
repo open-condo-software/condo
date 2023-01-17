@@ -1860,23 +1860,6 @@ export type AddressMetaFieldInput = {
   data: AddressMetaDataFieldInput;
 };
 
-export type AdvanceAcceptanceBundle = {
-  __typename?: 'AdvanceAcceptanceBundle';
-  code?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  currentState?: Maybe<CurrentStateType>;
-};
-
-export type AdvanceAcceptanceBundleInput = {
-  code?: Maybe<Scalars['String']>;
-  name?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  currentState?: Maybe<CurrentStateType>;
-};
-
 export type AllMiniAppsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -16481,12 +16464,6 @@ export type CreateOnBoardingInput = {
   type?: Maybe<OnBoardingType>;
   userId: Scalars['ID'];
 };
-
-export enum CurrentStateType {
-  Active = 'ACTIVE',
-  NotPaid = 'NOT_PAID',
-  Deactivated = 'DEACTIVATED'
-}
 
 export enum DevicePlatformType {
   Android = 'android',
@@ -45650,37 +45627,6 @@ export type ResidentsUpdateInput = {
   data?: Maybe<ResidentUpdateInput>;
 };
 
-export type SbbolOfferAccept = {
-  __typename?: 'SbbolOfferAccept';
-  dv?: Maybe<Scalars['Int']>;
-  active?: Maybe<Scalars['Boolean']>;
-  payerAccount?: Maybe<Scalars['String']>;
-  payerBankBic?: Maybe<Scalars['String']>;
-  payerBankCorrAccount?: Maybe<Scalars['String']>;
-  payerInn?: Maybe<Scalars['String']>;
-  payerName?: Maybe<Scalars['String']>;
-  payerOrgIdHash?: Maybe<Scalars['String']>;
-  purpose?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundle>>>;
-};
-
-export type SbbolOfferAcceptInput = {
-  dv: Scalars['Int'];
-  active?: Maybe<Scalars['Boolean']>;
-  payerAccount?: Maybe<Scalars['String']>;
-  payerBankBic?: Maybe<Scalars['String']>;
-  payerBankCorrAccount?: Maybe<Scalars['String']>;
-  payerInn?: Maybe<Scalars['String']>;
-  payerName?: Maybe<Scalars['String']>;
-  payerOrgIdHash?: Maybe<Scalars['String']>;
-  purpose?: Maybe<Scalars['String']>;
-  sinceDate?: Maybe<Scalars['String']>;
-  untilDate?: Maybe<Scalars['String']>;
-  bundles?: Maybe<Array<Maybe<AdvanceAcceptanceBundleInput>>>;
-};
-
 export type SendMessageInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -46266,8 +46212,6 @@ export type ServiceSubscription = {
   totalPrice?: Maybe<Scalars['String']>;
   /**  Currency of values for all price fields  */
   currency?: Maybe<Scalars['String']>;
-  /**  It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method  */
-  sbbolOfferAccept?: Maybe<SbbolOfferAccept>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -46294,7 +46238,6 @@ export type ServiceSubscriptionCreateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46326,7 +46269,6 @@ export type ServiceSubscriptionHistoryRecord = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -46352,7 +46294,6 @@ export type ServiceSubscriptionHistoryRecordCreateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46383,7 +46324,6 @@ export type ServiceSubscriptionHistoryRecordUpdateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -46483,10 +46423,6 @@ export type ServiceSubscriptionHistoryRecordWhereInput = {
   currency_not_ends_with_i?: Maybe<Scalars['String']>;
   currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sbbolOfferAccept?: Maybe<Scalars['JSON']>;
-  sbbolOfferAccept_not?: Maybe<Scalars['JSON']>;
-  sbbolOfferAccept_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  sbbolOfferAccept_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -47108,7 +47044,6 @@ export type ServiceSubscriptionUpdateInput = {
   unitPrice?: Maybe<Scalars['String']>;
   totalPrice?: Maybe<Scalars['String']>;
   currency?: Maybe<Scalars['String']>;
-  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47189,10 +47124,6 @@ export type ServiceSubscriptionWhereInput = {
   currency_not_ends_with_i?: Maybe<Scalars['String']>;
   currency_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   currency_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  sbbolOfferAccept?: Maybe<SbbolOfferAcceptInput>;
-  sbbolOfferAccept_not?: Maybe<SbbolOfferAcceptInput>;
-  sbbolOfferAccept_in?: Maybe<Array<Maybe<SbbolOfferAcceptInput>>>;
-  sbbolOfferAccept_not_in?: Maybe<Array<Maybe<SbbolOfferAcceptInput>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

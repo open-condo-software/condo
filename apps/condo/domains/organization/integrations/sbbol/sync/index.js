@@ -9,7 +9,7 @@ const { getSbbolSecretStorage } = require('../utils')
 const { dvSenderFields } = require('../constants')
 const { syncUser } = require('./syncUser')
 const { syncOrganization } = require('./syncOrganization')
-const { syncSubscriptions } = require('./syncSubscriptions')
+const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
 const { syncTokens } = require('./syncTokens')
 
 /**
@@ -58,7 +58,7 @@ const { syncTokens } = require('./syncTokens')
  * @param {string} reqId
  * @return {Promise<void>}
  */
-const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
+const sync = async ({ keystone, userInfo, tokenSet  }) => {
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const context = {
         keystone,
@@ -100,7 +100,7 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
     const sbbolSecretStorage = getSbbolSecretStorage()
     await sbbolSecretStorage.setOrganization(organization.id, user.id)
     await syncTokens(tokenSet, user.id)
-    await syncSubscriptions()
+    await syncServiceSubscriptions(userInfo.inn)
 
     const organizationEmployee = await getOrganizationEmployee({ context, user, organization })
     if (!organizationEmployee) {

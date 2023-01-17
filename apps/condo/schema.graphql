@@ -36072,7 +36072,6 @@ type ServiceSubscriptionHistoryRecord {
   unitPrice: String
   totalPrice: String
   currency: String
-  sbbolOfferAccept: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -36173,10 +36172,6 @@ input ServiceSubscriptionHistoryRecordWhereInput {
   currency_not_ends_with_i: String
   currency_in: [String]
   currency_not_in: [String]
-  sbbolOfferAccept: JSON
-  sbbolOfferAccept_not: JSON
-  sbbolOfferAccept_in: [JSON]
-  sbbolOfferAccept_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -36304,7 +36299,6 @@ input ServiceSubscriptionHistoryRecordUpdateInput {
   unitPrice: String
   totalPrice: String
   currency: String
-  sbbolOfferAccept: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -36334,7 +36328,6 @@ input ServiceSubscriptionHistoryRecordCreateInput {
   unitPrice: String
   totalPrice: String
   currency: String
-  sbbolOfferAccept: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -36356,58 +36349,6 @@ input ServiceSubscriptionHistoryRecordsCreateInput {
 enum ServiceSubscriptionTypeType {
   default
   sbbol
-}
-
-enum CurrentStateType {
-  ACTIVE
-  NOT_PAID
-  DEACTIVATED
-}
-
-type AdvanceAcceptanceBundle {
-  code: String
-  name: String
-  sinceDate: String
-  untilDate: String
-  currentState: CurrentStateType
-}
-
-input AdvanceAcceptanceBundleInput {
-  code: String
-  name: String
-  sinceDate: String
-  untilDate: String
-  currentState: CurrentStateType
-}
-
-type SbbolOfferAccept {
-  dv: Int
-  active: Boolean
-  payerAccount: String
-  payerBankBic: String
-  payerBankCorrAccount: String
-  payerInn: String
-  payerName: String
-  payerOrgIdHash: String
-  purpose: String
-  sinceDate: String
-  untilDate: String
-  bundles: [AdvanceAcceptanceBundle]
-}
-
-input SbbolOfferAcceptInput {
-  dv: Int!
-  active: Boolean
-  payerAccount: String
-  payerBankBic: String
-  payerBankCorrAccount: String
-  payerInn: String
-  payerName: String
-  payerOrgIdHash: String
-  purpose: String
-  sinceDate: String
-  untilDate: String
-  bundles: [AdvanceAcceptanceBundleInput]
 }
 
 """ Availability time period of service features for client organization. Can be trial or payed. 
@@ -36450,10 +36391,6 @@ type ServiceSubscription {
 
   """ Currency of values for all price fields """
   currency: String
-
-  """ It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method 
-  """
-  sbbolOfferAccept: SbbolOfferAccept
   id: ID!
   v: Int
   createdAt: String
@@ -36546,10 +36483,6 @@ input ServiceSubscriptionWhereInput {
   currency_not_ends_with_i: String
   currency_in: [String]
   currency_not_in: [String]
-  sbbolOfferAccept: SbbolOfferAcceptInput
-  sbbolOfferAccept_not: SbbolOfferAcceptInput
-  sbbolOfferAccept_in: [SbbolOfferAcceptInput]
-  sbbolOfferAccept_not_in: [SbbolOfferAcceptInput]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -36659,7 +36592,6 @@ input ServiceSubscriptionUpdateInput {
   unitPrice: String
   totalPrice: String
   currency: String
-  sbbolOfferAccept: SbbolOfferAcceptInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -36686,7 +36618,6 @@ input ServiceSubscriptionCreateInput {
   unitPrice: String
   totalPrice: String
   currency: String
-  sbbolOfferAccept: SbbolOfferAcceptInput
   v: Int
   createdAt: String
   updatedAt: String
