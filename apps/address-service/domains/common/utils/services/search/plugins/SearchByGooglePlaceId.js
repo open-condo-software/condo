@@ -1,7 +1,11 @@
-const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
-const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const get = require('lodash/get')
+
+const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
+const { Address, AddressSource } = require('@address-service/domains/address/utils/serverSchema')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
+
+const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
+
 const { GoogleSearchProvider } = require('../providers')
 
 const SEPARATOR = ':'
@@ -38,21 +42,25 @@ class SearchByGooglePlaceId extends AbstractSearchPlugin {
 
         const addressKey = generateAddressKey(searchResult)
 
+        const addressData = {
+            address: searchResult.value,
+            key: addressKey,
+            meta: {
+                provider: {
+                    name: googleProvider.getProviderName(),
+                    rawData: denormalizedResult,
+                },
+                value: searchResult.value,
+                unrestricted_value: searchResult.unrestricted_value,
+                data: get(searchResult, 'data', {}),
+            },
+        }
+
         return await createOrUpdateAddressWithSource(
             godContext,
-            {
-                address: searchResult.value,
-                key: addressKey,
-                meta: {
-                    provider: {
-                        name: googleProvider.getProviderName(),
-                        rawData: denormalizedResult,
-                    },
-                    value: searchResult.value,
-                    unrestricted_value: searchResult.unrestricted_value,
-                    data: get(searchResult, 'data', {}),
-                },
-            },
+            Address,
+            AddressSource,
+            addressData,
             s,
             dvSender,
         )
