@@ -252,6 +252,9 @@ const systemMessageDetector = ajv.compile(SystemMessageDetectorSchema)
 const systemMessageValidator = ajv.compile(SystemMessageSchema)
 
 // PARSING PART
+/**
+ * @deprecated
+ */
 export const parseMessage: parseMessageType = (data) => {
     if (!data || typeof data !== 'object' || Array.isArray(data)) return null
     if (systemMessageDetector(data)) {
