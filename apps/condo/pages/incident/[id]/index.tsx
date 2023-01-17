@@ -1,5 +1,5 @@
 // todo(DOMA-2567) add translates
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 
 import { Button, Tag, Typography } from '@open-condo/ui'
@@ -15,7 +15,7 @@ import {
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
 import { get } from 'lodash'
 import { INCIDENT_STATUS_COLORS } from '@condo/domains/ticket/constants/incident'
@@ -102,12 +102,15 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     )
 }
 
-const getWorkFinishMessageType: (incident: IIncident) => 'warning' | 'danger' | null = (incident) => {
-    const timeLeft = incident.workFinish ? dayjs.duration(dayjs(incident.workFinish).diff(dayjs())) : null
-    if (incident.workFinish && dayjs(incident.workFinish).diff(dayjs()) < 0) return 'danger'
+const getWorkFinishMessageType: (incident: IIncident, currentDate: Dayjs) => 'warning' | 'danger' | null = (incident, currentDate) => {
+    if (incident.status !== IncidentStatusType.Actual) return null
+    const timeLeft = incident.workFinish ? dayjs.duration(dayjs(incident.workFinish).diff(currentDate)) : null
+    if (incident.workFinish && dayjs(incident.workFinish).diff(currentDate) < 0) return 'danger'
     if (timeLeft && timeLeft.asHours() < 24) return 'warning'
     return null
 }
+
+const WORK_DATE_UPDATING_INTERVAL_IN_SECONDS = 1000 * 10 // every 10 seconds
 
 const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const WorkDateLabel = 'workDateLabel'
@@ -116,13 +119,16 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
     const TimeLeftMessage = 'time left'
     const OverdueMessage = 'overdue'
 
+    const [currentDate, setCurrentDate] = useState<Dayjs>(dayjs())
+
     const workStart = useMemo(() => dayjs(incident.workStart).format('D.MM.YYYY HH:mm'), [incident.workStart])
     const workFinish = useMemo(() => incident.workFinish ? dayjs(incident.workFinish).format('D.MM.YYYY HH:mm') : null, [incident.workFinish])
-    const timeLeft = incident.workFinish ? dayjs.duration(dayjs(incident.workFinish).diff(incident.workStart)).format('HH:mm') : null
-
-    const workFinishMessageType = useMemo(() => getWorkFinishMessageType(incident), [incident])
+    const timeLeft = useMemo(() => incident.workFinish ? dayjs.duration(dayjs(incident.workFinish).diff(currentDate)).format('HH:mm') : null, [currentDate, incident.workFinish])
+    const workFinishMessageType = useMemo(() => getWorkFinishMessageType(incident, currentDate), [currentDate, incident])
+    const isActual = incident.status === IncidentStatusType.Actual
 
     const renderTimeLeftMessage = useMemo(() => {
+        if (!isActual) return null
         if (workFinishMessageType === 'warning') {
             return (
                 <Typography.Text strong type={workFinishMessageType}>
@@ -138,7 +144,16 @@ const IncidentWorkDateField: React.FC<IncidentFieldProps> = ({ incident }) => {
             )
         }
         return null
-    }, [timeLeft, workFinishMessageType])
+    }, [isActual, timeLeft, workFinishMessageType])
+
+    useEffect(() => {
+        const interval = setTimeout(() => {
+            setCurrentDate(dayjs())
+        }, WORK_DATE_UPDATING_INTERVAL_IN_SECONDS)
+        return () => {
+            clearInterval(interval)
+        }
+    }, [])
 
     return (
         <Row>
@@ -321,6 +336,8 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
 
     const router = useRouter()
 
+    const isActual = incident.status === IncidentStatusType.Actual
+
     const beforeUpdate = useCallback(async () => {
         await refetchIncident()
     }, [refetchIncident])
@@ -358,7 +375,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                                         bgColor={INCIDENT_STATUS_COLORS[incident.status].background}
                                         textColor={INCIDENT_STATUS_COLORS[incident.status].text}
                                     >
-                                        {incident.status === IncidentStatusType.Actual ? ActualMessage : NotActualMessage}
+                                        {isActual ? ActualMessage : NotActualMessage}
                                     </Tag>
                                 </Col>
                             </Row>
@@ -370,7 +387,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                             <Button
                                 disabled={incidentLoading}
                                 type='primary'
-                                children={incident.status === IncidentStatusType.Actual ? MakeActualLabel : MakeNotActualLabel}
+                                children={isActual ? MakeActualLabel : MakeNotActualLabel}
                                 onClick={handleOpen}
                             />
                             <Button
