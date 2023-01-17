@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import {
-    Incident as IIncident,
+    Incident as IIncident, IncidentStatusType,
 } from '@app/condo/schema'
 
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
@@ -18,6 +18,10 @@ import { IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticke
 import { ColumnType } from 'rc-table/lib/interface'
 import { geOneAddressAndPropertiesCountRender } from '../../property/utils/clientSchema/Renders'
 import { getManyClassifiersGroupByPlaceRender } from '../utils/clientSchema/Renders'
+import { Tag, Typography } from '@open-condo/ui'
+import { INCIDENT_STATUS_COLORS } from '../constants/incident'
+import { getTimeLeftMessage, getTimeLeftMessageType } from '../../../pages/incident/[id]'
+import dayjs from 'dayjs'
 
 
 type UseTableColumnsPropsType <T = any> = {
@@ -55,6 +59,8 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
     const WorkStartLabel = 'Начало работ'
     const WorkFinishLabel = 'Завершение работ'
     const AllPropertiesMessage = 'Все дома'
+    const ActualMessage = 'ActualMessage'
+    const NotActualMessage = 'NotActualMessage'
 
     const incidentIds = useMemo(() => incidents.map(incident => incident.id), [incidents])
 
@@ -85,11 +91,44 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
     const renderNumber = useMemo(() => getTableCellRenderer(), [])
     const renderDetails = useMemo(() => getTableCellRenderer(), [])
-    const renderStatus = useMemo(() => getTableCellRenderer(), [])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const renderWorkStart = useMemo(() => getDateRender(intl), [])
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    const renderWorkFinish = useMemo(() => getDateRender(intl), [])
+    const renderStatus = useCallback((status, incident) => {
+        const isActual = status === IncidentStatusType.Actual
+        return (
+            <Tag
+                bgColor={INCIDENT_STATUS_COLORS[incident.status].background}
+                textColor={INCIDENT_STATUS_COLORS[incident.status].text}
+            >
+                {isActual ? ActualMessage : NotActualMessage}
+            </Tag>
+        )
+    }, [])
+    const renderWorkStart = useMemo(() => getDateRender(intl), [intl])
+    const renderWorkFinish = useCallback((stringDate: string, incident) => {
+        const renderDate = getDateRender(intl)(stringDate)
+        if (!stringDate) return renderDate
+
+        const isActual = incident.status === IncidentStatusType.Actual
+        const currentDate = dayjs().toISOString()
+        const timeLeftMessageType = getTimeLeftMessageType({
+            deadline: stringDate,
+            isDefault: !isActual,
+            startWithDate: currentDate,
+        })
+        const renderTimeLeftMessage = getTimeLeftMessage({
+            show: isActual,
+            deadline: incident.workFinish,
+            startWithDate: currentDate,
+        })
+
+        return (
+            <>
+                {renderDate}
+                <Typography.Text type={timeLeftMessageType}>
+                    {renderTimeLeftMessage}
+                </Typography.Text>
+            </>
+        )
+    }, [intl])
 
     const renderProperties: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
         if (get(incident, 'hasAllProperties')) {
@@ -102,8 +141,7 @@ export const useIncidentTableColumns: UseTableColumnsType = (props)  => {
 
         // todo(DOMA-2567) fix function name
         return geOneAddressAndPropertiesCountRender(search)(intl, properties)
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [incidentProperties, search])
+    }, [incidentProperties, intl, search])
 
     const renderClassifiers: ColumnType<IIncident>['render'] = useCallback((_, incident) => {
         const classifiers = incidentClassifiers
