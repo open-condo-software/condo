@@ -1,1 +1,1 @@
-export { PostMessageProvider } from './Provider'
+export { PostMessageProvider, usePostMessageContext } from './Provider'
