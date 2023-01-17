@@ -252,8 +252,11 @@ const Payment = new GQLListSchema('Payment', {
             } else if (operation === 'update') {
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
-                if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
-                    return addValidationError(`${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                // we can not use resolvedData.hasOwnProperty('status') check here as adminUi sends status if it is not changed
+                if (oldStatus !== newStatus) {
+                    if (!PAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
+                        return addValidationError(`${PAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                    }
                 }
                 const newItem = {
                     ...existingItem,

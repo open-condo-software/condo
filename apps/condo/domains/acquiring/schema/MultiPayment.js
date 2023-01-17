@@ -275,8 +275,11 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 })
                 const oldStatus = existingItem.status
                 const newStatus = get(resolvedData, 'status', oldStatus)
-                if (!MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
-                    return addValidationError(`${MULTIPAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                // we can not use resolvedData.hasOwnProperty('status') check here as adminUi sends status if it is not changed
+                if (oldStatus !== newStatus) {
+                    if (!MULTIPAYMENT_TRANSITIONS[oldStatus].includes(newStatus)) {
+                        return addValidationError(`${MULTIPAYMENT_NOT_ALLOWED_TRANSITION} Cannot move from "${oldStatus}" status to "${newStatus}"`)
+                    }
                 }
                 const newItem = {
                     ...existingItem,
