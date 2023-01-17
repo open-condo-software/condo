@@ -9,6 +9,7 @@ const SEPARATOR = ':'
 class SearchByFiasId extends AbstractSearchPlugin {
 
     /**
+     * @inheritDoc
      * @param {String} s
      * @param {SearchPluginParams} params
      * @returns {boolean}
@@ -20,6 +21,7 @@ class SearchByFiasId extends AbstractSearchPlugin {
     }
 
     /**
+     * @inheritDoc
      * @param {String} s
      * @returns {Promise<?Object>}
      */
