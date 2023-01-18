@@ -4,6 +4,7 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+SET statement_timeout = '1500s';
 --
 -- Remove constraint has_phone_or_email_or_user from model message
 --
@@ -24,6 +25,8 @@ ALTER TABLE "MessageHistoryRecord" ADD COLUMN "remoteClient" uuid NULL;
 --
 ALTER TABLE "Message" ADD CONSTRAINT "has_phone_or_email_or_user_or_remoteClient" CHECK (("phone" IS NOT NULL OR "email" IS NOT NULL OR "user" IS NOT NULL OR "remoteClient" IS NOT NULL OR "deletedAt" IS NOT NULL));
 CREATE INDEX "Message_remoteClient_1b0e5931" ON "Message" ("remoteClient");
+
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
@@ -56,6 +59,8 @@ ALTER TABLE "Message" DROP COLUMN "remoteClient" CASCADE;
 -- Remove constraint has_phone_or_email_or_user from model message
 --
 ALTER TABLE "Message" ADD CONSTRAINT "has_phone_or_email_or_user" CHECK (("user" IS NOT NULL OR "phone" IS NOT NULL OR "email" IS NOT NULL));
+
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
