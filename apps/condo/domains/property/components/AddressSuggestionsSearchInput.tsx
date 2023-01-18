@@ -8,9 +8,9 @@ import styled from '@emotion/styled'
 import { useIntl } from '@open-condo/next/intl'
 import { notification, Select, SelectProps } from 'antd'
 import get from 'lodash/get'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
+import React, { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 
-const SELECT_OPTION_STYLES = { direction: 'rtl', textAlign: 'left' }
+const SELECT_OPTION_STYLES: CSSProperties = { direction: 'rtl', textAlign: 'left' }
 /*
     Fixes visual overlapping of close-button with text
     It cannot be extracted into global styles, because selects
