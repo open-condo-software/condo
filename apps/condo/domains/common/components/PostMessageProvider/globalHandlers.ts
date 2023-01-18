@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { notification } from 'antd'
 import get from 'lodash/get'
+import { useIntl } from '@open-condo/next/intl'
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
 import { STAFF } from '@condo/domains/user/constants/common'
@@ -13,7 +14,8 @@ export const handleNotification: RequestHandler<'CondoWebAppShowNotification'> =
     return { success: true }
 }
 
-export const useCurrentUserHandler: () => RequestHandler<'CondoWebAppGetCurrentUser'> = () => {
+export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchParams'> = () => {
+    const { locale } = useIntl()
     const { user } = useAuth()
     const { organization } = useOrganization()
     const userId = get(user, 'id', null)
@@ -24,10 +26,12 @@ export const useCurrentUserHandler: () => RequestHandler<'CondoWebAppGetCurrentU
         }
 
         return {
-            userId,
-            userType: STAFF,
-            userContextEntity: 'Organization',
-            userContextEntityId: organizationId,
+            condoUserId: userId,
+            condoUserType: STAFF,
+            condoLocale: locale,
+            condoContextEntity: 'Organization',
+            condoContextEntityId: organizationId,
+
         }
-    }, [userId, organizationId])
+    }, [userId, organizationId, locale])
 }

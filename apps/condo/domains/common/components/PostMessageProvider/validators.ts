@@ -45,7 +45,7 @@ export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValida
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
-    CondoWebAppGetCurrentUser: NoParamsValidator,
+    CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
 }

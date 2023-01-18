@@ -17,7 +17,7 @@ import { validators } from './validators'
 import { ERROR_CODES } from './errors'
 import {
     handleNotification,
-    useCurrentUserHandler,
+    useLaunchParamsHandler,
 } from './globalHandlers'
 
 
@@ -133,10 +133,10 @@ export const PostMessageProvider: React.FC = ({ children }) => {
         })
     }, [])
 
-    const currentUserHandler = useCurrentUserHandler()
+    const launchParamsHandler = useLaunchParamsHandler()
     useEffect(() => {
-        addEventHandler('CondoWebAppGetCurrentUser', '*', currentUserHandler)
-    }, [addEventHandler, currentUserHandler])
+        addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
+    }, [addEventHandler, launchParamsHandler])
 
     const addOrigin = useCallback((origin: string) => {
         setAllowedOrigins((prev) => prev.includes(origin) ? prev : [...prev, origin])
