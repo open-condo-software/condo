@@ -803,7 +803,7 @@ const ClientCardPage = () => {
     const canManageContacts = !!get(link, 'role.canManageContacts')
 
     const { ticketFilterQuery } = useTicketVisibility()
-    const baseQuery = { ...ticketFilterQuery, organization: { id: organizationId } }
+    const baseQuery = { ...ticketFilterQuery, property: { deletedAt: null }, organization: { id: organizationId } }
 
     return (
         <ClientCardPageContentWrapper

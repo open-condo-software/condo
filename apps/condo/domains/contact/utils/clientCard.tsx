@@ -28,6 +28,7 @@ const SEARCH_BY_PHONE = gql`
           where: {
             organization: { id: $organizationId },
             property_is_null: false,
+            property: { deletedAt: null },
             phone_contains: $phone
           }, first: 10) {
             id
@@ -76,6 +77,7 @@ export function searchByPhone (organizationId, ticketsWhereInput) {
         const ticketsWhere = {
             ...ticketsWhereInput,
             organization: { id: organizationId },
+            property: { deletedAt: null },
             clientPhone_contains: phone,
             isResidentTicket: false,
             clientPhone_not: null,
