@@ -92,54 +92,12 @@ const normalizeTarget = (target) => {
 const getUniqKey = (date, title, target) => `${date}:${title}:${normalizeTarget(target)}`
 
 /**
- * Prepares message data
- * @param context
+ * Prepares message data to be sent via sendMessage
  * @param target
  * @param batch
  * @param today
- * @returns {Promise<number>}
+ * @returns {{uniqKey: (`${string}:${string}:${string}`|`${string}:${string}:null`), sender: {dv: number, fingerprint: string}, meta: {dv: number, data: {remoteClient: *, batchId, userId: *, url, target}, body}, lang: *, type: *}|number}
  */
-const prepareAndSendMessageOld = async (context, target, batch, today) => {
-    const notificationKey = getUniqKey(today, batch.title, target)
-    const transportType = detectTransportType(target)
-    const to = selectTarget(target)
-    const type = get(MESSAGE_TYPES_BY_TRANSPORTS, [batch.messageType, transportType])
-
-    if (isEmpty(to) || !transportType || !type) return 0
-
-    const messageData = {
-        ...to,
-        lang: conf.DEFAULT_LOCALE,
-        type,
-        meta: {
-            dv: 1,
-            body: batch.message,
-            data: {
-                userId: get(to, 'to.user.id'),
-                remoteClient: get(to, 'to.remoteClient.id'),
-                target: target,
-                url: batch.deepLink,
-                batchId: batch.id,
-            },
-        },
-        sender: { dv: 1, fingerprint: 'send-message-batch-notification' },
-        uniqKey: notificationKey,
-    }
-
-    if (transportType === PUSH_TRANSPORT) messageData.meta.title = batch.title
-    if (transportType === EMAIL_TRANSPORT) messageData.meta.subject = batch.title
-
-    /** sendMessage still could fail, for ex. on non +79* phone format or absent email/sms config */
-    try {
-        const result = await sendMessage(context, messageData)
-
-        return 1 - result.isDuplicateMessage
-    } catch (error) {
-        return 0
-    }
-}
-
-
 const prepareMessageData = (target, batch, today) => {
     const notificationKey = getUniqKey(today, batch.title, target)
     const transportType = detectTransportType(target)
@@ -191,7 +149,7 @@ const prepareAndSendMessage = async (context, target, batch, today) => {
 
         return 1 - result.isDuplicateMessage
     } catch (error) {
-        logger.info({ msg: '!!!!!! sendMessage error', error, data: messageData })
+        logger.info({ msg: 'sendMessage error', error, data: messageData })
 
         return 0
     }

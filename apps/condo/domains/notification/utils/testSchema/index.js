@@ -156,13 +156,7 @@ async function syncRemoteClientWithPushTokenByTestClient (client, extraAttrs = {
         pushTransport: PUSH_TRANSPORT_FIREBASE,
         ...extraAttrs,
     }
-
-    console.log('syncRemoteClientWithPushTokenByTestClient:', JSON.stringify({ extraAttrs, tokenData }, null, 2))
-
     const payload = getRandomTokenData(tokenData)
-
-    console.log('syncRemoteClientWithPushTokenByTestClient:', JSON.stringify(payload, null, 2))
-
     /** Register fake success pushToken in order for user to be able to receive push notifications */
     const [device] = await syncRemoteClientByTestClient(client, payload)
 
