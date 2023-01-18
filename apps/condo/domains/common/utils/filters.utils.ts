@@ -164,6 +164,7 @@ export function getFilterDropdownByKey <T> (filterMetas: Array<FiltersMeta<T>>, 
                     mode: 'tags',
                     dropdownStyle: TAGS_SELECT_DROPDOWN_STYLE,
                     allowClear: true,
+                    suffixIcon: null,
                     ...props,
                 },
                 columnFilterComponentWrapperStyles
