@@ -1,3 +1,4 @@
+/** @jsx jsx */
 import React, { useMemo, useCallback } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Row, Col, Space, RowProps } from 'antd'
@@ -5,6 +6,7 @@ import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
+import { jsx } from '@emotion/react'
 import Head from 'next/head'
 import Link from 'next/link'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
@@ -29,7 +31,7 @@ import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { marginTop: '80px' }
-const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '40px' }
+const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px' }
 const PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE: React.CSSProperties = { marginBottom: 0 }
 const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
 const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {

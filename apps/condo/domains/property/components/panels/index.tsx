@@ -1,14 +1,11 @@
 import React from 'react'
 import { BuildingPanelView } from './Builder/BuildingPanelView'
-import { ResidentPanelEdit, ResidentPanelView } from './ResidentPanel'
 import { BuildingMap } from '@app/condo/schema'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { Tabs } from 'antd'
-
+import { Typography } from '@open-condo/ui'
 import { useIntl } from '@open-condo/next/intl'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
 
-const { TabPane } = Tabs
 
 interface IPropertyPanels extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap | null
@@ -21,36 +18,26 @@ interface IPropertyPanels extends Pick<IPropertyMapFormProps, 'canManageProperti
 
 const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
     margin: 'initial',
-    marginTop: '40px',
+    marginTop: '24px',
     marginBottom: '60px',
     padding: 0,
 }
 
 export const PropertyPanels: React.FC<IPropertyPanels> = (props) => {
     const intl = useIntl()
-    const BuildingTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
-    const ResidentsTabTitle = intl.formatMessage({ id: 'pages.condo.property.form.ResidentsTabTitle' })
+    const BuildingTitle = intl.formatMessage({ id: 'pages.condo.property.form.BuildingTabTitle' })
 
-    const { mode, map, canManageProperties = false } = props
+    const { map, canManageProperties = false } = props
 
     return (
-        <Tabs defaultActiveKey='1'>
-            <TabPane tab={BuildingTabTitle} key='1'>
-                <FocusContainer style={FOCUS_CONTAINER_STYLE}>
-                    <BuildingPanelView
-                        map={map}
-                        canManageProperties={canManageProperties}
-                    />
-                </FocusContainer>
-            </TabPane>
-            <TabPane tab={ResidentsTabTitle} key='2' disabled>
-                <FocusContainer style={FOCUS_CONTAINER_STYLE}>
-                    {
-                        mode === 'view' ? <ResidentPanelView /> : <ResidentPanelEdit />
-                    }
-                </FocusContainer>
-            </TabPane>
-        </Tabs>
-
+        <>
+            <Typography.Title level={3}>{BuildingTitle}</Typography.Title>
+            <FocusContainer style={FOCUS_CONTAINER_STYLE}>
+                <BuildingPanelView
+                    map={map}
+                    canManageProperties={canManageProperties}
+                />
+            </FocusContainer>
+        </>
     )
 }
