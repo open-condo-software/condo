@@ -24,4 +24,5 @@ export * as TicketOrganizationSetting from './TicketOrganizationSetting'
 export * as Incident from './Incident'
 export * as IncidentProperty from './IncidentProperty'
 export * as IncidentTicketClassifier from './IncidentTicketClassifier'
+export * as IncidentChange from './IncidentChange'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
