@@ -23,10 +23,6 @@ const INITIAL_VALUES_KEYS = [
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
 ]
 
-const DELETE_BUTTON_CUSTOM_PROPS: CustomButtonProps = {
-    type: 'sberDangerGhost',
-}
-
 export const useUpdateMeterModal = (refetch) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
@@ -76,7 +72,6 @@ export const useUpdateMeterModal = (refetch) => {
                     okButtonLabel={DeleteMessage}
                     action={handleDeleteButtonClick}
                     buttonContent={DeleteMessage}
-                    buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
                     showCancelButton
                 />,
             ]

@@ -8,6 +8,7 @@ const PAYMENT_LINK = 'payment-link'
 const MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK = 'max-count-completed-ticket-to-close-for-organization-task'
 const HUAWEI_SILENT_DATA_PUSH_ENABLED = 'huawei-silent-data-push-enabled'
 const PROPERTY_BANK_ACCOUNT = 'property-bank-account'
+const PROPERTY_REPORT_DELETE_ENTITIES = 'property-report-delete-entities'
 const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
 
 module.exports = {
@@ -21,5 +22,6 @@ module.exports = {
     MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK,
     HUAWEI_SILENT_DATA_PUSH_ENABLED,
     PROPERTY_BANK_ACCOUNT,
+    PROPERTY_REPORT_DELETE_ENTITIES,
     SERVICE_PROVIDER_PROFILE,
 }

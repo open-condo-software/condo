@@ -105,8 +105,6 @@ export const EmployeePageContent = ({
         updateEmployeeAction({ isBlocked: blocked }, employee)
     }, [employee, isEmployeeEditable, updateEmployeeAction])
 
-    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
-
     return (
         <>
             <Head>
@@ -261,8 +259,7 @@ export const EmployeePageContent = ({
                                                             message={ConfirmDeleteMessage}
                                                             okButtonLabel={ConfirmDeleteButtonLabel}
                                                             action={() => softDeleteAction(employee)}
-                                                            buttonContent={deleteButtonContent}
-                                                            buttonCustomProps={{ type: 'sberDangerGhost' }}
+                                                            buttonContent={DeleteMessage}
                                                         />
                                                         : null}
                                                 </Space>

@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { DeleteFilled } from '@ant-design/icons'
 import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Row, Col, Space, RowProps } from 'antd'
@@ -21,7 +20,6 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
     DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyPanels } from '@condo/domains/property/components/panels'
@@ -37,10 +35,6 @@ const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_STYLE: React.CSSProperties = { margin
 const PROPERTY_PAGE_CONTENT_ROW_STYLE: React.CSSProperties = { marginTop: '60px' }
 const PROPERTY_PAGE_ACTION_BAR_SPACE_STYLE: React.CSSProperties = { marginBottom: 0 }
 const PROPERTY_PAGE_SPACE_STYLE: React.CSSProperties = { width: '100%' }
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
-    type: 'sberDangerGhost',
-    icon: <DeleteFilled />,
-}
 
 export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
     const intl = useIntl()
@@ -213,8 +207,7 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
                                 message={ConfirmDeleteMessage}
                                 okButtonLabel={DeletePropertyLabel}
                                 action={() => softDeleteAction(property)}
-                                buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                buttonContent={<span>{DeletePropertyLabel}</span>}
+                                buttonContent={DeletePropertyLabel}
                             />
                         </Space>
                     </ActionBar>

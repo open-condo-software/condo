@@ -39,7 +39,7 @@ export type SelectProps<ValueType = SelectValueTypeBase> = Pick<DefaultSelectPro
 | 'showSearch'
 | 'defaultValue'
 > & {
-    placeholder: string
+    placeholder?: string
     options?: Array<OptionType>
     displayMode?: 'fill-parent' | 'fit-content'
     type?: typeof SELECT_TYPES[number]

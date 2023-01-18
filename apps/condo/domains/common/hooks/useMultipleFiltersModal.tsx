@@ -603,7 +603,6 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
                                     message={DeleteMessage}
                                     okButtonLabel={DeleteLabel}
                                     action={handleDeleteFiltersTemplate}
-                                    buttonCustomProps={{ type: 'sberDangerGhost' }}
                                 />
                             </Col>
                         )

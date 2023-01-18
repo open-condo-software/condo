@@ -267,7 +267,7 @@ describe('importBankTransactionsWorker', () => {
         await catchErrorFrom(async () => {
             await importBankTransactionsWorker(task.id, bankSyncTaskUtilsMock, downloadFileMock)
         }, ({ message }) => {
-            expect(message).toEqual('Cannot parse uploaded file in 1CClientBankExchange format. Error: Invalid node "СекцияРасчСчет" at line 14')
+            expect(message).toEqual('Cannot parse uploaded file in 1CClientBankExchange format. Error: Parse error at line 14: Unexpected key "НеизвестноеСвойство" in node "СекцияРасчСчет"')
         })
     })
 })
