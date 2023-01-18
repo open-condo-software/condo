@@ -11,6 +11,9 @@ const dayjs = require('dayjs')
 const { GQLError } = require('@open-condo/keystone/errors')
 const { INCIDENT_STATUSES, INCIDENT_STATUS_ACTUAL } = require('../constants/incident')
 const { INCIDENT_ERRORS } = require('../constants/errors')
+const { storeChangesIfUpdated, buildSetOfFieldsToTrackFrom } = require('../../common/utils/serverSchema/changeTrackable')
+const { OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS } = require('../constants')
+const { createIncidentChange, incidentRelatedManyToManyResolvers, incidentChangeDisplayNameResolversForSingleRelations } = require('../utils/serverSchema/IncidentChange')
 
 
 const Incident = new GQLListSchema('Incident', {
@@ -103,6 +106,20 @@ const Incident = new GQLListSchema('Incident', {
             defaultValue: false,
         },
 
+    },
+    hooks: {
+        afterChange: async (...args) => {
+            /**
+             * Creates a new IncidentChange item
+             */
+            await storeChangesIfUpdated(
+                buildSetOfFieldsToTrackFrom(Incident.schema, { except: OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS }),
+                createIncidentChange,
+                incidentChangeDisplayNameResolversForSingleRelations,
+                incidentRelatedManyToManyResolvers,
+                []
+            )(...args)
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
