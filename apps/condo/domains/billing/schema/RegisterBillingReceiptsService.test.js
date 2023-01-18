@@ -674,10 +674,6 @@ describe('RegisterBillingReceiptsService', () => {
             }
 
             const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
-
-            console.log(data)
-            console.log(data2)
-
             const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
             expect(data).toHaveLength(1)
