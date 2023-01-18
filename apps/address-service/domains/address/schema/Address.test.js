@@ -183,20 +183,20 @@ describe('Address', () => {
         test('The house keeps the firstly created address', async () => {
             const source1 = faker.random.alphaNumeric(42)
             const source2 = faker.random.alphaNumeric(42)
-            const address1 = faker.random.alphaNumeric(42)
-            const address2 = faker.random.alphaNumeric(42)
+            const address1 = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
+            const address2 = `${faker.address.cityName()} ${faker.address.streetAddress(true)}`
 
             const fakeSearchResult = {
                 value: '',
                 unrestricted_value: '',
                 data: {
-                    country: faker.random.alphaNumeric(12),
-                    region: faker.random.alphaNumeric(12),
-                    area: faker.random.alphaNumeric(12),
-                    city: faker.random.alphaNumeric(12),
-                    city_district: faker.random.alphaNumeric(12),
-                    settlement: faker.random.alphaNumeric(12),
-                    street: faker.random.alphaNumeric(12),
+                    country: faker.address.country(),
+                    region: faker.address.state(),
+                    area: faker.address.state(),
+                    city: faker.address.cityName(),
+                    city_district: faker.address.cityName(),
+                    settlement: faker.address.cityName(),
+                    street: faker.address.streetName(),
                     house: faker.random.alphaNumeric(2),
                     block: faker.random.alphaNumeric(3),
                 },
@@ -224,13 +224,22 @@ describe('Address', () => {
                 dv: 1,
                 sender,
             })
-            await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData2, source2, {
+            const possiblyChangedModel = await createOrUpdateAddressWithSource(adminClient, Address, AddressSource, addressData2, source2, {
                 dv: 1,
                 sender,
             })
 
-            expect(addressModel.address).toEqual(address1)
-            expect(addressModel.address).not.toEqual(address2)
+            expect(possiblyChangedModel.address).toEqual(address1)
+            expect(possiblyChangedModel.address).not.toEqual(address2)
+            expect(possiblyChangedModel.key).toEqual(addressModel.key)
+
+            const sources = await AddressSource.getAll(adminClient, { address: { id: addressModel.id } })
+
+            expect(sources).toHaveLength(2)
+            expect(sources).toEqual(expect.arrayContaining([
+                expect.objectContaining({ source: source1 }),
+                expect.objectContaining({ source: source2 }),
+            ]))
         })
     })
 })
