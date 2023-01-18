@@ -13,7 +13,7 @@ export type RequestParamsMap = {
     // Analytics
     CondoWebSendAnalyticsEvent: AnalyticsParams
     // Bridge
-    CondoWebAppGetCurrentUser: BridgeRequestParams<'CondoWebAppGetCurrentUser'>,
+    CondoWebAppGetLaunchParams: BridgeRequestParams<'CondoWebAppGetLaunchParams'>,
     CondoWebAppResizeWindow: BridgeRequestParams<'CondoWebAppResizeWindow'>
     CondoWebAppShowNotification: BridgeRequestParams<'CondoWebAppShowNotification'>
 }
@@ -22,7 +22,7 @@ export type HandlerResultsMap = {
     // Analytics
     CondoWebSendAnalyticsEvent: { sent: boolean }
     // Bridge
-    CondoWebAppGetCurrentUser: BridgeResponseData<'CondoWebAppGetCurrentUser'>,
+    CondoWebAppGetLaunchParams: BridgeResponseData<'CondoWebAppGetLaunchParams'>,
     CondoWebAppResizeWindow: BridgeResponseData<'CondoWebAppResizeWindow'>
     CondoWebAppShowNotification: BridgeResponseData<'CondoWebAppShowNotification'>
 }
