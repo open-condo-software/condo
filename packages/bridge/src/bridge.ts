@@ -14,6 +14,7 @@ export const IS_CLIENT_SIDE = typeof window !== 'undefined'
 export const IS_BROWSER_CLIENT = IS_CLIENT_SIDE
 
 const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
+    'CondoWebAppGetCurrentUser',
     'CondoWebAppResizeWindow',
     'CondoWebAppShowNotification',
 ]
