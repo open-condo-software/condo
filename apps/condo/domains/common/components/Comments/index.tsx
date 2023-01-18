@@ -51,7 +51,7 @@ const Body = styled.div`
 `
 const Footer = styled.div<{ isSmall: boolean }>`
   .ant-form {
-    padding-right: ${({ isSmall }) => isSmall ? '60px' : '0'};
+    padding-right: ${({ isSmall }) => isSmall ? '100px' : '0'};
   }
   
   border-top: 1px solid ${colors.inputBorderGrey};
