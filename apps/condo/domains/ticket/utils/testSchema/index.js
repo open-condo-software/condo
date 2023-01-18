@@ -38,6 +38,7 @@ const { EXCEL } = require('@condo/domains/common/constants/export')
 const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
 const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
 const { IncidentTicketClassifier: IncidentTicketClassifierGQL } = require('@condo/domains/ticket/gql')
+const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -65,6 +66,7 @@ const TicketExportTask = generateGQLTestUtils(TicketExportTaskGQL)
 const Incident = generateGQLTestUtils(IncidentGQL)
 const IncidentProperty = generateGQLTestUtils(IncidentPropertyGQL)
 const IncidentTicketClassifier = generateGQLTestUtils(IncidentTicketClassifierGQL)
+const IncidentChange = generateGQLTestUtils(IncidentChangeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -742,6 +744,39 @@ async function updateTestIncidentTicketClassifier (client, id, extraAttrs = {}) 
     return [obj, attrs]
 }
 
+async function createTestIncidentChange (client, incident, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!incident || !incident.id) throw new Error('no incident.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestIncidentChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        incident: { connect: { id: incident.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentChange.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentChange (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestIncidentChange logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentChange.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -789,5 +824,6 @@ module.exports = {
     Incident, createTestIncident, updateTestIncident,
     IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty,
     IncidentTicketClassifier, createTestIncidentTicketClassifier, updateTestIncidentTicketClassifier,
+    IncidentChange, createTestIncidentChange, updateTestIncidentChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

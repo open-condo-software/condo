@@ -189,6 +189,9 @@ const IncidentProperty = generateGqlQueries('IncidentProperty', INCIDENT_PROPERT
 const INCIDENT_TICKET_CLASSIFIER_FIELDS = `{ incident { id } classifier { id place { id name } problem { id name } category { id name } } ${COMMON_FIELDS} }`
 const IncidentTicketClassifier = generateGqlQueries('IncidentTicketClassifier', INCIDENT_TICKET_CLASSIFIER_FIELDS)
 
+const INCIDENT_CHANGE_FIELDS = `{ incident { id } ${COMMON_FIELDS} }`
+const IncidentChange = generateGqlQueries('IncidentChange', INCIDENT_CHANGE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -218,5 +221,6 @@ module.exports = {
     Incident,
     IncidentProperty,
     IncidentTicketClassifier,
+    IncidentChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

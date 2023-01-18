@@ -10,6 +10,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
+const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
 const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
 const { IncidentTicketClassifier: IncidentTicketClassifierGQL } = require('@condo/domains/ticket/gql')
 const { Ticket: TicketGQL } = require('@condo/domains/ticket/gql')
@@ -32,6 +33,7 @@ const { TicketPropertyHint: TicketPropertyHintGQL } = require('@condo/domains/ti
 const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@condo/domains/ticket/gql')
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
+const { AddressMetaDataFields } = require('@condo/domains/property/schema/fields/AddressMetaField')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -74,6 +76,7 @@ const TicketExportTask = generateServerUtils(TicketExportTaskGQL)
 const Incident = generateServerUtils(IncidentGQL)
 const IncidentProperty = generateServerUtils(IncidentPropertyGQL)
 const IncidentTicketClassifier = generateServerUtils(IncidentTicketClassifierGQL)
+const IncidentChange = generateServerUtils(IncidentChangeGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -234,5 +237,6 @@ module.exports = {
     Incident,
     IncidentProperty,
     IncidentTicketClassifier,
+    IncidentChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
