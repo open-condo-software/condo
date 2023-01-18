@@ -3,6 +3,13 @@ import Ajv from 'ajv'
 
 const ajv = new Ajv()
 
+const NoParamsSchema = {
+    type: 'object',
+    properties: {},
+    additionalProperties: false,
+}
+const NoParamsValidator = ajv.compile(NoParamsSchema)
+
 const CondoWebAppResizeWindowParamsSchema = {
     type: 'object',
     properties: {
@@ -38,6 +45,7 @@ export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValida
 
 export const validators: ValidatorsType = {
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
+    CondoWebAppGetCurrentUser: NoParamsValidator,
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
 }
