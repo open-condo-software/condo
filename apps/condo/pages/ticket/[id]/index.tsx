@@ -270,7 +270,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
             <PageWrapper>
                 <PageContent>
                     <Row gutter={[0, 40]}>
-                        <Col lg={16} xs={24}>
+                        <Col lg={15} xxl={16} xs={24}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
