@@ -3,3 +3,7 @@ export type ShowNotificationParams = {
     message: string
     description?: string
 }
+
+export type ShowNotificationData = {
+    success: boolean
+}
