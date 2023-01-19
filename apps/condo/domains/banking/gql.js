@@ -17,20 +17,24 @@ const BankCategory = generateGqlQueries('BankCategory', BANK_CATEGORY_FIELDS)
 const BANK_COST_ITEM_FIELDS = `{ name isOutcome category { id name } ${COMMON_FIELDS} }`
 const BankCostItem = generateGqlQueries('BankCostItem', BANK_COST_ITEM_FIELDS)
 
-const BANK_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
-const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_FIELDS)
-
 const BANK_ACCOUNT_FIELDS = `{ organization { id } integrationContext { id enabled integration ${BANK_INTEGRATION_FIELDS} } tin country routingNumber number currencyCode approvedAt approvedBy { id name } importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankAccount = generateGqlQueries('BankAccount', BANK_ACCOUNT_FIELDS)
 
 const BANK_CONTRACTOR_ACCOUNT_FIELDS = `{ name organization { id } costItem { id } tin country routingNumber number currencyCode importId territoryCode bankName meta ${COMMON_FIELDS} }`
 const BankContractorAccount = generateGqlQueries('BankContractorAccount', BANK_CONTRACTOR_ACCOUNT_FIELDS)
 
+const BANK_INTEGRATION_FIELDS = `{ name ${COMMON_FIELDS} }`
+const BankIntegration = generateGqlQueries('BankIntegration', BANK_INTEGRATION_FIELDS)
+
 const BANK_INTEGRATION_CONTEXT_FIELDS = `{ integration { id } organization { id } enabled ${COMMON_FIELDS} }`
 const BankIntegrationContext = generateGqlQueries('BankIntegrationContext', BANK_INTEGRATION_CONTEXT_FIELDS)
 
 const BANK_TRANSACTION_FIELDS = `{ account { id } contractorAccount { id } costItem { id } integrationContext { id enabled } organization { id } number date amount isOutcome currencyCode purpose meta importId importRemoteSystem ${COMMON_FIELDS} }`
 const BankTransaction = generateGqlQueries('BankTransaction', BANK_TRANSACTION_FIELDS)
+
+const BANK_SYNC_TASK_FIELDS = `{ account { id } integrationContext { id } organization { id } status file totalCount processedCount meta ${COMMON_FIELDS} }`
+const BankSyncTask = generateGqlQueries('BankSyncTask', BANK_SYNC_TASK_FIELDS)
+/* AUTOGENERATE MARKER <CONST> */
 
 const CREATE_BANK_ACCOUNT_REQUEST_MUTATION = gql`
     mutation createBankAccountRequest ($data: CreateBankAccountRequestInput!) {
@@ -54,6 +58,7 @@ module.exports = {
     BankIntegration,
     BankIntegrationContext,
     BankTransaction,
+    BankSyncTask,
     CREATE_BANK_ACCOUNT_REQUEST_MUTATION,
     IMPORT_BANK_TRANSACTIONS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */

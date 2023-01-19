@@ -13,9 +13,10 @@ const { BankCategory: BankCategoryGQL } = require('@condo/domains/banking/gql')
 const { BankCostItem: BankCostItemGQL } = require('@condo/domains/banking/gql')
 const { BankAccount: BankAccountGQL } = require('@condo/domains/banking/gql')
 const { BankContractorAccount: BankContractorAccountGQL } = require('@condo/domains/banking/gql')
-const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION, IMPORT_BANK_TRANSACTIONS_MUTATION } = require('@condo/domains/banking/gql')
+const { BankIntegration: BankIntegrationGQL, CREATE_BANK_ACCOUNT_REQUEST_MUTATION } = require('@condo/domains/banking/gql')
 const { BankIntegrationContext: BankIntegrationContextGQL } = require('@condo/domains/banking/gql')
 const { BankTransaction: BankTransactionGQL } = require('@condo/domains/banking/gql')
+const { BankSyncTask: BankSyncTaskGQL } = require('@condo/domains/banking/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const BankCategory = generateGQLTestUtils(BankCategoryGQL)
@@ -26,6 +27,7 @@ const BankContractorAccount = generateGQLTestUtils(BankContractorAccountGQL)
 const BankIntegration = generateGQLTestUtils(BankIntegrationGQL)
 const BankIntegrationContext = generateGQLTestUtils(BankIntegrationContextGQL)
 const BankTransaction = generateGQLTestUtils(BankTransactionGQL)
+const BankSyncTask = generateGQLTestUtils(BankSyncTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestBankCategory (client, extraAttrs = {}) {
@@ -268,6 +270,41 @@ async function updateTestBankTransaction (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestBankSyncTask (client, account, integrationContext, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!account || !account.id) throw new Error('no account.id')
+    if (!integrationContext || !integrationContext.id) throw new Error('no integrationContext.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestBankSyncTask logic for generate fields
+    const attrs = {
+        dv: 1,
+        sender,
+        account: { connect: { id: account.id } },
+        integrationContext: { connect: { id: integrationContext.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await BankSyncTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestBankSyncTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestBankSyncTask logic for generate fields
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await BankSyncTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -278,7 +315,7 @@ async function createBankAccountRequestByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(CREATE_BANK_ACCOUNT_REQUEST_MUTATION, { data: attrs })
-    throwIfError(data, errors, {query: CREATE_BANK_ACCOUNT_REQUEST_MUTATION, variables: { data: attrs }})
+    throwIfError(data, errors, { query: CREATE_BANK_ACCOUNT_REQUEST_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 
@@ -292,7 +329,7 @@ async function importBankTransactionsByTestClient(client, extraAttrs = {}) {
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(IMPORT_BANK_TRANSACTIONS_MUTATION, { data: attrs })
-    throwIfError(data, errors, {query: IMPORT_BANK_TRANSACTIONS_MUTATION, variables: { data: attrs }})
+    throwIfError(data, errors, { query: IMPORT_BANK_TRANSACTIONS_MUTATION, variables: { data: attrs } })
     return [data.result, attrs]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
@@ -305,6 +342,7 @@ module.exports = {
     BankIntegration, createTestBankIntegration, updateTestBankIntegration,
     BankIntegrationContext, createTestBankIntegrationContext, updateTestBankIntegrationContext,
     BankTransaction, createTestBankTransaction, updateTestBankTransaction,
+    BankSyncTask, createTestBankSyncTask, updateTestBankSyncTask,
     createBankAccountRequestByTestClient,
     importBankTransactionsByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
