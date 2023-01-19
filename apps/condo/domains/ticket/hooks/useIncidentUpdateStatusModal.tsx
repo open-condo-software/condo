@@ -12,13 +12,13 @@ const DATE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
 
 type UseIncidentUpdateStatusModalType = (props: {
     incident: IIncident
-    beforeUpdate?: (date: Dayjs) => void
+    afterUpdate?: (date: Dayjs) => void
 }) => {
     handleOpen: () => void
     IncidentUpdateStatusModal: JSX.Element
 }
 
-export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, beforeUpdate }) => {
+export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({ incident, afterUpdate }) => {
     const WorkFinishFieldMessage = 'Завершение работ'
     const SaveLabel = 'Все верно'
     const IncidentUpdateToActualStatusModalTitle = 'Запись актуальна?'
@@ -61,13 +61,13 @@ export const useIncidentUpdateStatusModal: UseIncidentUpdateStatusModalType = ({
                 workFinish: date ? date.toISOString() : null,
             }, incident)
             handleClose()
-            if (isFunction(beforeUpdate)) {
-                await beforeUpdate(date)
+            if (isFunction(afterUpdate)) {
+                await afterUpdate(date)
             }
         } finally {
             setIsLoading(false)
         }
-    }, [beforeUpdate, date, handleClose, incident, isActual, update])
+    }, [afterUpdate, date, handleClose, incident, isActual, update])
 
     const handleDisabledDate = useCallback((date: Dayjs) => {
         return date.diff(incident.workStart) <= 0

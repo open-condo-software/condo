@@ -17668,6 +17668,8 @@ export type IncidentChange = {
   organizationDisplayNameFrom?: Maybe<Scalars['String']>;
   /**  New display name of related entity. Ref to the organization. The object will be deleted if the organization ceases to exist  */
   organizationDisplayNameTo?: Maybe<Scalars['String']>;
+  /**  Type of employee who changed the incident, can be employee role from same organization or related, resident or deleted employee  */
+  changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;

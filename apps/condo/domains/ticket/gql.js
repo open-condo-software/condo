@@ -10,7 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
-const COMMON_CHANGE_HISTORY_FIELDS = 'id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt'
+const COMMON_CHANGE_HISTORY_FIELDS = 'changedByRole id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
 const TICKET_CLASSIFIER_ATTRIBUTES_FIELDS = ' classifier { id place { id name } category { id name } problem { id name } }'
 const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`
@@ -116,7 +116,7 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'sourceDisplayNameFrom',
     'sourceDisplayNameTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ changedByRole ticket { id property { address } organization { id country } } ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
