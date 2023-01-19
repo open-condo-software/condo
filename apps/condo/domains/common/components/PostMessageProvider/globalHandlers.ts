@@ -21,10 +21,6 @@ export const useLaunchParamsHandler: () => RequestHandler<'CondoWebAppGetLaunchP
     const userId = get(user, 'id', null)
     const organizationId = get(organization, 'id', null)
     return useCallback(() => {
-        if (!userId) {
-            throw new Error('User is not authenticated!')
-        }
-
         return {
             condoUserId: userId,
             condoUserType: STAFF,
