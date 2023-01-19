@@ -8,10 +8,12 @@ import { useIntl } from '@open-condo/next/intl'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { useRouter } from 'next/router'
-import { Incident, IncidentProperty, IncidentTicketClassifier } from '@condo/domains/ticket/utils/clientSchema'
+import { Incident, IncidentProperty, IncidentTicketClassifier, IncidentChange } from '@condo/domains/ticket/utils/clientSchema'
 import {
     Incident as IIncident,
     IncidentStatusType,
+    SortIncidentChangesBy,
+    IncidentChange as IIncidentChange,
 } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -23,6 +25,8 @@ import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import ActionBar from '@condo/domains/common/components/ActionBar'
 import { useIncidentUpdateStatusModal } from '@condo/domains/ticket/hooks/useIncidentUpdateStatusModal'
+import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+import { useIncidentChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useIncidentChangedFieldMessagesOf'
 
 
 interface IIncidentIdPage extends React.FC {
@@ -367,16 +371,30 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
     const EditLabel = 'EditLabel'
     const MakeNotActualLabel = 'MakeNotActualLabel'
     const MakeActualLabel = 'MakeActualLabel'
+    const ChangeHistoryTitle = 'История изменений'
 
     const router = useRouter()
 
     const isActual = incident.status === IncidentStatusType.Actual
 
-    const beforeUpdate = useCallback(async () => {
-        await refetchIncident()
-    }, [refetchIncident])
+    const {
+        objs: incidentChanges,
+        loading: incidentChangesLoading,
+        count: incidentChangesCount,
+        refetch: refetchIncidentChanges,
+    } = IncidentChange.useObjects({
+        where: { incident: { id: incident.id } },
+        sortBy: [SortIncidentChangesBy.CreatedAtDesc],
+    }, {
+        fetchPolicy: 'network-only',
+    })
 
-    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, beforeUpdate  })
+    const afterStatusUpdate = useCallback(async () => {
+        await refetchIncident()
+        await refetchIncidentChanges()
+    }, [refetchIncident, refetchIncidentChanges])
+
+    const { handleOpen, IncidentUpdateStatusModal } = useIncidentUpdateStatusModal({ incident, afterUpdate: afterStatusUpdate })
 
     const handleEditIncident = useCallback(async () => {
         await router.push(`/incident/${incident.id}/update`)
@@ -390,6 +408,7 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
             <PageWrapper>
                 <PageHeader style={{ paddingBottom: 20 }} title={<Typography.Title>{PageTitle}</Typography.Title>} />
                 <PageContent>
+                    {IncidentUpdateStatusModal}
                     <Row gutter={[0, 60]}>
                         <Col span={24} lg={24} xl={22}>
                             <Row gutter={[0, 24]}>
@@ -431,8 +450,18 @@ const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (props) => {
                                 onClick={handleEditIncident}
                             />
                         </ActionBar>
+                        <Col span={24} lg={24} xl={22}>
+                            <ChangeHistory
+                                <IIncidentChange>
+                                items={incidentChanges}
+                                loading={incidentChangesLoading}
+                                total={incidentChangesCount}
+                                title={ChangeHistoryTitle}
+                                useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
+                                Diff={(props) => <p {...props}></p>}
+                            />
+                        </Col>
                     </Row>
-                    {IncidentUpdateStatusModal}
                 </PageContent>
             </PageWrapper>
         </>
