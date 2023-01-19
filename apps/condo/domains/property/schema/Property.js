@@ -256,7 +256,7 @@ const Property = new GQLListSchema('Property', {
             resolver: async (item, _, context) => {
                 return await Ticket.count(context, {
                     property: { id: item.id },
-                    status: { type_not_in: ['closed', 'canceled', 'deferred'] },
+                    status: { type: 'processing' },
                 })
             },
         },
