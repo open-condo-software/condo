@@ -13,3 +13,4 @@ apps/sberhack
 package.json
 README.md
 **/public/tinymce
+**/public/ui
