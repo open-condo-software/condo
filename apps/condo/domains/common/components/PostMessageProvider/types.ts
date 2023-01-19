@@ -16,6 +16,7 @@ export type RequestParamsMap = {
     CondoWebAppGetLaunchParams: BridgeRequestParams<'CondoWebAppGetLaunchParams'>,
     CondoWebAppResizeWindow: BridgeRequestParams<'CondoWebAppResizeWindow'>
     CondoWebAppShowNotification: BridgeRequestParams<'CondoWebAppShowNotification'>
+    CondoWebAppShowProgressBar: BridgeRequestParams<'CondoWebAppShowProgressBar'>
 }
 
 export type HandlerResultsMap = {
@@ -25,6 +26,7 @@ export type HandlerResultsMap = {
     CondoWebAppGetLaunchParams: BridgeResponseData<'CondoWebAppGetLaunchParams'>,
     CondoWebAppResizeWindow: BridgeResponseData<'CondoWebAppResizeWindow'>
     CondoWebAppShowNotification: BridgeResponseData<'CondoWebAppShowNotification'>
+    CondoWebAppShowProgressBar: BridgeResponseData<'CondoWebAppShowProgressBar'>
 }
 
 export type AllRequestMethods = keyof RequestParamsMap
@@ -34,12 +36,12 @@ export type RequestHandler<Method extends AllRequestMethods> = (params: RequestP
 export type RequestParamValidator<Method extends AllRequestMethods> = ValidateFunction<RequestParams<Method>>
 export type RequestIdType = string | number
 export type RequestId = { requestId?: RequestIdType }
-type ResponseEventNames<T extends AllRequestMethods, R extends string, E extends string> = Record<T, {
-    result: R,
-    error: E
+type ResponseEventNames<Method extends AllRequestMethods> = Record<Method, {
+    result: `${Method}Result`,
+    error: `${Method}Error`
 }>
 export type ResponseEventNamesMap = BridgeEventNamesMap &
-ResponseEventNames<'CondoWebSendAnalyticsEvent', 'CondoWebSendAnalyticsEventResult', 'CondoWebSendAnalyticsEventError'>
+ResponseEventNames<'CondoWebSendAnalyticsEvent'>
 
 export type ClientErrorResponse<Method extends AllRequestMethods, Reason extends ErrorReason> = {
     type: ResponseEventNamesMap[Method]['error'] | typeof COMMON_ERROR_PREFIX

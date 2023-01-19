@@ -18,6 +18,7 @@ import { ERROR_CODES } from './errors'
 import {
     handleNotification,
     useLaunchParamsHandler,
+    useShowProgressBarHandler,
 } from './globalHandlers'
 
 
@@ -137,6 +138,11 @@ export const PostMessageProvider: React.FC = ({ children }) => {
     useEffect(() => {
         addEventHandler('CondoWebAppGetLaunchParams', '*', launchParamsHandler)
     }, [addEventHandler, launchParamsHandler])
+
+    const showProgressBarHandler = useShowProgressBarHandler()
+    useEffect(() => {
+        addEventHandler('CondoWebAppShowProgressBar', '*', showProgressBarHandler)
+    }, [addEventHandler, showProgressBarHandler])
 
     const addOrigin = useCallback((origin: string) => {
         setAllowedOrigins((prev) => prev.includes(origin) ? prev : [...prev, origin])

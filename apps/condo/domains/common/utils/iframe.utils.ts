@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 
 const Ajv = require('ajv')
@@ -7,10 +6,8 @@ const ajv = new Ajv()
 // CONST DECLARATION BLOCK (for checking by external observer)
 export const TASK_MESSAGE_TYPE = 'task'
 export const RESIZE_MESSAGE_TYPE = 'resize'
-export const COMMAND_MESSAGE_TYPE = 'command'
 
 export type TaskOperationType = 'create' | 'update' | 'get'
-export type NotificationType = 'info' | 'warning' | 'error' | 'success'
 
 // TYPES DECLARATION BLOCK
 export type TaskMessageType = {
@@ -36,18 +33,10 @@ type ResizeMessageType = {
     height: number,
 }
 
-type CommandMessageType = {
-    type: 'command',
-    id: string,
-    command: string,
-    data?: Record<string, unknown>,
-}
-
 type SystemMessageType =
     | TaskMessageType
     | TaskGetMessageType
     | ResizeMessageType
-    | CommandMessageType
 
 type SystemMessageReturnType = {
     type: 'system'
@@ -67,13 +56,11 @@ type parseMessageType = (data: any) => ParsedMessageReturnType
 const AvailableMessageTypes = [
     TASK_MESSAGE_TYPE,
     RESIZE_MESSAGE_TYPE,
-    COMMAND_MESSAGE_TYPE,
 ]
 
 const MessagesRequiredProperties = {
     [TASK_MESSAGE_TYPE]: ['taskOperation'],
     [RESIZE_MESSAGE_TYPE]: ['height'],
-    [COMMAND_MESSAGE_TYPE]: ['id', 'command', 'data'],
 }
 
 const SystemMessageDetectorSchema = {
@@ -201,16 +188,6 @@ export const parseMessage: parseMessageType = (data) => {
                     message: {
                         type: RESIZE_MESSAGE_TYPE,
                         height: data.height,
-                    },
-                }
-            case COMMAND_MESSAGE_TYPE:
-                return {
-                    type: 'system',
-                    message: {
-                        type: COMMAND_MESSAGE_TYPE,
-                        id: data.id,
-                        command: data.command,
-                        data: get(data, 'data', null),
                     },
                 }
         }
