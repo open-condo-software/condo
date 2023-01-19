@@ -1,12 +1,17 @@
 // @ts-check
-const conf = require('@open-condo/config')
-const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
+const withLess = require('@zeit/next-less')
+const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
+const withTMModule = require('next-transpile-modules')
+
+const conf = require('@open-condo/config')
+
 const { antGlobalVariables } = require('@condo/domains/common/constants/style')
+
 // Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
-const withTM = require('next-transpile-modules')([
+const withTM = withTMModule([
     '@open-condo/codegen',
     '@open-condo/next',
     '@open-condo/featureflags',
@@ -15,7 +20,6 @@ const withTM = require('next-transpile-modules')([
     '@condo/domains',
     '@emotion/styled',
 ])
-const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
 
 const serverUrl = process.env.SERVER_URL || 'http://localhost:3000'
 const apolloGraphQLUrl = `${serverUrl}/admin/api`
