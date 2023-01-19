@@ -474,6 +474,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [SMS_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [BANK_ACCOUNT_CREATION_REQUEST_TYPE]: {
+        allowedTransports: [EMAIL_TRANSPORT],
+        defaultTransports: [EMAIL_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
