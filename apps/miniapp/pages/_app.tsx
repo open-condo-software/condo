@@ -8,7 +8,6 @@ import { useIntl, withIntl } from '@open-condo/next/intl'
 import { CacheProvider } from '@emotion/core'
 import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
 import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
-import { withOrganization } from '@miniapp/domains/common/utils/organization'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -84,11 +83,9 @@ const customAuthMutations = {
 export default (
     withApollo({ ssr: true })(
         withIntl({ ssr: true, messagesImporter })(
-            withOrganization()( // organization is needed for oidc auth
-                withAuth({ ssr: true, ...customAuthMutations })( // Auth is mandatory to detection is oauth needed or not
-                    withOidcAuth()(
-                        MyApp,
-                    ),
+            withAuth({ ssr: true, ...customAuthMutations })( // Auth is mandatory to detection is oauth needed or not
+                withOidcAuth()(
+                    MyApp,
                 ),
             ),
         ),

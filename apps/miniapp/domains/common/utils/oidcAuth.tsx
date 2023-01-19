@@ -1,20 +1,20 @@
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+import Router from 'next/router'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
-import { createCondoBridge } from '@miniapp/domains/common/clients/CondoBridge'
-import { useOrganization } from '@miniapp/domains/common/utils/organization'
-import getConfig from 'next/config'
-import Router from 'next/router'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
 
 interface IUseOidcAuthHookValue {
-    user?: any,
+    user?: {
+        id: string
+        name: string
+        isAdmin: boolean
+        organizationId: string
+    },
     isLoading?: boolean,
 }
 
 const OIDC_AUTH_URL = '/oidc/auth'
-
-const { publicRuntimeConfig: { condoUrl } } = getConfig()
-const condoBridge = createCondoBridge({ receiverOrigin: condoUrl })
 
 const OidcAuthContext = React.createContext<IUseOidcAuthHookValue>({})
 
@@ -25,36 +25,37 @@ const OidcAuthProvider = ({ children }) => {
     const NoAccessToStorageMessage = intl.formatMessage({ id: 'NoAccessToStorage' })
     const AskForAccessButtonMessage = intl.formatMessage({ id: 'AskForAccessButton' })
 
-    const { organization: condoOrganization, isLoading: isOrganizationLoading } = useOrganization()
-    const { result: condoUser, isLoading: isCondoUserLoading } = condoBridge.useUser()
+    // const { organization: condoOrganization, isLoading: isOrganizationLoading } = useOrganization()
+    // const { result: condoUser, isLoading: isCondoUserLoading } = condoBridge.useUser()
+    const { context, loading } = useLaunchParams()
     const { user, isLoading: isUserLoading, isAuthenticated } = useAuth()
 
     /**
      * In the case of Safari we have to ask browser to grant access to condo's session cookie using Storage Access API
      * @link https://webkit.org/blog/8124/introducing-storage-access-api/
      */
-    const [hasStorageAccess, setHasStorageAccess] = useState<boolean>(!(!!document.hasStorageAccess && !!document.requestStorageAccess))
+    const [hasStorageAccess, setHasStorageAccess] = useState<boolean>(typeof document === 'undefined' || !document.hasStorageAccess || !document.requestStorageAccess)
 
-    const isAllLoaded = !isOrganizationLoading && !isCondoUserLoading && !isUserLoading
+    const isAllLoaded = !loading && !isUserLoading
 
     useEffect(() => {
         if (isAllLoaded && hasStorageAccess) {
-            if (!isAuthenticated || user.id !== condoUser.id || user.organizationId !== condoOrganization.id) {
+            if (!isAuthenticated || user.id !== context.condoUserId || user.organizationId !== context.condoContextEntityId) {
                 console.debug('OidcAuthProvider: redirect to oidc auth', {
                     OIDC_AUTH_URL,
-                    organizationId: condoOrganization.id,
+                    organizationId: context.condoContextEntityId,
                 })
                 Router.push({
                     pathname: OIDC_AUTH_URL,
-                    query: { organizationId: condoOrganization.id, condoUserId: condoUser.id },
+                    query: { organizationId: context.condoContextEntityId, condoUserId: context.condoUserId },
                 })
             }
         }
 
-    }, [isAllLoaded, user, isAuthenticated, condoUser, condoOrganization, hasStorageAccess])
+    }, [isAllLoaded, user, isAuthenticated, hasStorageAccess, context.condoUserId, context.condoContextEntityId])
 
     useEffect(() => {
-        if (!hasStorageAccess && document && document.hasStorageAccess) {
+        if (!hasStorageAccess && typeof document !== 'undefined' && document.hasStorageAccess) {
             document.hasStorageAccess().then(
                 (hasAccess) => {
                     // Boolean hasAccess says whether the document has access or not.
@@ -71,7 +72,7 @@ const OidcAuthProvider = ({ children }) => {
     }, [hasStorageAccess])
 
     const requestAccessToStorage = useCallback(() => {
-        if (!hasStorageAccess && document && document.requestStorageAccess) {
+        if (!hasStorageAccess && typeof document !== 'undefined' && document.requestStorageAccess) {
             document.requestStorageAccess().then(
                 () => {
                     // Storage access was granted.
@@ -101,9 +102,9 @@ const OidcAuthProvider = ({ children }) => {
     }
 
     return (
-        <OidcAuthContext.Provider value={{ user, isLoading: (isUserLoading || isOrganizationLoading) }}>
+        <OidcAuthContext.Provider value={{ user, isLoading: (isUserLoading || loading) }}>
             {
-                (isAllLoaded && isAuthenticated && user.id === condoUser.id && user.organizationId === condoOrganization.id)
+                (isAllLoaded && isAuthenticated && user.id === context.condoUserId && user.organizationId === context.condoContextEntityId)
                     ? children
                     : <div>OIDC Authorization...</div>
             }

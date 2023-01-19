@@ -9,7 +9,7 @@ import Head from 'next/head'
 import faker from 'faker'
 import { PageContent, PageHeader, PageWrapper } from '@miniapp/domains/common/components/BaseLayout'
 import { useOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
-import { useOrganization } from '@miniapp/domains/common/utils/organization'
+import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
 
 const { publicRuntimeConfig: { condoUrl } } = getConfig()
 
@@ -77,7 +77,7 @@ const TasksExample = () => {
 const IndexPage = () => {
     const intl = useIntl()
     const auth = useOidcAuth()
-    const organizationData = useOrganization()
+    const { context } = useLaunchParams()
 
     const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
     const userDataMsg = intl.formatMessage({ id: 'UserData' })
@@ -100,7 +100,7 @@ const IndexPage = () => {
                     <Typography.Paragraph>
                         {organizationDataMsg}:
                         <Typography.Text code>
-                            {get(organizationData, 'organization.name', '-')}
+                            {context.condoContextEntityId}
                         </Typography.Text>
                     </Typography.Paragraph>
 
