@@ -6,8 +6,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { SideNav } from './components/SideNav'
 import Router from 'next/router'
 import classnames from 'classnames'
-import 'antd/dist/antd.less'
-import '@open-condo/ui/dist/styles.min.css'
 import {
     LAYOUT_CSS,
     PAGE_CONTENT_CSS,
@@ -21,6 +19,8 @@ import MenuItem from 'antd/lib/menu/MenuItem'
 import { Header } from './Header'
 import { ITopMenuItemsProps } from './components/TopMenuItems'
 import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import 'antd/dist/antd.less'
+import '@open-condo/ui/dist/styles.min.css'
 
 interface IBaseLayoutProps {
     headerAction?: ElementType<unknown>

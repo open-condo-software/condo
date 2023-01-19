@@ -1,5 +1,3 @@
-import '@condo/domains/common/components/wdyr'
-
 import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
@@ -14,6 +12,7 @@ import { withOrganization } from '@open-condo/next/organization'
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import BaseLayout from '@app/condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
+import '@condo/domains/common/components/wdyr'
 
 const MenuData = () => {
     return (
