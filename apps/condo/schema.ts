@@ -45831,11 +45831,11 @@ export enum SendMessageType {
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
   StaffUpgradeApp = 'STAFF_UPGRADE_APP',
+  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
+  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE',
   CustomContentMessagePush = 'CUSTOM_CONTENT_MESSAGE_PUSH',
   CustomContentMessageEmail = 'CUSTOM_CONTENT_MESSAGE_EMAIL',
   CustomContentMessageSms = 'CUSTOM_CONTENT_MESSAGE_SMS'
-  BankAccountCreationRequest = 'BANK_ACCOUNT_CREATION_REQUEST',
-  CustomContentMessage = 'CUSTOM_CONTENT_MESSAGE'
 }
 
 export type SenderField = {
