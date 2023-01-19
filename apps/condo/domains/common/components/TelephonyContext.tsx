@@ -2,11 +2,13 @@ import React, { useCallback, useEffect } from 'react'
 
 export const TelephonyContext = React.createContext({})
 
+const CALL_EVENT = 'call'
+
 export const TelephonyContextProvider = ({ children }) => {
     const handleMessage = useCallback(async (event: MessageEvent) => {
         if (typeof window === 'undefined') return null
         switch (event.data.type) {
-            case 'call':
+            case CALL_EVENT:
                 window.open(`/phone/+${event.data.phone}`, '_blank')
                 break
         }
