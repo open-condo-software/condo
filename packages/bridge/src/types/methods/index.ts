@@ -1,16 +1,22 @@
 // Imports for usage here, reexports for accessibility from outside
-import type { ShowNotificationParams } from './ShowNotification'
-export type { ShowNotificationParams } from './ShowNotification'
-import type { GetLaunchParamsData } from './GetLaunchParams'
-export type { GetLaunchParamsData } from './GetLaunchParams'
+import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
+export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
+import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
+export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 
 /**
  * Mapping for event -> request payload
  */
 export type RequestMethodsParamsMap = {
-    CondoWebAppGetLaunchParams: Record<string, never>
-    CondoWebAppResizeWindow: { height: number }
+
+    CondoWebAppGetLaunchParams: GetLaunchParamsParams
+    CondoWebAppResizeWindow: ResizeWindowParams
     CondoWebAppShowNotification: ShowNotificationParams
+    CondoWebAppShowProgressBar: ShowProgressBarParams
 }
 
 /**
@@ -18,18 +24,17 @@ export type RequestMethodsParamsMap = {
  */
 export type ResultResponseDataMap = {
     CondoWebAppGetLaunchParams: GetLaunchParamsData
-    CondoWebAppResizeWindow: { height: number }
-    CondoWebAppShowNotification: { success: boolean }
+    CondoWebAppResizeWindow: ResizeWindowData
+    CondoWebAppShowNotification: ShowNotificationData
+    CondoWebAppShowProgressBar: ShowProgressBarData
 }
 
-type ResponseEventNames<T extends keyof RequestMethodsParamsMap, R extends string, E extends string> = Record<T, {
-    result: R,
-    error: E
-}>
+type ResponseEventNames<Method extends keyof RequestMethodsParamsMap> = {
+    result: `${Method}Result`
+    error: `${Method}Error`
+}
 
 /**
  * Mapping for event -> success / failed response names
  */
-export type ResponseEventNamesMap = ResponseEventNames<'CondoWebAppResizeWindow', 'CondoWebAppResizeWindowResult', 'CondoWebAppResizeWindowError'> &
-ResponseEventNames<'CondoWebAppShowNotification', 'CondoWebAppShowNotificationResult', 'CondoWebAppShowNotificationError'> &
-ResponseEventNames<'CondoWebAppGetLaunchParams', 'CondoWebAppGetLaunchParamsResult', 'CondoWebAppGetLaunchParamsError'>
+export type ResponseEventNamesMap = { [Method in keyof RequestMethodsParamsMap]: ResponseEventNames<Method> }

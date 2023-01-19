@@ -12,7 +12,7 @@ export type BaseResponseEvent<ResponseType extends string, Data> = {
     data: Data
 }
 
-export type ResultResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['result']
+export type ResultResponseEventName<Method extends AnyRequestMethodName> = ResponseEventNamesMap[Method]['result']
 export type ResultResponseData<Method extends AnyResponseMethodName> = ResultResponseDataMap[Method]
 export type ErrorResponseEventName<Method extends AnyResponseMethodName> = ResponseEventNamesMap[Method]['error']
 export type ClientErrorResponseData = {
