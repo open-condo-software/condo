@@ -458,6 +458,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [SMS_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [SMS_VERIFY_CODE_MESSAGE_TYPE]: {
+        allowedTransports: [SMS_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
