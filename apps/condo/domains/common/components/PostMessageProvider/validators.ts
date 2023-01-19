@@ -41,6 +41,16 @@ const CondoWebAppShowNotificationParamsSchema = {
     additionalProperties: false,
 }
 
+const CondoWebAppShowProgressBarParamsSchema = {
+    type: 'object',
+    properties: {
+        message: { type: 'string' },
+        description: { type: 'string' },
+    },
+    required: ['message'],
+    additionalProperties: false,
+}
+
 export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValidator<Method> }
 
 export const validators: ValidatorsType = {
@@ -48,4 +58,5 @@ export const validators: ValidatorsType = {
     CondoWebAppGetLaunchParams: NoParamsValidator,
     CondoWebAppResizeWindow: ajv.compile(CondoWebAppResizeWindowParamsSchema),
     CondoWebAppShowNotification: ajv.compile(CondoWebAppShowNotificationParamsSchema),
+    CondoWebAppShowProgressBar: ajv.compile(CondoWebAppShowProgressBarParamsSchema),
 }
