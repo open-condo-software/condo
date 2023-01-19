@@ -39,8 +39,6 @@ const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCus
     icon: <DeleteFilled />,
 }
 
-const TICKET_STATUS_INWORK_TYPE = [TicketStatusType.NewOrReopened, TicketStatusType.Processing, TicketStatusType.Completed]
-
 export const PropertyPageContent = ({ property, role = null, organizationId = null }) => {
     const intl = useIntl()
     const UnitsCountTitle = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
@@ -73,11 +71,9 @@ export const PropertyPageContent = ({ property, role = null, organizationId = nu
 
     const ticketInWorkClick = useCallback(() => {
         if (typeof window !== 'undefined' && !ticketStatusLoading && Number(property.ticketsInWork)) {
-            const inWorkStatuses = ticketStatuses
-                .filter(status => TICKET_STATUS_INWORK_TYPE.includes(status.type))
-                .map(status => `"${status.id}"`).join(',')
-            if (inWorkStatuses) {
-                window.open(`/ticket?filters={"status":[${inWorkStatuses}],"property":"${property.id}"}`, '_blank')
+            const inWorkStatus = ticketStatuses.find(status => status.type === TicketStatusType.Processing)
+            if (inWorkStatus) {
+                window.open(`/ticket?filters={"status":"${inWorkStatus.id}","property":"${property.id}"}`, '_blank')
             }
         }
     }, [property, ticketStatusLoading, ticketStatuses])
