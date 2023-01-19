@@ -1,6 +1,6 @@
 import React from 'react'
-import '@open-condo/ui/src/components/style/core/global.less'
 import { styled } from '@storybook/theming'
+import '@open-condo/ui/src/components/style/core/global.less'
 
 const PaddedContentWrapper = styled.div`
   max-width: 1200px;

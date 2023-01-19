@@ -1,8 +1,6 @@
-import '@condo/domains/common/components/wdyr'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-
 import React, { useMemo } from 'react'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
@@ -12,12 +10,10 @@ import { cache } from 'emotion'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import dayjs from 'dayjs'
-
 import { withApollo } from '@open-condo/next/apollo'
 import { useAuth, withAuth } from '@open-condo/next/auth'
 import { useIntl, withIntl } from '@open-condo/next/intl'
 import { useOrganization, withOrganization } from '@open-condo/next/organization'
-
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import GoogleAnalytics from '@condo/domains/common/components/containers/GoogleAnalytics'
 import YandexMetrika from '@condo/domains/common/components/containers/YandexMetrika'
@@ -62,8 +58,8 @@ import { TicketVisibilityContextProvider } from '@condo/domains/ticket/contexts/
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
 import { PostMessageProvider } from '@condo/domains/common/components/PostMessageProvider'
+import '@condo/domains/common/components/wdyr'
 import '@open-condo/ui/dist/styles.min.css'
-
 
 const ANT_LOCALES = {
     ru: ruRU,

@@ -2,11 +2,11 @@
 import { jsx } from '@emotion/react'
 import React, { CSSProperties } from 'react'
 import { Layout } from 'antd'
-import 'antd/dist/antd.less'
 import {
     LAYOUT_CSS,
     SUB_LAYOUT_CSS,
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
+import 'antd/dist/antd.less'
 
 interface IBaseLayoutProps {
     style?: CSSProperties

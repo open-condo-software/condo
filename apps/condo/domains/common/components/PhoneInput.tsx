@@ -11,10 +11,10 @@ import React, {
     forwardRef, CSSProperties,
 } from 'react'
 import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
 import { useOrganization } from '@open-condo/next/organization'
 import get from 'lodash/get'
 import { colors } from '@condo/domains/common/constants/style'
+import 'react-phone-input-2/lib/style.css'
 
 interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     block?: boolean
