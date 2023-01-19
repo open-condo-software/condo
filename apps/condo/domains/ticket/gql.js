@@ -10,6 +10,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name type } updatedBy { id name } createdAt updatedAt'
+const COMMON_CHANGE_HISTORY_FIELDS = 'id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt'
 
 const TICKET_CLASSIFIER_ATTRIBUTES_FIELDS = ' classifier { id place { id name } category { id name } problem { id name } }'
 const TICKET_PROPERTY_FIELDS = `id name address deletedAt addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} }`
@@ -115,7 +116,7 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'sourceDisplayNameFrom',
     'sourceDisplayNameTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ changedByRole ticket { id property { address } organization { id country } } id dv sender { dv fingerprint } v createdBy { id name type } updatedBy { id name } createdAt updatedAt ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ changedByRole ticket { id property { address } organization { id country } } ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
@@ -189,7 +190,31 @@ const IncidentProperty = generateGqlQueries('IncidentProperty', INCIDENT_PROPERT
 const INCIDENT_TICKET_CLASSIFIER_FIELDS = `{ incident { id } classifier { id place { id name } problem { id name } category { id name } } ${COMMON_FIELDS} }`
 const IncidentTicketClassifier = generateGqlQueries('IncidentTicketClassifier', INCIDENT_TICKET_CLASSIFIER_FIELDS)
 
-const INCIDENT_CHANGE_FIELDS = `{ incident { id } ${COMMON_FIELDS} }`
+const INCIDENT_CHANGE_DATA_FIELDS = [
+    'numberFrom',
+    'numberTo',
+    'detailsFrom',
+    'detailsTo',
+    'statusFrom',
+    'statusTo',
+    'textForResidentFrom',
+    'textForResidentTo',
+    'workStartFrom',
+    'workStartTo',
+    'workFinishFrom',
+    'workFinishTo',
+    'isScheduledFrom',
+    'isScheduledTo',
+    'isEmergencyFrom',
+    'isEmergencyTo',
+    'hasAllPropertiesFrom',
+    'hasAllPropertiesTo',
+    'organizationIdFrom',
+    'organizationIdTo',
+    'organizationDisplayNameFrom',
+    'organizationDisplayNameTo',
+]
+const INCIDENT_CHANGE_FIELDS = `{ incident { id } ${COMMON_CHANGE_HISTORY_FIELDS} ${INCIDENT_CHANGE_DATA_FIELDS.join(' ')} }`
 const IncidentChange = generateGqlQueries('IncidentChange', INCIDENT_CHANGE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
@@ -221,6 +246,7 @@ module.exports = {
     Incident,
     IncidentProperty,
     IncidentTicketClassifier,
+    INCIDENT_CHANGE_DATA_FIELDS,
     IncidentChange,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
