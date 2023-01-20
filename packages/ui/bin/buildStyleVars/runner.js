@@ -19,8 +19,6 @@ const config = {
     platforms: {},
 }
 
-const StyleDictionary = StyleDictionaryLib.extend(config)
-
 program.option('-w, --web <types...>', 'specify web variable types')
 program.parse()
 const opts = program.opts()
@@ -42,6 +40,7 @@ if (opts.web) {
     }
 }
 
+const StyleDictionary = StyleDictionaryLib.extend(config)
 
 for (const transformer of allTransformers) {
     StyleDictionary.registerTransform(transformer)
