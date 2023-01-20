@@ -1,14 +1,17 @@
-import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
-import { isNeedToLoadNewElements } from '@condo/domains/common/utils/select.utils'
-import { useIntl } from '@open-condo/next/intl'
 import { isEmpty } from 'lodash'
 import debounce from 'lodash/debounce'
 import isFunction from 'lodash/isFunction'
 import throttle from 'lodash/throttle'
 import uniqBy from 'lodash/uniqBy'
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
+import { isNeedToLoadNewElements } from '@condo/domains/common/utils/select.utils'
+
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
 import { useSelectCareeteControls } from './useSelectCareeteControls'
 

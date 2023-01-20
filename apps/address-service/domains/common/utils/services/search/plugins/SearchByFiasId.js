@@ -1,8 +1,10 @@
+const get = require('lodash/get')
+
 const { generateAddressKey } = require('@address-service/domains/common/utils/addressKeyUtils')
 const { createOrUpdateAddressWithSource } = require('@address-service/domains/common/utils/services/search/searchServiceUtils')
 const { DadataSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers')
+
 const { AbstractSearchPlugin } = require('./AbstractSearchPlugin')
-const get = require('lodash/get')
 
 const SEPARATOR = ':'
 

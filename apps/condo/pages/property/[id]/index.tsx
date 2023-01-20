@@ -1,32 +1,35 @@
 /** @jsx jsx */
-import React, { useMemo, useCallback } from 'react'
-import { useIntl } from '@open-condo/next/intl'
+import { DeleteFilled } from '@ant-design/icons'
+import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
+import { jsx } from '@emotion/react'
 import { Row, Col, Space, RowProps } from 'antd'
-import { useRouter } from 'next/router'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import { jsx } from '@emotion/react'
 import Head from 'next/head'
 import Link from 'next/link'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import { DeleteFilled } from '@ant-design/icons'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { PropertyPanels } from '@condo/domains/property/components/panels'
-import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
-import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+import { useRouter } from 'next/router'
+import React, { useMemo, useCallback } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import type { ListProps } from '@open-condo/ui'
+import { List, Typography, Button } from '@open-condo/ui'
+
 import ActionBar from '@condo/domains/common/components/ActionBar'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import {
     DeleteButtonWithConfirmModal,
     IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { useOrganization } from '@open-condo/next/organization'
-import type { ListProps } from '@open-condo/ui'
-import { List, Typography, Button } from '@open-condo/ui'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { PropertyPanels } from '@condo/domains/property/components/panels'
+import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
 import { PropertyReportCard } from '@condo/domains/property/components/PropertyReportCard'
-import { TicketStatusTypeType as TicketStatusType } from '@app/condo/schema'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+
 
 const PROPERTY_PAGE_CONTENT_ROW_GUTTER: RowProps['gutter'] = [12, 40]
 const PROPERTY_PAGE_CONTENT_ROW_INFO_BLOCK_GUTTER: RowProps['gutter'] = [52, 24]

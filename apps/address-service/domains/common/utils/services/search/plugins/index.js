@@ -1,9 +1,9 @@
-const { SearchBySource } = require('./SearchBySource')
-const { SearchByProvider } = require('./SearchByProvider')
 const { SearchByAddressKey } = require('./SearchByAddressKey')
-const { SearchByInjectionId } = require('./SearchByInjectionId')
-const { SearchByGooglePlaceId } = require('./SearchByGooglePlaceId')
 const { SearchByFiasId } = require('./SearchByFiasId')
+const { SearchByGooglePlaceId } = require('./SearchByGooglePlaceId')
+const { SearchByInjectionId } = require('./SearchByInjectionId')
+const { SearchByProvider } = require('./SearchByProvider')
+const { SearchBySource } = require('./SearchBySource')
 
 module.exports = {
     SearchBySource,

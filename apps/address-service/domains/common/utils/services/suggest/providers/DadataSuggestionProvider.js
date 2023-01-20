@@ -1,9 +1,11 @@
-const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
-const conf = require('@open-condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
-const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
+
+const conf = require('@open-condo/config')
 const { getRedisClient } = require('@open-condo/keystone/redis')
+
+const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
 
 const DEFAULT_CACHE_TTL = 3600
 const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
