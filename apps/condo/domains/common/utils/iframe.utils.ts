@@ -110,10 +110,3 @@ export const parseMessage: parseMessageType = (data) => {
         return { type: 'custom', message: data }
     }
 }
-
-// UTILS BLOCK
-export const sendMessage = (message: Record<string, unknown>, receiver: Window, receiverOrigin: string): void => {
-    if (receiver) {
-        receiver.postMessage(message, receiverOrigin)
-    }
-}

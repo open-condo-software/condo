@@ -6,9 +6,6 @@ import { useAuth } from '@open-condo/next/auth'
 import { SortB2BAppsBy } from '@app/condo/schema'
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import {
-    sendMessage,
-} from '@condo/domains/common/utils/iframe.utils'
 import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import {
@@ -16,7 +13,7 @@ import {
     IRequestFeatureHandler,
 } from './GlobalAppsFeaturesContext'
 
-const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebFeatureRequest'
+const REQUEST_FEATURE_MESSAGE_NAME = 'CondoWebAppFeatureRequest'
 
 export const GlobalAppsContainer: React.FC = () => {
     const { user } = useAuth()
@@ -65,10 +62,10 @@ export const GlobalAppsContainer: React.FC = () => {
                     if (receiverOrigin === origin) {
                         const targetWindow = get(iframe, 'contentWindow', null)
                         if (origin && targetWindow) {
-                            sendMessage({
+                            targetWindow.postMessage({
                                 type: REQUEST_FEATURE_MESSAGE_NAME,
                                 data: context,
-                            }, targetWindow, origin)
+                            }, origin)
                         }
                     }
                 }
