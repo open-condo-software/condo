@@ -53,6 +53,7 @@ async function main () {
 
     for (const app of APPS) {
         console.log('LINT', app)
+        // eslint-disable-next-line import/order
         const module = require(path.join(root, 'index'))
         const { keystone } = await prepareKeystoneExpressApp(module)
         await processKeystoneSchema(keystone)

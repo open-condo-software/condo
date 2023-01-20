@@ -34,6 +34,7 @@ async function getGraphQLSchema (keystoneModule) {
 
 async function generate ({ namePath }) {
     await writeFile(path.join(namePath, 'codegen.yaml'), CODEGEN_CONFIG)
+    // eslint-disable-next-line import/order
     const schema = await getGraphQLSchema(require(path.join(namePath, 'index')))
     await writeFile(path.join(namePath, 'schema.graphql'), schema)
 }

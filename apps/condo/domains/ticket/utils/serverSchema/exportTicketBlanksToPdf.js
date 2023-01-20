@@ -1,18 +1,16 @@
 const { Readable } = require('stream')
 const { isArray, isEmpty, isBoolean, get } = require('lodash')
 const dayjs = require('dayjs')
-const PDFDocument = require('pdf-lib').PDFDocument
+const pdfLib = require('pdf-lib')
 const PDFMake = require('pdfmake')
 const { isNumber, isString } = require('lodash')
-
 const { i18n } = require('@open-condo/locales/loader')
-
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
 const { COMPLETED } = require('@condo/domains/common/constants/export')
 const { MAX_TICKET_BLANKS_EXPORT } = require('@condo/domains/ticket/constants/export')
-
 const { TicketExportTask, loadTicketsForPdfExport, loadTicketCommentsForPdfExport } = require('./index')
 
+const PDFDocument = pdfLib.PDFDocument
 
 const PDF_FILE_META = {
     mimetype: 'application/pdf',

@@ -13,8 +13,6 @@ import { Button, Col, Form, Progress, Row, Table, Typography, Upload } from 'ant
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
 import React, { useEffect, useState } from 'react'
 import { useImmer } from 'use-immer'
 import XLSX from 'xlsx'

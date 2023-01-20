@@ -9,6 +9,7 @@ export default defineConfig({
         defaultCommandTimeout: 10000,
         retries: 3,
         setupNodeEvents (on, config) {
+            // eslint-disable-next-line import/order
             return require('./plugins/index.js')(on, config)
         },
     },

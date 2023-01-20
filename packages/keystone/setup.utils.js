@@ -4,7 +4,9 @@ const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
 const IORedis = require('ioredis')
 const session = require('express-session')
-const RedisStore = require('connect-redis')(session)
+const connectRedis = require('connect-redis')
+
+const RedisStore = connectRedis(session)
 
 const HTTPS_REGEXP = /^https:/
 

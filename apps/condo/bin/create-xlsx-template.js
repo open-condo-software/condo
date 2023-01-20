@@ -14,6 +14,7 @@ const createXlsxTemplate = async () => {
         await Promise.reject('3 positional args required - domainDir, templateName, dataMapperPath')
     }
     const [domainDir, templateName, dataMapperPath] = process.argv.slice(2)
+    // eslint-disable-next-line import/order
     const { header, rows } = require(dataMapperPath)({})
     const rowKeys = Object.keys(rows)
 

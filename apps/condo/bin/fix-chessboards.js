@@ -4,12 +4,13 @@ const {
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers.js')
 const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-// const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
 const Ajv = require('ajv')
-const mapValidator = (new Ajv()).compile(MapSchemaJSON)
 const { has, get, isEmpty, compact, trim } = require('lodash')
 const { Client } = require('pg')
+// const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+
+const mapValidator = (new Ajv()).compile(MapSchemaJSON)
 
 class FixPropertyMaps {
 
