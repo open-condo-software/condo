@@ -1,15 +1,16 @@
-// Imports for usage here, reexports for accessibility from outside
+// Imports for usage here
 import type { GetActiveProgressBarsParams, GetActiveProgressBarsData } from './GetActiveProgressBars'
-export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './GetActiveProgressBars'
 import type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
-export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
 import type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
-export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
 import type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
-export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
 import type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
-export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 import type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
+// Reexports for accessibility from outside
+export type { GetActiveProgressBarsParams, GetActiveProgressBarData, GetActiveProgressBarsData } from './GetActiveProgressBars'
+export type { GetLaunchParamsParams, GetLaunchParamsData } from './GetLaunchParams'
+export type { ResizeWindowParams, ResizeWindowData } from './ResizeWindow'
+export type { ShowNotificationParams, ShowNotificationData } from './ShowNotification'
+export type { ShowProgressBarParams, ShowProgressBarData } from './ShowProgressBar'
 export type { UpdateProgressBarParams, UpdateProgressBarData } from './UpdateProgressBar'
 
 /**
