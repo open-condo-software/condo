@@ -386,17 +386,35 @@ describe('Property', () => {
         expect(properties[1].id).toStrictEqual(secondProperty.id)
     })
 
-    test('user: checking "tickets in work" and "closed tickets" fields', async () => {
+    test('user: checking "tickets in work", "closed tickets" and "deferred tickets" fields', async () => {
         const client = await makeClientWithProperty()
         const [ticket] = await createTestTicket(client, client.organization, client.property)
         const [obj] = await Property.getAll(client, { id_in: [client.property.id] })
-        expect(obj.ticketsInWork).toEqual('1')
+        expect(obj.ticketsInWork).toEqual('0')
+        expect(obj.ticketsDeferred).toEqual('0')
         expect(obj.ticketsClosed).toEqual('0')
-        // Close ticket
+
         const statuses = await ticketStatusByType(client)
+
+        // Move ticket to processing status
+        await updateTestTicket(client, ticket.id, { status: { connect:{ id: statuses.processing } } })
+        const [afterTicketProcessing] = await Property.getAll(client, { id_in: [client.property.id] })
+        expect(afterTicketProcessing.ticketsInWork).toEqual('1')
+        expect(afterTicketProcessing.ticketsDeferred).toEqual('0')
+        expect(afterTicketProcessing.ticketsClosed).toEqual('0')
+
+        // Defer ticket
+        await updateTestTicket(client, ticket.id, { status: { connect: { id: statuses.deferred } } })
+        const [afterTicketDeferred] = await Property.getAll(client, { id_in: [client.property.id] })
+        expect(afterTicketDeferred.ticketsInWork).toEqual('0')
+        expect(afterTicketDeferred.ticketsDeferred).toEqual('1')
+        expect(afterTicketDeferred.ticketsClosed).toEqual('0')
+
+        // Close ticket
         await updateTestTicket(client, ticket.id, { status: { connect: { id: statuses.closed } } })
         const [afterTicketClosed] = await Property.getAll(client, { id_in: [client.property.id] })
         expect(afterTicketClosed.ticketsInWork).toEqual('0')
+        expect(afterTicketClosed.ticketsDeferred).toEqual('0')
         expect(afterTicketClosed.ticketsClosed).toEqual('1')
     })
 
