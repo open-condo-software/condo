@@ -52,7 +52,7 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                         || ticketSettingLoading
 
                     return (
-                        <ActionBar isFormActionBar>
+                        <ActionBar>
                             <Col>
                                 <Row gutter={[0, 24]}>
                                     <Button

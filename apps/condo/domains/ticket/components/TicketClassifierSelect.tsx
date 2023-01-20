@@ -1,6 +1,7 @@
 import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { uniqBy, isEmpty, find, pick, get } from 'lodash'
+import isFunction from 'lodash/isFunction'
 import React, { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
@@ -30,6 +31,12 @@ interface ITicketThreeLevelsClassifierHookInput {
         problemClassifier?: string
         details?: string
     }
+    afterUpdateRuleId?: (props: {
+        ruleId?: string
+        placeId?: string
+        categoryId?: string
+        problemId?: string
+    }) => void
 }
 
 interface ITicketClassifierType {
@@ -145,7 +152,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     categoryClassifier,
     problemClassifier,
     details,
-} }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
+}, afterUpdateRuleId }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
     const intl = useIntl()
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
@@ -329,6 +336,15 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         ])
         // calling validation programmatically is necessary because antd does not mark the field as changed in `FieldData.touched` when using `setFields`
         ticketForm.current.validateFields(['placeClassifier', 'categoryClassifier', 'problemClassifier'])
+
+        if (isFunction(afterUpdateRuleId)) {
+            afterUpdateRuleId({
+                ruleId: ruleRef.current.id,
+                placeId: ruleRef.current.place,
+                categoryId: ruleRef.current.category,
+                problemId: ruleRef.current.problem,
+            })
+        }
     }
     // We need to find out whether user is still following classifiers rules
     // or he just make a search in one of a selects and runied all dependencies
