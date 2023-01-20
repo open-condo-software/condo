@@ -1,14 +1,13 @@
 const { get } = require('lodash')
 
-const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-
+const access = require('@condo/domains/notification/access/SendMessageService')
 const { MESSAGE_DELIVERY_SLOW_PRIORITY, MESSAGE_DELIVERY_FAST_PRIORITY } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
-const access = require('@condo/domains/notification/access/SendMessageService')
 
 const {
     MESSAGE_TYPES, MESSAGE_META,

@@ -1,9 +1,10 @@
 const { get } = require('lodash')
 
+const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')
+
 const { SMS_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
 
-const { SMSAdapter } = require('@condo/domains/notification/adapters/smsAdapter')
 
 async function prepareMessageToSend (message) {
     const phone = get(message, 'phone') || get(message, ['user', 'phone']) || null

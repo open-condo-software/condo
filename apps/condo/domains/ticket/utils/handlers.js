@@ -1,30 +1,25 @@
-const get = require('lodash/get')
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
+const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { md5 } = require('@condo/domains/common/utils/crypto')
-
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE, TICKET_EXECUTOR_CONNECTED_TYPE, TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE, TICKET_STATUS_COMPLETED_TYPE, TICKET_STATUS_RETURNED_TYPE,
     TICKET_STATUS_DECLINED_TYPE, TICKET_COMMENT_ADDED_TYPE, TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
-const { Resident } = require('@condo/domains/resident/utils/serverSchema')
-
-const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
-
 const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
-
+const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')

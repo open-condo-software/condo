@@ -5,16 +5,14 @@
  */
 const { isEmpty, get } = require('lodash')
 
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
-const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 const { find } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-
 const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
-
 const {
     SEND_MESSAGE,
     RESEND_MESSAGE,

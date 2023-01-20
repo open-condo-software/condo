@@ -1,9 +1,8 @@
-const faker = require('faker')
 const dayjs = require('dayjs')
+const faker = require('faker')
 const { isString } = require('lodash')
 
 const { md5 } = require('@condo/domains/common/utils/crypto')
-
 const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,

@@ -1,16 +1,16 @@
 /**
  * @jest-environment node
  */
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 const faker = require('faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
-
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
-const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('../utils/testSchema')
+const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('../adapters/hcm/constants')
 const {
     CUSTOM_CONTENT_MESSAGE_TYPE,
     CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
@@ -26,12 +26,10 @@ const {
     MESSAGE_ERROR_STATUS,
     PUSH_TRANSPORT,
 } = require('../constants/constants')
-
-const { PUSH_SUCCESS_CODE, PUSH_PARTIAL_SUCCESS_CODE } = require('../adapters/hcm/constants')
 const { prepareMessageData } = require('../tasks/sendMessageBatch.helpers')
+const { Message, sendMessageByTestClient, syncRemoteClientByTestClient } = require('../utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken, getRandomFakeFailToken } = require('../utils/testSchema/helpers')
 
-const index = require('@app/condo/index')
 
 describe('push transport', () => {
     setFakeClientMode(index)

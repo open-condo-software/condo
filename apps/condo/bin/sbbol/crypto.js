@@ -27,13 +27,16 @@
  * yarn node bin/sbbol/crypto.js activate-certificate
  * ```
  */
-const conf = require('@open-condo/config')
-const { getAccessTokenForUser } = require('@condo/domains/organization/integrations/sbbol/utils')
-const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
 const path = require('path')
-const { values } = require('lodash')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const { values } = require('lodash')
+
+const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
+
+const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
+const { getAccessTokenForUser } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const logger = getLogger('sbbol/crypto')
 
